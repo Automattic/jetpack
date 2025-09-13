@@ -1,7 +1,6 @@
 import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
 import background from './background.svg';
 import illustration from './illustration.png';
 import styles from './styles.module.scss';

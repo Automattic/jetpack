@@ -47,16 +47,30 @@ if ( defined( 'WP_DEV_LOCATION' ) ) {
 }
 
 if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.php' ) ) {
-	fprintf(
-		STDERR,
-		<<<'EOF'
+	if ( is_dir( '/tmp/wordpress-develop' ) && file_exists( '/var/scripts/ensure-php-version.sh' ) ) {
+		fprintf(
+			STDERR,
+			<<<'EOF'
+Looks like you're using the Jetpack Docker dev env, but the wordpress-develop checkout is incomplete.
+Try running `jetpack docker stop && jetpack docker up` to repopulate it.
+
+If that doesn't fix it, try (on the host) deleting `tools/docker/wordpress-develop/tests/` and then
+running `jetpack docker stop && jetpack docker up` again to repopulate it.
+
+EOF
+		);
+	} else {
+		fprintf(
+			STDERR,
+			<<<'EOF'
 Failed to automatically locate WordPress or wordpress-develop to run tests.
 
 Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
 
 EOF
-	);
+		);
+	}
 	exit( 1 );
 }
 
@@ -79,12 +93,17 @@ require $test_root . '/includes/functions.php';
  * Load Jetpack CRM.
  */
 function _jpcrm_manually_load_plugin() {
+	// Load the main plugin file
 	require_once JETPACK_CRM_TESTS_ROOT . '/../../ZeroBSCRM.php';
 
-	// Run all register_activation_hook() functions.
+	// For tests, we need to manually initialize the plugin
 	global $zbs;
+	$zbs = zeroBSCRM::instance();
+
 	$zbs->install();
-	zeroBSCRM_notifyme_createDBtable();
+	if ( function_exists( 'zeroBSCRM_notifyme_createDBtable' ) ) {
+		zeroBSCRM_notifyme_createDBtable();
+	}
 }
 
 tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );

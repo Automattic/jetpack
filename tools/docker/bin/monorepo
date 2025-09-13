@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Enable debug mode if DEBUG environment variable is set
 if [ "${DEBUG:-}" = "1" ]; then

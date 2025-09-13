@@ -104,6 +104,13 @@ class Threat_Model {
 	public $table;
 
 	/**
+	 * Additional details about the database threat.
+	 *
+	 * @var null|object
+	 */
+	public $details;
+
+	/**
 	 * The source URL of the threat.
 	 *
 	 * @var null|string

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # The docker container logs annoying errors if /var/log/php/xdebug_remote.log isn't writable.
 if [[ ! -e /tmp/dummy-log/xdebug_remote.log ]]; then

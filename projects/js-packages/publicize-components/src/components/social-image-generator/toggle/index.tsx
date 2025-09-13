@@ -1,14 +1,14 @@
 import { ToggleControl } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import React from 'react';
 import { store as socialStore } from '../../../social-store';
+import type { FC, ReactElement, ReactNode } from 'react';
 
 type SocialImageGeneratorToggleProps = {
 	/**
 	 * The label or content after the toggle.
 	 */
-	children: React.ReactNode;
+	children: ReactNode;
 
 	/**
 	 * The class name to add to the toggle.
@@ -20,9 +20,9 @@ type SocialImageGeneratorToggleProps = {
  * A button toggle wrapper for enabling/disabling the Social Image Generator feature.
  *
  * @param {SocialImageGeneratorToggleProps} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
-const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
+const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( {
 	toggleClass,
 	children,
 } ) => {

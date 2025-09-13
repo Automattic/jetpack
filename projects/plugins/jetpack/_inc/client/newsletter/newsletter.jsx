@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -27,7 +27,7 @@ const trackViewSubsClick = () => {
  * Newsletter component.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Newsletter component.
+ * @return {import('react').Component} Newsletter component.
  */
 function Newsletter( props ) {
 	const {

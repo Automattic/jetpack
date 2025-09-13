@@ -6,8 +6,8 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -23,6 +23,7 @@ import styles from './styles.module.scss';
  * Types
  */
 import { LocalLibraryProps, VideoLibraryProps } from './types';
+import type { ReactNode } from 'react';
 
 const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
@@ -42,7 +43,7 @@ export const VideoLibraryWrapper = ( {
 	title,
 	disabled,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	libraryType?: LibraryType;
 	totalVideos?: number;
 	onChangeType?: () => void;
@@ -84,7 +85,7 @@ export const VideoLibraryWrapper = ( {
 
 	const singularTotalVideosLabel = __( '1 Video', 'jetpack-videopress-pkg' );
 	const pluralTotalVideosLabel = sprintf(
-		/* translators: placeholder is the number of videos */
+		/* translators: %s: the number of videos */
 		__( '%s Videos', 'jetpack-videopress-pkg' ),
 		totalVideos
 	);
@@ -195,7 +196,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 					{ search.trim()
 						? createInterpolateElement(
 								sprintf(
-									/* translators: placeholder is the search term */
+									/* translators: %s: the search term */
 									__( 'No videos match your search for <em>%s</em>.', 'jetpack-videopress-pkg' ),
 									search
 								),

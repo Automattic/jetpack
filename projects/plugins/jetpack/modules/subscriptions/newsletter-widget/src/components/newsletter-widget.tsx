@@ -21,6 +21,7 @@ export interface NewsletterWidgetProps {
 	site: string;
 	adminUrl: string;
 	isWpcomSite: boolean;
+	isStatsModuleActive?: boolean;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 	allSubscribers?: number;
@@ -31,6 +32,7 @@ export const NewsletterWidget = ( {
 	site,
 	adminUrl,
 	isWpcomSite,
+	isStatsModuleActive,
 	emailSubscribers = 0,
 	paidSubscribers = 0,
 	allSubscribers = 0,
@@ -47,6 +49,27 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
+	const subscribersText = sprintf(
+		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
+		_n(
+			'%1$s subscriber (%2$s via email)',
+			'%1$s subscribers (%2$s via email)',
+			allSubscribers,
+			'jetpack'
+		),
+		formatNumber( allSubscribers ),
+		formatNumber( emailSubscribers )
+	);
+
+	const paidSubscribersText = sprintf(
+		//translators: %s is the number of paid subscribers
+		_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
+		formatNumber( paidSubscribers )
+	);
+
+	// For WordPress.com sites, links should always be considered internal.
+	const isInternalLink = isStatsModuleActive || isWpcomSite;
+
 	return (
 		<div className="newsletter-widget">
 			{ showHeader && (
@@ -58,22 +81,12 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
-										onClick={ createTracksEventHandler( tracks, 'all_subscribers_click' ) }
-									>
-										{ sprintf(
-											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
-											_n(
-												'%1$s subscriber (%2$s via email)',
-												'%1$s subscribers (%2$s via email)',
-												allSubscribers,
-												'jetpack'
-											),
-											formatNumber( allSubscribers ),
-											formatNumber( emailSubscribers )
-										) }
-									</a>
+									{ DashboardLink(
+										isInternalLink,
+										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										'all_subscribers_click',
+										subscribersText
+									) }
 								</span>
 							</span>
 						</span>
@@ -83,16 +96,12 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
-										onClick={ createTracksEventHandler( tracks, 'paid_subscribers_click' ) }
-									>
-										{ sprintf(
-											//translators: %s is the number of paid subscribers
-											_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
-											formatNumber( paidSubscribers )
-										) }
-									</a>
+									{ DashboardLink(
+										isInternalLink,
+										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										'paid_subscribers_click',
+										paidSubscribersText
+									) }
 								</span>
 							</span>
 						</span>
@@ -136,8 +145,8 @@ export const NewsletterWidget = ( {
 						</li>
 						<li>
 							{ DashboardLink(
-								true,
-								getSubscriberStatsUrl( site, isWpcomSite, adminUrl ),
+								isInternalLink,
+								getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
 								'view_stats_click',
 								__( 'View subscriber stats', 'jetpack' )
 							) }

@@ -173,8 +173,8 @@ class Playground_DB_Importer {
 				continue;
 			}
 
-			// A SQLite internal table. Skip.
-			if ( $table_name === self::SQLITE_DATA_TYPES_TABLE || $table_name === self::SQLITE_SEQUENCE_TABLE ) {
+			// SQLite internal tables. Skip.
+			if ( ! $this->is_valid_table( $table_name ) ) {
 				continue;
 			}
 
@@ -191,6 +191,8 @@ class Playground_DB_Importer {
 
 			if ( is_wp_error( $types_map ) ) {
 				return $types_map;
+			} elseif ( empty( $types_map['map'] ) ) {
+				continue;
 			}
 
 			// Force a temporary table name if needed.
@@ -331,6 +333,17 @@ class Playground_DB_Importer {
 			$mysql_map[ $column['column_or_index'] ] = $column['mysql_type'];
 		}
 
+		// Tables like `'_wp_sqlite_*` do not have entries in the `_mysql_data_types_cache` table.
+		// In this case, we return an empty map.
+		if ( empty( $mysql_map ) ) {
+			return array(
+				'map'            => array(),
+				'auto_increment' => 0,
+				'field_names'    => null,
+				'format'         => null,
+			);
+		}
+
 		// Get the "table info" of the table.
 		$query         = $this->prepare( 'PRAGMA TABLE_INFO(%s)', $table_name );
 		$results       = $this->db->query( $query );
@@ -359,7 +372,10 @@ class Playground_DB_Importer {
 			$field_names[] = $column['name'];
 
 			if ( ! array_key_exists( $column['name'], $mysql_map ) ) {
-				return new WP_Error( 'missing-column', 'Query error: not a valid SQLite database, missing column' );
+				return new WP_Error(
+					'missing-column',
+					sprintf( 'Query error: not a valid SQLite table "%s", missing column "%s"', $table_name, $column['name'] )
+				);
 			}
 
 			// Add map info.
@@ -603,5 +619,26 @@ class Playground_DB_Importer {
 		}
 
 		return $map;
+	}
+
+	/**
+	 * Check if the table is valid.
+	 *
+	 * @param string $table_name The table name.
+	 *
+	 * @return bool
+	 */
+	public function is_valid_table( string $table_name ): bool {
+		// Skip SQLite internal tables.
+		if ( $table_name === self::SQLITE_DATA_TYPES_TABLE || $table_name === self::SQLITE_SEQUENCE_TABLE ) {
+			return false;
+		}
+
+		// Skip WordPress internal tables.
+		if ( strpos( $table_name, '_wp_sqlite' ) === 0 ) {
+			return false;
+		}
+
+		return true;
 	}
 }

@@ -5,7 +5,6 @@ import {
 } from '@wordpress/block-editor';
 import { RawHTML } from '@wordpress/element';
 import clsx from 'clsx';
-import { reduce } from 'lodash';
 import defaultAttributes from './attributes';
 
 export const DEFAULT_BORDER_RADIUS_VALUE = 0;
@@ -146,9 +145,8 @@ export default function Save( { className, attributes } ) {
 		success_message: successMessage,
 	};
 
-	const shortcodeAttributesStringified = reduce(
-		shortcodeAttributes,
-		( stringifiedAttributes, value, key ) => {
+	const shortcodeAttributesStringified = Object.entries( shortcodeAttributes ).reduce(
+		( stringifiedAttributes, [ key, value ] ) => {
 			if ( undefined === value ) {
 				return stringifiedAttributes;
 			}

@@ -1,4 +1,4 @@
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import uPlot from 'uplot';
 import { Period } from './index.tsx';
 import { Tooltip } from './tooltip.tsx';
@@ -22,7 +22,7 @@ export function tooltipsPlugin( periods: Period[] ) {
 	function init( u: uPlot ) {
 		container.classList.add( 'jb-score-tooltips-container' );
 		if ( ! reactDom ) {
-			reactDom = ReactDOM.createRoot( reactRoot );
+			reactDom = createRoot( reactRoot );
 		}
 		reactRoot.classList.add( 'jb-score-tooltip-react-root' );
 

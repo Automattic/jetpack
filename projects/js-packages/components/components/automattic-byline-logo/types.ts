@@ -1,6 +1,6 @@
-import type React from 'react';
+import type { SVGProps } from 'react';
 
-export interface AutomatticBylineLogoProps extends React.SVGProps< SVGSVGElement > {
+export interface AutomatticBylineLogoProps extends SVGProps< SVGSVGElement > {
 	/**
 	 * Title for SVG.
 	 */

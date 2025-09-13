@@ -1,5 +1,4 @@
 import { isBlobURL } from '@wordpress/blob';
-import { range } from 'lodash';
 import photon from 'photon';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
@@ -66,36 +65,35 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const step = 300;
 	const srcsetMinWith = 600;
 
-	let srcSet;
+	let srcSet = [];
 	if ( isSquareishLayout( layoutStyle ) ) {
 		const minWidth = Math.min( srcsetMinWith, width, height );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					resize: `${ srcsetWidth },${ srcsetWidth }`,
-					strip: 'info',
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				resize: `${ srcsetWidth },${ srcsetWidth }`,
+				strip: 'info',
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	} else {
 		const minWidth = Math.min( srcsetMinWith, width );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					strip: 'info',
-					width: srcsetWidth,
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				strip: 'info',
+				width: srcsetWidth,
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	}
+	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }

@@ -13,6 +13,10 @@
 
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  *  VaultPress (stub) support link.
  */

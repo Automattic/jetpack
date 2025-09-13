@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { jest } from '@jest/globals';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { render, screen } from 'test/test-utils';
 import { SettingsCard } from '../index';
 

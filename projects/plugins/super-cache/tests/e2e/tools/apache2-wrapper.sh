@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ##
 ##  The WordPress base image installs WordPress, then launches apache directly.

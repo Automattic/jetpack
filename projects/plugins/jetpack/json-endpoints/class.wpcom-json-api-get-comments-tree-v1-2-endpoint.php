@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Comments_Tree_v1_2_Endpoint(
 	array(
 		'description'      => 'Get a comments tree for site.',
@@ -29,6 +33,8 @@ new WPCOM_JSON_API_Get_Comments_Tree_v1_2_Endpoint(
 
 /**
  * Get comments tree v1_2 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Comments_Tree_v1_2_Endpoint extends WPCOM_JSON_API_Get_Comments_Tree_v1_1_Endpoint { // phpcs:ignore
 	/**

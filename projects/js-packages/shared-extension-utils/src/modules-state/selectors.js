@@ -1,4 +1,4 @@
-import { isSimpleSite } from '../site-type-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 
 const jetpackModulesSelectors = {
 	getJetpackModules: state => state.data,

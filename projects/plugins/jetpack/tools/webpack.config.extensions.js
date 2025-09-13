@@ -56,6 +56,15 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
+// Helps split up each block into its own folder admin script
+const adminBlocksScripts = presetBetaBlocks.reduce( ( adminBlocks, block ) => {
+	const adminScriptPath = path.join( __dirname, '../extensions/blocks', block, 'admin.js' );
+	if ( fs.existsSync( adminScriptPath ) ) {
+		adminBlocks[ block + '/admin' ] = adminScriptPath;
+	}
+	return adminBlocks;
+}, {} );
+
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
@@ -192,8 +201,10 @@ const sharedWebpackConfig = {
 	},
 };
 
-// We export two configuration files: One for admin.js, and one for components.jsx.
-// The latter produces pre-rendered components HTML.
+// We export three configuration files:
+// - admin.js
+// - components.jsx, which produces pre-rendered components HTML
+// - swiper.js
 module.exports = [
 	{
 		...sharedWebpackConfig,
@@ -203,6 +214,7 @@ module.exports = [
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
+			...adminBlocksScripts,
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
@@ -247,6 +259,7 @@ module.exports = [
 			new CopyBlockEditorAssetsPlugin(),
 		],
 	},
+	// Components configuration
 	{
 		...sharedWebpackConfig,
 		entry: {
@@ -290,5 +303,11 @@ module.exports = [
 				assets: [ 'components.js', 'components.js.map' ],
 			} ),
 		],
+	},
+	{
+		...sharedWebpackConfig,
+		entry: {
+			swiper: path.join( __dirname, '../extensions/blocks/slideshow/swiper-entry.js' ),
+		},
 	},
 ];

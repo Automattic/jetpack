@@ -306,7 +306,7 @@ The options and corresponding components are:
   Note the following options that are different from `@babel/preset-env`'s defaults:
   - `exclude`: Set to `[ 'transform-typeof-symbol' ]`, as that [apparently makes all code slower](https://github.com/facebook/create-react-app/pull/5278).
   - `targets`: Set based on top-level `targets`.
-- `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react).
+- `presetReact`: Corresponds to [@babel/preset-react](https://www.npmjs.com/package/@babel/preset-react). Defaults to `{ runtime: 'automatic' }` if undefined.
 - `presetTypescript`: Corresponds to [@babel/preset-typescript](https://www.npmjs.com/package/@babel/preset-typescript).
 - `pluginReplaceTextdomain`: Corresponds to [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain).
   Note this plugin is only included if this option is set, as the plugin requires a `textdomain` option be set.

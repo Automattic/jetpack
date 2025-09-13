@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Updates status class.
  *
  * GET /sites/%s/updates
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 	/**
@@ -31,6 +37,7 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 		$result = $update_data['counts'];
 
 		include ABSPATH . WPINC . '/version.php'; // $wp_version;
+		// @phan-suppress-next-line PhanImpossibleCondition -- $wp_version is defined in the included version.php file above
 		$result['wp_version'] = isset( $wp_version ) ? $wp_version : null; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		if ( ! empty( $result['wordpress'] ) ) {

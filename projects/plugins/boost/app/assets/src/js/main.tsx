@@ -1,28 +1,20 @@
-import {
-	createHashRouter,
-	redirect,
-	RouterProvider,
-	useLocation,
-	useParams,
-} from 'react-router-dom';
+import { createHashRouter, redirect, useLocation } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 import Index from './pages/index';
 import AdvancedCriticalCss from './pages/critical-css-advanced/critical-css-advanced';
 import GettingStarted from './pages/getting-started/getting-started';
 import PurchaseSuccess from './pages/purchase-success/purchase-success';
 import SettingsPage from '$layout/settings-page/settings-page';
-import React, { useEffect } from 'react';
+import { useEffect, StrictMode } from 'react';
+import type { JSX } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
-import { useSingleModuleState } from '$features/module/lib/stores';
-import ImageSizeAnalysis from './pages/image-size-analysis/image-size-analysis';
-import { isaGroupKeys } from '$features/image-size-analysis/lib/isa-groups';
 import '../css/admin-style.scss';
 import CacheDebugLog from './pages/cache-debug-log/cache-debug-log';
 
 const useBoostRouter = () => {
 	const { shouldGetStarted } = useGettingStarted();
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 
 	const checkForGettingStarted = () => {
 		if ( shouldGetStarted ) {
@@ -64,20 +56,6 @@ const useBoostRouter = () => {
 			),
 		},
 		{
-			path: 'image-size-analysis/:group/:page',
-			loader: () => {
-				if ( ! isaState?.available ) {
-					return redirect( '/' );
-				}
-				return null;
-			},
-			element: (
-				<Tracks>
-					<ISAPage />
-				</Tracks>
-			),
-		},
-		{
 			path: '/getting-started',
 			element: (
 				<Tracks>
@@ -107,7 +85,7 @@ function Main() {
  * @param props
  * @param props.children - The actual page to render
  */
-const Tracks = ( { children }: { children: React.JSX.Element } ) => {
+const Tracks = ( { children }: { children: JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {
@@ -124,24 +102,12 @@ const Tracks = ( { children }: { children: React.JSX.Element } ) => {
 	return children;
 };
 
-const ISAPage = () => {
-	const { group, page } = useParams< { group: string; page: string } >();
-	const [ imageCdnState ] = useSingleModuleState( 'image_cdn' );
-	return (
-		<ImageSizeAnalysis
-			isImageCdnModuleActive={ !! imageCdnState?.active }
-			group={ group as isaGroupKeys }
-			page={ parseInt( page || '1', 10 ) }
-		/>
-	);
-};
-
 export default () => {
 	return (
-		<React.StrictMode>
+		<StrictMode>
 			<DataSyncProvider>
 				<Main />
 			</DataSyncProvider>
-		</React.StrictMode>
+		</StrictMode>
 	);
 };

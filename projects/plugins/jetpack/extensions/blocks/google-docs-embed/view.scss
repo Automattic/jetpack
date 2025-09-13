@@ -1,13 +1,15 @@
 /**
  * Shared Editor and Front End styles for Google Docs
  */
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 /* style the error message */
 .wp-block-jetpack-google-docs-embed {
 	border: 1px solid #ccc;
 
-	/* if this block appears in the row block, add a flex-basis, because padding on flex items is resolved against the inline size of their containing block, so the browser sees padding-bottom: x% as 0 */
+	// if this block appears in the row block, add a flex-basis, because padding on
+	// flex items is resolved against the inline size of their containing block, so
+	// the browser sees padding-bottom: x% as 0
 	flex-basis: 50%;
 
 	&.aligncenter {
@@ -23,7 +25,7 @@
 
 	&.alignleft {
 
-		@media only screen and (min-width: $break-small) {
+		@media only screen and (min-width: gb.$break-small) {
 			float: left;
 			margin-right: 20px !important;
 		}
@@ -31,7 +33,7 @@
 
 	&.alignright {
 
-		@media only screen and (min-width: $break-small) {
+		@media only screen and (min-width: gb.$break-small) {
 			float: right;
 			margin-left: 20px !important;
 		}
@@ -183,12 +185,12 @@
 /* AMP pages */
 html[amp] {
 
-    .wp-block-jetpack-google-docs-embed {
+	.wp-block-jetpack-google-docs-embed {
 
-        &.alignleft,
-        &.alignright {
-            float: none;
-        }
+		&.alignleft,
+		&.alignright {
+			float: none;
+		}
 
 		&__wrapper {
 
@@ -211,8 +213,8 @@ html[amp] {
 		}
 
 		.loader {
-            display: none;
-        }
+			display: none;
+		}
 
-    }
+	}
 }

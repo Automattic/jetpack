@@ -10,7 +10,6 @@
 		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
@@ -18,7 +17,8 @@
 		"automattic/scheduled-updates": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
-		"scssphp/scssphp": "1.12.0",
+		"automattic/block-delimiter": "@dev",
+		"scssphp/scssphp": "1.13.0",
 		"automattic/jetpack-subscribers-dashboard": "@dev"
 	},
 	"require-dev": {
@@ -71,7 +71,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "6.3.x-dev"
+			"dev-trunk": "6.7.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

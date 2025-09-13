@@ -1,7 +1,13 @@
 import * as PopperJS from '@popperjs/core';
-import React from 'react';
 import { SpotlightInteractivityConfiguration } from './components/tour-kit-spotlight-interactivity';
 import { LiveResizeConfiguration } from './utils/live-resize-modifier';
+import type {
+	CSSProperties,
+	Dispatch,
+	FunctionComponent,
+	ReactElement,
+	SetStateAction,
+} from 'react';
 import type { Modifier } from 'react-popper';
 
 export interface Step {
@@ -12,7 +18,7 @@ export interface Step {
 	};
 	meta: {
 		[ key: string ]: unknown;
-		// | React.FunctionComponent< Record< string, unknown > >
+		// | FunctionComponent< Record< string, unknown > >
 		// | HTMLElement
 		// | string
 		// | ...
@@ -38,7 +44,7 @@ export interface TourStepRendererProps {
 	onNextStep: () => void;
 	onPreviousStep: () => void;
 	onMinimize: () => void;
-	setInitialFocusedElement: React.Dispatch< React.SetStateAction< HTMLElement | null > >;
+	setInitialFocusedElement: Dispatch< SetStateAction< HTMLElement | null > >;
 	onGoToStep: ( stepIndex: number ) => void;
 }
 
@@ -49,8 +55,8 @@ export interface MinimizedTourRendererProps {
 	onDismiss: ( source: string ) => () => void;
 }
 
-export type TourStepRenderer = React.FunctionComponent< TourStepRendererProps >;
-export type MinimizedTourRenderer = React.FunctionComponent< MinimizedTourRendererProps >;
+export type TourStepRenderer = FunctionComponent< TourStepRendererProps >;
+export type MinimizedTourRenderer = FunctionComponent< MinimizedTourRendererProps >;
 export type Callback = ( currentStepIndex: number ) => void;
 export type CloseHandler = ( steps: Step[], currentStepIndex: number, source: string ) => void;
 export type PopperModifier = Partial< Modifier< unknown, Record< string, unknown > > >;
@@ -79,7 +85,7 @@ export interface Options {
 			/** An object that configures whether the user is allowed to interact with the referenced element during the tour */
 			interactivity?: SpotlightInteractivityConfiguration;
 			/** CSS properties that configures the styles applied to the spotlight overlay */
-			styles?: React.CSSProperties;
+			styles?: CSSProperties;
 		};
 		/** Shows a little triangle that points to the referenced element. Defaults to true */
 		arrowIndicator?: boolean;
@@ -111,7 +117,7 @@ export interface Config {
 	placement?: PopperJS.Placement;
 }
 
-export type Tour = React.FunctionComponent< { config: Config } >;
+export type Tour = FunctionComponent< { config: Config } >;
 
 /************************
  * WPCOM variant types: *
@@ -123,8 +129,8 @@ export interface WpcomStep extends Step {
 	meta: {
 		heading: string | null;
 		descriptions: {
-			desktop: string | React.ReactElement | null;
-			mobile: string | React.ReactElement | null;
+			desktop: string | ReactElement | null;
+			mobile: string | ReactElement | null;
 		};
 		imgSrc?: {
 			desktop?: {
@@ -161,4 +167,4 @@ export interface WpcomConfig extends Omit< Config, 'renderers' > {
 	options?: WpcomOptions;
 }
 
-export type WpcomTour = React.FunctionComponent< { config: WpcomConfig } >;
+export type WpcomTour = FunctionComponent< { config: WpcomConfig } >;

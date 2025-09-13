@@ -4,8 +4,9 @@ import githubLogo from './github.svg';
 import googleLogo from './google.svg';
 import styles from './styles.module.scss';
 import wordpressLogo from './wordpress.svg';
+import type { FC } from 'react';
 
-const ConnectionScreenFooter: React.FC = () => (
+const ConnectionScreenFooter: FC = () => (
 	<>
 		{ /* not using p here since connect screen apply styles for all p down the tree */ }
 		{ /* https://github.com/Automattic/jetpack/blob/trunk/projects/js-packages/connection/components/connect-screen/layout/style.scss#L49-L54 */ }

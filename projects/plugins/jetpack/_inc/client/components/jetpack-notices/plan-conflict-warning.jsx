@@ -1,6 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 

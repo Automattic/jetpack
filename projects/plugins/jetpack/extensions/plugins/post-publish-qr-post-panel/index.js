@@ -2,17 +2,11 @@ import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-uti
 import { PanelBody, PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PluginPostPublishPanel as DeprecatedPluginPostPublishPanel } from '@wordpress/edit-post';
-import {
-	PluginPostPublishPanel as EditorPluginPostPublishPanel,
-	store as editorStore,
-} from '@wordpress/editor';
+import { PluginPostPublishPanel, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 import { QRPostButton } from './components/qr-post.js';
 import './editor.scss';
-
-const PluginPostPublishPanel = EditorPluginPostPublishPanel || DeprecatedPluginPostPublishPanel;
 
 export const name = 'post-publish-qr-post-panel';
 

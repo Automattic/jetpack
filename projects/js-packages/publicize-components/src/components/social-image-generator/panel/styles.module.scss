@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .templateControl {
 	padding-top: 1rem;
@@ -14,17 +14,18 @@
 }
 
 .footer {
+	margin-top: 2rem;
 	display: flex;
 	justify-content: flex-end;
 
 	> * + * {
-		margin-inline-start: var( --spacing-base );
+		margin-inline-start: var(--spacing-base);
 	}
 }
 
 .modal {
 
-	@include break-small {
+	@include gb.break-small {
 		max-height: 90%;
 	}
 }

@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { imagePath, GETTING_STARTED_WITH_JETPACK_BACKUP_VIDEO_URL } from 'constants/urls';
@@ -45,7 +45,7 @@ const OneClickRestoresComponent = props => {
 					<h2>{ __( 'Enable one-click restores', 'jetpack' ) }</h2>
 					<p>
 						{ sprintf(
-							/* translators: placeholder is the name of a backups plan: Daily Backups or Real-time Backups */
+							/* translators: %s: the name of a backups plan: Daily Backups or Real-time Backups */
 							__(
 								'Get the most out of your %s. One-click restores ensure you’ll be able to easily restore your site, if anything goes wrong.',
 								'jetpack'

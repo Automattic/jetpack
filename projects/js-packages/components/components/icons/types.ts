@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 export type BaseIconProps = {
 	/**
@@ -19,7 +19,7 @@ export type BaseIconProps = {
 	/**
 	 * Icon component children.
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 
 	/**
 	 * Icon class name. Optional.

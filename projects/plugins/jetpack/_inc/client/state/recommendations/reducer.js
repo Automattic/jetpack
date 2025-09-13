@@ -1,4 +1,4 @@
-import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { difference, isEmpty, mergeWith, union } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	isJetpackPlanWithAntiSpam,
@@ -105,7 +105,7 @@ const data = ( state = {}, action ) => {
 				}
 			}
 
-			return assign( {}, state, action.data );
+			return Object.assign( {}, state, action.data );
 		case JETPACK_RECOMMENDATIONS_DATA_ADD_SELECTED_RECOMMENDATION: {
 			const selectedState = mergeWith(
 				{},
@@ -169,38 +169,38 @@ const data = ( state = {}, action ) => {
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsData: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsData: true } );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isRecommendationsDataLoaded: true,
 				isFetchingRecommendationsData: false,
 			} );
 		case JETPACK_RECOMMENDATIONS_DATA_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsData: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsData: false } );
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsProductSuggestions: true } );
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_PRODUCT_SUGGESTIONS_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsProductSuggestions: false } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsUpsell: true } );
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_RECEIVE:
 		case JETPACK_RECOMMENDATIONS_UPSELL_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsUpsell: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsUpsell: false } );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH:
-			return assign( {}, state, { isFetchingRecommendationsConditional: true } );
+			return Object.assign( {}, state, { isFetchingRecommendationsConditional: true } );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				isRecommendationsConditionalLoaded: true,
 				isFetchingRecommendationsConditional: false,
 			} );
 		case JETPACK_RECOMMENDATIONS_CONDITIONAL_FETCH_FAIL:
-			return assign( {}, state, { isFetchingRecommendationsConditional: false } );
+			return Object.assign( {}, state, { isFetchingRecommendationsConditional: false } );
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE:
-			return assign( {}, state, { isUpdatingRecommendationsStep: true } );
+			return Object.assign( {}, state, { isUpdatingRecommendationsStep: true } );
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_SUCCESS:
 		case JETPACK_RECOMMENDATIONS_STEP_UPDATE_FAIL:
-			return assign( {}, state, { isUpdatingRecommendationsStep: false } );
+			return Object.assign( {}, state, { isUpdatingRecommendationsStep: false } );
 		default:
 			return state;
 	}
@@ -226,7 +226,7 @@ const productSuggestions = ( state = {}, action ) => {
 };
 
 export const getProductSuggestions = state =>
-	get( state.jetpack, [ 'recommendations', 'productSuggestions' ], [] );
+	state.jetpack?.recommendations?.productSuggestions ?? [];
 
 const upsell = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -282,7 +282,7 @@ const installing = ( state = {}, action ) => {
 };
 
 const getConditionalRecommendations = state => {
-	return get( state.jetpack, [ 'recommendations', 'conditional' ] );
+	return state.jetpack?.recommendations?.conditional;
 };
 
 export const reducer = combineReducers( {
@@ -329,7 +329,7 @@ export const recommendationsSiteDiscountViewedStep = state => {
 };
 
 export const getDataByKey = ( state, key ) => {
-	return get( state.jetpack, [ 'recommendations', 'data', key ], false );
+	return state.jetpack?.recommendations?.data?.[ key ] ?? false;
 };
 
 const stepToNextStepByPath = {
@@ -473,7 +473,7 @@ export const stepToRoute = {
 	'server-credentials': '#/recommendations/server-credentials',
 };
 
-const getRecommendationsData = state => get( state.jetpack, [ 'recommendations', 'data' ] );
+const getRecommendationsData = state => state.jetpack?.recommendations?.data;
 
 export const isStepViewed = ( state, featureSlug ) => {
 	const recommendationsData = getRecommendationsData( state );
@@ -492,7 +492,7 @@ export const isStepSkipped = ( state, featureSlug ) => {
 };
 
 export const isInstallingRecommendedFeature = ( state, featureSlug ) => {
-	const featuresInstalling = get( state.jetpack, [ 'recommendations', 'installing' ] );
+	const featuresInstalling = state.jetpack?.recommendations?.installing;
 	return featuresInstalling[ featureSlug ] ?? false;
 };
 
@@ -542,7 +542,7 @@ export const isProductSuggestionsAvailable = state => {
 
 	const suggestionsResult = getProductSuggestions( state );
 
-	return isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
+	return Array.isArray( suggestionsResult ) && ! isEmpty( suggestionsResult );
 };
 
 export const getNonViewedRecommendationsCount = state => {
@@ -680,8 +680,10 @@ const isStepEligibleToShow = ( state, step ) => {
 };
 
 const getNextEligibleStep = ( state, step ) => {
-	const active = get( getOnboardingData( state ), 'active' );
-	const stepToNextStep = get( stepToNextStepByPath, active ? `onboarding.${ active }` : 'default' );
+	const active = getOnboardingData( state )?.active;
+	const stepToNextStep = active
+		? stepToNextStepByPath?.onboarding?.[ active ]
+		: stepToNextStepByPath?.default;
 
 	if ( ! stepToNextStep ) {
 		// If we cannot find next step due to some reason - we just show the summary
@@ -698,7 +700,7 @@ const getNextEligibleStep = ( state, step ) => {
 };
 
 const getStepsForOnboarding = onboarding =>
-	Object.keys( get( stepToNextStepByPath, `onboarding.${ onboarding }`, {} ) );
+	Object.keys( stepToNextStepByPath?.onboarding?.[ onboarding ] ?? {} );
 
 export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( onboarding )[ 0 ];
 
@@ -779,7 +781,7 @@ export const getIsOnboardingActive = state => {
 };
 
 export const getStep = state => {
-	const savedStep = get( state.jetpack, [ 'recommendations', 'step' ], '' );
+	const savedStep = state.jetpack?.recommendations?.step ?? '';
 	const step = '' !== savedStep ? savedStep : getInitialStep( state );
 
 	// These steps are special cases set on the server. There is technically no
@@ -813,7 +815,7 @@ export const getNextRoute = state => {
 	return stepToRoute[ nextStep ];
 };
 
-export const getUpsell = state => get( state.jetpack, [ 'recommendations', 'upsell' ], {} );
+export const getUpsell = state => state.jetpack?.recommendations?.upsell ?? {};
 
 const isFeatureEligibleToShowInSummary = ( state, slug ) => {
 	switch ( slug ) {

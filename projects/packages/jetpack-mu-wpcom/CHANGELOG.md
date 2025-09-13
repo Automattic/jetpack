@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.0] - 2025-08-05
+### Added
+- Add a Callout page for Tools > Site Health on Simple Sites. [#44498]
+- Add support for new CSAT endpoint. [#44029]
+- Add tracking for launch flow. [#43859]
+- Admin Menu: Add "Dashboard > Updates" screen to Simple sites. [#44024]
+- Admin Menu: Add "Export/Erase Personal Data" menus to Simple sites. [#44430]
+- Admin Menu: Register "Jetpack > Monetize" menu on all sites. [#44216]
+- Code editors: Add advanced code and CSS editors. [#44232]
+- Proxy open state for the Help Center. [#44494]
+- Simple Payments block: Add support link for WP.com. [#43891]
+
+### Changed
+- Admin Menu: Consolidate "Dashboard" and "My Home" menus. [#43983]
+- Admin Menu: Register "Jetpack > Subscribers" menu on all sites. [#44302]
+- Admin Menu: Show "Jetpack > Podcasting" menu on all sites. [#44367]
+- Admin Menu: Show "Jetpack > Stats" to Calypso users. [#44090]
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- JITM: Improve caching and minimize multiple requests in sidebar. [#44130]
+- Launchpad: Update `plan_selected` to be the first item. [#43945]
+- Make the Plans sub-item of the WordPress.com admin bar clickable. [#44165]
+- Stats: Extend access to administrator, editor, author, contributor roles on WordPress.com. [#44194]
+- Post editor: Open WP.com support articles in Help Center. [#43883]
+- Script Data: Ensure we only add host information on the front-end for P2 and sites using Verbum Comments. [#44241]
+- Settings: Open support links in Help Center. [#43930]
+- Update Newspack Blocks to 4.13.1. [#44096]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44356]
+- Open learn more link in the Help Center in WordPress.com. [#43949]
+- Change "Block guide" label to "Learn more". [#44221]
+
+### Removed
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+- Remove unused language files after #42172, #42494, #42521, and #42550. [#44106]
+- Remove Core's help tab in WP Admin in favor of the Help Center in WordPress.com. [#44107]
+
+### Fixed
+- Accessibility: Update screen reader 'clip' property usage to 'clip-path'. [#44027]
+- Forms: Exclude Salesforce lead form on WordPress.com. [#43915]
+- Handle robots.txt when data passed to `robots_txt` filter is malformed. [#44529]
+- Phan: Clean up error due to errant file reference. [#44031]
+- Fix Odie message summaries. [#44352]
+
+## [6.6.0] - 2025-06-09
+### Added
+- Persist the Help Center Router state in user preferences. [#43826]
+
+## [6.5.0] - 2025-06-06
+### Changed
+- Update `Edit homepage` banner design and copy. [#43643]
+
+### Removed
+- Launchpad: Remove "Select a design" step from build task list. [#43820]
+
+### Fixed
+- Prevent disallowed blocks from being used inside inner comments. [#43573]
+
+## [6.4.0] - 2025-06-03
+### Added
+- Add a site badge and the site plan to the admin bar. [#42499]
+- Add Gravatar profiles to comments email field. [#42458]
+- Add Gravatar Quick Editor to the settings button when logged in. [#43284]
+- Enable Global Styles Additional CSS for users that purchased the Custom Design Addon. [#43554]
+- Forms: Add Jetpack submenu item for forms dashboard. [#43527]
+
+### Changed
+- Consolidate widget-related code from wpcom and wpcomsh into jetpack-mu-wpcom. [#42974]
+- Stop restricting manage subscribers task to importing goal for newsletter launchpads. [#43687]
+- Rename a variable used on the import page for clarity. [#42646]
+- Site Visibility: Disable search engine indexing for sites with wpcomstaging.com domain. [#42853]
+- Update package dependencies. [#43071] [#43326] [#43398] [#43400] [#43578] [#43711] [#43718] [#43734]
+- Update labels and order for newsletter launchpad tasks. [#43283]
+
+### Deprecated
+- Remove default pages (About and Contact) for legacy-fse themes. [#43032]
+- Remove `default_rendering_mode` hotfix. [#42984]
+
+### Removed
+- Remove remaining Jetpack RDV experiment code now that the reshare feature is live. [#43063]
+- Remove links to deprecated calypso views on the launchpad tasks. [#42923]
+- Subscriptions: Load dashboard widget directly from the Jetpack plugin instead of from mu-wpcom. [#42964]
+
+### Fixed
+- Check for classes and methods before call. [#43606]
+- Code: Remove unneeded `data:` URI components. [#43227]
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Fix misaligned cookie consent switch. [#42977]
+- Fix the style of the Gravatar hovercard. [#43207]
+- Fix wrong status showing as coming soon. [#43160]
+- Help Center: Update support for multiple statuses in endpoint. [#43538]
+- Hide launch button for blog_id 1. [#43228]
+- Launchpad checklists: Mark "migrate content" task complete when importing content. [#43344]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Load translations for JS files in jetpack-mu-wpcom. [#43373]
+- Move "I Voted" widget from wpcomsh to jetpack-mu-wpcom. [#42924]
+- MU WPCOM: Fix PHP warning generated by the get_term_classes function in the newspack-blocks. [#43271]
+- Prevent import processes from marking the first post published tasks complete in launchpad. [#43303]
+- Remove packages/forms dependency from jetpack-mu-wpcom-plugin. [#43627]
+- Update incorrect Tracks events names. [#43329]
+- Update launchpad add_subscribe_block tasks completion criteria and Calypso url. [#43172]
+- Fix Verbum rendering in Homepage query loop. [#43087]
+
 ## [6.3.1] - 2025-04-07
 ### Added
 - MU plugin feature to add custom CSS for edge cases. [#42898]
@@ -1530,6 +1637,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.6.0...v6.7.0
+[6.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.5.0...v6.6.0
+[6.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.4.0...v6.5.0
+[6.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.3.1...v6.4.0
 [6.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.1.0...v6.2.0

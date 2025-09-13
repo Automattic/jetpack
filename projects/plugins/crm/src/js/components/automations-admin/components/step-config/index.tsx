@@ -1,13 +1,14 @@
 import { Step } from 'crm/state/automations-admin/types';
 import { AttributeConfig } from '../attribute-config';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type StepConfigProps = {
 	workflowId: number;
 	step: Step;
 };
 
-export const StepConfig: React.FC< StepConfigProps > = ( { workflowId, step } ) => {
+export const StepConfig: FC< StepConfigProps > = ( { workflowId, step } ) => {
 	const attributes = Object.values( step.attribute_definitions ).map( definition => ( {
 		definition,
 		value: step.attributes[ definition.slug ],

@@ -1,7 +1,7 @@
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import InfoPopover from 'components/info-popover';
 import analytics from 'lib/analytics';
 

@@ -14,15 +14,15 @@ import { SiteSettingsSectionProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC, ReactElement } from 'react';
 
 /**
  * VideoPress SettingsSection component
  *
  * @param {SiteSettingsSectionProps} props - Component props.
- * @return {React.ReactElement}   Component template
+ * @return {ReactElement}   Component template
  */
-const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
+const SiteSettingsSection: FC< SiteSettingsSectionProps > = ( {
 	videoPressVideosPrivateForSite,
 	siteIsPrivate,
 	siteType,

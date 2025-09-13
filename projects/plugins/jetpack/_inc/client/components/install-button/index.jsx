@@ -1,5 +1,4 @@
 import { Spinner } from '@wordpress/components';
-import React from 'react';
 import Button from 'components/button';
 import './style.scss';
 

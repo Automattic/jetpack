@@ -1,15 +1,11 @@
-@import "atoms/colors/colors", // Color variables
-	"atoms/typography/functions",
-	"atoms/typography/variables",
-	"_utilities/mixins/breakpoint", // Mixins
-	"_utilities/grid",
-	"atoms/animations",
-	"atoms/buttons",
-	"atoms/loading-spinner",
-	"atoms/icons/automatticons",
-	"molecules/nav-horizontal",
-	"templates/main", // Main template
-	"templates/settings", // Settings page
-	"pages/protect", // Protect config page
-	"pages/manage", // Actiavte and confirm manage
-	"templates/connection-landing"; // jetpack connection landing, main admin
+@use "_utilities/grid";
+@use "atoms/animations";
+@use "atoms/buttons";
+@use "atoms/loading-spinner";
+@use "atoms/icons/automatticons";
+@use "molecules/nav-horizontal";
+@use "templates/main"; // Main template
+@use "templates/settings"; // Settings page
+@use "pages/protect"; // Protect config page
+@use "pages/manage"; // Actiavte and confirm manage
+@use "templates/connection-landing"; // jetpack connection landing, main admin

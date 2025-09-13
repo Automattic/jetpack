@@ -23,7 +23,7 @@ import styles from './style.module.scss';
  * Types
  */
 import type { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 export const VideoThumbnailDropdownButtons = ( {
 	onUseDefaultThumbnail,
@@ -125,7 +125,7 @@ const UploadingThumbnail = ( {
 
 	const uploadPercentage = `${ Math.floor( uploadProgress * 100 ) }%`;
 	const uploadingText = sprintf(
-		/* translators: placeholder is the upload percentage */
+		/* translators: %s: the upload percentage */
 		__( 'Uploading %s', 'jetpack-videopress-pkg' ),
 		uploadPercentage
 	);
@@ -163,7 +163,7 @@ const ErrorThumbnail = ( { isRow } ) => (
  * React component to display video thumbnail.
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @return {React.ReactNode} - VideoThumbnail react component.
+ * @return {ReactNode} - VideoThumbnail react component.
  */
 const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 	(

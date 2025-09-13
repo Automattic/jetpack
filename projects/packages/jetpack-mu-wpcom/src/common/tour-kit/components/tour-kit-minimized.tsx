@@ -1,14 +1,12 @@
-/**
- * Internal Dependencies
- */
 import { MinimizedTourRendererProps } from '../types';
 import type { Config } from '../types';
+import type { FunctionComponent } from 'react';
 
 interface Props extends MinimizedTourRendererProps {
 	config: Config;
 }
 
-const TourKitMinimized: React.FunctionComponent< Props > = ( {
+const TourKitMinimized: FunctionComponent< Props > = ( {
 	config,
 	steps,
 	currentStepIndex,

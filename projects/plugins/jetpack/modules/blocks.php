@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Blocks
- * Module Description: Add additional blocks to your site and post editors.
+ * Module Description: Expand your editor with custom Jetpack blocks for rich content and layout options.
  * Sort Order: 5
  * First Introduced: 13.9-a.8
  * Requires Connection: No
@@ -11,6 +11,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'jetpack_activate_module_blocks', 'jetpack_blocks_activate_module' );
 

@@ -5,6 +5,94 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.3.0 - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package v5.0.0 → v7.0.0 [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## 0.2.5 - 2025-09-01
+### Changed
+- Remove unused JavaScript dependencies. [#44813]
+
+### Fixed
+- Restore dependency removed in #44813. [#44968]
+
+## 0.2.4 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 0.2.3 - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## 0.2.2 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 0.2.1 - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+## 0.2.0 - 2025-08-04
+### Changed
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+- Update dependencies. [#44551]
+
+## 0.1.24 - 2025-07-28
+### Changed
+- Update dependencies. [#44432]
+
+## 0.1.23 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 0.1.22 - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
+## 0.1.21 - 2025-07-07
+### Changed
+- Update dependencies. [#44161]
+- Update package dependencies. [#44148] [#44151]
+
+## 0.1.20 - 2025-06-30
+### Changed
+- Update dependencies. [#43971]
+
+## 0.1.19 - 2025-06-24
+### Changed
+- Update dependencies. [#43971]
+
+## 0.1.18 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 0.1.17 - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+- Update package dependencies. [#43892] [#43951]
+
+## 0.1.16 - 2025-06-09
+### Changed
+- Internal updates.
+
+## 0.1.15 - 2025-06-05
+### Changed
+- Update package dependencies. [#43766]
+
+## 0.1.14 - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## 0.1.13 - 2025-06-02
+### Changed
+- Update package dependencies. [#43711] [#43712]
+
+## 0.1.12 - 2025-05-26
+### Changed
+- Update dependencies. [#43569] [#43578]
+
 ## 0.1.11 - 2025-05-19
 ### Changed
 - Update package dependencies. [#43398]

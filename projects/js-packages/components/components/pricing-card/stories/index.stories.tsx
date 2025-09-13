@@ -1,4 +1,4 @@
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import PricingCard from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 

@@ -4,6 +4,19 @@ import { exec } from './system-tools';
 let containerId: string | undefined;
 
 export async function getContainerId(): Promise< string > {
+	// Docker-compose v2
+	if ( ! containerId ) {
+		const { stdout } = await exec(
+			'docker',
+			'ps',
+			'-q',
+			'--filter',
+			'ancestor=super-cache-e2e-wordpress '
+		);
+		containerId = stdout.trim();
+	}
+
+	// Docker-compose v1
 	if ( ! containerId ) {
 		const { stdout } = await exec(
 			'docker',
@@ -13,6 +26,11 @@ export async function getContainerId(): Promise< string > {
 			'ancestor=super-cache-e2e_wordpress '
 		);
 		containerId = stdout.trim();
+	}
+
+	// Fail.
+	if ( ! containerId ) {
+		throw new Error( 'Failed to determine docker container ID. Is the test environment running?' );
 	}
 
 	return containerId;

@@ -1,13 +1,11 @@
-@import '@wordpress/dataviews/build-style/style.css';
-
-$tab-item-height: 40px;
-$tabs-height: $tab-item-height + 16px;
-$action-bar-height: 88px;
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+@import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox {
 	// visual aid for focus, currently only export button
 	.button-primary.export-button:focus {
-		box-shadow: var( --jp-forms-focus-shadow );
+		box-shadow: var(--jp-forms-focus-shadow);
 	}
 
 	.components-dropdown-menu {
@@ -16,51 +14,6 @@ $action-bar-height: 88px;
 			font-size: var(--jp-forms-font-size-regular);
 		}
 	}
-}
-
-.jp-forms__inbox-tabs {
-
-	.components-tab-panel__tabs {
-		margin: 0;
-		padding: 10px 48px 10px;
-		z-index: 1;
-		flex: 0 1 auto;
-
-		@media (max-width: 600px) {
-			top: 0;
-		}
-
-		@media (max-width: 520px) {
-			padding: 0 24px;
-		}
-	}
-}
-
-.jp-forms__inbox-tab-item {
-	font-size: var(--jp-forms-font-size-regular);
-	font-weight: 400;
-	height: $tab-item-height;
-	padding: 8px 16px;
-
-	&.active-tab {
-		font-weight: 600;
-	}
-}
-
-.jp-forms__inbox-tab-item-count {
-	align-items: center;
-	background: transparent;
-	border: 1px solid #dcdcde;
-	border-radius: 3px;
-	box-sizing: border-box;
-	color: #2C3338;
-	display: inline-flex;
-	font-size: 12px;
-	font-weight: 400;
-	height: 20px;
-	line-height: 18px;
-	margin-left: 10px;
-	padding: 0 6px;
 }
 
 @keyframes jp-forms__slide-in {
@@ -82,8 +35,6 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -91,15 +42,6 @@ $action-bar-height: 88px;
 	overflow: hidden;
 	background-color: #fff;
 	position: relative;
-
-	&::before {
-		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
-		border-bottom: 1px solid #dcdcde;
-		box-sizing: border-box;
-		content: "";
-		display: flex;
-		padding-top: 24px;
-	}
 
 	&.exit-active {
 		display: none;
@@ -109,7 +51,7 @@ $action-bar-height: 88px;
 
 		&.enter,
 		&.enter-active {
-			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
+			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
 				animation: none;
@@ -126,96 +68,53 @@ $action-bar-height: 88px;
 			z-index: -1;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
+				animation: jp-forms__slide-in 0.2s ease-out forwards reverse, jp-forms__fade-in 0.2s ease-in forwards reverse;
 				z-index: 1;
 			}
 		}
 	}
 
-	@media (min-width: 816px) {
-		margin: 20px 20px 20px 0;
+}
+
+.jp-forms__inbox-response-header {
+	margin: 24px 0 0;
+	padding: 0 32px 0 0;
+
+	@media (min-width: 782px) {
+		padding: 0 32px;
 	}
 }
 
-.jp-forms__inbox-response-avatar {
-	background-color: #fff;
-	border: 3px solid #fff;
-	border-radius: 50%;
-	box-sizing: border-box;
-	display: none; //Hidden for now
-	height: 74px;
-	filter: drop-shadow(0 4px 44px rgba(0, 0, 0, 0.25));
-	overflow: hidden;
-	position: absolute;
-	left: 32px;
-	top: 32px;
-	width: 74px;
-	z-index: 100;
+.jp-forms__inbox-response-header-title {
+	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
-.jp-forms__inbox-response-title {
+.jp-forms__inbox-response-name {
 	font-size: 24px;
 	font-weight: 700;
-	line-height: normal;
-	margin: 24px 0 0;
-	padding: 0 32px;
-
-	&.is-email,
-	&.is-ip {
-		font-size: 24px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
+	line-height: 24px;
+	margin: 0;
+	padding: 0;
 }
 
-.jp-forms__inbox-response-subtitle {
+.jp-forms__inbox-response-email {
 	align-items: center;
 	color: #646970;
 	display: flex;
 	flex-shrink: 0;
-	font-size: 16px;
+	gap: 4px;
+	font-size: 14px;
 	font-weight: 500;
-	height: 40px;
-	line-height: 40px;
+	height: 24px;
+	line-height: 24px;
 	margin: 0;
-	position: relative;
-	overflow: hidden;
-	padding: 0 32px;
+	padding: 0;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-
-	.components-button {
-		background-color: #fff;
-		display: inline-block;
-		height: 28px;
-		margin-left: auto;
-		padding: 4px 8px;
-		position: absolute;
-		top: 6px;
-		right: 32px;
-		z-index: 100;
-
-		@media (min-width: 1025px) {
-			display: none;
-		}
-	}
-
-	@media (min-width: 1025px) {
-
-		&:hover {
-			background-color: #f6f6f7;
-
-			.components-button {
-				background-color: #f6f6f7;
-				display: inline-block;
-			}
-		}
-	}
 }
 
 .jp-forms__inbox-response-meta {
-	color: #646970;
+	color: var(--jp-gray-80);
 	display: table;
 	flex-direction: column;
 	font-size: 12px;
@@ -255,12 +154,8 @@ $action-bar-height: 88px;
 	}
 }
 
-.jp-forms__inbox-response-separator {
-	border-bottom: 1px solid var( --jp-forms-border-color );
-	width: 100%;
-}
-
 .jp-forms__inbox-response-data {
+	border-top: 1px solid var(--jp-forms-border-color);
 	display: flex;
 	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
@@ -277,13 +172,108 @@ $action-bar-height: 88px;
 	white-space: pre-wrap;
 }
 
-.jp-forms__inbox-response-data-value .file-field {
+.jp-forms__inbox-response-data-value .email-field {
 	display: flex;
-	gap: 12px;
+	gap: 4px;
+	align-items: center;
 }
 
-.jp-forms__inbox-response-data-value .file-field svg {
-	min-width: 24px;
+.jp-forms__inbox-response-data-value .file-field {
+	margin-top: 4px;
+
+	.file-field__item {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		--wp-admin-theme-color: #2271b1;
+		--wp-components-color-accent: var(--wp-admin-theme-color, #2271b1);
+	}
+
+	.file-field__icon {
+		width: 32px;
+		min-width: 32px;
+		height: 32px;
+		margin-top: 8px;
+		background-size: 18px;
+		border-radius: 50%;
+		background-color: #f6f6f7;
+		background-image: url(../../contact-form/images/file-icons/txt.svg);
+		background-repeat: no-repeat;
+		background-position: center;
+
+		@media (min-width: 782px) {
+			width: 40px;
+			min-width: 40px;
+			height: 40px;
+			background-size: 24px;
+			margin-top: 0;
+		}
+	}
+
+	.file-field__icon.icon-cal {
+		background-image: url(../../contact-form/images/file-icons/cal.svg);
+	}
+
+	.file-field__icon.icon-html {
+		background-image: url(../../contact-form/images/file-icons/html.svg);
+	}
+
+	.file-field__icon.icon-mp3 {
+		background-image: url(../../contact-form/images/file-icons/mp3.svg);
+	}
+
+	.file-field__icon.icon-mp4 {
+		background-image: url(../../contact-form/images/file-icons/mp4.svg);
+	}
+
+	.file-field__icon.icon-pdf {
+		background-image: url(../../contact-form/images/file-icons/pdf.svg);
+	}
+
+	.file-field__icon.icon-png {
+		background-image: url(../../contact-form/images/file-icons/png.svg);
+	}
+
+	.file-field__icon.icon-ppt {
+		background-image: url(../../contact-form/images/file-icons/ppt.svg);
+	}
+
+	.file-field__icon.icon-sql {
+		background-image: url(../../contact-form/images/file-icons/sql.svg);
+	}
+
+	.file-field__icon.icon-txt {
+		background-image: url(../../contact-form/images/file-icons/txt.svg);
+	}
+
+	.file-field__icon.icon-xls {
+		background-image: url(../../contact-form/images/file-icons/xls.svg);
+	}
+
+	.file-field__icon.icon-zip {
+		background-image: url(../../contact-form/images/file-icons/zip.svg);
+	}
+
+	.file-field__info {
+		display: flex;
+		flex-direction: row;
+		gap: 12px;
+	}
+}
+
+.jp-forms__inbox-response-data-value .image-select-field {
+
+	.image-select-field-images {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px;
+	}
+
+	.image-select-field-image {
+		width: 200px;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
 }
 
 .jp-forms__header-subtext {
@@ -291,24 +281,27 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox__dataviews__container {
-	height: 100%;
 	box-sizing: border-box;
-	min-height: 400px;
+	justify-content: unset;
+	align-items: unset;
 }
 
 .jp-forms__inbox__dataviews {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
-	max-height: 100%;
-	flex: 1 1 50%;
+	flex: 1 1 60%;
+
+	// Optionally, fix the footer to bottom of the page and add margin
+	// so the last row is not hidden by the footer.
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
 
 	.dataviews-wrapper {
-		background: #fff;
-		height: 300px;
+		background: var(--jp-white);
 		flex-grow: 1;
-		overflow-y: visible;
-		overflow-x: auto;
 
 		@media (min-width: 782px) {
 			border-right: 1px solid var(--jp-gray-5);
@@ -337,17 +330,81 @@ $action-bar-height: 88px;
 			}
 		}
 	}
+
+	.dataviews-footer {
+		position: fixed;
+		bottom: 0;
+
+		// Compensation for the width of the sidebar
+		// Set left position when auto-fold is not on the body element.
+		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+		left: 0;
+		width: 100%;
+
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
+		}
+	}
+}
+
+/*
+ * Compensation for the width of the sidebar
+ * Auto fold is when on smaller breakpoints, nav menu auto collapses.
+ * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+ */
+.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
+	}
+
+	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
+	}
+}
+
+/*
+ * Compensation for the width of the sidebar when the Sidebar
+ * is manually collapsed.
+ * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
+ */
+.folded .jp-forms__inbox__dataviews .dataviews-footer {
+	left: 0;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
+	}
 }
 
 .jp-forms__inbox__dataviews-response {
 	min-width: 300px !important;
-	height: 100%;
 	overflow: auto;
-	flex: 1 1 50%;
+	flex: 1 1 40%;
+
+	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
+	margin-bottom: 97px;
+
+	@media (min-width: 782px) {
+		margin-bottom: 57px;
+	}
+
+	.components-tip {
+		background-color: rgba(var(--wp-admin-theme-color--rgb), 0.04);
+		margin: 0 24px 16px;
+		padding: 8px 16px;
+		border-radius: 4px;
+	}
 }
 
 
-/* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
+/*
+ * We need to make the available canvas 100% tall. Without this,
+ * no flex values will work, they will only use the available space.
+ */
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
 
@@ -355,26 +412,97 @@ body.jetpack_page_jetpack-forms-admin {
 	#wpcontent,
 	#wpbody,
 	#wpbody-content {
-		height: 100%;
+		min-height: 100%;
 	}
 }
 
 #jp-forms-dashboard {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	width: 100%;
-
-	// This is the ThemeWrapper div, we need to keep it at 100% for the inner content to be full height.
-	> div:first-child {
-		height: 100%;
-	}
-
 }
 
-.jp-forms__inbox-tabs .components-tab-panel__tab-content {
-	flex: 1 1 auto;
+.jp-forms__inbox-file-preview-shell {
+	max-height: 70vh;
+	overflow: hidden;
+}
 
-	/* Important to pair with flex-shrink */
-	min-height: 0;;
+.jp-forms__inbox-file-preview-container {
+	margin-bottom: 16px;
+	max-height: 70vh;
+	aspect-ratio: 16 / 9;
+}
+
+.jp-forms__inbox-file-preview-container-iframe.is-loading,
+.jp-forms__inbox-file-preview-container.is-loading {
+	display: none;
+}
+
+.jp-forms__inbox-file-preview-container-iframe {
+	margin-bottom: 16px;
+	max-height: 70vh;
+}
+
+.jp-forms__inbox-file-preview-image {
+	height: 100%;
+	width: 100%;
+	max-height: 66vh;
+	object-fit: contain;
+}
+
+.jp-forms__inbox-file-preview-iframe {
+	display: block;
+	width: 100%;
+	min-width: 80vw;
+	min-height: 50vh;
+	border: none;
+	object-fit: contain;
+}
+
+// Styling override when loaded in modal on mobile
+.components-modal__content {
+
+	.jp-forms__inbox-response-avatar {
+		left: 0;
+	}
+
+	.jp-forms__inbox-response-title,
+	.jp-forms__inbox-response-subtitle,
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jp-forms__inbox-file-preview-modal {
+		max-width: 90vw;
+		width: auto;
+		z-index: 100010; // Higher than parent modal
+	}
+}
+
+// Ensure backdrop is below the file preview modal but above the response modal
+.components-modal__screen-overlay:nth-of-type(2) {
+	z-index: 100005;
+}
+
+.jp-forms__inbox-file-loading {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	height: 150px;
+	flex-wrap: wrap;
+}
+
+.jp-forms__inbox-spinner.jp-forms__inbox-spinner {
+	margin-top: 0;
+}
+
+.jp-forms__inbox-file-preview-fallback {
+	padding: 20px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	align-items: center;
 }

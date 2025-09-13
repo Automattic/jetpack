@@ -19,7 +19,6 @@ return [
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
-    // PhanNoopNew : 3 occurrences
     // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
@@ -29,8 +28,6 @@ return [
     // PhanAccessMethodInternal : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPluginUnreachableCode : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
-    // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClass : 1 occurrence
 
@@ -39,9 +36,9 @@ return [
         'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-attachment-handler.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious'],
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-block-editor-extensions.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-block-editor-extensions.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],
-        'src/class-initializer.php' => ['PhanNoopNew', 'PhanPluginDuplicateConditionalNullCoalescing'],
+        'src/class-initializer.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-jwt-token-bridge.php' => ['PhanTypeMismatchReturn'],
         'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-stats.php' => ['PhanTypeArraySuspiciousNullable'],
@@ -51,7 +48,6 @@ return [
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanAccessMethodInternal', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/tus/class-tus-abstract-cache.php' => ['PhanTypeMismatchArgumentInternal'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'src/utility-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUnreachableCode', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],

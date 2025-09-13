@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
@@ -14,7 +14,7 @@ import './style.scss';
  * GooglePhotos component
  *
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function GooglePhotos( props ) {
 	const {

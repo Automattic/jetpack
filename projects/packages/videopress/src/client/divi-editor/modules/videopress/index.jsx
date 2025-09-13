@@ -1,5 +1,5 @@
 // External Dependencies
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 // Internal Dependencies
 import './style.css';

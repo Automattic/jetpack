@@ -6,7 +6,6 @@ import {
 	JetpackMobileAppIcon,
 } from '@automattic/jetpack-shared-extension-utils/icons';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import {
 	SOURCE_WORDPRESS,
 	SOURCE_GOOGLE_PHOTOS,
@@ -114,7 +113,7 @@ export function canDisplayPlaceholder( props ) {
 /**
  * Get the external library
  * @param {string} type - The type of external sources.
- * @return {React.Component} - The external library.
+ * @return {import('react').Component} - The external library.
  */
 export function getExternalLibrary( type ) {
 	if ( type === SOURCE_PEXELS ) {

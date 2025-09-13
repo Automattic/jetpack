@@ -11,7 +11,7 @@ import { useSearchParams } from '../../hooks/use-search-params';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 const range = ( start, count ) => {
 	return [ ...Array( count ) ].map( ( _, index ) => index + start );
@@ -33,9 +33,9 @@ const Ellipsis = () => (
  * Pagination component
  *
  * @param {PaginationProps} props - Component props.
- * @return {React.ReactNode} - Pagination react component.
+ * @return {ReactNode} - Pagination react component.
  */
-const Pagination: React.FC< PaginationProps > = ( {
+const Pagination: FC< PaginationProps > = ( {
 	className,
 	currentPage = 1,
 	perPage,

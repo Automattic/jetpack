@@ -19,7 +19,7 @@ class Woocommerce_Analytics {
 	/**
 	 * Package version.
 	 */
-	const PACKAGE_VERSION = '0.4.7';
+	const PACKAGE_VERSION = '0.6.1';
 
 	/**
 	 * Initializer.
@@ -77,7 +77,7 @@ class Woocommerce_Analytics {
 		}
 
 		// Tracking only Site pages.
-		if ( is_admin() || wp_doing_ajax() || is_login() ) {
+		if ( is_admin() || wp_doing_ajax() || wp_is_xml_request() || is_login() || is_feed() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 			return false;
 		}
 

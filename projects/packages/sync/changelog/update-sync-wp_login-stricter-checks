@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Sync: Stop triggering 'jetpack_wp_login' actions with empty user ID

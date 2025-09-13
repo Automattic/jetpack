@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 echo "Waiting on db to be ready...";
 sh /usr/local/bin/wait-for db:3306 -t 30 || exit 1;

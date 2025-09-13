@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix a warning and bad handling when JSON_DATA is not preceded by a new line.

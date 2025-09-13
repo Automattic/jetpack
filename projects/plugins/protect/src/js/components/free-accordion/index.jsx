@@ -1,10 +1,10 @@
 import { Text } from '@automattic/jetpack-components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback, useContext } from 'react';
+import { createContext, useState, useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 
-const FreeAccordionContext = React.createContext();
+const FreeAccordionContext = createContext();
 
 export const FreeAccordionItem = ( { id, title, label, icon, children, onOpen } ) => {
 	const accordionData = useContext( FreeAccordionContext );

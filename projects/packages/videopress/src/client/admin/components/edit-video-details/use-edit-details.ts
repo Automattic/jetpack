@@ -6,7 +6,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */

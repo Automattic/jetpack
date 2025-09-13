@@ -2,7 +2,6 @@ import { JetpackLogo } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 import ScreenMain from './screen-main';
 import ScreenMigrated from './screen-migrated';

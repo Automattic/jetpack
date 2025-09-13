@@ -1,19 +1,14 @@
-/**
- * External Dependencies
- */
 import { useViewportMatch } from '@wordpress/compose';
 import clsx from 'clsx';
-/**
- * Internal Dependencies
- */
 import { classParser } from '../utils';
 import type { Config, TourStepRendererProps } from '../types';
+import type { FunctionComponent } from 'react';
 
 interface Props extends TourStepRendererProps {
 	config: Config;
 }
 
-const TourKitStep: React.FunctionComponent< Props > = ( {
+const TourKitStep: FunctionComponent< Props > = ( {
 	config,
 	steps,
 	currentStepIndex,

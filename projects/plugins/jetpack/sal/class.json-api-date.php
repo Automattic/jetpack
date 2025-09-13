@@ -4,6 +4,11 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Base class for WPCOM_JSON_API_Date.
  */
@@ -17,7 +22,7 @@ class WPCOM_JSON_API_Date {
 	 * @return string
 	 */
 	public static function format_date( $date_gmt, $date = null ) {
-		$offset        = null;
+		$offset        = 0;
 		$timestamp_gmt = strtotime( "$date_gmt+0000" );
 
 		if ( null === $date ) {

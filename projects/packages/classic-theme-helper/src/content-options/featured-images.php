@@ -5,6 +5,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
 
 	/**
@@ -85,7 +89,8 @@ if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
 			return $metadata;
 		}
 	}
-	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', true, 3 ); // @phan-suppress-current-line PhanTypeMismatchArgument.
+	// We need this hook to execute at the end since core overrides the thumbnail id in _wp_preview_post_thumbnail_filter.
+	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', PHP_INT_MAX, 3 );
 
 }
 

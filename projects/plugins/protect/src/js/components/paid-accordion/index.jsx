@@ -6,13 +6,13 @@ import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import { createContext, useState, useCallback, useContext, useMemo } from 'react';
 import { PAID_PLUGIN_SUPPORT_URL } from '../../constants';
 import useFixers from '../../hooks/use-fixers';
 import styles from './styles.module.scss';
 
 // Extract context provider for clarity and reusability
-const PaidAccordionContext = React.createContext();
+const PaidAccordionContext = createContext();
 
 // Component for displaying threat dates
 const ScanHistoryDetails = ( { firstDetected, fixedOn, status } ) => {

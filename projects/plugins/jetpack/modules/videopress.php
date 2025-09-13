@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: VideoPress
- * Module Description: Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.
+ * Module Description: Powerful and flexible video hosting.
  * First Introduced: 2.5
  * Requires Connection: Yes
  * Sort Order: 27
@@ -11,6 +11,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Require the VideoPress files.

@@ -33,11 +33,23 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	variationName: {
+		type: 'string',
+		default: '',
+	},
 	salesforceData: {
 		type: 'object',
 		default: {
 			organizationId: '',
 			sendToSalesforce: false,
+		},
+	},
+	mailpoet: {
+		type: 'object',
+		default: {
+			enabledForForm: false,
+			listId: null,
+			listName: null,
 		},
 	},
 };

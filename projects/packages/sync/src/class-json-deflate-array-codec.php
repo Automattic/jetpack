@@ -8,6 +8,10 @@
 
 namespace Automattic\Jetpack\Sync;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * An implementation of Automattic\Jetpack\Sync\Codec_Interface that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode

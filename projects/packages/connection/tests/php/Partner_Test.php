@@ -48,13 +48,11 @@ class Partner_Test extends TestCase {
 				array(
 					Partner::SUBSIDIARY_CODE,            // Code type.
 					'jetpack_partner_subsidiary_id',     // filter/option key.
-					'subsidiaryId',                      // Query string parameter.
 				),
 			'affiliate_code'  =>
 				array(
 					Partner::AFFILIATE_CODE,
 					'jetpack_affiliate_code',
-					'aff',
 				),
 		);
 	}

@@ -32,7 +32,7 @@ export default class Layout extends Component {
 
 		const ariaLabel = sprintf(
 			/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
-			__( 'Open image %1$d of %2$d in full-screen', 'jetpack' ),
+			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
 			i + 1,
 			images.length
 		);

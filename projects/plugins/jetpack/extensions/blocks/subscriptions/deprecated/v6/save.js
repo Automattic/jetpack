@@ -5,7 +5,6 @@ import {
 } from '@wordpress/block-editor';
 import { RawHTML } from '@wordpress/element';
 import clsx from 'clsx';
-import { reduce } from 'lodash';
 import defaultAttributes from './attributes';
 
 const DEFAULT_BORDER_RADIUS_VALUE = 0;
@@ -125,9 +124,8 @@ export default function Save( { className, attributes } ) {
 		show_only_email_and_button: true,
 	};
 
-	const shortcodeAttributesStringified = reduce(
-		shortcodeAttributes,
-		( stringifiedAttributes, value, key ) => {
+	const shortcodeAttributesStringified = Object.entries( shortcodeAttributes ).reduce(
+		( stringifiedAttributes, [ key, value ] ) => {
 			if ( undefined === value ) {
 				return stringifiedAttributes;
 			}

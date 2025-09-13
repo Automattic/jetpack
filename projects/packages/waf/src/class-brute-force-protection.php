@@ -21,6 +21,8 @@ use WP_Error;
 
 /**
  * Brute Force Protection class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Brute_Force_Protection {
 
@@ -545,11 +547,16 @@ class Brute_Force_Protection {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			--$transient;
+			if ( is_int( $transient ) ) {
+				--$transient;
+			}
 
-			if ( ! $transient || $transient < 1 ) {
+			if ( ! is_int( $transient ) || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-				setcookie( 'jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				// This is a cop out for the tests on some PHP versions
+				if ( ! headers_sent() ) {
+					setcookie( 'jpp_math_pass', '0', time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				}
 			} else {
 				$this->set_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ), $transient, DAY_IN_SECONDS );
 			}
@@ -569,8 +576,8 @@ class Brute_Force_Protection {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address allow list
 	 *
-	 * @param string $user_login - the user loggign in.
-	 * @param string $user - the user.
+	 * @param string   $user_login - the user logging in.
+	 * @param \WP_User $user - the user.
 	 */
 	public function log_successful_login( $user_login, $user = null ) {
 		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
@@ -1165,9 +1172,11 @@ class Brute_Force_Protection {
 			$uri = network_home_url();
 		}
 
+		$domain  = '';
 		$uridata = wp_parse_url( $uri );
-
-		$domain = $uridata['host'];
+		if ( false !== $uridata ) {
+			$domain = $uridata['host'];
+		}
 
 		// If we still don't have the site_url, get it.
 		if ( ! $domain ) {

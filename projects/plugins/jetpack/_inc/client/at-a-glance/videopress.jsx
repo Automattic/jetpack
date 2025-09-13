@@ -1,9 +1,8 @@
 import { ProgressBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
@@ -22,6 +21,8 @@ import {
 	getVideoPressStorageUsed,
 	siteHasFeature,
 } from 'state/site';
+
+const noop = () => {};
 
 class DashVideoPress extends Component {
 	static propTypes = {
@@ -98,7 +99,7 @@ class DashVideoPress extends Component {
 										<span>
 											{ createInterpolateElement(
 												sprintf(
-													/* translators: %s is a number (disk space used) */
+													/* translators: %d: a number (disk space used) */
 													__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
 													Math.round( videoPressStorageUsed / 1024 )
 												),

@@ -3,9 +3,9 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import styles from './style.module.scss';
 import { ReviewRequestBaseProps } from './types';
-import type React from 'react';
+import type { FC } from 'react';
 
-const ReviewRequest: React.FC< ReviewRequestBaseProps > = ( {
+const ReviewRequest: FC< ReviewRequestBaseProps > = ( {
 	cta,
 	href,
 	onClick,

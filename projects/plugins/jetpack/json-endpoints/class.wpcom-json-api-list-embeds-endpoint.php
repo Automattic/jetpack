@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List Embeds endpoint.
  */
@@ -29,6 +33,8 @@ new WPCOM_JSON_API_List_Embeds_Endpoint(
  * List Embeds Endpoint class.
  *
  * /sites/%s/embeds -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Embeds_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

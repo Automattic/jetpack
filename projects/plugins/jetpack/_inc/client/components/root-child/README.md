@@ -9,10 +9,10 @@ positioning may impact the child's style.
 ## Usage
 
 ```jsx
-var React = require( 'react' ),
+var { createClass } = require( 'react' ),
 	RootChild = require( 'components/root-child' );
 
-module.exports = React.createClass( {
+module.exports = createClass( {
 	displayName: 'MyComponent',
 
 	render: function() {

@@ -9,10 +9,11 @@ import {
 	QueryClientProvider,
 } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import React, { useEffect } from 'react';
+import { createElement, useCallback, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { DataSync } from './DataSync';
 import { DataSyncError } from './DataSyncError';
+import type { ReactNode } from 'react';
 
 /**
  * @REACT-TODO This is temporary. We need to allow each app to define their own QueryClient.
@@ -29,12 +30,12 @@ export function invalidateQuery( key: string ) {
  * This is necessary for React Query to work.
  * @see https://tanstack.com/query/v5/docs/react/reference/QueryClientProvider
  */
-export function DataSyncProvider( props: { children: React.ReactNode } ) {
-	return React.createElement(
+export function DataSyncProvider( props: { children: ReactNode } ) {
+	return createElement(
 		QueryClientProvider,
 		{ client: queryClient },
 		props.children,
-		React.createElement( ReactQueryDevtools )
+		createElement( ReactQueryDevtools )
 	);
 }
 
@@ -379,13 +380,13 @@ export function useDataSyncSubset<
 	K extends keyof Value,
 >( hook: DataSyncHook< Schema, Value >, key: K ): [ Value[ K ], SubsetMutation< Value[ K ] > ] {
 	const [ query, mutation ] = hook;
-	const [ isPending, setIsPending ] = React.useState( false );
-	const [ isError, setIsError ] = React.useState( false );
-	const [ isSuccess, setIsSuccess ] = React.useState( false );
-	const [ isIdle, setIsIdle ] = React.useState( true );
-	const [ error, setError ] = React.useState< unknown >( null );
+	const [ isPending, setIsPending ] = useState( false );
+	const [ isError, setIsError ] = useState( false );
+	const [ isSuccess, setIsSuccess ] = useState( false );
+	const [ isIdle, setIsIdle ] = useState( true );
+	const [ error, setError ] = useState< unknown >( null );
 
-	const mutate = React.useCallback(
+	const mutate = useCallback(
 		( newValue: Value[ K ] ) => {
 			if ( ! query.data ) {
 				return;
@@ -399,7 +400,7 @@ export function useDataSyncSubset<
 		[ query.data, mutation, key ]
 	);
 
-	const reset = React.useCallback( () => {
+	const reset = useCallback( () => {
 		setIsPending( false );
 		setIsError( false );
 		setIsSuccess( false );

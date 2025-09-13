@@ -4,13 +4,14 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -23,7 +24,7 @@ import './style.scss';
  * The RNA Manage Connection Dialog component.
  *
  * @param {object} props -- The properties.
- * @return {React.JSX} The `ManageConnectionDialog` component.
+ * @return {import('react').JSX} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
 	const {
@@ -204,7 +205,7 @@ const ManageConnectionDialog = props => {
 									/>
 								</>
 							) }
-							{ isCurrentUserAdmin && (
+							{ isCurrentUserAdmin && ! isWoASite() && (
 								<ManageConnectionActionCard
 									title={ __( 'Disconnect Jetpack', 'jetpack-connection-js' ) }
 									onClick={ openDisconnectDialog }

@@ -1,16 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
-import { showBackups, isWoASite } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -27,7 +27,7 @@ import {
 	isPluginInstalled,
 } from 'state/site/plugins';
 
-class MyPlanBody extends React.Component {
+class MyPlanBody extends Component {
 	static propTypes = {
 		plan: PropTypes.string,
 	};
@@ -71,25 +71,22 @@ class MyPlanBody extends React.Component {
 	render() {
 		let planCard = '';
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
-		const isPlanPremiumOrBetter = includes(
-			[
-				'is-premium-plan',
-				'is-business-plan',
-				'is-security-t1-plan',
-				'is-security-t2-plan',
-				'is-complete-plan',
+		const isPlanPremiumOrBetter = [
+			'is-premium-plan',
+			'is-business-plan',
+			'is-security-t1-plan',
+			'is-security-t2-plan',
+			'is-complete-plan',
 
-				// DEPRECATED: Daily and Real-time variations will soon be retired.
-				// Remove after all customers are migrated to new products.
-				'is-daily-security-plan',
-				'is-realtime-security-plan',
-			],
-			planClass
-		);
-		const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			'is-daily-security-plan',
+			'is-realtime-security-plan',
+		].includes( planClass );
+		const rewindActive = 'active' === this.props.rewindStatus?.state,
 			hideVaultPressCard =
 				! this.props.showBackups ||
-				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
+				( ! rewindActive && 'unavailable' !== this.props.rewindStatus?.state );
 
 		const getJetpackBackupCard = args => {
 			const { title, description } = args;
@@ -523,7 +520,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ isPlanPremiumOrBetter && this.props.isWoASite && (
+						{ isPlanPremiumOrBetter && isWoASite() && (
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
@@ -886,7 +883,6 @@ export default connect(
 			showBackups: showBackups( state ),
 			getFeatureState: feature => getSetting( state, feature ),
 			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
-			isWoASite: isWoASite( state ),
 		};
 	},
 	dispatch => {

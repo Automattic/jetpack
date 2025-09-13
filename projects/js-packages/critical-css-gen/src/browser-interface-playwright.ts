@@ -1,6 +1,6 @@
 import { BrowserContext, Page } from 'playwright-core';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.ts';
-import { HttpError } from './errors.ts';
+import { HttpError, RedirectError } from './errors.ts';
 import { objectPromiseAll } from './object-promise-all.ts';
 import { Viewport } from './types.ts';
 
@@ -102,9 +102,33 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 			throw new Error( `Playwright interface does not include URL ${ pageUrl }` );
 		}
 
-		// Bail early if the page returned a non-200 status code.
+		// Bail early if the page returned a non-200 or non-300 status code.
 		if ( ! tab.statusCode || ! this.isOkStatus( tab.statusCode ) ) {
 			const error = new HttpError( { url: pageUrl, code: tab.statusCode } );
+			this.trackUrlError( pageUrl, error );
+			throw error;
+		}
+
+		if ( ! this.isSameOrigin( pageUrl, tab.page.url() ) ) {
+			// If the origin isn't the same, that means that the page has been redirected.
+			const error = new RedirectError( {
+				url: pageUrl,
+				redirectUrl: tab.page.url(),
+			} );
+			this.trackUrlError( pageUrl, error );
+			throw error;
+		}
+
+		const originalPath = new URL( pageUrl ).pathname;
+		const redirectedPath = new URL( tab.page.url() ).pathname;
+
+		// Check if the paths match.
+		// Critical CSS should only be generated for the original page.
+		if ( originalPath !== redirectedPath ) {
+			const error = new RedirectError( {
+				url: pageUrl,
+				redirectUrl: tab.page.url(),
+			} );
 			this.trackUrlError( pageUrl, error );
 			throw error;
 		}
@@ -133,6 +157,14 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	}
 
 	private isOkStatus( statusCode: number ) {
-		return statusCode >= 200 && statusCode < 300;
+		return statusCode >= 200 && statusCode < 400;
+	}
+
+	private isSameOrigin( url: string, pageUrl: string ): boolean {
+		try {
+			return new URL( url ).origin === new URL( pageUrl ).origin;
+		} catch ( error ) {
+			return false;
+		}
 	}
 }

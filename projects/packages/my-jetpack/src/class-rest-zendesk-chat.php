@@ -13,6 +13,8 @@ use WP_REST_Response;
 
 /**
  * Registers the REST routes for Zendesk Chat.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Zendesk_Chat {
 	const TRANSIENT_EXPIRY   = 1 * MINUTE_IN_SECONDS * 60 * 24 * 7; // 1 week (JWT is actually 2 weeks, but lets be on the safe side)

@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.16 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## 1.0.15 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## 1.0.14 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 1.0.13 - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## 1.0.12 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.0.11 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## 1.0.10 - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
+## 1.0.9 - 2025-07-28
+### Changed
+- Internal updates.
+
+## 1.0.8 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 1.0.7 - 2025-07-14
+### Changed
+- Update package dependencies. [#44217]
+
+## 1.0.6 - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+## 1.0.5 - 2025-06-30
+### Changed
+- Update dependencies. [#43971]
+
+## 1.0.4 - 2025-06-24
+### Changed
+- Update dependencies. [#43971]
+
+## 1.0.3 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 1.0.2 - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
+## 1.0.1 - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## 0.3.22 - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+
+## 0.3.21 - 2025-05-26
+### Changed
+- Update dependencies. [#43569] [#43578]
+
 ## 0.3.20 - 2025-05-19
 ### Changed
 - Update dependencies. [#42943]

@@ -206,25 +206,13 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 
 				<div id="zbs-vitals-box">
 				<div class="ui top attached tabular menu">
-					<div data-tab="vitals" class="
-					<?php
-					if ( ! isset( $activeVitalsTab ) ) {
-						echo 'active ';
-						$activeVitalsTab = 'vitals'; }
-					?>
-					item">
+					<div data-tab="vitals" class="active item">
 														<?php
 
 															echo esc_html( jpcrm_label_company() . ' ' . __( 'Vitals', 'zero-bs-crm' ) );
 
 														?>
 						</div>
-					<?php
-					/*
-					if (count($zbsSocialAccountTypes) > 0 && count($zbsSocials) > 0){ ?>
-					<div data-tab="social" class="<?php if (!isset($activeVitalsTab)) { echo 'active '; $activeVitalsTab = 'social'; } ?>item"><?php _e('Social',"zero-bs-crm"); ?></div>
-					<?php } */
-					?>
 					<?php
 					// } Any integrated tabs - via filter jetpack-crm-contact-vital-tabs
 					if ( is_array( $companyVitalTabs ) && count( $companyVitalTabs ) > 0 ) {
@@ -483,15 +471,13 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 
 					<div id="zbs-doc-menu">
 					<div class="ui top attached tabular menu">
-						<?php /* never, yet! if ($use_quotes == "1"){ ?><div data-tab="quotes" class="<?php if (!isset($activeTab)) { echo 'active '; $activeTab = 'quotes'; } ?>item"><?php _e('Quotes',"zero-bs-crm"); ?></div><?php } ?>*/ ?>
 						<?php
 						if ( $use_invoices == '1' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 							?>
 							<div data-tab="invoices" class="
 							<?php
-							if ( ! isset( $activeTab ) ) {
-									echo 'active ';
-									$activeTab = 'invoices'; }
+							echo 'active ';
+							$active_tab = 'invoices';
 							?>
 item"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></div><?php } ?>                      
 						<?php
@@ -499,16 +485,16 @@ item"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></div><?php } ?>
 							?>
 							<div data-tab="transactions" class="
 							<?php
-							if ( ! isset( $activeTab ) ) {
+							if ( ! isset( $active_tab ) ) {
 									echo 'active ';
-									$activeTab = 'transactions'; }
+									$active_tab = 'transactions'; }
 							?>
 item"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></div><?php } ?>
 						<div data-tab="files" class="
 						<?php
-						if ( ! isset( $activeTab ) ) {
+						if ( ! isset( $active_tab ) ) {
 							echo 'active ';
-							$activeTab = 'files'; }
+							$active_tab = 'files'; }
 						?>
 						item"><?php esc_html_e( 'Files', 'zero-bs-crm' ); ?></div>                    
 						<?php
@@ -516,9 +502,9 @@ item"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></div><?php } ?>
 							?>
 							<div data-tab="tasks" class="
 							<?php
-							if ( ! isset( $activeTab ) ) {
+							if ( ! isset( $active_tab ) ) {
 									echo 'active ';
-									$activeTab = 'tasks'; }
+									$active_tab = 'tasks'; }
 							?>
 item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 					</div>
@@ -528,7 +514,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 					<div class="ui bottom attached 
 						<?php
-						if ( $activeTab == 'invoices' ) {
+						if ( $active_tab === 'invoices' ) {
 							echo 'active ';}
 						?>
 					tab segment" data-tab="invoices">
@@ -618,7 +604,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 					</div><?php } ?>
 					<div class="ui bottom attached 
 					<?php
-					if ( $activeTab == 'transactions' ) {
+					if ( $active_tab === 'transactions' ) {
 						echo 'active ';}
 					?>
 					tab segment" data-tab="transactions">
@@ -813,7 +799,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						<?php if ( $useTasks == '1' ) { ?>
 						<div class="ui bottom attached 
 							<?php
-							if ( $activeTab == 'tasks' ) {
+							if ( $active_tab === 'tasks' ) {
 								echo 'active ';}
 							?>
 						tab segment" data-tab="tasks">

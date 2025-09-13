@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.21.2] - 2025-09-08
+### Changed
+- Internal updates.
+
+## [4.21.1] - 2025-09-02
+### Changed
+- Remove unnecessary filter for deleted WooCommerce products in the WooCommerce_Products module. [#45011]
+
+## [4.21.0] - 2025-09-01
+### Changed
+- Add product sync checksum support and include trash/auto-draft post statuses in queries. [#44951]
+- Sync: Ensure proper data type before setting plugin action links in callables. [#44975]
+
+### Fixed
+- Fix WooCommerce product sync to handle trashed products. [#44993]
+
+## [4.20.0] - 2025-08-25
+### Changed
+- Enhance WooCommerce Products Sync to include post-related fields. [#44810]
+- Sync: Add default value when updating sidebar widgets via Themes module. [#44878]
+
+## [4.19.0] - 2025-08-18
+### Added
+- Add WooCommerce product meta lookup sync module. [#44601]
+
+## [4.18.2] - 2025-08-14
+### Changed
+- Internal updates.
+
+## [4.18.1] - 2025-08-11
+### Fixed
+- Prevent PHP errors when directly accessing various files. [#44646]
+
+## [4.18.0] - 2025-08-05
+### Changed
+- Full Sync: Ensure the full sync limits values are integers, no matter what is stored in Settings. [#44626]
+- Full Sync: Update chunk_size default full sync limit to 500 for posts module. [#44609]
+
+### Fixed
+- Prevent PHP fatal during login. [#44620]
+
+## [4.17.0] - 2025-08-04
+### Removed
+- Remove custom environment_type handling. [#44576]
+
+## [4.16.0] - 2025-07-28
+### Changed
+- Full Sync: Adjust chunk size in case full sync gets stuck. [#44454]
+- Full Sync: For stuck adjustment, consider started time of full sync to avoid checks for different full syncs. [#44491]
+
+## [4.15.2] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [4.15.1] - 2025-07-08
+### Added
+- Sync: Do not sync the ActivityPub outbox CPT. [#44222]
+
+## [4.15.0] - 2025-07-07
+### Added
+- Sync: Validate objects in sync hooks to avoid PHP warnings. [#44183]
+
+## [4.14.2] - 2025-06-27
+### Changed
+- Sync: Add taxonomies as empty array when using `get_terms` for better support of plugins/themes. [#44104]
+- Updates: Prevent fatals when data is not in expected array format. [#44005]
+
+## [4.14.1] - 2025-06-03
+### Fixed
+- Sync: Ensure HPOS Orders are retrieved in Descending Order [#43744]
+
+## [4.14.0] - 2025-06-02
+### Added
+- Sync: Send context in `jetpack_full_sync_end` action. [#43589]
+
 ## [4.13.0] - 2025-05-15
 ### Changed
 - Full Sync: Calculate metadata based on entire item, not just value. [#43421]
@@ -1212,7 +1287,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - WPCOM Block Editor: Update meta key name
 - Resolve PHP Warning with array_filter usage in sync of action_links.
-- Sync: Seperate theme data ( name, version, slug and uri) from theme support data
+- Sync: Separate theme data ( name, version, slug and uri) from theme support data
 - Replaced intval() with (int) as part of issue #17432.
 - Replaced strval() with type casting (string) as part of issue #17432.
 - Replaced floatval() with type cast (float) as part of issue #17432.
@@ -1473,6 +1548,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.21.2]: https://github.com/Automattic/jetpack-sync/compare/v4.21.1...v4.21.2
+[4.21.1]: https://github.com/Automattic/jetpack-sync/compare/v4.21.0...v4.21.1
+[4.21.0]: https://github.com/Automattic/jetpack-sync/compare/v4.20.0...v4.21.0
+[4.20.0]: https://github.com/Automattic/jetpack-sync/compare/v4.19.0...v4.20.0
+[4.19.0]: https://github.com/Automattic/jetpack-sync/compare/v4.18.2...v4.19.0
+[4.18.2]: https://github.com/Automattic/jetpack-sync/compare/v4.18.1...v4.18.2
+[4.18.1]: https://github.com/Automattic/jetpack-sync/compare/v4.18.0...v4.18.1
+[4.18.0]: https://github.com/Automattic/jetpack-sync/compare/v4.17.0...v4.18.0
+[4.17.0]: https://github.com/Automattic/jetpack-sync/compare/v4.16.0...v4.17.0
+[4.16.0]: https://github.com/Automattic/jetpack-sync/compare/v4.15.2...v4.16.0
+[4.15.2]: https://github.com/Automattic/jetpack-sync/compare/v4.15.1...v4.15.2
+[4.15.1]: https://github.com/Automattic/jetpack-sync/compare/v4.15.0...v4.15.1
+[4.15.0]: https://github.com/Automattic/jetpack-sync/compare/v4.14.2...v4.15.0
+[4.14.2]: https://github.com/Automattic/jetpack-sync/compare/v4.14.1...v4.14.2
+[4.14.1]: https://github.com/Automattic/jetpack-sync/compare/v4.14.0...v4.14.1
+[4.14.0]: https://github.com/Automattic/jetpack-sync/compare/v4.13.0...v4.14.0
 [4.13.0]: https://github.com/Automattic/jetpack-sync/compare/v4.12.0...v4.13.0
 [4.12.0]: https://github.com/Automattic/jetpack-sync/compare/v4.11.1...v4.12.0
 [4.11.1]: https://github.com/Automattic/jetpack-sync/compare/v4.11.0...v4.11.1

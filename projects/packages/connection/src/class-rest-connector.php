@@ -19,6 +19,8 @@ use WP_REST_Server;
 
 /**
  * Registers the REST routes for Connections.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class REST_Connector {
 	/**
@@ -820,7 +822,7 @@ class REST_Connector {
 			array()
 		);
 
-		// We manipulate the alternate URLs after the filter is applied, so they can not be overwritten.
+		// We manipulate the alternate URLs after the filter is applied, so they cannot be overwritten.
 		$response_body['authorizeUrl'] = $authorize_url;
 		if ( ! empty( $response_body['alternateAuthorizeUrl'] ) ) {
 			$response_body['alternateAuthorizeUrl'] = Redirect::get_url( $response_body['alternateAuthorizeUrl'] );

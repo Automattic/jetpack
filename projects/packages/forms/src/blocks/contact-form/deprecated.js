@@ -1,7 +1,6 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import { omit } from 'lodash';
 import defaultAttributes from './attributes';
 
 const deprecatedAttributes = [
@@ -58,7 +57,9 @@ const v1 = {
 		...defaultAttributes,
 	},
 	migrate: ( attributes, innerBlocks ) => {
-		const newAttributes = omit( attributes, deprecatedAttributes );
+		const newAttributes = Object.fromEntries(
+			Object.entries( attributes ).filter( ( [ k ] ) => ! deprecatedAttributes.includes( k ) )
+		);
 
 		const buttonAttributes = {
 			text:

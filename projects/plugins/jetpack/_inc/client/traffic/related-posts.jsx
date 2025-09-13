@@ -1,7 +1,7 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -10,7 +10,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 
-class RelatedPostsComponent extends React.Component {
+class RelatedPostsComponent extends Component {
 	/**
 	 * Get options for initial state.
 	 *

@@ -6,6 +6,14 @@ import deprecatedV2 from '../deprecated/v2';
 import edit from '../edit';
 import save from '../save';
 
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	return {
+		isWpcomPlatformSite,
+	};
+} );
+
 const { name } = metadata;
 const blocks = [
 	{ name, settings: { ...metadata, edit, save, deprecated: [ deprecatedV2, deprecatedV1 ] } },

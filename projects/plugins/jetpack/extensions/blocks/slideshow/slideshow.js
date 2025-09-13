@@ -129,13 +129,15 @@ class Slideshow extends Component {
 				data-autoplay={ autoplay || null }
 				data-delay={ autoplay ? delay : null }
 				data-effect={ effect }
+				style={ {
+					'--aspect-ratio': images[ 0 ]?.aspectRatio
+						? `calc(${ images[ 0 ].aspectRatio })`
+						: undefined,
+				} }
 			>
-				<div
-					className="wp-block-jetpack-slideshow_container swiper-container"
-					ref={ this.slideshowRef }
-				>
+				<div className="wp-block-jetpack-slideshow_container swiper" ref={ this.slideshowRef }>
 					<ul className="wp-block-jetpack-slideshow_swiper-wrapper swiper-wrapper">
-						{ images.map( ( { alt, caption, id, url }, index ) => (
+						{ images.map( ( { alt, caption, id, url, aspectRatio }, index ) => (
 							<li
 								className={ clsx(
 									'wp-block-jetpack-slideshow_slide',
@@ -151,6 +153,7 @@ class Slideshow extends Component {
 											`wp-block-jetpack-slideshow_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
 										}
 										data-id={ id }
+										data-aspect-ratio={ aspectRatio }
 										src={ url }
 									/>
 									{ isBlobURL( url ) && <Spinner /> }
@@ -211,7 +214,9 @@ class Slideshow extends Component {
 						  }
 						: false,
 				effect: this.props.effect,
-				loop: true,
+				// Initially disable loop to prevent warnings during initialization
+				// See also: https://stackoverflow.com/a/78680695
+				loop: false,
 				initialSlide,
 				followFinger: false,
 				navigation: {

@@ -29,6 +29,7 @@ import {
 	getNewsletterDateExample,
 	getSiteAdminUrl,
 	getCurrenUserEmailAddress,
+	isSitePublic,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import BylinePreview from './byline-preview';
@@ -66,6 +67,7 @@ const EmailSettings = props => {
 		dateExample,
 		siteName,
 		siteHasConnectedUser,
+		isSitePubliclyAccessible,
 	} = props;
 
 	const disabled = ! siteHasConnectedUser || ! isSubscriptionsActive || unavailableInOfflineMode;
@@ -134,7 +136,9 @@ const EmailSettings = props => {
 	);
 
 	const featuredImageInputDisabled =
-		disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
+		disabled ||
+		! isSitePubliclyAccessible ||
+		isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
 	const excerptInputDisabled =
 		disabled || isSavingAnyOption( [ SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION ] );
 
@@ -175,6 +179,14 @@ const EmailSettings = props => {
 		}
 	};
 
+	const featuredImageInfo = isSitePubliclyAccessible
+		? __( 'Enable featured image on your new post emails', 'jetpack' )
+		: __(
+				'Featured images cannot be shown in emails when your site is private, because access to your images is restricted to your site only.',
+				'jetpack',
+				/* dummy arg to avoid bad minification */ 0
+		  );
+
 	return (
 		<SettingsCard
 			{ ...props }
@@ -200,13 +212,11 @@ const EmailSettings = props => {
 			>
 				<ToggleControl
 					disabled={ featuredImageInputDisabled }
-					checked={ isFeaturedImageInEmailEnabled && isSubscriptionsActive }
-					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Enable featured image on your new post emails', 'jetpack' ) }
-						</span>
+					checked={
+						isFeaturedImageInEmailEnabled && isSubscriptionsActive && ! featuredImageInputDisabled
 					}
+					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
+					label={ <span className="jp-form-toggle-explanation">{ featuredImageInfo }</span> }
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
 			</SettingsGroup>
@@ -465,6 +475,7 @@ export default withModuleSettingsFormHelpers(
 			isFeaturedImageInEmailEnabled: ownProps.getOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION ),
 			isGravatarEnabled: ownProps.getOptionValue( GRAVATER_OPTION ),
 			isPostDateEnabled: ownProps.getOptionValue( POST_DATE_OPTION ),
+			isSitePubliclyAccessible: isSitePublic( state ),
 			isAuthorEnabled: ownProps.getOptionValue( AUTHOR_OPTION ),
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION

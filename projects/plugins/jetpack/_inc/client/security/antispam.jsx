@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { assign, debounce, isEmpty, trim } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import FoldableCard from 'components/foldable-card';
@@ -38,8 +38,8 @@ export const Antispam = withModuleSettingsFormHelpers(
 		};
 
 		updateText = event => {
-			const currentEvent = assign( {}, event );
-			currentEvent.currentTarget.value = trim( currentEvent.currentTarget.value );
+			const currentEvent = Object.assign( {}, event );
+			currentEvent.currentTarget.value = String( currentEvent.currentTarget.value ).trim();
 			this.setState(
 				{
 					apiKey: currentEvent.currentTarget.value,

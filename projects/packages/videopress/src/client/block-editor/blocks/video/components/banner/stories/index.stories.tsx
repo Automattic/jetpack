@@ -1,14 +1,14 @@
 import { Button } from '@wordpress/components';
 import * as allIcons from '@wordpress/icons';
-import React from 'react';
 import Banner, { BlockBannerProps } from '..';
+import type { ReactNode } from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { Icon, ...icons } = allIcons;
 
 type BannerStoryProps = BlockBannerProps & {
 	icon: string;
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 export default {

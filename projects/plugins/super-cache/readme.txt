@@ -3,7 +3,7 @@ Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur,
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.7.1
+Tested up to: 6.8
 Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -268,9 +268,11 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 2.0.1 - 2025-04-04
+### 3.0.1 - 2025-08-05
+#### Added
+- Caching: Ignore Yandex parameters so those visitors are served from the cache.
+
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
 - Update package dependencies.
 
 --------

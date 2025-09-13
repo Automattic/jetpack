@@ -70,82 +70,83 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
         }
 
-        public function html( $quoteTemplate, $metabox ) {
+	/**
+	 * Outputs the HTML for the Quote Template metabox.
+	 *
+	 * @param array $quote_template The quote template data.
+	 * @param array $metabox Unused.
+	 */
+	public function html( $quote_template, $metabox ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-                global $zbs;
+		global $zbs;
 
-                // localise ID
-                $quoteTemplateID = -1; if (is_array($quoteTemplate) && isset($quoteTemplate['id'])) $quoteTemplateID = (int)$quoteTemplate['id'];
-                $quoteTemplateContent = ''; if (is_array($quoteTemplate) && isset($quoteTemplate['content'])) $quoteTemplateContent = $quoteTemplate['content'];
-                
-                ?>
-                <script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
-                <?php
+		$quote_template_content = '';
+		if ( is_array( $quote_template ) && isset( $quote_template['content'] ) ) {
+			$quote_template_content = $quote_template['content'];
+		}
+		?>
+		<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+		<?php
 
-                // pass specific placeholder list for WYSIWYG inserter
-                // <TBC> is there a better place to pass this? 
-                $placeholder_templating = $zbs->get_templating();
-                $placeholder_list = $placeholder_templating->get_placeholders_for_tooling( array( 'quote', 'contact', 'global' ), false, false );
-                echo '<script>var jpcrm_placeholder_list = ' . json_encode( $placeholder_templating->simplify_placeholders_for_wysiwyg( $placeholder_list ) ) . ';</script>';
+		// pass specific placeholder list for WYSIWYG inserter
+		$placeholder_templating = $zbs->get_templating();
+		$placeholder_list       = $placeholder_templating->get_placeholders_for_tooling( array( 'quote', 'contact', 'global' ), false, false );
+		echo '<script>var jpcrm_placeholder_list = ' . wp_json_encode( $placeholder_templating->simplify_placeholders_for_wysiwyg( $placeholder_list ) ) . ';</script>';
 
-                // for mvp v3.0 we now just hard-type these, as there a lesser obj rarely used.
-                $fields = array(
+		// for mvp v3.0 we now just hard-type these, as there a lesser obj rarely used.
+		$fields = array(
 
-                        'title' => array(
+			'title' => array(
+				0           => 'text',
+				1           => __( 'Template Title', 'zero-bs-crm' ),
+				2           => '', // placeholder
+				'essential' => 1,
+			),
 
-                            0 => 'text',
-                            1 => __('Template Title','zero-bs-crm'),
-                            2 => '', // placeholder
-                            'essential' => 1
+			'value' => array(
+				0           => 'price',
+				1           => __( 'Starting Value', 'zero-bs-crm' ),
+				2           => '', // placeholder
+				'essential' => 1,
+			),
 
-                        ),
+			'notes' => array(
+				0           => 'textarea',
+				1           => __( 'Notes', 'zero-bs-crm' ),
+				2           => '', // placeholder
+				'essential' => 1,
+			),
+		);
 
-                        'value' => array(
-
-                            0 => 'price',
-                            1 => __('Starting Value','zero-bs-crm'),
-                            2 => '', // placeholder
-                            'essential' => 1
-
-                        ),
-
-                        'notes' => array(
-
-                            0 => 'textarea',
-                            1 => __('Notes','zero-bs-crm'),
-                            2 => '', // placeholder
-                            'essential' => 1
-
-                        )
-                );
-
+		?>
+		<div>
+			<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
+				<?php
+				// output fields
+				$skip_fields = array( 'content' ); // dealt with below
+				zeroBSCRM_html_editFields( $quote_template, $fields, 'zbsqt_', $skip_fields );
+				##WLREMOVE
+				// template placeholder helper
+				echo '<div class="jpcrm-form-group jpcrm-form-group-span-2" style="text-align:end;"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></div>';
+				##/WLREMOVE
 				?>
-					<div>
-						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
-					<?php
+			</div>
+			<?php
+				$content = wp_kses( $quote_template_content, $zbs->acceptable_html );
 
-                    // output fields
-                    $skipFields = array('content'); // dealt with below
-                    zeroBSCRM_html_editFields($quoteTemplate,$fields,'zbsqt_',$skipFields);
-                        ##WLREMOVE
-                        // template placeholder helper
-								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2" style="text-align:end;"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></div>';
-                        ##/WLREMOVE
-
-						$content = wp_kses( $quoteTemplateContent, $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-								echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">';
-                        // remove "Add contact form" button from Jetpack
-                        remove_action( 'media_buttons', 'grunion_media_button', 999 );
-                        wp_editor( $content, 'zbs_quotetemplate_content', array(
-                            'editor_height' => 580
-                        ));
-								echo '</div>';
-					?>
-					</div></div>
-					<?php
-              
-        }
+				echo '<div class="jpcrm-form-group jpcrm-form-group-span-2">';
+				// remove "Add contact form" button from Jetpack
+				remove_action( 'media_buttons', 'grunion_media_button', 999 );
+				wp_editor(
+					$content,
+					'zbs_quotetemplate_content',
+					array( 'editor_height' => 580 )
+				);
+				echo '</div>';
+			?>
+		</div>
+		<?php
+	}
 
         public function save_data( $quoteTemplateID, $quoteTemplate ) {
 

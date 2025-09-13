@@ -85,18 +85,32 @@ class Script_Data {
 
 		self::$did_render_script_data = true;
 
-		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
+		$script_data = is_admin() || self::is_authenticated_rest_request()
+			? self::get_admin_script_data()
+			: self::get_public_script_data();
 
-		$script_data = wp_json_encode(
-			$script_data,
-			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
-		);
+		if ( ! empty( $script_data ) ) {
+			$script_data = wp_json_encode(
+				$script_data,
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+			);
 
-		wp_add_inline_script(
-			self::SCRIPT_HANDLE,
-			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
-			'before'
-		);
+			wp_add_inline_script(
+				self::SCRIPT_HANDLE,
+				sprintf( 'window.JetpackScriptData = %s;', $script_data ),
+				'before'
+			);
+			Assets::enqueue_script( self::SCRIPT_HANDLE );
+		}
+	}
+
+	/**
+	 * Whether the current request is an authenticated REST API request.
+	 *
+	 * @return bool
+	 */
+	protected static function is_authenticated_rest_request() {
+		return wp_is_serving_rest_request() && current_user_can( 'read' );
 	}
 
 	/**
@@ -114,6 +128,7 @@ class Script_Data {
 				'date_format'       => get_option( 'date_format' ),
 				'icon'              => self::get_site_icon(),
 				'is_multisite'      => is_multisite(),
+				'host'              => ( new Host() )->get_known_host_guess(),
 				'is_wpcom_platform' => ( new Host() )->is_wpcom_platform(),
 				'plan'              => array(
 					// The properties here should be updated by the consumer package/plugin.
@@ -151,18 +166,13 @@ class Script_Data {
 	}
 
 	/**
-	 * Get the admin script data.
+	 * Get the public script data.
 	 *
 	 * @return array
 	 */
 	protected static function get_public_script_data() {
 
-		$data = array(
-			'site' => array(
-				'icon'  => self::get_site_icon(),
-				'title' => self::get_site_title(),
-			),
-		);
+		$data = array();
 
 		/**
 		 * Filter the public script data.

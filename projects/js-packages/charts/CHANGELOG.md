@@ -5,6 +5,283 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.0] - 2025-09-11
+### Added
+- Leaderboard chart: Add legend support [#45126]
+
+### Changed
+- Leaderboard chart: Make docs consistent with other charts [#45125]
+- Update package dependencies. [#45127]
+
+## [0.35.0] - 2025-09-10
+### Added
+- Export all unresponsive charts. [#45129]
+
+### Removed
+- Charts: Deprecate ThemeProvider in favor of GlobalChartsProvider [#45081]
+
+## [0.34.1] - 2025-09-08
+### Fixed
+- Charts: fix Type error with legendValueDisplay [#45099]
+
+## [0.34.0] - 2025-09-08
+### Changed
+- Leaderboard Chart: Extend BaseChartProps [#45100]
+
+### Fixed
+- Fix SASS and CSS Modules processing. [#45098]
+
+## [0.33.0] - 2025-09-08
+### Added
+- Add ability to control percentage vs. value display. [#45052]
+
+### Changed
+- Leaderboard Chart: Use GlobalContextProvider theme for colors. [#45067]
+- Update package dependencies. [#45027] [#45097]
+- Use `tsup` for builds. [#45051]
+
+### Fixed
+- Allow type-checking of tests and stories. [#45082]
+
+## [0.32.0] - 2025-09-02
+### Added
+- Add controls for label visibility. [#45040]
+
+### Changed
+- Fix the conversion-funnel-chart component export. [#45033]
+- Format percentage values to be prettier. [#45032]
+- Use a global context provider for theme configuration in all stories. [#45028]
+- Use `getStringWidth` for label size calculations. [#45030]
+
+### Fixed
+- Prevent z-index issue across all charts. [#45043]
+
+## [0.31.0] - 2025-09-01
+### Added
+- Add an agents.md file to project root. [#44954]
+- Ensure stable colors for series groups. [#44730]
+- Pie Chart: Refactor to improve readability. [#44989]
+
+### Changed
+- Enhance ConversionFunnelChart with render props and TooltipInPortal. [#45019]
+- Refactor shared components, hooks and utils. [#44971]
+
+### Fixed
+- Fix label background and text color. [#44990]
+- Refactor leaderboard chart to remove progress bar. [#44982]
+
+## [0.30.0] - 2025-08-27
+### Added
+- Export ConversionFunnelChart for usage outside. [#44952]
+
+### Changed
+- Storybook: Consolidate sample data across stories for consistency and maintainability. [#44903]
+
+## [0.29.0] - 2025-08-25
+### Changed
+- Consolidate and clean up pie chart composition API. [#44856]
+
+## [0.28.0] - 2025-08-21
+### Added
+- Add composition legend to pie family charts. [#44796]
+- Add theme to global context and use instead of that from theme provider. [#44809]
+
+## [0.27.0] - 2025-08-18
+### Added
+- Add support for custom labels in the leaderboard chart for greater flexibility. [#44751]
+
+## [0.26.0] - 2025-08-14
+### Added
+- Bar Chart: Add composition API. [#44771]
+- Line Chart: Add composition legends. [#44691]
+- Line Chart: Add comparison style to theme. [#44676]
+
+### Changed
+- Update legend positioning and alignment. [#44747]
+- Update package dependencies. [#44701]
+
+## [0.25.0] - 2025-08-11
+### Added
+- Add internationalization. [#44652]
+
+### Changed
+- Improve legend functionality and tidy up some legend layout issues. [#44573]
+- Update package dependencies. [#44677]
+
+### Removed
+- Remove redundant internal chart ID. [#44728]
+
+### Fixed
+- Fix legend alignment issues for right-aligned vertical legends. [#44622]
+
+## [0.24.0] - 2025-08-04
+### Added
+- Add Conversion Funnel Chart document to Storybook index page. [#44548]
+
+### Fixed
+- Tests: Specify locale in tooltip tests. [#44594]
+
+## [0.23.1] - 2025-08-01
+### Fixed
+- Line Chart: Improve pointer event types. [#44510]
+
+## [0.23.0] - 2025-07-30
+### Added
+- Add component ConversionFunnelChart. [#44433]
+- Add showZeroValues option to BarChart to render zero-value with a small visible value. [#44443]
+
+### Fixed
+- Charts: Fix TS errors related to missing React import in stories. [#44190]
+- Fix top margin for semi cicle chart. [#44539]
+
+## [0.22.0] - 2025-07-28
+### Added
+- Add a standalone chart legend component. [#44245]
+- Add docs for various charts. [#44441] [#44465] [#44466] [#44467]
+
+### Changed
+- Apply theme to the LeaderboardChart component. [#44419]
+
+### Fixed
+- Fix issue where pie chart can be cut off. [#44490]
+
+## [0.21.0] - 2025-07-25
+### Added
+- Add Storybook docs introduction. [#44427]
+
+### Changed
+- Fix export structure for charts. [#44440]
+- Remove non-production files from built package. [#44438]
+
+## [0.20.0] - 2025-07-23
+### Added
+- Line Chart: Add documentation. [#44410]
+
+## [0.19.1] - 2025-07-22
+### Changed
+- Remove dependency on jetpack-components. [#44411]
+
+## [0.19.0] - 2025-07-21
+### Added
+- Added more exports for Woo Analytics to get rid of visx dependencies. [#44390]
+
+## [0.18.0] - 2025-07-21
+### Added
+- Add keyboard navigation support for bar and line charts. [#44036]
+- Add Woo Analytics Leaderboard chart component. [#44299]
+- Line chart: Add documentation for annotations. [#44361]
+- Line chart: Add support for custom interactive annotations. Includes a breaking change to the annotations API, from an `annotations` prop to a compound component pattern. [#44131]
+
+### Changed
+- Replace `lodash` with `deepmerge`. [#44316]
+- Update package dependencies. [#44356]
+
+## [0.17.0] - 2025-07-14
+### Added
+- Add foundation for ChartContext system. [#44189]
+
+### Changed
+- Update package dependencies. [#44219]
+
+## [0.16.2] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [0.16.1] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [0.16.0] - 2025-07-01
+### Added
+- Line chart: Add keyboard navigation support. [#43962]
+
+## [0.15.0] - 2025-06-30
+### Added
+- Add new `legendHorizontalAlign` and `legendVerticalAlign` props to chart legend components, allowing flexible positioning of legends. [#43979]
+- Bar chart: Support date literal parsing. [#44101]
+- Line chart: Add annotation support. [#43978]
+- Update exports config to work with Jetpack. [#43870]
+
+### Changed
+- Replace absolute positioning with flexbox. [#44085]
+- Update package dependencies. [#44020]
+
+### Removed
+- Remove unused `legendAlign` references and consolidate legend storybook item grouping. [#44100]
+- Remove unused `legend-stories.tsx` file. [#44120]
+
+### Fixed
+- Fix chart flickering on initial load. [#44062]
+- Fix internal resolution in Jetpack monorepo. [#44102]
+- Line chart: Remove duplicate stories and centralize story config. [#43994]
+- Properly pass `key` to JSX. [#44128]
+
+## [0.14.0] - 2025-06-16
+### Added
+- Allow setting the glyphs array in the theme to have these rendered in the line chart [#43875]
+- Bar chart: Add support for pattern fill for accessibility [#43812]
+- Line chart: Add support for Tooltip crosshairs [#43921]
+- Show glyph in legends [#43851]
+
+### Changed
+- Line chart: Organise stories for easier browsing [#43922]
+
+### Fixed
+- Fix useElementHeight hook to use a callback ref for reliable height measurement [#43896]
+
+## [0.13.0] - 2025-06-11
+### Added
+- Add responsive configuration options for charts [#43871]
+- Add supports for customizing legend label/container styles [#43868]
+- Charts: Add support for the glyph at the start of the line chart [#43819]
+- Support date literals [#43791]
+
+### Changed
+- Janitorial: clean up dependency versions. [#43841]
+- Set SVG overflow to visible in bar-chart and line-chart styles [#43869]
+
+### Fixed
+- Chart components now subtract legend height from total height, ensuring the rendered chart (including legend) does not exceed the specified height prop [#43844]
+- Fix default bar chart gridVisibility [#43845]
+- Fix output CSS file name [#43842]
+
+## [0.12.1] - 2025-06-06
+### Fixed
+- Fix @automattic/number-formatters dependency issue [#43813]
+
+## [0.12.0] - 2025-06-06
+### Added
+- Add bar list chart component [#43763]
+- Added support for customizable legend shapes/styles [#43792]
+- Charts: Expose types from the charts library and visx package [#43723]
+- Enhance BarChart component to support horizontal orientation [#43741]
+- Support tick dasharray overridden by series data [#43761]
+
+### Changed
+- Add dynamic chart margin calculation and improve Y-axis tick formatting [#43679]
+- Refactor BarChart to use @visx/xychart [#43677]
+- Update dependencies. [#43068]
+- Update package dependencies. [#43326]
+- Update package dependencies. [#43354]
+- Update package dependencies. [#43398]
+- Update package dependencies. [#43399]
+- Update package dependencies. [#43400]
+- Update package dependencies. [#43516]
+- Update package dependencies. [#43578]
+- Update package dependencies. [#43718]
+- Update package dependencies. [#43734]
+- Update package dependencies. [#43766]
+
+### Removed
+- Removed animation for line and bar charts [#43809]
+
+### Fixed
+- Charts: use color set from the data for the stroke as legend if available and fallback to theme color if it was not available [#43772]
+- Fix @rollup/plugin-typescript warnings [#43742]
+- Fixed smoothing is not working when specified [#43810]
+- Fix tooltip causing horizontal scrollbars to appear [#43613]
+- Linting: Fix more Stylelint violations. [#43213]
+
 ## [0.11.4] - 2025-04-10
 ### Changed
 - Internal updates.
@@ -179,6 +456,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.36.0]: https://github.com/Automattic/charts/compare/v0.35.0...v0.36.0
+[0.35.0]: https://github.com/Automattic/charts/compare/v0.34.1...v0.35.0
+[0.34.1]: https://github.com/Automattic/charts/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/charts/compare/v0.33.0...v0.34.0
+[0.33.0]: https://github.com/Automattic/charts/compare/v0.32.0...v0.33.0
+[0.32.0]: https://github.com/Automattic/charts/compare/v0.31.0...v0.32.0
+[0.31.0]: https://github.com/Automattic/charts/compare/v0.30.0...v0.31.0
+[0.30.0]: https://github.com/Automattic/charts/compare/v0.29.0...v0.30.0
+[0.29.0]: https://github.com/Automattic/charts/compare/v0.28.0...v0.29.0
+[0.28.0]: https://github.com/Automattic/charts/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/charts/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/charts/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/charts/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/charts/compare/v0.23.1...v0.24.0
+[0.23.1]: https://github.com/Automattic/charts/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/charts/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/Automattic/charts/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/charts/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/charts/compare/v0.19.1...v0.20.0
+[0.19.1]: https://github.com/Automattic/charts/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/Automattic/charts/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/charts/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/Automattic/charts/compare/v0.16.2...v0.17.0
+[0.16.2]: https://github.com/Automattic/charts/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/charts/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/charts/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/charts/compare/v0.14.0...v0.15.0
+[0.14.0]: https://github.com/Automattic/charts/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/Automattic/charts/compare/v0.12.1...v0.13.0
+[0.12.1]: https://github.com/Automattic/charts/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/charts/compare/v0.11.4...v0.12.0
 [0.11.4]: https://github.com/Automattic/charts/compare/v0.11.3...v0.11.4
 [0.11.3]: https://github.com/Automattic/charts/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/Automattic/charts/compare/v0.11.1...v0.11.2

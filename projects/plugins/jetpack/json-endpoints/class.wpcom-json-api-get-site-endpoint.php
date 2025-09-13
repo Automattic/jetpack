@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_GET_Site_Endpoint(
 	array(
 		'description'                          => 'Get information about a site.',
@@ -32,6 +36,8 @@ new WPCOM_JSON_API_GET_Site_Endpoint(
 
 /**
  * GET Site endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -89,6 +95,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
 		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
+		'is_garden'                   => '(bool) If the site is a Garden site.',
+		'garden_name'                 => '(string) The name of the Garden site.',
+		'garden_partner'              => '(string) The partner of the Garden site.',
 	);
 
 	/**
@@ -206,6 +215,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_created_with_blank_canvas_design',
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
+		'is_summer_special_2025',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -240,6 +250,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'was_hosting_trial',
 		'was_upgraded_from_trial',
 		'is_a4a_dev_site',
+		'is_garden',
+		'garden_name',
+		'garden_partner',
 	);
 
 	/**
@@ -626,6 +639,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_a4a_dev_site':
 				$response[ $key ] = $this->site->is_a4a_dev_site();
 				break;
+			case 'is_garden':
+				$response[ $key ] = $this->site->is_garden();
+				break;
+			case 'garden_name':
+				$response[ $key ] = $this->site->garden_name();
+				break;
+			case 'garden_partner':
+				$response[ $key ] = $this->site->garden_partner();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -883,6 +905,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_difm_lite_in_progress':
 					$options[ $key ] = $site->is_difm_lite_in_progress();
 					break;
+				case 'is_summer_special_2025':
+					$options[ $key ] = $site->is_summer_special_2025();
+					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;
@@ -1053,7 +1078,9 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint(
 );
 
 /**
- * List Post Formates endpoint class.
+ * List Post Formats endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint { // phpcs:ignore
 	/**
@@ -1119,6 +1146,8 @@ new WPCOM_JSON_API_List_Page_Templates_Endpoint(
 
 /**
  * List page templates endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoint { // phpcs:ignore
 	/**

@@ -15,7 +15,7 @@ const setup = () => {
 	};
 };
 
-const pluginTester = require( 'babel-plugin-tester' ).default;
+const { pluginTester } = require( 'babel-plugin-tester' );
 const plugin = require( '../src/index.js' );
 
 pluginTester( {

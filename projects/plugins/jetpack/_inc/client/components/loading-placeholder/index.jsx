@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 
-export class LoadingPlaceholder extends React.Component {
+export class LoadingPlaceholder extends Component {
 	static displayName = 'LoadingPlaceholder';
 
 	render() {

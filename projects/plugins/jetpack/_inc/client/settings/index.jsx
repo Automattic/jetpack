@@ -1,8 +1,8 @@
 import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';
@@ -16,7 +16,7 @@ import Traffic from 'traffic';
 import Writing from 'writing';
 import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
 
-class Settings extends React.Component {
+class Settings extends Component {
 	static displayName = 'SearchableSettings';
 
 	render() {
@@ -42,7 +42,7 @@ class Settings extends React.Component {
 					<div className="jp-no-results">
 						{ searchTerm
 							? sprintf(
-									/* translators: placeholder is a searchterm entered in searchform. */
+									/* translators: %s: a search term entered in search form. */
 									__( 'No search results found for %s', 'jetpack' ),
 									searchTerm
 							  )

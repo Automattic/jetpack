@@ -4,12 +4,13 @@ import WpcomTourKitMinimized from './wpcom-tour-kit-minimized';
 import WpcomTourKitStep from './wpcom-tour-kit-step';
 import '../styles.scss';
 import type { WpcomConfig, TourStepRenderer } from '../../../types';
+import type { FunctionComponent } from 'react';
 
 interface Props {
 	config: WpcomConfig;
 }
 
-const WpcomTourKit: React.FunctionComponent< Props > = ( { config } ) => {
+const WpcomTourKit: FunctionComponent< Props > = ( { config } ) => {
 	usePrefetchTourAssets( config.steps );
 
 	return (

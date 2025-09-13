@@ -1,13 +1,13 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import clsx from 'clsx';
-import noop from 'lodash/noop';
 import PropTypes from 'prop-types';
-import React from 'react';
-/*eslint lodash/import-scope: [2, "method"]*/
+import { Component } from 'react';
 
 import './style.scss';
 
-export default class SimpleNotice extends React.Component {
+const noop = () => {};
+
+export default class SimpleNotice extends Component {
 	static displayName = 'SimpleNotice';
 
 	static defaultProps = {

@@ -1,7 +1,6 @@
 import clsx from 'clsx';
-// eslint-disable-next-line lodash/import-scope
-import uniqueId from 'lodash/uniqueId';
-import React, { createRef, Component } from 'react';
+import * as React from 'react';
+import { createRef, Component } from 'react';
 import { connect } from 'react-redux';
 import strip from 'strip';
 import { getCheckedInputNames } from '../lib/dom';
@@ -30,9 +29,11 @@ export const fixDateFormat = dateString => {
 	return dateString.split( ' ' ).join( 'T' );
 };
 
+let searchFilterCounter = 0;
+
 class SearchFilter extends Component {
 	filtersList = createRef();
-	idPrefix = uniqueId( 'jetpack-instant-search__search-filter-' );
+	idPrefix = `jetpack-instant-search__search-filter-${ ++searchFilterCounter }`;
 
 	getIdentifier() {
 		if ( this.props.type === 'postType' ) {

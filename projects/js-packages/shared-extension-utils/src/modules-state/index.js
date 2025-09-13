@@ -6,7 +6,7 @@ import resolvers from './resolvers';
 import selectors from './selectors';
 
 export const JETPACK_MODULES_STORE_ID = 'jetpack-modules';
-const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
+export const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 	reducer,
 	actions,
 	controls,

@@ -32,7 +32,7 @@ const getGenericErrorMessage = numberOfErrors => {
 	return numberOfErrors.length === 1
 		? __( 'An error occurred.', 'jetpack-forms' )
 		: sprintf(
-				/* translators: The number of responses. */
+				/* translators: %d: the number of responses. */
 				_n(
 					'An error occurred for %d response.',
 					'An error occurred for %d responses.',
@@ -62,7 +62,7 @@ export const markAsSpamAction = {
 				items.length === 1
 					? __( 'Response marked as spam.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response marked as spam.',
 								'%d responses marked as spam.',
@@ -71,7 +71,18 @@ export const markAsSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsNotSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -109,7 +120,7 @@ export const markAsNotSpamAction = {
 				items.length === 1
 					? __( 'Response marked as not spam.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response marked as not spam.',
 								'%d responses marked as not spam.',
@@ -118,7 +129,18 @@ export const markAsNotSpamAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'mark-as-not-spam-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-not-spam-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsSpamAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 		} else {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
@@ -154,7 +176,7 @@ export const restoreAction = {
 				items.length === 1
 					? __( 'Response restored.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response restored.',
 								'%d responses restored.',
@@ -163,7 +185,18 @@ export const restoreAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'restore-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'restore-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							moveToTrashAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.
@@ -177,6 +210,7 @@ export const moveToTrashAction = {
 	id: 'move-to-trash',
 	label: __( 'Move to trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
+	isPrimary: true,
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
@@ -192,7 +226,7 @@ export const moveToTrashAction = {
 				items.length === 1
 					? __( 'Response moved to trash.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response moved to trash.',
 								'%d responses moved to trash.',
@@ -201,7 +235,18 @@ export const moveToTrashAction = {
 							),
 							items.length
 					  );
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'move-to-trash-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							restoreAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.
@@ -213,7 +258,7 @@ export const moveToTrashAction = {
 
 export const deleteAction = {
 	id: 'delete',
-	label: __( 'Delete Permanently', 'jetpack-forms' ),
+	label: __( 'Delete permanently', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
@@ -227,7 +272,7 @@ export const deleteAction = {
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		// If there is at least one succesful update, invalidate the cache for filters.
+		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
 		}
@@ -237,7 +282,7 @@ export const deleteAction = {
 				items.length === 1
 					? __( 'Response deleted permanently.', 'jetpack-forms' )
 					: sprintf(
-							/* translators: The number of responses. */
+							/* translators: %d: the number of responses. */
 							_n(
 								'%d response deleted permanently.',
 								'%d responses deleted permanently.',

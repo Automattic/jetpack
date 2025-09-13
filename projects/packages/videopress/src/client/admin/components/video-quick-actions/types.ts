@@ -1,14 +1,15 @@
-import React, { MouseEvent } from 'react';
+import { MouseEvent } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-export interface ActionItemProps extends React.ButtonHTMLAttributes< HTMLButtonElement > {
+export interface ActionItemProps extends ButtonHTMLAttributes< HTMLButtonElement > {
 	/**
 	 * Icon that will be displayed in the button.
 	 */
-	icon: React.ReactNode;
+	icon: ReactNode;
 	/**
 	 * Content that will be rendered at Popover.
 	 */
-	children: React.ReactNode;
+	children: ReactNode;
 	/**
 	 * className to apply to the wrapper.
 	 */
@@ -31,7 +32,7 @@ export interface PopoverWithAnchorProps {
 	/**
 	 * Popover content
 	 */
-	children: React.ReactNode;
+	children: ReactNode;
 }
 
 /**

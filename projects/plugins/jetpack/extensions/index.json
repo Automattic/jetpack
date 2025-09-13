@@ -13,6 +13,7 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
+		"field-file",
 		"gif",
 		"google-calendar",
 		"image-compare",
@@ -72,17 +73,17 @@
 		"ai-title-optimization-keywords-support",
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
-		"ai-seo-enhancer"
+		"ai-seo-enhancer",
+		"paypal-payment-buttons"
 	],
 	"beta": [
 		"google-docs-embed",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
+		"latex",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes",
-		"field-file"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [

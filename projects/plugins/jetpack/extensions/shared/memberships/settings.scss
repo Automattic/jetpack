@@ -1,8 +1,8 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jetpack-inspector-notice {
 
-	span.jetpack-subscribe-notice-visibility{
+	span.jetpack-subscribe-notice-visibility {
 		margin: 0;
 		padding: 0;
 		width: 100%;
@@ -45,6 +45,6 @@
 }
 
 .jetpack-subscribe-affirmation-loading {
-	background: $gray-400;
-	color: $gray-400;
+	background: gb.$gray-400;
+	color: gb.$gray-400;
 }

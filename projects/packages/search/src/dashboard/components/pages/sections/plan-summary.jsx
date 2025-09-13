@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 const getPlanName = isFreePlan => {
 	// Determine plan name for display.

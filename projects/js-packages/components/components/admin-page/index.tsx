@@ -8,7 +8,7 @@ import Col from '../layout/col/index.tsx';
 import Container from '../layout/container/index.tsx';
 import styles from './style.module.scss';
 import type { AdminPageProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
@@ -16,10 +16,11 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @return {React.ReactNode} AdminPage component.
+ * @return {ReactNode} AdminPage component.
  */
-const AdminPage: React.FC< AdminPageProps > = ( {
+const AdminPage: FC< AdminPageProps > = ( {
 	children,
+	className,
 	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	moduleNameHref,
 	showHeader = true,
@@ -37,7 +38,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const rootClassName = clsx( styles[ 'admin-page' ], {
+	const rootClassName = clsx( styles[ 'admin-page' ], className, {
 		[ styles.background ]: showBackground,
 	} );
 
@@ -51,7 +52,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			// eslint-disable-next-line no-alert
 			window.alert(
 				sprintf(
-					/* translators: placeholder is an error message. */
+					/* translators: %s: an error message. */
 					__( 'There was an error testing Jetpack. Error: %s', 'jetpack-components' ),
 					error.message
 				)

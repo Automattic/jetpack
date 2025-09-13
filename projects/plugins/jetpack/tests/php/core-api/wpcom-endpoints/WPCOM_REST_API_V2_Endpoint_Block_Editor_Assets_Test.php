@@ -29,32 +29,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		parent::set_up();
 		$this->instance = new WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets();
 
-		// Mock the enqueue_block_editor_assets action to prevent loading non-existent files
+		// Remove existing actions to prevent failed loading of files that may or
+		// may not exist depending on the build output.
 		remove_all_actions( 'enqueue_block_editor_assets' );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
-	}
-
-	/**
-	 * Clean up after each test.
-	 */
-	public function tear_down() {
-		// Remove our mock action
-		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_block_editor_assets' ) );
-		parent::tear_down();
-	}
-
-	/**
-	 * Mock function for block editor assets.
-	 * This provides minimal required assets without loading actual files.
-	 */
-	public function mock_block_editor_assets() {
-		// Register minimal mock assets that don't require actual files
-		wp_register_script( 'mock-editor-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
-		wp_register_style( 'mock-editor-style', 'http://example.org/mock-editor.css', array(), '1.0' );
-
-		// Enqueue our mock assets
-		wp_enqueue_script( 'mock-editor-script' );
-		wp_enqueue_style( 'mock-editor-style' );
 	}
 
 	/**
@@ -164,8 +141,40 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertNotEmpty( $jetpack_blocks );
 
 		// Test specific known blocks are present
-		$this->assertContains( 'jetpack/contact-form', $data['allowed_block_types'] );
+		$this->assertContains( 'jetpack/tiled-gallery', $data['allowed_block_types'] );
 		$this->assertContains( 'jetpack/subscriptions', $data['allowed_block_types'] );
+	}
+
+	/**
+	 * Test that allowed plugins assets are included.
+	 */
+	public function test_get_items_returns_allowed_plugin_assets() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the allowed plugin script and style are in the output
+		$this->assertStringContainsString( 'jetpack-mock-script', $data['scripts'] );
+		$this->assertStringContainsString( 'jetpack-mock-style', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+	}
+
+	/**
+	 * Enqueue allowed plugin assets.
+	 */
+	public function mock_allowed_plugin_assets() {
+		// Register minimal mock assets that don't require actual files
+		wp_register_script( 'jetpack-mock-script', 'http://example.org/mock-editor.js', array(), '1.0', true );
+		wp_register_style( 'jetpack-mock-style', 'http://example.org/mock-editor.css', array(), '1.0' );
+
+		// Enqueue our mock assets
+		wp_enqueue_script( 'jetpack-mock-script' );
+		wp_enqueue_style( 'jetpack-mock-style' );
 	}
 
 	/**
@@ -174,16 +183,28 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_disallowed_plugin_assets_are_filtered() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
-		// Register a disallowed plugin asset
-		wp_register_script( 'disallowed-plugin', 'http://example.org/disallowed-plugin/script.js', array(), '1.0', true );
-		wp_enqueue_script( 'disallowed-plugin' );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_disallowed_plugin_assets' ) );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Verify the disallowed plugin script is not in the output
-		$this->assertStringNotContainsString( 'disallowed-plugin/script.js', $data['scripts'] );
+		// Verify the disallowed plugin script and style are not in the output
+		$this->assertStringNotContainsString( 'disallowed-plugin-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'disallowed-plugin-style', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_disallowed_plugin_assets' ) );
+	}
+
+	/**
+	 * Enqueue disallowed plugin assets.
+	 */
+	public function mock_disallowed_plugin_assets() {
+		wp_register_script( 'disallowed-plugin-script', 'http://example.org/script.js', array(), '1.0', true );
+		wp_register_style( 'disallowed-plugin-style', 'http://example.org/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'disallowed-plugin-script' );
+		wp_enqueue_style( 'disallowed-plugin-style' );
 	}
 
 	/**
@@ -192,15 +213,44 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_protected_handles_are_preserved() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
-		// Ensure jQuery (a protected handle) is enqueued
-		wp_enqueue_script( 'jquery' );
-
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		// Verify jQuery is in the output
 		$this->assertStringContainsString( 'jquery', $data['scripts'] );
+	}
+
+	/**
+	 * Test that WPCOM-specific Gutenberg assets are preserved.
+	 */
+	public function test_wpcom_gutenberg_assets_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_wpcom_gutenberg_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the WPCOM Gutenberg assets are preserved in the output
+		$this->assertStringContainsString( 'wpcom-gutenberg-script', $data['scripts'] );
+		$this->assertStringContainsString( 'wpcom-gutenberg-style', $data['styles'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_wpcom_gutenberg_assets' ) );
+	}
+
+	/**
+	 * Enqueue assets using WPCOM's specific Gutenberg paths.
+	 */
+	public function mock_wpcom_gutenberg_assets() {
+		wp_register_script( 'wpcom-gutenberg-script', 'http://example.org/plugins/gutenberg-core/script.js', array(), '1.0', true );
+		wp_register_style( 'wpcom-gutenberg-style', 'http://example.org/plugins/gutenberg-core/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'wpcom-gutenberg-script' );
+		wp_enqueue_style( 'wpcom-gutenberg-style' );
 	}
 
 	/**
@@ -274,5 +324,130 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Cleanup.
 		unregister_post_type( 'custom_type' );
 		remove_role( 'custom_editor' );
+	}
+
+	/**
+	 * Test that plugin scripts registered before endpoint execution are preserved.
+	 */
+	public function test_plugin_scripts_registered_during_init_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Directly register scripts to simulate what happens during init
+		wp_register_script( 'jetpack-init-test-script', 'http://example.org/jetpack-init.js', array(), '1.0', true );
+		wp_register_script( 'videopress-init-test-script', 'http://example.org/videopress-init.js', array(), '1.0', true );
+		wp_register_script( 'jp-init-test-script', 'http://example.org/jp-init.js', array(), '1.0', true );
+		wp_register_script( 'wp-init-test-script', 'http://example.org/wp-init.js', array(), '1.0', true );
+		// Register a disallowed script that should not be preserved
+		wp_register_script( 'random-plugin-script', 'http://example.org/random-plugin.js', array(), '1.0', true );
+
+		// Add enqueue action to test that preserved scripts can be enqueued
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_test_scripts' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Use string matching like the working tests
+		$this->assertStringContainsString( 'jetpack-init-test-script', $data['scripts'], 'jetpack- prefixed script should be preserved' );
+		$this->assertStringContainsString( 'videopress-init-test-script', $data['scripts'], 'videopress- prefixed script should be preserved' );
+		$this->assertStringContainsString( 'jp-init-test-script', $data['scripts'], 'jp- prefixed script should be preserved' );
+		$this->assertStringContainsString( 'wp-init-test-script', $data['scripts'], 'wp- prefixed script should be preserved' );
+
+		// Verify disallowed scripts are not in the output (they should be filtered out by unregister_disallowed_plugin_assets)
+		$this->assertStringNotContainsString( 'random-plugin-script', $data['scripts'], 'Disallowed plugin script should not be preserved' );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_test_scripts' ) );
+	}
+
+	/**
+	 * Enqueue test scripts during block editor asset loading.
+	 */
+	public function enqueue_test_scripts() {
+		wp_enqueue_script( 'jetpack-init-test-script' );
+		wp_enqueue_script( 'videopress-init-test-script' );
+		wp_enqueue_script( 'jp-init-test-script' );
+		wp_enqueue_script( 'wp-init-test-script' );
+		wp_enqueue_script( 'random-plugin-script' );
+	}
+
+	/**
+	 * Test that plugin styles registered before endpoint execution are preserved.
+	 */
+	public function test_plugin_styles_registered_during_init_are_preserved() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Directly register styles to simulate what happens during init
+		wp_register_style( 'jetpack-init-test-style', 'http://example.org/jetpack-init.css', array(), '1.0' );
+		wp_register_style( 'videopress-init-test-style', 'http://example.org/videopress-init.css', array(), '1.0' );
+		wp_register_style( 'jp-init-test-style', 'http://example.org/jp-init.css', array(), '1.0' );
+		wp_register_style( 'wp-init-test-style', 'http://example.org/wp-init.css', array(), '1.0' );
+		// Register a disallowed style that should not be preserved
+		wp_register_style( 'random-plugin-style', 'http://example.org/random-plugin.css', array(), '1.0' );
+
+		// Add enqueue action to test that preserved styles can be enqueued
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_test_styles' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Use string matching like the working tests
+		$this->assertStringContainsString( 'jetpack-init-test-style', $data['styles'], 'jetpack- prefixed style should be preserved' );
+		$this->assertStringContainsString( 'videopress-init-test-style', $data['styles'], 'videopress- prefixed style should be preserved' );
+		$this->assertStringContainsString( 'jp-init-test-style', $data['styles'], 'jp- prefixed style should be preserved' );
+		$this->assertStringContainsString( 'wp-init-test-style', $data['styles'], 'wp- prefixed style should be preserved' );
+
+		// Verify disallowed styles are not in the output
+		$this->assertStringNotContainsString( 'random-plugin-style', $data['styles'], 'Disallowed plugin style should not be preserved' );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_test_styles' ) );
+	}
+
+	/**
+	 * Enqueue test styles during block editor asset loading.
+	 */
+	public function enqueue_test_styles() {
+		wp_enqueue_style( 'jetpack-init-test-style' );
+		wp_enqueue_style( 'videopress-init-test-style' );
+		wp_enqueue_style( 'jp-init-test-style' );
+		wp_enqueue_style( 'wp-init-test-style' );
+		wp_enqueue_style( 'random-plugin-style' );
+	}
+
+	/**
+	 * Test that preserved scripts maintain their properties and dependencies.
+	 */
+	public function test_preserved_scripts_maintain_properties() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Register a complex script with dependencies
+		wp_register_script(
+			'jetpack-complex-test-script',
+			'http://example.org/jetpack-complex.js',
+			array( 'jquery', 'wp-data', 'wp-blocks' ),
+			'2.5.0',
+			true
+		);
+		wp_add_inline_script( 'jetpack-complex-test-script', 'var jetpackConfig = { enabled: true };', 'before' );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_complex_test_script' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the complex script is preserved and its dependencies are loaded
+		$this->assertStringContainsString( 'jetpack-complex-test-script', $data['scripts'], 'Complex jetpack script should be preserved' );
+		$this->assertStringContainsString( 'jquery', $data['scripts'], 'jQuery dependency should be present' );
+		$this->assertStringContainsString( 'jetpackConfig', $data['scripts'], 'Inline script should be preserved' );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_complex_test_script' ) );
+	}
+
+	/**
+	 * Enqueue complex test script.
+	 */
+	public function enqueue_complex_test_script() {
+		wp_enqueue_script( 'jetpack-complex-test-script' );
 	}
 }

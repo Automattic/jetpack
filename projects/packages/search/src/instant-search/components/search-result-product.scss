@@ -1,4 +1,4 @@
-@import '../lib/styles/helper';
+@use "../lib/styles/helper";
 
 $item-spacing: 16px;
 
@@ -7,14 +7,14 @@ $item-spacing: 16px;
 	flex-wrap: wrap;
 	padding: 0 0 3em;
 
-	margin-right: $results-margin-lg - $item-spacing;
+	margin-right: helper.$results-margin-lg - $item-spacing;
 
-	@include break-large-down() {
-		margin-right: $results-margin-md - $item-spacing;
+	@include helper.break-large-down() {
+		margin-right: helper.$results-margin-md - $item-spacing;
 	}
 
-	@include break-medium-down() {
-		margin-right: $results-margin-sm - $item-spacing;
+	@include helper.break-medium-down() {
+		margin-right: helper.$results-margin-sm - $item-spacing;
 	}
 }
 
@@ -26,33 +26,33 @@ $item-spacing: 16px;
 
 	// On mobile and responsive viewports, we allow only a single column.
 	$column-count: 2;
-	width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	margin-right: $item-spacing;
 
-	@include break-small-up {
+	@include helper.break-small-up {
 		$column-count: 3;
-		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+		width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	}
 
-	@include break-medium-up {
+	@include helper.break-medium-up {
 		$column-count: 4;
-		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+		width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	}
 
-	@include break-large-up {
+	@include helper.break-large-up {
 		// Lower column count due to sidebar no longer being collapsed.
 		$column-count: 3;
-		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+		width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	}
 
-	@include break-xlarge-up {
+	@include helper.break-xlarge-up {
 		$column-count: 4;
-		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+		width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	}
 
-	@include break-xxlarge-up {
+	@include helper.break-xxlarge-up {
 		$column-count: 5;
-		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+		width: calc(( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count});
 	}
 
 	.jetpack-instant-search__search-result-title-link {
@@ -69,11 +69,11 @@ $item-spacing: 16px;
 	color: transparent;
 
 	&.jetpack-instant-search__search-result-product-img-container--placeholder {
-		background: $studio-gray-10;
+		background: helper.$studio-gray-10;
 	}
 
 	.gridicon {
-		fill: $color-modal-background;
+		fill: helper.$color-modal-background;
 	}
 
 	// Use aspect ratio box trick
@@ -82,7 +82,7 @@ $item-spacing: 16px;
 
 	&::before {
 		display: block;
-		content: '';
+		content: "";
 		width: 100%;
 		padding-top: 100%;
 	}
@@ -106,7 +106,7 @@ $item-spacing: 16px;
 		position: absolute;
 		left: 50%;
 		top: 50%;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 	}
 
 	> .gridicons-image {

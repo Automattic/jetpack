@@ -3,15 +3,15 @@ import { Icon, starFilled as star } from '@wordpress/icons';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import { ProductOfferHeaderProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Product Detail Card Header component.
  *
  * @param {ProductOfferHeaderProps} props - Component props.
- * @return {React.ReactNode}  ProductOfferHeader react component.
+ * @return {ReactNode}  ProductOfferHeader react component.
  */
-export const ProductOfferHeader: React.FC< ProductOfferHeaderProps > = ( {
+export const ProductOfferHeader: FC< ProductOfferHeaderProps > = ( {
 	title = __( 'Popular upgrade', 'jetpack-components' ),
 } ) => {
 	return (

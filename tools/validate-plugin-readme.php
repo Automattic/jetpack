@@ -68,11 +68,17 @@ if ( $xpath->query( "//div[contains(@class,'notice-success')]" )->length > 0 ) {
 	exit( 0 );
 }
 
-$ignore = array(
+$ignore         = array(
 	'The following tags are not widely used: ',
 	'No == Upgrade Notice == section was found',
 	'No donate link was found',
 );
+$ignore_regexes = array(
+	'Your chosen plugin name – .* – contains the restricted term “jetpack” which cannot be used to begin your permalink or display name',
+	'Your chosen plugin name – WP Super Cache – contains the restricted term “wp” which cannot be used to begin your permalink or display name',
+);
+
+$ignore_regex = '/' . implode( '|', $ignore_regexes ) . '/';
 
 $any      = false;
 $anyatall = false;
@@ -80,7 +86,7 @@ foreach ( array( 'errors', 'warnings', 'notes' ) as $class ) {
 	foreach ( $xpath->evaluate( "//ul[contains(@class,'$class')]/li" ) as $n ) {
 		$anyatall = true;
 		$v        = $xpath->evaluate( 'string(.)', $n );
-		if ( ! in_array( $v, $ignore, true ) ) {
+		if ( ! in_array( $v, $ignore, true ) && ! preg_match( $ignore_regex, $v ) ) {
 			$any = true;
 			echo "$v\n";
 		}

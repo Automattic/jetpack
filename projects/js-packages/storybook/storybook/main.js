@@ -31,10 +31,7 @@ const sbconfig = {
 				},
 			},
 		},
-		'@storybook/addon-storysource',
 		'@storybook/addon-a11y',
-		'@storybook/addon-essentials',
-		'storybook-addon-mock',
 		'@storybook/addon-webpack5-compiler-babel',
 	],
 	webpackFinal: async config => {
@@ -123,20 +120,12 @@ const sbconfig = {
 		name: path.dirname( require.resolve( '@storybook/react-webpack5/package.json' ) ),
 		options: {},
 	},
-	docs: {
-		autodocs: true,
-	},
 	staticDirs: [ '../public' ],
 	typescript: {
 		reactDocgen: 'react-docgen-typescript',
 	},
 	babel: async () => ( {
-		presets: [
-			[
-				require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ),
-				{ presetReact: { runtime: 'automatic' } },
-			],
-		],
+		presets: [ require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ) ],
 	} ),
 };
 export default sbconfig;

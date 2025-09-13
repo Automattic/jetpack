@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List posts endpoint.
  */
@@ -73,6 +77,8 @@ new WPCOM_JSON_API_List_Posts_Endpoint(
  * List posts endpoint class.
  *
  * /sites/%s/posts/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 

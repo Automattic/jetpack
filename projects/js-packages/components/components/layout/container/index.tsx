@@ -2,14 +2,14 @@ import clsx from 'clsx';
 import { createElement, forwardRef, useMemo } from 'react';
 import { ContainerProps } from '../types.ts';
 import styles from './style.module.scss';
-import type React from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
 
 /**
  * JP Container
  *
- * @param {ContainerProps}         props - Component properties.
- * @param {React.MutableRefObject} ref   - Ref to the component
- * @return {React.ReactElement}   Container component.
+ * @param {ContainerProps}   props - Component properties.
+ * @param {MutableRefObject} ref   - Ref to the component
+ * @return {ReactElement}   Container component.
  */
 const Container = (
 	{
@@ -20,8 +20,8 @@ const Container = (
 		horizontalGap = 1,
 		horizontalSpacing = 1,
 	}: ContainerProps,
-	ref: React.MutableRefObject< HTMLElement | null >
-): React.ReactElement => {
+	ref: MutableRefObject< HTMLElement | null >
+): ReactElement => {
 	const containerStyle = useMemo( () => {
 		const padding = `calc( var(--horizontal-spacing) * ${ horizontalSpacing } )`;
 		const rowGap = `calc( var(--horizontal-spacing) * ${ horizontalGap } )`;

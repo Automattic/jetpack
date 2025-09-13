@@ -1,45 +1,45 @@
-import trafficData from '../../line-chart/stories/site-traffic-sample';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	medalCountsData,
+	largeValuesData,
+	trafficData,
+	themeArgTypes,
+} from '../../../stories';
 import BarChart from '../bar-chart';
-import data from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
-};
+	decorators: [ chartDecorator ],
+	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
+		...legendArgTypes,
+	},
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 
-type Story = StoryObj< typeof BarChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {
 	args: {
 		withTooltips: true,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ], // limit to 3 series for better readability
-		showLegend: false,
-		legendOrientation: 'horizontal',
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
 	},
 };
 
@@ -47,7 +47,7 @@ export const Default: Story = {
 export const SingleSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ data[ 0 ] ],
+		data: [ medalCountsData[ 0 ] ],
 	},
 	parameters: {
 		docs: {
@@ -62,7 +62,21 @@ export const SingleSeries: Story = {
 export const TimeSeries: Story = {
 	args: {
 		...Default.args,
-		data: [ trafficData[ 0 ] ],
+		data: [
+			{
+				...trafficData[ 0 ],
+				label: 'Data with dateString and date',
+				data: [
+					...trafficData[ 0 ].data,
+					{ dateString: '2024-01-31', value: 2230 },
+					{ dateString: '2024-02-01', value: 2580 },
+					{ date: new Date( '2024-02-02 00:00:00' ), value: 3500 },
+					{ dateString: '2024-02-03 00:00:00', value: 1500 },
+					{ dateString: '2024-02-04', value: 2500 },
+					{ dateString: '2024-02-05 00:00', value: 3000 },
+				],
+			},
+		],
 		options: {
 			axis: {
 				x: {
@@ -87,7 +101,7 @@ export const TimeSeries: Story = {
 export const ManyDataSeries: Story = {
 	args: {
 		...Default.args,
-		data,
+		data: medalCountsData,
 	},
 	parameters: {
 		docs: {
@@ -98,31 +112,12 @@ export const ManyDataSeries: Story = {
 	},
 };
 
-export const WithLegend = {
-	args: {
-		...Default.args,
-		data,
-		showTooltips: true,
-		showLegend: true,
-		legendOrientation: 'horizontal',
-	},
-};
-
-export const WithVerticalLegend = {
-	args: {
-		...WithLegend.args,
-		data: [ data[ 0 ] ],
-		showLegend: true,
-		legendOrientation: 'vertical',
-	},
-};
-
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
 		width: 800,
 		height: 400,
-		data: [ data[ 0 ], data[ 1 ], data[ 2 ] ],
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 	},
 	parameters: {
 		docs: {
@@ -130,6 +125,19 @@ export const FixedDimensions: Story = {
 				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
 			},
 		},
+	},
+};
+
+export const WithPatterns: Story = {
+	args: {
+		...Default.args,
+		withPatterns: true,
+		data: Default.args.data.map( country => {
+			return {
+				...country,
+				data: country.data.filter( d => parseInt( d.label ) >= 2016 ),
+			};
+		} ),
 	},
 };
 
@@ -169,6 +177,176 @@ ErrorStates.parameters = {
 		description: {
 			story:
 				'Examples of how the bar chart handles various error states including empty data and invalid data.',
+		},
+	},
+};
+
+// Story demonstrating Smart Formatting (formatYTick) with large values
+export const SmartFormatting: Story = {
+	args: {
+		withTooltips: true,
+		data: largeValuesData,
+		gridVisibility: 'x',
+	},
+};
+
+SmartFormatting.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+	},
+};
+
+// Story demonstrating composition API
+export const WithCompositionLegend: StoryObj< typeof BarChart > = {
+	render: args => (
+		<div style={ { width: '800px' } }>
+			<BarChart
+				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				withTooltips={ true }
+				gridVisibility="x"
+				maxWidth={ 1200 }
+				aspectRatio={ 0.5 }
+			>
+				<BarChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
+			</BarChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
+			},
+		},
+	},
+};
+
+// Story showcasing legend customization controls
+export const CustomLegendPositioning: Story = {
+	args: {
+		withTooltips: true,
+		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		// showLegend defaults to false, explicitly enabling for demonstration
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+			},
+		},
+	},
+};
+
+export const HorizontalBarChart: Story = {
+	args: {
+		...Default.args,
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
+		orientation: 'horizontal',
+		gridVisibility: 'none',
+	},
+};
+
+const dataWithZeroValues = [
+	{
+		group: 'United States',
+		label: 'United States',
+		data: [
+			{ label: '1896', value: 0 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 3 },
+		],
+	},
+	{
+		group: 'Great Britain',
+		label: 'Great Britain',
+		data: [
+			{ label: '1896', value: 1 },
+			{ label: '1900', value: 0 },
+			{ label: '1904', value: 1 },
+			{ label: '1908', value: 10 },
+			{ label: '1912', value: 9 },
+		],
+	},
+	{
+		group: 'Japan',
+		label: 'Japan',
+		data: [
+			{ label: '1896', value: 2 },
+			{ label: '1900', value: 1 },
+			{ label: '1904', value: 2 },
+			{ label: '1908', value: 1 },
+			{ label: '1912', value: 2 },
+		],
+	},
+];
+export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Zero Value Display: Disabled (Default)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are not visually displayed. Bars with zero values have no height.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ false }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>Zero Value Display: Enabled</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero values are visually displayed with minimum height bars. The tooltip still shows the
+					actual value of 0, while the bar has a small visual height for better UX.
+				</p>
+				<div style={ { width: '600px', height: '300px' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+			},
 		},
 	},
 };

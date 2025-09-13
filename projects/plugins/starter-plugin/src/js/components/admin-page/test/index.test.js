@@ -1,7 +1,6 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
-import React from 'react';
 import Admin from '../index';
 
 describe( 'Admin', () => {

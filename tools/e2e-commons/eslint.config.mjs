@@ -1,4 +1,6 @@
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
 
 /**
@@ -13,25 +15,29 @@ import playwrightConfig from 'jetpack-js-tools/eslintrc/playwright.mjs';
 export function makeE2eConfig( configurl, opts = {} ) {
 	opts.envs ??= [ 'node' ];
 
-	return [
-		...makeBaseConfig( configurl, { envs: [ 'node' ] } ),
-		...playwrightConfig,
-		{
-			languageOptions: {
-				globals: {
-					wp: true,
-					jpConnect: true,
-				},
-			},
-			rules: {
-				'no-console': 'off',
-				'n/no-process-exit': 'off',
-				'playwright/no-skipped-test': 'off',
-				// False positives when using `page.getByRole()`
-				'testing-library/prefer-screen-queries': 'off',
+	const configDir = dirname( fileURLToPath( configurl ) );
+
+	return defineConfig( makeBaseConfig( configurl, opts ), playwrightConfig, {
+		languageOptions: {
+			globals: {
+				wp: true,
+				jpConnect: true,
 			},
 		},
-	];
+		settings: {
+			'import/resolver': {
+				typescript: {
+					project: join( configDir, 'tsconfig.json' ),
+				},
+			},
+		},
+		rules: {
+			'no-console': 'off',
+			'n/no-process-exit': 'off',
+			'playwright/no-skipped-test': 'off',
+			'react-hooks/rules-of-hooks': 'off',
+		},
+	} );
 }
 
-export default [ ...makeE2eConfig( import.meta.url ) ];
+export default makeE2eConfig( import.meta.url );

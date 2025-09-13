@@ -46,8 +46,8 @@ class Jetpack_Signature {
 	/**
 	 * Constructor.
 	 *
-	 * @param array $access_token Access token.
-	 * @param int   $time_diff    Timezone difference (in seconds).
+	 * @param string $access_token Access token.
+	 * @param int    $time_diff    Timezone difference (in seconds).
 	 */
 	public function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
@@ -219,7 +219,7 @@ class Jetpack_Signature {
 			return new WP_Error( 'unknown_scheme_port', "The scheme's port is unknown", compact( 'signature_details' ) );
 		}
 
-		if ( ! ctype_digit( "$timestamp" ) || 10 < strlen( $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
+		if ( ! ctype_digit( "$timestamp" ) || 10 < strlen( (string) $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
 			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ), compact( 'signature_details' ) );
 		}
 

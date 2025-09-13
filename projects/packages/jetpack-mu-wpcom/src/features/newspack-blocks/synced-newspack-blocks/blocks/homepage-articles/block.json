@@ -117,6 +117,14 @@
 				"type": "integer"
 			}
 		},
+		"categoryJoinType": {
+			"type": "string",
+			"default": "or",
+			"enum": [
+				"or",
+				"all"
+			]
+		},
 		"includeSubcategories": {
 			"type": "boolean",
 			"default": true

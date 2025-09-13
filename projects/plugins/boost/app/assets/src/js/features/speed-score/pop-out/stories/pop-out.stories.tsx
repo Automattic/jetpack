@@ -1,5 +1,4 @@
 import type { Meta } from '@storybook/react';
-import React from 'react';
 import { VanillaPopOut } from '../pop-out';
 
 const meta: Meta< typeof VanillaPopOut > = {

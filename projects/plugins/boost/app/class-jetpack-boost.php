@@ -34,6 +34,7 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -55,6 +56,8 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
  *
  * @since      1.0.0
  * @author     Automattic <support@jetpack.com>
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Boost {
 
@@ -121,12 +124,11 @@ class Jetpack_Boost {
 		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
+		add_action( 'init', array( $this, 'setup_cron_schedules' ) );
 
 		add_action( 'jetpack_boost_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
-
-		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
@@ -170,6 +172,19 @@ class Jetpack_Boost {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
 
+		// Add upgrade check for Cornerstone Pages.
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
+			// Remove homepage (empty string) from the cornerstone pages list.
+			$pages = array_filter(
+				$pages,
+				function ( $page ) {
+					return $page !== home_url( '' );
+				}
+			);
+			jetpack_boost_ds_set( 'cornerstone_pages_list', $pages );
+		}
+
 		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
@@ -181,6 +196,13 @@ class Jetpack_Boost {
 			// Schedule the cronjob to preload the cache for Cornerstone Pages.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
+	}
+
+	/**
+	 * Adds the custom cron intervals to the schedules list.
+	 */
+	public function setup_cron_schedules() {
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 	}
 
 	/**
@@ -257,6 +279,26 @@ class Jetpack_Boost {
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
 		Page_Cache_Setup::deactivate();
+
+		// Clean up Image Size Analysis data.
+		$this->cleanup_image_size_analysis_data();
+	}
+
+	/**
+	 * Clean up Image Size Analysis data from the database.
+	 *
+	 * @since 4.3.0
+	 */
+	private function cleanup_image_size_analysis_data() {
+		global $wpdb;
+
+		// Delete all post meta entries for Image Size Analysis fixes.
+		//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->postmeta,
+			array( 'meta_key' => '_jb_image_fixes' ),
+			array( '%s' )
+		);
 	}
 
 	/**
@@ -283,6 +325,7 @@ class Jetpack_Boost {
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
 					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+					'lcp_state'                    => array( new LCP_State(), 'get' ),
 				),
 			)
 		);
@@ -365,7 +408,7 @@ class Jetpack_Boost {
 		( new Critical_CSS_Storage() )->clear();
 
 		// Delete all transients created by boost.
-		Transient::delete_by_prefix( '' );
+		Transient::delete_bulk();
 
 		// Clear getting started value
 		( new Getting_Started_Entry() )->set( false );

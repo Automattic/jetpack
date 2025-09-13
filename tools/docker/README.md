@@ -7,7 +7,7 @@ Unified environment for developing Jetpack using Docker containers providing fol
 * All monorepo plugins will be available as plugins within the Docker WP instance.
 * Xdebug setup.
 * WP-CLI installed.
-* MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
+* Mailpit to catch all the emails leaving WordPress so that you can observe them from browser
 * phpMyAdmin to aid in viewing the database.
 * Handy shorthand commands like `jetpack docker up` and `jetpack docker phpunit` to simplify the usage.
 
@@ -67,8 +67,9 @@ You can control some of the behavior of Jetpack's Docker configuration with envi
 You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000 jetpack docker up`) or, preferably, in the `tools/docker/.env` file you set up earlier.
 
 * `PORT_WORDPRESS`: (default=`80`) The port on your host machine connected to the WordPress container's HTTP server.
-* `PORT_MAILDEV`: (default=`1080`) The port on your host machine connected to the MailDev container's MailDev HTTP server.
-* `PORT_SMTP`: (default=`25`) The port on your host machine connected to the MailDev container's SMTP server.
+* `PORT_INBOX`: (default=`1080`) The port on your host machine connected to the Mailpit container's web interface.
+* `PORT_SMTP`: (default=`25`) The port on your host machine connected to the Mailpit container's SMTP server.
+* `PORT_PHPMY`: (default=`8181`) The port on your host machine connected to the phpMyAdmin container's web interface.
 * `PORT_SFTP`: (default=`1022`) The port on your host machine connected to the SFTP container's SFTP server.
 
 ### Container Environments
@@ -122,7 +123,7 @@ jetpack docker uninstall
 jetpack docker up
 ```
 
-Start the containers (WordPress, MySQL and MailDev) defined in `docker-compose.yml`.
+Start the containers (WordPress, MySQL and Mailpit) defined in `docker-compose.yml`.
 
 This command will rebuild the WordPress container if you made any changes to `docker-compose.yml`.
 
@@ -238,6 +239,16 @@ You can access WordPress and Jetpack files via SFTP server container.
 - Pass: `wordpress`
 - WordPress path: `/var/www/html`
 
+Note that the SSH host key changes each time the container is started, so you might consider one of these variants to avoid strict host key checking:
+
+```sh
+sftp -o NoHostAuthenticationForLocalhost=yes -P 1022 wordpress@localhost
+```
+
+```sh
+sftp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -P 1022 wordpress@localhost
+```
+
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/). If you intend to do so, change the password in the `SFTP_USERS` variable in `./tools/docker/.env`!
 
 Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backup/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
@@ -269,7 +280,7 @@ jetpack docker up -d
 chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
 ```
 
-Once you have successfull installed Jurassic Tube, you can use these commands during development:
+Once you have successfully installed Jurassic Tube, you can use these commands during development:
 
 * Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
 * Break the connection: `jetpack docker jt-down`
@@ -378,11 +389,11 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 Note that any folder within the `projects/plugins` directory will be automatically linked.
 If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
-You can add your plugin to the list of plugins not allowed to be deleted or updated by adding this to a new file at `tools/docker/mu-plugins`:
+Deleting and updating plugins that are symlinked is disabled. You can block this for additional plugins using the `jetpack_docker_avoided_plugins` filter, adding something like this to a new file at `tools/docker/mu-plugins`:
 
 ```php
 function jetpack_docker_disable_gutenberg_deletion( $plugins ) {
-	array_push( $plugins, 'gutenberg' );
+	array_push( $plugins, 'gutenberg/gutenberg.php' );
 	return $plugins;
 }
 add_filter( 'jetpack_docker_avoided_plugins', 'jetpack_docker_disable_gutenberg_deletion' );
@@ -416,7 +427,7 @@ We recommend to regularly review the log to make sure performance issues don't g
 
 ### Debugging emails
 
-Emails don’t leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
+Emails don’t leave your WordPress and are caught by the [Mailpit](https://mailpit.axllent.org/) SMTP server container instead.
 
 To debug emails via web-interface, open [http://localhost:1080](http://localhost:1080)
 

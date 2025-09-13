@@ -3,8 +3,14 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * User connect endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 

@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-/**
- * Internal dependencies
- */
-import React from 'react';
 import Button from '../button/index.tsx';
 import styles from './style.module.scss';
 
@@ -20,7 +13,7 @@ import styles from './style.module.scss';
  * It is useful to async actions when the user has to wait the result of a request or process.
  *
  * @param {object} props - The properties.
- * @return {React.ReactNode} The `ActionButton` component.
+ * @return {import('react').ReactNode} The `ActionButton` component.
  */
 const ActionButton = props => {
 	const {
@@ -74,9 +67,13 @@ ActionButton.propTypes = {
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** The type/variant of button */
-	variant: PropTypes.arrayOf( PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ) ),
+	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link' ] ),
 	/** Will display the button as a link with an external icon. */
 	isExternalLink: PropTypes.bool,
+	/** Custom CSS class to apply to the button */
+	customClass: PropTypes.string,
+	/** Text to display when loading */
+	loadingText: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 };
 
 export default ActionButton;

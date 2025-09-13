@@ -71,7 +71,7 @@ class Notices {
 	}
 
 	/**
-	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 * Error message that is displayed when the current site is in an identity crisis and SSO cannot be used.
 	 *
 	 * @since jetpack-4.3.2
 	 *
@@ -182,7 +182,7 @@ class Notices {
 	}
 
 	/**
-	 * Message displayed when the user can not be found after approving the SSO process on WordPress.com
+	 * Message displayed when the user cannot be found after approving the SSO process on WordPress.com
 	 *
 	 * @param string $message Error message.
 	 *
@@ -211,7 +211,7 @@ class Notices {
 	}
 
 	/**
-	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 * Error message that is displayed when the current site is in an identity crisis and SSO cannot be used.
 	 *
 	 * @since jetpack-4.4.0
 	 * @deprecated since 2.10.0
@@ -242,7 +242,7 @@ class Notices {
 	}
 
 	/**
-	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
+	 * Error message that is displayed when the current site is in an identity crisis and SSO cannot be used.
 	 *
 	 * @since 2.10.0
 	 *

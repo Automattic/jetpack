@@ -1,4 +1,3 @@
-import React from 'react';
 import ProductOffer from '../../product-offer/index.tsx';
 import Dialog from '../index.tsx';
 import BoostImage from './boost.png';

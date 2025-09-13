@@ -12,6 +12,10 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for posts.
  */
@@ -258,7 +262,7 @@ class Posts extends Module {
 	 * @todo Use $wpdb->prepare for the SQL query.
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
@@ -597,6 +601,9 @@ class Posts extends Module {
 	 * @param \WP_Post $post       Post object.
 	 */
 	public function save_published( $new_status, $old_status, $post ) {
+		if ( ! $post instanceof \WP_Post ) {
+			return;
+		}
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[ $post->ID ] = true;
 		}
@@ -756,6 +763,9 @@ class Posts extends Module {
 		 */
 		if ( 'customize_changeset' === $post->post_type ) {
 			$post_content = json_decode( $post->post_content, true );
+			if ( ! is_iterable( $post_content ) ) {
+				return;
+			}
 			foreach ( $post_content as $key => $value ) {
 				// Skip if it isn't a widget.
 				if ( 'widget_' !== substr( $key, 0, strlen( 'widget_' ) ) ) {
@@ -771,7 +781,7 @@ class Posts extends Module {
 					$widget_data = array(
 						'name'  => $wp_registered_widgets[ $key ]['name'],
 						'id'    => $key,
-						'title' => $value['value']['title'],
+						'title' => $value['value']['title'] ?? '',
 					);
 					do_action( 'jetpack_widget_edited', $widget_data );
 				}

@@ -2,9 +2,10 @@ import { Text, Button, ThemeProvider, Col, Container } from '@automattic/jetpack
 import { Modal } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useState, cloneElement, type FC } from 'react';
+import { useCallback, useState, cloneElement } from 'react';
 import LoadingBlock from '../loading-block';
 import styles from './style.module.scss';
+import type { FC, ReactElement, ReactNode } from 'react';
 
 interface BaseProductInterstitialModalProps {
 	/**
@@ -18,7 +19,7 @@ interface BaseProductInterstitialModalProps {
 	/**
 	 * Custom trigger component to replace default button. It also handles the onOpen callback like the regular button.
 	 */
-	customModalTrigger?: React.ReactElement;
+	customModalTrigger?: ReactElement;
 	/**
 	 * Trigger button of the modal
 	 */
@@ -34,11 +35,11 @@ interface BaseProductInterstitialModalProps {
 	/**
 	 * Children of the modal, placed in the left column between the description and the price component
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 	/**
 	 * Secondary column of the modal, placed in the right column or the middle column (if hasAdditionalColumn is true)
 	 */
-	secondaryColumn?: React.ReactNode;
+	secondaryColumn?: ReactNode;
 	/**
 	 * Apply aspect ratio class when showing video in the secondary column
 	 */
@@ -46,7 +47,7 @@ interface BaseProductInterstitialModalProps {
 	/**
 	 * Show additional column in the modal switching to three columns layout (additional column is always on the right)
 	 */
-	additionalColumn?: React.ReactNode;
+	additionalColumn?: ReactNode;
 	/**
 	 * Loading state of the modal
 	 */
@@ -78,14 +79,14 @@ interface BaseProductInterstitialModalProps {
 	/**
 	 * Price component of the modal
 	 */
-	priceComponent?: React.ReactNode;
+	priceComponent?: ReactNode;
 }
 
 type WithMainCTAButton = BaseProductInterstitialModalProps & {
 	/**
 	 * Main button of the modal
 	 */
-	modalMainButton: React.ReactElement;
+	modalMainButton: ReactElement;
 	/**
 	 * Href of the CTA button in the modal
 	 */

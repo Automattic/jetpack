@@ -1,12 +1,13 @@
 import styles from './styles.module.scss';
+import type { ChangeEventHandler, FC } from 'react';
 
 type CheckboxProps = {
 	id: string;
 	checked?: boolean;
-	onChange?: React.ChangeEventHandler< HTMLInputElement >;
+	onChange?: ChangeEventHandler< HTMLInputElement >;
 };
 
-export const Checkbox: React.FC< CheckboxProps > = props => {
+export const Checkbox: FC< CheckboxProps > = props => {
 	const { id, checked, onChange } = props;
 
 	return (

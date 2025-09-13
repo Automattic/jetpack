@@ -6,6 +6,10 @@
  * @since 9.7.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack transients API.
  *

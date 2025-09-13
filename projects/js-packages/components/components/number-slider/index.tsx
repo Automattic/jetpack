@@ -1,7 +1,8 @@
 import clsx from 'clsx';
-import React from 'react';
+import { useState } from 'react';
 import ReactSlider, { ReactSliderProps } from 'react-slider';
 import { NumberSliderProps } from './types.ts';
+import type { ComponentType, FC, ReactElement } from 'react';
 import './style.scss';
 
 /**
@@ -9,9 +10,9 @@ import './style.scss';
  * More support from the original ReactSlider component: https://zillow.github.io/react-slider/
  *
  * @param {NumberSliderProps} props - Props
- * @return {React.ReactElement} - JSX element
+ * @return {ReactElement} - JSX element
  */
-const NumberSlider: React.FC< NumberSliderProps > = ( {
+const NumberSlider: FC< NumberSliderProps > = ( {
 	className,
 	maxValue = 100,
 	minValue = 0,
@@ -22,7 +23,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 	onAfterChange,
 	renderThumb,
 } ) => {
-	const [ isThumbHolding, setIsThumbHolding ] = React.useState( false );
+	const [ isThumbHolding, setIsThumbHolding ] = useState( false );
 
 	const componentClassName = clsx( 'jp-components-number-slider', className, {
 		'jp-components-number-slider--is-holding': isThumbHolding,
@@ -60,7 +61,7 @@ const NumberSlider: React.FC< NumberSliderProps > = ( {
 	 * Type casting to prevent TypeScript error:
 	 * TS2604: JSX element type 'ReactSlider' does not have any construct or call signatures.
 	 */
-	const TypedReactSlider = ReactSlider as unknown as React.ComponentType< ReactSliderProps >;
+	const TypedReactSlider = ReactSlider as unknown as ComponentType< ReactSliderProps >;
 
 	return (
 		<div className={ componentClassName } data-testid="number-slider">

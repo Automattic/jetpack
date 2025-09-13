@@ -6,9 +6,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC } from 'react';
 
-export const FeatureFetchFailureScreen: React.FC< {
+export const FeatureFetchFailureScreen: FC< {
 	onCancel: () => void;
 	onRetry?: () => void;
 } > = ( { onCancel, onRetry } ) => {

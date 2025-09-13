@@ -6,6 +6,15 @@ const SANITY_MAX_HEIGHT = 600;
 const PAUSE_CLASS = 'wp-block-jetpack-slideshow_autoplay-paused';
 
 function swiperInit( swiper ) {
+	// Enable loop mode after init if we have enough slides
+	// See also: https://stackoverflow.com/a/78680695
+	if ( swiper.slides.length > 1 ) {
+		swiper.loopDestroy();
+		swiper.params.loop = true;
+		swiper.loopCreate();
+		swiper.update();
+	}
+
 	swiperResize( swiper );
 	swiperApplyAria( swiper );
 
@@ -32,11 +41,13 @@ function swiperResize( swiper ) {
 	if ( ! swiper || ! swiper.el ) {
 		return;
 	}
-	const img = swiper.el.querySelector( '.swiper-slide[data-swiper-slide-index="0"] img' );
+	const img = swiper.params.loop
+		? swiper.el.querySelector( '.swiper-slide[data-swiper-slide-index="0"] img' )
+		: swiper.el.querySelector( '.swiper-slide img' );
 	if ( ! img ) {
 		return;
 	}
-	const aspectRatio = img.clientWidth / img.clientHeight;
+	const aspectRatio = img.naturalWidth / img.naturalHeight;
 	const sanityAspectRatio = Math.max( Math.min( aspectRatio, SIXTEEN_BY_NINE ), 1 );
 	const sanityHeight =
 		typeof window !== 'undefined'

@@ -8,16 +8,17 @@ import {
 	SpotlightInteractivityConfiguration,
 } from './tour-kit-spotlight-interactivity';
 import type { Rect, Placement } from '@popperjs/core';
+import type { CSSProperties, FunctionComponent, HTMLAttributes } from 'react';
 
 export const SPOTLIT_ELEMENT_CLASS = 'wp-tour-kit-spotlit';
 interface Props {
 	referenceElement: HTMLElement | null;
-	styles?: React.CSSProperties;
+	styles?: CSSProperties;
 	interactivity?: SpotlightInteractivityConfiguration;
 	liveResize?: LiveResizeConfiguration;
 }
 
-const TourKitSpotlight: React.FunctionComponent< Props > = ( {
+const TourKitSpotlight: FunctionComponent< Props > = ( {
 	referenceElement,
 	styles,
 	interactivity,
@@ -113,7 +114,7 @@ const TourKitSpotlight: React.FunctionComponent< Props > = ( {
 					'is-visible': !! clipRepositionProps,
 				} ) }
 				ref={ sePopperElement }
-				{ ...( clipRepositionProps as React.HTMLAttributes< HTMLDivElement > ) }
+				{ ...( clipRepositionProps as HTMLAttributes< HTMLDivElement > ) }
 			/>
 		</>
 	);

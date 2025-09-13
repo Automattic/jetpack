@@ -9,10 +9,10 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 import './style.scss';
 
-class Gridicon extends React.PureComponent {
+class Gridicon extends PureComponent {
 	static displayName = 'Gridicon';
 
 	static defaultProps = {

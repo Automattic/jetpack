@@ -12,7 +12,7 @@ import { isVideoFramePosterEnabled } from '../components/poster-panel';
  * Types
  */
 import type { VideoBlockAttributes } from '../types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 type videoBlockSaveProps = {
 	attributes: VideoBlockAttributes;
@@ -25,7 +25,7 @@ type videoBlockSaveProps = {
  * @param {object} props.attributes - Block attributes.
  * @return {object}                 - React component.
  */
-function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
+function save( { attributes }: videoBlockSaveProps ): ReactNode {
 	const {
 		align,
 		autoplay,

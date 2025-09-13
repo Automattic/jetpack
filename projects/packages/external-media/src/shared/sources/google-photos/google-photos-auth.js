@@ -3,7 +3,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 import { getExternalMediaApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';
@@ -13,7 +12,7 @@ import AuthProgress from './auth-progress';
  * GooglePhotosAuth component
  *
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function GooglePhotosAuth( props ) {
 	const { setAuthenticated } = props;

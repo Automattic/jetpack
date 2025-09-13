@@ -2,6 +2,134 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.3.2] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [1.3.1] - 2025-09-01
+### Changed
+- My Jetpack: Add product interstitials state management. [#44772]
+
+## [1.3.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+## [1.2.2] - 2025-08-25
+### Changed
+- Update dependencies.
+
+## [1.2.1] - 2025-08-18
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+## [1.1.19] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.1.18] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [1.1.17] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.1.16] - 2025-07-30
+### Changed
+- Internal updates.
+
+## [1.1.15] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [1.1.14] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.1.13] - 2025-07-10
+### Changed
+- Update package dependencies. [#44219]
+
+## [1.1.12] - 2025-07-08
+### Changed
+- Update dependencies.
+
+## [1.1.11] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+### Fixed
+- Fix config to include all the TypeScript files for type checking. [#44177]
+
+## [1.1.10] - 2025-07-07
+### Changed
+- Internal updates.
+
+## [1.1.9] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.1.8] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.1.7] - 2025-06-30
+### Changed
+- Update dependencies.
+
+## [1.1.6] - 2025-06-24
+### Changed
+- Update dependencies.
+
+## [1.1.5] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.1.4] - 2025-06-19
+### Changed
+- Update dependencies.
+
+## [1.1.3] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.1.2] - 2025-06-16
+### Changed
+- Update package dependencies. [#43951]
+
+## [1.1.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
+## [1.1.0] - 2025-06-04
+### Added
+- Add functionality to correctly display database threats in the Protect UI. [#43663]
+
+### Changed
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.73.4] - 2025-06-02
+### Added
+- Added className prop to AdminPage component. [#43592]
+
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+## [0.73.3] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.73.2] - 2025-05-22
 ### Fixed
 - Fixed Swipeable width being stale on window resize. [#43510]
@@ -1400,6 +1528,35 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.3.2]: https://github.com/Automattic/jetpack-components/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-components/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-components/compare/1.2.2...1.3.0
+[1.2.2]: https://github.com/Automattic/jetpack-components/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-components/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-components/compare/1.1.19...1.2.0
+[1.1.19]: https://github.com/Automattic/jetpack-components/compare/1.1.18...1.1.19
+[1.1.18]: https://github.com/Automattic/jetpack-components/compare/1.1.17...1.1.18
+[1.1.17]: https://github.com/Automattic/jetpack-components/compare/1.1.16...1.1.17
+[1.1.16]: https://github.com/Automattic/jetpack-components/compare/1.1.15...1.1.16
+[1.1.15]: https://github.com/Automattic/jetpack-components/compare/1.1.14...1.1.15
+[1.1.14]: https://github.com/Automattic/jetpack-components/compare/1.1.13...1.1.14
+[1.1.13]: https://github.com/Automattic/jetpack-components/compare/1.1.12...1.1.13
+[1.1.12]: https://github.com/Automattic/jetpack-components/compare/1.1.11...1.1.12
+[1.1.11]: https://github.com/Automattic/jetpack-components/compare/1.1.10...1.1.11
+[1.1.10]: https://github.com/Automattic/jetpack-components/compare/1.1.9...1.1.10
+[1.1.9]: https://github.com/Automattic/jetpack-components/compare/1.1.8...1.1.9
+[1.1.8]: https://github.com/Automattic/jetpack-components/compare/1.1.7...1.1.8
+[1.1.7]: https://github.com/Automattic/jetpack-components/compare/1.1.6...1.1.7
+[1.1.6]: https://github.com/Automattic/jetpack-components/compare/1.1.5...1.1.6
+[1.1.5]: https://github.com/Automattic/jetpack-components/compare/1.1.4...1.1.5
+[1.1.4]: https://github.com/Automattic/jetpack-components/compare/1.1.3...1.1.4
+[1.1.3]: https://github.com/Automattic/jetpack-components/compare/1.1.2...1.1.3
+[1.1.2]: https://github.com/Automattic/jetpack-components/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/Automattic/jetpack-components/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-components/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/Automattic/jetpack-components/compare/0.73.4...1.0.0
+[0.73.4]: https://github.com/Automattic/jetpack-components/compare/0.73.3...0.73.4
+[0.73.3]: https://github.com/Automattic/jetpack-components/compare/0.73.2...0.73.3
 [0.73.2]: https://github.com/Automattic/jetpack-components/compare/0.73.1...0.73.2
 [0.73.1]: https://github.com/Automattic/jetpack-components/compare/0.73.0...0.73.1
 [0.73.0]: https://github.com/Automattic/jetpack-components/compare/0.72.6...0.73.0

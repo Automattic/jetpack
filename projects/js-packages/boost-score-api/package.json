@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "0.1.65",
+	"version": "1.0.13",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -13,25 +13,6 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"build": "pnpm run clean && webpack",
-		"clean": "rm -rf build/",
-		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage"
-	},
-	"dependencies": {
-		"@wordpress/i18n": "5.24.0",
-		"zod": "3.22.3"
-	},
-	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
-		"jest": "29.7.0",
-		"jest-environment-jsdom": "29.7.0",
-		"typescript": "5.8.2",
-		"webpack": "5.94.0",
-		"webpack-cli": "6.0.1"
-	},
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
@@ -41,7 +22,27 @@
 	},
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
+	"scripts": {
+		"build": "pnpm run clean && webpack",
+		"clean": "rm -rf build/",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
 	"jest": {
 		"testEnvironment": "jsdom"
+	},
+	"dependencies": {
+		"@wordpress/i18n": "6.3.0",
+		"zod": "3.25.76"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
+		"typescript": "5.9.2",
+		"webpack": "5.94.0",
+		"webpack-cli": "6.0.1"
 	}
 }

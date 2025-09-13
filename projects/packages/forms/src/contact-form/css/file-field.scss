@@ -1,0 +1,386 @@
+.wp-block-jetpack-dropzone {
+	display: flex;
+	flex-direction: column;
+	border: 1px dashed var(--jetpack--contact-form--border-color, rgba(125, 125, 125, 0.3));
+}
+
+:where(.wp-block-jetpack-dropzone) {
+	padding: 48px;
+	margin-top: 8px;
+	margin-bottom: 8px;
+	background-color: var(--jetpack--contact-form--input-background);
+	border-radius: var(--jetpack--contact-form--border-radius, 0);
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-right {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-left {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-center {
+	align-items: center;
+}
+
+.wp-block-jetpack-dropzone.is-content-justification-stretch {
+	align-items: stretch;
+}
+
+.jetpack-form-file-field__dropzone {
+	position: relative;
+}
+
+.jetpack-form-file-field__dropzone.is-hidden {
+	display: none;
+}
+
+.jetpack-form-file-field__dropzone-inner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	cursor: pointer;
+}
+
+.jetpack-form-file-field__preview:focus-visible,
+.jetpack-form-file-field__dropzone-inner:focus-visible {
+	outline-style: solid;
+	outline-offset: -2px;
+	outline-width: 2px;
+}
+
+.jetpack-form-file-field__dropzone input[type="file"] {
+	display: none;
+}
+
+.jetpack-form-file-field__dropzone.is-dropping {
+	cursor: pointer;
+	transition: 0.2s;
+	opacity: 1;
+	filter: invert(0.1);
+}
+
+.jetpack-form-file-field__content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--jetpack--contact-form--input-padding, 16px);
+}
+
+.jetpack-form-file-field__icon {
+	color: currentColor;
+}
+
+.jetpack-form-file-field__text {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 16px);
+}
+
+.jetpack-form-file-field__select-link {
+	text-decoration: underline;
+	font-weight: 700;
+}
+
+.jetpack-form-file-field__formats {
+	opacity: 0.4;
+	font-size: min(var(--jetpack--contact-form--font-size, inherit), 14px);
+}
+
+.jetpack-form-file-field__preview-wrap {
+	padding: 0;
+	visibility: hidden;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+@media not (prefers-reduced-motion) {
+
+	/* Animation for the visibility change */
+	.jetpack-form-file-field__preview-wrap {
+		transition: visibility 0.3s ease-in-out;
+	}
+}
+
+.jetpack-form-file-field__preview-wrap.is-active {
+	visibility: visible;
+}
+
+.jetpack-form-file-field__preview {
+	align-items: center;
+	display: flex;
+	gap: 1em;
+	padding: 16px;
+	position: relative;
+	justify-content: start;
+	border-radius: var(--jetpack--contact-form--border-radius, 0);
+	background-color: var(--jetpack--contact-form--input-background, #fff);
+	color: var(--jetpack--contact-form--text-color, #333);
+	border: var(--jetpack--contact-form--border-size, 1px) var(--jetpack--contact-form--border-style, solid) var(--jetpack--contact-form--border-color, #333);
+	font-size: 12px;
+	line-height: 18px;
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__preview-wrap.is-active .jetpack-form-file-field__preview {
+		opacity: 0;
+		animation: jpShowFileField 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+	}
+
+	/* Animation for the fade out effect */
+	.jetpack-form-file-field__preview.fade-out {
+		animation: jpFadeOutFileField 0.3s forwards;
+	}
+}
+
+.jetpack-form-file-field__preview::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+}
+
+.jetpack-form-file-field__preview > * {
+	z-index: 2;
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__preview > * {
+		transition: height 0.3s ease;
+	}
+}
+
+
+.grunion-field-file-wrap .wp-block-jetpack-contact-form {
+	gap: 8px;
+}
+
+.jetpack-form-file-field__file-wrap {
+	align-items: baseline;
+	display: flex;
+	flex-direction: column;
+	font-size: 0.9em;
+	flex-grow: 2;
+}
+
+.jetpack-form-file-field__file-name {
+	text-align: left;
+}
+
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove {
+	position: relative;
+	min-width: 33px;
+	height: 33px;
+	margin-right: 10px;
+	box-shadow: none;
+	border: none;
+}
+
+.jetpack-form-file-field__remove.jetpack-form-file-field__remove:hover {
+	cursor: pointer;
+	border-radius: 50%;
+	background-color: var(--jetpack--contact-form--input-background, #fff);
+	filter: invert(0.1);
+	box-shadow: none;
+	border: none;
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__remove:hover {
+		transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+	}
+}
+
+.jetpack-form-file-field__remove::before,
+.jetpack-form-file-field__remove::after {
+	position: absolute;
+	left: 16px;
+	content: " ";
+	height: 18px;
+	width: 1px;
+	top: 7px;
+	background-color: var(--jetpack--contact-form--text-color, #333);
+}
+
+.jetpack-form-file-field__remove::before {
+	transform: rotate(45deg);
+}
+
+.jetpack-form-file-field__remove::after {
+	transform: rotate(-45deg);
+}
+
+.jetpack-form-file-field__image-wrap {
+	min-width: 46px;
+	height: 46px;
+	border-radius: calc(infinity * 1px);
+	position: relative;
+}
+
+.jetpack-form-file-field__image {
+	content: "";
+	aspect-ratio: 1 / 1;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	outline: 1 solid var(--jetpack--contact-form--button-primary--text-color, #fff);
+	background-color: var(--jetpack--contact-form--border-color, #333);
+	border-radius: 50%;
+	outline-offset: 0;
+	width: 40px;
+	min-width: 40px;
+	left: 3px;
+	position: absolute;
+	top: 3px;
+	z-index: 2;
+}
+
+.jetpack-form-file-field__image-wrap.has-icon .jetpack-form-file-field__image {
+	background-size: auto;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	background-color: var(--jetpack--contact-form--text-color, #333);
+}
+
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
+	width: 46px;
+	min-width: 46px;
+	height: 46px;
+	left: 0;
+	top: 0;
+	border: 1px solid var(--jetpack--contact-form--border-color, #333);
+}
+
+@media not (prefers-reduced-motion) {
+
+	.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__image {
+		transition: width 0.5s ease-in-out;
+	}
+}
+
+.jetpack-form-file-field__progress-bar {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border-radius: 50%;
+	background: conic-gradient(var(--jetpack--contact-form--text-color, #333) calc(var(--progress, 3) * 1%), transparent calc(var(--progress, 3) * 1%));
+	z-index: -1;
+	opacity: 0.8;
+	width: 46px;
+	height: 46px;
+}
+
+.jetpack-form-file-field__progress-bar::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	bottom: 3px;
+	left: 3px;
+	right: 3px;
+	border-radius: 50%;
+	background-color: var(--jetpack--contact-form--border-color, #333);
+	filter: invert(0.7);
+}
+
+@media not (prefers-reduced-motion) {
+
+	/* Animation for the progress bar */
+	.jetpack-form-file-field__progress-bar {
+		animation: jpSpin 1.2s ease infinite;
+	}
+}
+
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__progress-bar {
+	animation: none;
+	opacity: 0;
+	--progress: 100;
+}
+
+.jetpack-form-file-field__preview.is-error .has-icon .jetpack-form-file-field__progress-bar,
+.jetpack-form-file-field__preview.is-complete .has-icon .jetpack-form-file-field__progress-bar {
+	background: var(--jetpack--contact-form--border-color, #333);
+	opacity: 1;
+}
+
+.jetpack-form-file-field__file-info {
+	opacity: 0.8;
+	display: inline-flex;
+	gap: 4px;
+}
+
+.jetpack-form-file-field__file-info .jetpack-form-file-field__file-size {
+	white-space: nowrap;
+}
+
+.jetpack-form-file-field__success {
+	color: #008a20;
+	display: none;
+}
+
+.jetpack-form-file-field__error {
+	color: #b32d2e;
+}
+
+.jetpack-form-file-field__preview.is-error .jetpack-form-file-field__uploading,
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__uploading {
+	display: none;
+}
+
+.jetpack-form-file-field__preview.is-complete .jetpack-form-file-field__success {
+	display: inline;
+}
+
+@keyframes jpShowFileField {
+
+	0% {
+		transform: translate3d(0, -10px, 0) scale(0.9);
+		opacity: 0.5;
+	}
+
+	100% {
+		transform: translate3d(0, 0, 0) scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes jpFadeOutFileField {
+
+	0% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	100% {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+}
+
+@keyframes jpSpin {
+
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}

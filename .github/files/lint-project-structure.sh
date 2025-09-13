@@ -611,6 +611,30 @@ for FILE in $(git -c core.quotepath=off ls-files .phpcs.config.xml .phpcs.xml.di
 	)
 done
 
+# - Make sure .phpcs.dir.phpcompatibility.xml has corresponding .phpcs.dir.xml.
+#   (This isn't perfect, since it doesn't catch anything except the Jetpack-Compat-* stuff, but in most cases that's all we have in .phpcs.dir.phpcompatibility.xml anyway)
+debug "Checking that .phpcs.dir.phpcompatibility.xml has corresponding .phpcs.dir.xml"
+for FILE in $(git -c core.quotepath=off ls-files '*/.phpcs.dir.phpcompatibility.xml'); do
+	DIR=${FILE%/.phpcs.dir.phpcompatibility.xml}
+	if [[ ! -f "$DIR/.phpcs.dir.xml" ]]; then
+		EXIT=1
+		echo "::error file=$FILE::There should be a file \`$DIR/.phpcs.dir.xml\` corresponding to this file, so local phpcs runs behave appropriately."
+		continue
+	fi
+	if grep -q '<rule ref="\./\.phpcs\.dir\.phpcompatibility\.xml" */>' "$DIR/.phpcs.dir.xml"; then
+		# Probably ok if the .dir.xml includes the .dir.phpcompatibility.xml.
+		continue
+	fi
+	while IFS= read -r LINE; do
+		LINE2=${LINE/Jetpack-Compat-NoWP/Jetpack-NoWP}
+		RE=$( sed 's! */>$!!' <<<"$LINE2" )
+		if ! grep --fixed-strings -q "$RE" "$DIR/.phpcs.dir.xml"; then
+			EXIT=1
+			echo "::error file=$DIR/.phpcs.dir.xml::File should contain \`$LINE2\` to match \`$FILE\`."
+		fi
+	done < <( grep -o '<rule ref="Jetpack-Compat-[^"]*" */>' "$FILE" )
+done
+
 # - .nvmrc should match .github/versions.sh.
 debug "Checking .nvmrc vs versions.sh"
 if [[ "$(<.nvmrc)" != "$NODE_VERSION" ]]; then

@@ -14,6 +14,10 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Jetpack Stats product
  */
@@ -105,7 +109,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'The simplest way to track visitor insights and unlock your site’s growth', 'jetpack-my-jetpack' );
+		return __( 'Clear, concise, and actionable analysis of your site performance.', 'jetpack-my-jetpack' );
 	}
 
 	/**

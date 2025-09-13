@@ -1,15 +1,15 @@
 import clsx from 'clsx';
-import React from 'react';
+import { Children, Component } from 'react';
 
 import './style.scss';
 
-export default class ButtonGroup extends React.Component {
+export default class ButtonGroup extends Component {
 	static displayName = 'ButtonGroup';
 
 	static propTypes = {
 		children( props ) {
 			let error = null;
-			React.Children.forEach( props.children, child => {
+			Children.forEach( props.children, child => {
 				if ( ! child.props || child.props.type !== 'button' ) {
 					error = new Error( 'All children elements should be a Button.' );
 				}

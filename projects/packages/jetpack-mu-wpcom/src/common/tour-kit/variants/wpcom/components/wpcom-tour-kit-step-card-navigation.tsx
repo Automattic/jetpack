@@ -2,10 +2,11 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import WpcomTourKitPaginationControl from './wpcom-tour-kit-pagination-control';
 import type { WpcomTourStepRendererProps } from '../../../types';
+import type { FunctionComponent } from 'react';
 
 type Props = Omit< WpcomTourStepRendererProps, 'onMinimize' >;
 
-const WpcomTourKitStepCardNavigation: React.FunctionComponent< Props > = ( {
+const WpcomTourKitStepCardNavigation: FunctionComponent< Props > = ( {
 	currentStepIndex,
 	onDismiss,
 	onGoToStep,

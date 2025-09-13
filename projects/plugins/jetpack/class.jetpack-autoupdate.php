@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles items that have been selected for automatic updates.
  * Hooks into WP_Automatic_Updater
@@ -92,6 +96,10 @@ class Jetpack_Autoupdate {
 			return true;
 		}
 
+		if ( ! isset( $item->slug ) || ! isset( $item->type ) ) {
+			return $update;
+		}
+
 		// Themes.
 		$autoupdate_themes_translations = Jetpack_Options::get_option( 'autoupdate_themes_translations', array() );
 		$autoupdate_theme_list          = Jetpack_Options::get_option( 'autoupdate_themes', array() );
@@ -128,6 +136,9 @@ class Jetpack_Autoupdate {
 	 * @return bool|null Whether to update.
 	 */
 	public function autoupdate_theme( $update, $item ) {
+		if ( ! isset( $item->theme ) ) {
+			return $update;
+		}
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		if ( in_array( $item->theme, $autoupdate_theme_list, true ) ) {
 			$this->expect( $item->theme, 'theme' );

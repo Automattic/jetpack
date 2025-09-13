@@ -1,15 +1,9 @@
-/*
- * External Dependencies
- */
-import React from 'react';
-/*
- * Internal Dependencies
- */
 import AiStatusIndicator, { AiStatusIndicatorProps } from '../index.tsx';
+import type { ReactNode } from 'react';
 
 type AiStatusIndicatoryStoryProps = AiStatusIndicatorProps & {
 	icon: string;
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 export default {

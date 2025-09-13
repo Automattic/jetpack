@@ -1,4 +1,3 @@
-/* globals lodash */
 window.videoPressUploadPoster = function ( guid, data ) {
 	return new Promise( function ( resolve, reject ) {
 		wp.media.ajax( 'videopress-get-upload-token', { async: true } ).done( function ( response ) {
@@ -203,8 +202,8 @@ wp.apiFetch.use( function ( options, next ) {
 				return response; // if not a response object, then its our parsed body so return that
 			} )
 			.then( function ( data ) {
-				var wpcomMediaObject = lodash.get( data, 'media[0]' );
-				var id = lodash.get( wpcomMediaObject, 'ID' );
+				var wpcomMediaObject = data?.media?.[ 0 ];
+				var id = wpcomMediaObject?.ID;
 				var gutenbergMediaObject = wp.apiFetch( {
 					path: '/wp/v2/media/' + id,
 				} );

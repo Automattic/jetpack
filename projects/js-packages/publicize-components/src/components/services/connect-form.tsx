@@ -9,6 +9,7 @@ import { SupportedService } from '../services/use-supported-services';
 import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
 import { useRequestAccess } from './use-request-access';
+import type { FormEvent } from 'react';
 
 type ConnectFormProps = {
 	service: SupportedService;
@@ -61,7 +62,7 @@ export function ConnectForm( {
 	} );
 
 	const onSubmitForm = useCallback(
-		async ( event: React.FormEvent ) => {
+		async ( event: FormEvent ) => {
 			event.preventDefault();
 			// Prevent Jetpack settings from being submitted
 			event.stopPropagation();

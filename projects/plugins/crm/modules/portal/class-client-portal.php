@@ -118,7 +118,7 @@ class Client_Portal {
 		global $zbs;
 
 		wp_enqueue_style( 'zbs-portal', plugins_url( '/css/jpcrm-public-portal' . wp_scripts_get_suffix() . '.css', __FILE__ ), array(), $zbs::VERSION );
-		wp_enqueue_style( 'zbs-fa', ZEROBSCRM_URL . 'vendor/fortawesome/font-awesome/css/font-awesome' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
+		wp_enqueue_style( 'zbs-fa', ZEROBSCRM_URL . 'build/lib/font-awesome/css/font-awesome.min.css', array(), $zbs::VERSION );
 
 		// This do_action call was left here for compatibility purposes (legacy).
 		do_action('zbs_enqueue_portal', 'zeroBS_portal_enqueue_stuff');
@@ -535,13 +535,12 @@ class Client_Portal {
 	}
 
 	/**
-	* Gets client portal endpoint name for a given object type.
-	* 
-	* @param   int $obj_type_id  object type ID
-	* 
-	* @return	str
-	* @return	bool false if endpoint is not supported
-	*/
+	 * Gets client portal endpoint name for a given object type.
+	 *
+	 * @param int $obj_type_id  object type ID.
+	 *
+	 * @return string|bool endpoint name or false if endpoint is not supported
+	 */
 	function get_endpoint( $obj_type_id ) {
 		return $this->router->get_endpoint( $obj_type_id );
 	}
@@ -556,13 +555,12 @@ class Client_Portal {
 	}
 
 	/**
-	* Gets current object ID based on portal page URL.
-	* 
-	* @param   int $obj_type_id  object type ID
-	* 
-	* @return	int
-	* @return	false if invalid object, bad permissions, or any other failure
-	*/
+	 * Gets current object ID based on portal page URL.
+	 *
+	 * @param int $obj_type_id  object type ID.
+	 *
+	 * @return int|false Object ID or false if invalid object, bad permissions, or any other failure
+	 */
 	function get_obj_id_from_current_portal_page_url( $obj_type_id ) {
 		return $this->router->get_obj_id_from_current_portal_page_url( $obj_type_id );
 	}	

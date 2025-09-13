@@ -1,10 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import SimpleNotice from 'components/notice';
 import NoticeActionReconnect from './notice-action-reconnect';
 
-export default class ErrorNoticeCycleConnection extends React.Component {
+export default class ErrorNoticeCycleConnection extends Component {
 	static defaultProps = {
 		text: __( 'Connection Error, please reconnect.', 'jetpack' ),
 		display: true,

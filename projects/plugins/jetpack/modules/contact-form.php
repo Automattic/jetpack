@@ -13,7 +13,7 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
  * Module Name: Forms
- * Module Description: Add a customizable form to any post or page using the Jetpack Form block.
+ * Module Description: Add contact, registration, and feedback forms directly from the block editor.
  * Sort Order: 15
  * Recommendation Order: 14
  * First Introduced: 1.3

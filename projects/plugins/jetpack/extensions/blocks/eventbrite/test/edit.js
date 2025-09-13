@@ -1,6 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import { EventbriteEdit } from '../edit';
 
+// Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isWpcomPlatformSite = jest.fn().mockReturnValue( false );
+	return {
+		isWpcomPlatformSite,
+	};
+} );
+
 describe( 'Eventbrite Edit', () => {
 	const defaultAttributes = {
 		url: '',

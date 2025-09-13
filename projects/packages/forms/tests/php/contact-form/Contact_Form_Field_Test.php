@@ -67,7 +67,8 @@ class Contact_Form_Field_Test extends BaseTestCase {
 			'default' => 'default',
 		);
 
-		return new Contact_Form_Field( wp_parse_args( $attributes, $defaults ) );
+		$form = new Contact_Form( array() );
+		return new Contact_Form_Field( wp_parse_args( $attributes, $defaults ), '', $form );
 	}
 
 	/**
@@ -160,5 +161,86 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		remove_filter( 'jetpack_auto_fill_logged_in_user', '__return_true' );
 
 		$this->assertEquals( 'default', $result );
+	}
+
+	/**
+	 * Test sanitization of field values.
+	 */
+	public function test_sanitizes_field_values() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type' => 'text',
+				'id'   => 'test_field',
+			)
+		);
+
+		$unsanitized_value = '<script>alert("XSS")</script>';
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
+
+		$unsanitized_value = 'hello&#044; world';
+		$this->assertEquals( sanitize_text_field( html_entity_decode( $unsanitized_value, ENT_QUOTES ) ), $field->sanitize_text_field( $unsanitized_value ) );
+	}
+
+	/**
+	 * Test consent field renders as hidden input when consent type is implicit.
+	 */
+	public function test_render_consent_field_implicit_type() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                   => 'consent',
+				'id'                     => 'test_consent',
+				'consenttype'            => 'implicit',
+				'implicitconsentmessage' => 'By submitting this form, you agree to our terms.',
+			)
+		);
+
+		$html = $field->render();
+
+		// Should contain a hidden input field
+		$this->assertStringContainsString( 'type=\'hidden\'', $html );
+		$this->assertStringContainsString( 'value=\'Yes\'', $html );
+		$this->assertStringContainsString( 'consent-implicit', $html );
+		$this->assertStringContainsString( 'By submitting this form, you agree to our terms.', $html );
+	}
+
+	/**
+	 * Test consent field renders as checkbox when consent type is explicit.
+	 */
+	public function test_render_consent_field_explicit_type() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                   => 'consent',
+				'id'                     => 'test_consent',
+				'consenttype'            => 'explicit',
+				'explicitconsentmessage' => 'I agree to the terms and conditions.',
+			)
+		);
+
+		$html = $field->render();
+
+		// Should contain a checkbox input field
+		$this->assertStringContainsString( 'type=\'checkbox\'', $html );
+		$this->assertStringContainsString( 'value=\'Yes\'', $html );
+		$this->assertStringContainsString( 'consent-explicit', $html );
+		$this->assertStringContainsString( 'I agree to the terms and conditions.', $html );
+	}
+
+	/**
+	 * Test consent field defaults to implicit when no consent type is specified.
+	 */
+	public function test_render_consent_field_default_implicit() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'                   => 'consent',
+				'id'                     => 'test_consent',
+				'implicitconsentmessage' => 'Default implicit consent message.',
+			)
+		);
+
+		$html = $field->render();
+
+		// Should default to implicit (hidden field)
+		$this->assertStringContainsString( 'type=\'hidden\'', $html );
+		$this->assertStringContainsString( 'consent-implicit', $html );
 	}
 } // end class

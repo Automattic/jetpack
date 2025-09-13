@@ -1,7 +1,8 @@
-import MeasurableImage from '../src/MeasurableImage';
+import { MeasurableImage } from '../src/MeasurableImage';
 
 describe( 'MeasurableImage', () => {
-	it( 'returns an object', () => {
-		expect( typeof MeasurableImage ).toBe( 'object' );
+	it( 'returns a class', () => {
+		expect( MeasurableImage ).toBeInstanceOf( Function );
+		expect( MeasurableImage.constructor ).toBeInstanceOf( Function );
 	} );
 } );

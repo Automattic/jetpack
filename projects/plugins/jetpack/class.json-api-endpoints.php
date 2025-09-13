@@ -81,7 +81,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Maximum version of the api for which to serve this endpoint
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -103,7 +102,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Version of the endpoint this endpoint is deprecated in favor of.
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -1665,7 +1663,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object|WP_Error Media item data, or WP_Error.
 	 */
 	public function get_media_item_v1_1( $media_id, $media_item = null, $file = null ) {
-
 		if ( ! $media_item ) {
 			$media_item = get_post( $media_id );
 		}
@@ -1674,7 +1671,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 		}
 
-		$attachment_file = get_attached_file( $media_item->ID );
+		$attachment_file = isset( $media_item->ID ) ? get_attached_file( $media_item->ID ) : null;
 
 		$file      = basename( $attachment_file ? $attachment_file : $file );
 		$file_info = pathinfo( $file );
@@ -1682,41 +1679,42 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// File operations are handled differently on WordPress.com.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$attachment_metadata = wp_get_attachment_metadata( $media_item->ID );
-			$filesize            = ! empty( $attachment_metadata['filesize'] )
-				? $attachment_metadata['filesize']
-				: 0;
+			$attachment_metadata = isset( $media_item->ID ) ? wp_get_attachment_metadata( $media_item->ID ) : array();
+			$filesize            = ! empty( $attachment_metadata['filesize'] ) ? $attachment_metadata['filesize'] : 0;
 		} else {
 			// For VideoPress videos, $attachment_file is the video URL.
-			$filesize = file_exists( $attachment_file )
-				? filesize( $attachment_file )
-				: 0;
+			$filesize = ( $attachment_file && file_exists( $attachment_file ) )
+			? filesize( $attachment_file )
+			: 0;
 		}
 
 		$response = array(
-			'ID'          => $media_item->ID,
-			'URL'         => wp_get_attachment_url( $media_item->ID ),
-			'guid'        => $media_item->guid,
-			'date'        => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
-			'post_ID'     => $media_item->post_parent,
-			'author_ID'   => (int) $media_item->post_author,
+			'ID'          => isset( $media_item->ID ) ? $media_item->ID : null,
+			'URL'         => isset( $media_item->ID ) ? wp_get_attachment_url( $media_item->ID ) : null,
+			'guid'        => isset( $media_item->guid ) ? $media_item->guid : null,
+			'date'        => ( isset( $media_item->post_date_gmt ) && isset( $media_item->post_date ) ) ?
+			(string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ) : null,
+			'post_ID'     => isset( $media_item->post_parent ) ? $media_item->post_parent : null,
+			'author_ID'   => isset( $media_item->post_author ) ? (int) $media_item->post_author : null,
 			'file'        => $file,
-			'mime_type'   => $media_item->post_mime_type,
+			'mime_type'   => isset( $media_item->post_mime_type ) ? $media_item->post_mime_type : null,
 			'extension'   => $ext,
-			'title'       => $media_item->post_title,
-			'caption'     => $media_item->post_excerpt,
-			'description' => $media_item->post_content,
-			'alt'         => get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ),
-			'icon'        => wp_mime_type_icon( $media_item->ID ),
+			'title'       => isset( $media_item->post_title ) ? $media_item->post_title : '',
+			'caption'     => isset( $media_item->post_excerpt ) ? $media_item->post_excerpt : '',
+			'description' => isset( $media_item->post_content ) ? $media_item->post_content : '',
+			'alt'         => isset( $media_item->ID ) ? get_post_meta( $media_item->ID, '_wp_attachment_image_alt', true ) : '',
+			'icon'        => isset( $media_item->ID ) ? wp_mime_type_icon( $media_item->ID ) : null,
 			'size'        => size_format( (int) $filesize, 2 ),
 			'thumbnails'  => array(),
 		);
 
-		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp' ), true ) ) {
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif', 'webp' ), true ) && isset( $media_item->ID ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+			if ( isset( $metadata['height'] ) ) {
 				$response['height'] = $metadata['height'];
-				$response['width']  = $metadata['width'];
+			}
+			if ( isset( $metadata['width'] ) ) {
+				$response['width'] = $metadata['width'];
 			}
 
 			if ( isset( $metadata['sizes'] ) ) {
@@ -1753,7 +1751,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) ) {
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ), true ) && isset( $media_item->ID ) ) {
 			$metadata           = wp_get_attachment_metadata( $media_item->ID );
 			$response['length'] = $metadata['length'];
 			$response['exif']   = $metadata;
@@ -1768,12 +1766,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$is_video = true;
 		}
 
-		if ( $is_video ) {
+		if ( $is_video && isset( $media_item->ID ) ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 
-			if ( isset( $metadata['height'], $metadata['width'] ) ) {
+			if ( isset( $metadata['height'] ) ) {
 				$response['height'] = $metadata['height'];
-				$response['width']  = $metadata['width'];
+			}
+			if ( isset( $metadata['width'] ) ) {
+				$response['width'] = $metadata['width'];
 			}
 
 			if ( isset( $metadata['length'] ) ) {
@@ -1858,10 +1858,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				// not try and include it in the response.
 				if ( isset( $info->guid ) ) {
 					$response['videopress_guid']            = $info->guid;
-					$response['videopress_processing_done'] = true;
-					if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
-						$response['videopress_processing_done'] = false;
-					}
+					$response['videopress_processing_done'] = isset( $info->finish_date_gmt ) && '0000-00-00 00:00:00' !== $info->finish_date_gmt;
 				}
 			}
 		}
@@ -1870,8 +1867,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID ),
-				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID, 'help' ),
+				'self' => isset( $media_item->ID ) ? (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID ) : null,
+				'help' => isset( $media_item->ID ) ? (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID, 'help' ) : null,
 				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
@@ -1883,7 +1880,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		if ( $media_item->post_parent > 0 ) {
+		if ( isset( $media_item->post_parent ) && $media_item->post_parent > 0 ) {
 			$response['meta']->links->parent = (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $media_item->post_parent );
 		}
 
@@ -2568,7 +2565,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		 * @param array $clients_allowed_video_uploads Array of whitelisted Video clients.
 		 */
 		$clients_allowed_video_uploads = apply_filters( 'rest_api_clients_allowed_video_uploads', $clients_allowed_video_uploads );
-		if ( ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict -- Check what types are expected here.
+		if ( ! isset( $this->api->token_details['client_id'] ) || ! in_array( $this->api->token_details['client_id'], $clients_allowed_video_uploads, true ) ) {
 			return $mimes;
 		}
 
@@ -2784,8 +2781,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
 		);
 
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused.
 		if ( ! $response && ! is_array( $response ) ) {
-			// Dealing with empty non-array response. Phan is wrong about it being an "impossible condition".
+			// Dealing with empty non-array response.
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );
 		}
 

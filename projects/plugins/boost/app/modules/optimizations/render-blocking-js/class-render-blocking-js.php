@@ -291,11 +291,17 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 	 * @return string
 	 */
 	public function append_script_tags( $buffer ) {
+		$script_tags = implode( '', $this->buffered_script_tags );
+		// Reset tags in case there's another buffer after this one.
+		$this->buffered_script_tags = array();
+
 		if ( str_contains( $buffer, '</body>' ) ) {
-			return str_replace( '</body>', implode( '', $this->buffered_script_tags ) . '</body>', $buffer );
+			$buffer = str_replace( '</body>', $script_tags . '</body>', $buffer );
+		} else {
+			$buffer .= $script_tags;
 		}
 
-		return $buffer . implode( '', $this->buffered_script_tags );
+		return $buffer;
 	}
 
 	/**

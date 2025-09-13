@@ -2,7 +2,6 @@ import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import ActivationScreen from '..';
 
 describe( 'ActivationScreen', () => {

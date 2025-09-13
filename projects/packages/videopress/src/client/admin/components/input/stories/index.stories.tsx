@@ -1,6 +1,6 @@
-import { action } from '@storybook/addon-actions';
 import { Icon, mapMarker } from '@wordpress/icons';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
 import { Input, SearchInput } from '..';
 import type { StoryFn, Meta } from '@storybook/react';
 

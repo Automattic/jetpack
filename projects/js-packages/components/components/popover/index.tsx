@@ -1,12 +1,13 @@
 import './style.scss';
+import type { FC, ReactNode } from 'react';
 
 type PopoverProps = {
-	action: React.ReactNode;
-	icon?: React.ReactNode;
-	children?: React.ReactNode;
+	action: ReactNode;
+	icon?: ReactNode;
+	children?: ReactNode;
 };
 
-const Popover: React.FC< PopoverProps > = ( { icon, children, action } ) => {
+const Popover: FC< PopoverProps > = ( { icon, children, action } ) => {
 	return (
 		<div className="jp-popover">
 			<div className="jp-popover__icon">{ icon }</div>

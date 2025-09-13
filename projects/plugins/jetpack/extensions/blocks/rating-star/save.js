@@ -1,5 +1,4 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { range } from 'lodash';
 
 // This is a dynamic block, meaning that its content is created on the server.
 // This function is only to provide a fallback in case the block is deactivated
@@ -16,7 +15,7 @@ export default fallbackSymbol =>
 
 		return (
 			<figure { ...blockProps } style={ { textAlign: align } }>
-				{ range( 1, rating + 1 ).map( position => (
+				{ Array.from( Array( Math.ceil( rating ) ), ( _, i ) => i + 1 ).map( position => (
 					<span key={ position } style={ { color } }>
 						{ fallbackSymbol }
 					</span>

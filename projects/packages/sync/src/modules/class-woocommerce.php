@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 use WC_Order;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for WooCommerce.
  */
@@ -325,7 +329,7 @@ class WooCommerce extends Module {
 	 * @todo Refactor the SQL query to use $wpdb->prepare().
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;

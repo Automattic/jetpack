@@ -25,6 +25,7 @@ export { getBlockIconComponent, getBlockIconProp } from './src/get-block-icon-fr
 export { default as getJetpackBlocksVariation } from './src/get-jetpack-blocks-variation';
 export * from './src/modules-state';
 export { default as isMyJetpackAvailable } from './src/is-my-jetpack-available';
+export { default as hasFeatureFlag } from './src/has-feature-flag';
 export * from './src/libs';
 export { default as useUpgradeFlow } from './src/hooks/use-upgrade-flow';
 export * from './src/block-editor-actions';

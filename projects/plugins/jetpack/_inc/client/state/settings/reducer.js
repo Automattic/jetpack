@@ -1,4 +1,4 @@
-import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
+import { mapValues, merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_SET_INITIAL_STATE,
@@ -18,17 +18,17 @@ import {
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return assign( {}, state, action.initialState.settings );
+			return Object.assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, action.settings );
+			return Object.assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS: {
 			const key = Object.keys( action.updatedOption )[ 0 ];
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				[ key ]: action.updatedOption[ key ],
 			} );
 		}
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, action.updatedOptions );
+			return Object.assign( {}, state, action.updatedOptions );
 		default:
 			return state;
 	}
@@ -43,12 +43,12 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: true,
 			} );
 		case JETPACK_SETTINGS_FETCH_FAIL:
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingSettingsList: false,
 			} );
 
@@ -108,11 +108,11 @@ export function getSetting( state, key, moduleName = '', ignoreDisabledModules =
 	if (
 		ignoreDisabledModules &&
 		'' !== moduleName &&
-		! get( state.jetpack.settings.items, moduleName, false )
+		! state.jetpack.settings.items?.[ moduleName ]
 	) {
 		return undefined;
 	}
-	return get( state.jetpack.settings.items, key, undefined );
+	return state.jetpack.settings.items?.[ key ];
 }
 
 /**
@@ -134,12 +134,9 @@ export function isFetchingSettingsList( state ) {
  * @return {boolean}                Whether option is being updated on the setting
  */
 export function isUpdatingSetting( state, settings = '' ) {
-	if ( 'object' === typeof settings ) {
-		return some(
-			filter( state.jetpack.settings.requests.settingsSent, ( item, key ) =>
-				includes( settings, key )
-			),
-			item => item
+	if ( Array.isArray( settings ) ) {
+		return Object.entries( state.jetpack.settings.requests.settingsSent ).some(
+			( [ key, item ] ) => item && settings.includes( key )
 		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];
@@ -163,7 +160,7 @@ export function hasUpdatedSetting( state, setting = '' ) {
  * @return {boolean}       Whether a setting is checked
  */
 export function isSettingActivated( state, name ) {
-	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
+	return state.jetpack.settings.items?.[ name ] ? true : false;
 }
 
 /**
@@ -173,7 +170,7 @@ export function isSettingActivated( state, name ) {
  * @return {boolean}       Whether a setting is checked
  */
 export function toggleSetting( state, name ) {
-	return get( state.jetpack.settings.items, [ name ], false ) ? true : false;
+	return state.jetpack.settings.items?.[ name ] ? true : false;
 }
 
 /**
@@ -182,7 +179,7 @@ export function toggleSetting( state, name ) {
  * @return {boolean}  Whether there are unsaved settings
  */
 export function areThereUnsavedSettings( state ) {
-	return get( state.jetpack.settings, 'unsavedSettingsFlag', false );
+	return state.jetpack.settings?.unsavedSettingsFlag ?? false;
 }
 
 /**
@@ -191,7 +188,7 @@ export function areThereUnsavedSettings( state ) {
  * @return {boolean} Whether the card has been dismissed
  */
 export function emptyStatsCardDismissed( state ) {
-	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
+	return state.jetpack.settings.items?.dismiss_empty_stats_card ?? false;
 }
 
 /**
@@ -201,7 +198,7 @@ export function emptyStatsCardDismissed( state ) {
  * @return {boolean} Whether the card has been dismissed
  */
 export function backupGettingStartedDismissed( state ) {
-	return get( state.jetpack.settings.items, 'dismiss_dash_backup_getting_started', false );
+	return state.jetpack.settings.items?.dismiss_dash_backup_getting_started ?? false;
 }
 
 /**
@@ -211,5 +208,5 @@ export function backupGettingStartedDismissed( state ) {
  * @return {boolean} Whether the card has been dismissed
  */
 export function agenciesLearnMoreDismissed( state ) {
-	return get( state.jetpack.settings.items, 'dismiss_dash_agencies_learn_more', false );
+	return state.jetpack.settings.items?.dismiss_dash_agencies_learn_more ?? false;
 }

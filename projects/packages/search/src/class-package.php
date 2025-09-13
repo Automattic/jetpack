@@ -7,11 +7,15 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Search package general information
  */
 class Package {
-	const VERSION = '0.50.0';
+	const VERSION = '0.52.16';
 	const SLUG    = 'search';
 
 	/**

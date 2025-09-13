@@ -8,21 +8,20 @@ import {
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useEntityRecords } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isArray, isEmpty, join } from 'lodash';
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { isEmpty } from 'lodash';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import InboxStatusToggle from '../../components/InboxStatusToggle';
-import { store as dashboardStore } from '../../store';
+import InboxStatusToggle from '../../components/inbox-status-toggle';
+import useInboxData from '../../hooks/use-inbox-data';
+import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
@@ -37,7 +36,6 @@ import {
 import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
-const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
 
@@ -52,36 +50,51 @@ const formatFieldName = fieldName => {
 const formatFieldValue = fieldValue => {
 	if ( isEmpty( fieldValue ) ) {
 		return '-';
-	} else if ( isArray( fieldValue ) ) {
-		return join( fieldValue, ', ' );
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
 	}
 	return fieldValue;
 };
 
-/**
- * Helper function to get the status filter to apply from the URL.
- * This is the only way to filter the data by `status` as intentionally
- * we don't want to have a `status` filter in the UI.
- *
- * @param {string} urlStatus - The current status from the URL.
- * @return {string} The status filter to apply.
- */
-function getStatusFilter( urlStatus ) {
-	// Only allow specific status values.
-	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
-	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
-}
+const updateSidebarWidth = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( wrapper ) {
+		const left = wrapper.getBoundingClientRect().left;
+		wrapper.style.setProperty( '--forms-admin-sidebar-width', `${ left }px` );
+	}
+};
+
+const setupSidebarWidthObserver = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( ! wrapper ) {
+		return () => {};
+	}
+
+	updateSidebarWidth();
+
+	const resizeObserver = new ResizeObserver( () => {
+		requestAnimationFrame( updateSidebarWidth );
+	} );
+
+	resizeObserver.observe( wrapper );
+
+	return () => {
+		resizeObserver.disconnect();
+	};
+};
 
 /**
  * The DataViews implementation.
  *
- * @return {React.JSX.Element} The DataViews component.
+ * @return {import('react').JSX.Element} The DataViews component.
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
-	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
+
 	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
 		resizeObserverEntries => {
@@ -90,11 +103,23 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
-	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const selectedResponses = searchParams.get( 'r' );
-	const urlStatus = searchParams.get( 'status' );
-	const statusFilter = getStatusFilter( urlStatus );
-	const filterOptions = useSelect( select => select( dashboardStore ).getFilters(), [] );
+
+	useEffect( () => {
+		return setupSidebarWidthObserver();
+	}, [] );
+
+	const {
+		setCurrentQuery,
+		setSelectedResponses,
+		statusFilter,
+		filterOptions,
+		records,
+		isLoadingData,
+		totalItems,
+		totalPages,
+	} = useInboxData();
+
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
@@ -120,19 +145,7 @@ export default function InboxView() {
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-		// We also need to keep the args in local state and update it inside `useEffect`
-		// to run after the component mounts. This is because the `status` filter is retrieved
-		// from URL and can be changed through the parent components (Tabs), and if we'd used
-		// `useMemo` it would run during rendering and would update the component while also
-		// rendering different ones.
-		setQueryArgs( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
-	const {
-		records,
-		isResolving: isLoadingData,
-		totalItems,
-		totalPages,
-	} = useEntityRecords( 'postType', 'feedback', queryArgs );
 	const data = useMemo(
 		() =>
 			records?.map( record => ( {
@@ -290,9 +303,13 @@ export default function InboxView() {
 		return _actions;
 	}, [ isMobile, onChangeSelection, selection ] );
 
+	const resetPage = useCallback( () => {
+		view.page = 1;
+	}, [ view ] );
+
 	return (
 		<HStack
-			spacing={ 5 }
+			spacing={ 0 }
 			alignment="top"
 			justify="flex-start"
 			ref={ containerRef }
@@ -311,7 +328,8 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
+					header={ <InboxStatusToggle onChange={ resetPage } /> }
+					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
 			<SingleResponse
@@ -325,13 +343,31 @@ export default function InboxView() {
 }
 
 const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
+	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
+
 	const onRequestClose = useCallback( () => {
-		setSidePanelItem();
-	}, [ setSidePanelItem ] );
+		if ( ! isChildModalOpen ) {
+			setSidePanelItem();
+		}
+	}, [ setSidePanelItem, isChildModalOpen ] );
+
+	const handleModalStateChange = useCallback(
+		isOpen => {
+			setIsChildModalOpen( isOpen );
+		},
+		[ setIsChildModalOpen ]
+	);
+
 	if ( ! sidePanelItem ) {
 		return null;
 	}
-	const contents = <InboxResponse response={ sidePanelItem } isLoading={ isLoadingData } />;
+	const contents = (
+		<InboxResponse
+			response={ sidePanelItem }
+			isLoading={ isLoadingData }
+			onModalStateChange={ handleModalStateChange }
+		/>
+	);
 	if ( ! isMobile ) {
 		return <div className="jp-forms__inbox__dataviews-response">{ contents }</div>;
 	}

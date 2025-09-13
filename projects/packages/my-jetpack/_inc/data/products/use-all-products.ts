@@ -4,19 +4,15 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 import { prepareProductData } from '../utils/prepare-product-data';
 import type { ProductCamelCase, ProductSnakeCase } from '../types';
 
-type UseAllProductsReturnType = {
-	data: { [ key: string ]: ProductCamelCase };
-	isLoading: boolean;
-	isError: boolean;
-};
-
-export const useAllProducts = (): UseAllProductsReturnType => {
+export const useAllProducts = () => {
 	const { items: products } = getMyJetpackWindowInitialState( 'products' );
 
 	const {
 		data: fetchedProducts,
 		isLoading,
+		isRefetching,
 		isError,
+		refetch,
 	} = useSimpleQuery< { [ key: string ]: ProductSnakeCase } >( {
 		name: `${ QUERY_PRODUCT_KEY }`,
 		query: {
@@ -38,15 +34,19 @@ export const useAllProducts = (): UseAllProductsReturnType => {
 			data: {},
 			isLoading: false,
 			isError: false,
+			isRefetching,
+			refetch,
 		};
 	}
 
 	return {
 		data: Object.entries( products ).reduce(
 			( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
-			{}
+			{} as { [ key: string ]: ProductCamelCase }
 		),
+		refetch,
 		isLoading,
+		isRefetching,
 		isError,
 	};
 };

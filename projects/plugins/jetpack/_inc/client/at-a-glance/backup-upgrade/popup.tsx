@@ -1,15 +1,15 @@
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import { PopupProps } from './types';
+import type { FC, ReactElement } from 'react';
 /**
  * The popup is a simple React component that displays a popup with a title, a lock icon, and a message
  *
  * @param {PopupProps} props - Props
- * @return {React.ReactElement} - JSX Element
+ * @return {ReactElement} - JSX Element
  */
-export const Popup: React.FC< PopupProps > = ( { posts, comments, onClosePopup } ) => {
+export const Popup: FC< PopupProps > = ( { posts, comments, onClosePopup } ) => {
 	return (
 		<div className="jp-dash-upgrade-backup__popup">
 			<Button

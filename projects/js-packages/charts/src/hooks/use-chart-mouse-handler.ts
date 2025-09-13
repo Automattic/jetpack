@@ -14,7 +14,7 @@ type UseChartMouseHandlerReturn = {
 	/**
 	 * Handler for mouse move events
 	 */
-	onMouseMove: ( event: React.MouseEvent< SVGElement >, data: DataPoint ) => void;
+	onMouseMove: ( event: MouseEvent< SVGElement >, data: DataPoint ) => void;
 	/**
 	 * Handler for mouse leave events
 	 */
@@ -43,7 +43,7 @@ type UseChartMouseHandlerReturn = {
  * @param {UseChartMouseHandlerProps} props - Hook configuration
  * @return {UseChartMouseHandlerReturn} Object containing handlers and tooltip state
  */
-const useChartMouseHandler = ( {
+export const useChartMouseHandler = ( {
 	withTooltips,
 }: UseChartMouseHandlerProps ): UseChartMouseHandlerReturn => {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
@@ -86,5 +86,3 @@ const useChartMouseHandler = ( {
 		tooltipTop,
 	};
 };
-
-export default useChartMouseHandler;

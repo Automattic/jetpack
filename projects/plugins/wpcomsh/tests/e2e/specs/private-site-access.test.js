@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-const { get, head, isArray, isEmpty } = require( 'lodash' );
+const { isEmpty } = require( 'lodash' );
 
 /**
  * Internal dependencies
@@ -175,9 +175,9 @@ describe( 'Private Site -- Logged in Access', () => {
 		const res = await fetchPathLoggedInWithRestApiNonce( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
 
-		expect( isArray( posts ) ).toBe( true );
+		expect( Array.isArray( posts ) ).toBe( true );
 		expect( isEmpty( posts ) ).toBe( false );
-		const slug = get( head( posts ), 'slug' );
+		const slug = posts[0]?.slug;
 		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 

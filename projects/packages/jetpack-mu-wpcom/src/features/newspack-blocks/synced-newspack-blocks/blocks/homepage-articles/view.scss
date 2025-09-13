@@ -372,6 +372,8 @@
 	&.has-more-button {
 		button {
 			display: block;
+			height: auto;
+			width: auto;
 		}
 	}
 
@@ -389,7 +391,7 @@
 
 	.loading {
 		animation: linear 900ms infinite wpnbha-loading-animation;
-		border-color: currentColor currentColor transparent transparent;
+		border-color: currentcolor currentcolor transparent transparent;
 		border-radius: 50%;
 		border-style: solid;
 		border-width: 1.5px;
@@ -744,7 +746,7 @@
 		&.columns-5 article:nth-of-type(5n),
 		&.columns-6 article:nth-of-type(6n) {
 			border: 0;
-			padding-right: 0;
+			padding-right: 0 !important; // to overide the :not(:last-of-type) for .columns-5.
 		}
 	}
 }

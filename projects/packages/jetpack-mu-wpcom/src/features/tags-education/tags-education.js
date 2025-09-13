@@ -1,6 +1,6 @@
 import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 
@@ -15,14 +15,15 @@ const addTagsEducationLink = createHigherOrderComponent( PostTaxonomyType => {
 		return (
 			<>
 				<PostTaxonomyType { ...props } />
-				<ExternalLink
-					href={ localizeUrl( 'https://wordpress.com/support/posts/tags/' ) }
+				<WpcomSupportLink
+					supportLink={ localizeUrl( 'https://wordpress.com/support/posts/tags/' ) }
+					supportPostId={ 8586 }
 					onClick={ () => {
 						tracks.recordEvent( 'jetpack_mu_wpcom_tags_education_link_click' );
 					} }
 				>
 					{ window.wpcomTagsEducation.actionText }
-				</ExternalLink>
+				</WpcomSupportLink>
 			</>
 		);
 	};

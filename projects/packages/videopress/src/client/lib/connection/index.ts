@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import debugFactory from 'debug';
 
 // Get connection initial state from the global window object.
@@ -24,7 +24,7 @@ export function isUserConnected(): boolean {
 		return true;
 	}
 
-	if ( isAtomicSite() ) {
+	if ( isWoASite() ) {
 		debug( 'Atomic site connected ✅' );
 		return true;
 	}

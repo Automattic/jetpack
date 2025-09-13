@@ -1,14 +1,14 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import SurveyChoice from './survey-choice';
 
 /**
  * Handles showing the disconnect survey.
  *
  * @param {object} props - The component props.
- * @return {React.Component} - DisconnectSurvey component.
+ * @return {import('react').Component} - DisconnectSurvey component.
  */
 const DisconnectSurvey = props => {
 	const { onSubmit, isSubmittingFeedback } = props;
@@ -105,7 +105,7 @@ const DisconnectSurvey = props => {
 	/**
 	 * Show all the survey options from the options array.
 	 *
-	 * @return {React.ElementType []} - Mapped array of rendered survey options.
+	 * @return {import('react').ElementType []} - Mapped array of rendered survey options.
 	 */
 	const renderOptions = () => {
 		return options.map( option => {
@@ -127,7 +127,7 @@ const DisconnectSurvey = props => {
 	 * Show the custom input survey option.
 	 * Contains an input field for a custom response.
 	 *
-	 * @return {React.ElementType} - The custom survey option with an input field.
+	 * @return {import('react').ElementType} - The custom survey option with an input field.
 	 */
 	const renderCustomOption = () => {
 		return (
@@ -154,7 +154,7 @@ const DisconnectSurvey = props => {
 	};
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<div className="jp-connection__disconnect-dialog__survey">
 				{ renderOptions() }
 				{ renderCustomOption() }
@@ -175,7 +175,7 @@ const DisconnectSurvey = props => {
 						  ) }
 				</Button>
 			</p>
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

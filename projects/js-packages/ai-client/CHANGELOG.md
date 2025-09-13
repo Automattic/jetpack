@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.11] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [0.33.10] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## [0.33.9] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [0.33.8] - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## [0.33.7] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.33.6] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [0.33.5] - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
+## [0.33.4] - 2025-07-28
+### Fixed
+- Block Editor: Fix Jetpack AI upgrade links. [#44405]
+
+## [0.33.3] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [0.33.2] - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
+## [0.33.1] - 2025-07-07
+### Changed
+- Jetpack AI: Change Chrome AI experiment name to v2. [#44135]
+- Update package dependencies. [#44148]
+
+## [0.33.0] - 2025-06-30
+### Changed
+- Create custom explat client with public-api fetch for assignments. [#44081]
+
+## [0.32.1] - 2025-06-24
+### Added
+- Improve error handling on Chrome AI events. [#44048]
+
+## [0.32.0] - 2025-06-23
+### Changed
+- AI Assistant: Add A/B test for Chrome AI API features. [#43690]
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020]
+
+### Fixed
+- Fix Chrome experiment assignment group. [#44018]
+- Fix async function call on Chrome experiment availability. [#44026]
+- Invert feature flag check. [#44011]
+
+## [0.31.2] - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
+## [0.31.1] - 2025-06-05
+### Changed
+- Update package dependencies. [#43718] [#43766]
+
+## [0.31.0] - 2025-06-02
+### Changed
+- Change how Chrome's built-in AI API tokens are injected. [#43682]
+- sass: Remove unnecessary `@import` of `@wordpress/base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.30.0] - 2025-05-26
+### Changed
+- AI Assistant: Propagate the AI model used in the AI requests. [#43495]
+- Update package dependencies. [#43578]
+
 ## [0.29.0] - 2025-05-19
 ### Added
 - AI Assistant: Retrieve Chrome AI token from AI Features response and inject it from the frontend. [#43442]
@@ -616,6 +702,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.33.11]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.10...v0.33.11
+[0.33.10]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.9...v0.33.10
+[0.33.9]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.8...v0.33.9
+[0.33.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.7...v0.33.8
+[0.33.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.6...v0.33.7
+[0.33.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.5...v0.33.6
+[0.33.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.4...v0.33.5
+[0.33.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.3...v0.33.4
+[0.33.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.2...v0.33.3
+[0.33.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.1...v0.33.2
+[0.33.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.0...v0.33.1
+[0.33.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.32.1...v0.33.0
+[0.32.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.31.2...v0.32.0
+[0.31.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.31.1...v0.31.2
+[0.31.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.30.0...v0.31.0
+[0.30.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.28.1...v0.29.0
 [0.28.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.27.10...v0.28.0

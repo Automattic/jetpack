@@ -1,5 +1,5 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { select } from '@wordpress/data';
-import { isSimpleSite } from '../site-type-utils';
 import {
 	fetchJetpackModules,
 	updateJetpackModuleStatus as updateJetpackModuleStatusControl,
@@ -64,7 +64,7 @@ export function* fetchModules() {
  * @param {boolean} isLoading - If the modules are loading or not.
  * @return {object} - an action object.
  */
-function setIsLoading( isLoading ) {
+export function setIsLoading( isLoading ) {
 	return setJetpackModules( { isLoading } );
 }
 

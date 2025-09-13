@@ -6,7 +6,7 @@
 	<config name="testVersion" value="7.2-"/>
 
 	<!-- Use our custom filter for `.phpcsignore` and `.phpcs.dir.xml` support. -->
-	<arg name="filter" value="vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php" />
+	<arg name="filter" value="Automattic\JetpackPhpcsFilter" />
 	<!-- The bootstrap file is needed to get phpcs-changed to work right. -->
 	<arg name="bootstrap" value="vendor/automattic/jetpack-phpcs-filter/stdin-bootstrap.php" />
 

@@ -9,7 +9,7 @@ The component only needs the source where this link was clicked, for tracking pu
 
 ```jsx
 
-import React, { Component } from 'react';
+import { Component } from 'react';
 import UpgradeLink from 'components/upgrade-link';
 
 class UpgradeTest extends Component {

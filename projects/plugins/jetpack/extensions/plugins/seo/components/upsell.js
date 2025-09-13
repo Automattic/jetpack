@@ -1,6 +1,6 @@
 import { useAnalytics, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
+import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -23,35 +23,20 @@ const UpsellNotice = ( { requiredPlan } ) => {
 		goToCheckoutPage( event );
 	};
 
-	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
-	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
-	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
-
 	return (
 		<>
 			<div>
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__( 'To use the SEO feature you need to upgrade to the %s plan', 'jetpack' ),
 					planName
 				) }
 			</div>
 
 			<div className="components-seo-upsell__learn-more">
-				{ setShowHelpCenter ? (
-					<Button
-						onClick={ () => {
-							setShowHelpCenter( true );
-							setShowSupportDoc( supportUrl );
-						} }
-						className="components-seo-upsell__learn-more-link"
-						variant="link"
-					>
-						{ supportLinkTitle }
-					</Button>
-				) : (
-					<ExternalLink href={ supportUrl }>{ supportLinkTitle }</ExternalLink>
-				) }
+				<WpcomSupportLink supportLink={ supportUrl } supportPostId={ 120916 }>
+					{ supportLinkTitle }
+				</WpcomSupportLink>
 			</div>
 
 			<Button

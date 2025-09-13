@@ -38,7 +38,7 @@ class Utils {
 		if ( is_object( $error ) ) {
 			return array(
 				'name'    => 'Error',
-				'message' => json_decode( wp_json_encode( $error ), ARRAY_A ),
+				'message' => json_decode( wp_json_encode( $error ), true ),
 			);
 		}
 
@@ -54,7 +54,7 @@ class Utils {
 	 */
 	public static function force_url_to_absolute( $url ) {
 		if ( str_starts_with( $url, '/' ) ) {
-			return get_site_url( null, $url );
+			return home_url( $url );
 		}
 
 		return $url;
@@ -124,7 +124,7 @@ class Utils {
 
 		// Check for HTTP errors.
 		$code = wp_remote_retrieve_response_code( $response );
-		$data = json_decode( wp_remote_retrieve_body( $response ), ARRAY_A );
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 !== $code ) {
 			$default_message = sprintf(

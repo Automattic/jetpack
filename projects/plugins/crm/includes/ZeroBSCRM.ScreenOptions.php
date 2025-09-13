@@ -32,11 +32,7 @@ function zeroBSCRM_screenOptionsPanel(){
 		// company view
 		case 'zbs-add-edit-company-view':
 
-			if(!array_key_exists('tablecolumns', $options)){
-				$options['tablecolumns'] = array();
-			}
-
-			if (!is_array($options['tablecolumns'])) $options['tablecolumns'] = array();
+			$options['tablecolumns'] = array();
 
 	        // global $zbsTransactionFields; 
 	        // get existing from setting

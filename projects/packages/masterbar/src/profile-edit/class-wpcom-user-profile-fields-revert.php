@@ -13,6 +13,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * Responsible with preventing the back-end default implementation to save the fields that are managed on WP.com profiles.
  *
  * Class Profile_Edit_Filter_Fields
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_User_Profile_Fields_Revert {
 

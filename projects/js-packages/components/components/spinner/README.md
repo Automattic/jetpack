@@ -8,10 +8,10 @@ Spinner is a React component for rendering a loading indicator.
 ## Usage
 
 ```jsx
-import React from 'react';
+import { Component } from 'react';
 import Spinner from '@automattic/jetpack-components';
 
-export default class extends React.Component {
+export default class extends Component {
 	render() {
 		return <Spinner />;
 	}

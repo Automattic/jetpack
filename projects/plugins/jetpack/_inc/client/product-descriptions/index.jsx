@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QuerySiteProducts from 'components/data/query-site-products';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';

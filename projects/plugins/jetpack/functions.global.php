@@ -13,6 +13,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 use Automattic\Jetpack\Sync\Functions;
 
 // Disable direct access.
@@ -430,89 +431,30 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
  * including a Vary Accept header if necessary.
  *
  * @since 12.2
+ * @deprecated 14.8
  *
  * @param array $headers The headers to be sent.
  *
  * @return array $vary_header_parts Vary Headers to be sent.
  */
 function jetpack_get_vary_headers( $headers = array() ) {
-	$vary_header_parts = array( 'accept', 'content-type' );
+	_deprecated_function( __FUNCTION__, '14.8', 'Automattic\Jetpack\Status\Request::get_vary_headers' );
 
-	foreach ( $headers as $header ) {
-		// Check for a Vary header.
-		if ( ! str_starts_with( strtolower( $header ), 'vary:' ) ) {
-			continue;
-		}
-
-		// If the header is a wildcard, we'll return that.
-		if ( str_contains( $header, '*' ) ) {
-			$vary_header_parts = array( '*' );
-			break;
-		}
-
-		// Remove the Vary: part of the header.
-		$header = preg_replace( '/^vary\:\s?/i', '', $header );
-
-		// Remove spaces from the header.
-		$header = str_replace( ' ', '', $header );
-
-		// Break the header into parts.
-		$header_parts = explode( ',', strtolower( $header ) );
-
-		// Build an array with the Accept header and what was already there.
-		$vary_header_parts = array_values( array_unique( array_merge( $vary_header_parts, $header_parts ) ) );
-	}
-
-	return $vary_header_parts;
+	return ( new Request() )->get_vary_headers( $headers );
 }
 
 /**
  * Determine whether the current request is for accessing the frontend.
  * Also update Vary headers to indicate that the response may vary by Accept header.
  *
+ * @deprecated 14.8
+ *
  * @return bool True if it's a frontend request, false otherwise.
  */
 function jetpack_is_frontend() {
-	$is_frontend        = true;
-	$is_varying_request = true;
+	_deprecated_function( __FUNCTION__, '14.8', 'Automattic\Jetpack\Status\Request::is_frontend' );
 
-	if (
-		is_admin()
-		|| wp_doing_ajax()
-		|| wp_is_jsonp_request()
-		|| is_feed()
-		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
-		|| ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST )
-		|| ( defined( 'WP_CLI' ) && WP_CLI )
-	) {
-		$is_frontend        = false;
-		$is_varying_request = false;
-	} elseif (
-		wp_is_json_request()
-		|| wp_is_xml_request()
-	) {
-		$is_frontend = false;
-	}
-
-	/*
-	 * Check existing headers for the request.
-	 * If there is no existing Vary Accept header, add one.
-	 */
-	if ( $is_varying_request && ! headers_sent() ) {
-		$headers           = headers_list();
-		$vary_header_parts = jetpack_get_vary_headers( $headers );
-
-		header( 'Vary: ' . implode( ', ', $vary_header_parts ) );
-	}
-
-	/**
-	 * Filter whether the current request is for accessing the frontend.
-	 *
-	 * @since  9.0.0
-	 *
-	 * @param bool $is_frontend Whether the current request is for accessing the frontend.
-	 */
-	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
+	return Request::is_frontend();
 }
 
 if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {

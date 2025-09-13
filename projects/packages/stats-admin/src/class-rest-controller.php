@@ -495,6 +495,9 @@ class REST_Controller {
 			case 'top-posts':
 				return $this->wpcom_stats->get_top_posts( $req->get_params() );
 
+			case 'archives':
+				return $this->wpcom_stats->get_archives( $req->get_params() );
+
 			case 'publicize':
 				return $this->wpcom_stats->get_publicize_followers( $req->get_params() );
 

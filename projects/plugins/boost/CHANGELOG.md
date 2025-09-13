@@ -5,28 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.0.0-beta] - 2025-05-15
+## [4.3.1] - 2025-08-25
 ### Changed
-- Dashboard: Indicate all external links with External icon. [#43152]
+- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
+- Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
+- My Jetpack: Fixed multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44677] [#44701] [#44725]
+
+### Fixed
+- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute. [#44753]
+
+## [4.3.0] - 2025-08-06
+### Added
+- Page Cache: Ignore Yandex parameters so those visitors are served from the cache. [#44618]
+
+### Changed
+- Image CDN: Ignore images from openlibrary.org. [#44627]
+- Misc: Speed up uninstall process. [#44549]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+
+### Removed
+- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA. [#44459]
+
+### Fixed
+- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
+- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
+- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
+- My Jetpack: Restoring plan purchase link. [#44535]
+- Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
+
+## [4.2.1] - 2025-07-24
+### Removed
+- Admin: remove references to deprecated feature. [#44434]
+
+## [4.2.0] - 2025-07-23
+### Added
+- Critical CSS: Exclude post types of popular builder plugins from generation. [#44280]
+- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality. [#44246]
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page [#44275]
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improves performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Update package dependencies. [#44219] [#44356]
+
+### Deprecated
+- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter. [#44287]
+
+### Fixed
+- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2 [#44418]
+- Update JITMs to remove jQuery dependency [#43783]
+
+## [4.1.2] - 2025-07-08
+### Added
+- Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
+
+### Changed
+- General: Update UI to show some features are unavailable if the website is offline. [#44171]
+- LCP Optimization: Show errors not in the list of known errors, in the UI. [#44091]
+- Concatenate JS/CSS: Cleanup static files when running garbage collection. [#44137]
+- My Jetpack: Updating Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44148] [#44151] [#44206] [#44217]
+
+### Fixed
+- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown [#44087]
+- Concatenate JS: Exclude scripts of type module from concatenation. [#44193]
+- JITM: Fix ineffective caching due to expired plugin sync transient [#44117]
+
+## [4.1.1] - 2025-06-23
+### Changed
+- Update package dependencies. [#43892] [#43951] [#44020] [#44040]
+
+### Fixed
+- Defer JS: Fix duplicating deferred scripts on the page when "Optimize LCP Images" is enabled. [#44041]
+- Image Guide: Fix reporting images in WordPress' admin bar. [#43964]
+
+## [4.1.0] - 2025-06-18
+### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages. [#43684]
+
+### Changed
+- Auto-Resize Lazy Images: Remove beta tag. [#43496]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- Update package dependencies. [#43578] [#43718] [#43734] [#43766] [#43839]
+
+### Removed
+- Cornerstone Pages: Remove "Experimental" tag from UI. [#43492]
+
+### Fixed
+- General: Fix storage data persisting after clear. [#43852]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores. [#43764]
+
+## [4.0.0] - 2025-05-19
+### Changed
 - General: Run feature activation routines for active features when the plugin is deactivated, then reactivated. [#43168]
-- My Jetpack: Updated the onboarding UI, changing it to a single button. [#43203]
-- UI: Updated currency formatting. [#42796]
+- Dashboard: Indicate all external links with External icon. [#43152]
 - Page Cache: Improve compatibility with sites using Endurance Page Cache. [#43416]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- UI: Updated currency formatting. [#42796]
 - Update package dependencies. [#43326] [#43354] [#43355] [#43398] [#43400] [#43425] [#43085]
 
 ### Removed
 - General: Update minimum WordPress version to 6.7. [#43192]
 
 ### Fixed
-- Concatenate JS/CSS: Gracefully handle if there are too many files to concat. [#43176]
-- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin. [#43431]
-- Cornerstone pages: Avoid fatal errors when no pages are set. [#43171]
 - Dashboard: Properly display notice to purchase a plan in Critical CSS modal. [#43153]
-- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
-- Concatenate JS/CSS: Avoid fatal errors on feature activation. [#43194]
-- My Jetpack: Fix social login getting stuck when email input is not empty. [#43158]
+- Cornerstone Pages: Avoid fatal errors when no pages are set. [#43171]
 - Page Cache: Handle garbage collection through cron-job on front-end update. [#42954]
-- Use transients instead of cache to ensure persistence for sites without object caching. [#43139]
+- Concatenate JS/CSS: Gracefully handle if there are too many files to concat. [#43176]
+- Concatenate JS/CSS: Avoid fatal errors on feature activation. [#43194]
+- Concatenate JS: Ensure compatibility with the WooCommerce Bookings plugin. [#43431]
+- My Jetpack: Fix social login getting stuck when email input is not empty. [#43158]
+- Performance: Improve internal object caching. [#43139]
 
 ## [3.13.1] - 2025-04-16
 ### Fixed
@@ -705,7 +804,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.0.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0-beta
+[4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
+[4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.2...4.2.0
+[4.1.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0
+[4.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0
 [3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0
 [3.12.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.0...3.12.1

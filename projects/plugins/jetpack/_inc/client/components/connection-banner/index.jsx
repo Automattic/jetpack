@@ -1,11 +1,11 @@
 import { ActionButton, Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { connectUser as _connectUser } from 'state/connection';
 
-export class ConnectionBanner extends React.Component {
+export class ConnectionBanner extends Component {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
 		description: PropTypes.node,

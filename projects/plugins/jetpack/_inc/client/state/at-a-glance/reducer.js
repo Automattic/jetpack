@@ -1,4 +1,3 @@
-import { assign, get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	STATS_SWITCH_TAB,
@@ -29,36 +28,39 @@ import {
 const requests = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case STATS_DATA_FETCH:
-			return assign( {}, state, { fetchingStatsData: true } );
+			return Object.assign( {}, state, { fetchingStatsData: true } );
 		case AKISMET_DATA_FETCH:
-			return assign( {}, state, { fetchingAkismetData: true } );
+			return Object.assign( {}, state, { fetchingAkismetData: true } );
 		case AKISMET_KEY_CHECK_FETCH:
-			return assign( {}, state, { checkingAkismetKey: true } );
+			return Object.assign( {}, state, { checkingAkismetKey: true } );
 		case VAULTPRESS_SITE_DATA_FETCH:
-			return assign( {}, state, { fetchingVaultPressData: true } );
+			return Object.assign( {}, state, { fetchingVaultPressData: true } );
 		case DASHBOARD_PROTECT_COUNT_FETCH:
-			return assign( {}, state, { fetchingProtectData: true } );
+			return Object.assign( {}, state, { fetchingProtectData: true } );
 		case PLUGIN_UPDATES_FETCH:
-			return assign( {}, state, { fetchingPluginUpdates: true } );
+			return Object.assign( {}, state, { fetchingPluginUpdates: true } );
 
 		case STATS_DATA_FETCH_FAIL:
 		case STATS_DATA_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingStatsData: false } );
+			return Object.assign( {}, state, { fetchingStatsData: false } );
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingAkismetData: false } );
+			return Object.assign( {}, state, { fetchingAkismetData: false } );
 		case AKISMET_KEY_CHECK_FETCH_FAIL:
 		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
-			return assign( {}, state, { checkingAkismetKey: false } );
+			return Object.assign( {}, state, { checkingAkismetKey: false } );
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingProtectData: false } );
+			return Object.assign( {}, state, { fetchingProtectData: false } );
 		case PLUGIN_UPDATES_FETCH_FAIL:
 		case PLUGIN_UPDATES_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingPluginUpdates: false } );
+			return Object.assign( {}, state, { fetchingPluginUpdates: false } );
 		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingVaultPressData: false, hasLoadedVaultPressData: true } );
+			return Object.assign( {}, state, {
+				fetchingVaultPressData: false,
+				hasLoadedVaultPressData: true,
+			} );
 
 		default:
 			return state;
@@ -77,7 +79,7 @@ const activeStatsTab = ( state = 'day', action ) => {
 const statsData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case STATS_DATA_FETCH_SUCCESS:
-			return assign( {}, state, action.statsData );
+			return Object.assign( {}, state, action.statsData );
 		default:
 			return state;
 	}
@@ -98,7 +100,7 @@ const akismet = (
 ) => {
 	switch ( action.type ) {
 		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
-			return assign( {}, state, action.akismet );
+			return Object.assign( {}, state, action.akismet );
 		default:
 			return state;
 	}
@@ -120,7 +122,7 @@ const vaultPressData = ( state = 'N/A', action ) => {
 			return action.vaultPressData;
 
 		case MOCK_SWITCH_THREATS:
-			return assign( {}, 'N/A' === state ? {} : state, {
+			return Object.assign( {}, 'N/A' === state ? {} : state, {
 				data: {
 					active: true,
 					features: {
@@ -268,7 +270,7 @@ export function isCheckingAkismetKey( state ) {
  * @return {boolean} True if Akismet API key is valid.
  */
 export function isAkismetKeyValid( state ) {
-	return get( state.jetpack.dashboard, [ 'akismet', 'validKey' ], false );
+	return state.jetpack.dashboard?.akismet?.validKey ?? false;
 }
 
 /**
@@ -331,7 +333,7 @@ export function getVaultPressData( state ) {
  * @return {number} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
-	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
+	return state.jetpack.dashboard.vaultPressData?.data?.security?.notice_count ?? 0;
 }
 
 /**

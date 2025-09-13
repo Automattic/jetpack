@@ -3,7 +3,7 @@
  */
 import { createRoot } from '@wordpress/element';
 import { useEffect } from 'react';
-import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */

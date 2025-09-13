@@ -100,26 +100,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
-	 *
-	 * Works in Dev Mode or when user is connected.
-	 *
-	 * @since 4.3.0
-	 */
-	public function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
-			Admin_Menu::add_menu(
-				__( 'Dashboard', 'jetpack' ),
-				__( 'Dashboard', 'jetpack' ),
-				'jetpack_admin_page',
-				Jetpack::admin_url( array( 'page' => 'jetpack#/dashboard' ) ),
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
-				14
-			);
-		}
-	}
-
-	/**
 	 * Determine whether a user can access the Jetpack Settings page.
 	 *
 	 * Rules are:
@@ -202,7 +182,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				__( 'Settings', 'jetpack' ),
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
+				null,
 				13
 			);
 		}

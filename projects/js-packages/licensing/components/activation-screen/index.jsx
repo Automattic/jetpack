@@ -1,9 +1,8 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
@@ -55,7 +54,7 @@ const parseAttachLicensesResult = result => {
  * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
  * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
  * @param {string}    props.currentUser                -- Current wpcom user info.
- * @return {React.Component} The `ActivationScreen` component.
+ * @return {import('react').Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {
@@ -107,27 +106,6 @@ const ActivationScreen = props => {
 			} )
 			.catch( error => {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error' );
-
-				const cannotManageLicenses =
-					error.response?.code === 'invalid_permission_manage_user_licenses';
-				if ( cannotManageLicenses ) {
-					setLicenseError(
-						createInterpolateElement(
-							__(
-								'You either do not have permissions to perform this action or a user account needs to be connected. <connectLink>Click here to connect your user account</connectLink> or contact your administrator.',
-								'jetpack-licensing'
-							),
-							{
-								connectLink: (
-									<a href="admin.php?page=my-jetpack#/connection?returnTo=add-license" />
-								),
-							}
-						)
-					);
-
-					return;
-				}
-
 				setLicenseError( error.message );
 			} )
 			.finally( () => {

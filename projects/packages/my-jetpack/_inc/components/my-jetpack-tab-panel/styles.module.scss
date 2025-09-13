@@ -1,0 +1,80 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tab-panel {
+
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+
+	// Make all the links green
+	a,
+	:global(.components-external-link),
+	:global(.components-button.is-link) {
+		color: var(--jp-green-60);
+	}
+
+	:global(.components-tab-panel__tabs) {
+		position: relative;
+		z-index: 1;
+		padding-inline-start: 2rem;
+		margin-block-end: -1px;
+
+		@media (max-width: gb.$break-medium ) {
+			padding-inline-start: 0.5rem;
+		}
+	}
+
+	// Make all the toggles green
+	:global(.components-form-toggle.is-checked) :global(.components-form-toggle__track) {
+		background-color: var(--jp-green-50);
+		border-color: var(--jp-green-50);
+	}
+}
+
+.tab-content-wrapper {
+	padding-block-start: 2.5rem;
+	padding-inline: 3rem;
+
+	@media (max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
+	}
+
+	h2 {
+
+		@include gb.heading-2x-large;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+}
+
+.full-width-separator {
+	border-top: 1px solid var(--jp-gray);
+	width: 100vw;
+	position: relative;
+	inset-inline-start: 50%;
+	margin-inline-start: -50vw;
+}
+
+@mixin full-width-container {
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+}
+
+.my-jetpack-tab-panel--full-width {
+	width: 100%;
+	max-width: none;
+	margin: 0;
+
+	:global(.components-tab-panel__tabs) {
+
+		@include full-width-container;
+	}
+
+	:global(.components-tab-panel__tab-content) {
+		background-color: #fcfcfc;
+
+		.my-jetpack-tab-panel-inner {
+
+			@include full-width-container;
+		}
+	}
+}

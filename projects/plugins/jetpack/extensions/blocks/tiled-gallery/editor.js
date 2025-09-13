@@ -1,5 +1,4 @@
 import { createBlock } from '@wordpress/blocks';
-import { filter } from 'lodash';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import { default as deprecated } from './deprecated';
@@ -71,7 +70,7 @@ const exampleAttributes = {
  * @return {Array} Array of image objects which have id and url
  */
 function getValidImages( images ) {
-	return filter( images, ( { id, url } ) => id && url );
+	return images.filter( ( { id, url } ) => id && url );
 }
 registerJetpackBlockFromMetadata( metadata, {
 	edit,

@@ -56,7 +56,7 @@ export function useSchedulePost() {
 			const result = await Promise.all(
 				connectionIds.map( connection_id => {
 					return createScheduledShare( {
-						post_id: postId,
+						post_id: Number( postId ),
 						connection_id,
 						message,
 						timestamp,

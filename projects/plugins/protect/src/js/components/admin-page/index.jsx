@@ -6,7 +6,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import useNotices from '../../hooks/use-notices';
 import useProtectData from '../../hooks/use-protect-data';
 import Notice from '../notice';

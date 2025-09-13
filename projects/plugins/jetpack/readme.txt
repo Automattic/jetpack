@@ -326,14 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 14.7-a.5 - 2025-05-19
+### 15.1-a.1 - 2025-09-08
 #### Enhancements
-- Forms: Add Google Drive to integrations modal.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- Search: Highlight search term in returned search results.
+- Forms: Add hidden input field block.
+- Forms: Make rating and slider fields available to self-hosted users.
 
 #### Bug fixes
-- Open Graph: Prevent PHP warnings when embedding some Vimeo videos.
+- Sharing: Fix Facebook sharing URL.
 
 --------
 

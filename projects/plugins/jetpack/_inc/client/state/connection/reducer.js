@@ -1,4 +1,4 @@
-import { assign, get, includes, merge } from 'lodash';
+import { merge } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -34,16 +34,16 @@ export const status = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_CONNECTION_STATUS_FETCH:
-			return assign( {}, state, { siteConnected: action.siteConnected } );
+			return Object.assign( {}, state, { siteConnected: action.siteConnected } );
 		case DISCONNECT_SITE_SUCCESS:
-			return assign( {}, state, { siteConnected: action.siteConnected } );
+			return Object.assign( {}, state, { siteConnected: action.siteConnected } );
 		case UNLINK_USER_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				siteConnected: { ...state.siteConnected, isUserConnected: false },
 			} );
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
 			if ( true === action.userConnectionData?.currentUser?.isConnected ) {
-				return assign( {}, state, {
+				return Object.assign( {}, state, {
 					siteConnected: {
 						...state.siteConnected,
 						hasConnectedOwner: true,
@@ -60,7 +60,7 @@ export const status = (
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return get( action, 'initialState.connectUrl', state );
+			return action?.initialState?.connectUrl ?? state;
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
 		default:
@@ -71,11 +71,11 @@ export const connectUrl = ( state = '', action ) => {
 export const user = ( state = window.Initial_State.userData || {}, action ) => {
 	switch ( action.type ) {
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
-			return assign( {}, state, action.userConnectionData );
+			return Object.assign( {}, state, action.userConnectionData );
 
 		case UNLINK_USER_SUCCESS: {
-			const currentUser = assign( {}, state.currentUser, { isConnected: false } );
-			return assign( {}, state, { currentUser } );
+			const currentUser = Object.assign( {}, state.currentUser, { isConnected: false } );
+			return Object.assign( {}, state, { currentUser } );
 		}
 
 		case MOCK_SWITCH_USER_PERMISSIONS:
@@ -98,42 +98,42 @@ export const connectionRequests = {
 export const requests = ( state = connectionRequests, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE:
-			return assign( {}, state, { disconnectingSite: true } );
+			return Object.assign( {}, state, { disconnectingSite: true } );
 		case UNLINK_USER:
-			return assign( {}, state, { unlinkingUser: true } );
+			return Object.assign( {}, state, { unlinkingUser: true } );
 		case CONNECT_USER:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				connectingUser: true,
 				connectingUserFeatureLabel: action.featureLabel,
 				connectingUserFrom: action.from,
 			} );
 		case RESET_CONNECT_USER:
-			return assign( {}, state, { connectingUser: false } );
+			return Object.assign( {}, state, { connectingUser: false } );
 		case CONNECT_URL_FETCH:
-			return assign( {}, state, { fetchingConnectUrl: true } );
+			return Object.assign( {}, state, { fetchingConnectUrl: true } );
 		case USER_CONNECTION_DATA_FETCH:
-			return assign( {}, state, { fetchingUserData: true } );
+			return Object.assign( {}, state, { fetchingUserData: true } );
 		case SITE_RECONNECT:
-			return assign( {}, state, { reconnectingSite: true } );
+			return Object.assign( {}, state, { reconnectingSite: true } );
 
 		case DISCONNECT_SITE_FAIL:
 		case DISCONNECT_SITE_SUCCESS:
-			return assign( {}, state, { disconnectingSite: false } );
+			return Object.assign( {}, state, { disconnectingSite: false } );
 
 		case UNLINK_USER_FAIL:
 		case UNLINK_USER_SUCCESS:
-			return assign( {}, state, { unlinkingUser: false } );
+			return Object.assign( {}, state, { unlinkingUser: false } );
 
 		case CONNECT_URL_FETCH_FAIL:
 		case CONNECT_URL_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingConnectUrl: false } );
+			return Object.assign( {}, state, { fetchingConnectUrl: false } );
 		case USER_CONNECTION_DATA_FETCH_FAIL:
 		case USER_CONNECTION_DATA_FETCH_SUCCESS:
-			return assign( {}, state, { fetchingUserData: false } );
+			return Object.assign( {}, state, { fetchingUserData: false } );
 
 		case SITE_RECONNECT_FAIL:
 		case SITE_RECONNECT_SUCCESS:
-			return assign( {}, state, { reconnectingSite: false } );
+			return Object.assign( {}, state, { reconnectingSite: false } );
 
 		default:
 			return state;
@@ -228,8 +228,8 @@ export function isSiteRegistered( state ) {
  * @return {boolean|object} False if site is not in Offline Mode. If it is, returns an object with information about the Offline Mode.
  */
 export function getSiteOfflineMode( state ) {
-	if ( get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode', 'isActive' ] ) ) {
-		return get( state.jetpack.connection.status, [ 'siteConnected', 'offlineMode' ] );
+	if ( state.jetpack.connection.status?.siteConnected?.offlineMode?.isActive ) {
+		return state.jetpack.connection.status.siteConnected.offlineMode;
 	}
 	return false;
 }
@@ -365,7 +365,7 @@ export function isConnectionOwnerName( state ) {
  * @return {boolean} true if the site has an owner connected, false otherwise
  */
 export function hasConnectedOwner( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'hasConnectedOwner' ], false );
+	return state.jetpack.connection.status?.siteConnected?.hasConnectedOwner ?? false;
 }
 
 /**
@@ -385,7 +385,7 @@ export function isOfflineMode( state ) {
  * @return {boolean} True if site is in IDC. False otherwise.
  */
 export function isInIdentityCrisis( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'isInIdentityCrisis' ], false );
+	return state.jetpack.connection.status?.siteConnected?.isInIdentityCrisis ?? false;
 }
 
 /**
@@ -396,7 +396,7 @@ export function isInIdentityCrisis( state ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresConnection( state, slug ) {
-	return includes( getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ), slug );
+	return getModulesThatRequireConnection( state ).concat( [ 'backups', 'scan' ] ).includes( slug );
 }
 
 /**
@@ -418,7 +418,7 @@ export function isUnavailableInOfflineMode( state, module ) {
  * @return {boolean} True if module requires connection.
  */
 export function requiresUserConnection( state, slug ) {
-	return includes( getModulesThatRequireUserConnection( state ), slug );
+	return getModulesThatRequireUserConnection( state ).includes( slug );
 }
 
 /**
@@ -439,7 +439,7 @@ export function isUnavailableInSiteConnectionMode( state, module ) {
  * @return {string} Value of the JETPACK__SANDBOX_DOMAIN constant. Empty string if not sandboxed - url if so.
  */
 export function getSandboxDomain( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
+	return state.jetpack.connection.status?.siteConnected?.sandboxDomain ?? '';
 }
 
 /**

@@ -1,15 +1,14 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { Modal, Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const FirstTimeModal = ( { onClose } ) => {
 	// Configure the redirect URLs in the Jetpack Redirects service (see the README in jetpack-redirects).
-	const supportLinkSource =
-		isSimpleSite() || isAtomicSite()
-			? 'wpcom-support-donation-block'
-			: 'jetpack-support-donation-block';
+	const supportLinkSource = isWpcomPlatformSite()
+		? 'wpcom-support-donation-block'
+		: 'jetpack-support-donation-block';
 	return (
 		<Modal
 			className="jetpack-donations-first-time-modal"

@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * For back-compat, the final widget class must be named
  * Jetpack_Display_Posts_Widget.
@@ -106,7 +110,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			if ( current_user_can( 'manage_options' ) ) {
 				$content .= '<p>';
 				/* Translators: the "Blog URL" field mentioned is the input field labeled as such in the widget form. */
-				$content .= esc_html__( 'The Blog URL is not properly setup in the widget.', 'jetpack' );
+				$content .= esc_html__( 'The Blog URL is not properly set up in the widget.', 'jetpack' );
 				$content .= '</p>';
 			}
 			$content .= $args['after_widget'];

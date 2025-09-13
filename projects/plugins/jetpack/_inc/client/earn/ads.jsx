@@ -1,8 +1,9 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -15,7 +16,7 @@ import analytics from 'lib/analytics';
 import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 
 export const Ads = withModuleSettingsFormHelpers(
-	class extends React.Component {
+	class extends Component {
 		/**
 		 * Update state so preview is updated instantly and toggle options.
 		 *
@@ -294,7 +295,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
-							link: this.props.isWoASite
+							link: isWoASite()
 								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }

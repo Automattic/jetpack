@@ -21,6 +21,8 @@ require_once __DIR__ . '/assets/class-verbum-block-utils.php';
  * Verbum Comments Experience
  *
  * This file loads the Verbum Comment user experience on WordPress.com and Jetpack sites.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Comments {
 	/**
@@ -89,6 +91,9 @@ class Verbum_Comments {
 		) {
 			new \Verbum_Gutenberg_Editor();
 		}
+
+		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via Verbum Comments.
+		add_filter( 'jetpack_public_js_script_data', array( $this, 'add_jetpack_script_data' ), 10, 1 );
 	}
 
 	/**
@@ -106,7 +111,7 @@ class Verbum_Comments {
 		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 		$comment_url  = $this->get_form_action();
 
-		if ( ! $color_scheme || '' === $color_scheme ) {
+		if ( ! $color_scheme ) {
 			// Default to transparent because it is more adaptable than white or dark.
 			$color_scheme = 'transparent';
 		}
@@ -127,11 +132,7 @@ class Verbum_Comments {
 	 * Enqueue Assets
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-			&& ! $this->should_enqueue_assets
-		) {
+		if ( ! \Verbum_Block_Utils::should_show_verbum_comments() && ! $this->should_enqueue_assets ) {
 			return;
 		}
 
@@ -682,5 +683,23 @@ HTML;
 			return 'hidden_disabled';
 		}
 		return '';
+	}
+
+	/**
+	 * Add Jetpack script data.
+	 *
+	 * @param array $data - The Jetpack script data.
+	 * @return array - The modified Jetpack script data.
+	 */
+	public function add_jetpack_script_data( $data ) {
+		if ( \Verbum_Block_Utils::should_show_verbum_comments() ) {
+			if ( ! isset( $data['site']['host'] ) ) {
+				$data['site']['host'] = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+			}
+			if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+				$data['site']['is_wpcom_platform'] = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
+			}
+		}
+		return $data;
 	}
 }

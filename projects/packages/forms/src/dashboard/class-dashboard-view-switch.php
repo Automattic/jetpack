@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use JETPACK__VERSION;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Understands switching between classic and redesigned versions of the feedback admin area.
  */
@@ -37,6 +41,7 @@ class Dashboard_View_Switch {
 		add_filter( 'in_admin_header', array( $this, 'render_switch' ) );
 		add_action( 'admin_footer', array( $this, 'add_scripts' ) );
 		add_action( 'current_screen', array( $this, 'handle_preferred_view' ) );
+		add_action( 'current_screen', array( $this, 'update_user_seen_announcement' ), 9 );
 	}
 
 	/**
@@ -47,6 +52,9 @@ class Dashboard_View_Switch {
 			return;
 		}
 
+		$modern_view_url = $this->is_jetpack_forms_admin_page_available()
+			? 'admin.php?page=jetpack-forms-admin'
+			: add_query_arg( 'dashboard-preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' );
 		?>
 		<div id="jetpack-forms__view-link-wrap" class="hide-if-no-js screen-meta-toggle">
 			<button type="button" id="jetpack-forms__view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-forms' ); ?></button>
@@ -58,7 +66,7 @@ class Dashboard_View_Switch {
 						<strong><?php esc_html_e( 'Classic', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-forms' ); ?>
 					</a>
-					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'dashboard-preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( $modern_view_url ); ?>">
 						<strong><?php esc_html_e( 'Inbox', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The new Jetpack Forms inbox interface for form responses.', 'jetpack-forms' ); ?>
 					</a>
@@ -257,6 +265,18 @@ CSS
 	}
 
 	/**
+	 * Update user seeing the announcement.
+	 */
+	public function update_user_seen_announcement() {
+		// phpcs:disable WordPress.Security.NonceVerification
+		if ( $this->is_jetpack_forms_admin_page() && isset( $_GET['jetpack_forms_migration_announcement_seen'] ) ) {
+			update_user_option( get_current_user_id(), 'jetpack_forms_migration_announcement_seen', true );
+			wp_safe_redirect( remove_query_arg( 'jetpack_forms_migration_announcement_seen', $this->get_forms_admin_url() ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Returns the preferred feedback view for the current user.
 	 *
 	 * @return string
@@ -286,6 +306,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_classic_view() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 
 		return $screen && $screen->id === 'edit-feedback';
@@ -297,6 +321,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_modern_view() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		// The menu slug might vary depending on language, but modern view is always a jetpack-forms page.
 		// See: https://a8c.slack.com/archives/C03TY6J1A/p1747148941583849
 		$page_hook_suffix = '_page_jetpack-forms';
@@ -314,6 +342,10 @@ CSS
 	 * @return boolean
 	 */
 	public function is_jetpack_forms_admin_page() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
 		$screen = get_current_screen();
 		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
 	}
@@ -322,29 +354,48 @@ CSS
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
+	 * @param boolean     $force_inbox Whether to force the inbox view URL.
 	 *
 	 * @return string
 	 */
-	public function get_forms_admin_url( $tab = null ) {
+	public function get_forms_admin_url( $tab = null, $force_inbox = false ) {
 		$is_classic          = $this->get_preferred_view() === self::CLASSIC_VIEW;
 		$switch_is_available = $this->is_jetpack_forms_view_switch_available();
 
-		$admin_dashboard_url = $this->is_jetpack_forms_admin_page_available()
-			? 'admin.php?page=jetpack-forms-admin'
-			: 'admin.php?page=jetpack-forms';
-
-		$url = $is_classic && $switch_is_available
+		$base_url = $is_classic && $switch_is_available && ! $force_inbox
 			? get_admin_url() . 'edit.php?post_type=feedback'
-			: get_admin_url() . $admin_dashboard_url;
+			: get_admin_url() . ( $this->is_jetpack_forms_admin_page_available() ? 'admin.php?page=jetpack-forms-admin' : 'admin.php?page=jetpack-forms' );
 
-		// Return url directly to spam tab.
-		if ( $tab === 'spam' ) {
-			$url = $is_classic && $switch_is_available
-				? add_query_arg( 'post_status', 'spam', $url )
-				: $url . '#/responses?status=spam';
+		return $this->append_tab_to_url( $base_url, $tab, $is_classic && $switch_is_available && ! $force_inbox );
+	}
+
+	/**
+	 * Appends the appropriate tab parameter to the URL based on the view type.
+	 *
+	 * @param string  $url              Base URL to append to.
+	 * @param string  $tab              Tab to open.
+	 * @param boolean $is_classic_view  Whether we're using the classic view.
+	 *
+	 * @return string
+	 */
+	private function append_tab_to_url( $url, $tab, $is_classic_view ) {
+		if ( ! $tab ) {
+			return $url;
 		}
 
-		return $url;
+		$status_map = array(
+			'spam'  => 'spam',
+			'inbox' => 'inbox',
+			'trash' => 'trash',
+		);
+
+		if ( ! isset( $status_map[ $tab ] ) ) {
+			return $url;
+		}
+
+		return $is_classic_view
+			? add_query_arg( 'post_status', $status_map[ $tab ], $url )
+			: $url . '#/responses?status=' . $status_map[ $tab ];
 	}
 
 	/**
@@ -353,7 +404,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_admin_page_available() {
-		return apply_filters( 'jetpack_forms_use_new_menu_parent', false );
+		return apply_filters( 'jetpack_forms_use_new_menu_parent', true );
 	}
 
 	/**
@@ -362,7 +413,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_view_switch_available() {
-		return ! apply_filters( 'jetpack_forms_retire_view_switch', false );
+		return ! apply_filters( 'jetpack_forms_retire_view_switch', true );
 	}
 
 	/**
@@ -371,7 +422,7 @@ CSS
 	 * @return boolean
 	 */
 	public static function is_jetpack_forms_announcing_new_menu() {
-		return apply_filters( 'jetpack_forms_announce_new_menu', false );
+		return apply_filters( 'jetpack_forms_announce_new_menu', true );
 	}
 
 	/**

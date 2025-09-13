@@ -34,6 +34,8 @@ $fieldTypes = array(
 
 );
 
+$sbupdated = false;
+
 // } Act on any edits!
 if ( isset( $_POST['editwplfsort'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
@@ -127,11 +129,10 @@ $fieldHideOverrides = $zbs->settings->get( 'fieldhides' );
 <p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Contacts, Companies, Quotes', 'zero-bs-crm' ); ?></p>
 
 <?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Field Orders Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
+if ( $sbupdated ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	zeroBSCRM_html_msg( 0, __( 'Field Orders Updated', 'zero-bs-crm' ) );
+	echo '</div>';
 }
 ?>
 
@@ -203,7 +204,7 @@ if ( isset( $sbupdated ) ) {
 
 													switch ( $field['migrate'] ) {
 
-														// } Address Fields which were seperate fields under an obj are now managed as groups
+														// } Address Fields which were separate fields under an obj are now managed as groups
 														case 'addresses':
 															// } Grouped "Address" field out
 															?>

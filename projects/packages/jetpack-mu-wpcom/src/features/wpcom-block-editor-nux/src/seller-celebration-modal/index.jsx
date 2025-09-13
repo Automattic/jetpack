@@ -14,7 +14,7 @@ import './style.scss';
 
 /**
  * Show the seller celebration modal
- * @return {JSX.Element} The modal component.
+ * @return {import('react').JSX.Element} The modal component.
  */
 const SellerCelebrationModalInner = () => {
 	const { addEntities } = useDispatch( 'core' );

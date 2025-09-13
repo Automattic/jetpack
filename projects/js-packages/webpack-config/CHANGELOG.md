@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.7 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 3.7.6 - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## 3.7.5 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## 3.7.4 - 2025-08-01
+### Changed
+- Internal updates.
+
+## 3.7.3 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 3.7.2 - 2025-07-08
+### Changed
+- Update dependencies.
+
+## 3.7.1 - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## 3.7.0 - 2025-06-30
+### Changed
+- Default for babel preset `presetReact` option is now `{ runtime: 'automatic' }`. [#44128]
+
+## 3.6.19 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 3.6.18 - 2025-06-18
+### Changed
+- Internal updates.
+
+## 3.6.17 - 2025-06-04
+### Changed
+- Update package dependencies. [#43766]
+
+## 3.6.16 - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## 3.6.15 - 2025-06-02
+### Changed
+- Update package dependencies. [#43625]
+
+## 3.6.14 - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## 3.6.13 - 2025-05-22
 ### Changed
 - Update package dependencies. [#43556]

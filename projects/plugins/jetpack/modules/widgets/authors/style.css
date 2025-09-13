@@ -1,5 +1,6 @@
 /* Authors Widget */
-.widget_authors > ul, .widget.widget_authors li > ul {
+.widget_authors > ul,
+.widget.widget_authors li > ul {
 	margin-left: inherit;
 	padding-left: 0;
 }

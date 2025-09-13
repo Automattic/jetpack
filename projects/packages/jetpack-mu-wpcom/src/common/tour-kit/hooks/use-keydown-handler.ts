@@ -3,12 +3,13 @@
  * External Dependencies
  */
 import { useEffect, useCallback } from '@wordpress/element';
+import type { MutableRefObject } from 'react';
 
 interface Props {
 	onEscape?: () => void;
 	onArrowRight?: () => void;
 	onArrowLeft?: () => void;
-	tourContainerRef: React.MutableRefObject< null | HTMLElement >;
+	tourContainerRef: MutableRefObject< null | HTMLElement >;
 }
 
 /**

@@ -1,7 +1,6 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-@import '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style";
 
-$arrow-color: var( --jp-gray );
+$arrow-color: var(--jp-gray);
 
 // Fix arrow color
 .components-popover:not(.is-without-arrow)::before {

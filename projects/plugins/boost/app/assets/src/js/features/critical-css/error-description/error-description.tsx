@@ -8,6 +8,7 @@ import styles from './error-description.module.scss';
 import Suggestion from '../suggestion/suggestion';
 import { CriticalCssErrorDescriptionTypes, FormattedURL } from './types';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
+import type { FC } from 'react';
 
 /**
  * Remove GET parameters that are used to cache-bust from display URLs, as they add visible noise
@@ -27,7 +28,7 @@ export function stripCacheParams( url: string ): string {
 	}
 }
 
-const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > = ( {
+const CriticalCssErrorDescription: FC< CriticalCssErrorDescriptionTypes > = ( {
 	errorSet,
 	showSuggestion = true,
 	expandRawErrors = true,

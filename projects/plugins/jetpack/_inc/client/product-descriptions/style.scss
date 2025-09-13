@@ -1,8 +1,8 @@
-@import '../scss/mixin_breakpoint';
+@use "../scss/mixins/breakpoints";
 
 .jp-product-description {
 
-	@include breakpoint( '<960px' ) {
+	@include breakpoints.breakpoint( "<960px" ) {
 		max-width: 550px;
 		margin-left: auto;
 		margin-right: auto;

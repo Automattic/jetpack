@@ -1,6 +1,8 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Admin Page Partial: Dashboard: First use dashboard (Woo variant)
+ *
+ * @package automattic/jetpack-crm
  */
 
 // stop direct access
@@ -14,41 +16,23 @@ global $zbs;
 
 // Define videos to show
 $learn_from_mike_videos = array(
-
-	/*
 	'youtube-preview-1' => array(
-
-		'url'   => $zbs->urls['youtube_intro_to_woosync'],
-		'img'   => 'youtube-preview-intro-to-woosync.png',
-		'title' => __( 'Jetpack CRM & WooCommerce', 'zero-bs-crm' ),
-
-	),
-	*/
-
-	'youtube-preview-1' => array(
-
 		'url'   => $zbs->urls['youtube_intro_to_crm'],
 		'img'   => 'youtube-preview-1-intro-to-crm.png',
 		'title' => __( 'Introduction to CRM contact management', 'zero-bs-crm' ),
-
 	),
 
 	'youtube-preview-3' => array(
-
 		'url'   => $zbs->urls['youtube_intro_to_tags'],
 		'img'   => 'youtube-preview-3-intro-to-tags.png',
 		'title' => __( 'Introduction to tags and segments', 'zero-bs-crm' ),
-
 	),
 
 	'youtube-preview-4' => array(
-
 		'url'   => $zbs->urls['youtube_intro_to_modules'],
 		'img'   => 'youtube-preview-4-core-modules.png',
 		'title' => __( 'Introduction to CRM Core Modules', 'zero-bs-crm' ),
-
 	),
-
 );
 
 ?>
@@ -65,7 +49,7 @@ $learn_from_mike_videos = array(
 				<div class="jpcrm-modal-paragraph"><?php esc_html_e( 'Your CRM starts with your contacts. Start collecting your contact information all in one place and use it to nurture those relationships.', 'zero-bs-crm' ); ?></div>
 				<div class="jpcrm-modal-actions">
 					<a href="<?php echo jpcrm_esc_link( 'create', -1, ZBS_TYPE_CONTACT ); ?>" class="ui black button jpcrm-modal-action-add"><?php esc_html_e( 'Add a contact', 'zero-bs-crm' ); ?></a>
-					<a href="<?php echo wp_nonce_url( jpcrm_esc_link( $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync' ), 'jpcrmmoduleactivateredirectnonce' ); ?>" target="_blank" class="ui woopink button jpcrm-modal-action-import"><?php esc_html_e( 'Import from WooCommerce', 'zero-bs-crm' ); ?></a>
+					<a href="<?php echo wp_nonce_url( jpcrm_esc_link( $zbs->slugs['module-activate-redirect'] . '&jpcrm-module-name=woo-sync' ), 'jpcrmmoduleactivateredirectnonce' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" target="_blank" class="ui woopink button jpcrm-modal-action-import"><?php esc_html_e( 'Import from WooCommerce', 'zero-bs-crm' ); ?></a>
 				</div>
 			</div>
 			<div class="jpcrm-modal-mobile-only jpcrm-modal-mobile-watch-videos-link">
@@ -117,7 +101,7 @@ $learn_from_mike_videos = array(
 	</div>
 </div>
 <?php // PHPCS:Ignore WordPress.Security.NonceVerification.Recommended ?>
-<script>var jpcrm_show_first_use_dash = <?php echo esc_js( ! isset( $_GET['zbs-welcome-tour'] ) ); ?>;</script>
+<script>var jpcrm_show_first_use_dash = <?php echo wp_json_encode( ! isset( $_GET['zbs-welcome-tour'] ) ); ?>;</script>
 <?php
 
 ##/WLREMOVE

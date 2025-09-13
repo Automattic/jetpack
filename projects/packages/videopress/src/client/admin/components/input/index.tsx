@@ -13,7 +13,7 @@ import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
  */
 import styles from './style.module.scss';
 import { InputProps, SearchInputProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 const InputWrapper = ( {
 	className,
@@ -89,7 +89,7 @@ const InputWrapper = ( {
  * Input component
  *
  * @param {InputProps} props - Component props.
- * @return {React.ReactNode} - Input react component.
+ * @return {ReactNode} - Input react component.
  */
 export const Input = ( {
 	name,
@@ -120,7 +120,7 @@ export const Input = ( {
  * Search Input component
  *
  * @param {InputProps} props - Component props.
- * @return {React.ReactNode} - Input react component.
+ * @return {ReactNode} - Input react component.
  */
 export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),

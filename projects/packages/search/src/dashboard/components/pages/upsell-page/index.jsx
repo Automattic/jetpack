@@ -20,11 +20,11 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import Loading from 'components/loading';
 import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
-import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 import Header from './header';
 
@@ -37,7 +37,7 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
  *
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @return {React.Component} UpsellPage component.
+ * @return {import('react').Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
@@ -213,7 +213,7 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									promoLabel={
 										discountPercentage > 0 &&
 										sprintf(
-											// translators: Discount percentage (e.g. 50%).
+											// translators: %s: the discount percentage (e.g. 50%).
 											__( '%s off', 'jetpack-search-pkg' ),
 											`${ discountPercentage }%`
 										)
@@ -454,7 +454,7 @@ const newPricingArgs = {
 						rel="external noopener noreferrer nofollow"
 						target="_blank"
 					>
-						{ __( 'See all supported languanges', 'jetpack-search-pkg' ) }
+						{ __( 'See all supported languages', 'jetpack-search-pkg' ) }
 					</a>
 				</>
 			),

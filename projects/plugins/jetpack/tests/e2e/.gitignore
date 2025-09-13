@@ -8,3 +8,4 @@ jetpack-private-options.txt
 /allure-results
 storage.json
 /tmp
+validate-infra.test*

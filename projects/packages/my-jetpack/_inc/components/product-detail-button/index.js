@@ -1,6 +1,5 @@
 import { Button, Spinner } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import React from 'react';
 
 const ProductDetailButton = ( {
 	children,

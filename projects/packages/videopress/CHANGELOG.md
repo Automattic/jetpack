@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.4] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [0.32.3] - 2025-09-01
+### Changed
+- Update dependencies. [#44736]
+
+## [0.32.2] - 2025-08-25
+### Changed
+- Update package dependencies. [#44899]
+
+## [0.32.1] - 2025-08-18
+### Added
+- Add `typecheck` placeholder script (to be implemented). [#44795]
+
+## [0.32.0] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+- VideoPress: Include VideoPress editor state in REST API requests. [#44616]
+
+## [0.31.2] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [0.31.1] - 2025-08-05
+### Fixed
+- Prevent PHP fatal if URL is not a string. [#44619]
+
+## [0.31.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update dependencies. [#44551]
+
+## [0.30.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.30.5] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.30.4] - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
+## [0.30.3] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+### Fixed
+- VideoPress: Fix PHP fatals in `class-initializer.php`. [#44169]
+- VideoPress: Fix video row action button clickability by properly hiding stats on hover. [#44167]
+
+## [0.30.2] - 2025-06-30
+### Changed
+- Internal updates.
+
+## [0.30.1] - 2025-06-24
+### Changed
+- Update dependencies. [#43885]
+
+## [0.30.0] - 2025-06-23
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020] [#44040]
+
+### Fixed
+- Autoloader: Prevent double slash in autoloader path. [#44030]
+
+## [0.29.6] - 2025-06-16
+### Changed
+- Update package dependencies. [#43892] [#43951]
+
+### Fixed
+- Prevent PHP warning when rendering blocks. [#43890]
+
+## [0.29.5] - 2025-06-10
+### Changed
+- Update dependencies. [#43878]
+
+## [0.29.4] - 2025-06-05
+### Changed
+- Update package dependencies. [#43718] [#43734] [#43766]
+
+## [0.29.3] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710] [#43711]
+
+### Fixed
+- Catch PHP notices when handling unexpected data types. [#43728]
+
+## [0.29.2] - 2025-05-26
+### Changed
+- Update package dependencies. [#43516] [#43578]
+
 ## [0.29.1] - 2025-05-19
 ### Changed
 - Update package dependencies. [#43398]
@@ -1636,6 +1736,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.32.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.3...v0.32.4
+[0.32.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.2...v0.32.3
+[0.32.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.2...v0.32.0
+[0.31.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.1...v0.31.2
+[0.31.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.6...v0.31.0
+[0.30.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.5...v0.30.6
+[0.30.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.4...v0.30.5
+[0.30.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.3...v0.30.4
+[0.30.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.2...v0.30.3
+[0.30.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.1...v0.30.2
+[0.30.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.0...v0.30.1
+[0.30.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.6...v0.30.0
+[0.29.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.5...v0.29.6
+[0.29.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.4...v0.29.5
+[0.29.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.3...v0.29.4
+[0.29.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.2...v0.29.3
+[0.29.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.1...v0.29.2
 [0.29.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.29.0...v0.29.1
 [0.29.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.4...v0.29.0
 [0.28.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.28.3...v0.28.4

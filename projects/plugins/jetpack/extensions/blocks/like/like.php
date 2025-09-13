@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\Like;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
 /**
@@ -19,16 +20,19 @@ use Jetpack_Gutenberg;
  * registration if we need to.
  */
 function register_block() {
-	$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_wpcom     = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_connected = \Jetpack::is_connection_ready();
 
-	Blocks::jetpack_register_block(
-		__DIR__,
-		array(
-			'api_version'     => 3,
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'description'     => $is_wpcom ? __( 'Give your readers the ability to show appreciation for your posts and easily share them with others.', 'jetpack' ) : __( 'Give your readers the ability to show appreciation for your posts.', 'jetpack' ),
-		)
-	);
+	if ( $is_wpcom || $is_connected ) {
+		Blocks::jetpack_register_block(
+			__DIR__,
+			array(
+				'api_version'     => 3,
+				'render_callback' => __NAMESPACE__ . '\render_block',
+				'description'     => $is_wpcom ? __( 'Give your readers the ability to show appreciation for your posts and easily share them with others.', 'jetpack' ) : __( 'Give your readers the ability to show appreciation for your posts.', 'jetpack' ),
+			)
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -43,7 +47,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attr, $content, $block ) {
 	// Do not render the Like block in other context than front-end (i.e. feed, emails, API, etc.).
-	if ( ! jetpack_is_frontend() ) {
+	if ( ! Request::is_frontend() ) {
 		return;
 	}
 
@@ -79,7 +83,16 @@ function render_block( $attr, $content, $block ) {
 			'modules/likes/queuehandler.js'
 		);
 	}
-	wp_enqueue_script( 'jetpack_likes_queuehandler', $script_url, array(), JETPACK__VERSION, true );
+	wp_enqueue_script(
+		'jetpack_likes_queuehandler',
+		$script_url,
+		array(),
+		JETPACK__VERSION,
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
 	wp_enqueue_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
 
 	$show_reblog_button = $attr['showReblogButton'] ?? false;

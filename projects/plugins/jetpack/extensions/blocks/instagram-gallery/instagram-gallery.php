@@ -10,9 +10,14 @@
 namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\External_Connections;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -24,6 +29,19 @@ function register_block() {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		);
+
+		External_Connections::add_settings_for_service(
+			'writing',
+			array(
+				'service'      => 'instagram-basic-display',
+				'title'        => __( 'Instagram', 'jetpack' ),
+				'description'  => __( 'Display your more recent images from Instagram.', 'jetpack' ),
+				'support_link' => array(
+					'wpcom'   => 'https://wordpress.com/support/instagram/#embed-a-feed-of-instagram-posts',
+					'jetpack' => 'latest-instagram-posts-block',
+				),
+			)
 		);
 	}
 }
@@ -68,7 +86,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
-	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
+	if ( ! is_object( $gallery ) || is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
 		if ( ! current_user_can( 'edit_post', get_the_ID() ) ) {
 			return '';
 		}

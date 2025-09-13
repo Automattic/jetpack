@@ -1,4 +1,3 @@
-import { find, get } from 'lodash';
 import { combineReducers } from 'redux';
 import { JETPACK_SEARCH_TERM } from 'state/action-types';
 
@@ -34,13 +33,15 @@ export function getSearchTerm( state ) {
  * @return {boolean}       Whether the module should be in the search results
  */
 export function isModuleFound( state, module ) {
-	const result = find( get( state.jetpack, [ 'modules', 'items' ], {} ), [ 'module', module ] );
+	const result = Object.values( state.jetpack?.modules?.items ?? {} ).find(
+		v => v?.module === module
+	);
 
 	if ( 'undefined' === typeof result ) {
 		return false;
 	}
 
-	const currentSearchTerm = get( state.jetpack, [ 'search', 'searchTerm' ], false );
+	const currentSearchTerm = state.jetpack?.search?.searchTerm ?? false;
 
 	if ( ! currentSearchTerm ) {
 		return true;

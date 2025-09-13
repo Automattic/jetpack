@@ -1,5 +1,3 @@
-import React from 'react';
-
 // How (and why) does this transform work?
 // The idea here is to replace every call to each of `@wordpress/i18n`'s translation functions
 // (`__()`, `_n()`, `_x()`, `_nx()`) with their PHP counterpart, wrapped in a `<?php ... ?>`

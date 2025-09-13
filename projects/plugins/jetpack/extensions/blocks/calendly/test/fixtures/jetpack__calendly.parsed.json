@@ -1,13 +1,11 @@
 [
-    {
-        "blockName": "jetpack/calendly",
-        "attrs": {
-            "url": "https://calendly.com/username"
-        },
-        "innerBlocks": [],
-        "innerHTML": "\n<div class=\"wp-block-jetpack-calendly\"></div>\n",
-        "innerContent": [
-            "\n<div class=\"wp-block-jetpack-calendly\"></div>\n"
-        ]
-    }
+	{
+		"blockName": "jetpack/calendly",
+		"attrs": {
+			"url": "https://calendly.com/username"
+		},
+		"innerBlocks": [],
+		"innerHTML": "\n<div class=\"wp-block-jetpack-calendly\"></div>\n",
+		"innerContent": [ "\n<div class=\"wp-block-jetpack-calendly\"></div>\n" ]
+	}
 ]

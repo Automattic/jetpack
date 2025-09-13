@@ -2,7 +2,7 @@ import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import React, { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import NavigationGroup from './group';
 import NavigationItem from './item';
 import styles from './styles.module.scss';

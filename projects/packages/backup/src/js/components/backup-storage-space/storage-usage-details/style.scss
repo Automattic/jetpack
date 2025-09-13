@@ -1,15 +1,16 @@
-@import '@automattic/jetpack-base-styles/style';
+@use "@automattic/jetpack-base-styles/style" as jpbs;
 
 .backup-storage-space__meta {
 	display: flex;
 	justify-content: space-between;
 
-	@include for-phone-down {
+	@include jpbs.for-phone-down {
 		flex-direction: column;
 		gap: 4px;
 	}
 
-	div, a {
+	div,
+	a {
 		color: var(--jp-gray-80);
 		font-weight: 400;
 		line-height: 20px;

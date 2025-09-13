@@ -1,4 +1,4 @@
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .card {
 	display: flex;
@@ -6,7 +6,12 @@
 	gap: 24px;
 	padding: 32px 48px;
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		letter-spacing: -1%;
 		margin: 0;
 	}
@@ -103,14 +108,14 @@
 	}
 
 	.terms-of-service__link {
-		color: $studio-automattic-blue;
+		color: studio.$studio-automattic-blue;
 		white-space: nowrap;
 	}
 
 	:global {
 
 		.components-button.is-link {
-			color: $studio-automattic-blue;
+			color: studio.$studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}
@@ -123,7 +128,7 @@
 	:global {
 
 		.components-button {
-			background-color: $studio-automattic-blue;
+			background-color: studio.$studio-automattic-blue;
 			min-width: 178px;
 		}
 	}
@@ -133,7 +138,7 @@
 
 	.components-button.is-link.components-button--back {
 		font-size: 14px;
-		color: $studio-black;
+		color: studio.$studio-black;
 		text-decoration: none;
 
 		&:hover {

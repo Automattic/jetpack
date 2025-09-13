@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register both Publicize and Republicize plugins.
  *
@@ -58,7 +62,7 @@ add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_merge(
-			$extensions,
+			(array) $extensions,
 			array(
 				'republicize',
 			)

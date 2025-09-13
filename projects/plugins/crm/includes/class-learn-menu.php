@@ -1026,7 +1026,7 @@ class Learn_Menu {
 				'url'           => 'https://jetpackcrm.com/feature/quotes/',
 				'img'           => 'learn-quote-template.png',
 				'content'       => '<p>' . __( 'Quote templates save you time. You can enter placeholders so that when you generate a new quote using the template, the contact fields are automatically populated.', 'zero-bs-crm' ) . '</p>',
-				'right_buttons' => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quo_template', false ) . '#free-extensions-tour" class="jpcrm-button font-14px" id="add-template">' . __( 'Add new template', 'zero-bs-crm' ) . '</a>',
+				'right_buttons' => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quo_template', false ) . '" class="jpcrm-button font-14px" id="add-template">' . __( 'Add new template', 'zero-bs-crm' ) . '</a>',
 			),
 			'quotetemplatenew'   => array(
 				'title'     => __( 'New Quote Template', 'zero-bs-crm' ),

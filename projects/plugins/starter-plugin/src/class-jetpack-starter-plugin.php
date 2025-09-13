@@ -19,6 +19,8 @@ use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
  * Class Jetpack_Starter_Plugin
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Starter_Plugin {
 

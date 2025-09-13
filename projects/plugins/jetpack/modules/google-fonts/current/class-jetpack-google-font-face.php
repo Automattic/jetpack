@@ -9,6 +9,8 @@
  * Jetpack Google Font Face disables Font Face hooks in Core that prints **ALL** font faces.
  * Instead, it collects fonts that are used in global styles or block-level settings and
  * print those fonts in use.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Google_Font_Face {
 	/**
@@ -169,6 +171,9 @@ class Jetpack_Google_Font_Face {
 		$raw_data   = $theme_json->get_data();
 		if ( ! empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
 			foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font ) {
+				if ( ! isset( $font['fontFamily'] ) ) {
+					continue;
+				}
 				$font_family_name = $this->format_font( $this->get_font_family_name( $font ) );
 				$font_slug        = $font['slug'] ?? '';
 				if ( $font_slug && $font_slug !== $font_family_name && ! array_key_exists( $font_slug, $font_slug_aliases ) ) {

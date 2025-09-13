@@ -6,11 +6,9 @@ import {
 	useAiFeature,
 	QuotaExceededMessage,
 } from '@automattic/jetpack-ai-client';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useAnalytics,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { TextareaControl, ExternalLink, Button, Notice, BaseControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
@@ -18,7 +16,7 @@ import {
 	PostTypeSupportCheck,
 	PluginDocumentSettingPanel,
 } from '@wordpress/editor';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 /**
@@ -32,7 +30,7 @@ import { AiExcerptControl } from '../../components/ai-excerpt-control';
 import type { LanguageProp } from '../../../../blocks/ai-assistant/components/i18n-dropdown-control';
 import type { ToneProp } from '../../../../blocks/ai-assistant/components/tone-dropdown-control';
 import type { PromptProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 
 import './style.scss';
 
@@ -48,6 +46,7 @@ type ContentLensMessageContextProps = {
 };
 
 function AiPostExcerpt() {
+	const timelapse = useRef( null );
 	const { excerpt, postId } = useSelect( select => {
 		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
@@ -85,6 +84,8 @@ function AiPostExcerpt() {
 					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
+						generation_time:
+							timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 					} );
 				},
 				[ increaseAiAssistantRequestsCount, tracks ]
@@ -145,8 +146,8 @@ function AiPostExcerpt() {
 	const currentExcerpt = suggestion || excerpt;
 	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
-		// Translators: %1$s is the number of words in the excerpt.
-		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		// Translators: %1$d is the number of words in the excerpt.
+		_n( '%1$d word', '%1$d words', numberOfWords, 'jetpack' ),
 		numberOfWords
 	);
 
@@ -173,7 +174,7 @@ function AiPostExcerpt() {
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
-			postId,
+			postId: Number( postId ),
 			words: excerptWordsNumber,
 			language,
 			tone,
@@ -195,6 +196,12 @@ ${ postContent }
 		 * when performing a new AI suggestion request.
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_request', {
+			feature: 'jetpack-ai-content-lens',
+			model: model,
+		} );
+
+		timelapse.current = window?.performance?.now?.() || null;
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 
@@ -218,12 +225,6 @@ ${ postContent }
 
 	const { requireUpgrade, isOverLimit } = useAiFeature();
 
-	// Set the docs link depending on the site type
-	const docsLink =
-		isAtomicSite() || isSimpleSite()
-			? __( 'https://wordpress.com/support/excerpts/', 'jetpack' )
-			: __( 'https://jetpack.com/support/create-better-post-excerpts-with-ai/', 'jetpack' );
-
 	return (
 		<div className="jetpack-ai-post-excerpt">
 			<TextareaControl
@@ -235,9 +236,23 @@ ${ postContent }
 				disabled={ isTextAreaDisabled }
 			/>
 
-			<ExternalLink href={ docsLink }>
-				{ __( 'Learn more about manual excerpts', 'jetpack' ) }
-			</ExternalLink>
+			{ isWpcomPlatformSite() ? (
+				<WpcomSupportLink
+					supportLink={ __( 'https://wordpress.com/support/excerpts/', 'jetpack' ) }
+					supportPostId={ 1569 }
+				>
+					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+				</WpcomSupportLink>
+			) : (
+				<ExternalLink
+					href={ __(
+						'https://jetpack.com/support/create-better-post-excerpts-with-ai/',
+						'jetpack'
+					) }
+				>
+					{ __( 'Learn more about manual excerpts', 'jetpack' ) }
+				</ExternalLink>
+			) }
 
 			<div className="jetpack-generated-excerpt__ai-container">
 				{ error?.code && error.code !== 'error_quota_exceeded' && (
@@ -321,7 +336,7 @@ export const PluginDocumentSettingPanelAiExcerpt = () => {
 	}
 
 	const SettingPanel = props => {
-		const Panel = PluginDocumentSettingPanel as unknown as React.ComponentType< {
+		const Panel = PluginDocumentSettingPanel as unknown as ComponentType< {
 			className?: string;
 			name?: string;
 			title?: string;

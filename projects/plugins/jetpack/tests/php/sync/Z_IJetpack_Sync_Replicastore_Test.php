@@ -560,7 +560,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
-		$option_value = (string) rand();
+		$option_value = (string) wp_rand();
 		$store->update_option( $option_name, $option_value );
 		$replica_option_value = $store->get_option( $option_name );
 
@@ -572,8 +572,8 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	 */
 	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_option( $store ) {
-		$option_name  = 'test_replicastore_' . rand();
-		$option_value = (string) rand();
+		$option_name  = 'test_replicastore_' . wp_rand();
+		$option_value = (string) wp_rand();
 		$store->update_option( $option_name, $option_value );
 		$store->delete_option( $option_name );
 		$replica_option_value = $store->get_option( $option_name );
@@ -683,7 +683,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 		// the "current_theme_supports" API is only supposed to return "true" if there's a setting
 		foreach ( $theme_features as $theme_feature => $theme_feature_value ) {
 			$replica_theme_support_value = $store->current_theme_supports( $theme_feature );
-			$this->assertEquals( $theme_feature_value || false, $replica_theme_support_value );
+			$this->assertEquals( (bool) $theme_feature_value, $replica_theme_support_value );
 		}
 	}
 

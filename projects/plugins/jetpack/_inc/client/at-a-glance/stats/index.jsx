@@ -1,12 +1,12 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
 import { ExternalLink, Spinner } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
+import { gmdateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { forEach, get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -21,7 +21,6 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
-	isWoASite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -72,7 +71,7 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		forEach( statsData[ unit ].data, v => {
+		for ( const v of statsData[ unit ].data ?? [] ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -88,18 +87,18 @@ export class DashStats extends Component {
 			totalViews += views;
 
 			if ( 'day' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
-				tooltipLabel = dateI18n( longMonthFormat, date );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
+				tooltipLabel = gmdateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: a date. */
 					__( 'Week of %s', 'jetpack' ),
-					dateI18n( longMonthFormat, date )
+					gmdateI18n( longMonthFormat, date )
 				);
 			} else if ( 'month' === unit ) {
-				chartLabel = dateI18n( 'M', date );
-				tooltipLabel = dateI18n( longMonthYearFormat, date );
+				chartLabel = gmdateI18n( 'M', date );
+				tooltipLabel = gmdateI18n( longMonthYearFormat, date );
 			}
 
 			s.push( {
@@ -119,7 +118,7 @@ export class DashStats extends Component {
 					{
 						label: tooltipLabel,
 						value: sprintf(
-							/* translators: placeholder is a number */
+							/* translators: %s: the number of views */
 							__( 'Views: %s', 'jetpack' ),
 							formatNumber( views )
 						),
@@ -127,7 +126,7 @@ export class DashStats extends Component {
 					},
 				],
 			} );
-		} );
+		}
 
 		return { chartData: s, totalViews: totalViews };
 	}
@@ -138,7 +137,7 @@ export class DashStats extends Component {
 	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		return get( this.props.statsData, [ 'general', 'errors' ], false );
+		return this.props.statsData?.general?.errors ?? false;
 	}
 
 	renderStatsChart( chartData ) {
@@ -400,7 +399,6 @@ export default connect(
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isWoASite: isWoASite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),

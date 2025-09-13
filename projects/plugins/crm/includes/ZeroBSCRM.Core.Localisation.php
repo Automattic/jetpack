@@ -571,23 +571,21 @@ function zeroBSCRM_format_quantity( $quantity ) {
 
 function zeroBSCRM_getLocale( $full = true ) {
 
+	// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	global $zeroBSCRM_locale;
 
-	if ( isset( $zeroBSCRM_locale ) ) {
-		return $zeroBSCRM_locale;
+	if ( ! isset( $zeroBSCRM_locale ) ) {
+		$zeroBSCRM_locale = get_bloginfo( 'language' );
 	}
 
-	$zeroBSCRM_locale = get_bloginfo( 'language' );
-
 	if ( ! $full ) {
-
-		$zeroBSCRM_locale = str_replace( '_', '-', $zeroBSCRM_locale ); // just in case en_GB?
-		$langParts        = explode( '-', $zeroBSCRM_locale );
-		$zeroBSCRM_locale = $langParts[0];
-
+		$zeroBSCRM_locale_short = str_replace( '_', '-', $zeroBSCRM_locale ); // just in case en_GB?
+		$zeroBSCRM_locale_short = explode( '-', $zeroBSCRM_locale_short )[0];
+		return $zeroBSCRM_locale_short;
 	}
 
 	return $zeroBSCRM_locale;
+	// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 }
 
 // getLocale wrapper

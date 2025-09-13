@@ -2,7 +2,6 @@ import { PanelBody } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import ClipboardInput from '../../shared/clipboard-input';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 
@@ -37,6 +36,6 @@ class ShortlinksPanel extends Component {
 const Shortlinks = withSelect( select => {
 	const currentPost = select( 'core/editor' ).getCurrentPost();
 	return {
-		shortlink: get( currentPost, 'jetpack_shortlink', '' ),
+		shortlink: currentPost?.jetpack_shortlink ?? '',
 	};
 } )( ShortlinksPanel );

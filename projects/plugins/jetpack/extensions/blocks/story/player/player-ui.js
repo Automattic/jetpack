@@ -5,7 +5,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { some } from 'lodash';
 import blockMetadata from '../block.json';
 import { Background, Controls, Header, Overlay } from './components';
 import useLongPress from './lib/use-long-press';
@@ -54,7 +53,7 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 		{ box: 'border-box' }
 	);
 	const [ targetAspectRatio, setTargetAspectRatio ] = useState( settings.defaultAspectRatio );
-	const uploading = some( slides, media => isBlobURL( media.url ) );
+	const uploading = slides.some( media => isBlobURL( media.url ) );
 	const isVideo = slideIndex => {
 		const media = slideIndex < slides.length ? slides[ slideIndex ] : null;
 		if ( ! media ) {

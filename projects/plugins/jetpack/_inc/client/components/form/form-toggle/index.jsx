@@ -3,7 +3,7 @@
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { createRef, Component } from 'react';
 import Popover from 'components/popover';
 
 import './style.scss';
@@ -31,7 +31,7 @@ export default class FormToggle extends Component {
 		disabledReason: '',
 	};
 
-	toggleSwitchRef = React.createRef();
+	toggleSwitchRef = createRef();
 
 	state = {
 		showPopover: false,

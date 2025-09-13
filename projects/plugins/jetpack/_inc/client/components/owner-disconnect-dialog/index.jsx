@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 
 const ActionCard = ( {
 	title,

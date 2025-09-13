@@ -1,11 +1,11 @@
 import { Modal } from '@wordpress/components';
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
 /**
  * Wrapper for the IDC Screen to display it in a modal.
  *
- * @return {React.Component|null} The IDC Screen modal component.
+ * @return {import('react').Component|null} The IDC Screen modal component.
  */
 function IDCModal() {
 	const [ isOpen, setOpen ] = useState( true );

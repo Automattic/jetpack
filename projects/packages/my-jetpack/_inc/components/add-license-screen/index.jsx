@@ -4,7 +4,7 @@
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import React, { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */

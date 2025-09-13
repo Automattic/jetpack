@@ -1,10 +1,9 @@
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
 
 /**
  * BackupPromotion component definition.
  *
- * @return {React.Component} BackupPromotion component.
+ * @return {import('react').Component} BackupPromotion component.
  */
 export default function BackupPromotion() {
 	return (

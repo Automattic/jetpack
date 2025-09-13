@@ -1,0 +1,76 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useCallback, useEffect, useState } from 'react';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../constants';
+import useProductsByOwnership from '../../data/products/use-products-by-ownership';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+
+/**
+ * Hook for loading and filtering Jetpack products.
+ *
+ * @return {object} Object containing filtered products and loading state
+ */
+const useFilteredProducts = () => {
+	const {
+		data: { ownedProducts, unownedProducts },
+		isLoading,
+	} = useProductsByOwnership();
+
+	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
+	const { canUserViewStats } = getMyJetpackWindowInitialState();
+
+	useEffect( () => {
+		if ( isLoading ) {
+			return;
+		}
+
+		// This adds a slight delay to the loading status change to prevent
+		// a brief moment in time where the section was not visible at all
+		// between the isLoading = true and isLoading = false states.
+		// This issue was causing a flicker effect.
+		requestAnimationFrame( () => setIsLoadingProducts( false ) );
+	}, [ isLoading ] );
+
+	const filterProducts = useCallback(
+		( products: JetpackModule[] ) => {
+			const productsWithNoCard = [
+				'extras',
+				'scan',
+				'security',
+				'ai',
+				'creator',
+				'growth',
+				'complete',
+				'site-accelerator',
+				'newsletter',
+				'related-posts',
+				'brute-force',
+			];
+
+			// If the user cannot view stats, filter out the stats card
+			if ( ! canUserViewStats ) {
+				productsWithNoCard.push( 'stats' );
+			}
+
+			// If on multisite, filter out products that are not supported
+			if ( getScriptData().site.is_multisite ) {
+				productsWithNoCard.push( ...JETPACK_PRODUCTS_NOT_FOR_MULTISITE );
+			}
+
+			return products.filter( product => {
+				return ! productsWithNoCard.includes( product );
+			} );
+		},
+		[ canUserViewStats ]
+	);
+
+	const filteredOwnedProducts = filterProducts( ownedProducts );
+	const filteredUnownedProducts = filterProducts( unownedProducts );
+
+	return {
+		filteredOwnedProducts,
+		filteredUnownedProducts,
+		isLoading: isLoading || isLoadingProducts,
+	};
+};
+
+export default useFilteredProducts;

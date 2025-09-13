@@ -3,17 +3,24 @@ import clsx from 'clsx';
 import Text from '../text/index.tsx';
 import styles from './style.module.scss';
 import type { PriceProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * React component to render a Price composition.
  *
  * @param {PriceProps} props - Component props.
- * @return {React.ReactNode} -Price react component.
+ * @return {ReactNode} -Price react component.
  */
-export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
+export const Price: FC< PriceProps > = ( {
+	value,
+	currency,
+	isOff,
+	hidePriceFraction,
+	inline = false,
+} ) => {
 	const classNames = clsx( styles.price, 'product-price_price', {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
+		[ styles[ 'price-inline' ] ]: inline,
 	} );
 
 	const { symbol, integer, fraction } = getCurrencyObject( value, currency );
@@ -21,10 +28,19 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePri
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
-			<Text className={ styles.symbol } component="sup" variant="title-medium">
-				{ symbol }
-			</Text>
-			{ integer }
+			{ inline ? (
+				<>
+					{ symbol }
+					{ integer }
+				</>
+			) : (
+				<>
+					<Text className={ styles.symbol } component="sup" variant="title-medium">
+						{ symbol }
+					</Text>
+					{ integer }
+				</>
+			) }
 			{ showPriceFraction && (
 				<Text component="sup" variant="body-small" data-testid="PriceFraction">
 					<strong>{ fraction }</strong>

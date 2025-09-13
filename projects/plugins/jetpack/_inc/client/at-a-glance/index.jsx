@@ -1,7 +1,8 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { chunk, get } from 'lodash';
+import { chunk } from 'lodash';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import DashSectionHeader from 'components/dash-section-header';
@@ -13,7 +14,6 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import analytics from 'lib/analytics';
 import { isOfflineMode, hasConnectedOwner, getConnectionStatus } from 'state/connection';
 import {
-	isWoASite,
 	getApiNonce,
 	getApiRootUrl,
 	getPartnerCoupon,
@@ -97,14 +97,14 @@ class AtAGlance extends Component {
 			</div>
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
-		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
-		const rewindStatusReason = get( this.props.rewindStatus, [ 'reason' ], '' );
+		const rewindStatus = this.props.rewindStatus?.state ?? '';
+		const rewindStatusReason = this.props.rewindStatus?.reason ?? '';
 		const securityCards = [];
 
 		// Backup won't work with multi-sites, but Scan does if VaultPress is enabled
 		const hasVaultPressScanning =
 			! this.props.fetchingScanStatus && this.props.scanStatus?.reason === 'vp_active_on_site';
-		if ( ! this.props.isWoASite && ( ! this.props.multisite || hasVaultPressScanning ) ) {
+		if ( ! isWoASite() && ( ! this.props.multisite || hasVaultPressScanning ) ) {
 			securityCards.push(
 				<DashScan
 					{ ...settingsProps }
@@ -262,7 +262,6 @@ export default connect( state => {
 		userCanViewStats: userCanViewStats( state ),
 		userCanManagePlugins: userCanManagePlugins( state ),
 		userIsSubscriber: userIsSubscriber( state ),
-		isWoASite: isWoASite( state ),
 		isOfflineMode: isOfflineMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isModuleAvailable: module_name => isModuleAvailable( state, module_name ),

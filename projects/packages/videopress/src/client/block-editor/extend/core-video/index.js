@@ -10,7 +10,6 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, createInterpolateElement, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -84,7 +83,7 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
  *
  * @param {object} props                - component props
  * @param {object} props.BlockListBlock - BlockListBlock
- * @return {React.ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
+ * @return {import('react').ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
  */
 function JetpackCoreVideoDeprecation( { BlockListBlock, ...props } ) {
 	const { block } = props;

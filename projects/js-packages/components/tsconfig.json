@@ -1,8 +1,7 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "./index.ts", "./tools/jp-redirect/index.ts" ],
+	"include": [ "./index.ts", "./components", "./lib", "./tools" ],
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/" ],
 		"sourceMap": false,
 		"outDir": "./build/",
 		"target": "es2022",

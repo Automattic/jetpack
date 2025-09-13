@@ -1,7 +1,7 @@
-import React from 'react';
+import { PureComponent } from 'react';
 import Count from 'components/count';
 
-export default class extends React.PureComponent {
+export default class extends PureComponent {
 	static displayName = 'Count';
 
 	render() {

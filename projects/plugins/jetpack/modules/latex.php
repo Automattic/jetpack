@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Beautiful Math
- * Module Description: Use the LaTeX markup language to write mathematical equations and formulas
+ * Module Description: Add beautifully formatted math equations to your posts and pages using LaTeX.
  * Sort Order: 12
  * First Introduced: 1.1
  * Requires Connection: No
@@ -12,6 +12,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * LaTeX support.

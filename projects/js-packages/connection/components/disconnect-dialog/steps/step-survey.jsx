@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
 import '../../disconnect-survey/_jp-connect_disconnect-survey-card.scss';
 import DisconnectSurvey from '../../disconnect-survey';
 
@@ -8,7 +7,7 @@ import DisconnectSurvey from '../../disconnect-survey';
  * Show the survey step and allow the user to select a response.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The StepSurvey Component
+ * @return {import('react').Component} The StepSurvey Component
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;

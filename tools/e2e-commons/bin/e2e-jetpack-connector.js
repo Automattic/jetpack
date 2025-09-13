@@ -1,5 +1,5 @@
-import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { resolveSiteUrl } from '../helpers/utils-helper.js';
+import { connect } from '../utils/connection';
+import { resolveSiteUrl } from '../utils/environment';
 
 global.siteUrl = resolveSiteUrl();
-prerequisitesBuilder().withConnection( true ).build();
+connect();

@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Notifications
- * Module Description: Receive instant notifications of site comments and likes.
+ * Module Description: Receive real‑time notifications about site activity across your devices.
  * Sort Order: 13
  * First Introduced: 1.9
  * Requires Connection: Yes
@@ -16,6 +16,10 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( ! defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) {
 	define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) . '-lite' );

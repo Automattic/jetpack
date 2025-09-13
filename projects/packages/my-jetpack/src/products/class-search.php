@@ -15,6 +15,10 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Search product
  */
@@ -117,7 +121,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Help your visitors find what they are looking for with instant search results', 'jetpack-my-jetpack' );
+		return __( 'Instantly deliver the most relevant results to your visitors.', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -1,8 +1,5 @@
-import {
-	getSiteFragment,
-	isAtomicSite,
-	isSimpleSite,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
@@ -18,7 +15,7 @@ function getPlanUrl() {
 	const siteFragment = getSiteFragment();
 
 	if ( window?.location && siteFragment ) {
-		if ( isSimpleSite() || isAtomicSite() ) {
+		if ( isWpcomPlatformSite() ) {
 			return `https://wordpress.com/plans/my-plan/${ siteFragment }`;
 		}
 

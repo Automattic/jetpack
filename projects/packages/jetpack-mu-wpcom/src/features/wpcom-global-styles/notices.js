@@ -30,7 +30,7 @@ const trackEvent = ( eventName, isSiteEditor = true ) =>
 /**
  * Limited GS notice for the view canvas of the site editor.
  *
- * @return {JSX.Element} The component to render.
+ * @return {import('react').JSX.Element} The component to render.
  */
 function GlobalStylesWarningNotice() {
 	useEffect( () => {
@@ -271,7 +271,7 @@ function GlobalStylesEditNotice() {
 /**
  * Limited GS notices for the site editor.
  *
- * @return {JSX.Element} The component to render.
+ * @return {import('react').JSX.Element} The component to render.
  */
 export default function GlobalStylesNotices() {
 	return (

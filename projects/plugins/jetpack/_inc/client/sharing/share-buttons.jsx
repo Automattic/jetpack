@@ -1,8 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -17,16 +18,12 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			analytics.tracks.recordJetpackClick( {
 				target: 'configure-sharing',
 				page: 'sharing',
+				platform: isWpcomPlatformSite() ? 'wpcom' : 'jetpack',
 			} );
 		}
 
 		render() {
-			const isLinked = this.props.isLinked,
-				siteRawUrl = this.props.siteRawUrl,
-				blogID = this.props.blogID,
-				siteAdminUrl = this.props.siteAdminUrl,
-				isOfflineMode = this.props.isOfflineMode,
-				siteUsesWpAdminInterface = this.props.siteUsesWpAdminInterface,
+			const siteAdminUrl = this.props.siteAdminUrl,
 				hasSharingBlock = this.props.hasSharingBlock,
 				isBlockTheme = this.props.isBlockTheme,
 				isActive = this.props.getOptionValue( 'sharedaddy' );
@@ -45,24 +42,18 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * - Is the site in offline mode?
 			 * - Is the site using the classic admin interface?
 			 *
-			 * @return {React.ReactNode} A card with the sharing configuration link.
+			 * @return {import('react').ReactNode} A card with the sharing configuration link.
 			 */
 			const configCard = () => {
 				const cardProps = {
 					compact: true,
 					className: 'jp-settings-card__configure-link',
 					href: `${ siteAdminUrl }options-general.php?page=sharing`,
+					onClick: this.trackClickConfigure,
 				};
 
 				if ( shouldShowSharingBlock ) {
 					cardProps.href = `${ siteAdminUrl }site-editor.php?path=%2Fwp_template`;
-				} else if ( isLinked && ! isOfflineMode && ! siteUsesWpAdminInterface ) {
-					cardProps.href = getRedirectUrl( 'calypso-marketing-sharing-buttons', {
-						site: blogID ?? siteRawUrl,
-					} );
-					cardProps.onClick = this.trackClickConfigure;
-					cardProps.target = '_blank';
-					cardProps.rel = 'noopener noreferrer';
 				}
 
 				return <Card { ...cardProps }>{ __( 'Configure your sharing buttons', 'jetpack' ) }</Card>;
@@ -74,7 +65,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			 * If the sharing block is available,
 			 * we suggest to use it instead of the legacy module.
 			 *
-			 * @return {React.ReactNode} A module toggle.
+			 * @return {import('react').ReactNode} A module toggle.
 			 */
 			const moduleToggle = () => {
 				const toggle = (

@@ -6,8 +6,9 @@ import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
 import { MediaRequirementsNotice } from './media-requirements-notice';
+import type { FC } from 'react';
 
-export const MediaValidationNotices: React.FC = () => {
+export const MediaValidationNotices: FC = () => {
 	const { connections } = useSocialMediaConnections();
 	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();

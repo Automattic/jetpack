@@ -1,119 +1,121 @@
 @import url(./cssparsed.css);
 
-html, body {
-font:0.8em Verdana,Helvetica,sans-serif;
-background:#F8F8F6;
+html,
+body {
+	font: 0.8em Verdana, Helvetica, sans-serif;
+	background: #f8f8f6;
 }
 
 code {
-font-size:1.2em;
+	font-size: 1.2em;
 }
 
 div#rightcol {
-padding-left:32em;
+	padding-left: 32em;
 }
 
 fieldset {
-display:block;
-margin:0.5em 0;
-padding:1em;
-border:solid #7284AB 2px;
+	display: block;
+	margin: 0.5em 0;
+	padding: 1em;
+	border: solid #7284ab 2px;
 }
 
 fieldset.code_output {
-display:inline;
+	display: inline;
 }
 
 h1 {
-font-size:2em;
+	font-size: 2em;
 }
 
 small {
-font-size:0.7em;
+	font-size: 0.7em;
 }
 
 fieldset#field_input {
-float:left;
-margin:0 0.5em 1em 0;
+	float: left;
+	margin: 0 0.5em 1em 0;
 }
 
-fieldset#options,fieldset#code_layout {
-width:31em;
+fieldset#options,
+fieldset#code_layout {
+	width: 31em;
 }
 
 input#submit {
-clear:both;
-display:block;
-margin:1em;
+	clear: both;
+	display: block;
+	margin: 1em;
 }
 
 select {
-margin:2px 0 0;
+	margin: 2px 0 0;
 }
 
 label.block {
-display:block;
+	display: block;
 }
 
 legend {
-background:#c4E1C3;
-padding:2px 4px;
-border:dashed 1px;
+	background: #c4e1c3;
+	padding: 2px 4px;
+	border: dashed 1px;
 }
 
 textarea#css_text {
-width:27em;
-height:370px;
-display:block;
-margin-right:1em;
+	width: 27em;
+	height: 370px;
+	display: block;
+	margin-right: 1em;
 }
 
 .help {
-cursor:help;
+	cursor: help;
 }
 
 p.important {
-border:solid 1px #f00;
-font-weight:700;
-padding:1em;
-background: #fff;
+	border: solid 1px #f00;
+	font-weight: 700;
+	padding: 1em;
+	background: #fff;
 }
 
 p {
-margin:1em 0;
+	margin: 1em 0;
 }
 
 dl {
-padding-left:0.5em;
+	padding-left: 0.5em;
 }
 
 dt {
-font-weight:700;
-margin:0;
-float:left;
-clear:both;
-height:1.5em;
+	font-weight: 700;
+	margin: 0;
+	float: left;
+	clear: both;
+	height: 1.5em;
 }
 
 dd {
-margin:0 0 0 4em;
-height:1.5em;
+	margin: 0 0 0 4em;
+	height: 1.5em;
 }
 
 fieldset#messages {
-background: #fff;
-padding:0 0 0 1em;
+	background: #fff;
+	padding: 0 0 0 1em;
 }
 
 fieldset#messages div {
-height:10em;
-overflow:auto;
+	height: 10em;
+	overflow: auto;
 }
 
 dd.Warning {
-color: #ffa500;
+	color: #ffa500;
 }
 
 dd.Information {
-color:#008000;
+	color: #008000;
 }

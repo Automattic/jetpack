@@ -12,14 +12,14 @@ import ResizeObserver from 'resize-observer-polyfill';
 /**
  * Internal dependencies
  */
-import createSwiper from './create-swiper';
-import { paginationCustomRender } from './pagination';
+import createSwiper from '../v1/create-swiper';
+import { paginationCustomRender } from '../v1/pagination';
 import {
 	swiperApplyAria,
 	swiperInit,
 	swiperPaginationRender,
 	swiperResize,
-} from './swiper-callbacks';
+} from '../v1/swiper-callbacks';
 
 class Slideshow extends Component {
 	pendingRequestAnimationFrame = null;

@@ -9,14 +9,15 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Constants;
 use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 use WorDBless\BaseTestCase;
 use WorDBless\Posts;
+use WP_Block;
 
 /**
  * Test class for Contact_Form
@@ -37,6 +38,48 @@ class Contact_Form_Test extends BaseTestCase {
 	private $track_feedback_inserted;
 
 	private $plugin;
+
+	/**
+	 * Test the esc_shortcode_val method with various input types
+	 */
+	public function test_esc_shortcode_val() {
+		// Test simple string escaping
+		$this->assertEquals(
+			'Hello&#044; World&#091;&#093;',
+			Contact_Form::esc_shortcode_val( 'Hello, World[]' ),
+			'Failed to properly escape string with brackets and comma'
+		);
+
+		// Test array with value key
+		$this->assertEquals(
+			'test&#092;value',
+			Contact_Form::esc_shortcode_val( array( 'value' => 'test\\value' ) ),
+			'Failed to handle array with value key'
+		);
+
+		// Test array without value key (recursive case)
+		$this->assertEquals(
+			'first',
+			Contact_Form::esc_shortcode_val( array( 'first', 'second' ) ),
+			'Failed to handle array without value key'
+		);
+
+		// Test nested array case
+		$this->assertEquals(
+			'nested',
+			Contact_Form::esc_shortcode_val( array( array( 'value' => 'nested' ) ) ),
+			'Failed to handle nested array'
+		);
+
+		// Test special character escaping
+		$special_chars = '[bracket], \\backslash\\, ,comma,';
+		$expected      = '&#091;bracket&#093;&#044; &#092;backslash&#092;&#044; &#044;comma&#044;';
+		$this->assertEquals(
+			$expected,
+			Contact_Form::esc_shortcode_val( $special_chars ),
+			'Failed to escape all special characters correctly'
+		);
+	}
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -345,6 +388,9 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertEquals( $extra_fields, $response->get_legacy_extra_values(), 'The extra fields should match the response from the Feedback class' );
 		$this->assertCount( 3, $extra_fields, 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
 
 		/*
@@ -372,11 +418,10 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertStringContainsString( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertEquals( "I'm sorry, but the party's over", $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -401,10 +446,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -428,10 +472,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -455,10 +498,9 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
+		$response    = Feedback::get( $feedback_id );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContainsString( 'Hello John Doe from Kansas!', $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -486,13 +528,13 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertTrue( is_string( $result ) );
 
 		$feedback_id = end( Posts::init()->posts )->ID;
-		$submission  = get_post( $feedback_id );
-		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( '\"1_Name\":\"John Doe\"', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '\"2_Dropdown\":\"First option\"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '\"3_Radio\":\"Second option\"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '\"4_Text\":\"Texty text\"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$response = Feedback::get( $feedback_id );
+
+		$this->assertStringContainsString( 'John Doe', $response->get_field_value_by_label( 'Name' ), 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( 'First option', $response->get_field_value_by_label( 'Dropdown' ), 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( 'Second option', $response->get_field_value_by_label( 'Radio' ), 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( 'Texty text', $response->get_field_value_by_label( 'Text' ), 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -769,6 +811,167 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
 	}
 
+	public function test_parse_fields_from_content() {
+
+		$comment_content      = 'This is a test comment content.';
+		$comment_author       = 'Test User';
+		$comment_author_email = 'test@email.com';
+		$comment_author_url   = 'http://example.com';
+		$comment_ip_text      = 'https://127.0.0.1';
+		$subject              = 'Test Subject';
+		$all_values           = array(
+			'field1'                  => 'value1',
+			'field2'                  => 'value2',
+			'email_marketing_consent' => 'yes',
+		);
+
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		// Create a mock post with JSON_DATA format
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		// Parse fields from the post
+		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert that basic feedback fields were parsed correctly
+		$this->assertEquals( $comment_author, $fields['_feedback_author'] );
+		$this->assertEquals( $comment_author_email, $fields['_feedback_author_email'] );
+		$this->assertEquals( $comment_author_url, $fields['_feedback_author_url'] );
+		$this->assertEquals( $subject, $fields['_feedback_subject'] );
+		$this->assertEquals( $comment_ip_text, $fields['_feedback_ip'] );
+
+		// Assert that JSON data fields were parsed correctly
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertEquals( $all_values['field1'], $fields['_feedback_all_fields']['field1'] );
+		$this->assertEquals( $all_values['field2'], $fields['_feedback_all_fields']['field2'] );
+		$this->assertEquals( $all_values['email_marketing_consent'], $fields['_feedback_all_fields']['email_marketing_consent'] );
+
+		// Test caching by calling the method again and ensuring the same object is returned
+		$cached_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+		$this->assertSame( $fields, $cached_fields );
+
+		// Clean up
+		wp_delete_post( $post_id, true );
+	}
+
+	public function test_parse_fields_from_content_no_data() {
+		$data = Contact_Form_Plugin::parse_fields_from_content( 999999 );
+		$this->assertEmpty( $data );
+	}
+
+	/**
+	 * We test that if the all fields keys do have HTML content, they are escaped correctly.
+	 */
+	public function test_parse_fields_from_content_all_field_has_html_content() {
+
+		$comment_content      = 'This is a test comment content.';
+		$comment_author       = 'Test User';
+		$comment_author_email = 'test@email.com';
+		$comment_author_url   = 'http://example.com';
+		$comment_ip_text      = 'https://127.0.0.1';
+		$subject              = 'Test Subject';
+		$all_values           = array(
+			'<strong>field2</strong>' => 'value2',
+		);
+
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		// Create a mock post with JSON_DATA format
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => $content,
+			)
+		);
+
+		// Parse fields from the post
+		$fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert that JSON data fields were parsed correctly
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'field2', $fields['_feedback_all_fields'] ); // note that we should escape HTML tags here.
+		$this->assertEquals( $all_values['<strong>field2</strong>'], $fields['_feedback_all_fields']['field2'] );
+
+		// Clean up
+		wp_delete_post( $post_id, true );
+	}
+
+	public function test_parse_fields_from_content_form_submission() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name'     => 'John Doe',
+				'dropdown' => 'First option',
+				'radio'    => 'Second option',
+				'text'     => 'Texty text',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+
+		$post_id = end( Posts::init()->posts )->ID;
+		$fields  = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+		// Assert basic feedback fields
+		$this->assertEquals( 'John Doe', $fields['_feedback_author'] );
+		$this->assertSame( '', $fields['_feedback_author_email'] );
+		$this->assertSame( '', $fields['_feedback_author_url'] );
+		$this->assertStringContainsString( 'abc', $fields['_feedback_subject'] );
+		$this->assertEquals( '127.0.0.1', $fields['_feedback_ip'] );
+
+		// Assert all fields array structure
+		$this->assertIsArray( $fields['_feedback_all_fields'] );
+		$this->assertEquals( 'John Doe', $fields['_feedback_all_fields']['1_Name'] );
+		$this->assertEquals( 'First option', $fields['_feedback_all_fields']['2_Dropdown'] );
+		$this->assertEquals( 'Second option', $fields['_feedback_all_fields']['3_Radio'] );
+		$this->assertEquals( 'Texty text', $fields['_feedback_all_fields']['4_Text'] );
+
+		// Check metadata fields
+		$this->assertArrayHasKey( 'email_marketing_consent', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'entry_title', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'entry_permalink', $fields['_feedback_all_fields'] );
+		$this->assertArrayHasKey( 'feedback_id', $fields['_feedback_all_fields'] );
+
+		// Verify specific content
+		$this->assertEquals( 'abc', $fields['_feedback_all_fields']['entry_title'] );
+		$this->assertStringContainsString( '', $fields['_feedback_all_fields']['entry_permalink'] );
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{32}$/', $fields['_feedback_all_fields']['feedback_id'] );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * This tests make sure that we don't store HTML when labels do have HTML tags.
+	 */
+	public function test_parse_fields_from_content_form_submission_do_not_store_label_html() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name' => 'John Doe',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Contact_Form( array(), "[contact-field label='<strong>Name</strong>' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
+		$form->process_submission();
+
+		$post    = end( Posts::init()->posts );
+		$post_id = $post->ID;
+
+		$this->assertStringContainsString( '1_Name', $post->post_content, 'Post content should contain the field name without HTML tags' );
+
+		wp_delete_post( $post_id, true );
+	}
+
 	/**
 	 * Tests that token is left intact when there is not matching field.
 	 *
@@ -812,6 +1015,45 @@ class Contact_Form_Test extends BaseTestCase {
 		);
 
 		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_japanese() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{名前}';
+		$field_values = array(
+			'名前' => 'Hello',
+		);
+
+		$this->assertEquals( 'Hello', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_emoji() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{🙈}';
+		$field_values = array(
+			'🙈' => 'Chicago',
+		);
+
+		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_has_html() {
+		$plugin       = Contact_Form_Plugin::init();
+		$subject      = '{email}';
+		$field_values = array(
+			'2_<strong>Email</strong>' => 'note',
+		);
+
+		$this->assertEquals( 'note', $plugin->replace_tokens_with_input( $subject, $field_values ) );
 	}
 
 	/**
@@ -872,12 +1114,15 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Tests Gutenblock input with commas and brackets.
 	 */
 	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
-		$attr = array(
+		$attr  = array(
 			'type'    => 'radio',
 			'options' => array( '"foo"', 'bar, baz', '[b\\rackets]' ),
 			'label'   => 'fun ][ times',
 		);
-		$html = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '' );
+		$block = array(
+			'blockName' => 'jetpack/field-radio',
+		);
+		$html  = Contact_Form_Plugin::gutenblock_render_field_radio( $attr, '', new WP_Block( $block ) );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
 	}
 
@@ -886,12 +1131,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_text_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'text',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'text',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-text',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -903,12 +1149,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_email_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'email',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'email',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-email',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'email' ) );
@@ -920,12 +1167,13 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_url_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'url',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'url',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-url',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -937,16 +1185,36 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_telephone_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'telephone',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'telephone',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-telephone',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
-		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for telephone field_renders with showcountryselector false
+	 */
+	public function test_make_sure_telephone_field_renders_as_expected_with_showcountryselector() {
+		$attributes = array(
+			'label'               => 'fun',
+			'type'                => 'telephone',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-telephone',
+			'class'               => 'lalala',
+			'default'             => '', // phone field doesn't expect a default value
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'showcountryselector' => true,
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
 	/**
@@ -954,13 +1222,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_date_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'date',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
-			'format'      => '(YYYY-MM-DD)',
+			'label'               => 'fun',
+			'type'                => 'date',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-date',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'format'              => '(YYYY-MM-DD)',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
@@ -968,16 +1237,17 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test for textarea field_renders
+	 * Test for textarea field_renders.
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'textarea',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'textarea',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-textarea',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'textarea' ) );
@@ -985,16 +1255,21 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test for checkbox field_renders
+	 * Test for checkbox field_renders.
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
-			'label'       => 'fun',
-			'type'        => 'checkbox',
-			'class'       => 'lalala',
-			'default'     => 'foo',
-			'placeholder' => 'PLACEHOLDTHIS!',
-			'id'          => 'funID',
+			'label'               => 'fun',
+			'type'                => 'checkbox',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox',
+			'class'               => 'lalala',
+			'default'             => 'foo',
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'optionclasses'       => 'option-tomato option-lettuce',
+			'optionstyles'        => 'color:cheese;font-size:11px;',
+			'labelclasses'        => 'label-tomato label-lettuce',
+			'labelstyles'         => 'color:beef;font-size:22px;',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -1002,21 +1277,73 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Multiple fields
+	 * Multiple fields.
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
-		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'checkbox-multiple',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2' ),
-			'values'  => array( 'option 1', 'option 2' ),
+		$attributes          = array(
+			'label'               => 'fun',
+			'type'                => 'checkbox-multiple',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox-multiple',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2' ),
+			'values'              => array( 'option 1', 'option 2' ),
+			'optionclasses'       => 'option-cheese option-ham',
+			'inputclasses'        => 'input-tomato input-lettuce',
+			'optionsdata'         => wp_json_encode(
+				array(
+					array(
+						'label' => 'option 1',
+						'class' => 'has-text-color',
+						'style' => 'color:caramel; font-size:14px;',
+					),
+					array(
+						'label' => 'option 2',
+						'class' => 'has-text-color',
+						'style' => 'color:gummy; font-size:14px;',
+					),
+				)
+			),
+		);
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	public function test_make_sure_form_outlined_checkbox_multiple_field_renders_as_expected() {
+		$attributes              = array(
+			'label'               => 'fun',
+			'type'                => 'checkbox-multiple',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-checkbox-multiple',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2' ),
+			'values'              => array( 'option 1', 'option 2' ),
+			'optionclasses'       => 'option-cheese option-ham',
+			'inputclasses'        => 'input-tomato input-lettuce',
+			'optionsdata'         => wp_json_encode(
+				array(
+					array(
+						'label' => 'option 1',
+						'class' => 'has-text-color',
+						'style' => 'color:caramel; font-size:14px;',
+					),
+					array(
+						'label' => 'option 2',
+						'class' => 'has-text-color',
+						'style' => 'color:gummy; font-size:14px;',
+					),
+				)
+			),
+		);
+		$contact_form_attributes = array(
+			'className' => 'is-style-outlined',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
-		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+
+		$this->assertValidFieldMultiField( $this->render_field( $attributes, $contact_form_attributes ), $expected_attributes, $contact_form_attributes );
 	}
 
 	/**
@@ -1024,16 +1351,38 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'radio',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
-			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+			'label'               => 'fun',
+			'type'                => 'radio',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+
+		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for radio field_renders with block style classes.
+	 */
+	public function test_make_sure_radio_field_renders_as_expected_with_block_style_classes() {
+		$attributes = array(
+			'label'               => 'fun',
+			'type'                => 'radio',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'radio' ) );
+
 		$this->assertValidFieldMultiField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -1042,13 +1391,14 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
-			'label'   => 'fun',
-			'type'    => 'select',
-			'class'   => 'lalala',
-			'default' => 'option 1',
-			'id'      => 'funID',
-			'options' => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
-			'values'  => array( 'option 1', 'option 2', 'option [34]', '\\' ),
+			'label'               => 'fun',
+			'type'                => 'select',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-select',
+			'class'               => 'lalala',
+			'default'             => 'option 1',
+			'id'                  => 'funID',
+			'options'             => array( 'option 1', 'option 2', 'option 3, or 4', 'back\\slash' ),
+			'values'              => array( 'option 1', 'option 2', 'option [34]', '\\' ),
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'select' ) );
@@ -1059,11 +1409,12 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.
+	 * @param array $contact_form_attributes An associative array of attributes to pass to the Contact_Form constructor.
 	 *
 	 * @return string The field html string.
 	 */
-	public function render_field( $attributes ) {
-		$form  = new Contact_Form( array() );
+	public function render_field( $attributes, $contact_form_attributes = array() ) {
+		$form  = new Contact_Form( $contact_form_attributes );
 		$field = new Contact_Form_Field( $attributes, '', $form );
 		return $field->render();
 	}
@@ -1072,13 +1423,24 @@ class Contact_Form_Test extends BaseTestCase {
 	 * Gets the first div in the input html.
 	 *
 	 * @param string $html The html string.
+	 * @param array  $contact_form_attributes An associative array containing the contact form's attributes.
 	 *
 	 * @return DOMElement The first div element.
 	 */
-	public function getCommonDiv( $html ) {
-		$doc = new DOMDocument();
-		$doc->loadHTML( $html );
-		return $this->getFirstElement( $doc, 'div' );
+	public function getCommonDiv( $html, $contact_form_attributes = array() ) {
+		$doc              = new DOMDocument();
+		$previous_setting = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_use_internal_errors( $previous_setting );
+		$first_el = $this->getFirstElement( $doc, 'div' );
+		/**
+		 * If the contact form has the `is-style-outlined` class name, we need to get the second div element.
+		 * This is because, to achieve the outlined effect, the first div is the wrapper div, and the second div is the field wrapper div.
+		 */
+		if ( isset( $contact_form_attributes['className'] ) && 'is-style-outlined' === $contact_form_attributes['className'] ) {
+			$first_el = $this->getFirstElement( $doc, 'div', 1 );
+		}
+		return $first_el;
 	}
 
 	/**
@@ -1107,12 +1469,137 @@ class Contact_Form_Test extends BaseTestCase {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
 
-		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
+		/*
+		 * $attributes['optionclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class and applied to the wrapper div.
+		 */
+		$options_classes_wrap = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_wrap .= " {$option_class}-wrap";
+			}
+		}
+
+		/*
+		 * $attributes['inputclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class applied to the wrapper div.
+		 */
+		$input_classes_wrap = '';
+		if ( isset( $attributes['inputclasses'] ) ) {
+			$input_classes = explode( ' ', $attributes['inputclasses'] );
+			foreach ( $input_classes as $input_class ) {
+				$input_classes_wrap .= " {$input_class}-wrap";
+			}
+		}
+
+		// Multiple classes are also added to the wrapper div with the -wrap suffix.
+		$classes_wrap = '';
+		if ( isset( $attributes['class'] ) ) {
+			$wrapper_classes = explode( ' ', $attributes['class'] );
+			foreach ( $wrapper_classes as $wrapper_class ) {
+				if ( $wrapper_class ) {
+					$classes_wrap .= " {$wrapper_class}-wrap";
+				}
+			}
+		}
+
+		$css_class         = "wp-block-jetpack-field-{$attributes['type']} grunion-field-{$attributes['type']}-wrap{$classes_wrap}{$input_classes_wrap}{$options_classes_wrap} grunion-field-wrap";
+		$wrapper_div_class = $wrapper_div->getAttribute( 'class' );
 
 		$this->assertEquals(
-			$wrapper_div->getAttribute( 'class' ),
 			$css_class,
+			$wrapper_div_class,
 			'div class attribute doesn\'t match'
+		);
+	}
+
+	/**
+	 * Tests whether the input class attribute matches the field's class attribute value.
+	 *
+	 * @param DOMElement $input The input element.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 */
+	public function assertInputClasses( $input, $attributes ) {
+		/*
+		 * $attributes['optionclasses'] is passed to
+		 * Contact_Form_Field->render_checkbox_multiple_field() as $class
+		 * and applied to the input.
+		 */
+		$options_classes_input = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_input .= " {$option_class}";
+			}
+		}
+
+		/*
+		 * $attributes['inputclasses'] is passed to Contact_Form_Field->render_field()
+		 * via $field_class applied to the wrapper div.
+		 */
+		$input_classes_input = '';
+		if ( isset( $attributes['inputclasses'] ) ) {
+			$input_classes = explode( ' ', $attributes['inputclasses'] );
+			foreach ( $input_classes as $input_class ) {
+				$input_classes_input .= " {$input_class}";
+			}
+		}
+
+		// Multiple classes are also added to the input element, with the exception of is-style-* classes.
+		$classes_input = '';
+		if ( isset( $attributes['class'] ) ) {
+			$input_classes = explode( ' ', $attributes['class'] );
+			foreach ( $input_classes as $input_class ) {
+				if ( strpos( $input_class, 'is-style-' ) !== false ) {
+					continue;
+				}
+				$classes_input .= " {$input_class}";
+			}
+		}
+		$this->assertEquals(
+			$attributes['type'] . $classes_input . $input_classes_input . $options_classes_input . ' grunion-field',
+			$input->getAttribute( 'class' ),
+			'input class attribute doesn\'t match'
+		);
+	}
+
+	/**
+	 * Tests whether the label class attribute matches the field's class attribute value.
+	 *
+	 * @param DOMElement $label The input element.
+	 * @param array      $attributes An associative array containing the field's attributes.
+	 * @param string     $classes_prefix The prefix of the classes.
+	 */
+	public function assertLabelClasses( $label, $attributes, $classes_prefix ) {
+		/*
+		 * $attributes['optionclasses'] is added to the label class attribute in
+		 * render functions, e.g., Contact_Form_Field->render_checkbox_field().
+		 */
+		$options_classes_input = '';
+		if ( isset( $attributes['optionclasses'] ) ) {
+			$options_classes = explode( ' ', $attributes['optionclasses'] );
+			foreach ( $options_classes as $option_class ) {
+				$options_classes_input .= " {$option_class}";
+			}
+		}
+
+		/*
+		 * $attributes['labelclasses'] is assigned to $this->label_classes and applied in
+		 * render functions, e.g., Contact_Form_Field->render_checkbox_field().
+		 */
+		$label_classes_input = '';
+		if ( isset( $attributes['labelclasses'] ) ) {
+			$label_classes = explode( ' ', $attributes['labelclasses'] );
+			foreach ( $label_classes as $label_class ) {
+				$label_classes_input .= " {$label_class}";
+			}
+		}
+
+		$this->assertEquals(
+			$classes_prefix . $label_classes_input . $options_classes_input,
+			$label->getAttribute( 'class' ),
+			'input class attribute doesn\'t match'
 		);
 	}
 
@@ -1198,6 +1685,56 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests whether a field is valid.
+	 *
+	 * @param string $html The html string.
+	 * @param array  $attributes An associative array containing the field's attributes.
+	 */
+	public function assertValidPhoneField( $html, $attributes ) {
+
+		if ( ! isset( $attributes['showcountryselector'] ) || ! $attributes['showcountryselector'] ) {
+			return $this->assertValidField( $html, $attributes );
+		}
+
+		$wrapper_div = $this->getCommonDiv( $html );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
+
+		// Get label.
+		$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+		// Inputs. (0 is the comboxbox search input, 1 is the visible input and 2 is the hidden, actual, input)
+		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 1 );
+		$input         = $this->getFirstElement( $wrapper_div, 'input', 2 );
+
+		// Label matches for matches input ID.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'id' ),
+			'label for does not equal input ID!'
+		);
+
+		// Label matches for matches input name.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'name' ),
+			'label for doesn\'t match the input name'
+		);
+
+		$this->assertEquals( $visible_input->getAttribute( 'placeholder' ), $attributes['placeholder'], 'Placeholder doesn\'t match' );
+		$this->assertEquals( $visible_input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+
+		$this->assertEquals( 'hidden', $input->getAttribute( 'type' ), 'Type doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
+
+		$this->assertEquals(
+			'jetpack-field__input-element',
+			$visible_input->getAttribute( 'class' ),
+			'input class attribute doesn\'t match'
+		);
+	}
+
+	/**
 	 * Tests whether a checkbox field is valid.
 	 *
 	 * @param string $html The html string.
@@ -1215,7 +1752,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertInstanceOf( DOMElement::class, $label );
 		$this->assertInstanceOf( DOMElement::class, $input );
 
-		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
+		$this->assertLabelClasses( $label, $attributes, 'grunion-field-label ' . $attributes['type'] );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
 		$this->assertEquals( 'Yes', $input->getAttribute( 'value' ), 'Input value doesn\'t match' );
@@ -1224,7 +1761,8 @@ class Contact_Form_Test extends BaseTestCase {
 			$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 		}
 
-		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
+		$styles = $label->getAttribute( 'style' );
+		$this->assertEquals( $attributes['labelstyles'] . $attributes['optionstyles'], $styles, 'Label styles don\'t match' );
 	}
 
 	/**
@@ -1232,10 +1770,10 @@ class Contact_Form_Test extends BaseTestCase {
 	 *
 	 * @param string $html The html string.
 	 * @param array  $attributes An associative array containing the field's attributes.
+	 * @param array  $contact_form_attributes An associative array containing the contact form's attributes.
 	 */
-	public function assertValidFieldMultiField( $html, $attributes ) {
-
-		$wrapper_div = $this->getCommonDiv( $html );
+	public function assertValidFieldMultiField( $html, $attributes, $contact_form_attributes = array() ) {
+		$wrapper_div = $this->getCommonDiv( $html, $contact_form_attributes );
 		$this->assertFieldClasses( $wrapper_div, $attributes );
 
 		// Inputs.
@@ -1258,8 +1796,11 @@ class Contact_Form_Test extends BaseTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field', ' select class does not match expected' );
+			$select_wrapper = $wrapper_div->getElementsByTagName( 'div' )->item( 0 );
+			// @phan-suppress-next-line PhanUndeclaredMethod
+			$select_wrapper_class = $select_wrapper->getAttribute( 'class' ) ?? '';
 
+			$this->assertEquals( 'contact-form__select-wrapper select ' . $attributes['class'] . ' grunion-field', $select_wrapper_class, ' select class does not match expected' );
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
 			$n       = $options->length;
@@ -1301,11 +1842,36 @@ class Contact_Form_Test extends BaseTestCase {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
 				}
 				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
-				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
+
+				$this->assertInputClasses( $input, $attributes );
+
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
 					$this->assertNotEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
+				}
+
+				if ( ! empty( $attributes['optionsdata'] ) ) {
+					$filtered = array_filter(
+						json_decode( $attributes['optionsdata'] ),
+						function ( $option ) use ( $input ) {
+							return $option->label === $input->getAttribute( 'value' );
+						}
+					);
+					// Block styles and classes are applied to the option wrapper.
+					$option = $item_label->parentNode;  //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+					$option_data = array_values( $filtered )[0] ?? null;
+					// @phan-suppress-next-line PhanUndeclaredMethod - Phan doesn't know that getAttribute is available. But it is.
+					if ( ! empty( $item_label->getAttribute( 'style' ) ) ) {
+						// @phan-suppress-next-line PhanUndeclaredMethod
+						$this->assertEquals( $option->getAttribute( 'style' ), $option_data->style, 'Style doesn\'t match' );
+					}
+					// @phan-suppress-next-line PhanUndeclaredMethod
+					if ( ! empty( $item_label->getAttribute( 'class' ) ) ) {
+						// @phan-suppress-next-line PhanUndeclaredMethod
+						$this->assertContains( $option_data->class, explode( ' ', $option->getAttribute( 'class' ) ), 'Class doesn\'t match' );
+					}
 				}
 			}
 		}
@@ -1329,505 +1895,18 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_export_data_for_posts with fully vaid data input.
-	 *
-	 * @group csvexport
+	 * Tests that the form content is trimmed
 	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_fully_valid_data() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
+	public function test_parse_contact_field_trims_content() {
+
+		$shortcode = '[contact-field id="1" required]     adsasd        [/contact-field]';
+		$html      = do_shortcode( $shortcode );
+
+		/*
+		 * The expected string has some quotes escaped, since we want to make
+		 * sure we don't output anything harmful
 		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-					'has_json_data',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'has_json_data' )
-			->willReturn( false );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key1'         => array( 'value1', '' ),
-			'key2'         => array( 'value2', '' ),
-			'key3'         => array( 'value3', 'value3' ),
-			'key4'         => array( 'value4', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		// Even though there is no post meta for the first, we don't stop the cycle
-		// and each mock expects two calls.
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'key3'         => array( '', 'value3' ),
-			'key4'         => array( '', 'value4' ),
-			'key5'         => array( '', 'value5' ),
-			'key6'         => array( '', 'value6' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with invalid all entries for post meta
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array( 15, false, null ),
-			array( 16, false, null ),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array( '_feedback_subject' => 'subj1' ) ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj1', 'subj2' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with single invalid entry for parsed fields.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_single_invalid_entry_for_parse_fields() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 * */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_post_meta_for_csv_export_map = array(
-			array(
-				15,
-				false,
-				array(
-					'key1' => 'value1',
-					'key2' => 'value2',
-					'key3' => 'value3',
-					'key4' => 'value4',
-
-				),
-			),
-			array(
-				16,
-				false,
-				array(
-					'key3' => 'value3',
-					'key4' => 'value4',
-					'key5' => 'value5',
-					'key6' => 'value6',
-				),
-			),
-		);
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array( '_feedback_subject' => 'subj2' ) ),
-		);
-
-		$get_post_content_for_csv_export_map = array(
-			array( 15, 'This is my test 15' ),
-			array( 16, 'This is my test 16' ),
-		);
-
-		$mapped_fields_contents_map = array(
-			array(
-				array(
-					'_feedback_subject'      => 'subj1',
-					'_feedback_main_comment' => 'This is my test 15',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj1',
-					'Comment'      => 'This is my test 15',
-				),
-			),
-			array(
-				array(
-					'_feedback_subject'      => 'subj2',
-					'_feedback_main_comment' => 'This is my test 16',
-				),
-				true,
-				array(
-					'Contact Form' => 'subj2',
-					'Comment'      => 'This is my test 16',
-				),
-			),
-		);
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_meta_for_csv_export' )
-			->willReturnMap( $get_post_meta_for_csv_export_map );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$mock->expects( $this->once() )
-			->method( 'get_post_content_for_csv_export' )
-			->willReturnMap( $get_post_content_for_csv_export_map );
-
-		$mock->expects( $this->once() )
-			->method( 'map_parsed_field_contents_of_post_to_field_names' )
-			->willReturnMap( $mapped_fields_contents_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array(
-			'Contact Form' => array( 'subj2' ),
-			'key3'         => array( 'value3' ),
-			'key4'         => array( 'value4' ),
-			'key5'         => array( 'value5' ),
-			'key6'         => array( 'value6' ),
-			'Comment'      => array( 'This is my test 16' ),
-		);
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
-		/**
-		 * Contact_Form_Plugin mock object.
-		 *
-		 * @var Contact_Form_Plugin $mock
-		 */
-		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
-			->onlyMethods(
-				array(
-					'get_post_meta_for_csv_export',
-					'get_parsed_field_contents_of_post',
-					'get_post_content_for_csv_export',
-					'map_parsed_field_contents_of_post_to_field_names',
-				)
-			)
-			->disableOriginalConstructor()
-			->getMock();
-
-		$get_parsed_field_contents_of_post_map = array(
-			array( 15, array() ),
-			array( 16, array() ),
-		);
-
-		$mock->expects( $this->never() )
-			->method( 'get_post_meta_for_csv_export' );
-
-		$mock->expects( $this->exactly( 2 ) )
-			->method( 'get_parsed_field_contents_of_post' )
-			->willReturnMap( $get_parsed_field_contents_of_post_map );
-
-		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
-
-		$expected_result = array();
-
-		$this->assertEquals( $expected_result, $result );
-	}
-
-	/**
-	 * Test map_parsed_field_contents_of_post_to_field_names
-	 *
-	 * @group csvexport
-	 */
-	#[Group( 'csvexport' )]
-	public function test_map_parsed_field_contents_of_post_to_field_names() {
-
-		$input_data = array(
-			'test_field'             => 'moonstruck',
-			'_feedback_subject'      => 'This is my form',
-			'_feedback_author_email' => '',
-			'_feedback_author'       => 'John Smith',
-			'_feedback_author_url'   => 'http://example.com',
-			'_feedback_main_comment' => 'This is my comment!',
-			'another_field'          => 'thunderstruck',
-		);
-
-		$plugin = Contact_Form_Plugin::init();
-
-		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
-
-		$expected_result = array(
-			'1_Name'    => 'John Smith',
-			'3_Website' => 'http://example.com',
-			'4_Comment' => 'This is my comment!',
-		);
-
-		$this->assertEquals( $expected_result, $result );
+		$this->assertEquals( '[contact-field id="1" required]adsasd[/contact-field]', $html );
 	}
 
 	/**
@@ -2189,6 +2268,18 @@ EOT;
 			$expected,
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
+
+		// Check that the function return null if the function gets null.
+		$this->assertNull(
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( null, array( 'foo' => 'bar' ) )
+		);
+
+		// Check that the function returns an array if the function gets an empty array.
+		$this->assertEquals(
+			array(), // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
+			Util::grunion_contact_form_apply_block_attribute( array(), array( 'foo' => 'bar' ) )
+		);
 	}
 	/**
 	 * Helper function that tracks the ids of the feedbacks that got created.
@@ -2223,7 +2314,7 @@ EOT;
 				'name'    => 'First form name 2',
 				'message' => 'First form message 2',
 			),
-			'g' . $post->ID . '-2-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
+			'g' . $post->ID . '-1' // The 2 here is the count and 1 is now always set for page number which in this case is 1.
 		);
 
 		$form2   = new Contact_Form( array(), "[contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]" );
@@ -2275,4 +2366,966 @@ EOT;
 
 		$this->assertEquals( $form1->defaults['to'], get_option( 'admin_email' ), 'The default to address should equal the admin email.' );
 	}
-} // end class
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'author@example.com',
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+			)
+		);
+
+		$result = Contact_Form::get_default_to( $author_id );
+
+		$this->assertEquals( 'author@example.com', $result );
+
+		wp_delete_user( $author_id );
+	}
+
+	/**
+	 * Tests get_default_to method with invalid post author ID.
+	 */
+	public function test_get_default_to_with_invalid_post_author() {
+		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to method with null post author ID.
+	 */
+	public function test_get_default_to_with_null_post_author() {
+		$result = Contact_Form::get_default_to( null );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+	}
+
+	/**
+	 * Tests get_default_to method with post author that has empty email.
+	 */
+	public function test_get_default_to_with_empty_author_email() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => '',
+				'user_login' => 'test_author_no_email',
+				'user_pass'  => 'password123',
+			)
+		);
+
+		$result = Contact_Form::get_default_to( $author_id );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+
+		wp_delete_user( $author_id );
+	}
+
+	/**
+	 * Tests get_default_subject method with post.
+	 */
+	public function test_get_default_subject_with_post() {
+		global $post;
+
+		$attributes = array();
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method with widget attribute.
+	 */
+	public function test_get_default_subject_with_widget() {
+		global $post;
+
+		$attributes = array( 'widget' => true );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$blog_name = get_option( 'blogname' );
+		$expected  = '[' . $blog_name . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title ) . ' Sidebar';
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method with widget attribute set to false.
+	 */
+	public function test_get_default_subject_with_widget_false() {
+		global $post;
+
+		$attributes = array( 'widget' => false );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] ' . Contact_Form_Plugin::strip_tags( $post->post_title );
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Tests get_default_subject method without post.
+	 */
+	public function test_get_default_subject_without_post() {
+		global $post;
+		$original_post = $post;
+		$post          = null;
+
+		$attributes = array();
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . ']';
+		$this->assertEquals( $expected, $result );
+
+		// Restore original post
+		$post = $original_post;
+	}
+
+	/**
+	 * Tests get_default_subject method without post but with widget.
+	 */
+	public function test_get_default_subject_without_post_with_widget() {
+		global $post;
+		$original_post = $post;
+		$post          = null;
+
+		$attributes = array( 'widget' => true );
+		$result     = Contact_Form::get_default_subject( $attributes );
+
+		$expected = '[' . get_option( 'blogname' ) . '] Sidebar';
+		$this->assertEquals( $expected, $result );
+
+		// Restore original post
+		$post = $original_post;
+	}
+
+	public function test_encode_form_to_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+		$form = new Contact_Form(
+			array(
+				'to'      => 'hello@email.com',
+				'subject' => 'test subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+			. "[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+
+		// Decode the JWT to verify its structure
+		$to_attribute = $form_copy->get_attribute( 'to' );
+		$this->assertEquals( 'hello@email.com', $to_attribute );
+		$this->assertEquals( $form_copy->get_attributes(), $form->get_attributes(), 'Form attributes should match' );
+		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form IDs should match' );
+		$this->assertEquals( $form->get_attribute( 'id' ), $form_copy->get_attribute( 'id' ), 'Form IDs should match' );
+
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form copy should have verified JWT' );
+		$this->assertFalse( $form->has_verified_jwt, 'Original form should not have verified JWT' );
+
+		$this->assertEquals( $form->hash, $form_copy->hash, 'Form hashes should match' );
+		$this->assertNotEmpty( $form_copy->hash, 'Form hash should not be empty' );
+
+		$this->assertEquals( $form->get_field_ids(), $form_copy->get_field_ids(), 'Field IDs should match' );
+		$this->assertNotEmpty( $form_copy->get_field_ids(), 'Fields should not be empty' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_get_instance_from_jwt_returns_null_when_no_secret() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'test@email.com',
+				'subject' => 'Test Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty as it uses default secret' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+
+		// The form should still be recoverable using the default secret
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
+	}
+
+	public function test_get_instance_from_jwt_returns_with_all_attribute_data() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+
+		$attributes = array(
+			'to'                     => 'test@email.com',
+			'subject'                => 'Test Form',
+			'show_subject'           => 'no', // only used in back-compat mode
+			'widget'                 => 'string',    // Not exposed to the user. Works with Contact_Form_Plugin::widget_atts()
+			'block_template'         => null, // Not exposed to the user. Works with template_loader
+			'block_template_part'    => null, // Not exposed to the user. Works with Contact_Form::parse()
+			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
+			// These attributes come from the block editor, so use camel case instead of snake case.
+			'customThankyou'         => 'message', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
+			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'className'              => 'string-class-name', // The class name to apply to the form.
+			'postToUrl'              => 'https://example.com/submit', // The URL to post the form data to.
+			'salesforceData'         => array( 'organizationId' => '12345' ),
+			'hiddenFields'           => array(
+				'hiddenField1' => 'value1',
+				'hiddenField2' => 'value2',
+			), // Hidden fields to include in the form.
+			'stepTransition'         => 'fade-slide',
+			'mailpoet'               => '',
+		);
+		// Add a widget ID to the attributes for testing.
+		$expected_attributes                        = $attributes;
+		$expected_attributes['jetpackCRM']          = '1';
+		$expected_attributes['block_template']      = '';
+		$expected_attributes['block_template_part'] = '';
+		$expected_attributes['id']                  = 'widget-string';
+
+		$form = new Contact_Form(
+			$attributes,
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty as it uses default secret' );
+		$this->assertIsString( $jwt, 'JWT should be a string' );
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+
+		$this->assertEquals( $form->get_attributes(), $form_copy->get_attributes(), 'Form attributes should match' );
+		$this->assertNotNull( $form_copy, 'Should recover form using default secret' );
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with default secret' );
+		$this->assertEquals( $form->get_attribute( 'salesforceData' ), $form_copy->get_attribute( 'salesforceData' ), 'Form attributes should match' );
+		$this->assertIsArray( $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should be an array' );
+		$this->assertArrayHasKey( 'organizationId', $form_copy->get_attribute( 'salesforceData' ), 'salesforceData should contain organizationId' );
+		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
+
+		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
+	}
+
+	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form_copy = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
+		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+	/**
+	 * Test compute_id method with basic attributes
+	 */
+	public function test_compute_id_with_basic_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringContainsString( (string) $post->ID, $computed_id, 'Computed ID should contain post ID' );
+	}
+
+	/**
+	 * Test compute_id method with null post
+	 */
+	public function test_compute_id_with_null_post() {
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, null );
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty' );
+		$this->assertStringNotContainsString( (string) $this->post->ID, $computed_id, 'Computed ID should not contain post ID when post is null' );
+	}
+
+	/**
+	 * Test compute_id method with widget attribute
+	 */
+	public function test_compute_id_with_widget_attribute() {
+		global $post;
+
+		$attributes = array(
+			'to'     => 'test@example.com',
+			'widget' => 'sidebar-1',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string' );
+		$this->assertStringContainsString( 'widget', $computed_id, 'Widget form ID should contain "widget"' );
+		$this->assertStringContainsString( 'sidebar-1', $computed_id, 'Widget form ID should contain widget ID' );
+	}
+
+	/**
+	 * Test compute_id method with different page numbers
+	 */
+	public function test_compute_id_with_different_page_numbers() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id_page_1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id_page_2 = Contact_Form::compute_id( $attributes, $post, 2 );
+
+		$this->assertNotEquals( $id_page_1, $id_page_2, 'IDs should be different for different page numbers' );
+		$this->assertEquals( $post->ID, $id_page_1, 'Page 1 ID should match post ID' );
+		$this->assertEquals( $post->ID . '-2', $id_page_2, 'Page 2 ID should match post ID' );
+	}
+
+	/**
+	 * Test compute_id method generates consistent IDs
+	 */
+	public function test_compute_id_generates_consistent_ids() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		$id1 = Contact_Form::compute_id( $attributes, $post, 1 );
+		$id2 = Contact_Form::compute_id( $attributes, $post, 1 );
+
+		$this->assertEquals( $id1, $id2, 'Same attributes should generate same ID' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_compute_id_with_different_attributes_generates_different_ids() {
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+		);
+
+		$form1 = new Contact_Form( $attributes1 );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$attributes2 = array(
+			'to'      => 'test2@example.com',
+			'subject' => 'Test Subject 2',
+		);
+
+		$form2 = new Contact_Form( $attributes2 );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertNotEquals( $id1, $id2, 'Different form objects should generate equals ID if the match is IDs' );
+	}
+
+	/**
+	 * Test compute_id method with different attributes generates different IDs
+	 */
+	public function test_contact_form_constructor_set_id_parameter() {
+
+		$attributes1 = array(
+			'to'      => 'test1@example.com',
+			'subject' => 'Test Subject 1',
+			'id'      => 'form-1',
+		);
+
+		$form1 = new Contact_Form( $attributes1, '', false );
+		$id1   = $form1->get_attribute( 'id' );
+
+		$form2 = new Contact_Form( $attributes1, '', false );
+		$id2   = $form2->get_attribute( 'id' );
+
+		$this->assertEquals( 'form-1', $id1, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+		$this->assertEquals( 'form-1', $id2, 'If you pass false for the 3rd parameter, the ID should match the one provided in the attributes' );
+	}
+
+	/**
+	 * Test compute_id method with empty attributes
+	 */
+	public function test_compute_id_with_empty_attributes() {
+		global $post;
+
+		$attributes = array();
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should be a string even with empty attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty even with empty attributes' );
+	}
+
+	/**
+	 * Test compute_id method with special characters in attributes
+	 */
+	public function test_compute_id_with_special_characters() {
+		global $post;
+
+		$attributes = array(
+			'to'      => 'test+special@example.com',
+			'subject' => 'Test Subject with "quotes" and symbols!@#$%',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle special characters' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with special characters' );
+	}
+
+	/**
+	 * Test compute_id method with form count increment
+	 */
+	public function test_compute_id_with_form_count_increment() {
+		global $post;
+
+		// Reset forms count for consistent testing
+		Contact_Form::$forms = array();
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Test Subject',
+		);
+
+		// Create first form to increment count
+		$id1   = Contact_Form::compute_id( $attributes, $post );
+		$form1 = new Contact_Form( $attributes );
+
+		// Create second form to increment count again
+		$id2   = Contact_Form::compute_id( $attributes, $post );
+		$form2 = new Contact_Form( $attributes );
+
+		$id3 = Contact_Form::compute_id( $attributes, $post );
+		$id4 = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertNotEquals( $id1, $id2, 'IDs should be different when form count increases' );
+		$this->assertEquals( $id1, $form1->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( $id2, $form2->get_attribute( 'id' ), 'IDs should match the form object' );
+		$this->assertEquals( 2, Contact_Form::get_forms_count(), 'Forms count should be 2 after second form creation' );
+		$this->assertEquals( $id3, $id4, "IDs should match since calling the function should't have side effects" );
+	}
+
+	/**
+	 * Test compute_id method with block template attributes
+	 */
+	public function test_compute_id_with_block_template_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                  => 'test@example.com',
+			'block_template'      => 'contact-template',
+			'block_template_part' => 'header-part',
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle block template attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with block template attributes' );
+	}
+
+	/**
+	 * Test compute_id method with all possible attribute combinations
+	 */
+	public function test_compute_id_with_comprehensive_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'                    => 'comprehensive@example.com',
+			'subject'               => 'Comprehensive Test',
+			'widget'                => false,
+			'block_template'        => 'test-template',
+			'block_template_part'   => 'test-part',
+			'customThankyou'        => 'message',
+			'customThankyouMessage' => 'Thank you!',
+			'jetpackCRM'            => true,
+			'className'             => 'test-class',
+			'hiddenFields'          => array( 'field1' => 'value1' ),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post, 3 );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle comprehensive attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with comprehensive attributes' );
+		$this->assertStringContainsString( '-3', $computed_id, 'ID should contain page number' );
+	}
+
+	/**
+	 * Test compute_id method maintains uniqueness across different posts
+	 */
+	public function test_compute_id_uniqueness_across_posts() {
+		// Create another post for testing
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$second_post = get_post( $second_post_id );
+
+		$attributes = array(
+			'to'      => 'test@example.com',
+			'subject' => 'Same Subject',
+		);
+
+		$id_post1 = Contact_Form::compute_id( $attributes, $this->post );
+		$id_post2 = Contact_Form::compute_id( $attributes, $second_post );
+
+		$this->assertNotEquals( $id_post1, $id_post2, 'Same attributes on different posts should generate different IDs' );
+
+		// Clean up
+		wp_delete_post( $second_post_id, true );
+	}
+
+	/**
+	 * Test compute_id method with numeric values in attributes
+	 */
+	public function test_compute_id_with_numeric_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'          => 'test@example.com',
+			'subject'     => 'Test Subject',
+			'widget'      => 123,
+			'some_number' => 456.789,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle numeric attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with numeric attributes' );
+	}
+
+	/**
+	 * Test compute_id method with boolean attributes
+	 */
+	public function test_compute_id_with_boolean_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'         => 'test@example.com',
+			'jetpackCRM' => true,
+			'widget'     => false,
+			'required'   => true,
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle boolean attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with boolean attributes' );
+	}
+
+	/**
+	 * Test compute_id method with array attributes
+	 */
+	public function test_compute_id_with_array_attributes() {
+		global $post;
+
+		$attributes = array(
+			'to'             => 'test@example.com',
+			'hiddenFields'   => array(
+				'field1' => 'value1',
+				'field2' => 'value2',
+			),
+			'salesforceData' => array(
+				'organizationId' => '12345',
+			),
+		);
+
+		$computed_id = Contact_Form::compute_id( $attributes, $post );
+
+		$this->assertIsString( $computed_id, 'Computed ID should handle array attributes' );
+		$this->assertNotEmpty( $computed_id, 'Computed ID should not be empty with array attributes' );
+	}
+
+	public function test_test_context_in_form_id_creation() {
+
+		$attributes   = array();
+		$post_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'First Test Post',
+				'post_content' => 'First test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$post         = get_post( $post_post_id );
+
+		$form_id = Contact_Form::compute_id( $attributes, $post );
+		Contact_Form::increment_form_context_count( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id, 'Form ID should contain the post ID of the first post' );
+
+		$form_id_2 = Contact_Form::compute_id( $attributes, $post );
+		$this->assertStringContainsString( (string) $post_post_id, $form_id_2, 'Form ID should contain the post ID of the first post' );
+		$this->assertNotEquals( $form_id, $form_id_2, 'Form IDs should be different for different instances' );
+
+		$second_post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Second Test Post',
+				'post_content' => 'Second test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+		$second_post    = get_post( $second_post_id );
+
+		$form_id_3 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_3, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_4 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( (string) $second_post_id, $form_id_4, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_3, $form_id_4, 'Form IDs should be different for different instances' );
+
+		$attributes['widget'] = 'sidebar';
+
+		$form_id_5 = Contact_Form::compute_id( $attributes, $second_post );
+		Contact_Form::increment_form_context_count( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_5, 'Form ID should contain the post ID of the second post' );
+
+		$form_id_6 = Contact_Form::compute_id( $attributes, $second_post );
+		$this->assertStringContainsString( 'widget-sidebar', $form_id_6, 'Form ID should contain the post ID of the second post' );
+		$this->assertNotEquals( $form_id_5, $form_id_6, 'Form IDs should be different for different instances' );
+
+		// Assert that we have 6 unique form ids.
+		$this->assertCount( 6, array_unique( array( $form_id, $form_id_2, $form_id_3, $form_id_4, $form_id_5, $form_id_6 ) ), 'There should be 6 unique forms' );
+	}
+
+	/**
+	 * Test get_post_property method with various scenarios
+	 */
+	public function test_get_post_property() {
+		global $post;
+
+		// Test null/false/empty inputs
+		$this->assertNull( Contact_Form::get_post_property( null, 'ID' ), 'Should return null for null post data' );
+		$this->assertNull( Contact_Form::get_post_property( false, 'ID' ), 'Should return null for false post data' );
+		$this->assertNull( Contact_Form::get_post_property( 'not an object nor array', 'ID' ), 'Should return null for non-object/array post data' );
+
+		// Test object properties
+		$this->assertEquals( $post->ID, Contact_Form::get_post_property( $post, 'ID' ), 'Should return object property value' );
+		$this->assertEquals( $post->post_title, Contact_Form::get_post_property( $post, 'post_title' ), 'Should return object string property' );
+		$this->assertNull( Contact_Form::get_post_property( $post, 'non_existent_property' ), 'Should return null for non-existent object property' );
+
+		// Test array properties
+		$array_post = array(
+			'ID'         => 123,
+			'post_title' => 'Test Post',
+			'meta'       => array( 'key' => 'value' ),
+		);
+		$this->assertEquals( 123, Contact_Form::get_post_property( $array_post, 'ID' ), 'Should return array property value' );
+		$this->assertEquals( 'Test Post', Contact_Form::get_post_property( $array_post, 'post_title' ), 'Should return array string property' );
+		$this->assertEquals( array( 'key' => 'value' ), Contact_Form::get_post_property( $array_post, 'meta' ), 'Should return array property with nested array' );
+		$this->assertNull( Contact_Form::get_post_property( $array_post, 'non_existent_property' ), 'Should return null for non-existent array property' );
+
+		// Test empty array
+		$this->assertNull( Contact_Form::get_post_property( array(), 'ID' ), 'Should return null for empty array' );
+	}
+
+	/**
+	 * Test get_redirect_url method with various scenarios
+	 */
+	public function test_get_redirect_url() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+				'post_author'  => $this->post->post_author,
+			),
+			true
+		);
+
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		// Test with custom thank you redirect URL.
+		$redirect_url = $form->get_redirect_url( array(), 123, $post_id );
+		$this->assertEquals( 'https://example.com/thank-you', $redirect_url, 'Redirect URL should match the custom thank you redirect URL.' );
+
+		// Test with no custom thank you redirect URL.
+		unset( $attributes['customThankyouRedirect'] );
+		$previous_request_uri         = $_REQUEST['_wp_http_referer'] ?? '';
+		$_REQUEST['_wp_http_referer'] = '/test-uri';
+
+		$form_no_redirect         = new Contact_Form( $attributes, '' );
+		$redirect_url_no_redirect = $form_no_redirect->get_redirect_url( array(), 123, $post_id );
+
+		if ( ! empty( $previous_request_uri ) ) {
+			$_REQUEST['_wp_http_referer'] = $previous_request_uri;
+		} else {
+			unset( $_REQUEST['_wp_http_referer'] );
+		}
+		// Restore the original request URI.
+
+		$this->assertEquals( '/test-uri', $redirect_url_no_redirect, 'Redirect URL should be empty when no custom thank you redirect URL is set.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$redirect_url_via_filter = $form_has_filter->get_redirect_url( array(), 123, $post_id );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+		$this->assertEquals( 'https://example.com/redirected', $redirect_url_via_filter, 'Redirect URL should match the filter return value.' );
+	}
+
+	public function redirect_filter() {
+		return 'https://example.com/redirected';
+	}
+
+	public function test_has_custom_redirect() {
+		$attributes = array(
+			'customThankyou'         => 'redirect',
+			'customThankyouRedirect' => 'https://example.com/thank-you',
+		);
+
+		$form = new Contact_Form( $attributes, '' );
+
+		$this->assertTrue( $form->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+
+		unset( $attributes['customThankyouRedirect'] );
+
+		$form_no_redirect = new Contact_Form( $attributes, '' );
+
+		$this->assertFalse( $form_no_redirect->has_custom_redirect(), 'Form should not have a custom redirect URL.' );
+
+		$form_has_filter = new Contact_Form( $attributes, '' );
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10, 3 );
+		$this->assertTrue( $form_has_filter->has_custom_redirect(), 'Form should have a custom redirect URL.' );
+		remove_filter( 'grunion_contact_form_redirect_url', array( $this, 'redirect_filter' ), 10 );
+	}
+
+	public function test_validate_form() {
+		$name    = 'John Doe';
+		$email   = 'john@example.com';
+		$choose  = array( 'truth' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" required="1"/][contact-field label="Email" type="email" required="1"/][contact-field label="Choose" type="checkbox-multiple"  options="truth,dare"  required="1"]'
+		);
+
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+		$this->assertEquals( array(), $form->get_error_messages() );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+	}
+
+	public function test_validate_form_with_errors() {
+		$name    = ''; // required field
+		$email   = 'hello@world'; // Invalid email
+		$choose  = array( '' ); // required field
+		$pick    = array( 'not-a-value' ); // required field
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'           => $name,
+				'email'          => $email,
+				'invite'         => 'hello@world', // not required
+				'choose'         => $choose,
+				'chooseradio'    => 'not-a-value',
+				'radioempty'     => '',
+				'radioemptydata' => '',
+				'pick'           => $pick,
+				'pickvalue'      => array( 'truth' ), // a value but not a part of the values array.
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"
+			[contact-field label='Name' type='name' required='1'/]
+			[contact-field label='Email' type='email' required='1'/]
+			[contact-field label='Invite' type='email' /]
+			[contact-field label='Choose' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Choose Radio' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty' type='radio' options='truth,dare' required='1'/]
+			[contact-field label='Choose Empty Data' type='radio' options='truth,dare' optionsdata='&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;' required='1'/]
+			[contact-field label='Pick' type='checkbox-multiple' options='truth,dare' required='1'/]
+			[contact-field label='Pick Value' type='checkbox-multiple' options='truth,dare' values='one,two' required='1'/]"
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals(
+			array(
+				'Name field is required.',
+				'Email requires a valid email address.',
+				'Invite requires a valid email address.',
+				'Choose requires at least one selection.',
+				'Choose Radio requires at least one selection.',
+				'Choose Empty requires at least one selection.',
+				'Choose Empty Data requires at least one selection.',
+				'Pick requires at least one selection.',
+				'Pick Value requires at least one selection.',
+			),
+			$form->get_error_messages()
+		);
+		Contact_Form::reset_errors();
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+
+		$form->add_error( 'custom_error', 'This is a custom error message.' );
+		$this->assertTrue( $form->has_errors(), 'Form should have custom error after adding it.' );
+		$this->assertEquals( array( 'This is a custom error message.' ), $form->get_error_messages(), 'Form should return custom error message.' );
+
+		// Reset errors and check again.
+		Contact_Form::reset_errors( $form->get_attribute( 'id' ) );
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after resetting.' );
+		$this->assertEquals( array(), $form->get_error_messages() );
+	}
+
+	public function test_validate_empty_form() {
+		$name    = '';
+		$email   = '';
+		$choose  = array( '' );
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => $choose,
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Name" type="name" /][contact-field label="Email" type="email" /][contact-field label="Choose" type="checkbox-multiple" options="truth,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertTrue( $form->has_errors(), 'Form should not have errors after validation.' );
+		$this->assertEquals( array( 'Please fill out at least one field.' ), $form->get_error_messages() );
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_checkboxes_form() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+
+				'choose'                      => array( 'truth 🙈 ' ),
+				'chooseoptions'               => array( 'hello  there' ),
+				'chooseseveraloptions'        => array( 'hello, there' ),
+				'chooseseveraloptionsspecial' => array( 'hello, world' ),
+				'chooseseveraloptionsvalues'  => array( 'one' ),
+				'choosevalueoptionsdata'      => array( 'one' ),
+
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'
+			[contact-field label="Choose" type="checkbox-multiple" options="truth 🙈 , dare" ]
+			[contact-field type="checkbox-multiple" label="Choose options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello  there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello  there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+[contact-field type="checkbox-multiple" label="Choose several options" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+[contact-field label="Choose several options special" type="checkbox-multiple" options="hello&#044; world,dare" /]
+[contact-field label="Choose several options  values" type="checkbox-multiple" options="hello world,dare" values="one,two" /]
+[contact-field type="checkbox-multiple" label="Choose value options data" labelclasses="wp-block-jetpack-label" optionsclasses="wp-block-jetpack-options" options="hello, there,option 1,option 2" values="one,two" optionsdata="&#091;{&quot;label&quot;:&quot;hello&#044; there&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 1&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#044;{&quot;label&quot;:&quot;option 2&quot;&#044;&quot;class&quot;:&quot;wp-block-jetpack-option&quot;}&#093;" stylevariationattributes="" stylevariationclasses="" stylevariationstyles="" fieldwrapperclasses="wp-block-jetpack-field-checkbox-multiple"]&lt;div&gt;
+&lt;ul class=&quot;wp-block-jetpack-options&quot;&gt;
+&lt;/ul&gt;
+&lt;/div&gt;[/contact-field]
+'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+
+	public function test_validate_radio_form() {
+		$name    = '';
+		$email   = '';
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission
+		$_POST = Utility::get_post_request(
+			array(
+				'name'   => $name,
+				'email'  => $email,
+				'choose' => 'hello, world',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			'[contact-field label="Choose" type="radio" options="hello&#044; world,dare" /]'
+		);
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertEquals( array(), $form->get_error_messages() );
+		// message should be not empty.
+		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
+
+		Contact_Form::reset_errors();
+	}
+}

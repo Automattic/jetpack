@@ -58,6 +58,13 @@ add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
  * @return array | null
  */
 function wpcom_get_sidebar_notice() {
+	static $cached_notice = null;
+	static $cache_loaded  = false;
+
+	if ( $cache_loaded ) {
+		return $cached_notice;
+	}
+
 	$message_path = 'calypso:sites:sidebar_notice';
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -75,14 +82,17 @@ function wpcom_get_sidebar_notice() {
 		$message = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
 	}
 
+	$cache_loaded = true;
+
 	if ( ! isset( $message[0] ) ) {
+		$cached_notice = null;
 		return null;
 	}
 
 	// Serialize message as object (on Simple sites we have an array, on Atomic sites we have an object).
 	$message = json_decode( wp_json_encode( $message[0] ) );
 
-	return array(
+	$cached_notice = array(
 		'content'       => $message->content->message,
 		'cta'           => $message->CTA->message, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		'link'          => $message->CTA->link, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -91,6 +101,8 @@ function wpcom_get_sidebar_notice() {
 		'id'            => $message->id,
 		'tracks'        => $message->tracks ?? null,
 	);
+
+	return $cached_notice;
 }
 
 /**

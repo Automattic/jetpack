@@ -8,6 +8,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 wp_embed_register_handler( 'inline-pdfs', '#https?://[^<]*\.pdf$#i', 'jetpack_inline_pdf_embed_handler' );
 
 /**

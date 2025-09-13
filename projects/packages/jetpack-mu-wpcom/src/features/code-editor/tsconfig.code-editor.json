@@ -1,0 +1,12 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "code-editor",
+		"paths": {
+			"@a8cCodeEditor/codemirror-bundle": [ "./codemirror/codemirror.ts" ]
+		}
+	},
+	"include": [ "code-editor" ],
+	"references": [ { "path": "./tsconfig.codemirror.json" } ]
+}

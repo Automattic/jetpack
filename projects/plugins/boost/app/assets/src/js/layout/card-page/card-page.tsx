@@ -5,13 +5,14 @@ import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
 import clsx from 'clsx';
 import styles from './card-page.module.scss';
+import type { ReactNode } from 'react';
 
 type CardPageProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 	showActivateLicense?: boolean;
 	showBackButton?: boolean;
-	sidebarItem?: React.ReactNode;
-	footerNote?: React.ReactNode;
+	sidebarItem?: ReactNode;
+	footerNote?: ReactNode;
 };
 
 const CardPage = ( {

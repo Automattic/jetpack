@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';

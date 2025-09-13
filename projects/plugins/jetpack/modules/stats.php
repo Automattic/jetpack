@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Jetpack Stats
- * Module Description: Collect valuable traffic stats and insights.
+ * Module Description: Clear, concise traffic insights right in your WordPress dashboard.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
@@ -27,6 +27,10 @@ use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 	return;

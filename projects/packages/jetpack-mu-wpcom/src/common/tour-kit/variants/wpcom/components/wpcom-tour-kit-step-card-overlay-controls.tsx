@@ -3,13 +3,14 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import minimize from '../icons/minimize';
 import type { TourStepRendererProps } from '../../../types';
+import type { FunctionComponent } from 'react';
 
 interface Props {
 	onMinimize: TourStepRendererProps[ 'onMinimize' ];
 	onDismiss: TourStepRendererProps[ 'onDismiss' ];
 }
 
-const WpcomTourKitStepCardOverlayControls: React.FunctionComponent< Props > = ( {
+const WpcomTourKitStepCardOverlayControls: FunctionComponent< Props > = ( {
 	onMinimize,
 	onDismiss,
 } ) => {

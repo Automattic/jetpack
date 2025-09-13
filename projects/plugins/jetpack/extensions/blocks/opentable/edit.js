@@ -1,8 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getBlockIconComponent,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InspectorControls,
 	InspectorAdvancedControls,
@@ -24,7 +21,7 @@ import {
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, isEqual, join } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
@@ -158,15 +155,14 @@ function OpenTableEdit( {
 				<div className={ `${ defaultClassName }-overlay` }></div>
 				<iframe
 					title={ sprintf(
-						/* translators: Placeholder is a unique ID. */
+						/* translators: %s: a unique ID. */
 						__( 'Open Table Preview %s', 'jetpack' ),
 						clientId
 					) }
 					scrolling="no"
-					src={ `https://www.opentable.com/widget/reservation/canvas?rid=${ join(
-						rid,
-						'%2C'
-					) }&type=${ type }&theme=${ theme }&overlay=false&domain=${ domain }&lang=${
+					src={ `https://www.opentable.com/widget/reservation/canvas?rid=${
+						Array.isArray( rid ) ? rid.join( '%2C' ) : ''
+					}&type=${ type }&theme=${ theme }&overlay=false&domain=${ domain }&lang=${
 						lang && languageValues.includes( lang ) ? lang : 'en-US'
 					}&newtab=${ newtab }&disablega=true` }
 				/>
@@ -226,10 +222,9 @@ function OpenTableEdit( {
 		</>
 	);
 
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
+	const supportLink = isWpcomPlatformSite()
+		? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
+		: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
 
 	const blockPlaceholder = (
 		<Placeholder

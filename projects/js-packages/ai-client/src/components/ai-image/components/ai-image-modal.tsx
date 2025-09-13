@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { SelectControl } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
 import {
 	IMAGE_STYLE_NONE,
 	IMAGE_STYLE_AUTO,
@@ -22,6 +16,7 @@ import QuotaExceededMessage from '../../quota-exceeded-message/index.tsx';
 import Carrousel, { CarrouselImages } from './carrousel.tsx';
 import UsageCounter from './usage-counter.tsx';
 import './ai-image-modal.scss';
+import type { JSX, ReactElement } from 'react';
 
 type AiImageModalProps = {
 	title: string;
@@ -43,7 +38,7 @@ type AiImageModalProps = {
 	hasError: boolean;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
-	acceptButton: React.JSX.Element;
+	acceptButton: JSX.Element;
 	autoStart?: boolean;
 	autoStartAction?: ( { userPrompt, style }: { userPrompt?: string; style?: string } ) => void;
 	generateButtonLabel: string;
@@ -64,7 +59,7 @@ const debug = debugFactory( 'jetpack-ai-client:ai-image-modal' );
 /**
  * AiImageModal component
  * @param {AiImageModalProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function AiImageModal( {
 	title,

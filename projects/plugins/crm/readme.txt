@@ -1,6 +1,6 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
-Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
+Tags: CRM, Woocommerce CRM, Client Portal, Marketing Automation, Lead Generation
 Tested up to: 6.8
 Stable tag: 6.4.2
 Requires at least: 6.0
@@ -362,13 +362,8 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.5.1 - 2025-01-22
-#### Changed
-- Code: Use function-style exit() and die() with a default status code of 0.
-
-#### Removed
-- Remove legacy Groove code.
-
+### 6.6.1 - 2025-07-10
 #### Fixed
-- Invoices: Fix bug introduced in 6.5.0 that prevented email invoices from being sent.
+- Address regression that caused excess queries.
+- Quote Templates: Clean up link when creating a new quote template.
 

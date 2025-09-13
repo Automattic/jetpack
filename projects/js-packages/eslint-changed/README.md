@@ -80,9 +80,9 @@ npx @automattic/eslint-changed --diff /tmp/diff --eslint-orig /tmp/eslint.orig.j
 ```
 Note that, to be exactly the same as the above, you'd want to extract the list of files from the diff instead of linting everything. But this will work.
 
-This will compare file.js in HEAD with origin/trunk, with the equivalent of passing `--flag unstable_config_lookup_from_file` to `eslint`.
+This will compare file.js in HEAD with origin/trunk, with the equivalent of passing `--flag v10_config_lookup_from_file` to `eslint`.
 ```bash
-npx @automattic/eslint-changed --git --git-base origin/trunk --eslint-options flags='["unstable_config_lookup_from_file"]' -- file.js
+npx @automattic/eslint-changed --git --git-base origin/trunk --eslint-options flags='["v10_config_lookup_from_file"]' -- file.js
 ```
 
 ## Inspiration

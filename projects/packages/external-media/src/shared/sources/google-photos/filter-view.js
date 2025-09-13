@@ -1,7 +1,6 @@
 import { SelectControl, Button } from '@wordpress/components';
 import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 const FILTERS = [
 	{ label: __( 'Category', 'jetpack-external-media' ), value: 'category' },
@@ -68,7 +67,7 @@ function addFilter( existing, newFilter ) {
 /**
  * GoogleFilterView component
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function GoogleFilterView( props ) {
 	const [ currentFilter, setCurrentFilter ] = useState( getFirstFilter( [] ) );

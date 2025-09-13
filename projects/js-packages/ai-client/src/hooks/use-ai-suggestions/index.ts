@@ -3,6 +3,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -30,6 +31,8 @@ import type {
 	RequestingStateProp,
 	AiModelTypeProp,
 } from '../../types.ts';
+
+const debug = debugFactory( 'ai-client:use-ai-suggestions' );
 
 export type RequestingErrorProps = {
 	/*
@@ -175,7 +178,7 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 			return {
 				code: ERROR_MODERATION,
 				message: __(
-					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'Our service provider OpenAI could not process your prompt due to a moderation system. Please try to rephrase it changing potentially problematic words and try again.',
 					'jetpack-ai-client'
 				),
 				severity: 'info',
@@ -252,9 +255,11 @@ export default function useAiSuggestions( {
 	 */
 	const handleSuggestion = useCallback(
 		( event: CustomEvent ) => {
+			debug( 'handleSuggestion', event );
 			const partialSuggestion = removeLlamaArtifact( event?.detail );
 
 			if ( ! partialSuggestion ) {
+				debug( 'no partial suggestion' );
 				return;
 			}
 
@@ -335,6 +340,7 @@ export default function useAiSuggestions( {
 
 			// check if we can (or should) use Chrome AI
 			const chromeAI = await ChromeAIFactory( promptArg );
+			debug( 'chromeAI', chromeAI !== false );
 
 			if ( chromeAI !== false ) {
 				setModelAndRef( AI_MODEL_GEMINI_NANO );
@@ -345,6 +351,7 @@ export default function useAiSuggestions( {
 			}
 
 			if ( ! eventSourceRef?.current ) {
+				debug( 'no event source' );
 				return;
 			}
 

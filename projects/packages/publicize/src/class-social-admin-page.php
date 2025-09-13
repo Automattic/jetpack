@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * The class to handle the Social Admin Page.
@@ -58,6 +60,17 @@ class Social_Admin_Page {
 		// If this isn't an admin (or someone with the capability to change the module status )
 		// and Publicize is inactive, then don't render the admin page.
 		if ( ! current_user_can( 'manage_options' ) && ! Utils::is_publicize_active() ) {
+			return;
+		}
+
+		// We don't need Jetpack connection on WP.com.
+		$needs_site_connection = ! ( new Host() )->is_wpcom_platform() && ! ( new Connection_Manager() )->is_connected();
+
+		/**
+		 * If the Jetpack Social plugin is not active,
+		 * we want to hide the menu if the site is not connected.
+		 */
+		if ( ! defined( 'JETPACK_SOCIAL_PLUGIN_DIR' ) && $needs_site_connection ) {
 			return;
 		}
 

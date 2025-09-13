@@ -1,20 +1,9 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { isBlobURL } from '@wordpress/blob';
 import clsx from 'clsx';
 
 export default function GalleryImageSave( props ) {
-	const {
-		'aria-label': ariaLabel,
-		alt,
-		imageFilter,
-		height,
-		id,
-		link,
-		linkTo,
-		customLink,
-		origUrl,
-		url,
-		width,
-	} = props;
+	const { alt, imageFilter, height, id, link, linkTo, customLink, origUrl, url, width } = props;
 
 	if ( isBlobURL( origUrl ) ) {
 		return null;
@@ -36,25 +25,19 @@ export default function GalleryImageSave( props ) {
 			href = '';
 	}
 
+	const ampLayout = ! isSimpleSite() ? { 'data-amp-layout': 'responsive' } : {};
+
 	const img = (
-		// Disable reason: Image itself is not meant to be interactive, but should
-		// be accessible (allowing keyboard navigation to the next image in the gallery).
-		/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 		<img
 			alt={ alt }
-			data-height={ height }
+			data-height={ height } // These data- attributes are whitelisted for use on Simple sites. See the $allowedposttags['img'] options in wp-content/mu-plugins/wpcom-kses-config.php.
 			data-id={ id }
 			data-link={ link }
 			data-url={ origUrl }
-			data-custom-link={ customLink }
 			data-width={ width }
 			src={ url }
-			data-amp-layout={ 'responsive' }
-			tabIndex={ 0 }
-			role={ 'button' }
-			aria-label={ ariaLabel }
+			{ ...ampLayout } // This is stripped on Simple sites causing block validation issues (and is also not needed there) - see _wpcom_remove_data_wildcard_attribute in wp-content/mu-plugins/wpcom-kses-config.php on WPCom.
 		/>
-		/* eslint-enable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	);
 
 	return (

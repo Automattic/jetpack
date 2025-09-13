@@ -59,7 +59,7 @@ Use the Provider in your component's render method to wrap the children componen
 You can access the context values in your child components using the `useContext` hook:
 
 ```javascript
-const aiContext = React.useContext( AiDataContext );
+const aiContext = useContext( AiDataContext );
 ```
 
 ### Context Values

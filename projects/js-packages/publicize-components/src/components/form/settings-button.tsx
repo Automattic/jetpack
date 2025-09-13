@@ -11,10 +11,11 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
+import type { ComponentProps } from 'react';
 
 type SettingsButtonProps = {
 	label?: string;
-	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
+	variant?: ComponentProps< typeof Button >[ 'variant' ];
 };
 
 /**

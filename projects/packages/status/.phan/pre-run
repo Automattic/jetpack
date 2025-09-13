@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 cd ../../plugins/jetpack
 php tools/build-module-headings-translations.php

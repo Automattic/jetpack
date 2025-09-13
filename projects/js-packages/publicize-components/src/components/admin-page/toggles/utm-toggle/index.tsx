@@ -2,10 +2,10 @@ import { Text } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type UtmToggleProps = {
 	/**
@@ -14,7 +14,7 @@ type UtmToggleProps = {
 	disabled?: boolean;
 };
 
-const UtmToggle: React.FC< UtmToggleProps > = ( { disabled } ) => {
+const UtmToggle: FC< UtmToggleProps > = ( { disabled } ) => {
 	const { isEnabled, isUpdating } = useSelect( select => {
 		return {
 			isEnabled: select( socialStore ).getSocialSettings().utmSettings.enabled,

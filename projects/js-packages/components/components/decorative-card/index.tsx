@@ -1,19 +1,15 @@
 import type { DecorativeCardProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 import './style.scss';
 
 /**
  * A decorative card used in the disconnection flow.
  *
  * @param {DecorativeCardProps} props - The properties.
- * @return {React.ReactNode} - The DecorativeCard component.
+ * @return {ReactNode} - The DecorativeCard component.
  */
 
-const DecorativeCard: React.FC< DecorativeCardProps > = ( {
-	format = 'horizontal',
-	icon,
-	imageUrl,
-} ) => {
+const DecorativeCard: FC< DecorativeCardProps > = ( { format = 'horizontal', icon, imageUrl } ) => {
 	return (
 		<div
 			className={

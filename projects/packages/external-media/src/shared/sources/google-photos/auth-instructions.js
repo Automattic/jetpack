@@ -1,12 +1,11 @@
 import { GooglePhotosLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Fragment, memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 /**
  * AuthInstructions component
  *
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function AuthInstructions() {
 	return (
@@ -28,15 +27,6 @@ function AuthInstructions() {
 				<li>
 					<a target="_blank" rel="noopener noreferrer" href="https://myaccount.google.com/security">
 						{ __( 'Google Security page', 'jetpack-external-media' ) }
-					</a>
-				</li>
-				<li>
-					<a
-						target="_blank"
-						rel="noopener noreferrer"
-						href="https://wordpress.com/marketing/connections/"
-					>
-						{ __( 'WordPress.com Connections', 'jetpack-external-media' ) }
 					</a>
 				</li>
 			</ul>

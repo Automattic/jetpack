@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.26] - 2025-08-01
+### Changed
+- Internal updates.
+
+## [1.1.25] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.1.24] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.1.23] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.1.22] - 2025-06-18
+### Added
+- Add a link to the "Known problematic code patterns" documentation in relevant error messages. [#43974]
+
+## [1.1.21] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
 ## [1.1.20] - 2025-04-10
 ### Added
 - Add keywords in package.json for npm search. [#42948]
@@ -257,6 +281,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.1.26]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.25...v1.1.26
+[1.1.25]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.24...v1.1.25
+[1.1.24]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.23...v1.1.24
+[1.1.23]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.22...v1.1.23
+[1.1.22]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.21...v1.1.22
+[1.1.21]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.20...v1.1.21
 [1.1.20]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.19...v1.1.20
 [1.1.19]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.18...v1.1.19
 [1.1.18]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.17...v1.1.18

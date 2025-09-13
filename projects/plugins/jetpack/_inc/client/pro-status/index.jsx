@@ -1,8 +1,7 @@
 import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -47,7 +46,7 @@ const trackProStatusClick = ( type, feature ) =>
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
-class ProStatus extends React.Component {
+class ProStatus extends Component {
 	static propTypes = {
 		isCompact: PropTypes.bool,
 		proFeature: PropTypes.string,
@@ -139,7 +138,7 @@ class ProStatus extends React.Component {
 	 * Return a button to Set Up a feature.
 	 *
 	 * @param {string} feature - Slug of the feature to set up.
-	 * @return {React.ReactElement} A Button component.
+	 * @return {import('react').ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (
@@ -174,8 +173,8 @@ class ProStatus extends React.Component {
 		}
 
 		const hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			usingVPBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			usingVPScan = get( vpData, [ 'data', 'features', 'security' ], false );
+			usingVPBackups = vpData?.data?.features?.backups ?? false,
+			usingVPScan = vpData?.data?.features?.security ?? false;
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {

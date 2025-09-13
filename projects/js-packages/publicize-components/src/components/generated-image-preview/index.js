@@ -1,11 +1,12 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
 import { getSigImageUrl } from './utils';
@@ -15,7 +16,7 @@ const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
 };
 
-const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+export const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
 	if ( imageType === 'custom' && customImageId ) {
 		return customImageId;
 	}
@@ -31,6 +32,30 @@ const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId )
 	return featuredImageId || defaultImageId;
 };
 
+const hasNoValidImage = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+	// No image type selected
+	if ( imageType === 'none' ) {
+		return true;
+	}
+
+	// Custom image selected but no image provided
+	if ( imageType === 'custom' && ! customImageId ) {
+		return true;
+	}
+
+	// Default image selected but no valid default image
+	if ( imageType === 'default' && ! defaultImageId ) {
+		return true;
+	}
+
+	// Featured image type (or null/undefined) but no featured image and no valid default fallback
+	if ( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId ) {
+		return true;
+	}
+
+	return false;
+};
+
 export const calculateImageUrl = (
 	imageType,
 	customImageId,
@@ -38,11 +63,7 @@ export const calculateImageUrl = (
 	defaultImageId,
 	getMedia
 ) => {
-	if (
-		imageType === 'none' ||
-		( imageType === 'custom' && ! customImageId ) ||
-		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId && ! defaultImageId )
-	) {
+	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
 	}
 
@@ -58,9 +79,9 @@ export const calculateImageUrl = (
 /**
  * Fetches the preview of the generated image based on the post info
  *
- * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
- *                                                                                                                   The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
- * @return {React.ReactNode} The generated image preview.
+ * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string, font?: string}} props -
+ *                                                                                                                                  The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
+ * @return {import('react').ReactNode} The generated image preview.
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,
@@ -70,7 +91,7 @@ export default function GeneratedImagePreview( {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, defaultImageId, template, setToken } = {
+	const { customText, imageType, imageId, defaultImageId, template, setToken, font } = {
 		...useImageGeneratorConfig(),
 		...generatorConfigProps,
 	};
@@ -78,12 +99,8 @@ export default function GeneratedImagePreview( {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
 			title: select( editorStore ).getEditedPostAttribute( 'title' ),
-			imageUrl: calculateImageUrl(
-				imageType,
-				imageId,
-				featuredImage,
-				defaultImageId,
-				select( 'core' ).getMedia
+			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, defaultImageId, mediaID =>
+				select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID )
 			),
 		};
 	} );
@@ -113,6 +130,7 @@ export default function GeneratedImagePreview( {
 						text: imageTitle,
 						image_url: imageUrl,
 						template,
+						font,
 					},
 				} );
 				setToken?.( sig_token );
@@ -136,7 +154,7 @@ export default function GeneratedImagePreview( {
 		};
 		// setToken is not a dependency here
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ imageTitle, template, imageUrl, onNewToken ] );
+	}, [ imageTitle, template, imageUrl, font, onNewToken ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );

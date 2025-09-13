@@ -1,5 +1,5 @@
 // Originally based on https://raw.githubusercontent.com/xwp/wp-custom-scss-demo/master/custom-scss-demo-preview.js
-/* globals jpCustomizerCssPreview _ wp */
+/* globals jpCustomizerCssPreview wp */
 ( function ( api, $ ) {
 	if ( api.settingPreviewHandlers ) {
 		// No-op the custom_css preview handler since now handled by partial.
@@ -27,9 +27,9 @@
 			// No special providers, just write what we got.
 			const deferred = new $.Deferred();
 			const setting = api( 'custom_css[' + api.settings.theme.stylesheet + ']' );
-			_.each( partial.placements(), function ( placement ) {
+			for ( const placement of partial.placements() ) {
 				placement.container.text( setting.get() );
-			} );
+			}
 
 			deferred.resolve();
 			return deferred.promise();

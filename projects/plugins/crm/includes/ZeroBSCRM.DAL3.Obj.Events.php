@@ -228,7 +228,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                 }
 
                 $selector = 'event.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -487,6 +487,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -608,39 +609,33 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbse_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbse_created','>=','%d',$newerThan);
-            #} datedBefore
-            if (!empty($datedBefore) && $datedBefore > 0 && $datedBefore !== false) $wheres['datedBefore'] = array('zbse_start','<=','%d',$datedBefore);
-            #} datedAfter
-            if (!empty($datedAfter) && $datedAfter > 0 && $datedAfter !== false) $wheres['datedAfter'] = array('zbse_start','>=','%d',$datedAfter);
-            
-            // assignedContact + assignedCompany
-            if (!empty($assignedContact) && $assignedContact !== false && $assignedContact > 0) $wheres['assignedContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_CONTACT." AND zbsol_objid_to = %d)",$assignedContact);
-            if (!empty($assignedCompany) && $assignedCompany !== false && $assignedCompany > 0) $wheres['assignedCompany'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_TASK." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$assignedCompany);
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+
+			// quick addition for mike
+			#} olderThan
+			if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbse_created', '<=', '%d', $olderThan );
+			#} newerThan
+			if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbse_created', '>=', '%d', $newerThan );
+			#} datedBefore
+			if ( ! empty( $datedBefore ) && $datedBefore > 0 ) $wheres['datedBefore'] = array( 'zbse_start', '<=', '%d', $datedBefore );
+			#} datedAfter
+			if ( ! empty( $datedAfter ) && $datedAfter > 0 ) $wheres['datedAfter'] = array( 'zbse_start', '>=', '%d', $datedAfter );
+
+			// assignedContact + assignedCompany
+			if ( ! empty( $assignedContact ) && $assignedContact > 0 ) $wheres['assignedContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TASK . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = %d)', $assignedContact );
+			if ( ! empty( $assignedCompany ) && $assignedCompany > 0 ) $wheres['assignedCompany'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TASK . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $assignedCompany );
+			// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             // completed status
             if ( $isComplete ) $wheres['status'] = array('zbse_complete','=','1');
             if ( $isIncomplete ) $wheres['status'] = array('zbse_complete','<>','1');
-
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
 
             #} Is Tagged (expects 1 tag ID OR array)
 
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+		if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -669,8 +664,8 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
 
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
-                
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+
+		if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1386,7 +1381,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+					if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                 $confirmedExtraMeta = array();
 
@@ -1431,9 +1426,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                                         ));
 
                                 } */
-
-                                //
-                                $eventCustomerID = -1; if (isset($zbsEventMeta['customer'])) $eventCustomerID = $zbsEventMeta['customer'];
 
                                 // IA General event update (2.87+)
                                 zeroBSCRM_FireInternalAutomator('event.update',array(
@@ -1576,7 +1568,7 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+						if ( is_array( $extraMeta ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         $confirmedExtraMeta = array();
 
@@ -1892,35 +1884,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
         return false;
         
     }
-
-    /**
-     * Returns an status against a event
-     *
-     * @param int id event ID
-     *
-     * @return str event status string
-     */
-    /* IS THIS USED?
-    public function getEventStatus($id=-1){
-
-        global $zbs;
-
-        $id = (int)$id;
-
-        if ($id > 0){
-
-            return $this->DAL()->getFieldByID(array(
-                'id' => $id,
-                'objtype' => ZBS_TYPE_TASK,
-                'colname' => 'zbse_status',
-                'ignoreowner'=>true));
-
-        }
-
-        return false;
-        
-    }*/
-
 
     /**
      * remove any non-db fields from the object

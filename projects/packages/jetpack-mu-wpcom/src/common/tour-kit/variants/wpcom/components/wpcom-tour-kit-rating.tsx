@@ -6,8 +6,9 @@ import { useTourKitContext } from '../../../index';
 import thumbsDown from '../icons/thumbs_down';
 import thumbsUp from '../icons/thumbs_up';
 import type { WpcomConfig } from '../../../index';
+import type { FunctionComponent } from 'react';
 
-const WpcomTourKitRating: React.FunctionComponent = () => {
+const WpcomTourKitRating: FunctionComponent = () => {
 	const [ tempRating, setTempRating ] = useState< 'thumbs-up' | 'thumbs-down' >();
 	const context = useTourKitContext();
 	const config = context.config as unknown as WpcomConfig;

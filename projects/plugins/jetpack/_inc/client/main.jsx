@@ -4,12 +4,13 @@ import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connecti
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -65,7 +66,6 @@ import {
 	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
-	isWoASite,
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
@@ -147,7 +147,7 @@ const settingsRoutes = [
 	'/privacy',
 ];
 
-class Main extends React.Component {
+class Main extends Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
@@ -161,7 +161,7 @@ class Main extends React.Component {
 		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
-		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
+		// beforeunload cannot handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view
@@ -276,7 +276,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {import('react').ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
@@ -434,7 +434,7 @@ class Main extends React.Component {
 					title={
 						this.props.connectingUserFeatureLabel &&
 						sprintf(
-							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							/* translators: %s: a feature label (e.g. SEO, Notifications) */
 							__( 'Unlock %s and more amazing features', 'jetpack' ),
 							this.props.connectingUserFeatureLabel
 						)
@@ -628,7 +628,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
+		if ( isWoASite() && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
@@ -675,7 +675,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
-			! this.props.isWoaSite &&
+			! isWoASite() &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
@@ -854,15 +854,6 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
-					{ /*
-					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
-					and is already not reliable cross-browser anyway.
-					<Prompt
-						when={ this.props.areThereUnsavedSettings }
-						message={ this.handleRouterWillLeave }
-					/>
-					*/ }
 
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
@@ -912,7 +903,6 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
-			isWoaSite: isWoASite( state ),
 			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),

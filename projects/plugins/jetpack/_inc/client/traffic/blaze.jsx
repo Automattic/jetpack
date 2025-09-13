@@ -1,6 +1,6 @@
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -8,11 +8,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import {
-	isBlazeDashboardEnabled,
-	isWoASite as getIsWoASite,
-	shouldInitializeBlaze,
-} from 'state/initial-state';
+import { isBlazeDashboardEnabled, shouldInitializeBlaze } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { FEATURE_JETPACK_BLAZE } from '../lib/plans/constants';
 
@@ -24,7 +20,7 @@ const trackDashboardClick = () => {
  * Blaze settings component.
  *
  * @param {object} props - Component props.
- * @return {React.Component} Blaze settings component.
+ * @return {import('react').Component} Blaze settings component.
  */
 function Blaze( props ) {
 	const {
@@ -36,14 +32,13 @@ function Blaze( props ) {
 		isOfflineMode,
 		isSavingAnyOption,
 		isUnavailableInOfflineMode,
-		isWoASite,
 		siteAdminUrl,
 		toggleModuleNow,
 	} = props;
 
 	const { can_init: canInit, reason } = blazeAvailable;
 
-	if ( isWoASite && ! blazeDashboardEnabled ) {
+	if ( isWoASite() && ! blazeDashboardEnabled ) {
 		return null;
 	}
 
@@ -132,7 +127,6 @@ export default withModuleSettingsFormHelpers(
 			blazeDashboardEnabled: isBlazeDashboardEnabled( state ),
 			blazeModule: getModule( state, 'blaze' ),
 			blazeAvailable: shouldInitializeBlaze( state ),
-			isWoASite: getIsWoASite( state ),
 		};
 	} )( Blaze )
 );

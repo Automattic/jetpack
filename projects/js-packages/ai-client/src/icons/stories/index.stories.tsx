@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Icon } from '@wordpress/components';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -13,14 +12,8 @@ import styles from './style.module.scss';
  */
 import type { Meta } from '@storybook/react';
 
-interface AIControlStoryMeta extends Meta< typeof allIcons > {
-	title?: string;
-	component?: React.ComponentType;
-}
-
-const meta: AIControlStoryMeta = {
+const meta = {
 	title: 'JS Packages/AI Client/Icons',
-	component: allIcons as unknown as React.ComponentType,
 	parameters: {},
 } satisfies Meta< typeof allIcons >;
 

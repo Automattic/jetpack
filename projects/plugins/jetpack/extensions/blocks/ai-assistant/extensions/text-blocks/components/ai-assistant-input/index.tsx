@@ -6,7 +6,6 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 /*
  * Internal dependencies
  */
@@ -16,15 +15,15 @@ import './style.scss';
  */
 import type { ExtendedBlockProp } from '../../constants';
 import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
 
 export type AiAssistantInputProps = {
 	customPlaceholder?: string;
 	className?: string;
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
-	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
-	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
+	inputRef?: MutableRefObject< HTMLInputElement | null >;
+	wrapperRef?: MutableRefObject< HTMLDivElement | null >;
 	action?: string;
 	blockType: ExtendedBlockProp;
 	feature: string;

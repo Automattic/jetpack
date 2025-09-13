@@ -1,7 +1,7 @@
-import React, { type FunctionComponent } from 'react';
 import Text from '../text/index.tsx';
 import Background from './background.tsx';
 import UplotLineChart from './uplot-line-chart.tsx';
+import type { FunctionComponent, ReactElement } from 'react';
 import './style.scss';
 
 export interface Period {
@@ -44,7 +44,7 @@ export type ScoreGraphAlignedData = [
  * @param {string}               props.title             - Title for the chart.
  * @param {Period[]}             props.periods           - The periods to display in the chart.
  * @param {boolean}              [props.isLoading=false] - Whether the component is in a loading state.
- * @return {React.ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
+ * @return {ReactElement} The JSX element representing the BoostScoreGraph component, or null if loading.
  */
 export const BoostScoreGraph: FunctionComponent< BoostScoreGraphProps > = ( {
 	periods = [],

@@ -20,25 +20,28 @@ import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/criti
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
 import PopOut from './pop-out/pop-out';
-import { useCornerstonePages } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
+import { useCornerstonePagesProperties } from '$features/cornerstone-pages/lib/stores/cornerstone-pages';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
+import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
 
 const SpeedScore = () => {
-	const [ cornerstonePages ] = useCornerstonePages();
+	const properties = useCornerstonePagesProperties();
 	const { site } = Jetpack_Boost;
-	const pageSpeedUrl = cornerstonePages[ 0 ];
+	const pageSpeedUrl = properties?.predefined_pages?.[ 0 ] || site.url;
 	const [ { status, error, scores }, loadScore ] = useSpeedScores( pageSpeedUrl );
 	const scoreLetter = scores ? getScoreLetter( scores.current.mobile, scores.current.desktop ) : '';
 	const showPrevScores = scores && didScoresChange( scores ) && ! scores.isStale;
 	const [ { data } ] = useModulesState();
 	const [ cssState ] = useCriticalCssState();
 	const { isGenerating: criticalCssIsGenerating } = useLocalCriticalCssGeneratorStatus();
+	const [ { data: lcpState } ] = useLcpState();
 
 	// Construct an array of current module states
 	const moduleStates = useMemo(
 		() =>
 			Object.entries( data || {} ).reduce( ( acc: boolean[], [ key, value ] ) => {
-				if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
+				if ( key !== 'image_guide' ) {
 					acc.push( value.active );
 				}
 				return acc;
@@ -77,7 +80,21 @@ const SpeedScore = () => {
 
 	// Refresh the score when something that can affect the score changes.
 	useDebouncedRefreshScore(
-		{ moduleStates, criticalCssCreated: cssState.created || 0, criticalCssIsGenerating },
+		{
+			moduleStates,
+			pendingStates: {
+				criticalCss: {
+					isPending:
+						isCriticalCssEnabled( data ) &&
+						( cssState.status === 'pending' || criticalCssIsGenerating ),
+					timestamp: cssState.updated || 0,
+				},
+				lcp: {
+					isPending: data?.lcp?.active === true && lcpState?.status === 'pending',
+					timestamp: lcpState?.updated || 0,
+				},
+			},
+		},
 		refreshScore
 	);
 
@@ -115,10 +132,10 @@ const SpeedScore = () => {
 						</div>
 					) : (
 						<div className={ styles.offline } data-testid="speed-scores-offline">
-							<h2>{ __( 'Website Offline', 'jetpack-boost' ) }</h2>
+							<h2>{ __( 'Website is not publicly available', 'jetpack-boost' ) }</h2>
 							<p>
 								{ __(
-									'All Jetpack Boost features are still available, but to get a performance score you would first have to make your website available online.',
+									'Performance score and some other Boost features cannot work because the Boost Cloud cannot reach your website. To fix this, you need to make your website publicly available.',
 									'jetpack-boost'
 								) }
 							</p>

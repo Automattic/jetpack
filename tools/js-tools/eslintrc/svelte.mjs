@@ -1,10 +1,16 @@
+import { fileURLToPath } from 'node:url';
 import eslintPluginSvelte from 'eslint-plugin-svelte';
 import svelteEslintParser from 'svelte-eslint-parser';
 import typescriptEslint from 'typescript-eslint';
+import { defineConfig, javascriptFiles } from './base.mjs';
 
-export default [
-	...eslintPluginSvelte.configs[ 'flat/recommended' ],
+export default defineConfig(
 	{
+		files: javascriptFiles,
+		extends: [ eslintPluginSvelte.configs[ 'flat/recommended' ] ],
+	},
+	{
+		files: javascriptFiles,
 		languageOptions: {
 			parserOptions: {
 				extraFileExtensions: [ '.svelte' ],
@@ -18,10 +24,10 @@ export default [
 			'@wordpress/no-global-event-listener': 'off',
 		},
 	},
-	...typescriptEslint.config( {
+	{
 		files: [ '**/*.svelte' ],
 		extends: [ typescriptEslint.configs.recommended ],
-	} ),
+	},
 	{
 		files: [ '**/*.svelte' ],
 		languageOptions: {
@@ -30,5 +36,14 @@ export default [
 				parser: typescriptEslint.parser,
 			},
 		},
-	},
-];
+		settings: {
+			'import/parsers': {
+				// Hack for the import of ts files from svelte.
+				// Otherwise it tries to use the svelteEslintParser defined just above, which chokes on the TS code.
+				[ fileURLToPath( new URL( './get-ts-parser.cjs', import.meta.url ) ) ]: javascriptFiles
+					.map( v => v.replace( '**/*', '' ) )
+					.filter( v => v !== '.svelte' ),
+			},
+		},
+	}
+);

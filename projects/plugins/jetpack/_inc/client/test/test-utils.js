@@ -1,6 +1,5 @@
 // @ts-nocheck - This isn't TypeScript, and tsc is dumb about the jsdoc `{...}` below.
 import { render as rtlRender, RenderResult } from '@testing-library/react';
-import React from 'react';
 import { Provider } from 'react-redux';
 import { Store, createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
@@ -18,12 +17,12 @@ function doNothingReducer( state = {} ) {
 /**
  * Render a React element.
  *
- * @param {React.ReactElement} ui              - React element to render.
- * @param {object}             _               - Options.
- * @param {*}                  _.initialState  - Initial Redux state.
- * @param {Function}           _.reducer       - Redux reducer.
- * @param {Store}              _.store         - Redux store. Overrides `initialState` and `reducer`.
- * @param {...}                _.renderOptions - Additional options to pass to `@testing-library/react`'s `render()`.
+ * @param {import('react').ReactElement} ui              - React element to render.
+ * @param {object}                       _               - Options.
+ * @param {*}                            _.initialState  - Initial Redux state.
+ * @param {Function}                     _.reducer       - Redux reducer.
+ * @param {Store}                        _.store         - Redux store. Overrides `initialState` and `reducer`.
+ * @param {...}                          _.renderOptions - Additional options to pass to `@testing-library/react`'s `render()`.
  * @return {RenderResult} - Render result.
  */
 function render(

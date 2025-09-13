@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.1.0
+ * Version: 7.1.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.1.0' );
+define( 'WPCOMSH_VERSION', '7.1.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -25,6 +25,9 @@ require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-m
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
+
+// Sitemaps sticker functionality for Jetpack Sitemaps
+require_once __DIR__ . '/sitemaps/class-wpcomsh-sitemap-sticker-handlers.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
@@ -69,7 +72,7 @@ require_once __DIR__ . '/widgets/class-pd-top-rated.php';
 require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 
 // autoload composer sourced plugins
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload_packages.php';
 require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
@@ -102,6 +105,7 @@ require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
+require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**
  * Conditionally load the jetpack-mu-wpcom package.
@@ -152,8 +156,8 @@ require_once __DIR__ . '/support-session.php';
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
 
-// Jetpack Token Resilience.
-require_once __DIR__ . '/jetpack-token-resilience/class-wpcomsh-blog-token-resilience.php';
+// Jetpack Connection Handlers (external storage and protected owner).
+require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';
@@ -598,6 +602,11 @@ function wpcomsh_footer_rum_js() {
 	}
 
 	$rum_kv = array();
+	$rum_kv = apply_filters( 'wpcomsh_rum_kv', $rum_kv, $service );
+	if ( ! is_array( $rum_kv ) ) {
+		$rum_kv = array();
+	}
+
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
 	// Add user login and theme info.
 	$rum_kv['logged_in']        = is_user_logged_in() ? '1' : '0';
@@ -715,7 +724,6 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
- * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );

@@ -2,7 +2,7 @@ import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import { Fragment, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -141,7 +141,7 @@ const ResourcePromptComponent = props => {
 			}
 			content={
 				descriptionList || descriptionSecondary ? (
-					<React.Fragment>
+					<Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
 								{ descriptionList.map( ( item, index ) => (
@@ -152,7 +152,7 @@ const ResourcePromptComponent = props => {
 						{ descriptionSecondary && (
 							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
 						) }
-					</React.Fragment>
+					</Fragment>
 				) : null
 			}
 			answer={

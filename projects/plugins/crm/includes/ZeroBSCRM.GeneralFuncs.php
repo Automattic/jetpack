@@ -54,16 +54,16 @@ function zerobscrm_doing_it_wrong( $function, $message, $version ) {
 
 	#} https://wordpress.stackexchange.com/questions/221202/does-something-like-is-rest-exist
 	function zeroBSCRM_is_rest() {
-		$prefix = rest_get_url_prefix( );
+		$prefix = rest_get_url_prefix();
 		if (defined('REST_REQUEST') && REST_REQUEST // (#1)
 			|| isset($_GET['rest_route']) // (#2)
-				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix, 0 ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				&& str_starts_with( trim( $_GET['rest_route'], '\\/' ), $prefix ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			return true;
 
 		// (#3)
 		$rest_url = wp_parse_url( site_url( $prefix ) );
-		$current_url = wp_parse_url( add_query_arg( array( ) ) );
-		return str_starts_with( $current_url['path'], $rest_url['path'], 0 );
+		$current_url = wp_parse_url( add_query_arg( array() ) );
+		return str_starts_with( $current_url['path'], $rest_url['path'] );
 	}
 
 
@@ -437,9 +437,11 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 
 		$ip = false;
 
-		// this method is spoofable/not safe on all hosts
-		// non iis
-		if (!$ip && isset($_SERVER['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR'])) $ip = $_SERVER['SERVER_ADDR'];
+	// this method is spoofable/not safe on all hosts
+	// non iis
+	if ( ! empty( $_SERVER['SERVER_ADDR'] ) ) {
+		$ip = $_SERVER['SERVER_ADDR']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	}
 		// iis
 		if (!$ip && isset($_SERVER['LOCAL_ADDR']) && !empty($_SERVER['LOCAL_ADDR'])) $ip = $_SERVER['LOCAL_ADDR'];
 
@@ -1123,7 +1125,7 @@ function zeroBSCRM_isJson( $str ) {
 	 */
 	function jpcrm_dompdf_assist_validate_remote_uri( string $uri ){
 
-	    if ($uri === null || strlen($uri) === 0) {
+	if ( strlen( $uri ) === 0 ) {
 
 	        return [false, "The URI must not be empty."];
 

@@ -1,7 +1,7 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -10,7 +10,7 @@ import SettingsGroup from 'components/settings-group';
 import { getModule } from 'state/modules';
 import { updateSettings } from 'state/settings';
 
-export class CustomContentTypes extends React.Component {
+export class CustomContentTypes extends Component {
 	state = {
 		testimonial: this.props.getOptionValue( 'jetpack_testimonial' ) || false,
 		portfolio: this.props.getOptionValue( 'jetpack_portfolio' ) || false,

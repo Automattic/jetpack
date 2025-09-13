@@ -40,6 +40,10 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /*
 Options:
 jetpack_options (array)
@@ -784,10 +788,6 @@ class Jetpack {
 		);
 
 		$config->ensure( 'search' );
-
-		if ( defined( 'ENABLE_WORDADS_SHARED_UI' ) && ENABLE_WORDADS_SHARED_UI ) {
-			$config->ensure( 'wordads' );
-		}
 
 		if ( ! $this->connection_manager ) {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
@@ -2832,7 +2832,7 @@ p {
 	}
 
 	/**
-	 * Happens after a successfull disconnection.
+	 * Happens after a successful disconnection.
 	 *
 	 * @static
 	 */
@@ -3195,7 +3195,7 @@ p {
 
 			if ( $throw ) {
 				/* translators: Plugin name to deactivate. */
-				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old “%1$s” plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
+				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old "%1$s" plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
 			}
 		}
 	}
@@ -3437,7 +3437,7 @@ p {
 					'meta' => (array) wp_get_attachment_metadata( $post_id ),
 				);
 
-				return (array) array( $response );
+				return array( $response );
 			}
 
 			$attachment_id = media_handle_upload(

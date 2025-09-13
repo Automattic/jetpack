@@ -6,7 +6,7 @@ import {
 } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { SocialLogo } from 'social-logos';
 import Button from 'components/button';
@@ -18,7 +18,7 @@ import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
-import { isSeoEnhancerAvailable } from 'state/initial-state';
+import { isSeoEnhancerAvailable, getSiteRepresentativeImage } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
@@ -105,7 +105,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				type="website"
 				imageMode="landscape"
 				description={ siteData.frontPageMetaDescription }
-				image={ siteData.image }
+				image={ this.props.siteRepresentativeImage }
 			/>
 		);
 
@@ -114,7 +114,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				title={ siteData.title }
 				url={ siteData.url }
 				description={ siteData.frontPageMetaDescription }
-				image={ siteData.image }
+				image={ this.props.siteRepresentativeImage }
 			/>
 		);
 
@@ -153,9 +153,6 @@ export const SEO = withModuleSettingsFormHelpers(
 				frontPageMetaDescription: frontPageMetaDescription
 					? frontPageMetaDescription
 					: this.props.siteData.description || '',
-				image: this.props.siteData.icon?.img
-					? `${ this.props.siteData.icon.img }?s=${ this.constants.siteIconPreviewSize }`
-					: '',
 			};
 
 			const conflictingSeoPlugins = conflictingSeoPluginsList.reduce( ( acc, plugin ) => {
@@ -308,7 +305,7 @@ export const SEO = withModuleSettingsFormHelpers(
 											/>
 											<div className={ frontPageMetaCharCountClasses }>
 												{ sprintf(
-													/* translators: placeholder is number of characters */
+													/* translators: %d: the number of characters */
 													_n(
 														'%d character',
 														'%d characters',
@@ -372,6 +369,7 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
+		siteRepresentativeImage: getSiteRepresentativeImage( state ),
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
 		hasSeoEnhancer: siteHasFeature( state, 'ai-seo-enhancer' ),

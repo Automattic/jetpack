@@ -1,7 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { connect } from 'react-redux';
 import {
 	fetchUserConnectionData as actionFetchUserConnectionData,
@@ -25,7 +25,7 @@ import PortalSidecar from './utilities/portal-sidecar';
  * @param {string} props.apiNonce     - Nonce value for the API, which is required by the <DisconnectDialog/> component.
  * @param {Array}  props.siteBenefits - An array of benefits provided by Jetpack.
  * @param {string} props.pluginUrl    - The URL of the plugin directory.
- * @return {React.Component} - The PluginDeactivation component.
+ * @return {import('react').Component} - The PluginDeactivation component.
  */
 const PluginDeactivation = props => {
 	const {

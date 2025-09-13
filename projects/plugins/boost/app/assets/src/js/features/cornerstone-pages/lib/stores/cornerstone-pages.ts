@@ -4,7 +4,7 @@ import { z } from 'zod';
 /**
  * Hook to get the Cornerstone Pages.
  */
-export function useCornerstonePages(): [
+export function useCustomCornerstonePages(): [
 	string[],
 	( newValue: string[], onSuccessCallback?: () => void ) => void,
 ] {
@@ -27,7 +27,9 @@ const CornerstonePagesProperties = z.object( {
 	max_pages: z.number(),
 	max_pages_premium: z.number(),
 	default_pages: z.array( z.string() ),
+	predefined_pages: z.array( z.string() ),
 } );
+
 type CornerstonePagesProperties = z.infer< typeof CornerstonePagesProperties >;
 
 export function useCornerstonePagesProperties(): CornerstonePagesProperties | undefined {

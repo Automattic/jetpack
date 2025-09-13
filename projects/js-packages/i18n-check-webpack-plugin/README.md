@@ -132,6 +132,7 @@ example = flag ? __( 'Flag is set', 'domain' ) : _x( 'Flag is not set', '', 'dom
 ```js
 example = flag ? _x( 'Flag is set', 'Something', 'domain' ) : _x( 'Flag is not set', 'Something different', 'domain' );
 ```
+Note that, as far as `wp i18n` is concerned, `__( 'Something', 'domain' )` and `_x( 'Something', '', 'domain' )` are the same message.
 
 ### Pruned branches and common strings
 

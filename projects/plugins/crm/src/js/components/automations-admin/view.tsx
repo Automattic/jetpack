@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as WPElement from '@wordpress/element';
-import { HashRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router';
 import { AutomationsAdmin } from '.';
 
 /**

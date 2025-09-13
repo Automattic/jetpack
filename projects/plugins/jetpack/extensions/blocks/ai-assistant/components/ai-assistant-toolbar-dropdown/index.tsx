@@ -8,7 +8,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React from 'react';
 /**
  * Internal dependencies
  */

@@ -8,6 +8,7 @@ export const REST_API_CHAT_AVAILABILITY_ENDPOINT = `${ REST_API_NAMESPACE }/chat
 export const REST_API_CHAT_AUTHENTICATION_ENDPOINT = `${ REST_API_NAMESPACE }/chat/authentication`;
 export const REST_API_SITE_PRODUCTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products`;
 export const REST_API_SITE_PRODUCTS_OWNERSHIP_ENDPOINT = `${ REST_API_NAMESPACE }/site/products-ownership`;
+export const REST_API_SITE_PRODUCTS_INTERSTITIALS_ENDPOINT = `${ REST_API_NAMESPACE }/site/products/interstitials`;
 export const REST_API_VIDEOPRESS_FEATURED_STATS = 'videopress/v1/stats/featured';
 export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismiss-welcome-banner`;
 export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/evaluation`;
@@ -21,9 +22,14 @@ export const REST_API_GET_VIDEOPRESS_DATA = `${ REST_API_NAMESPACE }/site/videop
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
 
+// Base endpoint for stats visits - parameters are handled in the hook
+export const getStatsVisitsEndpoint = ( blogId: string ) =>
+	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/visits`;
+
 // Query names
 export const QUERY_PRODUCT_KEY = 'product';
 export const QUERY_PRODUCT_BY_OWNERSHIP_KEY = 'product ownership';
+export const QUERY_PRODUCT_INTERSTITIALS_KEY = 'product interstitials';
 export const QUERY_ACTIVATE_PRODUCT_KEY = 'activate product';
 export const QUERY_INSTALL_PRODUCT_KEY = 'install product';
 export const QUERY_VIDEOPRESS_STATS_KEY = 'videopress stats';
@@ -43,6 +49,10 @@ export const QUERY_RED_BUBBLE_ALERTS_KEY = 'red bubble alerts';
 export const QUERY_GET_PROTECT_DATA_KEY = 'get protect data';
 export const QUERY_GET_VIDEOPRESS_DATA_KEY = 'get videopress data';
 export const QUERY_GET_OAUTH_AUTHORIZE_URL_KEY = 'get oauth authorize url';
+
+// Query key for stats visits (time series data)
+export const QUERY_STATS_VISITS_KEY = 'stats visits';
+
 // Product Slugs
 export const PRODUCT_SLUGS = {
 	ANTI_SPAM: 'anti-spam',

@@ -8,6 +8,7 @@ import { StepConfig } from '../step-config';
 import { TriggerInfo } from '../trigger-info';
 import styles from './styles.module.scss';
 import type { Step, Trigger, Workflow } from 'crm/state/automations-admin/types';
+import type { FC } from 'react';
 
 type EditModalProps = {
 	workflow: Workflow;
@@ -16,7 +17,7 @@ type EditModalProps = {
 	refetchWorkflows: () => void;
 };
 
-export const EditModal: React.FC< EditModalProps > = ( {
+export const EditModal: FC< EditModalProps > = ( {
 	isOpen,
 	workflow,
 	onClose,

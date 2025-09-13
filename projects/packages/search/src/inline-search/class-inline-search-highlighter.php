@@ -45,8 +45,7 @@ class Inline_Search_Highlighter {
 	 * Set up the WordPress filters for highlighting.
 	 */
 	public function setup(): void {
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- Temporarily disabled due to incompatibility with P2 theme
-		// add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
+		add_filter( 'the_title', array( $this, 'filter_highlighted_title' ), 10, 2 );
 		add_filter( 'the_excerpt', array( $this, 'filter_highlighted_excerpt' ) );
 		add_filter( 'render_block_core/post-excerpt', array( $this, 'filter_render_highlighted_block' ), 10, 3 );
 	}
@@ -72,12 +71,27 @@ class Inline_Search_Highlighter {
 	/**
 	 * Filter the post title to show highlighted version.
 	 *
-	 * @param string $title The post title.
-	 * @param int    $post_id The post ID.
+	 * @param string   $title   The post title.
+	 * @param int|null $post_id Optional. The post ID. Default null.
 	 *
 	 * @return string The filtered title.
 	 */
-	public function filter_highlighted_title( string $title, int $post_id ): string {
+	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
+		$incompatible_themes = array(
+			'blaskan', // Blaskan incorrectly uses wp_nav_menu() in body_class filter, causing infinite recursion.
+			'p2020',   // P2 loads o2 as a plugin, which calls the_title() filter incorrectly.
+		);
+
+		$theme          = wp_get_theme();
+		$theme_name     = strtolower( $theme->get( 'Name' ) );
+		$theme_template = strtolower( $theme->get_template() );
+
+		foreach ( $incompatible_themes as $incompatible_theme ) {
+			if ( $theme_name === $incompatible_theme || $theme_template === $incompatible_theme ) {
+				return $title;
+			}
+		}
+
 		if ( ! $this->is_search_result( $post_id ) ) {
 			return $title;
 		}
@@ -163,11 +177,16 @@ class Inline_Search_Highlighter {
 	/**
 	 * Check if the current post is a search result from our API
 	 *
-	 * @param int $post_id The post ID to check.
+	 * @param int|null $post_id The post ID to check.
 	 *
 	 * @return bool Whether the post is a search result.
 	 */
-	public function is_search_result( int $post_id ): bool {
+	public function is_search_result( ?int $post_id ): bool {
+		// o2 is initially returning null due to mishandling of the_title() filter.
+		if ( null === $post_id ) {
+			return false;
+		}
+
 		return is_search() && in_the_loop() && ! empty( $this->search_result_ids ) && in_array( $post_id, $this->search_result_ids, true );
 	}
 

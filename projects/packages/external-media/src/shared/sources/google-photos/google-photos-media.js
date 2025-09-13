@@ -2,7 +2,6 @@ import { Button, SelectControl } from '@wordpress/components';
 import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import {
 	SOURCE_GOOGLE_PHOTOS,
 	PATH_RECENT,
@@ -25,7 +24,7 @@ const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] =
  * GooglePhotosMedia component
  *
  * @param {object} props - The component props
- * @return {React.ReactElement} - JSX Element
+ * @return {import('react').ReactElement} - JSX Element
  */
 function GooglePhotosMedia( props ) {
 	const {

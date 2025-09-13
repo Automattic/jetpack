@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { createContext } from 'react';
+import { createContext } from 'react';
 /**
  * Types & Constants
  */
@@ -9,6 +9,7 @@ import SuggestionsEventSource from '../suggestions-event-source/index.ts';
 import type { AskQuestionOptionsArgProps } from '../ask-question/index.ts';
 import type { RequestingErrorProps } from '../hooks/use-ai-suggestions/index.ts';
 import type { PromptProp, RequestingStateProp } from '../types.ts';
+import type { ReactElement } from 'react';
 
 export type AiDataContextProps = {
 	/*
@@ -51,7 +52,7 @@ type AiDataContextProviderProps = {
 	/*
 	 * Children
 	 */
-	children: React.ReactElement;
+	children: ReactElement;
 };
 
 /**
@@ -65,7 +66,7 @@ export const AiDataContext = createContext< AiDataContextProps | object >( {} );
  * AI Data Context Provider
  *
  * @param {AiDataContextProviderProps} props - Component props.
- * @return {React.ReactElement}                           Context provider.
+ * @return {ReactElement}                           Context provider.
  * @example
  * <AiDataContextProvider value={ value }>
  * 	{ children }
@@ -74,6 +75,6 @@ export const AiDataContext = createContext< AiDataContextProps | object >( {} );
 export const AiDataContextProvider = ( {
 	value,
 	children,
-}: AiDataContextProviderProps ): React.ReactElement => (
+}: AiDataContextProviderProps ): ReactElement => (
 	<AiDataContext.Provider value={ value } children={ children } />
 );

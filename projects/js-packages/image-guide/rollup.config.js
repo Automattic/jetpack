@@ -51,7 +51,7 @@ export default {
 		json(),
 
 		babel( {
-			presets: [ '@babel/preset-react' ],
+			presets: [ [ '@babel/preset-react', { runtime: 'automatic' } ] ],
 			babelHelpers: 'bundled',
 			compact: true,
 		} ),

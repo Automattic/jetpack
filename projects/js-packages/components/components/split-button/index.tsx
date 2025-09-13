@@ -1,7 +1,7 @@
 import { Button, Flex, DropdownMenu } from '@wordpress/components';
 import styles from './style.module.scss';
 import { SplitButtonProps } from './types.ts';
-import type React from 'react';
+import type { FC } from 'react';
 
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
@@ -13,7 +13,7 @@ const DownIcon = () => (
 	</svg>
 );
 
-const SplitButton: React.FC< SplitButtonProps > = ( {
+const SplitButton: FC< SplitButtonProps > = ( {
 	variant,
 	controls,
 	popoverProps,

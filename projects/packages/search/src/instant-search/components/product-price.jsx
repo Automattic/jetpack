@@ -1,4 +1,5 @@
-import React, { Component, Fragment } from 'react';
+import * as React from 'react';
+import { Component, Fragment } from 'react';
 
 import './product-price.scss';
 

@@ -1,11 +1,12 @@
 import Clipboard from 'clipboard';
 import clsx from 'clsx';
-import { omit, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Button from 'components/button';
 
-export default class ClipboardButton extends React.Component {
+const noop = () => {};
+
+export default class ClipboardButton extends Component {
 	static displayName = 'ClipboardButton';
 
 	static propTypes = {
@@ -21,7 +22,7 @@ export default class ClipboardButton extends React.Component {
 		rna: false,
 	};
 
-	buttonRef = React.createRef();
+	buttonRef = createRef();
 
 	componentDidMount() {
 		const button = this.buttonRef.current.domNode;
@@ -48,7 +49,11 @@ export default class ClipboardButton extends React.Component {
 			<Button
 				rna={ this.props.rna }
 				ref={ this.buttonRef }
-				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
+				{ ...Object.fromEntries(
+					Object.entries( this.props ).filter(
+						( [ k ] ) => ! Object.hasOwn( this.constructor.propTypes, k )
+					)
+				) }
 				className={ classes }
 			/>
 		);

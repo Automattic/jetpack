@@ -58,7 +58,7 @@ if ( empty( $parsed_data['action'] ) ) {
 	jpcrm_api_invalid_request();
 }
 
-$webhook_action = sanitize_text_field( $parsed_data['action'] );
+$webhook_action = sanitize_text_field( (string) $parsed_data['action'] );
 
 // this is not sanitised
 $webhook_data = empty( $parsed_data['data'] ) ? false : $parsed_data['data'];

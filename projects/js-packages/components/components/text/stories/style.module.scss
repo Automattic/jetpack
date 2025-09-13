@@ -1,10 +1,10 @@
 .instance {
 
 	span {
-		color: var( --jp-gray-40 );
+		color: var(--jp-gray-40);
 		display: inline-block;
 		width: 100%;
-		background-color: var( --jp-white-off );
+		background-color: var(--jp-white-off);
 	}
 }
 
@@ -20,12 +20,12 @@
 }
 
 .box-model-side-center {
-	background-color: #A68169;
+	background-color: #a68169;
 	position: relative;
 
 	&::after {
-		content:" ";
-		border: 1px dashed rgba( 0, 0, 0, 0.6 );
+		content: " ";
+		border: 1px dashed rgba(0, 0, 0, 0.6);
 		display: block;
 		position: absolute;
 		top: 0;
@@ -35,12 +35,12 @@
 	}
 
 	> p {
-		background-color: #B9C386;
+		background-color: #b9c386;
 		position: relative;
 
 		&::after {
-			content:" ";
-			border: 1px dashed rgba( 0, 0, 0, 0.6 );
+			content: " ";
+			border: 1px dashed rgba(0, 0, 0, 0.6);
 			display: block;
 			position: absolute;
 			top: 0;
@@ -53,13 +53,13 @@
 			min-width: 200px;
 			min-height: 50px;
 			line-height: 50px;
-			background-color: #8FAFBA;
+			background-color: #8fafba;
 			text-align: center;
 			position: relative;
 
 			&::after {
 				content: " ";
-				border: 1px dashed rgba( 0, 0, 0, 0.4 );
+				border: 1px dashed rgba(0, 0, 0, 0.4);
 				display: block;
 				position: absolute;
 				top: 0;

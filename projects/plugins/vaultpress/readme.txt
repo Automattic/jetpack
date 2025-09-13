@@ -32,16 +32,9 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 4.0.1 - 2025-04-07
+### 4.0.3 - 2025-09-09
 #### Changed
-- Code: First pass of style coding standards.
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- General: Indicate compatibility with WordPress 6.8.
 - Update package dependencies.
-
-#### Fixed
-- Code: Prevent dynamic class properties.
-- Code: Remove extra params on function calls.
 
 --------
 

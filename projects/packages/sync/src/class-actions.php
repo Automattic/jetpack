@@ -666,11 +666,9 @@ class Actions {
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
-			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
-			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack-sync' ) :
-				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
+			$minutes = ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			/* translators: %d is an integer indicating the number of minutes. */
+			$display = sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
@@ -728,7 +726,7 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
-					sleep( $delay );
+					sleep( (int) $delay );
 				}
 			}
 
@@ -854,6 +852,23 @@ class Actions {
 	 */
 	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
 		$sync_modules[] = WooCommerce_HPOS_Orders::class;
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's Products sync module to existing modules for sending.
+	 *
+	 * Note: This module is currently used for WooCommerce Analytics only.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's Products module.
+	 */
+	public static function add_woocommerce_products_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Products';
 		return $sync_modules;
 	}
 
@@ -1184,7 +1199,7 @@ class Actions {
 		}
 
 		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
-			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
+			if ( isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					'jetpack_sync_send_error_' . $decoded_response['code'],
 					$decoded_response['message'],

@@ -9,6 +9,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * (Live URL) https://www.twitch.tv/paperbat
  *

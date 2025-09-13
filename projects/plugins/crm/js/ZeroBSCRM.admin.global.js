@@ -8,7 +8,7 @@
  * Date: 17/06/2016
  */
 /* eslint-disable jsdoc/require-description, jsdoc/require-param-description, jsdoc/require-param-type, jsdoc/require-returns */
-/* global moment, ajaxurl, swal, Bloodhound, hopscotch, zbsTour */
+/* global zbs_root, moment, ajaxurl, swal, Bloodhound, hopscotch, zbsTour */
 jQuery( function () {
 	// THIS IS FOR POTENTIALLY GLOBAL STUFF ONLY! NO SPECIFICS (E>G> INVOICING)
 
@@ -435,9 +435,6 @@ function zbscrm_JS_bindDateRangePicker( options ) {
 	// Bind .jpcrm-date.jpcrm-empty-start, .jpcrm-date.jpcrm-custom-field
 	jpcrm_js_bind_datepicker( options );
 
-	// Bind .jpcrm-date-range = date rangepicker
-	jpcrm_js_bind_daterangepicker( options );
-
 	// bind .jpcrm-datetime-range
 	jpcrm_js_bind_datetimerangepicker( options );
 
@@ -538,12 +535,15 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 			showDropdowns: true,
 			timePicker: false,
 			ranges: {
-				Today: [ moment(), moment() ],
-				Yesterday: [ moment().subtract( 1, 'days' ), moment().subtract( 1, 'days' ) ],
-				'Last 7 Days': [ moment().subtract( 6, 'days' ), moment() ],
-				'Last 30 Days': [ moment().subtract( 29, 'days' ), moment() ],
-				'This Month': [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
-				'Last Month': [
+				[ zbs_root.lang.today ]: [ moment(), moment() ],
+				[ zbs_root.lang.yesterday ]: [
+					moment().subtract( 1, 'days' ),
+					moment().subtract( 1, 'days' ),
+				],
+				[ zbs_root.lang.last_7_days ]: [ moment().subtract( 6, 'days' ), moment() ],
+				[ zbs_root.lang.last_30_days ]: [ moment().subtract( 29, 'days' ), moment() ],
+				[ zbs_root.lang.this_month ]: [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
+				[ zbs_root.lang.last_month ]: [
 					moment().subtract( 1, 'month' ).startOf( 'month' ),
 					moment().subtract( 1, 'month' ).endOf( 'month' ),
 				],
@@ -565,7 +565,7 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 		}
 
 		// Initiate Date Range Picker
-		jQuery( '.jpcrm-date-range, .zbs-date-range' ).each( function ( ind, ele ) {
+		jQuery( '.jpcrm-date-range' ).each( function ( ind, ele ) {
 			const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 			// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
@@ -595,12 +595,15 @@ function jpcrm_js_bind_datetimerangepicker( options, callback ) {
 			showDropdowns: true,
 			opens: 'left',
 			ranges: {
-				Today: [ moment(), moment() ],
-				Yesterday: [ moment().subtract( 1, 'days' ), moment().subtract( 1, 'days' ) ],
-				'Last 7 Days': [ moment().subtract( 6, 'days' ), moment() ],
-				'Last 30 Days': [ moment().subtract( 29, 'days' ), moment() ],
-				'This Month': [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
-				'Last Month': [
+				[ zbs_root.lang.today ]: [ moment(), moment() ],
+				[ zbs_root.lang.yesterday ]: [
+					moment().subtract( 1, 'days' ),
+					moment().subtract( 1, 'days' ),
+				],
+				[ zbs_root.lang.last_7_days ]: [ moment().subtract( 6, 'days' ), moment() ],
+				[ zbs_root.lang.last_30_days ]: [ moment().subtract( 29, 'days' ), moment() ],
+				[ zbs_root.lang.this_month ]: [ moment().startOf( 'month' ), moment().endOf( 'month' ) ],
+				[ zbs_root.lang.last_month ]: [
 					moment().subtract( 1, 'month' ).startOf( 'month' ),
 					moment().subtract( 1, 'month' ).endOf( 'month' ),
 				],
@@ -2737,6 +2740,19 @@ const jpcrm = {
 	// identical to WP's esc_attr other than a different hook
 	esc_html: str => {
 		return jpcrm.esc_attr( str );
+	},
+	// Decode HTML entities to prevent double-encoding issues
+	decodeHTMLEntities: ( () => {
+		const textarea = document.createElement( 'textarea' );
+		return text => {
+			textarea.innerHTML = text;
+			return textarea.value;
+		};
+	} )(),
+	// Combined helper: decode HTML entities then escape for safe display
+	escTextWithDecode: text => {
+		const decoded = jpcrm.decodeHTMLEntities( text );
+		return jpcrm.esc_html( decoded );
 	},
 };
 

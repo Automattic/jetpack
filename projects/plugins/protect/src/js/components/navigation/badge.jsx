@@ -3,7 +3,7 @@ import { Popover, Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, info } from '@wordpress/icons';
 import PropTypes from 'prop-types';
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import styles from './styles.module.scss';
 

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
@@ -10,7 +10,7 @@ import {
 	dismissJetpackNotice,
 } from 'state/jetpack-notices';
 
-class FeedbackDashRequest extends React.Component {
+class FeedbackDashRequest extends Component {
 	static displayName = 'FeedbackDashRequest';
 
 	renderContent = () => {

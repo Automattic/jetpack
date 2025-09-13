@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/posts/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Bulk_Delete_Post_Endpoint(
 	array(
 		'description'          => 'Delete multiple posts. Note: If the trash is enabled, this request will send non-trashed posts to the trash. Trashed posts will be permanently deleted.',
@@ -42,6 +46,8 @@ new WPCOM_JSON_API_Bulk_Delete_Post_Endpoint(
 
 /**
  * Bulk delete post endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Bulk_Delete_Post_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 	/**

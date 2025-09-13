@@ -1,18 +1,19 @@
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
 type CollapsibleMetaProps = {
-	children: React.ReactNode;
-	header?: React.ReactNode;
-	summary?: React.ReactNode;
+	children: ReactNode;
+	header?: ReactNode;
+	summary?: ReactNode;
 	toggleText: string;
 	headerText?: string;
 	tracksEvent?: string;
-	extraButtons?: React.ReactNode;
+	extraButtons?: ReactNode;
 	onToggleHandler?: ( isExpanded: boolean ) => void;
 };
 

@@ -1,6 +1,6 @@
 import { ContextualUpgradeTrigger, Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo, useContext } from 'react';
+import { useMemo, useContext } from 'react';
 import { getFixerDescription } from '@automattic/jetpack-scan';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';

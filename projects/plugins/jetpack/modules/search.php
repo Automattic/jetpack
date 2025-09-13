@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Search
- * Module Description: Help visitors quickly find answers with highly relevant instant search results and powerful filtering.
+ * Module Description: Instantly deliver the most relevant results to your visitors.
  * First Introduced: 5.0
  * Sort Order: 34
  * Free: false
@@ -16,6 +16,10 @@
 
 use Automattic\Jetpack\Search\Classic_Search;
 use Automattic\Jetpack\Search\Helper as Search_Helper;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * These are old legacy class names that were deprecated due to the move to packages.

@@ -1,32 +1,21 @@
-import React from 'react';
+import {
+	ChartStoryArgs,
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories';
 import LineChart from '../line-chart';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
+import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LineChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+
+const meta: Meta< StoryArgs > = {
+	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
-	component: LineChart,
-	parameters: {
-		layout: 'centered',
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
 };
 
 export default meta;
@@ -36,21 +25,7 @@ const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
-	data: sampleData,
-	showLegend: false,
-	legendOrientation: 'horizontal',
-	withGradientFill: false,
-	smoothing: true,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
+	...lineChartStoryArgs,
 };
 
 // Story with single data series
@@ -59,11 +34,60 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-// Story without tooltip
-export const WithoutTooltip: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutTooltip.args = {
-	...Default.args,
-	withTooltips: false,
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
+	...lineChartStoryArgs,
+	showLegend: true,
+};
+
+export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
+CustomLegendPositioning.args = {
+	data: sampleData,
+	showLegend: true,
+	height: 400,
+	legendAlignment: 'start',
+	legendPosition: 'top',
+	legendOrientation: 'horizontal',
+	withLegendGlyph: true,
+};
+
+CustomLegendPositioning.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+		},
+	},
+};
+
+// Story showing use with LineChart using composition API
+export const WithCompositionLegend: StoryObj< typeof LineChart > = {
+	render: args => (
+		<div style={ { width: '600px', height: '400px' } }>
+			<LineChart
+				data={ args.data || webTrafficData }
+				width={ 600 }
+				height={ 300 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			>
+				<LineChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
+			</LineChart>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+			},
+		},
+	},
 };
 
 // Story with custom dimensions
@@ -72,21 +96,6 @@ CustomDimensions.args = {
 	width: 800,
 	height: 400,
 	data: sampleData,
-};
-
-// Story with horizontal legend
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
-	...Default.args,
-	showLegend: true,
-};
-
-// Story with vertical legend
-export const WithVerticalLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithVerticalLegend.args = {
-	...Default.args,
-	showLegend: true,
-	legendOrientation: 'vertical',
 };
 
 // Add after existing stories
@@ -107,8 +116,8 @@ FixedDimensions.parameters = {
 };
 
 // Story with gradient filled line chart
-export const GridientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
-GridientFilled.args = {
+export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientFilled.args = {
 	...Default.args,
 	margin: undefined,
 	data: webTrafficData,
@@ -123,7 +132,13 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<LineChart width={ 300 } height={ 200 } data={ [] } />
+				<LineChart
+					width={ 300 }
+					height={ 200 }
+					data={ [] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
+				/>
 			</div>
 			<div>
 				<h3>Invalid Date Values</h3>
@@ -140,6 +155,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 			<div>
@@ -157,6 +174,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 			<div>
@@ -171,6 +190,8 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 							options: {},
 						},
 					] }
+					withGradientFill={ false }
+					withLegendGlyph={ false }
 				/>
 			</div>
 		</div>
@@ -188,37 +209,6 @@ export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} 
 WithoutSmoothing.args = {
 	...Default.args,
 	smoothing: false,
-};
-
-export const CustomTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomTooltips.args = {
-	...Default.args,
-	renderTooltip: ( { tooltipData } ) => {
-		const nearestDatum = tooltipData?.nearestDatum?.datum;
-		if ( ! nearestDatum ) return null;
-
-		const tooltipPoints = Object.entries( tooltipData?.datumByKey || {} )
-			.map( ( [ key, { datum } ] ) => ( {
-				key,
-				value: datum.value as number,
-			} ) )
-			.sort( ( a, b ) => b.value - a.value );
-
-		return (
-			<div>
-				<h3>{ nearestDatum?.date?.toLocaleDateString() } 💯 </h3>
-
-				<table style={ { border: '1px solid black', borderCollapse: 'collapse' } }>
-					{ tooltipPoints.map( point => (
-						<tr style={ { border: '1px solid black' } } key={ point.key }>
-							<td style={ { border: '1px solid black' } }>{ point.key }</td>
-							<td>{ point.value }</td>
-						</tr>
-					) ) }
-				</table>
-			</div>
-		);
-	},
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -257,8 +247,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="linear"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 				<div>
@@ -268,8 +258,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="smooth"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 				<div>
@@ -279,8 +269,8 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 						height={ 200 }
 						data={ curveData }
 						curveType="monotone"
-						showLegend={ false }
 						withGradientFill={ false }
+						withLegendGlyph={ false }
 					/>
 				</div>
 			</div>
@@ -294,4 +284,133 @@ export const CurveTypes: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
+};
+
+// Story demonstrating Smart Formatting (formatYTick) with large values
+export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
+SmartFormatting.args = {
+	data: largeValuesData,
+	withGradientFill: false,
+	smoothing: true,
+	options: {
+		axis: {
+			x: {
+				orientation: 'bottom',
+			},
+			y: {
+				orientation: 'left',
+			},
+		},
+	},
+};
+
+SmartFormatting.parameters = {
+	docs: {
+		description: {
+			story:
+				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
+		},
+	},
+};
+
+// Offset for dashed line to prevent overlapping with solid line
+const DASHED_LINE_OFFSET = 100;
+
+export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
+BrokenLine.args = {
+	...Default.args,
+	data: [
+		{
+			...webTrafficData[ 0 ],
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + DASHED_LINE_OFFSET,
+			} ) ),
+			options: {
+				...webTrafficData[ 0 ].options,
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
+			},
+		},
+		webTrafficData[ 0 ],
+	],
+	showLegend: true,
+};
+
+BrokenLine.parameters = {
+	docs: {
+		description: {
+			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
+		},
+	},
+};
+
+export const DateStringFormats: StoryObj< typeof LineChart > = {
+	render: () => {
+		return (
+			<LineChart
+				data={ [
+					{
+						label: 'String Dates',
+						data: [
+							{ dateString: '2024-01-01', value: 10 },
+							{ dateString: '2024-01-02', value: 20 },
+							{ dateString: '2024-01-03 00:00:00', value: 15 },
+							{ dateString: '2024-01-04', value: 25 },
+							{ dateString: '2024-01-05 00:00', value: 30 },
+						],
+						options: {},
+					},
+				] }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			/>
+		);
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
+					'- Simple date strings (YYYY-MM-DD)\n' +
+					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
+					'- Date with time (YYYY-MM-DD 00:00)\n' +
+					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
+					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
+					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
+			},
+		},
+	},
+};
+
+export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+Comparison.args = {
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'New York',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'New York last year',
+			group: 'new-york',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Tokyo',
+		},
+		{
+			...sampleData[ 3 ],
+			label: 'Tokyo last year',
+			group: 'tokyo',
+			options: {
+				type: 'comparison' as const,
+			},
+		},
+	],
 };

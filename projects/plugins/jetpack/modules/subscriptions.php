@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
  * Module Name: Newsletter
- * Module Description: Let visitors subscribe to new posts and comments via email
+ * Module Description: Grow your subscriber list and deliver your content directly to their email inbox.
  * Sort Order: 9
  * Recommendation Order: 8
  * First Introduced: 1.2
@@ -22,6 +22,10 @@ use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -60,6 +64,8 @@ function jetpack_subscriptions_cherry_pick_server_data() {
 
 /**
  * Main class file for the Subscriptions module.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Subscriptions {
 	/**
@@ -861,7 +867,7 @@ class Jetpack_Subscriptions {
 		$post_id = (int) $post_id;
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
-		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS );
 
 		/**
 		 * Filter the Jetpack Comment cookie path.
@@ -886,13 +892,13 @@ class Jetpack_Subscriptions {
 		$cookie_domain = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
 		if ( $subscribe_to_post && $post_id >= 0 ) {
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '1', time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
 			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}
 
 		if ( $subscribe_to_blog ) {
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '1', time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}

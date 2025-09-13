@@ -1,19 +1,37 @@
 // Charts
-export { BarChart } from './components/bar-chart';
-export { LineChart } from './components/line-chart';
-export { PieChart } from './components/pie-chart';
-export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
+export { BarChart, BarChartUnresponsive } from './components/bar-chart';
+export { LineChart, LineChartUnresponsive } from './components/line-chart';
+export { PieChart, PieChartUnresponsive } from './components/pie-chart';
+export {
+	PieSemiCircleChart,
+	PieSemiCircleChartUnresponsive,
+} from './components/pie-semi-circle-chart';
+export { BarListChart, BarListChartUnresponsive } from './components/bar-list-chart';
+export { LeaderboardChart } from './components/leaderboard-chart';
+export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
-export { Legend } from './components/legend';
+export { Legend, useChartLegendItems } from './components/legend';
+export type { LegendValueDisplay } from './components/legend';
 
 // Themes
-export { ThemeProvider } from './providers/theme';
-export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
+export { GlobalChartsProvider as ThemeProvider } from './providers';
 
-// Hooks
-export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
+// Global context
+export {
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+	GlobalChartsContext,
+	defaultTheme,
+	jetpackTheme,
+	wooTheme,
+} from './providers';
 
 // Types
-export type { DataPoint, DataPointDate, SeriesData } from './types';
+export type * from './types';
+export type * from './visx/types';
+export type { PieChartProps } from './components/pie-chart';
+
+export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';

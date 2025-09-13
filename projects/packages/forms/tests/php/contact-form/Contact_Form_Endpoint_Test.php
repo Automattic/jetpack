@@ -17,6 +17,7 @@ use WP_REST_Server;
  */
 class Contact_Form_Endpoint_Test extends TestCase {
 
+	private $send_email_called = false;
 	/**
 	 * REST Server object.
 	 *
@@ -98,6 +99,28 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test DELETE feedback/trash
+	 */
+	public function test_empty_trash_returns_200() {
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'deleted', $data );
+	}
+
+	/**
+	 * Test DELETE feedback/trash unautorized.
+	 */
+	public function test_empty_trash_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test item schema.
 	 */
 	public function test_item_schema() {
@@ -140,18 +163,21 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
+		$this->assertArrayHasKey( 'mailpoet', $data );
 
 		// Verify structure of one integration
 		$this->assertArrayHasKey( 'type', $data['akismet'] );
 		$this->assertArrayHasKey( 'isInstalled', $data['akismet'] );
 		$this->assertArrayHasKey( 'isActive', $data['akismet'] );
 		$this->assertArrayHasKey( 'isConnected', $data['akismet'] );
+		$this->assertArrayHasKey( 'needsConnection', $data['akismet'] );
 
 		// Verify structure of google-drive
 		$this->assertArrayHasKey( 'type', $data['google-drive'] );
 		$this->assertArrayHasKey( 'isInstalled', $data['google-drive'] );
 		$this->assertArrayHasKey( 'isActive', $data['google-drive'] );
 		$this->assertArrayHasKey( 'isConnected', $data['google-drive'] );
+		$this->assertArrayHasKey( 'needsConnection', $data['google-drive'] );
 	}
 
 	/**
@@ -177,6 +203,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
+		$this->assertContains( 'mailpoet', $integration_ids );
 
 		// Verify structure of each integration
 		foreach ( $data as $integration ) {
@@ -190,6 +217,8 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertArrayHasKey( 'pluginFile', $integration );
 			$this->assertArrayHasKey( 'version', $integration );
 			$this->assertArrayHasKey( 'details', $integration );
+			$this->assertArrayHasKey( 'needsConnection', $integration );
+			$this->assertArrayHasKey( 'marketingUrl', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
@@ -197,11 +226,13 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertIsString( $integration['slug'] );
 			$this->assertIsBool( $integration['isInstalled'] );
 			$this->assertIsBool( $integration['isActive'] );
+			$this->assertIsBool( $integration['needsConnection'] );
 			$this->assertIsBool( $integration['isConnected'] );
 			$this->assertTrue( $integration['settingsUrl'] === null || is_string( $integration['settingsUrl'] ) );
 			$this->assertTrue( $integration['pluginFile'] === null || is_string( $integration['pluginFile'] ) );
 			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
 			$this->assertIsArray( $integration['details'] );
+			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
 		}
 	}
 
@@ -232,6 +263,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'pluginFile', $data );
 		$this->assertArrayHasKey( 'version', $data );
 		$this->assertArrayHasKey( 'details', $data );
+		$this->assertArrayHasKey( 'needsConnection', $data );
 	}
 
 	/**
@@ -251,5 +283,380 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/google-drive' );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with default status
+	 */
+	public function test_delete_feedback_trash_default_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint with spam status
+	 */
+	public function test_delete_feedback_trash_spam_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'spam' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify response structure
+		$this->assertIsArray( $data );
+		$this->assertArrayHasKey( 'deleted', $data );
+		$this->assertIsInt( $data['deleted'] );
+	}
+
+	/**
+	 * Test DELETE feedback/trash endpoint unauthorized access
+	 */
+	public function test_delete_feedback_trash_unauthorized() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test bulk actions with invalid action
+	 */
+	public function test_bulk_actions_invalid_action() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'invalid_action' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): action', $data['message'] );
+	}
+
+	/**
+	 * Test bulk actions with invalid post_ids parameter
+	 */
+	public function test_bulk_actions_invalid_post_ids() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_spam' );
+		$request->set_param( 'post_ids', 'not_an_array' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): post_ids', $data['message'] );
+	}
+
+	/**
+	 * Test bulk actions mark_as_spam
+	 */
+	public function test_bulk_actions_mark_as_spam() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_spam' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array(), $response->get_data() );
+	}
+
+	/**
+	 * Test bulk actions mark_as_not_spam
+	 */
+	public function test_bulk_actions_mark_as_not_spam() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/bulk_actions' );
+		$request->set_param( 'action', 'mark_as_not_spam' );
+		$request->set_param( 'post_ids', array( 1, 2, 3 ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( array(), $response->get_data() );
+	}
+
+	/**
+	 * Test delete posts by status with invalid status
+	 */
+	public function test_delete_posts_by_status_invalid_status() {
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'invalid_status' );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 400, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_invalid_param', $data['code'] );
+		$this->assertEquals( 'Invalid parameter(s): status', $data['message'] );
+	}
+
+	/**
+	 * Test GET feedback/config returns expected structure for authorized user.
+	 */
+	public function test_get_forms_config_returns_200_and_keys() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/config' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		// Required keys
+		$expected_keys = array(
+			'formsResponsesUrl',
+			'preferredView',
+			'isMailPoetEnabled',
+			'blogId',
+			'gdriveConnectSupportURL',
+			'pluginAssetsURL',
+			'siteURL',
+			'hasFeedback',
+			'hasAI',
+			'isIntegrationsEnabled',
+			'renderMigrationPage',
+			'dashboardURL',
+			'canInstallPlugins',
+			'canActivatePlugins',
+			'exportNonce',
+			'newFormNonce',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $data );
+		}
+
+		// Basic type checks for a few fields
+		$this->assertIsBool( $data['isMailPoetEnabled'] );
+		$this->assertIsInt( $data['blogId'] );
+		$this->assertIsBool( $data['canInstallPlugins'] );
+		$this->assertIsBool( $data['canActivatePlugins'] );
+		$this->assertIsString( $data['exportNonce'] );
+		$this->assertIsString( $data['newFormNonce'] );
+	}
+
+	/**
+	 * Test GET feedback/config unauthorized access.
+	 */
+	public function test_get_forms_config_returns_401_for_unauthorized() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/config' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test resend email functionality
+	 */
+	public function test_resend_email() {
+		// Create a test feedback post
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'author name',
+				'email' => 'email@example.com',
+			),
+			'This is a test comment content.',
+			'author name',
+			'test@example.com',
+			null,
+			null,
+			'Test Subject',
+			'spam'
+		);
+		// Add test metadata
+		add_post_meta(
+			$post_id,
+			'_feedback_email',
+			array(
+				'to'      => 'test@example.com',
+				'message' => 'Test message',
+				'headers' => 'From: test@example.com',
+			)
+		);
+
+		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
+
+		// Test the update_item method which triggers resend_email
+		$request = new WP_REST_Request( 'PUT', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'status', 'publish' );
+
+		// Mock the previous status
+		add_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $this->send_email_called, 'Email should have been sent' );
+
+		$this->send_email_called = false; // Reset the flag
+		remove_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
+	}
+
+	/**
+	 * Mock wp_mail_succeeded filter
+	 */
+	public function mock_wp_mail_succeeded( $data ) {
+		$this->send_email_called = true;
+		return $data;
+	}
+
+	/**
+	 * Test get_collection_params
+	 */
+	public function test_get_collection_params() {
+		$endpoint = new Contact_Form_Endpoint( 'feedback' );
+		$params   = $endpoint->get_collection_params();
+
+		$this->assertArrayHasKey( 'parent', $params );
+		$this->assertArrayHasKey( 'parent_exclude', $params );
+
+		$this->assertEquals( 'array', $params['parent']['type'] );
+		$this->assertEquals( 'array', $params['parent_exclude']['type'] );
+
+		$this->assertEquals( 'integer', $params['parent']['items']['type'] );
+		$this->assertEquals( 'integer', $params['parent_exclude']['items']['type'] );
+	}
+
+	/**
+	 * Test prepare_item_for_response with file fields
+	 */
+	public function test_prepare_item_for_response_with_files() {
+		// Create a test feedback post with file attachment
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => 'feedback',
+				'post_status'  => 'publish',
+				'post_content' => '
+AUTHOR: Test Author
+AUTHOR EMAIL: author@example.com
+SUBJECT: Test Subject
+IP: 127.0.0.1
+
+<!--more-->
+
+JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field_id":"g1-file","files":[{"file_id":123,"name":"test.jpg","size":1024,"type":"image/jpeg"}]}}',
+			)
+		);
+
+		// Add test metadata
+		$all_fields = array(
+			'1_name'  => 'Test Author',
+			'2_email' => 'author@example.com',
+			'3_file'  => array(
+				'field_id' => 'g1-file',
+				'files'    => array(
+					array(
+						'file_id' => 123,
+						'name'    => 'test.jpg',
+						'size'    => 1024,
+						'type'    => 'image/jpeg',
+					),
+				),
+			),
+		);
+
+		add_post_meta( $post_id, '_feedback_all_fields', $all_fields );
+		add_post_meta( $post_id, '_feedback_author', 'Test Author' );
+		add_post_meta( $post_id, '_feedback_author_email', 'author@example.com' );
+		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
+		add_post_meta( $post_id, '_feedback_ip', '127.0.0.1' );
+
+		// Test the get_item endpoint
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertArrayHasKey( 'file', $data['fields'] );
+		$this->assertArrayHasKey( 'files', $data['fields']['file'] );
+
+		$file = $data['fields']['file']['files'][0];
+		$this->assertEquals( 123, $file['file_id'] );
+		$this->assertEquals( 'test.jpg', $file['name'] );
+		$this->assertEquals( '1 KB', $file['size'] );
+		$this->assertTrue( $file['is_previewable'] );
+		$this->assertTrue( $data['has_file'] );
+	}
+
+	/**
+	 * Test prepare_item_for_response with file fields
+	 */
+	public function test_prepare_item_for_response_with_consent() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'field1'                  => 'value1',
+				'field2'                  => 'value2',
+				'email_marketing_consent' => 'yes',
+			),
+			'This is a test comment content.',
+			'Test User'
+		);
+
+		// Test the get_item endpoint
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response
+		$this->assertArrayHasKey( 'fields', $data );
+
+		$this->assertArrayHasKey( 'email_marketing_consent', $data );
+		$this->assertSame( '1', $data['email_marketing_consent'] );
+
+		$this->assertArrayHasKey( 'author_name', $data );
+		$this->assertEquals( 'Test User', $data['author_name'] );
+
+		$this->assertArrayHasKey( 'has_file', $data );
+		$this->assertFalse( $data['has_file'] );
+	}
+
+	/**
+	 * Test prepare_item_for_response with file fields
+	 */
+	public function test_prepare_item_for_response_without_consent() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'field1'                  => 'value1',
+				'field2'                  => 'value2',
+				'email_marketing_consent' => '',
+			),
+			'This is a test comment content.',
+			'Test User'
+		);
+
+		// Test the get_item endpoint
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response
+		$this->assertArrayHasKey( 'fields', $data );
+
+		$this->assertArrayHasKey( 'email_marketing_consent', $data );
+		$this->assertSame( '', $data['email_marketing_consent'] );
+
+		$this->assertArrayHasKey( 'author_name', $data );
+		$this->assertEquals( 'Test User', $data['author_name'] );
+
+		$this->assertArrayHasKey( 'has_file', $data );
+		$this->assertFalse( $data['has_file'] );
 	}
 }

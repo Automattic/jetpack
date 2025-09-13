@@ -41,7 +41,7 @@ This is where the `jetpack-config` and `jetpack-autoload` packages come into pla
 ```php
 use Automattic\Jetpack\Config;
 
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 
 function jpcs_load_plugin() {
 

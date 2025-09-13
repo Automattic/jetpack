@@ -1,7 +1,6 @@
 import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import React from 'react';
 import {
 	START_WRITING_FLOW,
 	DESIGN_FIRST_FLOW,
@@ -13,6 +12,7 @@ import {
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import SuggestedTags from './suggested-tags';
 import useRecommendedTagsModalDismissed from './use-recommended-tags-modal-dismissed';
+import type { FC } from 'react';
 
 import './style.scss';
 
@@ -25,7 +25,7 @@ type CoreEditorPlaceholder = {
 	isCurrentPostPublished: ( ...args: unknown[] ) => boolean;
 };
 
-const RecommendedTagsModalInner: React.FC = () => {
+const RecommendedTagsModalInner: FC = () => {
 	const isP2 = window?.recommendedTagsModalOptions?.isP2 || false;
 	const isDismissedDefault = window?.recommendedTagsModalOptions?.isDismissed || false;
 	const { launchpadScreenOption } = window?.launchpadOptions || {};

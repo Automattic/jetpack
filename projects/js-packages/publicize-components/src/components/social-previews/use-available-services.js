@@ -1,6 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import BlueskyPreview from './bluesky';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
@@ -14,7 +14,7 @@ import Twitter from './twitter';
 /**
  * Returns the list of available services.
  *
- * @return {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
+ * @return {Array<{title: string, icon: import('react').Component, name: string, preview: import('react').Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
 	return useMemo(

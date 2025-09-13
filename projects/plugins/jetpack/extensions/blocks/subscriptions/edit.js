@@ -106,9 +106,9 @@ export function SubscriptionEdit( props ) {
 	const activeStyleName = getActiveStyleName( metadata.styles, className );
 
 	const { subscriberCount, subscriberCountString } = useSelect( select => {
-		const { emailSubscribers, socialFollowers } =
+		const { totalSubscribers, socialFollowers } =
 			select( membershipProductsStore ).getSubscriberCounts();
-		let count = emailSubscribers;
+		let count = totalSubscribers;
 		if ( includeSocialFollowers ) {
 			count += socialFollowers;
 		}
@@ -116,7 +116,7 @@ export function SubscriptionEdit( props ) {
 		return {
 			subscriberCount: count,
 			subscriberCountString: sprintf(
-				/* translators: Placeholder is a number of subscribers. */
+				/* translators: %s: the number of subscribers. */
 				_n( 'Join %s other subscriber', 'Join %s other subscribers', count, 'jetpack' ),
 				formatNumberCompact( count, { numberFormatOptions: { maximumFractionDigits: 1 } } )
 			),

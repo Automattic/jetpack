@@ -9,19 +9,17 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchReturnProbablyReal : 40+ occurrences
-    // PhanTypeMismatchArgument : 35+ occurrences
+    // PhanTypeMismatchArgument : 40+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 30+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
-    // PhanParamSignatureMismatch : 15+ occurrences
+    // PhanParamSignatureMismatch : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 8 occurrences
+    // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
     // PhanNonClassMethodCall : 5 occurrences
     // PhanPossiblyUndeclaredVariable : 5 occurrences
-    // PhanRedundantCondition : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
-    // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanAccessMethodInternal : 2 occurrences
     // PhanImpossibleCondition : 2 occurrences
@@ -31,10 +29,8 @@ return [
     // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
-    // PhanNoopNew : 1 occurrence
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
-    // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchDeclaredParam : 1 occurrence
@@ -44,10 +40,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternal'],
+        'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp'],
-        'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'src/class-listener.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-lock.php' => ['PhanTypeMismatchReturn'],
         'src/class-queue.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
@@ -58,27 +54,25 @@ return [
         'src/class-server.php' => ['PhanTypeMismatchDeclaredParam', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-settings.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-utils.php' => ['PhanTypeExpectedObjectPropAccess'],
-        'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-comments.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-constants.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument'],
+        'src/modules/class-comments.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-constants.php' => ['PhanParamSignatureMismatch'],
         'src/modules/class-full-sync-immediately.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchReturn'],
-        'src/modules/class-full-sync.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeComparisonFromArray'],
-        'src/modules/class-import.php' => ['PhanTypeMismatchArgumentInternal'],
+        'src/modules/class-full-sync.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable'],
         'src/modules/class-module.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-network-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-network-options.php' => ['PhanParamSignatureMismatch'],
         'src/modules/class-options.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-plugins.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/modules/class-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable'],
         'src/modules/class-term-relationships.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
-        'src/modules/class-terms.php' => ['PhanAccessMethodInternal', 'PhanParamSignatureMismatch'],
+        'src/modules/class-terms.php' => ['PhanAccessMethodInternal'],
         'src/modules/class-themes.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
+        'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/modules/class-woocommerce.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/REST_Endpoints_Test.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
+        'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

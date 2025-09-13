@@ -13,14 +13,14 @@ import {
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback } from 'react';
+import { Link } from 'react-router';
 /**
  * Internal dependencies
  */
 import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
-import jetpackAiImage from '../jetpack-ai.png';
+import jetpackAiImage from '../assets/jetpack-ai.png';
 import styles from './style.module.scss';
 
 /**

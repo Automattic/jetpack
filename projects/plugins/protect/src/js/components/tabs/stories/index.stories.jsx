@@ -1,5 +1,4 @@
-import React from 'react';
-import { HashRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router';
 import Tabs, { Tab } from '..';
 
 export default {

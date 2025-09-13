@@ -1,5 +1,4 @@
 import * as WPElement from '@wordpress/element';
-import React from 'react';
 import { Provider } from 'react-redux';
 import store from 'state/redux-store-minimal';
 import PluginDeactivation from './portals/plugin-deactivation';

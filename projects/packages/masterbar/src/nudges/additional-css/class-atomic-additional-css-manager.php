@@ -59,7 +59,7 @@ class Atomic_Additional_CSS_Manager {
 	 * @return mixed
 	 */
 	protected function get_plan_name() {
-		return \Automattic\Jetpack\Plans::get_plan( 'business_bundle' )->product_name_short;
+		return \Automattic\Jetpack\Plans::get_plan( 'business-bundle' )->product_name_short;
 	}
 
 	/**

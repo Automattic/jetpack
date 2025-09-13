@@ -84,28 +84,23 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.3 - 2025-04-07
+### 2.5 - 2025-08-05
 #### Added
-- Add Account Protection initialization.
-- Add title to the attachment details view.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Replace video embed with VideoPress block in Media & Text block.
-- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- My Jetpack: Added analytics for empty product search results.
 
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- Connection: Allow pre-selected login providers.
-- Connection: Display connection status on Users page independent of the SSO module.
-- External Media: Move GooglePhotosMedia, OpenverseMedia, and PexelsMedia to `@automattic/jetpack-shared-extension-utils`.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
+- My Jetpack: Enable access to My Jetpack on WP Multisite.
+- My Jetpack: Unify the user connection flow with a unified screen.
+- My Jetpack: Update Stats card to include a chart for better analytics.
+- Sync: Ignore the ActivityPub Outbox CPT
 - Update package dependencies.
-- Update the unowned section from a product grid to a product list.
 
 #### Fixed
-- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
-- Ensure all files are uploaded when drag-and-dropped into editor.
-- Fix issue with VideoPress block with 0 height and width.
-- Ensure undo function works.
+- JITM: Fix ineffective caching due to expired plugin sync transient.
+- My Jetpack: Fix footer alignment for disconnected accounts.
+- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- My Jetpack: Restore plan purchase link.
+- Update JITMs to remove jQuery dependency.
+- Fix video row action button clickability by properly hiding stats on hover.
 

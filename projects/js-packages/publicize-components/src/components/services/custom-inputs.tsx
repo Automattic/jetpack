@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import { store } from '../../social-store';
 import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
+import type { ChangeEvent } from 'react';
 
 type CustomInputsProps = {
 	service: SupportedService;
@@ -46,7 +47,7 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 	}, [] );
 
 	const handleBskyHandleChange = useCallback(
-		( event: React.ChangeEvent< HTMLInputElement > ) => {
+		( event: ChangeEvent< HTMLInputElement > ) => {
 			validateBskyHandle( event.target.value );
 		},
 		[ validateBskyHandle ]

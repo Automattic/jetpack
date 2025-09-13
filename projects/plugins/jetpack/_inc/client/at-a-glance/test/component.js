@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, within } from 'test/test-utils';
 import { DashConnections } from '../connections';
 import { buildInitialState } from './fixtures';

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext, useEffect, useCallback } from 'react';
+import { useContext, useEffect, useCallback } from 'react';
 import ItemBadge from './badge';
 import ItemLabel from './label';
 import styles from './styles.module.scss';

@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { updateSettings } from 'state/settings';
 import { render, screen } from 'test/test-utils';
 import { GoogleAnalytics } from '../../google-analytics';
@@ -12,6 +11,10 @@ jest.mock( 'state/settings', () => {
 		updateSettings: jest.fn().mockReturnValue( () => Promise.resolve() ),
 	};
 } );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWoASite: jest.fn().mockReturnValue( true ),
+} ) );
 
 describe( 'Google Analytics', () => {
 	const defaultProps = {
@@ -28,9 +31,6 @@ describe( 'Google Analytics', () => {
 							manage_modules: true,
 						},
 					},
-				},
-				siteData: {
-					isWoASite: true,
 				},
 			},
 			connection: {

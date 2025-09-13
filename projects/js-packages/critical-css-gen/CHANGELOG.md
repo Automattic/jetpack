@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.18] - 2025-08-21
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+### Changed
+- Update dependencies. [#44736]
+
+### Fixed
+- Fix not picking up stylesheets when their rel attribute was more complex. [#44753]
+
+## [1.0.17] - 2025-08-05
+### Changed
+- Internal updates.
+
+## [1.0.16] - 2025-07-23
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.0.15] - 2025-07-08
+### Changed
+- Update dependencies. [#44142]
+- Update package dependencies. [#44151] [#44217]
+
+## [1.0.14] - 2025-06-23
+### Fixed
+- Playwright interface: Fix page redirects from breaking the generation process. [#43929]
+
+## [1.0.13] - 2025-06-11
+### Changed
+- Update dependencies. [#43569]
+- Update package dependencies. [#43734] [#43766]
+
 ## [1.0.12] - 2025-05-15
 ### Fixed
 - Linting: Fix more Stylelint violations. [#43213]
@@ -87,6 +119,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#38429]
 
+[1.0.18]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.17...v1.0.18
+[1.0.17]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.16...v1.0.17
+[1.0.16]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.15...v1.0.16
+[1.0.15]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.9...v1.0.10

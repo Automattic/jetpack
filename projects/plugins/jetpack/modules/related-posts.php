@@ -1,7 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Related posts
- * Module Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
+ * Module Description: Automatically display related articles to keep visitors reading longer.
  * First Introduced: 2.9
  * Sort Order: 29
  * Recommendation Order: 9
@@ -11,6 +11,18 @@
  * Feature: Engagement
  * // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInComment
  * Additional Search Queries: related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin, creator
+ *
+ * @package automattic/jetpack
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+/**
+ * Class Jetpack_RelatedPosts_Module
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_RelatedPosts_Module {
 	/**

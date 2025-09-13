@@ -4,8 +4,9 @@ import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { features } from '../../utils/constants';
 import Notice from '../notice';
+import type { FC } from 'react';
 
-export const InstagramNoMediaNotice: React.FC = () => {
+export const InstagramNoMediaNotice: FC = () => {
 	return siteHasFeature( features.ENHANCED_PUBLISHING ) ? (
 		<Notice type={ 'warning' }>
 			{ __(

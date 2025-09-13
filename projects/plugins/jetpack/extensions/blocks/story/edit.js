@@ -5,7 +5,6 @@ import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { get, pick } from 'lodash';
 import metadata from './block.json';
 import Controls from './controls';
 import StoryPlayer from './player';
@@ -13,25 +12,28 @@ import StoryPlayer from './player';
 import './editor.scss';
 
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
+const ALLOWED_MEDIA_PROPS = [
+	'alt',
+	'title',
+	'id',
+	'link',
+	'type',
+	'mime',
+	'caption',
+	'width',
+	'height',
+];
 const icon = getBlockIconComponent( metadata );
 
 export const pickRelevantMediaFiles = media => {
-	const mediaProps = pick( media, [
-		'alt',
-		'title',
-		'id',
-		'link',
-		'type',
-		'mime',
-		'caption',
-		'width',
-		'height',
-	] );
+	const mediaProps = Object.fromEntries(
+		Object.entries( media ).filter( ( [ k ] ) => ALLOWED_MEDIA_PROPS.includes( k ) )
+	);
 	mediaProps.url =
-		get( media, [ 'media_details', 'original', 'url' ] ) ||
-		get( media, [ 'media_details', 'videopress', 'original' ] ) ||
-		get( media, [ 'media_details', 'sizes', 'large', 'source_url' ] ) ||
-		get( media, [ 'sizes', 'large', 'url' ] ) ||
+		media?.media_details?.original?.url ||
+		media?.media_details?.videopress?.original ||
+		media?.media_details?.sizes?.large?.source_url ||
+		media?.sizes?.large?.url ||
 		media.url;
 	mediaProps.type = media.media_type || media.type;
 	mediaProps.mime = media.mime_type || media.mime;

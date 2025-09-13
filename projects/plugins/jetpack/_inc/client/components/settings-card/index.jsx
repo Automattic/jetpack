@@ -1,5 +1,5 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, _x } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -34,7 +34,6 @@ import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'stat
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
-	connectUser,
 	isUnavailableInOfflineMode,
 } from 'state/connection';
 import {
@@ -75,22 +74,22 @@ export const SettingsCard = inprops => {
 		} );
 	};
 
-	const handleConnectClick = ( feature, featureLabel ) => {
+	const handleConnectClick = feature => {
 		return () => {
 			trackConnectClick( feature );
-			props.doConnectUser( featureLabel );
+			window.location.href = getUserConnectionUrl();
 		};
 	};
 
 	const module = props.module ? props.getModule( props.module ) : false,
 		vpData = props.vaultPressData,
-		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
-		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
+		backupsEnabled = vpData?.data?.features?.backups ?? false,
+		scanEnabled = vpData?.data?.features?.security ?? false;
 
 	// Non admin users only get Publicize and Post by Email settings.
 	if (
 		! props.userCanManageModules &&
-		! includes( [ 'post-by-email', 'publicize' ], props.module )
+		! [ 'post-by-email', 'publicize' ].includes( props.module )
 	) {
 		return <span />;
 	}
@@ -435,7 +434,7 @@ export const SettingsCard = inprops => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
 						feature={ feature }
-						onclick={ props.doConnectUser }
+						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
@@ -592,40 +591,35 @@ SettingsCard.propTypes = {
 	isDisabled: PropTypes.bool,
 };
 
-export default connect(
-	state => {
-		return {
-			fetchingSiteData: isFetchingSiteData( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			userCanManageModules: userCanManageModules( state ),
-			isAkismetKeyValid: isAkismetKeyValid( state ),
-			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: getVaultPressData( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-			getModule: module_name => getModule( state, module_name ),
-			adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
-			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
-			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
-			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
-			simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
-			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
-			multisite: isMultisite( state ),
-			inOfflineMode: isOfflineMode( state ),
-			hasConnectedOwner: hasConnectedOwnerSelector( state ),
-			hasAntispam: siteHasFeature( state, 'antispam' ),
-			hasBackups: siteHasFeature( state, 'backups' ),
-			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
-			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
-			hasScan: siteHasFeature( state, 'scan' ),
-			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
-			hasVideoPress: siteHasFeature( state, 'videopress' ),
-			hasWordAds: siteHasFeature( state, 'wordads' ),
-			isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
-			blazeAvailable: shouldInitializeBlaze( state ),
-		};
-	},
-	dispatch => ( {
-		doConnectUser: featureLabel => dispatch( connectUser( featureLabel ) ),
-	} )
-)( SettingsCard );
+export default connect( state => {
+	return {
+		fetchingSiteData: isFetchingSiteData( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+		userCanManageModules: userCanManageModules( state ),
+		isAkismetKeyValid: isAkismetKeyValid( state ),
+		isCheckingAkismetKey: isCheckingAkismetKey( state ),
+		vaultPressData: getVaultPressData( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModule: module_name => getModule( state, module_name ),
+		adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
+		securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
+		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
+		searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+		simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
+		spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
+		multisite: isMultisite( state ),
+		inOfflineMode: isOfflineMode( state ),
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
+		hasAntispam: siteHasFeature( state, 'antispam' ),
+		hasBackups: siteHasFeature( state, 'backups' ),
+		hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
+		hasInstantSearch: siteHasFeature( state, 'instant-search' ),
+		hasScan: siteHasFeature( state, 'scan' ),
+		hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
+		hasVideoPress: siteHasFeature( state, 'videopress' ),
+		hasWordAds: siteHasFeature( state, 'wordads' ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+		blazeAvailable: shouldInitializeBlaze( state ),
+	};
+} )( SettingsCard );

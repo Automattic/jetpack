@@ -14,7 +14,7 @@ import {
 	reusableBlock as regenerate,
 } from '@wordpress/icons';
 import debugFactory from 'debug';
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -25,7 +25,7 @@ import './style.scss';
  * Types
  */
 import type { RequestingStateProp } from '../../types.ts';
-import type { ReactElement } from 'react';
+import type { MutableRefObject, ReactElement } from 'react';
 
 type BlockAIControlProps = {
 	disabled?: boolean;
@@ -54,8 +54,8 @@ const debug = debugFactory( 'jetpack-ai-client:block-ai-control' );
 /**
  * BlockAIControl component. Used by the AI Assistant block, adding logic and components to the base AIControl component.
  *
- * @param {BlockAIControlProps}    props - Component props
- * @param {React.MutableRefObject} ref   - Ref to the component
+ * @param {BlockAIControlProps} props - Component props
+ * @param {MutableRefObject}    ref   - Ref to the component
  * @return {ReactElement}             Rendered component
  */
 export function BlockAIControl(
@@ -80,7 +80,7 @@ export function BlockAIControl(
 		error = null,
 		lastAction,
 	}: BlockAIControlProps,
-	ref: React.MutableRefObject< HTMLInputElement >
+	ref: MutableRefObject< HTMLInputElement >
 ): ReactElement {
 	const loading = state === 'requesting' || state === 'suggesting';
 	const [ editRequest, setEditRequest ] = useState( false );

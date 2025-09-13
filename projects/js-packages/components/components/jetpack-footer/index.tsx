@@ -1,7 +1,6 @@
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
 import { getRedirectUrl } from '../../index.ts';
 import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
@@ -9,12 +8,13 @@ import './style.scss';
 import JetpackLogo from '../jetpack-logo/index.tsx';
 import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.ts';
+import type { FC, ReactNode } from 'react';
 
-const JetpackIcon: React.FC = () => (
+const JetpackIcon: FC = () => (
 	<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
 );
 
-const ExternalIcon: React.FC = () => (
+const ExternalIcon: FC = () => (
 	<>
 		<Icon icon={ external } size={ 16 } />
 		<span className="jp-dashboard-footer__accessible-external-link">
@@ -30,9 +30,9 @@ const ExternalIcon: React.FC = () => (
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @return {React.ReactNode} JetpackFooter component.
+ * @return {ReactNode} JetpackFooter component.
  */
-const JetpackFooter: React.FC< JetpackFooterProps > = ( {
+const JetpackFooter: FC< JetpackFooterProps > = ( {
 	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',

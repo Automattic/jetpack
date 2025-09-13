@@ -1,4 +1,3 @@
-/*eslint lodash/import-scope: [2, "method"]*/
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
@@ -7,7 +6,6 @@ import {
 	errorNotice,
 	successNotice,
 } from 'components/global-notices/store/actions';
-import pick from 'lodash/pick';
 import { STORE_ID } from '../../store';
 import {
 	fetchJetpackSettings,
@@ -34,10 +32,11 @@ export function* updateJetpackSettings( settings ) {
 		yield setJetpackSettings( updatedSettings );
 		return successNotice( __( 'Updated settings.', 'jetpack-search-pkg' ) );
 	} catch {
-		const oldSettings = pick( select( STORE_ID ).getSearchModuleStatus(), [
-			'module_active',
-			'instant_search_enabled',
-		] );
+		const oldSettings = Object.fromEntries(
+			Object.entries( select( STORE_ID ).getSearchModuleStatus() ).filter(
+				( [ k ] ) => k === 'module_active' || k === 'instant_search_enabled'
+			)
+		);
 		yield setJetpackSettings( oldSettings );
 		return errorNotice( __( 'Error Update settings…', 'jetpack-search-pkg' ) );
 	} finally {

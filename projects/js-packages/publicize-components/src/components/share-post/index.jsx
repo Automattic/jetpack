@@ -1,9 +1,5 @@
-import { siteHasFeature } from '@automattic/jetpack-script-data';
-import {
-	useAnalytics,
-	isSimpleSite,
-	isAtomicSite,
-} from '@automattic/jetpack-shared-extension-utils';
+import { siteHasFeature, isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -53,7 +49,7 @@ function showSuccessNotice() {
  * @return {(string)} Site type
  */
 function getSiteType() {
-	if ( isAtomicSite() ) {
+	if ( isWoASite() ) {
 		return 'atomic';
 	}
 

@@ -1,8 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import Banner from 'components/banner';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -38,7 +37,7 @@ export class JetpackBackup extends Component {
 
 	getRewindMessage() {
 		const { siteRawUrl, rewindStatus } = this.props;
-		const rewindState = get( rewindStatus, 'state', false );
+		const rewindState = rewindStatus?.state ?? false;
 
 		switch ( rewindState ) {
 			case 'provisioning':
@@ -96,8 +95,8 @@ export class JetpackBackup extends Component {
 	render() {
 		const { rewindStatus, vaultPressData } = this.props;
 
-		const rewindState = get( rewindStatus, 'state', false );
-		const vaultPressEnabled = get( vaultPressData, [ 'data', 'features', 'backups' ], false );
+		const rewindState = rewindStatus?.state ?? false;
+		const vaultPressEnabled = vaultPressData?.data?.features?.backups ?? false;
 
 		const hasRewindData = false !== rewindState;
 		if ( ! hasRewindData && ! vaultPressEnabled ) {

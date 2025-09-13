@@ -2,7 +2,7 @@ import { CONNECTION_STORE_ID, ConnectButton } from '@automattic/jetpack-connecti
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import BrandedCard from '../branded-card';
 import CloseCircleIcon from '../close-circle-icon';
 import styles from './styles.module.scss';
@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 /**
  * Disconnected Card component.
  *
- * @return {React.Component} The `ConnectionCard` component.
+ * @return {import('react').Component} The `ConnectionCard` component.
  */
 export default function DisconnectedCard() {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;

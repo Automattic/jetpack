@@ -17,7 +17,7 @@ import './style.scss';
 /*
  * Types
  */
-import type { ReactElement } from 'react';
+import type { ReactElement, RefObject } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
 	onClose: () => void;
@@ -43,7 +43,7 @@ const AiAssistantImageExtensionToolbarDropdownContent = forwardRef(
 			loadingAltText,
 			loadingCaption,
 		}: AiAssistantExtensionToolbarDropdownContentProps,
-		ref: React.RefObject< HTMLDivElement >
+		ref: RefObject< HTMLDivElement >
 	) => {
 		const { requireUpgrade } = useAiFeature();
 
@@ -117,7 +117,7 @@ export default function AiAssistantImageExtensionToolbarDropdown( {
 	loadingAltText?: boolean;
 	loadingCaption?: boolean;
 	disabled?: boolean;
-	wrapperRef: React.RefObject< HTMLDivElement >;
+	wrapperRef: RefObject< HTMLDivElement >;
 } ): ReactElement {
 	const { requireUpgrade } = useAiFeature();
 	const { tracks } = useAnalytics();

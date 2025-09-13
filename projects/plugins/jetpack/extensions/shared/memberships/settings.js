@@ -41,20 +41,20 @@ export function Link( { href, children } ) {
 
 export function getReachForAccessLevelKey( {
 	accessLevel,
-	emailSubscribers,
+	subscribers, // This can be either total subscribers or email subscribers depending on the view where this is used.
 	paidSubscribers,
 	postHasPaywallBlock = false,
 } ) {
-	emailSubscribers = emailSubscribers ?? 0;
+	subscribers = subscribers ?? 0;
 	paidSubscribers = paidSubscribers ?? 0;
 
 	switch ( accessOptions[ accessLevel ]?.key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers;
+			return subscribers;
 		case accessOptions.subscribers.key:
-			return emailSubscribers;
+			return subscribers;
 		case accessOptions.paid_subscribers.key:
-			return postHasPaywallBlock ? emailSubscribers : paidSubscribers;
+			return postHasPaywallBlock ? subscribers : paidSubscribers;
 		default:
 			return 0;
 	}
@@ -133,7 +133,7 @@ export function NewsletterAccessRadioButtons( {
 	postHasPaywallBlock: postHasPaywallBlock = false,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
-	const { emailSubscribers, paidSubscribers } = useSelect( select =>
+	const { totalSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
 	);
 	const [ showDialog, setShowDialog ] = useState( false );
@@ -142,12 +142,12 @@ export function NewsletterAccessRadioButtons( {
 	const setAccess = useSetAccess();
 	const subscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.subscribers.key,
-		emailSubscribers,
+		subscribers: totalSubscribers,
 		paidSubscribers,
 	} );
 	const paidSubscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.paid_subscribers.key,
-		emailSubscribers,
+		subscribers: totalSubscribers,
 		paidSubscribers,
 	} );
 

@@ -71,11 +71,6 @@ declare global {
 			newspack_post_subtitle: string;
 		};
 		post_link: string;
-		newspack_author_info: {
-			id: number;
-			author_link: string;
-			avatar: string;
-		}[];
 		newspack_article_classes: string;
 		newspack_featured_image_caption: string;
 		newspack_featured_image_src: {
@@ -86,6 +81,8 @@ declare global {
 			uncropped: string;
 		};
 		newspack_category_info: string;
+		newspack_post_avatars: string;
+		newspack_post_byline: string;
 		newspack_sponsors_show_categories: boolean;
 		newspack_sponsors_show_author: boolean;
 		newspack_post_sponsors?:
@@ -102,6 +99,7 @@ declare global {
 		authors: AuthorId[];
 		categories: CategoryId[];
 		includeSubcategories: boolean;
+		categoryJoinType: string;
 		excerptLength: number;
 		postType: PostType[];
 		showImage: boolean;

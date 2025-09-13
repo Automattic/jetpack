@@ -126,7 +126,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
-				"reference": "e337881fd728cb23c043e71ca800a9d2a8e0af4e"
+				"reference": "e17ebd5fdf1a5c46f2326c420ca2e9485384feff"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -152,7 +152,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.0.x-dev"
+					"dev-trunk": "4.3.x-dev"
 				}
 			},
 			"autoload": {
@@ -448,7 +448,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "c95592f750b19132b8ce363dc7503e1c8318314c"
+				"reference": "e29d7636760a80608d7856f2e3b28b54539923e5"
 			},
 			"require": {
 				"php": ">=7.2"
@@ -467,7 +467,6 @@
 				"automattic/jetpack-sync": "@dev",
 				"automattic/jetpack-videopress": "@dev",
 				"automattic/jetpack-waf": "@dev",
-				"automattic/jetpack-wordads": "@dev",
 				"automattic/jetpack-yoast-promo": "@dev"
 			},
 			"suggest": {
@@ -486,19 +485,18 @@
 				},
 				"dependencies": {
 					"test-only": [
+						"packages/account-protection",
 						"packages/connection",
 						"packages/import",
 						"packages/jitm",
 						"packages/post-list",
 						"packages/publicize",
 						"packages/search",
-						"packages/stats",
 						"packages/stats-admin",
+						"packages/stats",
 						"packages/sync",
 						"packages/videopress",
-						"packages/account-protection",
 						"packages/waf",
-						"packages/wordads",
 						"packages/yoast-promo"
 					]
 				}
@@ -522,7 +520,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "1d0e8466e6188a79ff302ba975d3c2ffc691090b"
+				"reference": "d088808e20090e05e1d5b9a4f74f1ed798a356b0"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -558,7 +556,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.11.x-dev"
+					"dev-trunk": "6.18.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -718,7 +716,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
-				"reference": "05a6b81d43a57e333f62154fbef5e1aa9f0dfae5"
+				"reference": "7e7f3929e7b3cb75923ae73176ec3ccde520faed"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -736,7 +734,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
+					"dev-trunk": "0.3.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
@@ -853,7 +851,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/jitm",
-				"reference": "8f1cfb4b5b6881694f9be7376735501e5f37e19a"
+				"reference": "9236be3cd8bc85e4bfe49110ae26a78d7195c5f9"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -886,7 +884,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.2.x-dev"
+					"dev-trunk": "4.3.x-dev"
 				}
 			},
 			"autoload": {
@@ -929,7 +927,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/licensing",
-				"reference": "3d3ab5dd82baa76599a9899f4dfef6bddc1dac5d"
+				"reference": "b7c57a00a82602b59389d48cdf5dd4f46730ad69"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -953,7 +951,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.0.x-dev"
+					"dev-trunk": "3.1.x-dev"
 				}
 			},
 			"autoload": {
@@ -1040,7 +1038,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "7ea07b9b6a2cddbc52f5e4bf3a14415edfd5cdc1"
+				"reference": "764d81091fa984bbb752efd23b39081c16b4a666"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1079,7 +1077,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.14.x-dev"
+					"dev-trunk": "5.26.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1195,7 +1193,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "8336af6815cea248ed38cd238c181a606c19b3fe"
+				"reference": "2781fe2e68b74e34348f529fd944ce9ac3f638ad"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1219,7 +1217,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.8.x-dev"
+					"dev-trunk": "0.10.x-dev"
 				}
 			},
 			"autoload": {
@@ -1381,7 +1379,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
-				"reference": "b8e862ee1ac0301a12afa22b03c5503159aab2fa"
+				"reference": "47d85cc433228c6278e5a10225e27a8cf6848971"
 			},
 			"require": {
 				"automattic/jetpack-redirect": "@dev",
@@ -1400,7 +1398,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-protect-models/compare/v${old}...v${new}"
@@ -1447,7 +1445,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-status",
-				"reference": "887b85b6fe8085925ca4e80b82c9222e73f17dc3"
+				"reference": "1ee77a6b620cfd98e260f4b9dbfe9fd1e360a8d0"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1470,7 +1468,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.7.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-protect-status/compare/v${old}...v${new}"
@@ -1517,7 +1515,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "438d68905e6c26026ec57004cd429bffbb744ef6"
+				"reference": "bf4b26053b575ad4c5deacc726376a296fbcab15"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1548,7 +1546,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.65.x-dev"
+					"dev-trunk": "0.66.x-dev"
 				}
 			},
 			"autoload": {
@@ -1706,7 +1704,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "2af0799e498773ebeafed5e8e5c1a2b4d543a44a"
+				"reference": "2de93770f98b4c662051bac5461445f9eb3a5c9e"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -1732,7 +1730,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "5.1.x-dev"
+					"dev-trunk": "6.0.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1771,7 +1769,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "ede733722bf4cc38328d006311e9e407d5b0563f"
+				"reference": "af10348f9f9b9be5a2093dc8810b1170d55a4e49"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1805,7 +1803,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.13.x-dev"
+					"dev-trunk": "4.21.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1842,16 +1840,16 @@
 	"packages-dev": [
 		{
 			"name": "antecedent/patchwork",
-			"version": "2.2.1",
+			"version": "2.2.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/antecedent/patchwork.git",
-				"reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245"
+				"reference": "724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/antecedent/patchwork/zipball/1bf183a3e1bd094f231a2128b9ecc5363c269245",
-				"reference": "1bf183a3e1bd094f231a2128b9ecc5363c269245",
+				"url": "https://api.github.com/repos/antecedent/patchwork/zipball/724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9",
+				"reference": "724f03c777ddcc436ec2c8ecd4c97cdbceef8ab9",
 				"shasum": ""
 			},
 			"require": {
@@ -1884,9 +1882,9 @@
 			],
 			"support": {
 				"issues": "https://github.com/antecedent/patchwork/issues",
-				"source": "https://github.com/antecedent/patchwork/tree/2.2.1"
+				"source": "https://github.com/antecedent/patchwork/tree/2.2.2"
 			},
-			"time": "2024-12-11T10:19:54+00:00"
+			"time": "2025-08-12T16:59:40+00:00"
 		},
 		{
 			"name": "automattic/jetpack-changelogger",
@@ -2293,16 +2291,16 @@
 		},
 		{
 			"name": "myclabs/deep-copy",
-			"version": "1.13.1",
+			"version": "1.13.4",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/myclabs/DeepCopy.git",
-				"reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c"
+				"reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/1720ddd719e16cf0db4eb1c6eca108031636d46c",
-				"reference": "1720ddd719e16cf0db4eb1c6eca108031636d46c",
+				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/07d290f0c47959fd5eed98c95ee5602db07e0b6a",
+				"reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a",
 				"shasum": ""
 			},
 			"require": {
@@ -2341,7 +2339,7 @@
 			],
 			"support": {
 				"issues": "https://github.com/myclabs/DeepCopy/issues",
-				"source": "https://github.com/myclabs/DeepCopy/tree/1.13.1"
+				"source": "https://github.com/myclabs/DeepCopy/tree/1.13.4"
 			},
 			"funding": [
 				{
@@ -2349,20 +2347,20 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-04-29T12:36:36+00:00"
+			"time": "2025-08-01T08:46:24+00:00"
 		},
 		{
 			"name": "nikic/php-parser",
-			"version": "v5.4.0",
+			"version": "v5.6.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/nikic/PHP-Parser.git",
-				"reference": "447a020a1f875a434d62f2a401f53b82a396e494"
+				"reference": "f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/447a020a1f875a434d62f2a401f53b82a396e494",
-				"reference": "447a020a1f875a434d62f2a401f53b82a396e494",
+				"url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2",
+				"reference": "f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2",
 				"shasum": ""
 			},
 			"require": {
@@ -2381,7 +2379,7 @@
 			"type": "library",
 			"extra": {
 				"branch-alias": {
-					"dev-master": "5.0-dev"
+					"dev-master": "5.x-dev"
 				}
 			},
 			"autoload": {
@@ -2405,9 +2403,9 @@
 			],
 			"support": {
 				"issues": "https://github.com/nikic/PHP-Parser/issues",
-				"source": "https://github.com/nikic/PHP-Parser/tree/v5.4.0"
+				"source": "https://github.com/nikic/PHP-Parser/tree/v5.6.1"
 			},
-			"time": "2024-12-30T11:07:19+00:00"
+			"time": "2025-08-13T20:13:15+00:00"
 		},
 		{
 			"name": "phar-io/manifest",
@@ -2529,16 +2527,16 @@
 		},
 		{
 			"name": "phpunit/php-code-coverage",
-			"version": "11.0.9",
+			"version": "11.0.11",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-				"reference": "14d63fbcca18457e49c6f8bebaa91a87e8e188d7"
+				"reference": "4f7722aa9a7b76aa775e2d9d4e95d1ea16eeeef4"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/14d63fbcca18457e49c6f8bebaa91a87e8e188d7",
-				"reference": "14d63fbcca18457e49c6f8bebaa91a87e8e188d7",
+				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/4f7722aa9a7b76aa775e2d9d4e95d1ea16eeeef4",
+				"reference": "4f7722aa9a7b76aa775e2d9d4e95d1ea16eeeef4",
 				"shasum": ""
 			},
 			"require": {
@@ -2595,15 +2593,27 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
 				"security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/11.0.9"
+				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/11.0.11"
 			},
 			"funding": [
 				{
 					"url": "https://github.com/sebastianbergmann",
 					"type": "github"
+				},
+				{
+					"url": "https://liberapay.com/sebastianbergmann",
+					"type": "liberapay"
+				},
+				{
+					"url": "https://thanks.dev/u/gh/sebastianbergmann",
+					"type": "thanks_dev"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/phpunit/php-code-coverage",
+					"type": "tidelift"
 				}
 			],
-			"time": "2025-02-25T13:26:39+00:00"
+			"time": "2025-08-27T14:37:49+00:00"
 		},
 		{
 			"name": "phpunit/php-file-iterator",
@@ -2852,16 +2862,16 @@
 		},
 		{
 			"name": "phpunit/phpunit",
-			"version": "11.5.20",
+			"version": "11.5.36",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/phpunit.git",
-				"reference": "e6bdea63ecb7a8287d2cdab25bdde3126e0cfe6f"
+				"reference": "264a87c7ef68b1ab9af7172357740dc266df5957"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e6bdea63ecb7a8287d2cdab25bdde3126e0cfe6f",
-				"reference": "e6bdea63ecb7a8287d2cdab25bdde3126e0cfe6f",
+				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/264a87c7ef68b1ab9af7172357740dc266df5957",
+				"reference": "264a87c7ef68b1ab9af7172357740dc266df5957",
 				"shasum": ""
 			},
 			"require": {
@@ -2871,24 +2881,24 @@
 				"ext-mbstring": "*",
 				"ext-xml": "*",
 				"ext-xmlwriter": "*",
-				"myclabs/deep-copy": "^1.13.1",
+				"myclabs/deep-copy": "^1.13.4",
 				"phar-io/manifest": "^2.0.4",
 				"phar-io/version": "^3.2.1",
 				"php": ">=8.2",
-				"phpunit/php-code-coverage": "^11.0.9",
+				"phpunit/php-code-coverage": "^11.0.11",
 				"phpunit/php-file-iterator": "^5.1.0",
 				"phpunit/php-invoker": "^5.0.1",
 				"phpunit/php-text-template": "^4.0.1",
 				"phpunit/php-timer": "^7.0.1",
 				"sebastian/cli-parser": "^3.0.2",
 				"sebastian/code-unit": "^3.0.3",
-				"sebastian/comparator": "^6.3.1",
+				"sebastian/comparator": "^6.3.2",
 				"sebastian/diff": "^6.0.2",
-				"sebastian/environment": "^7.2.0",
+				"sebastian/environment": "^7.2.1",
 				"sebastian/exporter": "^6.3.0",
 				"sebastian/global-state": "^7.0.2",
 				"sebastian/object-enumerator": "^6.0.1",
-				"sebastian/type": "^5.1.2",
+				"sebastian/type": "^5.1.3",
 				"sebastian/version": "^5.0.2",
 				"staabm/side-effects-detector": "^1.0.5"
 			},
@@ -2933,7 +2943,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.20"
+				"source": "https://github.com/sebastianbergmann/phpunit/tree/11.5.36"
 			},
 			"funding": [
 				{
@@ -2957,7 +2967,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-05-11T06:39:52+00:00"
+			"time": "2025-09-03T06:24:17+00:00"
 		},
 		{
 			"name": "psr/container",
@@ -3184,16 +3194,16 @@
 		},
 		{
 			"name": "sebastian/comparator",
-			"version": "6.3.1",
+			"version": "6.3.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/comparator.git",
-				"reference": "24b8fbc2c8e201bb1308e7b05148d6ab393b6959"
+				"reference": "85c77556683e6eee4323e4c5468641ca0237e2e8"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/24b8fbc2c8e201bb1308e7b05148d6ab393b6959",
-				"reference": "24b8fbc2c8e201bb1308e7b05148d6ab393b6959",
+				"url": "https://api.github.com/repos/sebastianbergmann/comparator/zipball/85c77556683e6eee4323e4c5468641ca0237e2e8",
+				"reference": "85c77556683e6eee4323e4c5468641ca0237e2e8",
 				"shasum": ""
 			},
 			"require": {
@@ -3252,15 +3262,27 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/comparator/issues",
 				"security": "https://github.com/sebastianbergmann/comparator/security/policy",
-				"source": "https://github.com/sebastianbergmann/comparator/tree/6.3.1"
+				"source": "https://github.com/sebastianbergmann/comparator/tree/6.3.2"
 			},
 			"funding": [
 				{
 					"url": "https://github.com/sebastianbergmann",
 					"type": "github"
+				},
+				{
+					"url": "https://liberapay.com/sebastianbergmann",
+					"type": "liberapay"
+				},
+				{
+					"url": "https://thanks.dev/u/gh/sebastianbergmann",
+					"type": "thanks_dev"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/sebastian/comparator",
+					"type": "tidelift"
 				}
 			],
-			"time": "2025-03-07T06:57:01+00:00"
+			"time": "2025-08-10T08:07:46+00:00"
 		},
 		{
 			"name": "sebastian/complexity",
@@ -3389,23 +3411,23 @@
 		},
 		{
 			"name": "sebastian/environment",
-			"version": "7.2.0",
+			"version": "7.2.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/environment.git",
-				"reference": "855f3ae0ab316bbafe1ba4e16e9f3c078d24a0c5"
+				"reference": "a5c75038693ad2e8d4b6c15ba2403532647830c4"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/855f3ae0ab316bbafe1ba4e16e9f3c078d24a0c5",
-				"reference": "855f3ae0ab316bbafe1ba4e16e9f3c078d24a0c5",
+				"url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/a5c75038693ad2e8d4b6c15ba2403532647830c4",
+				"reference": "a5c75038693ad2e8d4b6c15ba2403532647830c4",
 				"shasum": ""
 			},
 			"require": {
 				"php": ">=8.2"
 			},
 			"require-dev": {
-				"phpunit/phpunit": "^11.0"
+				"phpunit/phpunit": "^11.3"
 			},
 			"suggest": {
 				"ext-posix": "*"
@@ -3441,15 +3463,27 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/environment/issues",
 				"security": "https://github.com/sebastianbergmann/environment/security/policy",
-				"source": "https://github.com/sebastianbergmann/environment/tree/7.2.0"
+				"source": "https://github.com/sebastianbergmann/environment/tree/7.2.1"
 			},
 			"funding": [
 				{
 					"url": "https://github.com/sebastianbergmann",
 					"type": "github"
+				},
+				{
+					"url": "https://liberapay.com/sebastianbergmann",
+					"type": "liberapay"
+				},
+				{
+					"url": "https://thanks.dev/u/gh/sebastianbergmann",
+					"type": "thanks_dev"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/sebastian/environment",
+					"type": "tidelift"
 				}
 			],
-			"time": "2024-07-03T04:54:44+00:00"
+			"time": "2025-05-21T11:55:47+00:00"
 		},
 		{
 			"name": "sebastian/exporter",
@@ -3765,23 +3799,23 @@
 		},
 		{
 			"name": "sebastian/recursion-context",
-			"version": "6.0.2",
+			"version": "6.0.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/recursion-context.git",
-				"reference": "694d156164372abbd149a4b85ccda2e4670c0e16"
+				"reference": "f6458abbf32a6c8174f8f26261475dc133b3d9dc"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/694d156164372abbd149a4b85ccda2e4670c0e16",
-				"reference": "694d156164372abbd149a4b85ccda2e4670c0e16",
+				"url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/f6458abbf32a6c8174f8f26261475dc133b3d9dc",
+				"reference": "f6458abbf32a6c8174f8f26261475dc133b3d9dc",
 				"shasum": ""
 			},
 			"require": {
 				"php": ">=8.2"
 			},
 			"require-dev": {
-				"phpunit/phpunit": "^11.0"
+				"phpunit/phpunit": "^11.3"
 			},
 			"type": "library",
 			"extra": {
@@ -3817,28 +3851,40 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/recursion-context/issues",
 				"security": "https://github.com/sebastianbergmann/recursion-context/security/policy",
-				"source": "https://github.com/sebastianbergmann/recursion-context/tree/6.0.2"
+				"source": "https://github.com/sebastianbergmann/recursion-context/tree/6.0.3"
 			},
 			"funding": [
 				{
 					"url": "https://github.com/sebastianbergmann",
 					"type": "github"
+				},
+				{
+					"url": "https://liberapay.com/sebastianbergmann",
+					"type": "liberapay"
+				},
+				{
+					"url": "https://thanks.dev/u/gh/sebastianbergmann",
+					"type": "thanks_dev"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/sebastian/recursion-context",
+					"type": "tidelift"
 				}
 			],
-			"time": "2024-07-03T05:10:34+00:00"
+			"time": "2025-08-13T04:42:22+00:00"
 		},
 		{
 			"name": "sebastian/type",
-			"version": "5.1.2",
+			"version": "5.1.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/type.git",
-				"reference": "a8a7e30534b0eb0c77cd9d07e82de1a114389f5e"
+				"reference": "f77d2d4e78738c98d9a68d2596fe5e8fa380f449"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/type/zipball/a8a7e30534b0eb0c77cd9d07e82de1a114389f5e",
-				"reference": "a8a7e30534b0eb0c77cd9d07e82de1a114389f5e",
+				"url": "https://api.github.com/repos/sebastianbergmann/type/zipball/f77d2d4e78738c98d9a68d2596fe5e8fa380f449",
+				"reference": "f77d2d4e78738c98d9a68d2596fe5e8fa380f449",
 				"shasum": ""
 			},
 			"require": {
@@ -3874,15 +3920,27 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/type/issues",
 				"security": "https://github.com/sebastianbergmann/type/security/policy",
-				"source": "https://github.com/sebastianbergmann/type/tree/5.1.2"
+				"source": "https://github.com/sebastianbergmann/type/tree/5.1.3"
 			},
 			"funding": [
 				{
 					"url": "https://github.com/sebastianbergmann",
 					"type": "github"
+				},
+				{
+					"url": "https://liberapay.com/sebastianbergmann",
+					"type": "liberapay"
+				},
+				{
+					"url": "https://thanks.dev/u/gh/sebastianbergmann",
+					"type": "thanks_dev"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/sebastian/type",
+					"type": "tidelift"
 				}
 			],
-			"time": "2025-03-18T13:35:50+00:00"
+			"time": "2025-08-09T06:55:48+00:00"
 		},
 		{
 			"name": "sebastian/version",
@@ -3992,23 +4050,24 @@
 		},
 		{
 			"name": "symfony/console",
-			"version": "v7.2.6",
+			"version": "v7.3.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/console.git",
-				"reference": "0e2e3f38c192e93e622e41ec37f4ca70cfedf218"
+				"reference": "cb0102a1c5ac3807cf3fdf8bea96007df7fdbea7"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/console/zipball/0e2e3f38c192e93e622e41ec37f4ca70cfedf218",
-				"reference": "0e2e3f38c192e93e622e41ec37f4ca70cfedf218",
+				"url": "https://api.github.com/repos/symfony/console/zipball/cb0102a1c5ac3807cf3fdf8bea96007df7fdbea7",
+				"reference": "cb0102a1c5ac3807cf3fdf8bea96007df7fdbea7",
 				"shasum": ""
 			},
 			"require": {
 				"php": ">=8.2",
+				"symfony/deprecation-contracts": "^2.5|^3",
 				"symfony/polyfill-mbstring": "~1.0",
 				"symfony/service-contracts": "^2.5|^3",
-				"symfony/string": "^6.4|^7.0"
+				"symfony/string": "^7.2"
 			},
 			"conflict": {
 				"symfony/dependency-injection": "<6.4",
@@ -4065,7 +4124,7 @@
 				"terminal"
 			],
 			"support": {
-				"source": "https://github.com/symfony/console/tree/v7.2.6"
+				"source": "https://github.com/symfony/console/tree/v7.3.3"
 			},
 			"funding": [
 				{
@@ -4077,24 +4136,28 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-04-07T19:09:28+00:00"
+			"time": "2025-08-25T06:35:40+00:00"
 		},
 		{
 			"name": "symfony/deprecation-contracts",
-			"version": "v3.5.1",
+			"version": "v3.6.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/deprecation-contracts.git",
-				"reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6"
+				"reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
-				"reference": "74c71c939a79f7d5bf3c1ce9f5ea37ba0114c6f6",
+				"url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/63afe740e99a13ba87ec199bb07bbdee937a5b62",
+				"reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62",
 				"shasum": ""
 			},
 			"require": {
@@ -4107,7 +4170,7 @@
 					"name": "symfony/contracts"
 				},
 				"branch-alias": {
-					"dev-main": "3.5-dev"
+					"dev-main": "3.6-dev"
 				}
 			},
 			"autoload": {
@@ -4132,7 +4195,7 @@
 			"description": "A generic function and convention to trigger deprecation notices",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/deprecation-contracts/tree/v3.5.1"
+				"source": "https://github.com/symfony/deprecation-contracts/tree/v3.6.0"
 			},
 			"funding": [
 				{
@@ -4148,11 +4211,11 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-09-25T14:20:29+00:00"
+			"time": "2024-09-25T14:21:43+00:00"
 		},
 		{
 			"name": "symfony/polyfill-ctype",
-			"version": "v1.32.0",
+			"version": "v1.33.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/polyfill-ctype.git",
@@ -4211,7 +4274,7 @@
 				"portable"
 			],
 			"support": {
-				"source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
+				"source": "https://github.com/symfony/polyfill-ctype/tree/v1.33.0"
 			},
 			"funding": [
 				{
@@ -4223,6 +4286,10 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
@@ -4231,16 +4298,16 @@
 		},
 		{
 			"name": "symfony/polyfill-intl-grapheme",
-			"version": "v1.32.0",
+			"version": "v1.33.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/polyfill-intl-grapheme.git",
-				"reference": "b9123926e3b7bc2f98c02ad54f6a4b02b91a8abe"
+				"reference": "380872130d3a5dd3ace2f4010d95125fde5d5c70"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/b9123926e3b7bc2f98c02ad54f6a4b02b91a8abe",
-				"reference": "b9123926e3b7bc2f98c02ad54f6a4b02b91a8abe",
+				"url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/380872130d3a5dd3ace2f4010d95125fde5d5c70",
+				"reference": "380872130d3a5dd3ace2f4010d95125fde5d5c70",
 				"shasum": ""
 			},
 			"require": {
@@ -4289,7 +4356,7 @@
 				"shim"
 			],
 			"support": {
-				"source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.32.0"
+				"source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.33.0"
 			},
 			"funding": [
 				{
@@ -4301,15 +4368,19 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-09-09T11:45:10+00:00"
+			"time": "2025-06-27T09:58:17+00:00"
 		},
 		{
 			"name": "symfony/polyfill-intl-normalizer",
-			"version": "v1.32.0",
+			"version": "v1.33.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/polyfill-intl-normalizer.git",
@@ -4370,7 +4441,7 @@
 				"shim"
 			],
 			"support": {
-				"source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.32.0"
+				"source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.33.0"
 			},
 			"funding": [
 				{
@@ -4382,6 +4453,10 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
@@ -4390,7 +4465,7 @@
 		},
 		{
 			"name": "symfony/polyfill-mbstring",
-			"version": "v1.32.0",
+			"version": "v1.33.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/polyfill-mbstring.git",
@@ -4451,7 +4526,7 @@
 				"shim"
 			],
 			"support": {
-				"source": "https://github.com/symfony/polyfill-mbstring/tree/v1.32.0"
+				"source": "https://github.com/symfony/polyfill-mbstring/tree/v1.33.0"
 			},
 			"funding": [
 				{
@@ -4463,6 +4538,10 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
@@ -4471,16 +4550,16 @@
 		},
 		{
 			"name": "symfony/process",
-			"version": "v7.2.5",
+			"version": "v7.3.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/process.git",
-				"reference": "87b7c93e57df9d8e39a093d32587702380ff045d"
+				"reference": "32241012d521e2e8a9d713adb0812bb773b907f1"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/process/zipball/87b7c93e57df9d8e39a093d32587702380ff045d",
-				"reference": "87b7c93e57df9d8e39a093d32587702380ff045d",
+				"url": "https://api.github.com/repos/symfony/process/zipball/32241012d521e2e8a9d713adb0812bb773b907f1",
+				"reference": "32241012d521e2e8a9d713adb0812bb773b907f1",
 				"shasum": ""
 			},
 			"require": {
@@ -4512,7 +4591,7 @@
 			"description": "Executes commands in sub-processes",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/process/tree/v7.2.5"
+				"source": "https://github.com/symfony/process/tree/v7.3.3"
 			},
 			"funding": [
 				{
@@ -4524,24 +4603,28 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-03-13T12:21:46+00:00"
+			"time": "2025-08-18T09:42:54+00:00"
 		},
 		{
 			"name": "symfony/service-contracts",
-			"version": "v3.5.1",
+			"version": "v3.6.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/service-contracts.git",
-				"reference": "e53260aabf78fb3d63f8d79d69ece59f80d5eda0"
+				"reference": "f021b05a130d35510bd6b25fe9053c2a8a15d5d4"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/service-contracts/zipball/e53260aabf78fb3d63f8d79d69ece59f80d5eda0",
-				"reference": "e53260aabf78fb3d63f8d79d69ece59f80d5eda0",
+				"url": "https://api.github.com/repos/symfony/service-contracts/zipball/f021b05a130d35510bd6b25fe9053c2a8a15d5d4",
+				"reference": "f021b05a130d35510bd6b25fe9053c2a8a15d5d4",
 				"shasum": ""
 			},
 			"require": {
@@ -4559,7 +4642,7 @@
 					"name": "symfony/contracts"
 				},
 				"branch-alias": {
-					"dev-main": "3.5-dev"
+					"dev-main": "3.6-dev"
 				}
 			},
 			"autoload": {
@@ -4595,7 +4678,7 @@
 				"standards"
 			],
 			"support": {
-				"source": "https://github.com/symfony/service-contracts/tree/v3.5.1"
+				"source": "https://github.com/symfony/service-contracts/tree/v3.6.0"
 			},
 			"funding": [
 				{
@@ -4611,20 +4694,20 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-09-25T14:20:29+00:00"
+			"time": "2025-04-25T09:37:31+00:00"
 		},
 		{
 			"name": "symfony/string",
-			"version": "v7.2.6",
+			"version": "v7.3.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/string.git",
-				"reference": "a214fe7d62bd4df2a76447c67c6b26e1d5e74931"
+				"reference": "17a426cce5fd1f0901fefa9b2a490d0038fd3c9c"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/string/zipball/a214fe7d62bd4df2a76447c67c6b26e1d5e74931",
-				"reference": "a214fe7d62bd4df2a76447c67c6b26e1d5e74931",
+				"url": "https://api.github.com/repos/symfony/string/zipball/17a426cce5fd1f0901fefa9b2a490d0038fd3c9c",
+				"reference": "17a426cce5fd1f0901fefa9b2a490d0038fd3c9c",
 				"shasum": ""
 			},
 			"require": {
@@ -4682,7 +4765,7 @@
 				"utf8"
 			],
 			"support": {
-				"source": "https://github.com/symfony/string/tree/v7.2.6"
+				"source": "https://github.com/symfony/string/tree/v7.3.3"
 			},
 			"funding": [
 				{
@@ -4694,11 +4777,15 @@
 					"type": "github"
 				},
 				{
+					"url": "https://github.com/nicolas-grekas",
+					"type": "github"
+				},
+				{
 					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-04-20T20:18:16+00:00"
+			"time": "2025-08-25T06:35:40+00:00"
 		},
 		{
 			"name": "theseer/tokenizer",

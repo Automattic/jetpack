@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.66.11] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.66.10] - 2025-09-01
+### Fixed
+- Social: Allow default image to be cleared. [#44994]
+
+## [0.66.9] - 2025-08-25
+### Changed
+- Update package dependencies. [#44899]
+
+### Fixed
+- Code: Resolve `PhanImpossibleCondition` violations. [#44869]
+
+## [0.66.8] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.7] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.66.6] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+## [0.66.5] - 2025-08-05
+### Added
+- Social Image Generator: Add font option. [#44514] [#44634]
+
+### Changed
+- Social Image Generator: Ensure the feature can be used on WordPress.com Private sites. [#44624]
+
+## [0.66.4] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.66.3] - 2025-07-28
+### Deprecated
+- Social Image Generator: Deprecate unused methods. [#44378]
+
+### Fixed
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
+- Social Image Generator: Ensure token generation is limited on WordPress.com Simple sites. [#44350]
+
+## [0.66.2] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.66.1] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.66.0] - 2025-07-07
+### Changed
+- Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
+- Social: Hide admin page in Jetpack plugin if site not connected. [#44168]
+- Update dependencies. [#44161]
+- Update package dependencies. [#44148] [#44151]
+
+### Fixed
+- get_current_screen(): Check for the existence before trying to call it [#44192]
+
+## [0.65.7] - 2025-06-30
+### Changed
+- Update dependencies. [#44061]
+
+## [0.65.6] - 2025-06-24
+### Changed
+- Update dependencies. [#44061]
+
+## [0.65.5] - 2025-06-23
+### Changed
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
+## [0.65.4] - 2025-06-16
+### Changed
+- Update dependencies. [#42943]
+
+## [0.65.3] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.65.2] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+
+## [0.65.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.65.0] - 2025-05-22
 ### Added
 - Added option to set default image for Social Image Generator. [#43461]
@@ -1005,6 +1102,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.66.11]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.10...v0.66.11
+[0.66.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.9...v0.66.10
+[0.66.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.8...v0.66.9
+[0.66.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.7...v0.66.8
+[0.66.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.6...v0.66.7
+[0.66.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.5...v0.66.6
+[0.66.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.4...v0.66.5
+[0.66.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.3...v0.66.4
+[0.66.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.2...v0.66.3
+[0.66.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.1...v0.66.2
+[0.66.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.0...v0.66.1
+[0.66.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.7...v0.66.0
+[0.65.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.6...v0.65.7
+[0.65.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.5...v0.65.6
+[0.65.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.4...v0.65.5
+[0.65.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.3...v0.65.4
+[0.65.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.2...v0.65.3
+[0.65.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.1...v0.65.2
+[0.65.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.0...v0.65.1
 [0.65.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.5...v0.65.0
 [0.64.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.4...v0.64.5
 [0.64.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.3...v0.64.4

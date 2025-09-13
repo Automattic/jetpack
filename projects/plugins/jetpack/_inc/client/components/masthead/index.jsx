@@ -1,5 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import React from 'react';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import {
@@ -7,10 +8,9 @@ import {
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import { isWoASite as getIsWoASite } from 'state/initial-state';
 import { HeaderNav } from './header-nav';
 
-export class Masthead extends React.Component {
+export class Masthead extends Component {
 	trackLogoClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
@@ -23,7 +23,7 @@ export class Masthead extends React.Component {
 	};
 
 	render() {
-		const { isWoASite, sandboxDomain, siteConnectionStatus } = this.props;
+		const { sandboxDomain, siteConnectionStatus } = this.props;
 
 		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
 			sandboxedBadge = sandboxDomain ? (
@@ -52,7 +52,7 @@ export class Masthead extends React.Component {
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					{ isWoASite && <HeaderNav location={ this.props.location } /> }
+					{ isWoASite() && <HeaderNav location={ this.props.location } /> }
 				</div>
 			</div>
 		);
@@ -62,7 +62,6 @@ export class Masthead extends React.Component {
 export default connect(
 	state => {
 		return {
-			isWoASite: getIsWoASite( state ),
 			sandboxDomain: getSandboxDomain( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};

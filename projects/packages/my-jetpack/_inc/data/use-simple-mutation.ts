@@ -33,7 +33,7 @@ export type MutateCallback = UseMutateFunction<
 
 type QueryParams< T, E, V > = {
 	name: string;
-	query: APIFetchOptions;
+	query: APIFetchOptions< true >;
 	options?: Pick< UseMutationOptions< T, E, V >, 'onSuccess' >;
 	errorMessage?: string;
 };
@@ -54,7 +54,11 @@ const useSimpleMutation = <
 
 			if ( variables && 'queryParams' in variables ) {
 				// Add query parameters to the path and remove it from query options
-				finalQuery.path = addQueryArgs( finalQuery.path, variables.queryParams );
+				finalQuery.path = addQueryArgs(
+					finalQuery.path,
+					// @ts-expect-error type of `queryParams` is unknown which addQueryArgs does not like
+					variables.queryParams
+				);
 				delete variables.queryParams;
 			}
 

@@ -5,7 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Block_Scanner;
 use Automattic\Jetpack\Assets;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Hide or show legacy widgets conditionally.
@@ -795,6 +800,40 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Normalize widget `content` into a string suitable for block scanning.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $content The widget instance 'content' value.
+	 * @return string|false Normalized string content or false if none.
+	 */
+	private static function normalize_widget_content( $content ) {
+		if ( empty( $content ) ) {
+			return false;
+		}
+
+		if ( is_string( $content ) ) {
+			return $content;
+		}
+
+		if ( ! is_array( $content ) ) {
+			return false;
+		}
+
+		if ( isset( $content['content'] ) && is_string( $content['content'] ) ) {
+			return $content['content'];
+		}
+
+		if ( isset( $content[0] ) && is_array( $content[0] ) && isset( $content[0]['blockName'] ) ) {
+			// Looks like a parsed blocks array.
+			return serialize_blocks( $content );
+		}
+
+		// Unknown array shape: treat as no visibility rules.
+		return false;
+	}
+
+	/**
 	 * Determine whether the widget should be displayed based on conditions set by the user.
 	 *
 	 * @param array $instance The widget settings.
@@ -821,21 +860,45 @@ class Jetpack_Widget_Conditions {
 				return $instance;
 			}
 			return false;
-		} elseif ( ! empty( $instance['content'] ) && has_blocks( $instance['content'] ) ) {
-			// Block-Based widgets: We have gutenberg blocks that could have the 'conditions' attribute.
-			$blocks = parse_blocks( $instance['content'] );
-			if ( empty( $blocks[0]['attrs']['conditions']['rules'] ) ) {
+		}
+
+		if ( empty( $instance['content'] ) ) {
+			return $instance;
+		}
+		$content = self::normalize_widget_content( isset( $instance['content'] ) ? $instance['content'] : null );
+
+		if ( false === $content || ! has_blocks( $content ) ) {
+			// No visibility found.
+			return $instance;
+		}
+
+		$scanner = Block_Scanner::create( $content );
+		if ( ! $scanner ) {
+			// No Rules: Display widget.
+			return $instance;
+		}
+
+		// Find the first block that opens
+		while ( $scanner->next_delimiter() ) {
+			if ( ! $scanner->opens_block() ) {
+				continue;
+			}
+
+			$attributes = $scanner->allocate_and_return_parsed_attributes();
+
+			if ( ! is_array( $attributes ) || empty( $attributes['conditions']['rules'] ) ) {
 				// No Rules: Display widget.
 				return $instance;
 			}
-			if ( self::filter_widget_check_conditions( $blocks[0]['attrs']['conditions'] ) ) {
+
+			if ( self::filter_widget_check_conditions( $attributes['conditions'] ) ) {
 				// Rules passed checks: Display widget.
 				return $instance;
 			}
+
 			// Rules failed checks: Hide widget.
 			return false;
 		}
-
 		// No visibility found.
 		return $instance;
 	}

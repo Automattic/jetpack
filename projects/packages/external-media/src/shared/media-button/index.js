@@ -1,7 +1,6 @@
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import clsx from 'clsx';
-import React from 'react';
 import { getExternalLibrary, getExternalSource } from '../sources';
 import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
 import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
@@ -18,7 +17,7 @@ const blocksWithAiButtonSupport = [ 'core/image', 'core/gallery', 'jetpack/slide
 /**
  * MediaButton component
  * @param {object} props - The component properties.
- * @return {React.ReactElement} The `MediaButton` component.
+ * @return {import('react').ReactElement} The `MediaButton` component.
  */
 function MediaButton( props ) {
 	const { name } = useBlockEditContext();

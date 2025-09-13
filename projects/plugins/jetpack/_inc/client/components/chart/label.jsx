@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 
-export default class ModuleChartLabel extends React.Component {
+export default class ModuleChartLabel extends Component {
 	static displayName = 'ModuleChartLabel';
 
 	static propTypes = {

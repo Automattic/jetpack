@@ -2,11 +2,11 @@ import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { store as socialStore } from '../../../../social-store';
 import TemplatePickerModal from '../../../social-image-generator/template-picker/modal';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
 type SocialImageGeneratorToggleProps = {
 	/**
@@ -15,19 +15,21 @@ type SocialImageGeneratorToggleProps = {
 	disabled?: boolean;
 };
 
-const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
-	disabled,
-} ) => {
-	const { isEnabled, isUpdating, defaultTemplate, defaultImageId } = useSelect( select => {
-		const config = select( socialStore ).getSocialSettings().socialImageGenerator;
+const SocialImageGeneratorToggle: FC< SocialImageGeneratorToggleProps > = ( { disabled } ) => {
+	const { isEnabled, isUpdating, defaultTemplate, defaultImageId, defaultFont } = useSelect(
+		select => {
+			const config = select( socialStore ).getSocialSettings().socialImageGenerator;
 
-		return {
-			isEnabled: config.enabled,
-			defaultTemplate: config.template,
-			defaultImageId: config.default_image_id,
-			isUpdating: select( socialStore ).isSavingSiteSettings(),
-		};
-	}, [] );
+			return {
+				isEnabled: config.enabled,
+				defaultTemplate: config.template,
+				defaultImageId: config.default_image_id,
+				defaultFont: config.font,
+				isUpdating: select( socialStore ).isSavingSiteSettings(),
+			};
+		},
+		[]
+	);
 
 	const { updateSocialImageGeneratorConfig } = useDispatch( socialStore );
 
@@ -39,11 +41,12 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 	}, [ isEnabled, updateSocialImageGeneratorConfig ] );
 
 	const handleSave = useCallback(
-		( { template, imageId } ) => {
+		( { template, imageId, font } ) => {
 			updateSocialImageGeneratorConfig( {
 				enabled: isEnabled,
 				template,
-				default_image_id: imageId,
+				default_image_id: imageId || 0,
+				font,
 			} );
 		},
 		[ updateSocialImageGeneratorConfig, isEnabled ]
@@ -82,6 +85,7 @@ const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = 
 			<TemplatePickerModal
 				template={ defaultTemplate }
 				imageId={ defaultImageId }
+				font={ defaultFont }
 				onSave={ handleSave }
 				render={ renderTemplatePickerModal }
 			/>

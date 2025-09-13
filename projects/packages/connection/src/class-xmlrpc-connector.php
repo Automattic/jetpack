@@ -11,6 +11,8 @@ use IXR_Error;
 
 /**
  * Registers the XML-RPC methods for Connections.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class XMLRPC_Connector {
 	/**

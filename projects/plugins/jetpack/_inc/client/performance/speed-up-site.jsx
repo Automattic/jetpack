@@ -1,6 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -58,7 +58,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is no longer speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error disabling site accelerator. %s', 'jetpack' ),
 							error
 						),
@@ -87,7 +87,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is now speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error enabling Site accelerator. %s', 'jetpack' ),
 							error
 						),

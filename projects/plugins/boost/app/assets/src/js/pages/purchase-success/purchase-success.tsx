@@ -2,27 +2,19 @@ import { getRedirectUrl, Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useImageAnalysisRequest } from '$features/image-size-analysis';
 import { useSingleModuleState } from '$features/module/lib/stores';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import CardPage from '$layout/card-page/card-page';
 import styles from './purchase-success.module.scss';
 import { isWoaHosting } from '$lib/utils/hosting';
+import type { FC } from 'react';
 
-const PurchaseSuccess: React.FC = () => {
+const PurchaseSuccess: FC = () => {
 	const [ , setCloudCssState ] = useSingleModuleState( 'cloud_css' );
-	const [ imageGuideState ] = useSingleModuleState( 'image_guide' );
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
 	const navigate = useNavigate();
-	const isaRequest = useImageAnalysisRequest();
-	const { canResizeImages } = Jetpack_Boost;
 
 	useEffect( () => {
 		setCloudCssState( true );
-		// If image guide is enabled, request a new ISA report.
-		if ( imageGuideState?.active && isaState?.active && false !== canResizeImages ) {
-			isaRequest.requestNewReport();
-		}
 		// We only want this effect to run on mount.
 		// Specifying the dependencies will cause it to run on every render (infinite loop).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,17 +48,6 @@ const PurchaseSuccess: React.FC = () => {
 					{ createInterpolateElement(
 						__(
 							'<strong>Automatic Critical CSS:</strong> No further action needed! Your Critical CSS is now set to auto-regenerate.',
-							'jetpack-boost'
-						),
-						{
-							strong: <strong />,
-						}
-					) }
-				</li>
-				<li>
-					{ createInterpolateElement(
-						__(
-							'<strong>Image Size Analyzer:</strong> Scan and identify oversized images. Optimize them to boost loading speeds.',
 							'jetpack-boost'
 						),
 						{

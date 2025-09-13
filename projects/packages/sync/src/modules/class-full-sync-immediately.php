@@ -13,6 +13,10 @@ use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * This class does a full resync of the database by
  * sending an outbound action for every single object
@@ -390,7 +394,7 @@ class Full_Sync_Immediately extends Module {
 		$started = $this->get_status()['started'];
 
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
-			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until );
+			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until, $started );
 			if ( isset( $progress[ $module->name() ]['error'] ) ) {
 				unset( $progress[ $module->name() ]['error'] );
 				$this->update_status( array( 'progress' => $progress ) );
@@ -524,9 +528,11 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function send_full_sync_end() {
-		$range = $this->get_content_range( $this->get_status()['config'] );
+		$status  = $this->get_status();
+		$range   = $this->get_content_range( $status['config'] );
+		$context = $status['context'];
 
-		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range ) );
+		$result = $this->send_action( 'jetpack_full_sync_end', array( '', $range, $context ) );
 
 		if ( is_wp_error( $result ) ) { // Do not set finished status if we get an error.
 			return;

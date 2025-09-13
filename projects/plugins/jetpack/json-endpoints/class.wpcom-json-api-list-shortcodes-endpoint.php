@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List shortcodes endpoint.
  */
@@ -29,6 +33,8 @@ new WPCOM_JSON_API_List_Shortcodes_Endpoint(
  * List shortcodes endpoint class
  *
  * /sites/%s/shortcodes -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Shortcodes_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

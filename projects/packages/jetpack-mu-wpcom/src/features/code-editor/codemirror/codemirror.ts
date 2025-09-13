@@ -1,0 +1,11 @@
+export * as Autocomplete from '@codemirror/autocomplete';
+export * as Commands from '@codemirror/commands';
+export * as CssLanguage from '@codemirror/lang-css';
+export * as HtmlLanguage from '@codemirror/lang-html';
+export * as Language from '@codemirror/language';
+export * as Lint from '@codemirror/lint';
+export * as Search from '@codemirror/search';
+export * as State from '@codemirror/state';
+export * as View from '@codemirror/view';
+export { syntaxHighlightingStyle } from './syntax-highlighting-style.ts';
+export { theme } from './improved-code-editor-theme.ts';

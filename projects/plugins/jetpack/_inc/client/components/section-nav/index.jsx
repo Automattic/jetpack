@@ -3,7 +3,7 @@
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Children, cloneElement, Component } from 'react';
 import Search from 'components/search';
 import NavItem from './item';
 import NavTabs from './tabs';
@@ -12,7 +12,7 @@ import './style.scss';
 /**
  * Main
  */
-class SectionNav extends React.Component {
+class SectionNav extends Component {
 	static displayName = 'SectionNav';
 
 	static propTypes = {
@@ -90,7 +90,7 @@ class SectionNav extends React.Component {
 	}
 
 	getChildren() {
-		return React.Children.map(
+		return Children.map(
 			this.props.children,
 			function ( child ) {
 				const extraProps = {
@@ -124,7 +124,7 @@ class SectionNav extends React.Component {
 					extraProps.onSearch = this.generateOnSearch( child.props.onSearch );
 				}
 
-				return React.cloneElement( child, extraProps );
+				return cloneElement( child, extraProps );
 			}.bind( this )
 		);
 	}
@@ -159,7 +159,7 @@ class SectionNav extends React.Component {
 	checkForSiblingControls( children ) {
 		this.hasSiblingControls = false;
 
-		React.Children.forEach(
+		Children.forEach(
 			children,
 			function ( child, index ) {
 				// Checking for at least 2 controls groups that are not search or null

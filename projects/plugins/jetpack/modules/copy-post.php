@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Copy Post
- * Module Description: Enable the option to copy entire posts and pages, including tags and settings
+ * Module Description: Duplicate any post or page in one click to speed up content creation.
  * Sort Order: 15
  * First Introduced: 7.0
  * Requires Connection: No
@@ -15,10 +15,16 @@
 
 use Automattic\Jetpack\Assets\Logo;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
  * Copy Post class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Copy_Post {
 	/**

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 5047104f555af5e656bf630f97a60d018c9e6ab6.
+ * Stubs automatically generated from WordPress.com commit b22bb304df88b8d83db3968799d6366b57260dcb.
  */
 
 namespace {
@@ -149,6 +149,12 @@ namespace {
     }
     class WPCOM_Store
     {
+        static function is_wpcom_personal_plan($product_id)
+        {
+        }
+        static function is_wpcom_premium_plan($product_id)
+        {
+        }
         /**
          * @deprecated 
          * @param int $user_id
@@ -257,6 +263,12 @@ namespace {
     function global_css()
     {
     }
+    /**
+     * @return \WP_Ability[]
+     */
+    function wp_get_abilities(): array
+    {
+    }
     class WPCOM_External_Connections
     {
         /**
@@ -265,12 +277,27 @@ namespace {
         static function init()
         {
         }
+        public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
+        {
+        }
         /**
          * @param string $type
          * @param int|false $blog_id
          * @return array
          */
         public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
+        public function get_external_service_item($service)
+        {
+        }
+        public function delete_keyring_connection($keyring_connection_id)
+        {
+        }
+    }
+    abstract class ExternalMediaService
+    {
+        public static function get_service_token($service_name, $user_id)
         {
         }
     }
@@ -340,6 +367,21 @@ namespace {
      */
     function log2logstash($params)
     {
+    }
+    class MailchimpApi
+    {
+        function __construct($blog_id, $user_id)
+        {
+        }
+        function get_lists()
+        {
+        }
+        static function get_settings($blog_id)
+        {
+        }
+        static function save_settings($blog_id, $new_settings = array(), $cleanup_previous = \false)
+        {
+        }
     }
     /**
      * @param int $site_id
@@ -1131,7 +1173,25 @@ namespace {
     /**
      * @phan-return mixed
      */
+    function stats_get_visitors($blog_id, $end_date = \false, $num_units = 1, $unit = 1)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function stats_grandtotal_views($blog_id = \null, $site_id = \null, $update_if_older_than = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function get_all_time_postviews($post_id = \null)
     {
     }
     /**
@@ -1325,6 +1385,7 @@ namespace {
         }
     }
     /**
+     * @param int|null $blog_id
      * @return bool
      */
     function wpcom_activitypub_is_active($blog_id = \null)
@@ -1639,6 +1700,12 @@ namespace Publicize\Social_Image_Generator {
     function is_enabled($blog_id = 0)
     {
     }
+    /**
+     * @return array
+     */
+    function get_font_options()
+    {
+    }
 }
 namespace Social_Image_Generator {
     /**
@@ -1660,19 +1727,21 @@ namespace WPCOM\Experiments\Internal {
     }
 }
 namespace WPCOM\Jetpack_AI {
+    class Chrome_AI_Tokens
+    {
+        /**
+         * @return array
+         */
+        public static function get_tokens()
+        {
+        }
+    }
     class Feature_Control
     {
         /**
          * @return array
          */
         public static function get_features(): array
-        {
-        }
-    }
-
-    class Chrome_AI_Tokens
-    {
-        public static function get_tokens(): array
         {
         }
     }

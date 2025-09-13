@@ -26,7 +26,7 @@ import { VideoCardProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 const QuickActions = ( {
 	id,
@@ -60,7 +60,7 @@ const QuickActions = ( {
  * Video Card component
  *
  * @param {VideoCardProps} props - Component props.
- * @return {React.ReactNode} - VideoCard react component.
+ * @return {ReactNode} - VideoCard react component.
  */
 export const VideoCard = ( {
 	title,
@@ -82,7 +82,7 @@ export const VideoCard = ( {
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a number of plays */
+				/* translators: %s: the number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				formatNumber( plays )
 		  )

@@ -8,12 +8,13 @@ import { ValidationErrors } from '../../hooks/use-media-restrictions/types';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
 import { useServiceLabel } from '../services/use-service-label';
+import type { FC } from 'react';
 
 export type MediaRequirementsNoticeProps = {
 	validationErrors: ValidationErrors;
 };
 
-export const MediaRequirementsNotice: React.FC< MediaRequirementsNoticeProps > = ( {
+export const MediaRequirementsNotice: FC< MediaRequirementsNoticeProps > = ( {
 	validationErrors,
 } ) => {
 	const { getConnectionById } = useSelect( select => select( socialStore ), [] );

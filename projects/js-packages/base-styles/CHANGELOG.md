@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [1.0.8] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.0.7] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [1.0.6] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [1.0.5] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [1.0.4] - 2025-07-10
+### Changed
+- Internal updates.
+
+## [1.0.3] - 2025-07-03
+### Changed
+- Update package dependencies. [#44148]
+
+## [1.0.2] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.0.1] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Internal updates.
+
+## [0.8.0] - 2025-06-02
+### Changed
+- sass: Convert `@automattic/jetpack-base-styles/gutenberg-base-styles` to modules format. [#43607]
+- Update README for Sass modules. [#43670]
+
+## [0.7.5] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.7.4] - 2025-05-12
 ### Changed
 - Update package dependencies. [#43400]
@@ -391,6 +440,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[1.0.9]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.8...1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.7...1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.6...1.0.7
+[1.0.6]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.5...1.0.6
+[1.0.5]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.4...1.0.5
+[1.0.4]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.3...1.0.4
+[1.0.3]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-base-styles/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.8.0...1.0.0
+[0.8.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.5...0.8.0
+[0.7.5]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.4...0.7.5
 [0.7.4]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.3...0.7.4
 [0.7.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.2...0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.7.1...0.7.2

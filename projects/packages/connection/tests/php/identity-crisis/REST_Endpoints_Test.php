@@ -49,8 +49,6 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @suppress PhanNoopNew
 	 */
 	public function setUp(): void {
 		parent::setUp();

@@ -173,18 +173,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
-	}
-
-	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 
 	/**

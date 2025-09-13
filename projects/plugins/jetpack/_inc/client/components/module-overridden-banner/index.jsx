@@ -3,7 +3,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { JetpackBanner, connect as bannerConnect } from 'components/jetpack-banner';
 
 import './style.scss';
@@ -31,7 +30,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 				icon="cog"
 				description={ createInterpolateElement(
 					sprintf(
-						/* translators: placeholder is a feature name. */
+						/* translators: %s: a feature name. */
 						__(
 							'%s has been disabled by a site administrator. <link>Learn more</link>.',
 							'jetpack'

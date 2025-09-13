@@ -94,9 +94,8 @@ class Initializer {
 
 		if ( is_admin() ) {
 			AJAX::init();
-		}
-
-		if ( ! is_admin() ) {
+		} else {
+			require_once __DIR__ . '/class-block-replacement.php';
 			Block_Replacement::init();
 		}
 	}
@@ -168,7 +167,7 @@ class Initializer {
 	 *
 	 * @return string|false
 	 */
-	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if ( Utils::is_videopress_url( $url ) ) {
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
@@ -377,19 +376,6 @@ class Initializer {
 
 		// Do not register if the block is already registered.
 		if ( $is_block_registered ) {
-			return;
-		}
-
-		// Is this a REST API request?
-		$is_rest = defined( 'REST_API_REQUEST' ) && REST_API_REQUEST;
-
-		if ( $is_rest ) {
-			register_block_type(
-				$videopress_video_metadata_file,
-				array(
-					'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
-				)
-			);
 			return;
 		}
 

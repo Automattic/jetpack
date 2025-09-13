@@ -24,7 +24,6 @@ import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
-import React from 'react';
 /**
  * Internal dependencies
  */

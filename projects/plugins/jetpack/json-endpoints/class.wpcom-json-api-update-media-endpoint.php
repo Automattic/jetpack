@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/media/%d
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Media_Endpoint(
 	array(
 		'description'          => 'Edit basic information about a media item.',
@@ -50,6 +54,8 @@ new WPCOM_JSON_API_Update_Media_Endpoint(
 
 /**
  * Update media item info class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

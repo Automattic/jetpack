@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Provider } from 'react-redux';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
 import SearchApp from 'instant-search/components/search-app';
@@ -6,8 +7,6 @@ import { buildFilterAggregations } from 'instant-search/lib/api';
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { getThemeOptions } from 'instant-search/lib/dom';
 import store from 'instant-search/store';
-import { pickBy } from 'lodash';
-import { Provider } from 'react-redux';
 import './styles.scss';
 
 // eslint-disable-next-line no-undef
@@ -47,8 +46,8 @@ export default function AppWrapper() {
 	const overlayOptions = {
 		...window[ SERVER_OBJECT_NAME ].overlayOptions,
 		// Override with defined values from Gutenberg preview.
-		...pickBy(
-			{
+		...Object.fromEntries(
+			Object.entries( {
 				colorTheme: theme,
 				defaultSort: sort,
 				enableInfScroll: infiniteScroll,
@@ -60,8 +59,7 @@ export default function AppWrapper() {
 				overlayTrigger: trigger,
 				resultFormat,
 				showPoweredBy: showLogo,
-			},
-			value => typeof value !== 'undefined'
+			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),
 	};
 	const { isLoading } = useSiteLoadingState();

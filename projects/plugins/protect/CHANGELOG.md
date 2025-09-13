@@ -5,8 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 4.0.0 - 2025-03-24
+## 4.3.0 - 2025-07-30
+### Added
+- Add UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site. [#44521]
+- My Jetpack: Add analytics for empty product search results. [#44344]
 
+### Changed
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improve performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44206]
+
+### Fixed
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Update JITMs to remove jQuery dependency. [#43783]
+
+## 4.2.0 - 2025-07-03
+### Added
+- WAF: Add account recovery flow for blocklisted IP addresses. [#43051]
+
+### Changed
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44151]
+
+### Removed
+- Remove the need to add FTP/SSH credentials to run auto threat fixers. [#43935]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Use compact number notation in the Protect card. [#43977]
+- WAF: Fix PHP warnings for Brute_Force_Protection->get_local_host(). [#44170]
+
+## 4.1.0 - 2025-06-05
+### Added
+- Scanner: Add functionality to correctly display database threats in the Protect UI. [#43663]
+- Account Protection: Add the Account Protection module toggle. [#40925]
+- My Jetpack: Add user tour. [#42880]
+- My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+
+### Changed
+- Connection: Allow pre-selected login providers. [#42662]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- General: Update package dependencies. [#43766]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning. [#43775]
+
+## 4.0.0 - 2025-03-24
 ### Changed
 - Scanner: Add threat count to tab. [#40056]
 - Scanner: Animate the "scan in progress" placeholder image. [#39825]

@@ -104,7 +104,6 @@ class GalleryImageEdit extends Component {
 					data-id={ id }
 					data-link={ link }
 					data-url={ origUrl }
-					data-custom-link={ customLink }
 					data-width={ width }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }
@@ -166,10 +165,10 @@ class GalleryImageEdit extends Component {
 }
 
 export default withSelect( ( select, ownProps ) => {
-	const { getMedia } = select( 'core' );
+	const { getEntityRecord } = select( 'core' );
 	const { id } = ownProps;
 
 	return {
-		image: id ? getMedia( id ) : null,
+		image: id ? getEntityRecord( 'postType', 'attachment', id ) : null,
 	};
 } )( GalleryImageEdit );

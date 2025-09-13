@@ -1,4 +1,4 @@
-import { useArgs } from '@storybook/preview-api';
+import { useArgs } from 'storybook/preview-api';
 import Checkbox from '..';
 import type { StoryFn, Meta } from '@storybook/react';
 

@@ -2,7 +2,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect } from 'react-redux';
 import { imagePath } from 'constants/urls';
 import { isFetchingIntroOffers } from 'state/intro-offers';

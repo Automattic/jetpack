@@ -2,7 +2,7 @@ import { Button, ProductPrice, getRedirectUrl } from '@automattic/jetpack-compon
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { useCallback, type FC } from 'react';
+import { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import LoadingBlock from '../loading-block';
@@ -11,12 +11,13 @@ import {
 	ProductInterstitialFeatureList,
 	ProductInterstitialModalCta,
 } from '.';
+import type { FC, ReactElement, ReactNode } from 'react';
 
 interface ProductInterstitialPluginProps {
 	/**
 	 * Child elements to be rendered within the placement
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 	/**
 	 * Product slug
 	 */
@@ -43,7 +44,7 @@ interface ProductInterstitialPluginProps {
  * Component that handles the placement of product interstitial content for a product slug
  *
  * @param {ProductInterstitialPluginProps} props - Component properties
- * @return {React.ReactElement|null} The rendered component
+ * @return {ReactElement|null} The rendered component
  */
 const ProductInterstitialPlugin: FC< ProductInterstitialPluginProps > = ( {
 	slug,

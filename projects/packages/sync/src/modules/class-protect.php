@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for Protect.
  * Logs BruteProtect failed logins via sync.
@@ -50,7 +54,7 @@ class Protect extends Module {
 			return $brute_force_protection->has_login_ability();
 		}
 
-		// If the login ability can not be determined, the feature is not active,
+		// If the login ability cannot be determined, the feature is not active,
 		// or something is wrong, default to not syncing failed login attempts.
 		return false;
 	}

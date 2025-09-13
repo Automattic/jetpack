@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { addQueryArgs } from '@wordpress/url';
 
 const ENDPOINTS = {

@@ -25,11 +25,11 @@ import './logo-presenter.scss';
  */
 import type { Logo } from '../store/types.ts';
 import type { LogoPresenterProps } from '../types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-calypso:logo-presenter' );
 
-const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
+const SaveInLibraryButton: FC< { siteId: string } > = ( { siteId } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const {
@@ -87,9 +87,7 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 	);
 };
 
-const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > = ( {
-	onApplyLogo,
-} ) => {
+const UseOnSiteButton: FC< { onApplyLogo: ( mediaId: number ) => void } > = ( { onApplyLogo } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { isSavingLogoToLibrary, selectedLogo, logos, selectedLogoIndex, context } =
@@ -120,7 +118,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > 
 	);
 };
 
-const LogoLoading: React.FC = () => {
+const LogoLoading: FC = () => {
 	return (
 		<>
 			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
@@ -131,7 +129,7 @@ const LogoLoading: React.FC = () => {
 	);
 };
 
-const LogoFetching: React.FC = () => {
+const LogoFetching: FC = () => {
 	return (
 		<>
 			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
@@ -142,7 +140,7 @@ const LogoFetching: React.FC = () => {
 	);
 };
 
-const LogoEmpty: React.FC = () => {
+const LogoEmpty: FC = () => {
 	return (
 		<>
 			<div style={ { width: 0, height: '229px' } }></div>
@@ -153,7 +151,7 @@ const LogoEmpty: React.FC = () => {
 	);
 };
 
-const RateLogo: React.FC< {
+const RateLogo: FC< {
 	disabled: boolean;
 	ratedItem: string;
 	onRate: ( rating: string ) => void;
@@ -181,7 +179,7 @@ const RateLogo: React.FC< {
 	);
 };
 
-const LogoReady: React.FC< {
+const LogoReady: FC< {
 	siteId: string;
 	logo: Logo;
 	onApplyLogo: ( mediaId: number ) => void;
@@ -218,7 +216,7 @@ const LogoReady: React.FC< {
 	);
 };
 
-const LogoUpdated: React.FC< { logo: Logo } > = ( { logo } ) => {
+const LogoUpdated: FC< { logo: Logo } > = ( { logo } ) => {
 	return (
 		<>
 			<img
@@ -234,7 +232,7 @@ const LogoUpdated: React.FC< { logo: Logo } > = ( { logo } ) => {
 	);
 };
 
-export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
+export const LogoPresenter: FC< LogoPresenterProps > = ( {
 	logo = null,
 	loading = false,
 	onApplyLogo,
@@ -244,7 +242,7 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 	const { isRequestingImage } = useLogoGenerator();
 	const { saveToLibraryError, logoUpdateError } = useRequestErrors();
 
-	let logoContent: React.ReactNode;
+	let logoContent: ReactNode;
 
 	if ( ! logo && ! isRequestingImage ) {
 		logoContent = <LogoEmpty />;

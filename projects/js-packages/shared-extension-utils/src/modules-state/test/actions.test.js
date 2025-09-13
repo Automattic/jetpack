@@ -1,5 +1,5 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { select } from '@wordpress/data';
-import { isSimpleSite } from '../../site-type-utils';
 import {
 	updateJetpackModuleStatus,
 	fetchModules,
@@ -18,7 +18,8 @@ jest.mock( '@wordpress/data', () => ( {
 	register: jest.fn(),
 } ) );
 
-jest.mock( '../../site-type-utils', () => ( {
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
 	isSimpleSite: jest.fn(),
 } ) );
 

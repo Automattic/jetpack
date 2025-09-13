@@ -47,6 +47,14 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
+// Mock @automattic/jetpack-script-data functions to allow isSimpleSite to be correctly used.
+jest.mock( '@automattic/jetpack-script-data', () => {
+	const isSimpleSite = jest.fn().mockReturnValue( false );
+	return {
+		isSimpleSite,
+	};
+} );
+
 const setButtonBackgroundColor = jest.fn();
 const setGradient = jest.fn();
 const setTextColor = jest.fn();

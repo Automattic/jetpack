@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Jetpack Social
- * Module Description: Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.
+ * Module Description: Auto‑share your posts to social networks and track engagement in one place.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0
@@ -19,8 +19,14 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Publicize
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Publicize {
 	/**

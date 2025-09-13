@@ -12,6 +12,10 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Scan product
  */
@@ -69,7 +73,7 @@ class Scan extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
+		return __( 'Around‑the‑clock web application firewall, and automated malware scanning.', 'jetpack-my-jetpack' );
 	}
 
 	/**

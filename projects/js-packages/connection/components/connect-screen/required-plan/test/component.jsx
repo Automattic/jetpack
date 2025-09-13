@@ -1,7 +1,6 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import ConnectScreenRequiredPlan from '../visual';
 
 const CONNECTION_BUTTON_LABEL = 'Set up Jetpack';

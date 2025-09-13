@@ -7,7 +7,6 @@ import {
 	useRef,
 	useState,
 } from '@wordpress/element';
-import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
 	useMapkit,
@@ -48,7 +47,7 @@ const MapkitComponent = forwardRef(
 		const { loaded, error, mapkit, currentDoc, currentWindow } = useMapkitSetup( mapRef );
 		const { map } = useMapkitInit( mapkit, loaded, mapRef );
 		const addPoint = Children.map( children, child => {
-			const tagName = get( child, 'props.tagName' );
+			const tagName = child?.props?.tagName;
 			if ( 'AddPoint' === tagName ) {
 				return child;
 			}

@@ -7,7 +7,7 @@ import {
 } from '@automattic/jetpack-components';
 import styles from './styles.module.scss';
 import type { AdminPageProps } from './types';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * This is the base structure for any Jetpack CRM admin page.
@@ -15,9 +15,9 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @return {React.ReactNode} AdminPage component.
+ * @return {ReactNode} AdminPage component.
  */
-const AdminPage: React.FC< AdminPageProps > = props => {
+const AdminPage: FC< AdminPageProps > = props => {
 	const pageProps = {
 		/*
 		 * Hide footer and header since we output them with PHP.

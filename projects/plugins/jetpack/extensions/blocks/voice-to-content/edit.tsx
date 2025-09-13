@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	useMediaRecording,
 	useAudioValidation,
@@ -9,23 +6,16 @@ import {
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { BlockInstance } from '@wordpress/blocks';
+import { type BlockInstance } from '@wordpress/blocks';
 import { Button, Modal, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-/**
- * Internal dependencies
- */
-import React from 'react';
 import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionCreator from './hooks/use-transcription-creator';
 import useTranscriptionInserter from './hooks/use-transcription-inserter';
-/**
- * Types
- */
 import type {
 	RecordingState,
 	TranscriptionState,

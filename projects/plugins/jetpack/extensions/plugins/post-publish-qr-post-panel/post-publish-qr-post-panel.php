@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Feature name.
 const FEATURE_NAME = 'post-publish-qr-post-panel';
 
@@ -13,7 +17,7 @@ add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_merge(
-			$extensions,
+			(array) $extensions,
 			array(
 				FEATURE_NAME,
 			)

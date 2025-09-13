@@ -1,14 +1,14 @@
 .error-description {
 	// stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values
 	line-height: 1.5rem;
-	color: var( --primary-black );
+	color: var(--primary-black);
 
 	a {
 		color: inherit !important;
 	}
 
 	.raw-error {
-		color: var( --primary-black );
+		color: var(--primary-black);
 		margin-top: 8px;
 		margin-bottom: 24px;
 

@@ -1,5 +1,4 @@
 import TokenList from '@wordpress/token-list';
-import { find } from 'lodash';
 
 /**
  * Returns the active style from the given className.
@@ -18,13 +17,13 @@ function getActiveStyle( styles, className ) {
 		}
 
 		const potentialStyleName = style.substring( 9 );
-		const activeStyle = find( styles, { name: potentialStyleName } );
+		const activeStyle = styles.find( v => v.name === potentialStyleName );
 		if ( activeStyle ) {
 			return activeStyle;
 		}
 	}
 
-	return find( styles, 'isDefault' );
+	return styles.find( v => v.isDefault );
 }
 
 export function getActiveStyleName( styles, className ) {

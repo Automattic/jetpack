@@ -12,7 +12,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import AdminPage from '../../components/admin-page';
 import useAccountProtectionQuery from '../../data/account-protection/use-account-protection-query';
 import useToggleAccountProtectionMutation from '../../data/account-protection/use-toggle-account-protection-module-mutation';

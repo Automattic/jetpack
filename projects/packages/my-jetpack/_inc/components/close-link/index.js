@@ -1,7 +1,6 @@
 import { Icon, close } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import styles from './styles.module.scss';
 
 const CloseLink = ( { className, accessibleName } ) => {

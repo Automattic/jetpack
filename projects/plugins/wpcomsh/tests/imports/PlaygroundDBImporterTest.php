@@ -127,8 +127,8 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
 
-		$this->assertWPError( $result );
-		$this->assertEquals( 'missing-column', $result->get_error_code() );
+		// Tables without entries in the cache table are skipped.
+		$this->assertNotWPError( $result );
 	}
 
 	/**
@@ -291,8 +291,8 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( SQL_Generator::DEFAULT_COLLATION, $result );
 	}
 
-	public function get_needs_191_limit_test_cases() {
-		$this->assertFalse(
+	public function test_get_needs_191_limit_test_cases() {
+		$this->assertTrue(
 			$this->db_importer->needs_191_limit(
 				array(
 					'type'        => 'text',
@@ -304,6 +304,14 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			$this->db_importer->needs_191_limit(
 				array(
 					'type'        => 'varchar(255)',
+					'sqlite_type' => 'text',
+				)
+			)
+		);
+		$this->assertFalse(
+			$this->db_importer->needs_191_limit(
+				array(
+					'type'        => 'int',
 					'sqlite_type' => 'text',
 				)
 			)
@@ -338,6 +346,27 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			),
 			$map
 		);
+	}
+
+	public function test_open_a_database_with_internal_wp_tables() {
+		$this->generate_sqlite_database(
+			array(
+				'cache_table' => true,
+				'queries'     => $this->get_base_queries( '_wp_sqlite_global_variables', false ),
+			)
+		);
+
+		$result = $this->db_importer->generate_sql( $this->tmp_db_path );
+
+		$this->assertNotWPError( $result );
+		$this->assertStringNotContainsString( 'CREATE TABLE `_wp_sqlite_global_variables`', $result );
+	}
+
+	public function test_is_valid_table() {
+		$this->assertFalse( $this->db_importer->is_valid_table( '_mysql_data_types_cache' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( '_wp_sqlite_global_variables' ) );
+		$this->assertFalse( $this->db_importer->is_valid_table( 'sqlite_sequence' ) );
+		$this->assertTrue( $this->db_importer->is_valid_table( 'wp_options' ) );
 	}
 
 	/**

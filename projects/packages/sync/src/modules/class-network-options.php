@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Defaults;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for network options.
  */
@@ -122,10 +126,11 @@ class Network_Options extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @param array $status This module Full Sync status.
 	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array This module Full Sync status.
 	 */
-	public function send_full_sync_actions( $config, $status, $send_until ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $status, $send_until, $started ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
 		$result = $this->send_action( 'jetpack_full_sync_network_options', array( true ) );
 
@@ -144,7 +149,7 @@ class Network_Options extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;

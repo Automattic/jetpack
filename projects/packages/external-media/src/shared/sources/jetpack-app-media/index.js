@@ -5,7 +5,6 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import MediaBrowser from '../../media-browser';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
@@ -30,7 +29,7 @@ const getImagePath = () => {
 /**
  * JetpackAppMedia component
  * @param {object} props - The component properties.
- * @return {React.ReactElement} The `JetpackAppMedia` component.
+ * @return {import('react').ReactElement} The `JetpackAppMedia` component.
  */
 function JetpackAppMedia( props ) {
 	const { className, media, insertMedia, isCopying, multiple, getMedia } = props;

@@ -1,4 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -46,7 +47,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
-	const { detail, isLoading: isProductDataLoading } = useProduct( slug );
+	const { detail, isLoading: isProductDataLoading, isRefetching } = useProduct( slug );
 
 	const {
 		manageUrl,
@@ -68,6 +69,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const isBusy =
 		isActivating ||
 		isProductDataLoading ||
+		isRefetching ||
 		isInstalling ||
 		( siteIsRegistering && status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR );
 	const hasAdditionalActions = additionalActions?.length > 0;
@@ -229,7 +231,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
-					href: '#/connection?skip_pricing=true',
+					href: getUserConnectionUrl(),
 					variant: 'primary',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: fixUserConnectionHandler,

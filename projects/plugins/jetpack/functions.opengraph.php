@@ -11,7 +11,14 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Block_Scanner;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Status\Host;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
@@ -351,66 +358,29 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	} elseif ( is_author() ) {
 		$author = get_queried_object();
 		if ( is_a( $author, 'WP_User' ) ) {
-			$image['src']      = get_avatar_url(
+			$image['src']          = get_avatar_url(
 				$author->user_email,
 				array(
 					'size' => $width,
 				)
 			);
-			$image['alt_text'] = $author->display_name;
+				$image['alt_text'] = $author->display_name;
 		}
 	}
 
-	// First fall back, blavatar.
-	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
-		$blavatar_domain = blavatar_domain( site_url() );
-		if ( blavatar_exists( $blavatar_domain ) ) {
-			$image['src']    = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-			$image['width']  = $width;
-			$image['height'] = $height;
-		}
-	}
-
-	// Second fall back, Site Logo.
-	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
-		$image_id = jetpack_get_site_logo( 'id' );
-		$logo     = wp_get_attachment_image_src( $image_id, 'full' );
-		if (
-			isset( $logo[0] ) && isset( $logo[1] ) && isset( $logo[2] )
-			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
-		) {
-			$image['src']      = $logo[0];
-			$image['width']    = $logo[1];
-			$image['height']   = $logo[2];
-			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
-		}
-	}
-
-	// Third fall back, Core Site Icon, if valid in size.
-	if ( empty( $image ) && has_site_icon() ) {
-		$image_id = get_option( 'site_icon' );
-		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
-		if (
-			isset( $icon[0] ) && isset( $icon[1] ) && isset( $icon[2] )
-			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
-		) {
-			$image['src']      = $icon[0];
-			$image['width']    = $icon[1];
-			$image['height']   = $icon[2];
-			$image['alt_text'] = Jetpack_PostImages::get_alt_text( $image_id );
-		}
-	}
-
-	// Final fall back, blank image.
+	/*
+	 * Generate a fallback social image,
+	 * dynamically generated based on the site name,
+	 * a representative image of the site,
+	 * and a custom template used by our Social Image Generator.
+	 */
 	if ( empty( $image ) ) {
-		/**
-		 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
-		 *
-		 * @since 3.0.0
-		 *
-		 * @param string $str Default Image URL.
-		 */
-		$image['src'] = apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
+		$site_image = jetpack_og_get_fallback_social_image( $width, $height );
+		if ( ! empty( $site_image ) ) {
+			$image['src']    = $site_image['src'];
+			$image['width']  = $site_image['width'];
+			$image['height'] = $site_image['height'];
+		}
 	}
 
 	// If we didn't get an explicit alt tag from the image, set a default.
@@ -426,6 +396,303 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 	}
 
 	return $image;
+}
+
+/**
+ * Get a fallback social image for the site.
+ *
+ * @since 14.9
+ *
+ * @param int $width The width of the image.
+ * @param int $height The height of the image.
+ *
+ * @return array The source ('src'), 'width', 'height', and source type of the image.
+ */
+function jetpack_og_get_fallback_social_image( $width, $height ) {
+	// Default template.
+	$template = 'edge';
+
+	// Let's get the site's representative image.
+	$site_image = jetpack_og_get_site_image( $width, $height );
+
+	/**
+	 * Define your own site's representative image,
+	 * to override any fallback image found by looking through site's logo, site icon, and blavatar.
+	 * This will allow you to overwrite the default fallback image generated dynamically.
+	 *
+	 * @since 15.0
+	 *
+	 * @param array $site_image Your own site's representative image.
+	 * @param array $site_image The site's representative image picked by Jetpack. {
+	 *     @type string $src    The source of the image.
+	 *     @type int    $width  The width of the image.
+	 *     @type int    $height The height of the image.
+	 *     @type string $type   The type of the image.
+	 * }
+	 */
+	$custom_site_image = apply_filters( 'jetpack_og_default_site_image', array(), $site_image );
+	if ( ! empty( $custom_site_image['src'] ) ) {
+		return $custom_site_image;
+	}
+
+	if ( empty( $site_image['src'] ) ) {
+		// When using the default blank image, use a different template in Social Image Generator.
+		$template          = 'highway';
+		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
+	}
+
+	/*
+	 * Only attempt to generate a dynamic fallback image
+	 * if we have a healthy connection to WPCOM.
+	 * and if the site has the right plan.
+	 */
+	if (
+		( ( new Host() )->is_wpcom_simple()
+		|| ( new Connection_Manager() )->is_connected()
+		)
+		&& Current_Plan::supports( 'social-image-generator' )
+	) {
+		/**
+		 * Allow filtering the template to use with Social Image Generator.
+		 * Available templates: highway, dois, fullscreen, edge.
+		 *
+		 * @since 14.9
+		 *
+		 * @param string $template The template to use.
+		 */
+		$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
+
+		// Let's generate the image.
+		$site_image = jetpack_og_generate_fallback_social_image( $site_image, $template );
+	}
+
+	return $site_image;
+}
+
+/**
+ * Get the site's representative image.
+ *
+ * @since 14.9
+ *
+ * @param int $width The width of the image.
+ * @param int $height The height of the image.
+ *
+ * @return array The source ('src'), 'width', 'height', and source type of the image.
+ */
+function jetpack_og_get_site_image( $width, $height ) {
+	// First fall back, blavatar.
+	if ( function_exists( 'blavatar_domain' ) ) {
+		$blavatar_domain = blavatar_domain( site_url() );
+		if ( blavatar_exists( $blavatar_domain ) ) {
+			return array(
+				'src'    => blavatar_url( $blavatar_domain, 'img', $width, false, true ),
+				'width'  => $width,
+				'height' => $height,
+				'type'   => 'blavatar',
+			);
+		}
+	}
+
+	// Second fall back, Site Logo.
+	if (
+		function_exists( 'jetpack_has_site_logo' )
+		&& jetpack_has_site_logo()
+	) {
+		$image_id = jetpack_get_site_logo( 'id' );
+		$logo     = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $logo[0] ) && isset( $logo[1] ) && isset( $logo[2] )
+			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
+		) {
+			return array(
+				'src'    => $logo[0],
+				'width'  => $logo[1],
+				'height' => $logo[2],
+				'type'   => 'site_logo',
+			);
+		}
+	}
+
+	// Third fall back, Core's site logo.
+	if ( has_custom_logo() ) {
+		$custom_logo_id = get_theme_mod( 'custom_logo' );
+		$sl_details     = wp_get_attachment_image_src(
+			$custom_logo_id,
+			'full'
+		);
+		if (
+			isset( $sl_details[0] ) && isset( $sl_details[1] ) && isset( $sl_details[2] )
+			&& ( _jetpack_og_get_image_validate_size( $sl_details[1], $sl_details[2], $width, $height ) )
+		) {
+			return array(
+				'src'      => $sl_details[0],
+				'width'    => $sl_details[1],
+				'height'   => $sl_details[2],
+				'alt_text' => Jetpack_PostImages::get_alt_text( $custom_logo_id ),
+			);
+		}
+	}
+
+	// Fourth fall back, Core Site Icon, if valid in size.
+	if ( has_site_icon() ) {
+		$image_id = get_option( 'site_icon' );
+		$icon     = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $icon[0] ) && isset( $icon[1] ) && isset( $icon[2] )
+			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
+		) {
+			return array(
+				'src'    => $icon[0],
+				'width'  => $icon[1],
+				'height' => $icon[2],
+				'type'   => 'site_icon',
+			);
+		}
+	}
+
+	return array(
+		'src'    => '',
+		'width'  => $width,
+		'height' => $height,
+		'type'   => 'blank',
+	);
+}
+
+/**
+ * Get the site's fallback image.
+ *
+ * @since 14.9
+ *
+ * @return string
+ */
+function jetpack_og_get_site_fallback_blank_image() {
+	/**
+	 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $str Default Image URL.
+	 */
+	return apply_filters( 'jetpack_open_graph_image_default', 'https://s0.wp.com/i/blank.jpg' );
+}
+
+/**
+ * Get available templates for Social Image Generator.
+ *
+ * @since 14.9
+ *
+ * @return array The available templates.
+ */
+function jetpack_og_get_available_templates() {
+	if ( ! class_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\Templates' ) ) {
+		return array();
+	}
+
+	return \Automattic\Jetpack\Publicize\Social_Image_Generator\Templates::TEMPLATES;
+}
+
+/**
+ * Get a social image token from Social Image Generator.
+ *
+ * @since 14.9
+ *
+ * @param string $site_title The site title.
+ * @param string $image_url The image URL.
+ * @param string $template The template to use.
+ *
+ * @return string|WP_Error The social image token, or a WP_Error if the token could not be generated.
+ */
+function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
+	// Let's check if we have a cached token.
+	$cache_key      = wp_hash( $site_title . $image_url . $template );
+	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
+	$cached_token   = get_transient( $transient_name );
+
+	if ( ! empty( $cached_token ) ) {
+		return $cached_token;
+	}
+
+	/**
+	 * Filter the social image token for testing purposes.
+	 *
+	 * @since 14.9
+	 *
+	 * @param string|WP_Error|null $token The token to return, or null to use default behavior.
+	 */
+	$token = apply_filters( 'jetpack_og_get_social_image_token', null );
+	if ( null !== $token ) {
+		return $token;
+	}
+
+	if ( ! function_exists( '\Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token' ) ) {
+		return new WP_Error( 'jetpack_og_get_social_image_token_error', __( 'Social Image Generator is not available.', 'jetpack' ) );
+	}
+
+	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
+
+	/*
+	 * We want to cache 2 types of responses:
+	 * - Successful responses with a token.
+	 * - WP_Error responses that denote a WordPress.com connection issue.
+	 */
+	if (
+		! is_wp_error( $token )
+		|| (
+			is_wp_error( $token )
+			&& 'invalid_user_permission_publicize' === $token->get_error_code()
+		)
+	) {
+		set_transient( $transient_name, $token, DAY_IN_SECONDS );
+	}
+
+	return $token;
+}
+
+/**
+ * Generate and create a fallback social image.
+ *
+ * @since 14.9
+ *
+ * @param array  $representative_image The representative image of the site.
+ * @param string $template The template to use.
+ *
+ * @return array The source ('src'), 'width', and 'height' of the image.
+ */
+function jetpack_og_generate_fallback_social_image( $representative_image, $template ) {
+	$site_title     = get_bloginfo( 'name' );
+	$fallback_image = array(
+		'src'    => $representative_image['src'],
+		'width'  => $representative_image['width'],
+		'height' => $representative_image['height'],
+	);
+
+	// Ensure that we use a valid template.
+	if (
+		! in_array(
+			$template,
+			jetpack_og_get_available_templates(),
+			true
+		)
+	) {
+		$template = 'edge';
+	}
+
+	// Let's generate the token matching the image..
+	$token = jetpack_og_get_social_image_token( $site_title, $representative_image['src'], $template );
+
+	if ( is_wp_error( $token ) ) {
+		return $fallback_image;
+	}
+
+	// Build the image URL and return it.
+	return array(
+		'src'    => sprintf(
+			'https://s0.wp.com/_si/?t=%s',
+			$token
+		),
+		'width'  => 1200,
+		'height' => 630,
+	);
 }
 
 /**
@@ -473,6 +740,7 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * - no links
  * - no shortcodes
  * - no html tags or their contents
+ * - no content within wp:query blocks
  * - not too many words.
  *
  * @param string       $description Text coming from WordPress (autogenerated or manually generated by author).
@@ -481,6 +749,9 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
  * @return string $description Cleaned up description string.
  */
 function jetpack_og_get_description( $description = '', $data = null ) {
+	// Remove content within wp:query blocks.
+	$description = jetpack_og_remove_query_blocks( $description );
+
 	// Remove tags such as <style or <script.
 	$description = wp_strip_all_tags( $description );
 
@@ -536,6 +807,94 @@ function jetpack_og_get_description( $description = '', $data = null ) {
 	}
 
 	return $description;
+}
+
+/**
+ * Remove content within wp:query blocks from the description.
+ *
+ * @since 14.9
+ *
+ * @param string $description The description text that may contain block markup.
+ * @return string The description with wp:query blocks removed.
+ */
+function jetpack_og_remove_query_blocks( $description ) {
+	// Handle non-string input
+	if ( ! is_string( $description ) ) {
+		return '';
+	}
+
+	$output         = '';
+	$offset         = 0;
+	$depth          = 0;
+	$in_query_block = false;
+
+	$scanner = Block_Scanner::create( $description );
+	if ( ! $scanner ) {
+		return $description;
+	}
+
+	while ( $scanner->next_delimiter() ) {
+		$span     = $scanner->get_span();
+		$match_at = $span->start;
+		$length   = $span->length;
+
+		// Check if this is a query block.
+		if ( $scanner->is_block_type( 'query' ) ) {
+			switch ( $scanner->get_delimiter_type() ) {
+				case Block_Scanner::OPENER:
+					if ( ! $in_query_block ) {
+						// Copy content before the query block.
+						$output        .= substr( $description, $offset, $match_at - $offset );
+						$in_query_block = true;
+					}
+					++$depth;
+					break;
+
+				case Block_Scanner::CLOSER:
+					--$depth;
+					if ( $in_query_block && $depth === 0 ) {
+						// We've exited the query block, continue from after it.
+						$in_query_block = false;
+						$offset         = $match_at + $length;
+
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $offset ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$offset;
+						}
+					}
+					break;
+
+				case Block_Scanner::VOID:
+					// Void query blocks should be removed entirely.
+					if ( ! $in_query_block ) {
+						$output .= substr( $description, $offset, $match_at - $offset );
+						$offset  = $match_at + $length;
+						// Remove extra newline if present
+						if (
+							str_starts_with( substr( $description, $offset ), "\n" )
+							&& str_ends_with( $output, "\n" )
+						) {
+							++$offset;
+						}
+					}
+					break;
+			}
+		} elseif ( ! $in_query_block ) {
+			// Not a query block, copy content including the delimiter if we're not inside a query block.
+			$output .= substr( $description, $offset, $match_at - $offset + $length );
+			$offset  = $match_at + $length;
+		}
+	}
+
+	// Add any remaining content after the last delimiter.
+	if ( ! $in_query_block ) {
+		$output .= substr( $description, $offset );
+	}
+
+	return $output;
 }
 
 /**

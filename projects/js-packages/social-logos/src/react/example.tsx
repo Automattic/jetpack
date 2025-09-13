@@ -1,8 +1,9 @@
 /* eslint-disable no-alert -- ok for demo */
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';
 import '../css/example.css';
+import type { Component } from 'react';
 
 /**
  * An example React component that displays a single social logo.
@@ -11,7 +12,7 @@ import '../css/example.css';
  * @param {string}  props.name          - Logo name.
  * @param {number}  props.iconSize      - Icon size.
  * @param {boolean} props.showIconNames - Whether to show icon names.
- * @return {React.Component} The `SocialLogoItemExample` component.
+ * @return {Component} The `SocialLogoItemExample` component.
  */
 function SocialLogoItemExample( { name, iconSize, showIconNames } ) {
 	const handleClick = useCallback( () => {
@@ -30,7 +31,7 @@ function SocialLogoItemExample( { name, iconSize, showIconNames } ) {
 /**
  * An example React component that displays all the social logos.
  *
- * @return {React.Component} The `SocialLogosExample` component.
+ * @return {Component} The `SocialLogosExample` component.
  */
 function SocialLogosExample() {
 	const [ useSmallIcons, setUseSmallIcons ] = useState( false );

@@ -1,8 +1,14 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Themes delete endpoint class.
  * POST  /sites/%s/plugins/%s/delete
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Themes_Delete_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 

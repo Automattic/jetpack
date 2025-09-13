@@ -1,16 +1,17 @@
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import './wpcom-tour-kit-pagination-control.scss';
+import type { FunctionComponent, ReactNode } from 'react';
 
 interface Props {
 	onChange: ( page: number ) => void;
 	activePageIndex: number;
 	numberOfPages: number;
 	classNames?: string | string[];
-	children?: React.ReactNode;
+	children?: ReactNode;
 }
 
-const WpcomTourKitPaginationControl: React.FunctionComponent< Props > = ( {
+const WpcomTourKitPaginationControl: FunctionComponent< Props > = ( {
 	activePageIndex,
 	numberOfPages,
 	onChange,

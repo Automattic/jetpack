@@ -60,25 +60,18 @@ $ok_wp_deps = array(
  */
 $allowed = array(
 	'ai-chat'        => array(
-		'react',
-		'react-dom',
 		'wp-components',
 		'wp-compose',
 		'wp-element',
 	),
 	'podcast-player' => array(
-		'lodash',
-		'react',
-		'react-dom',
 		'wp-compose',
 		'wp-data',
 		'wp-element',
 		'wp-primitives',
 	),
 	'story'          => array(
-		'lodash',
 		'react',
-		'react-dom',
 		'wp-compose',
 		'wp-data',
 		'wp-element',

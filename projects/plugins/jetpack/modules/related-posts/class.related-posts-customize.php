@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class to include elements to modify Related Posts look in Customizer.
  *
  * @since 4.4.0
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Related_Posts_Customize {
 

@@ -1,6 +1,5 @@
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
-import { get } from 'lodash';
 
 const validate = value => {
 	if ( typeof value === 'boolean' ) {
@@ -21,7 +20,7 @@ const validate = value => {
 export const withSeoHelper = attrName =>
 	compose( [
 		withSelect( select => ( {
-			metaValue: get( select( 'core/editor' ).getEditedPostAttribute( 'meta' ), [ attrName ], '' ),
+			metaValue: select( 'core/editor' ).getEditedPostAttribute( 'meta' )?.[ attrName ] ?? '',
 		} ) ),
 		withDispatch( dispatch => ( {
 			updateMetaValue( newValue ) {

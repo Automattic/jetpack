@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { render, screen } from 'test/test-utils';
 import Search from '../search';
 import { buildInitialState } from './fixtures';

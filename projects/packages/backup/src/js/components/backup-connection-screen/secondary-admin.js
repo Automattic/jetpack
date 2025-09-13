@@ -2,7 +2,6 @@ import { JetpackVaultPressBackupLogo } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { STORE_ID } from '../../store';
 import connectImage from './assets/connect-backup.png';
 

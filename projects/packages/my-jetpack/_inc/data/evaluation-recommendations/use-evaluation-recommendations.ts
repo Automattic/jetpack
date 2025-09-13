@@ -13,7 +13,6 @@ import {
 import useProductsByOwnership from '../products/use-products-by-ownership';
 import useSimpleMutation from '../use-simple-mutation';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
-import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 const NUMBER_OF_RECOMMENDATIONS_TO_SHOW = 5;
 
@@ -28,7 +27,6 @@ const getInitialIsFirstRun = (): boolean => {
 
 const useEvaluationRecommendations = () => {
 	const { recordEvent } = useAnalytics();
-	const { isWelcomeBannerVisible, showWelcomeBanner } = useWelcomeBanner();
 	const [ recommendedModules, setRecommendedModules ] = useValueStore(
 		'recommendedModules',
 		getInitialRecommendedModules()
@@ -58,8 +56,8 @@ const useEvaluationRecommendations = () => {
 
 	const isEligibleForRecommendations = useMemo( () => {
 		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
-		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew;
-	}, [ isWelcomeBannerVisible, isJetpackUserNew ] );
+		return ! dismissed && isJetpackUserNew;
+	}, [ isJetpackUserNew ] );
 
 	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
 		'recommendedModulesVisible',
@@ -143,9 +141,8 @@ const useEvaluationRecommendations = () => {
 		// It just happens locally - on reload we're back to recommendations view
 		setIsSectionVisible( false );
 		setIsFirstRun( false );
-		showWelcomeBanner();
 		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_redo_click' );
-	}, [ recordEvent, setIsFirstRun, setIsSectionVisible, showWelcomeBanner ] );
+	}, [ recordEvent, setIsFirstRun, setIsSectionVisible ] );
 
 	return {
 		submitEvaluation,

@@ -2,7 +2,6 @@ import { Text } from '@automattic/jetpack-components';
 import { Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import styles from './styles.module.scss';
 
 const ItemLabel = ( { icon, children, className } ) => {

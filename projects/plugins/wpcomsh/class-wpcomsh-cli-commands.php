@@ -1159,6 +1159,157 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		public function plugin_dance_health_check( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			WP_CLI::success( 'Healthy' );
 		}
+
+		/**
+		 * Runs comprehensive site diagnostics including Jetpack status, admin users, plugins, purchases, and PHP errors
+		 *
+		 * @subcommand diag
+		 */
+		public function diagnostic( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			WP_CLI::log( WP_CLI::colorize( '%B=== SITE DIAGNOSTICS ===%n' ) );
+			WP_CLI::log( '' );
+
+			// 1. Jetpack Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Jetpack Status ---%n' ) );
+			$jetpack_result = WP_CLI::runcommand(
+				'jetpack status full',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $jetpack_result->return_code ) {
+				WP_CLI::log( $jetpack_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RJetpack status command failed:%n' ) );
+				WP_CLI::log( $jetpack_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 2. Admin Users
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Administrator Users ---%n' ) );
+			$admin_users_result = WP_CLI::runcommand(
+				'user list --role=administrator',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $admin_users_result->return_code ) {
+				WP_CLI::log( $admin_users_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RAdmin users command failed:%n' ) );
+				WP_CLI::log( $admin_users_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 3. Plugin Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Plugin Status ---%n' ) );
+			$plugin_status_result = WP_CLI::runcommand(
+				'plugin status',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $plugin_status_result->return_code ) {
+				WP_CLI::log( $plugin_status_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPlugin status command failed:%n' ) );
+				WP_CLI::log( $plugin_status_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 4. Theme Status
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Theme Status ---%n' ) );
+			$theme_status_result = WP_CLI::runcommand(
+				'theme status',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $theme_status_result->return_code ) {
+				WP_CLI::log( $theme_status_result->stdout );
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RTheme status command failed:%n' ) );
+				WP_CLI::log( $theme_status_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 5. WPCOMSH Purchases (formatted as table)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Site Purchases ---%n' ) );
+			$purchases_result = WP_CLI::runcommand(
+				'wpcomsh purchases --format=json',
+				array(
+					'launch'     => false,
+					'return'     => 'all',
+					'exit_error' => false,
+				)
+			);
+
+			if ( 0 === $purchases_result->return_code ) {
+				$purchases_data = json_decode( $purchases_result->stdout, true );
+				if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+					$formatted_purchases = array();
+					foreach ( $purchases_data as $purchase ) {
+						$formatted_purchases[] = array(
+							'product'    => $purchase['product_slug'] ?? 'N/A',
+							'type'       => $purchase['product_type'] ?? 'N/A',
+							'subscribed' => isset( $purchase['subscribed_date'] ) ? gmdate( 'Y-m-d', strtotime( $purchase['subscribed_date'] ) ) : 'N/A',
+							'expires'    => isset( $purchase['expiry_date'] ) ? gmdate( 'Y-m-d', strtotime( $purchase['expiry_date'] ) ) : 'N/A',
+							'auto_renew' => isset( $purchase['auto_renew'] ) ? ( $purchase['auto_renew'] ? 'Yes' : 'No' ) : 'N/A',
+						);
+					}
+
+					$table_args = array( 'format' => 'table' );
+					$formatter  = new \WP_CLI\Formatter(
+						$table_args,
+						array( 'product', 'type', 'subscribed', 'expires', 'auto_renew' )
+					);
+					$formatter->display_items( $formatted_purchases );
+				} else {
+					WP_CLI::log( 'No purchases found.' );
+				}
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPurchases command failed:%n' ) );
+				WP_CLI::log( $purchases_result->stderr );
+			}
+
+			WP_CLI::log( '' );
+
+			// 6. PHP Errors (filtered to critical errors)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Critical PHP Errors ---%n' ) );
+			$error_log_file = '/tmp/php-errors';
+
+			if ( file_exists( $error_log_file ) ) {
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
+				$output = shell_exec( "grep -E 'Fatal error|PHP Fatal error|Parse error|Uncaught Error|Uncaught Exception|TypeError|ArgumentCountError|Compile error' " . escapeshellarg( $error_log_file ) . ' | tail -n 100' );
+
+				if ( ! empty( trim( (string) $output ) ) ) {
+					WP_CLI::log( trim( (string) $output ) );
+				} else {
+					WP_CLI::log( WP_CLI::colorize( '%GNo critical PHP errors found.%n' ) );
+				}
+			} else {
+				WP_CLI::log( WP_CLI::colorize( '%RPHP errors file not found:%n /tmp/php-errors' ) );
+			}
+
+			WP_CLI::log( '' );
+			WP_CLI::log( WP_CLI::colorize( '%B=== DIAGNOSTICS COMPLETE ===%n' ) );
+		}
 	}
 }
 
@@ -1415,9 +1566,7 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

@@ -1,7 +1,7 @@
-import makeBaseConfig, { makeEnvConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, makeEnvConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
+export default defineConfig(
+	makeBaseConfig( import.meta.url ),
 	// Legacy jquery-using stuff.
-	makeEnvConfig( 'jquery', [ 'custom-colors/**', 'footer-credit/**', 'widgets/music-player/**' ] ),
-];
+	makeEnvConfig( 'jquery', [ 'custom-colors/**', 'footer-credit/**', 'widgets/music-player/**' ] )
+);

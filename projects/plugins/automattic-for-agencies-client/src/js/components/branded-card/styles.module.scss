@@ -1,7 +1,7 @@
-@import '@automattic/color-studio/dist/color-variables';
+@use "@automattic/color-studio/dist/color-variables" as studio;
 
 .card {
-	background-color: $studio-automattic-blue-100;
+	background-color: studio.$studio-automattic-blue-100;
 	border-radius: 14px;
 	display: flex;
 	padding: 8px;
@@ -10,7 +10,12 @@
 		flex-direction: column;
 	}
 
-	h1, h2, h3, h4, h5, h6 {
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
 		letter-spacing: -1%;
 		margin: 0;
 	}
@@ -24,7 +29,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	h2 {
 		font-size: 32px;
 		line-height: 35px;
@@ -35,7 +40,7 @@
 			line-height: 32px;
 		}
 	}
-	
+
 	p {
 		margin: 0;
 	}
@@ -49,16 +54,16 @@
 	:global {
 
 		.components-button.is-primary {
-			background-color: $studio-automattic-blue;
+			background-color: studio.$studio-automattic-blue;
 			min-width: 178px;
 		}
 
 		.components-button.is-primary:hover {
-			background-color: $studio-automattic-blue-60;
+			background-color: studio.$studio-automattic-blue-60;
 		}
 
 		.components-button.is-link {
-			color: $studio-automattic-blue;
+			color: studio.$studio-automattic-blue;
 			white-space: nowrap;
 			text-decoration: underline;
 		}

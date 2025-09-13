@@ -13,6 +13,10 @@ use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Jetpack AI product
  */
@@ -224,7 +228,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Enhance your writing and productivity with our AI suite', 'jetpack-my-jetpack' );
+		return __( 'Turn your ideas into ready‑to‑publish content at lightspeed.', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -1,7 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG, Circle } from '@wordpress/components';
 import clsx from 'clsx';
-import React from 'react';
 import { getIconColor } from './block-icons';
 
 import './icons.scss';

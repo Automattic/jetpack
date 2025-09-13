@@ -2,6 +2,50 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.0.9] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [1.0.8] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.0.7] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [1.0.6] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.0.5] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.0.4] - 2025-07-03
+### Changed
+- Update package dependencies. [#44148]
+
+## [1.0.3] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.0.2] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.0.1] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Internal updates.
+
+## [0.20.3] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.20.2] - 2025-05-05
 ### Changed
 - Update package dependencies. [#43326]
@@ -414,6 +458,17 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[1.0.9]: https://github.com/Automattic/jetpack-api/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-api/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-api/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/Automattic/jetpack-api/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/Automattic/jetpack-api/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/Automattic/jetpack-api/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/Automattic/jetpack-api/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-api/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-api/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-api/compare/v0.20.3...v1.0.0
+[0.20.3]: https://github.com/Automattic/jetpack-api/compare/v0.20.2...v0.20.3
 [0.20.2]: https://github.com/Automattic/jetpack-api/compare/v0.20.1...v0.20.2
 [0.20.1]: https://github.com/Automattic/jetpack-api/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-api/compare/v0.19.0...v0.20.0

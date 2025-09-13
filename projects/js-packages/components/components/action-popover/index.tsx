@@ -16,7 +16,6 @@ import styles from './styles.module.scss';
  * Types
  */
 import { ActionPopoverProps } from './types.ts';
-import type React from 'react';
 
 const ActionPopover = ( {
 	hideCloseButton = false,

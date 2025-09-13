@@ -1,14 +1,14 @@
 [
-    {
-        "clientId": "_clientId_0",
-        "name": "jetpack/wordads",
-        "isValid": true,
-        "attributes": {
-            "align": "center",
-            "format": "leaderboard",
-            "hideMobile": false
-        },
-        "innerBlocks": [],
-        "originalContent": ""
-    }
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/wordads",
+		"isValid": true,
+		"attributes": {
+			"align": "center",
+			"format": "leaderboard",
+			"hideMobile": false
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
 ]

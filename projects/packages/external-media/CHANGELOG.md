@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [0.5.0] - 2025-09-01
+### Added
+- Media Settings: Add Google Photos connection. [#44825]
+
+## [0.4.11] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [0.4.10] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [0.4.9] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.4.8] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [0.4.7] - 2025-08-04
+### Changed
+- Update dependencies. [#44551]
+
+## [0.4.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.4.5] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.4.4] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.4.3] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+## [0.4.2] - 2025-06-30
+### Changed
+- Update dependencies. [#43971]
+
+## [0.4.1] - 2025-06-24
+### Changed
+- Update dependencies. [#43971]
+
+## [0.4.0] - 2025-06-23
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020]
+
+## [0.3.14] - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
+## [0.3.13] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.3.12] - 2025-06-02
+### Changed
+- Internal updates.
+
+## [0.3.11] - 2025-05-26
+### Changed
+- Update package dependencies. [#43514] [#43578]
+
 ## [0.3.10] - 2025-05-19
 ### Changed
 - Update package dependencies. [#43398]
@@ -105,6 +178,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the button size in the editor for Gutenberg 18 or below. [#41619]
 - Media Library: Fix the Import Media button color in some color schemes. [#41664]
 
+[0.5.1]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.11...v0.5.0
+[0.4.11]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.10...v0.4.11
+[0.4.10]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.9...v0.4.10
+[0.4.9]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.8...v0.4.9
+[0.4.8]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.7...v0.4.8
+[0.4.7]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.14...v0.4.0
+[0.3.14]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.13...v0.3.14
+[0.3.13]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.12...v0.3.13
+[0.3.12]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.11...v0.3.12
+[0.3.11]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/Automattic/jetpack-external-media/compare/v0.3.7...v0.3.8

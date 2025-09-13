@@ -271,6 +271,45 @@ class Waf_Runtime {
 	}
 
 	/**
+	 * Generate a secure hash for an IP address.
+	 *
+	 * @param string $ip IP address.
+	 * @return string Hashed IP.
+	 */
+	private function get_ip_hash( string $ip ): string {
+		$hash_key = wp_salt( 'auth' );
+		return hash_hmac( 'sha256', $ip, $hash_key );
+	}
+
+	/**
+	 * Check if the IP is allowed for recovery.
+	 *
+	 * @param string $ip IP address.
+	 * @return bool
+	 */
+	public function is_ip_allowed_for_recovery( string $ip ): bool {
+		$allow_hash = get_transient( 'jetpack_waf_recovery_' . $ip );
+		return $allow_hash && hash_equals( $allow_hash, $this->get_ip_hash( $ip ) );
+	}
+
+	/**
+	 * Process a recovery attempt.
+	 *
+	 * @param string $real_ip The real IP address of the request.
+	 */
+	private function allow_login_or_prompt_recovery( $real_ip ) {
+		$blocked_login_page = Waf_Blocked_Login_Page::instance( $real_ip );
+
+		if ( $blocked_login_page->is_blocked_user_valid() ) {
+			// Allow the IP to bypass the block for 15 minutes.
+			set_transient( 'jetpack_waf_recovery_' . $real_ip, $this->get_ip_hash( $real_ip ), 15 * 60 );
+			return;
+		}
+
+		$blocked_login_page->render_and_die();
+	}
+
+	/**
 	 * Block.
 	 *
 	 * @param string $action Action.
@@ -279,6 +318,20 @@ class Waf_Runtime {
 	 * @param int    $status_code Http status code.
 	 */
 	public function block( $action, $rule_id, $reason, $status_code = 403 ) {
+		if ( 'ip block list' === $reason ) {
+			$real_ip = $this->request->get_real_user_ip_address();
+
+			if ( $this->is_ip_allowed_for_recovery( $real_ip ) ) {
+				return;
+			}
+
+			global $pagenow;
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$this->allow_login_or_prompt_recovery( $real_ip );
+				return;
+			}
+		}
+
 		if ( ! $reason ) {
 			$reason = "rule $rule_id";
 		} else {

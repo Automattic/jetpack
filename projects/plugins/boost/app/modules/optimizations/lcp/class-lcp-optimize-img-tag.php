@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WP_HTML_Tag_Processor;
 
@@ -42,62 +43,50 @@ class LCP_Optimize_Img_Tag {
 			return $buffer;
 		}
 
-		/*
-		 * Quickly check if the tag is in the buffer and return early if it's not found.
-		 * The HTML returned from cloud will not have a forward slash at the end of the tag, even if the original HTML had one.
-		 * By removing the last character from the LCP HTML, we can quickly check if the tag is in the buffer.
-		 *
-		 * `substr( '<img src="...">', 0, -1 )` -> `<img src="..."`
-		 */
-		if ( ! str_contains( $buffer, substr( $this->lcp_data['html'], 0, -1 ) ) ) {
+		$buffer_processor = $optimization_util->find_element( $buffer );
+		if ( ! $buffer_processor ) {
 			return $buffer;
 		}
+
 		// Create the optimized tag with required attributes.
-		return $this->optimize_image( $buffer, $this->lcp_data['html'] );
+		return $this->optimize_image( $buffer_processor );
 	}
 
 	/**
 	 * Optimize an image tag by adding required attributes.
 	 *
-	 * @param string $buffer The original HTML chunk of the page..
-	 * @param string $lcp_html The LCP HTML detected by cloud.
+	 * @param WP_HTML_Tag_Processor $buffer_processor The original HTML chunk of the page..
 	 *
 	 * @return string The optimized buffer.
 	 *
 	 * @since 4.0.0
 	 */
-	private function optimize_image( $buffer, $lcp_html ) {
-		$lcp_processor = new WP_HTML_Tag_Processor( $lcp_html );
-
-		// Ensure the LCP HTML is a valid image tag before proceeding.
-		if ( ! $lcp_processor->next_tag( 'img' ) ) {
-			return $buffer;
-		}
-
-		$id    = $lcp_processor->get_attribute( 'id' );
-		$class = $lcp_processor->get_attribute( 'class' );
-		$src   = $lcp_processor->get_attribute( 'src' );
-
-		$buffer_processor = new WP_HTML_Tag_Processor( $buffer );
-		$tag_found        = $buffer_processor->next_tag(
-			array(
-				'tag_name' => 'img',
-				'id'       => $id,
-				'class'    => $class,
-				'src'      => $src,
-			)
-		);
-
-		// Tag not found in buffer
-		if ( ! $tag_found ) {
-			return $buffer;
-		}
-
+	private function optimize_image( $buffer_processor ) {
+		// Apply optimizations to the matched tag
 		$buffer_processor->set_attribute( 'fetchpriority', 'high' );
 		$buffer_processor->set_attribute( 'loading', 'eager' );
 		$buffer_processor->set_attribute( 'data-jp-lcp-optimized', 'true' );
 
 		$image_url = $buffer_processor->get_attribute( 'src' );
+		// Ensure the image URL is valid.
+		if ( ! wp_http_validate_url( $image_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
+
+		// If the image isn't photonized, it might be resized by WP.
+		// We need the original image URL, as we'll be generating
+		// the necessary sizes based on it.
+		if ( ! Image_CDN_Core::is_cdn_url( $image_url ) ) {
+			$image_url = Image_CDN::strip_image_dimensions_maybe( $image_url );
+		} else {
+			// In case it's Photonized, we need to remove any size change arguments.
+			$image_url = remove_query_arg( array( 'w', 'h' ), $image_url );
+		}
+
+		// Additional validation after cleaning.
+		if ( ! wp_http_validate_url( $image_url ) ) {
+			return $buffer_processor->get_updated_html();
+		}
 
 		$buffer_processor->set_attribute( 'src', Image_CDN_Core::cdn_url( $image_url ) );
 
@@ -111,7 +100,7 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @param WP_HTML_Tag_Processor $element The original image tag.
 	 * @param string                $image_url The image URL.
-	 * @return string The optimized image tag.
+	 * @return WP_HTML_Tag_Processor The optimized image tag.
 	 *
 	 * @since 4.0.0
 	 */
@@ -139,39 +128,46 @@ class LCP_Optimize_Img_Tag {
 	 * @param string $original_url The original image URL.
 	 * @return string The srcset for the image.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	private function get_srcset( $original_url ) {
-		$widths = array();
+		$dimensions = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
-			$breakpoint_widths = array();
-			foreach ( $breakpoint['imageWidths'] as $width ) {
-				$breakpoint_widths[] = $width;
+			foreach ( $breakpoint['imageDimensions'] as $breakpoint_dimensions ) {
+				if ( ! is_numeric( $breakpoint_dimensions['width'] ) || ! is_numeric( $breakpoint_dimensions['height'] ) ) {
+					continue;
+				}
+
+				$width                = (int) $breakpoint_dimensions['width'];
+				$height               = (int) $breakpoint_dimensions['height'];
+				$dimensions[ $width ] = $height;
 
 				// If it's a Moto G Power, include a 1.75 DPR for accurate lighthouse representation of the optimized image.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] === 412 ) {
-					$breakpoint_widths[] = (int) $width * 1.75;
+					$dimensions[ (int) round( $width * 1.75 ) ] = round( $height * 1.75 );
 				}
 
 				// Include 2x DPR.
-				$breakpoint_widths[] = $width * 2;
+				$dimensions[ $width * 2 ] = $height * 2;
 
 				// If it's a mobile breakpoint, include 3x DPR.
 				if ( isset( $breakpoint['maxWidth'] ) && $breakpoint['maxWidth'] <= 480 ) {
-					$breakpoint_widths[] = $width * 3;
+					$dimensions[ $width * 3 ] = $height * 3;
 				}
 			}
-			$widths[] = $breakpoint_widths;
 		}
 
-		$widths = array_unique( array_merge( ...$widths ) );
-
 		// Remove unnecessary widths to save some bytes in the HTML.
-		$widths = $this->reduce_widths( $widths );
+		$reduced_widths = $this->reduce_widths( array_keys( $dimensions ) );
 
 		$srcset = array();
-		foreach ( $widths as $width ) {
-			$srcset[] = Image_CDN_Core::cdn_url( $original_url, array( 'w' => $width ) ) . " {$width}w";
+		foreach ( $reduced_widths as $width ) {
+			$srcset[] = Image_CDN_Core::cdn_url(
+				$original_url,
+				array(
+					'resize' => array( $width, $dimensions[ $width ] ),
+				)
+			) . " {$width}w";
 		}
 
 		return implode( ', ', $srcset );
@@ -203,13 +199,13 @@ class LCP_Optimize_Img_Tag {
 	 *
 	 * @return string The sizes for the image.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 */
 	private function get_sizes() {
 		$sizes = array();
 		foreach ( $this->lcp_data['breakpoints'] as $breakpoint ) {
 			// Make sure widthValue is a known format.
-			if ( ! isset( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
+			if ( ! isset( $breakpoint['widthValue'] ) || ! preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|vw)$/', $breakpoint['widthValue'] ) ) {
 				continue;
 			}
 

@@ -18,7 +18,7 @@ import './celebrate-launch-modal.scss';
  * @param {string}   props.siteUrl         - The site URL.
  * @param {boolean}  props.hasCustomDomain - Whether the site has a custom domain.
  *
- * @return {JSX.Element} The CelebrateLaunchModal component.
+ * @return {import('react').JSX.Element} The CelebrateLaunchModal component.
  */
 export default function CelebrateLaunchModal( {
 	onRequestClose,
@@ -40,7 +40,7 @@ export default function CelebrateLaunchModal( {
 	/**
 	 * Render the upsell content.
 	 *
-	 * @return {JSX.Element} The upsell content.
+	 * @return {import('react').JSX.Element} The upsell content.
 	 */
 	function renderUpsellContent() {
 		let contentElement;

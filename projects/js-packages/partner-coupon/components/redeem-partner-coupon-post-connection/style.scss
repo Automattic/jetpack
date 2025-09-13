@@ -1,9 +1,8 @@
-@import '@wordpress/base-styles/breakpoints';
-@import '@wordpress/base-styles/mixins';
-@import '@automattic/jetpack-base-styles/style';
+@use "@wordpress/base-styles/mixins";
+@use "@automattic/jetpack-base-styles/style";
 
 .jetpack-redeem-partner-coupon-post-connection {
-	background: var( --jp-white );
+	background: var(--jp-white);
 	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;
 
@@ -21,19 +20,19 @@
 
 	&__layout {
 
-		@include break-medium {
+		@include mixins.break-medium {
 			display: grid;
 			grid-template-columns: auto 34%;
 			grid-template-areas:
-"content aside"
-"subcontent aside";
+				"content aside"
+				"subcontent aside";
 		}
 	}
 
 	&__content {
 		padding: 32px 24px 24px 24px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			padding: 48px 48px 0 48px;
 		}
 	}
@@ -41,14 +40,14 @@
 	&__subcontent {
 		padding: 24px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			padding: 0 48px 48px 48px;
 		}
 
 		> p:first-child {
 			margin-top: 0;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				margin-top: 1em;
 			}
 		}
@@ -59,11 +58,11 @@
 		justify-content: center;
 		align-items: center;
 		padding: 48px 0;
-		background: var( --jp-white-off );
+		background: var(--jp-white-off);
 		background-size: cover;
 		background-position: center;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			grid-area: aside;
 			padding: 0;
 		}
@@ -71,7 +70,7 @@
 		img {
 			width: 90px;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				width: auto;
 			}
 		}
@@ -87,13 +86,13 @@
 		> * + * {
 			margin-left: 8px;
 
-			@include break-mobile {
+			@include mixins.break-mobile {
 				margin-left: 16px;
 			}
 		}
 	}
 
-  &__heading {
+	&__heading {
 		font-style: normal;
 		font-weight: 700;
 		font-size: 36px;
@@ -103,12 +102,13 @@
 		margin-bottom: 0;
 	}
 
-	p, li {
+	p,
+	li {
 		font-style: normal;
 		font-weight: 400;
 		font-size: 16px;
 		line-height: 24px;
-		color: var( --jp-black );
+		color: var(--jp-black);
 	}
 
 	ul {
@@ -128,7 +128,7 @@
 		button {
 			width: 100%;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				width: auto;
 			}
 		}
@@ -141,11 +141,11 @@
 		align-items: center;
 		margin-top: 32px;
 
-		@include break-medium {
+		@include mixins.break-medium {
 			justify-content: left;
 		}
 
-		@include break-xlarge {
+		@include mixins.break-xlarge {
 			flex-wrap: nowrap;
 		}
 
@@ -153,11 +153,11 @@
 			flex: 1 0 100%;
 			text-align: center;
 
-			@include break-medium {
+			@include mixins.break-medium {
 				text-align: left;
 			}
 
-			@include break-xlarge {
+			@include mixins.break-xlarge {
 				flex: 0 0 auto;
 			}
 		}
@@ -178,7 +178,7 @@
 			text-decoration: none;
 		}
 
-		@include break-xlarge {
+		@include mixins.break-xlarge {
 			margin: 0 0 0 24px;
 		}
 	}

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import styles from './styles.module.scss';
 
 const Tabs = ( { children, className = '' } ) => {

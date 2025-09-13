@@ -1,4 +1,5 @@
 import { SPOTLIT_ELEMENT_CLASS } from './tour-kit-spotlight';
+import type { VFC } from 'react';
 
 export interface SpotlightInteractivityConfiguration {
 	/** If true, the user will be allowed to interact with the spotlit element. Defaults to false. */
@@ -10,7 +11,7 @@ export interface SpotlightInteractivityConfiguration {
 	rootElementSelector?: string;
 }
 
-export const SpotlightInteractivity: React.VFC< SpotlightInteractivityConfiguration > = ( {
+export const SpotlightInteractivity: VFC< SpotlightInteractivityConfiguration > = ( {
 	enabled = false,
 	rootElementSelector = '#wpwrap',
 }: SpotlightInteractivityConfiguration ) => {

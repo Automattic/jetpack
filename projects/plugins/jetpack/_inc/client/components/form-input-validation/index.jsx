@@ -1,10 +1,10 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import Gridicon from 'components/gridicon';
 import './style.scss';
 
-export default class FormInputValidation extends React.Component {
+export default class FormInputValidation extends Component {
 	static displayName = 'FormInputValidation';
 
 	static propTypes = {

@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.5 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 1.2.4 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.3 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 1.2.2 - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## 1.2.1 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.2.0 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Removed
+- Remove unused code. [#44654]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## 1.1.0 - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Prevent fatals when non-connection owner adds license. [#44613]
+
+## 1.0.15 - 2025-07-30
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.14 - 2025-07-23
+### Changed
+- Internal updates.
+
+## 1.0.13 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 1.0.12 - 2025-07-14
+### Changed
+- Update dependencies. [#44271]
+
+## 1.0.11 - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## 1.0.10 - 2025-07-07
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.9 - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## 1.0.8 - 2025-07-01
+### Changed
+- Internal updates.
+
+## 1.0.7 - 2025-06-30
+### Changed
+- Internal updates.
+
+## 1.0.6 - 2025-06-24
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.5 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 1.0.4 - 2025-06-18
+### Changed
+- Internal updates.
+
+## 1.0.3 - 2025-06-16
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.2 - 2025-06-10
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.1 - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## 0.14.30 - 2025-06-02
+### Changed
+- Internal updates.
+
+## 0.14.29 - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## 0.14.28 - 2025-05-22
 ### Fixed
 - Fixed readability of license activation button on hover. [#43550]

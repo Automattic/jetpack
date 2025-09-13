@@ -1480,7 +1480,7 @@ class User_Agent_Info {
 			} elseif ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) { // Detecting the BB OS version for devices running OS 6.0 or higher.
 				$version     = $matches[1];
 				$version_num = explode( '.', $version );
-				if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
+				if ( count( $version_num ) <= 1 ) {
 					return 'blackberry-6'; // not a BB device that match our rule.
 				} else {
 					return 'blackberry-' . $version_num[0];
@@ -1501,7 +1501,7 @@ class User_Agent_Info {
 
 		$version_num = explode( '.', $version );
 
-		if ( is_array( $version_num ) === false || count( $version_num ) <= 1 ) {
+		if ( count( $version_num ) <= 1 ) {
 			return false;
 		}
 
@@ -1563,7 +1563,7 @@ class User_Agent_Info {
 
 			$version_num = explode( '.', $matches[1] );
 
-			if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
+			if ( count( $version_num ) <= 1 ) {
 				return false;
 			}
 

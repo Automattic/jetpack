@@ -1,8 +1,8 @@
 /** @ssr-ready **/
 
-import React from 'react';
+import { Component } from 'react';
 
-class SelectDropdownSeparator extends React.Component {
+class SelectDropdownSeparator extends Component {
 	render() {
 		return <li className="dops-select-dropdown__separator" />;
 	}

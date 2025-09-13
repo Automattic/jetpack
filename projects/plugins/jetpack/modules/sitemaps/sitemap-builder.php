@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
 require_once __DIR__ . '/sitemap-constants.php';
 require_once __DIR__ . '/sitemap-buffer.php';
@@ -160,7 +164,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
+						'Jetpack cannot load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
 						'jetpack'
 					),
 					true
@@ -168,11 +172,29 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			}
 		}
 
+		/**
+		 * Filters whether to suspend cache addition for the entire sitemap generation.
+		 *
+		 * @since 15.0
+		 *
+		 * @param bool|null $suspend_addition Whether to suspend cache addition. Defaults to null.
+		 * @return bool|null Whether to suspend cache addition.
+		 */
+		$suspend_addition = apply_filters( 'jetpack_sitemap_suspend_cache_addition', null );
+
+		// Cache the previous state in case something else changed it.
+		$prev_suspend_addition = wp_suspend_cache_addition();
+
+		wp_suspend_cache_addition( $suspend_addition );
+
 		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
 			if ( true === $this->build_next_sitemap_file() ) {
 				break; // All finished!
 			}
 		}
+
+		// Restore previous state.
+		wp_suspend_cache_addition( $prev_suspend_addition );
 
 		if ( $this->logger ) {
 			$this->logger->report( '-- ...done for now.' );
@@ -375,8 +397,10 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	private function build_next_sitemap_index_of_type( $index_type, $next_type, $state ) {
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
+		$sitemap_type_exists = isset( $state['max'][ $sitemap_type ] ) && is_array( $state['max'][ $sitemap_type ] );
+
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
-		if ( 1 >= $state['max'][ $sitemap_type ]['number'] ) {
+		if ( $sitemap_type_exists && 1 >= $state['max'][ $sitemap_type ]['number'] ) {
 			Jetpack_Sitemap_State::check_in(
 				array(
 					'sitemap-type'  => $next_type,
@@ -492,7 +516,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			return;
 		}
 
-		if ( 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_PAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
 				$page['filename']      = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
 				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
@@ -514,7 +538,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		if ( 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_IMAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
 				$image['filename']      = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
 				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
@@ -536,7 +560,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		if ( 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
+		if ( isset( $max[ JP_VIDEO_SITEMAP_TYPE ] ) && 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
 				$video['filename']      = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
 				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
@@ -722,11 +746,13 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 * @param DOMDocument      $doc Data tree for sitemap.
 		 * @param string           $last_modified Date of last modification.
 		 */
-		$tree = apply_filters( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			'jetpack_print_sitemap',
-			$buffer->get_document(),
-			$buffer->last_modified()
-		);
+		if ( has_filter( 'jetpack_print_sitemap' ) ) {
+			apply_filters(
+				'jetpack_print_sitemap',
+				$buffer->get_document(),
+				$buffer->last_modified()
+			);
+		}
 
 		// Store the buffer as the content of a sitemap row.
 		$this->librarian->store_sitemap_data(
@@ -949,11 +975,15 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$this->logger->report( "-- Building $index_debug_name" );
 		}
 
-		$buffer = new Jetpack_Sitemap_Buffer_Master(
+		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
 			JP_SITEMAP_MAX_ITEMS,
 			JP_SITEMAP_MAX_BYTES,
 			$datetime
 		);
+		if ( ! $buffer ) {
+			return false;
+		}
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {
@@ -1147,7 +1177,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param WP_Post $post The post to be processed.
+	 * @param object $post The post to be processed. Similar to WP_Post, but without post_content and post_content_filtered.
 	 *
 	 * @return array
 	 *              @type array  $xml An XML fragment representing the post URL.
@@ -1164,6 +1194,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 *
 		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
 		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
+		 *                     Doesn't have all the properties of a WP_Post.
 		 */
 		if ( true === apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			return array(
@@ -1418,7 +1449,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @access private
 	 * @since 4.8.0
 	 *
-	 * @param WP_Post $post The post to be processed.
+	 * @param object $post The post to be processed. Similar to WP_Post, but without post_content and post_content_filtered.
 	 *
 	 * @return string An XML fragment representing the post URL.
 	 */
@@ -1434,8 +1465,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		 *
 		 * @since 3.9.0
 		 *
-		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
+		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
+		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
+		 *                     Doesn't have all the properties of a WP_Post.
 		 */
 		if ( apply_filters( 'jetpack_sitemap_news_skip_post', false, $post ) ) {
 			return array(

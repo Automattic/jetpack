@@ -4,6 +4,48 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.5 - 2025-08-05
+### Added
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT [#44222]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44206] [#44356]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Update JITMs to remove jQuery dependency. [#43783]
+- Fix video row action button clickability by properly hiding stats on hover. [#44167]
+
+## 2.4 - 2025-06-10
+### Added
+- Add more error logging. [#42959]
+- Add My Jetpack tour. [#42880]
+
+### Changed
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button [#43203]
+- Update package dependencies. [#43071] [#43085] [#43326] [#43398] [#43400] [#43425] [#43578] [#43734] [#43839]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Update E2E tests. [#42956]
+
 ## 2.3 - 2025-04-07
 ### Added
 - Add Account Protection initialization. [#40925]

@@ -7,7 +7,6 @@ import {
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { range } from 'lodash';
 
 export const Rating = ( { id, setRating, children } ) => {
 	const setNewRating = newRating => () => setRating( newRating );
@@ -60,7 +59,7 @@ export default Symbol =>
 					/>
 				</BlockControls>
 				<div style={ { textAlign: align } }>
-					{ range( 1, maxRating + 1 ).map( position => (
+					{ Array.from( Array( Math.ceil( maxRating ) ), ( _, i ) => i + 1 ).map( position => (
 						<Rating key={ position } id={ position } setRating={ setNewRating }>
 							<span>
 								<Symbol

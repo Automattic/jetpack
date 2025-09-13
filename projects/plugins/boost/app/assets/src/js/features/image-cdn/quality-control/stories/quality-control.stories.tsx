@@ -1,6 +1,6 @@
 import type { Meta } from '@storybook/react';
 import QualityControl from '../quality-control';
-import React from 'react';
+import { useState, useEffect } from 'react';
 
 const meta: Meta< typeof QualityControl > = {
 	title: 'Plugins/Boost/Image CDN/QualityControl',
@@ -32,12 +32,12 @@ const defaultValues = {
 export default meta;
 
 const Template = args => {
-	const [config, setConfig] = React.useState( {
+	const [config, setConfig] = useState( {
 		lossless: args["config.lossless"],
 		quality: args["config.quality"],
 	} );
 
-	React.useEffect( () => {
+	useEffect( () => {
 		setConfig( {
 			lossless: args["config.lossless"],
 			quality: args["config.quality"],

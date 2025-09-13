@@ -2,10 +2,10 @@
 
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Component } from 'react';
 import Count from 'components/count';
 
-class SelectDropdownItem extends React.Component {
+class SelectDropdownItem extends Component {
 	static propTypes = {
 		children: PropTypes.node.isRequired,
 		path: PropTypes.string,
@@ -18,7 +18,7 @@ class SelectDropdownItem extends React.Component {
 		selected: false,
 	};
 
-	itemLinkRef = React.createRef();
+	itemLinkRef = createRef();
 
 	render() {
 		const optionClassName = clsx( this.props.className, {

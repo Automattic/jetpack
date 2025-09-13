@@ -1,3 +1,5 @@
+import type { JSX } from 'react';
+
 export type InterpolateVars = {
-	[ x: string ]: React.JSX.Element;
+	[ x: string ]: JSX.Element;
 };

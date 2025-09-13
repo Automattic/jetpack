@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Uncomment the below snippet to disable tests on WP trunk
 # if [[ "$WP_BRANCH" == 'trunk' ]]; then

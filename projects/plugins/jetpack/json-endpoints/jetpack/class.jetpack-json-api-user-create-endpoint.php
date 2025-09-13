@@ -3,8 +3,14 @@
 use Automattic\Jetpack\Connection\Utils;
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * User create endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 

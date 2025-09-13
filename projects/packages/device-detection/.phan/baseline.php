@@ -10,14 +10,12 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchReturn : 10+ occurrences
-    // PhanPluginSimplifyExpressionBool : 4 occurrences
-    // PhanRedundantCondition : 4 occurrences
+    // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-device-detection.php' => ['PhanRedundantCondition'],
-        'src/class-user-agent-info.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn'],
+        'src/class-user-agent-info.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

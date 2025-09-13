@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Removes sharing markup from post content if we're not in the loop and it's a
  * formatted post.
@@ -16,7 +20,7 @@
  */
 function twentyfourteen_mute_content_filters( $show, $post ) {
 	$formats = get_theme_support( 'post-formats' );
-	if ( ! in_the_loop() && has_post_format( $formats[0], $post ) ) {
+	if ( ! in_the_loop() && is_array( $formats ) && has_post_format( $formats[0], $post ) ) {
 		$show = false;
 	}
 	return $show;

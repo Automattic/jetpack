@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Jetpack Inspect
- * Version: 2.0.0-a.1
+ * Version: 2.0.0-a.5
  * Plugin URI: https://automattic.com
  * Description: Inspect HTTP incoming and outgoing requests and responses.
  * Author: pyronaur
@@ -29,7 +29,7 @@ use Automattic\Jetpack_Inspect\REST_API\Endpoints\Send_Request;
 use Automattic\Jetpack_Inspect\REST_API\Endpoints\Test_Request;
 use Automattic\Jetpack_Inspect\REST_API\REST_API;
 
-require_once plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 
 if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
 	\Automattic\Jetpack\Assets::alias_textdomains_from_file( plugin_dir_path( __FILE__ ) . 'jetpack_vendor/i18n-map.php' );

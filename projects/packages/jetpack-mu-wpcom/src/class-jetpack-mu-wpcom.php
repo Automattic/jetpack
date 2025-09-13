@@ -14,7 +14,7 @@ define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.3.1';
+	const PACKAGE_VERSION = '6.7.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -49,6 +49,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -79,6 +80,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Load the Social Links feature.
 		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
+
+		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
+		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -255,6 +259,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
@@ -262,13 +267,13 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
+		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
-		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
@@ -287,6 +292,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Code_Editor::setup();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
@@ -314,12 +320,14 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+		require_once __DIR__ . '/features/stats/stats.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
+		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
@@ -361,7 +369,6 @@ class Jetpack_Mu_Wpcom {
 		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
 		define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
 		define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
-		define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
 		define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
 		define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
 		define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
@@ -401,10 +408,6 @@ class Jetpack_Mu_Wpcom {
 
 		/**
 		 * Load features for the editor and the frontend pages.
-		 *
-		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
-		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
-		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
 		 */
 		global $pagenow;
 		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
@@ -412,10 +415,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
-			// To avoid potential collisions with newspack-blocks plugin.
-			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
-				require_once __DIR__ . '/features/newspack-blocks/index.php';
-			}
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
@@ -427,6 +426,25 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		}
+	}
+
+	/**
+	 * Load the newspack blocks feature for the editor and the frontend pages.
+	 */
+	public static function load_newspack_blocks() {
+		/**
+		 * Avoid potential collisions with newspack-blocks plugin.
+		 */
+		if ( class_exists( '\Newspack_Blocks', false ) ) {
+			return;
+		}
+
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+			require_once __DIR__ . '/features/newspack-blocks/index.php';
 		}
 	}
 
@@ -665,5 +683,27 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Add Jetpack script data with host information on P2
+	 *
+	 * @param array $data - The Jetpack script data.
+	 * @return array - The modified Jetpack script data.
+	 */
+	public static function add_jetpack_script_data_for_p2( $data ) {
+		if (
+		str_contains( get_stylesheet(), 'pub/p2' ) ||
+		( function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() ) )
+		) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( ! isset( $data['site']['host'] ) ) {
+				$data['site']['host'] = $host->get_known_host_guess();
+			}
+			if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+				$data['site']['is_wpcom_platform'] = $host->is_wpcom_platform();
+			}
+		}
+		return $data;
 	}
 }

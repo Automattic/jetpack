@@ -1,3 +1,4 @@
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -59,13 +60,12 @@ const SiteVisibility = ( {
 			<p className="description">
 				{ __( 'Control who can view your site.', 'jetpack-mu-wpcom' ) }
 				&nbsp;
-				<a
-					href="https://wordpress.com/support/privacy-settings/"
-					target="_blank"
-					rel="noopener noreferrer"
+				<WpcomSupportLink
+					supportLink="https://wordpress.com/support/privacy-settings/"
+					supportPostId="1507"
 				>
 					{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
-				</a>
+				</WpcomSupportLink>
 			</p>
 			<ul>
 				<li>
@@ -235,13 +235,12 @@ const SiteVisibility = ( {
 										'jetpack-mu-wpcom'
 									) }
 									&nbsp;
-									<a
-										href="https://wordpress.com/support/privacy-settings/make-your-website-public/#prevent-third-party-sharing"
-										target="_blank"
-										rel="noopener noreferrer"
+									<WpcomSupportLink
+										supportLink="https://wordpress.com/support/privacy-settings/make-your-website-public/#prevent-third-party-sharing"
+										supportPostId="390291"
 									>
 										{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
-									</a>
+									</WpcomSupportLink>
 								</p>
 							</li>
 						</ul>
@@ -269,7 +268,7 @@ const SiteVisibility = ( {
 					</label>
 					<p className="description">
 						{ __(
-							'Your site is only visible to you and logged-in members you approve. Everyone else will see a log in screen.',
+							'Your site is only visible to you and to logged-in members you approve. Everyone else will see a login screen.',
 							'jetpack-mu-wpcom'
 						) }
 					</p>

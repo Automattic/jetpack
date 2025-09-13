@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint(
 	array(
 		'description'     => 'Get the most recent autosave for a post.',
@@ -35,6 +39,8 @@ new WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint(
 // phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
 /**
  * Class WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Autosave_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	/**

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 
 export type VideoThumbnailDropdownProps = {
 	/**
@@ -31,7 +31,7 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	/**
 	 * Video thumbnail image
 	 */
-	thumbnail?: string | React.ReactNode;
+	thumbnail?: string | ReactNode;
 
 	/**
 	 * Video duration. Number, in milliseconds.

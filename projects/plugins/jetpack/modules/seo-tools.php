@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: SEO Tools
- * Module Description: Better results on search engines and social media.
+ * Module Description: Optimize titles, meta descriptions, and social previews for better search results.
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4
@@ -14,6 +14,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 // Suppress SEO Tools output if any of the following plugins is active.
 $jetpack_seo_conflicting_plugins = array(

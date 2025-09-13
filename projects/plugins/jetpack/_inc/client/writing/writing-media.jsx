@@ -1,6 +1,5 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';

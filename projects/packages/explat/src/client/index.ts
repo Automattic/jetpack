@@ -3,6 +3,7 @@
  */
 import { createExPlatClient } from '@automattic/explat-client';
 import createExPlatClientReactHelpers from '@automattic/explat-client-react-helpers';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -14,8 +15,13 @@ import {
 import { logError } from './error';
 import { isDevelopmentMode } from './utils';
 
-export const initializeExPlat = (): void => {
-	initializeAnonId().catch( e => logError( { message: e.message } ) );
+const debug = debugFactory( 'jetpack-explat:client' );
+
+export { createExPlatClient };
+
+export const initializeExPlat = async (): Promise< string | null | void > => {
+	debug( 'initializing explat' );
+	return initializeAnonId().catch( e => logError( { message: e.message } ) );
 };
 
 initializeExPlat();

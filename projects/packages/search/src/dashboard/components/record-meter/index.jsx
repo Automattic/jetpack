@@ -1,6 +1,5 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import getRecordInfo from './lib/record-info';
 import { NoticeBox } from './notice-box';
 import { RecordCount } from './record-count';
@@ -16,7 +15,7 @@ import './style.scss';
  * @param {object} props.postTypes          - Post types  (post type label => post type slug)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} props.lastIndexedDate    - The date on which the site was last indexed in ISO 8601 format
- * @return {React.Component} RecordMeter React component
+ * @return {import('react').Component} RecordMeter React component
  */
 export default function RecordMeter( {
 	postCount,

@@ -17,6 +17,7 @@ import type { BlockEditorDispatch } from '../types';
 
 export class JetpackFormHandler extends BlockHandler {
 	currentListOfValidBlocks = [];
+	originalVariationName: string | null = null;
 
 	constructor( clientId: string ) {
 		super( clientId, [] );
@@ -24,10 +25,25 @@ export class JetpackFormHandler extends BlockHandler {
 		this.feature = 'jetpack-form-ai-extension';
 		this.startOpen = true;
 		this.hideOnBlockFocus = false;
+		this.adjustPosition = false;
+		this.supports = {
+			file_upload_field: 1,
+		};
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {
-		const { replaceInnerBlocks } = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
+		const { replaceInnerBlocks, updateBlockAttributes } = dispatch(
+			'core/block-editor'
+		) as BlockEditorDispatch;
+
+		// Parse the content first to extract variation name properly
+		const parsedBlocks = parse( newContent );
+
+		// Extract variation name from the parsed contact-form block if present
+		const contactFormBlock = parsedBlocks.find( block => block.name === 'jetpack/contact-form' );
+		if ( contactFormBlock && contactFormBlock.attributes?.variationName ) {
+			this.originalVariationName = contactFormBlock.attributes.variationName;
+		}
 
 		// Remove the Jetpack Form block from the content.
 		const processedContent = newContent.replace(
@@ -78,13 +94,28 @@ export class JetpackFormHandler extends BlockHandler {
 
 		// Final form adjustments (only when the request is done)
 		if ( isRequestDone ) {
+			// Restore the variation name if it was present in the original content
+			if ( this.originalVariationName ) {
+				const currentBlock = this.getBlock();
+				if (
+					currentBlock &&
+					currentBlock.attributes.variationName !== this.originalVariationName
+				) {
+					updateBlockAttributes( this.clientId, { variationName: this.originalVariationName } );
+				}
+			}
+
 			/*
 			 * Inspect generated blocks list,
 			 * checking if the jetpack/button block:
 			 * - if it exists twice or more, remove the first one.
-			 * - if it does not exist, create one.
+			 * - if it does not exist, create one (unless there's a navigation block).
 			 */
 			const allButtonBlocks = validBlocks.filter( block => block.name === 'jetpack/button' );
+			const hasNavigationBlock = validBlocks.some(
+				block => block.name === 'jetpack/form-step-navigation'
+			);
+
 			this.currentListOfValidBlocks = this.currentListOfValidBlocks || [];
 			if ( allButtonBlocks.length > 1 ) {
 				// Remove all button blocks, less the last one.
@@ -102,8 +133,8 @@ export class JetpackFormHandler extends BlockHandler {
 				} );
 
 				replaceInnerBlocks( this.clientId, this.currentListOfValidBlocks );
-			} else if ( allButtonBlocks.length === 0 ) {
-				// One button block is required.
+			} else if ( allButtonBlocks.length === 0 && ! hasNavigationBlock ) {
+				// One button block is required for non-multistep forms.
 				replaceInnerBlocks( this.clientId, [
 					...this.currentListOfValidBlocks,
 					createBlock( 'jetpack/button', {

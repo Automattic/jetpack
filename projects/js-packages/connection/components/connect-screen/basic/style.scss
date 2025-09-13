@@ -1,5 +1,4 @@
-@import '@wordpress/base-styles/breakpoints';
-@import '@wordpress/base-styles/mixins';
+@use "@wordpress/base-styles/breakpoints";
 
 .jp-connection__connect-screen {
 	--spacing-base: 8px;
@@ -30,10 +29,10 @@
 			max-width: 100%;
 
 			&:disabled {
-				color: hsla( 0, 0%, 100%, 0.4 );
+				color: hsla(0, 0%, 100%, 0.4);
 			}
 
-			@media ( max-width: $break-medium ) {
+			@media ( max-width: breakpoints.$break-medium ) {
 				max-width: none;
 				width: 100%;
 			}
@@ -49,8 +48,8 @@
 		height: 1px;
 		width: 1px;
 		overflow: hidden;
-		white-space: nowrap;	
-		
+		white-space: nowrap;
+
 		&:empty {
 			display: none;
 		}

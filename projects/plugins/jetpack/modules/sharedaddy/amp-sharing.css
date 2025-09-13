@@ -32,7 +32,7 @@ amp-social-share::before,
 }
 
 .amp-social-share.print::before {
-	content: '\f469';
+	content: "\f469";
 	color: #656565;
 }
 
@@ -42,7 +42,7 @@ amp-social-share[type="email"] {
 }
 
 amp-social-share[type="email"]::before {
-	content: '\f410';
+	content: "\f410";
 }
 
 amp-social-share[type="tumblr"] {
@@ -50,7 +50,7 @@ amp-social-share[type="tumblr"] {
 }
 
 amp-social-share[type="tumblr"]::before {
-	content: '\f607';
+	content: "\f607";
 }
 
 amp-social-share[type="facebook"] {
@@ -58,7 +58,7 @@ amp-social-share[type="facebook"] {
 }
 
 amp-social-share[type="facebook"]::before {
-	content: '\f203';
+	content: "\f203";
 }
 
 amp-social-share[type="twitter"] {
@@ -66,7 +66,7 @@ amp-social-share[type="twitter"] {
 }
 
 amp-social-share[type="twitter"]::before {
-	content: '\f10e';
+	content: "\f10e";
 }
 
 amp-social-share[type="pinterest"] {
@@ -74,7 +74,7 @@ amp-social-share[type="pinterest"] {
 }
 
 amp-social-share[type="pinterest"]::before {
-	content: '\f210';
+	content: "\f210";
 }
 
 amp-social-share[type="telegram"] {
@@ -82,7 +82,7 @@ amp-social-share[type="telegram"] {
 }
 
 amp-social-share[type="telegram"]::before {
-	content: '\f606';
+	content: "\f606";
 }
 
 amp-social-share[type="linkedin"] {
@@ -90,7 +90,7 @@ amp-social-share[type="linkedin"] {
 }
 
 amp-social-share[type="linkedin"]::before {
-	content: '\f207';
+	content: "\f207";
 }
 
 amp-social-share[type="pocket"] {
@@ -98,7 +98,7 @@ amp-social-share[type="pocket"] {
 }
 
 amp-social-share[type="pocket"]::before {
-	content: '\f224';
+	content: "\f224";
 }
 
 amp-social-share[type="reddit"] {
@@ -107,7 +107,7 @@ amp-social-share[type="reddit"] {
 }
 
 amp-social-share[type="reddit"]::before {
-	content: '\f222';
+	content: "\f222";
 }
 
 amp-social-share[type="whatsapp"] {
@@ -115,5 +115,5 @@ amp-social-share[type="whatsapp"] {
 }
 
 amp-social-share[type="whatsapp"]::before {
-	content: '\f608';
+	content: "\f608";
 }

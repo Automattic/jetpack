@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
+import { cloneElement, PureComponent } from 'react';
 import { SocialLogoData } from './social-logo-data';
+import type { SVGAttributes } from 'react';
 
-export type SocialLogoProps = React.SVGAttributes< SVGSVGElement > & {
+export type SocialLogoProps = SVGAttributes< SVGSVGElement > & {
 	icon: ( typeof SocialLogoData )[ number ][ 'name' ];
 	size?: number;
 };
@@ -32,7 +33,7 @@ export class SocialLogo extends PureComponent< SocialLogoProps > {
 			return <svg height={ size } width={ size } { ...otherProps } />;
 		}
 
-		const svg = React.cloneElement( logoData.svg, {
+		const svg = cloneElement( logoData.svg, {
 			className: iconClass,
 			height: size,
 			width: size,

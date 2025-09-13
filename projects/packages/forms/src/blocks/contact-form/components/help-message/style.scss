@@ -16,10 +16,10 @@
 	}
 
 	&.help-message-is-error {
-		color: var( --color-error );
+		color: var(--color-error);
 
 		svg {
-			fill: var( --color-error );
+			fill: var(--color-error);
 		}
 	}
 }

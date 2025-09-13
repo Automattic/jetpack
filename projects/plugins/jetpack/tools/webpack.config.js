@@ -95,10 +95,6 @@ const moduleSources = [
 
 // Library definitions for certain modules.
 const libraryDefs = {
-	'carousel/swiper-bundle': {
-		name: 'Swiper670',
-		type: 'umd',
-	},
 	'widgets/google-translate/google-translate': {
 		name: 'googleTranslateElementInit',
 		type: 'assign',

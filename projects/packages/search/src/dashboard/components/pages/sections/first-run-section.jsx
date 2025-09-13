@@ -1,7 +1,6 @@
 import { IndeterminateProgressBar, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
-import React from 'react';
 import PlanSummary from './plan-summary';
 
 // import './first-run-section.scss';

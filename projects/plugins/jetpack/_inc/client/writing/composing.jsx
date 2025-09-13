@@ -1,6 +1,6 @@
 import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
@@ -12,7 +12,7 @@ import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
-export class Composing extends React.Component {
+export class Composing extends Component {
 	/**
 	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.

@@ -2,7 +2,7 @@ import { ProgressBar } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
@@ -174,7 +174,7 @@ const FeaturePromptComponent = props => {
 			} ) }
 			content={
 				descriptionList || descriptionSecondary ? (
-					<React.Fragment>
+					<Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
 								{ descriptionList.map( ( item, index ) => (
@@ -185,7 +185,7 @@ const FeaturePromptComponent = props => {
 						{ descriptionSecondary && (
 							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
 						) }
-					</React.Fragment>
+					</Fragment>
 				) : null
 			}
 			answer={

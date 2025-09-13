@@ -1,4 +1,3 @@
-import React from 'react';
 import Spinner from '../index.jsx';
 
 export default {
@@ -7,9 +6,9 @@ export default {
 	argTypes: {
 		color: { control: 'color' },
 	},
-	parameters: {
+	globals: {
 		backgrounds: {
-			default: 'dark',
+			value: 'dark',
 		},
 	},
 };

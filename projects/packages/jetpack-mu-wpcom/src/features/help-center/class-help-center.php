@@ -22,6 +22,13 @@ class Help_Center {
 	private static $instance = null;
 
 	/**
+	 * Whether the current site is a support site.
+	 *
+	 * @var bool
+	 */
+	private $is_support_site = false;
+
+	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
@@ -38,6 +45,18 @@ class Help_Center {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+
+		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+	}
+
+	/**
+	 * We prefer to use the Help Center instead of the Help tab.
+	 */
+	public function jetpack_remove_core_help_tab() {
+		?>
+			<style>#contextual-help-link-wrap { display: none; }</style>
+		<?php
 	}
 
 	/**
@@ -158,18 +177,23 @@ class Help_Center {
 				'before'
 			);
 
-			$user_id      = get_current_user_id();
-			$user_data    = get_userdata( $user_id );
-			$username     = $user_data->user_login;
-			$user_email   = $user_data->user_email;
-			$display_name = $user_data->display_name;
-			$avatar_url   = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$user_id       = get_current_user_id();
+			$user_data     = get_userdata( $user_id );
+			$username      = $user_data->user_login;
+			$user_email    = $user_data->user_email;
+			$display_name  = $user_data->display_name;
+			$avatar_url    = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$is_next_admin = (bool) did_action( 'next_admin_init' );
 
 			wp_add_inline_script(
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
 						'isProxied'   => boolval( self::is_proxied() ),
+						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'       => isset( $_COOKIE['ssp'] ),
+						'sectionName' => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin' => $is_next_admin,
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
@@ -206,6 +230,10 @@ class Help_Center {
 	 * Get current site details.
 	 */
 	public function get_current_site() {
+		if ( $this->is_support_site ) {
+			return null;
+		}
+
 		/*
 		* Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
 		* doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
@@ -304,6 +332,10 @@ class Help_Center {
 		require_once __DIR__ . '/class-wp-rest-help-center-email-support-enabled.php';
 		$controller = new WP_REST_Help_Center_Email_Support_Enabled();
 		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
+		$controller = new WP_REST_Help_Center_Ticket_CSAT();
+		$controller->register_rest_route();
 	}
 
 	/**
@@ -371,7 +403,7 @@ class Help_Center {
 	public function get_help_center_url() {
 		$help_url = 'https://wordpress.com/help?help-center=home';
 
-		if ( $this->is_jetpack_disconnected() || $this->is_loading_on_frontend() ) {
+		if ( $this->is_jetpack_disconnected() || ( $this->is_loading_on_frontend() && ! $this->is_support_site ) ) {
 			return $help_url;
 		}
 
@@ -410,6 +442,7 @@ class Help_Center {
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
+		$is_next_admin = (bool) did_action( 'next_admin_init' );
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
@@ -421,11 +454,15 @@ class Help_Center {
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
 		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site ) {
 			return;
+		}
+
+		if ( $this->is_support_site ) {
+			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() ) {
+		} elseif ( $this->is_block_editor() || $is_next_admin ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );

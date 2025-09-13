@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import React from 'react';
 import { render, screen } from 'test/test-utils';
 import ContextualizedConnection from '../index';
 

@@ -10,6 +10,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\VideoPress\Block_Replacement;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register a VideoPress extension to replace the default Core Video block.
  */
@@ -198,7 +202,7 @@ class VideoPress_Gutenberg {
 				'_inc/build/videopress/js/gutenberg-video-upload.min.js',
 				'modules/videopress/js/gutenberg-video-upload.js'
 			),
-			array( 'wp-api-fetch', 'wp-polyfill', 'lodash' ),
+			array( 'wp-api-fetch', 'wp-polyfill' ),
 			JETPACK__VERSION,
 			false
 		);

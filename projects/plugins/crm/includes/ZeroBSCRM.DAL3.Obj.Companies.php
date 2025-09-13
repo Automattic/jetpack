@@ -585,7 +585,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // ==== / TOTAL VALUES
 
                 $selector = 'company.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -1022,6 +1022,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
             }
 
             #} Custom Fields
+						// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused; this var is initialized at the beginning of the function.
             if ($withCustomFields){
                 
                 #} Retrieve any cf
@@ -1273,76 +1274,69 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
             }
 
-            // quick addition for mike
-            #} olderThan
-            if (!empty($olderThan) && $olderThan > 0 && $olderThan !== false) $wheres['olderThan'] = array('zbsco_created','<=','%d',$olderThan);
-            #} newerThan
-            if (!empty($newerThan) && $newerThan > 0 && $newerThan !== false) $wheres['newerThan'] = array('zbsco_created','>=','%d',$newerThan);
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
+		// quick addition for mike
+		#} olderThan
+		if ( ! empty( $olderThan ) && $olderThan > 0 ) $wheres['olderThan'] = array( 'zbsco_created', '<=', '%d', $olderThan );
+		#} newerThan
+		if ( ! empty( $newerThan ) && $newerThan > 0 ) $wheres['newerThan'] = array( 'zbsco_created', '>=', '%d', $newerThan );
 
-            // status
-            if (!empty($hasStatus) && $hasStatus !== false) $wheres['hasStatus'] = array('zbsco_status','=','%s',$hasStatus);
-            if (!empty($otherStatus) && $otherStatus !== false) $wheres['otherStatus'] = array('zbsco_status','<>','%s',$otherStatus);
+		// status
+		if ( ! empty( $hasStatus ) ) $wheres['hasStatus']     = array( 'zbsco_status', '=', '%s', $hasStatus );
+		if ( ! empty( $otherStatus ) ) $wheres['otherStatus'] = array( 'zbsco_status', '<>', '%s', $otherStatus );
 
-            #} inCounty
-            if (!empty($inCounty) && !empty($inCounty) && $inCounty !== false) {
-                $wheres['inCounty'] = array('zbsco_county','=','%s',$inCounty);
-                $wheres['inCountyAddr2'] = array('zbsco_secaddrcounty','=','%s',$inCounty);
-            }
-            #} inPostCode
-            if (!empty($inPostCode) && !empty($inPostCode) && $inPostCode !== false) {
-                $wheres['inPostCode'] = array('zbsco_postcode','=','%s',$inPostCode);
-                $wheres['inPostCodeAddr2'] = array('zbsco_secaddrpostcode','=','%s',$inPostCode);
-            }
-            #} inCountry
-            if (!empty($inCountry) && !empty($inCountry) && $inCountry !== false) {
-                $wheres['inCountry'] = array('zbsco_country','=','%s',$inCountry);
-                $wheres['inCountryAddr2'] = array('zbsco_secaddrcountry','=','%s',$inCountry);
-            }
-            #} notInCounty
-            if (!empty($notInCounty) && !empty($notInCounty) && $notInCounty !== false) {
-                $wheres['notInCounty'] = array('zbsco_county','<>','%s',$notInCounty);
-                $wheres['notInCountyAddr2'] = array('zbsco_secaddrcounty','<>','%s',$notInCounty);
-            }
-            #} notInPostCode
-            if (!empty($notInPostCode) && !empty($notInPostCode) && $notInPostCode !== false) {
-                $wheres['notInPostCode'] = array('zbsco_postcode','<>','%s',$notInPostCode);
-                $wheres['notInPostCodeAddr2'] = array('zbsco_secaddrpostcode','<>','%s',$notInPostCode);
-            }
-            #} notInCountry
-            if (!empty($notInCountry) && !empty($notInCountry) && $notInCountry !== false) {
-                $wheres['notInCountry'] = array('zbsco_country','<>','%s',$notInCountry);
-                $wheres['notInCountryAddr2'] = array('zbsco_secaddrcountry','<>','%s',$notInCountry);
-            }
+		#} inCounty
+		if ( ! empty( $inCounty ) ) {
+			$wheres['inCounty']      = array( 'zbsco_county', '=', '%s', $inCounty );
+			$wheres['inCountyAddr2'] = array( 'zbsco_secaddrcounty', '=', '%s', $inCounty );
+		}
+		#} inPostCode
+		if ( ! empty( $inPostCode ) ) {
+			$wheres['inPostCode']      = array( 'zbsco_postcode', '=', '%s', $inPostCode );
+			$wheres['inPostCodeAddr2'] = array( 'zbsco_secaddrpostcode', '=', '%s', $inPostCode );
+		}
+		#} inCountry
+		if ( ! empty( $inCountry ) ) {
+			$wheres['inCountry']      = array( 'zbsco_country', '=', '%s', $inCountry );
+			$wheres['inCountryAddr2'] = array( 'zbsco_secaddrcountry', '=', '%s', $inCountry );
+		}
+		#} notInCounty
+		if ( ! empty( $notInCounty ) ) {
+			$wheres['notInCounty']      = array( 'zbsco_county', '<>', '%s', $notInCounty );
+			$wheres['notInCountyAddr2'] = array( 'zbsco_secaddrcounty', '<>', '%s', $notInCounty );
+		}
+		#} notInPostCode
+		if ( ! empty( $notInPostCode ) ) {
+			$wheres['notInPostCode']      = array( 'zbsco_postcode', '<>', '%s', $notInPostCode );
+			$wheres['notInPostCodeAddr2'] = array( 'zbsco_secaddrpostcode', '<>', '%s', $notInPostCode );
+		}
+		#} notInCountry
+		if ( ! empty( $notInCountry ) ) {
+			$wheres['notInCountry']      = array( 'zbsco_country', '<>', '%s', $notInCountry );
+			$wheres['notInCountryAddr2'] = array( 'zbsco_secaddrcountry', '<>', '%s', $notInCountry );
+		}
 
-            // has contact associated with it
-            if (!empty($hasContact) && $hasContact !== false && $hasContact > 0) $wheres['hasContact'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = company.ID)");
+		// has contact associated with it
+		if ( ! empty( $hasContact ) && $hasContact > 0 ) $wheres['hasContact'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = company.ID)' );
 
 
-            // generic obj links, e.g. quotes, invs, trans 
-            // e.g. contact(s) assigned to inv 123
-            // Where the link relationship is OBJECT -> CONTACT
-            if (!empty($hasObjIDLinkedTo) && $hasObjIDLinkedTo !== false && $hasObjIDLinkedTo > 0 && 
-                !empty($hasObjTypeLinkedTo) && $hasObjTypeLinkedTo !== false && $hasObjTypeLinkedTo > 0) {
-                $wheres['hasObjIDLinkedTo'] = array('ID','IN','(SELECT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = %d AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_from = %d AND zbsol_objid_to = company.ID)",array($hasObjTypeLinkedTo,$hasObjIDLinkedTo));
+		// generic obj links, e.g. quotes, invs, trans
+		// e.g. contact(s) assigned to inv 123
+		// Where the link relationship is OBJECT -> CONTACT
+		if ( ! empty( $hasObjIDLinkedTo ) && $hasObjIDLinkedTo > 0 &&
+				! empty( $hasObjTypeLinkedTo ) && $hasObjTypeLinkedTo > 0 ) {
+			$wheres['hasObjIDLinkedTo'] = array( 'ID', 'IN', '(SELECT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = %d AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = %d AND zbsol_objid_to = company.ID)', array( $hasObjTypeLinkedTo, $hasObjIDLinkedTo ) );
 
-            }
+		}
 
-            // generic obj links, e.g. companies
-            // Where the link relationship is CONTACT -> OBJECT
-            if (!empty($isLinkedToObjID) && $isLinkedToObjID !== false && $isLinkedToObjID > 0 && 
-                !empty($isLinkedToObjType) && $isLinkedToObjType !== false && $isLinkedToObjType > 0) {
-                $wheres['isLinkedToObjID'] = array('ID','IN','(SELECT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_COMPANY." AND zbsol_objtype_to = %d AND zbsol_objid_from = company.ID AND zbsol_objid_to = %d)",array($isLinkedToObjType,$isLinkedToObjID));
+		// generic obj links, e.g. companies
+		// Where the link relationship is CONTACT -> OBJECT
+		if ( ! empty( $isLinkedToObjID ) && $isLinkedToObjID > 0 &&
+				! empty( $isLinkedToObjType ) && $isLinkedToObjType > 0 ) {
+			$wheres['isLinkedToObjID'] = array( 'ID', 'IN', '(SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objtype_to = %d AND zbsol_objid_from = company.ID AND zbsol_objid_to = %d)', array( $isLinkedToObjType, $isLinkedToObjID ) );
 
-            }
-
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
+		}
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,Generic.ControlStructures.InlineControlStructure.NotAllowed
 
             #} Quick filters - adapted from DAL1 (probs can be slicker)
             if (is_array($quickFilters) && count($quickFilters) > 0){
@@ -1405,7 +1399,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // catch 1 item arr
                 if (is_array($isTagged) && count($isTagged) == 1) $isTagged = $isTagged[0];
 
-            if (!is_array($isTagged) && !empty($isTagged) && $isTagged > 0){
+		if ( ! empty( $isTagged ) && ! is_array( $isTagged ) && $isTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -1435,7 +1429,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 // catch 1 item arr
                 if (is_array($isNotTagged) && count($isNotTagged) == 1) $isNotTagged = $isNotTagged[0];
                 
-            if (!is_array($isNotTagged) && !empty($isNotTagged) && $isNotTagged > 0){
+		if ( ! empty( $isNotTagged ) && ! is_array( $isNotTagged ) && $isNotTagged > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // add where tagged                 
                 // 1 int: 
@@ -2385,7 +2379,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                             #} Any extra meta keyval pairs?
                             // BRUTALLY updates (no checking)
                             $confirmedExtraMeta = false;
-                            if (isset($extraMeta) && is_array($extraMeta)) {
+					if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                                 $confirmedExtraMeta = array();
 
@@ -2417,9 +2411,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 #} e.g. x@g.com exists, so add log "x@g.com filled out form"
                                 #} Requires a type and a shortdesc
                                 if (
-                                    isset($fallBackLog) && is_array($fallBackLog) 
-                                    && isset($fallBackLog['type']) && !empty($fallBackLog['type'])
-                                    && isset($fallBackLog['shortdesc']) && !empty($fallBackLog['shortdesc'])
+																	is_array( $fallBackLog ) && ! empty( $fallBackLog['type'] ) && ! empty( $fallBackLog['shortdesc'] ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                 ){
 
                                     #} Brutal add, maybe validate more?!
@@ -2427,13 +2419,19 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     #} Long desc if present:
                                     $zbsNoteLongDesc = ''; if (isset($fallBackLog['longdesc']) && !empty($fallBackLog['longdesc'])) $zbsNoteLongDesc = $fallBackLog['longdesc'];
 
-                                        #} Only raw checked... but proceed.
-                                        $newOrUpdatedLogID = zeroBS_addUpdateCompanyLog($id,-1,-1,array(
-                                            #} Anything here will get wrapped into an array and added as the meta vals
-                                            'type' => $fallBackLog['type'],
-                                            'shortdesc' => $fallBackLog['shortdesc'],
-                                            'longdesc' => $zbsNoteLongDesc
-                                        ));
+										#} Only raw checked... but proceed.
+										zeroBS_addUpdateObjLog(
+											ZBS_TYPE_COMPANY,
+											$id,
+											-1,
+											-1,
+											array(
+												// Anything here will get wrapped into an array and added as the meta vals
+												'type'     => $fallBackLog['type'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+												'shortdesc' => $fallBackLog['shortdesc'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+												'longdesc' => $zbsNoteLongDesc, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+											)
+										);
 
 
                                 }
@@ -2604,7 +2602,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                     #} Any extra meta keyval pairs?
                     // BRUTALLY updates (no checking)
                     $confirmedExtraMeta = false;
-                    if (isset($extraMeta) && is_array($extraMeta)) {
+						if ( is_array( $extraMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         $confirmedExtraMeta = array();
 
@@ -2943,13 +2941,13 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Returns an status against a company
-     *
-     * @param int id company ID
-     *
-     * @return str company status string
-     */
+	/**
+	 * Returns an status against a company
+	 *
+	 * @param int $id company ID.
+	 *
+	 * @return string company status string
+	 */
     public function getCompanyStatus($id=-1){
 
         global $zbs;

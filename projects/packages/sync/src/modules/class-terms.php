@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for terms.
  */
@@ -342,9 +346,10 @@ class Terms extends Module {
 			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,
-					'term_taxonomy_id' => $term_taxonomy_ids,
 					'orderby'          => 'term_taxonomy_id',
 					'order'            => 'DESC',
+					'taxonomy'         => array(),
+					'term_taxonomy_id' => $term_taxonomy_ids,
 				)
 			),
 			'previous_end' => $previous_end,

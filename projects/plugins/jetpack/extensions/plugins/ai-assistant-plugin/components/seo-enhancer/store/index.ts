@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { JETPACK_MODULES_STORE_ID, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { JETPACK_MODULES_STORE_ID } from '@automattic/jetpack-shared-extension-utils';
 import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies

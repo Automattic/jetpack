@@ -1,7 +1,7 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
-import React, { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState, useMemo } from 'react';
 import styles from './styles.module.scss';
 
 const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {
@@ -18,7 +18,7 @@ const PaginationButton = ( { pageNumber, currentPage, onPageChange } ) => {
 			onClick={ handleClick }
 			aria-current={ isCurrentPage ? 'page' : undefined }
 			aria-label={ sprintf(
-				/* translators: placeholder is a page number, i.e. "Page 123" */
+				/* translators: %d: the page number (e.g. "Page 123") */
 				__( 'Page %d', 'jetpack-protect' ),
 				pageNumber
 			) }

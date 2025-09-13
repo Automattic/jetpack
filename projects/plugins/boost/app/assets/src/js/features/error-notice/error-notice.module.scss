@@ -1,5 +1,5 @@
-@import "$css/main/mixins";
-@import "$css/main/variables";
+@use "$css/main/mixins";
+@use "$css/main/variables";
 
 .error-notice {
 	position: relative;
@@ -8,14 +8,14 @@
 	margin: 0;
 	padding: 0;
 
-	@include breakpoint(sm) {
+	@include mixins.breakpoint(sm) {
 		display: flex;
 		align-items: flex-start;
 		justify-content: left;
 	}
 
 	:global(.raw-error) {
-		color: $primary-black;
+		color: variables.$primary-black;
 	}
 
 	pre {
@@ -46,42 +46,42 @@
 		padding-left: 0.5em;
 	}
 
-	.main-action:not( :empty ) {
+	.main-action:not(:empty) {
 		margin-left: auto;
 
 		button {
 			margin-left: 0;
 
-			@include breakpoint(sm) {
+			@include mixins.breakpoint(sm) {
 				margin-left: 20px;
 			}
 		}
 	}
 
 	.description {
-		color: $red_50;
+		color: variables.$red_50;
 		font-weight: 700;
-		margin-bottom: .5em;
+		margin-bottom: 0.5em;
 	}
 
 	.message {
 		list-style-type: disc;
-		color: $red_50;
+		color: variables.$red_50;
 
 		p {
-			margin: .25em 0;
-			color: $red_50;
+			margin: 0.25em 0;
+			color: variables.$red_50;
 		}
 
 		button {
-			color: $primary-black;
+			color: variables.$primary-black;
 			font-size: 16px;
 			margin: 16px auto;
 		}
 
 		li {
 
-			@include word-wrap();
+			@include mixins.word-wrap();
 		}
 	}
 }

@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 add_action( 'widgets_init', 'jetpack_goodreads_widget_init' );
@@ -127,7 +131,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		echo $args['before_widget'];  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . rawurlencode( $instance['user_id'] ) . '.' . rawurlencode( $instance['title'] ) . ':%20' . rawurlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . rawurlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . rawurlencode( $this->goodreads_widget_id );
+		$goodreads_url = 'https://www.goodreads.com/review/custom_widget/' . rawurlencode( (string) $instance['user_id'] ) . '.' . rawurlencode( $instance['title'] ) . ':%20' . rawurlencode( $instance['shelf'] ) . '?cover_position=&cover_size=small&num_books=5&order=d&shelf=' . rawurlencode( $instance['shelf'] ) . '&sort=date_added&widget_bg_transparent=&widget_id=' . rawurlencode( $this->goodreads_widget_id );
 
 		echo '<div class="jetpack-goodreads-legacy-widget gr_custom_widget" id="gr_custom_widget_' . esc_attr( $this->goodreads_widget_id ) . '"></div>' . "\n";
 		echo '<script src="' . esc_url( $goodreads_url ) . '"></script>' . "\n"; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript

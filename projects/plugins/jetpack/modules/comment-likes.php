@@ -1,7 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Comment Likes
- * Module Description: Increase visitor engagement by adding a Like button to comments.
+ * Module Description: Enable visitors to like individual comments and boost engagement.
  * Sort Order: 39
  * Recommendation Order: 17
  * First Introduced: 5.1
@@ -14,6 +14,10 @@
  */
 
 use Automattic\Jetpack\Assets;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 

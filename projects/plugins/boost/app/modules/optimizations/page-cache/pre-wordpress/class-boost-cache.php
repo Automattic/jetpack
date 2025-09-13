@@ -12,6 +12,10 @@ use WP_Post;
  * Require all pre-wordpress files here. These files aren't autoloaded as they are loaded before WordPress is fully initialized.
  * pre-wordpress files assume all other pre-wordpress files are loaded here.
  */
+require_once __DIR__ . '/path-actions/interface-path-action.php';
+require_once __DIR__ . '/path-actions/class-filter-older.php';
+require_once __DIR__ . '/path-actions/class-rebuild-file.php';
+require_once __DIR__ . '/path-actions/class-simple-delete.php';
 require_once __DIR__ . '/boost-cache-actions.php';
 require_once __DIR__ . '/class-boost-cache-error.php';
 require_once __DIR__ . '/class-boost-cache-settings.php';
@@ -570,7 +574,7 @@ class Boost_Cache {
 		 */
 		$get_parameters = apply_filters(
 			'jetpack_boost_ignore_get_parameters',
-			array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term' )
+			array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'ysclid', 'srsltid', 'yclid' )
 		);
 
 		$get_parameters = array_unique(

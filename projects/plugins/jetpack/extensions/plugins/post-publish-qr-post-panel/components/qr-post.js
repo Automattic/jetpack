@@ -1,6 +1,6 @@
 import { QRCode } from '@automattic/jetpack-components';
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
-import { Component, Button, Modal } from '@wordpress/components';
+import { Button, Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useState } from '@wordpress/element';
@@ -11,7 +11,7 @@ import useSiteLogo from '../hooks/use-site-logo.js';
  * React component that renders a QR code for the post,
  * pulling the post data from the editor store.
  *
- * @return {Component} The react component.
+ * @return {import('react').ReactComponent} The react component.
  */
 export function QRPost() {
 	const wrapperElementRef = useRef( undefined );

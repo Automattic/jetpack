@@ -131,7 +131,7 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
 
 
                 $selector = 'lineitem.*';
-                if (isset($fields) && is_array($fields)) {
+			if ( is_array( $fields ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
                     $selector = '';
 
                     // always needs id, so add if not present
@@ -323,16 +323,6 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
                 // DO NOTHING, this is dodgy to ever call :) as collision of objs
             }
 
-            #} Any additionalWhereArr?
-            if (isset($additionalWhereArr) && is_array($additionalWhereArr) && count($additionalWhereArr) > 0){
-
-                // add em onto wheres (note these will OVERRIDE if using a key used above)
-                // Needs to be multi-dimensional $wheres = array_merge($wheres,$additionalWhereArr);
-                $wheres = array_merge_recursive($wheres,$additionalWhereArr);
-
-            }
-        
-
         #} ============ / WHERE ===============
 
         #} CHECK this + reset to default if faulty
@@ -441,7 +431,7 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
         $summaryData = array();
 
         // calc
-        if (isset($lineItems) && is_array($lineItems) && count($lineItems) > 0){
+		if ( is_array( $lineItems ) && count( $lineItems ) > 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             $lineItemTaxes = array();
             $taxRateTable = zeroBSCRM_taxRates_getTaxTableArr(true);
@@ -593,7 +583,7 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
                 // NORMAL, FULL UPDATE
 
                     // (re)calculate the totals etc?
-                    if (isset($calculate_totals) && $calculate_totals){
+			if ( $calculate_totals ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
                         $data = $this->recalculate($data);
 

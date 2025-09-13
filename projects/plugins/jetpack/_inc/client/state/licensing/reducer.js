@@ -1,4 +1,3 @@
-import { assign, get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_LICENSING_ERROR_UPDATE,
@@ -36,7 +35,7 @@ export const error = ( state = window.Initial_State.licensing.error, action ) =>
 export const userCounts = ( state = window.Initial_State.licensing.userCounts ?? {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_USER_LICENSE_COUNTS_UPDATE:
-			return assign( {}, state, action.counts );
+			return Object.assign( {}, state, action.counts );
 
 		default:
 			return state;
@@ -59,7 +58,7 @@ export const activationNoticeDismiss = (
 ) => {
 	switch ( action.type ) {
 		case JETPACK_LICENSING_ACTIVATION_NOTICE_DISMISS_UPDATE:
-			return assign( {}, state, action.dismissData );
+			return Object.assign( {}, state, action.dismissData );
 
 		default:
 			return state;
@@ -119,7 +118,7 @@ export const reducer = combineReducers( {
  * @return {string} - Error message or an empty string.
  */
 export function getLicensingError( state ) {
-	return get( state.jetpack.licensing, [ 'error' ], '' );
+	return state.jetpack.licensing?.error ?? '';
 }
 
 /**
@@ -129,7 +128,7 @@ export function getLicensingError( state ) {
  * @return {boolean} - True if the user has detached user licenses, false otherwise.
  */
 export function hasDetachedUserLicenses( state ) {
-	return !! get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
+	return !! ( state.jetpack.licensing.userCounts?.detached ?? 0 );
 }
 
 /**
@@ -139,7 +138,7 @@ export function hasDetachedUserLicenses( state ) {
  * @return {Array} - An array containing all the detached licenses
  */
 export function getDetachedLicenses( state ) {
-	const allLicenses = get( state.jetpack.licensing.licenses, [ 'items' ], {} );
+	const allLicenses = state.jetpack.licensing.licenses?.items ?? {};
 	return Object.values( allLicenses ).filter( ( { attached_at } ) => attached_at === null );
 }
 
@@ -150,7 +149,7 @@ export function getDetachedLicenses( state ) {
  * @return {boolean} - A boolean value of loading state of licenses
  */
 export function getDetachedLicensesLoadingInfo( state ) {
-	return get( state.jetpack.licensing.licenses, [ 'loading' ], false );
+	return state.jetpack.licensing.licenses?.loading ?? false;
 }
 
 /**
@@ -160,7 +159,7 @@ export function getDetachedLicensesLoadingInfo( state ) {
  * @return {number} - Number of detached licenses.
  */
 export function getDetachedLicensesCount( state ) {
-	return get( state.jetpack.licensing.userCounts, [ 'detached' ], 0 );
+	return state.jetpack.licensing.userCounts?.detached ?? 0;
 }
 
 /**
@@ -170,5 +169,5 @@ export function getDetachedLicensesCount( state ) {
  * @return {object} - An object containing last_detached_count and last_dismissed_time.
  */
 export function getActivationNoticeDismissInfo( state ) {
-	return get( state.jetpack.licensing, [ 'activationNoticeDismiss' ], {} );
+	return state.jetpack.licensing?.activationNoticeDismiss ?? {};
 }

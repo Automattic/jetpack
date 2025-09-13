@@ -2,7 +2,7 @@ import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';

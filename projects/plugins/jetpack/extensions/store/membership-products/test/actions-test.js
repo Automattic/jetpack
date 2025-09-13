@@ -11,6 +11,7 @@ import {
 	setConnectedAccountDefaultCurrency,
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
+	setTotalEmailsSentCount,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -329,5 +330,16 @@ describe( 'Membership Products Actions', () => {
 
 		// Then
 		expect( result ).toStrictEqual( anyValidNewsletterCategoriesSubscriptionsCountWithType );
+	} );
+
+	test( 'Set total emails sent count works as expected', () => {
+		const anyValidTotalEmailsSentCountWithType = {
+			type: 'SET_TOTAL_EMAILS_SENT_COUNT',
+			totalEmailsSentCount: ANY_VALID_DATA,
+		};
+
+		const result = setTotalEmailsSentCount( ANY_VALID_DATA );
+
+		expect( result ).toStrictEqual( anyValidTotalEmailsSentCountWithType );
 	} );
 } );

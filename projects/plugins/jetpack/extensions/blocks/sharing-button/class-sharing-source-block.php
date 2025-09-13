@@ -64,12 +64,38 @@ abstract class Sharing_Source_Block {
 	}
 
 	/**
-	 * Get sharing stats for a specific post or sharing service.
+	 * Get stats for a site, a post, or a sharing service.
+	 * Soon to come to a .org plugin near you!
 	 *
-	 * @return int This is a placeholder that returns 0 at the moment. We might want to implement this in the future.
+	 * @param WP_Post|bool $post Post object.
+	 *
+	 * @return int
 	 */
-	public function get_total() {
-		return 0;
+	public function get_total( $post = false ) {
+		global $wpdb, $blog_id;
+
+		$name = strtolower( (string) $this->get_id() );
+
+		if ( $post === false ) {
+			// get total number of shares for service
+			return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$wpdb->prepare(
+					'SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s',
+					$blog_id,
+					$name
+				)
+			);
+		}
+
+		// get total shares for a post
+		return (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				'SELECT count FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s',
+				$blog_id,
+				$post->ID,
+				$name
+			)
+		);
 	}
 
 	/**
@@ -405,7 +431,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 	 * @return string The nonce action name.
 	 */
 	protected function get_email_share_nonce_action( $post_id ) {
-		if ( ! empty( $post_id ) && 0 !== $post_id ) {
+		if ( ! empty( $post_id ) ) {
 			return 'jetpack-email-share-' . $post_id;
 		}
 
@@ -542,7 +568,7 @@ class Share_Facebook_Block extends Sharing_Source_Block {
 	 */
 	public function process_request( $post, array $post_data ) {
 		$post_id = $post instanceof WP_Post ? $post->ID : 0;
-		$fb_url  = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
+		$fb_url  = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );

@@ -49,7 +49,8 @@ class Jetpack_SEO_Posts {
 			return $post->post_excerpt;
 		}
 
-		return $post->post_content;
+		// Remove content within wp:query blocks and return.
+		return Jetpack_SEO_Utils::remove_query_blocks( $post->post_content );
 	}
 
 	/**

@@ -29,6 +29,7 @@ export class BlockHandler {
 	public adjustPosition: boolean = true;
 	public startOpen: boolean = false;
 	public hideOnBlockFocus: boolean = true;
+	public supports: Record< string, number > = {};
 
 	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
 		this.clientId = clientId;

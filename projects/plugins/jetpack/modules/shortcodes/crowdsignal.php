@@ -23,6 +23,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Keep compatibility with the PollDaddy plugin.
 if (
 	! class_exists( 'CrowdsignalShortcode' )
@@ -30,6 +34,8 @@ if (
 ) {
 	/**
 	 * Class wrapper for Crowdsignal shortcodes
+	 *
+	 * @phan-constructor-used-for-side-effects
 	 */
 	class CrowdsignalShortcode {
 
@@ -56,7 +62,10 @@ if (
 			add_shortcode( 'crowdsignal', array( $this, 'crowdsignal_shortcode' ) );
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 
-			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
+			if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+				add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
+			}
+
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
 		}
 
@@ -240,22 +249,29 @@ if (
 			 * Rating embed.
 			 */
 			if ( (int) $attributes['rating'] > 0 && ! $no_script ) {
+				$post_id = $post instanceof WP_Post ? $post->ID : get_the_ID();
+				$post_id = $post_id ?? '';
 
 				if ( empty( $attributes['unique_id'] ) ) {
-					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post->ID : 'wp-post-' . $post->ID;
+					$attributes['unique_id'] = is_page() ? 'wp-page-' . $post_id : 'wp-post-' . $post_id;
 				}
 
 				if ( empty( $attributes['item_id'] ) ) {
-					$attributes['item_id'] = is_page() ? '_page_' . $post->ID : '_post_' . $post->ID;
+					$attributes['item_id'] = is_page() ? '_page_' . $post_id : '_post_' . $post_id;
 				}
 
 				if ( empty( $attributes['title'] ) ) {
+					$title = $post instanceof WP_Post ? $post->post_title : get_the_title();
 					/** This filter is documented in core/src/wp-includes/general-template.php */
-					$attributes['title'] = apply_filters( 'wp_title', $post->post_title, '', '' );
+					$attributes['title'] = apply_filters( 'wp_title', $title, '', '' );
 				}
 
 				if ( empty( $attributes['permalink'] ) ) {
-					$attributes['permalink'] = get_permalink( $post->ID );
+					if ( $post_id ) {
+						$attributes['permalink'] = get_permalink( $post_id );
+					} else {
+						$attributes['permalink'] = home_url( add_query_arg( array() ) );
+					}
 				}
 
 				$rating    = (int) $attributes['rating'];
@@ -744,8 +760,8 @@ if (
 			);
 
 			// Replace survey.fm links.
-			$content = preg_replace(
-				'!(?:\n|\A)https?://(.*).survey.fm/(.*)(/.*)?(?:\n|\Z)!i',
+			$content = jetpack_preg_replace_outside_tags(
+				'!(?:\n|\A)https?:\/\/([^"\'.]+)\.survey\.fm\/([^"\'\/\s]+)(?:\/.*)?(?:\n|\Z)!i',
 				'[crowdsignal type="iframe" survey="true" height="auto" domain="$1" id="$2"]',
 				$content
 			);

@@ -2,6 +2,137 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.8] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [1.4.7] - 2025-09-01
+### Changed
+- Update dependencies.
+
+## [1.4.6] - 2025-08-25
+### Changed
+- Update dependencies.
+
+## [1.4.5] - 2025-08-25
+### Changed
+- Update dependencies.
+
+## [1.4.4] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [1.4.3] - 2025-08-14
+### Changed
+- Update dependencies.
+
+## [1.4.2] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.4.1] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [1.4.0] - 2025-08-04
+### Added
+- Add "from" argument to user connection url. [#44587]
+
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+
+## [1.3.2] - 2025-07-30
+### Changed
+- Update dependencies.
+
+## [1.3.1] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [1.3.0] - 2025-07-23
+### Changed
+- Connection: Remove hard-coded custom errors and added support for dynamic errors. [#44281]
+
+## [1.2.14] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.2.13] - 2025-07-10
+### Changed
+- Update package dependencies. [#44219]
+
+## [1.2.12] - 2025-07-08
+### Changed
+- Update dependencies.
+
+## [1.2.11] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.2.10] - 2025-07-07
+### Changed
+- Update dependencies.
+
+## [1.2.9] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.2.8] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.2.7] - 2025-06-30
+### Changed
+- Update dependencies.
+
+## [1.2.6] - 2025-06-24
+### Changed
+- Update dependencies.
+
+## [1.2.5] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.2.4] - 2025-06-19
+### Changed
+- Update dependencies.
+
+## [1.2.3] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.2.2] - 2025-06-16
+### Changed
+- Update dependencies.
+
+## [1.2.1] - 2025-06-10
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-06-05
+### Changed
+- Connection: Display connection info on WoA sites. [#43777]
+
+## [1.1.0] - 2025-06-04
+### Added
+- Improve error handling for protected owner on WordPress.com. [#43593]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.39.18] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@wordpress/base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
+## [0.39.17] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.39.16] - 2025-05-22
 ### Changed
 - Update dependencies.
@@ -1031,6 +1162,37 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.8]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.7...v1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.6...v1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.2...v1.4.0
+[1.3.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.1...v1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.14...v1.3.0
+[1.2.14]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.13...v1.2.14
+[1.2.13]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.12...v1.2.13
+[1.2.12]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.11...v1.2.12
+[1.2.11]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.10...v1.2.11
+[1.2.10]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.9...v1.2.10
+[1.2.9]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.8...v1.2.9
+[1.2.8]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.7...v1.2.8
+[1.2.7]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.6...v1.2.7
+[1.2.6]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.5...v1.2.6
+[1.2.5]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.4...v1.2.5
+[1.2.4]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.18...v1.0.0
+[0.39.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.17...v0.39.18
+[0.39.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.16...v0.39.17
 [0.39.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.15...v0.39.16
 [0.39.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.14...v0.39.15
 [0.39.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.39.13...v0.39.14

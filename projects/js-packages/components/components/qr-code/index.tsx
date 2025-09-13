@@ -1,8 +1,8 @@
 import { QRCodeCanvas, QRCodeSVG } from 'qrcode.react';
-import type React from 'react';
+import type { ComponentProps, FC, ReactNode } from 'react';
 
-type QRCodeCanvasProps = React.ComponentProps< typeof QRCodeCanvas >;
-type QRCodeSVGProps = React.ComponentProps< typeof QRCodeSVG >;
+type QRCodeCanvasProps = ComponentProps< typeof QRCodeCanvas >;
+type QRCodeSVGProps = ComponentProps< typeof QRCodeSVG >;
 
 export type QRCodeProps = {
 	/**
@@ -50,9 +50,9 @@ export type QRCodeProps = {
  * Renders a QR Code.
  *
  * @param {QRCodeProps} props - Component props
- * @return {React.ReactNode} - React component.
+ * @return {ReactNode} - React component.
  */
-const QRCode: React.FC< QRCodeProps > = ( {
+const QRCode: FC< QRCodeProps > = ( {
 	value = 'https://jetpack.com',
 	size = 248,
 	bgColor,

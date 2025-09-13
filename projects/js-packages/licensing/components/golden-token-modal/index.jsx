@@ -3,7 +3,7 @@ import { Modal } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import styles from './styles.module.scss';
 
 const onModalCloseDefault = event => {
@@ -26,7 +26,7 @@ const onModalCloseDefault = event => {
  * @param {object}   props.displayName    - Connected user data.
  * @param {Function} [props.onModalClose] - Callback function to handle module closure.
  * @param {boolean}  props.tokenRedeemed  - If their token is already redeemed.
- * @return {React.ReactNode} - GoldenToken component.
+ * @return {import('react').ReactNode} - GoldenToken component.
  */
 function GoldenTokenModal( {
 	redeemClick,

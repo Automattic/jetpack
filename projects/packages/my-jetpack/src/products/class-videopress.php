@@ -13,6 +13,10 @@ use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
 use WP_Error;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the VideoPress product
  */
@@ -137,7 +141,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
+		return __( 'Powerful and flexible video hosting.', 'jetpack-my-jetpack' );
 	}
 
 	/**

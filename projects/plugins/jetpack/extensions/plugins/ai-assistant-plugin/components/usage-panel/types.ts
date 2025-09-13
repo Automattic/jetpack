@@ -3,6 +3,7 @@ import {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
 } from '../ai-assistant-plugin-sidebar/constants';
+import type { MouseEvent } from 'react';
 
 export const USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR = 'block_settings_sidebar' as const;
 
@@ -27,7 +28,7 @@ export type InternalUsagePanelProps = {
 	canUpgrade: boolean;
 	showContactUsCallToAction: boolean;
 	contactUsURL: string;
-	handleContactUsClick: ( event: React.MouseEvent< HTMLButtonElement > ) => void;
+	handleContactUsClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	checkoutUrl: string;
-	handleUpgradeClick: ( event: React.MouseEvent< HTMLButtonElement > ) => void;
+	handleUpgradeClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
 };

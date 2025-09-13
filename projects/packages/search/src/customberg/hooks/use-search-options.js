@@ -1,6 +1,6 @@
 import { useEntityProp } from '@wordpress/core-data';
-import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 import { useMemo } from 'react';
+import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 
 const VALID_POST_TYPES = window.JetpackInstantSearchOptions.postTypes;
 

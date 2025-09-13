@@ -1,18 +1,18 @@
 import { Path, SVG } from '@wordpress/components';
-import React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * Automattic for Agencies Logo component
  *
  * @param {object} props       - Component props
  * @param {string} props.color - Color code for the logo text
- * @return {React.ReactElement} Component template
+ * @return {ReactElement} Component template
  */
 export default function AutomatticForAgenciesLogo( {
 	color = '#FFFFFF',
 }: {
 	color: string;
-} ): React.ReactElement {
+} ): ReactElement {
 	return (
 		<SVG
 			clipRule="evenodd"

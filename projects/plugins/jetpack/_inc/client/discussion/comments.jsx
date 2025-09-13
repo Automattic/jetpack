@@ -1,6 +1,6 @@
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -11,7 +11,7 @@ import TextInput from 'components/text-input';
 
 import './style.scss';
 
-class CommentsComponent extends React.Component {
+class CommentsComponent extends Component {
 	/**
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.

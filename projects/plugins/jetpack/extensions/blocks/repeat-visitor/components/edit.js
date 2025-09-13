@@ -46,7 +46,7 @@ export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) =
 			}
 
 			return sprintf(
-				/* translators: placeholder is a number. */
+				/* translators: %d: the number of people. */
 				_n(
 					'This block will only appear to people who have visited this page more than %d time.',
 					'This block will only appear to people who have visited this page more than %d times.',
@@ -65,7 +65,7 @@ export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) =
 		}
 
 		return sprintf(
-			/* translators: placeholder is a number. */
+			/* translators: %d: the number of people. */
 			_n(
 				'This block will only appear to people who are visiting this page for %d time.',
 				'This block will only appear to people who have visited this page at most %d times.',

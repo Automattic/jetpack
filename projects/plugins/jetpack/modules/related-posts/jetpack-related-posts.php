@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Automattic\Jetpack\Sync\Settings;
 
 /**
@@ -454,7 +455,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes, $content, $block = null ) {
-		if ( ! jetpack_is_frontend() ) {
+		if ( ! Request::is_frontend() ) {
 			return $content;
 		}
 
@@ -1316,9 +1317,7 @@ EOT;
 			$response['items'] = $related_posts;
 		}
 
-		echo wp_json_encode( $response );
-
-		exit( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
@@ -1757,8 +1756,8 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				$cat_link = get_category_link( $category );
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+					$cat_link = get_category_link( $category );
 					return array(
 						'text' => trim( $category->name ),
 						'link' => $cat_link,
@@ -1769,8 +1768,8 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				$tag_link = get_tag_link( $tag );
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
+					$tag_link = get_tag_link( $tag );
 					return array(
 						'text' => trim( $tag->name ),
 						'link' => $tag_link,
@@ -1813,7 +1812,7 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
 					$post_cat_context = sprintf(
 						// Translators: The category or tag name.
 						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
@@ -1837,7 +1836,7 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
 					$post_tag_context = sprintf(
 						// Translators: the category or tag name.
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
@@ -2070,8 +2069,9 @@ EOT;
 			return array();
 		}
 
-		// If the current post don't contain a Related Posts block, don't get the related posts.
-		if ( ! has_block( 'jetpack/related-posts' ) ) {
+		// If the current post doesn't contain a Related Posts block, and we're also on an admin page, don't get the related posts.
+		// This will ensure that if the feature is enabled, we can still retrieve Related Posts via the REST API.
+		if ( ! has_block( 'jetpack/related-posts' ) && is_admin() ) {
 			return array();
 		}
 

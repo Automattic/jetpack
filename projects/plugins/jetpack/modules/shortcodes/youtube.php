@@ -14,6 +14,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Replaces YouTube embeds with YouTube shortcodes.
  *
@@ -106,7 +110,10 @@ function jetpack_youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+}
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -467,10 +474,10 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
-		$default_width = $content_width;
+		$default_width = (int) $content_width;
 	} else {
 		// Otherwise get default width from the old, now deprecated embed_size_w option.
-		$default_width = get_option( 'embed_size_w' );
+		$default_width = (int) get_option( 'embed_size_w' );
 	}
 
 	// If we don't know those 2 values use a hardcoded width.

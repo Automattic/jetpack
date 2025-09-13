@@ -28,6 +28,7 @@ interface ConnectedProductCardProps {
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 	customLoadTracks?: Record< Lowercase< string >, unknown >;
+	variant?: 'default' | 'slim';
 }
 
 const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
@@ -44,6 +45,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	onMouseEnter,
 	onMouseLeave,
 	customLoadTracks,
+	variant = 'default',
 } ) => {
 	const { isRegistered } = useMyJetpackConnection();
 	const { detail, refetch } = useProduct( slug );
@@ -83,6 +85,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			onMouseLeave={ onMouseLeave }
 			customLoadTracks={ customLoadTracks }
 			manageUrl={ manageUrl }
+			variant={ variant }
 		>
 			{ children }
 		</ProductCard>

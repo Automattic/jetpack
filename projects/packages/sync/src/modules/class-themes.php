@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for themes.
  */
@@ -511,10 +515,11 @@ class Themes extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @param array $status This module Full Sync status.
 	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array This module Full Sync status.
 	 */
-	public function send_full_sync_actions( $config, $status, $send_until ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $status, $send_until, $started ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
 		$result = $this->send_action( 'jetpack_full_sync_theme_data', array( true ) );
 
@@ -533,7 +538,7 @@ class Themes extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
@@ -740,6 +745,7 @@ class Themes extends Module {
 
 		$moved_to_inactive_ids = array();
 		$moved_to_sidebar      = array();
+		$new_inactive_widgets  = $new_value['wp_inactive_widgets'] ?? array();
 
 		foreach ( $new_value as $sidebar => $new_widgets ) {
 			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ), true ) ) {
@@ -752,8 +758,7 @@ class Themes extends Module {
 			if ( ! is_array( $new_widgets ) ) {
 				$new_widgets = array();
 			}
-
-			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
+			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_inactive_widgets );
 			$moved_to_inactive_ids      = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );

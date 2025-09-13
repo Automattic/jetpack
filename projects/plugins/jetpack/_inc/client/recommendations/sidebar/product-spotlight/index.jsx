@@ -1,6 +1,6 @@
 import { ExternalLink } from '@wordpress/components';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { connect } from 'react-redux';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';

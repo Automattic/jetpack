@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Image CDN
- * Module Description:  Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.
+ * Module Description:  Deliver images quickly with automatic resizing from Jetpack’s global image CDN.
  * Sort Order: 25
  * Recommendation Order: 1
  * First Introduced: 2.0
@@ -13,5 +13,9 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 Automattic\Jetpack\Image_CDN\Image_CDN_Setup::load();

@@ -1,52 +1,53 @@
-import { AxisLeft, AxisBottom } from '@visx/axis';
-import { localPoint } from '@visx/event';
-import { Group } from '@visx/group';
-import { scaleBand, scaleLinear } from '@visx/scale';
-import { Bar } from '@visx/shape';
-import { useTooltip } from '@visx/tooltip';
+import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
+import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, useCallback, type MouseEvent, ReactNode } from 'react';
-import { useChartTheme } from '../../providers/theme';
-import { GridControl } from '../grid-control';
-import { Legend } from '../legend';
-import { withResponsive } from '../shared/with-responsive';
-import { BaseTooltip } from '../tooltip';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsContext,
+	GlobalChartsContext,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import type { BaseChartProps, SeriesData } from '../../types';
+import { useBarChartOptions } from './private';
+import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../private/with-responsive';
+import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import type { FC, ReactNode, ComponentType } from 'react';
 
-type BarChartTooltipData = {
-	value: number;
-	xLabel: string;
-	yLabel: string;
-	seriesIndex: number;
-};
-
-interface BarChartProps extends BaseChartProps< SeriesData[] > {
-	renderTooltip?: ( params: BarChartTooltipData ) => ReactNode;
+export interface BarChartProps extends BaseChartProps< SeriesData[] > {
+	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	orientation?: 'horizontal' | 'vertical';
+	withPatterns?: boolean;
+	showZeroValues?: boolean;
+	children?: ReactNode;
 }
 
-const formatDateTick = ( timestamp: number ) => {
-	const date = new Date( timestamp );
-	return date.toLocaleDateString( undefined, {
-		month: 'short',
-		day: 'numeric',
-	} );
-};
+// Base props type with optional responsive properties
+type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
 
-// Default tooltip renderer
-const renderDefaultTooltip = ( tooltipData: BarChartTooltipData ) => {
-	if ( ! tooltipData ) return null;
+// Composition API types
+interface BarChartSubComponents {
+	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
+}
 
-	return (
-		<div className={ styles[ 'bar-chart__tooltip' ] }>
-			<div className={ styles[ 'bar-chart__tooltip-header' ] }>{ tooltipData.yLabel }</div>
-			<div className={ styles[ 'bar-chart__tooltip-row' ] }>
-				<span className={ styles[ 'bar-chart__tooltip-label' ] }>{ tooltipData.xLabel }:</span>
-				<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ tooltipData.value }</span>
-			</div>
-		</div>
-	);
-};
+type BarChartComponent = FC< BarChartBaseProps > & BarChartSubComponents;
+type BarChartResponsiveComponent = FC< BarChartBaseProps & ResponsiveConfig > &
+	BarChartSubComponents;
 
 // Validation function similar to LineChart
 const validateData = ( data: SeriesData[] ) => {
@@ -54,11 +55,12 @@ const validateData = ( data: SeriesData[] ) => {
 
 	const hasInvalidData = data.some( series =>
 		series.data.some(
-			d =>
-				d.value === null ||
-				d.value === undefined ||
-				isNaN( d.value ) ||
-				( ! d.label && ( ! d.date || isNaN( d.date.getTime() ) ) )
+			point =>
+				isNaN( point.value as number ) ||
+				point.value === null ||
+				point.value === undefined ||
+				( ! point.label &&
+					( ! ( 'date' in point && point.date ) || isNaN( point.date.getTime() ) ) )
 		)
 	);
 
@@ -66,152 +68,372 @@ const validateData = ( data: SeriesData[] ) => {
 	return null;
 };
 
-const BarChart: FC< BarChartProps > = ( {
+const getPatternId = ( chartId: string, index: number ) => `bar-pattern-${ chartId }-${ index }`;
+
+const BarChartInternal: FC< BarChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	width,
 	height = 400,
 	className,
-	margin = { top: 20, right: 20, bottom: 40, left: 40 },
+	margin,
 	withTooltips = false,
 	showLegend = false,
 	legendOrientation = 'horizontal',
-	gridVisibility = 'x',
-	renderTooltip = renderDefaultTooltip,
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
+	legendShape = 'rect',
+	gridVisibility: gridVisibilityProp,
+	renderTooltip,
 	options = {},
+	orientation = 'vertical',
+	withPatterns = false,
+	showZeroValues = false,
+	children,
 } ) => {
-	const theme = useChartTheme();
-	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< BarChartTooltipData >();
-	// If we are to spread the options to axis, we need to get rid of tickFormat as it wouldn't work with band scales.
-	const tickFormat = options.axis?.x?.tickFormat ?? formatDateTick;
+	const horizontal = orientation === 'horizontal';
+	const chartId = useChartId( providedChartId );
+	const theme = useXYChartTheme( data );
 
-	const handleMouseMove = useCallback(
-		(
-			event: MouseEvent< SVGRectElement >,
-			value: number,
-			xLabel: string,
-			yLabel: string,
-			seriesIndex: number
-		) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
-			showTooltip( {
-				tooltipData: { value, xLabel, yLabel, seriesIndex },
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
-		},
-		[ showTooltip ]
+	const dataSorted = useChartDataTransform( data );
+
+	// Transform data to add a small value for zero bars to make them visible
+	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
+		enabled: showZeroValues,
+	} );
+
+	// Create legend items using the reusable hook
+	const legendItems = useChartLegendItems( dataSorted );
+	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
+	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	const chartRef = useRef< HTMLDivElement >( null );
+	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
+	const [ isNavigating, setIsNavigating ] = useState( false );
+
+	const totalPoints =
+		Math.max( 0, ...data.map( series => series.data?.length || 0 ) ) * data.length;
+
+	// Use the keyboard navigation hook
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+	} );
+
+	const { resolveGroupColor } = useGlobalChartsContext();
+
+	const getColor = useCallback(
+		( seriesData: SeriesData, index: number ) =>
+			resolveGroupColor( {
+				group: seriesData.group,
+				index,
+				overrideColor: seriesData.options?.stroke,
+			} ),
+		[ resolveGroupColor ]
 	);
 
-	// Validate data using the same pattern as LineChart
-	const error = validateData( data );
+	const getBarBackground = useCallback(
+		( index: number ) => () =>
+			withPatterns
+				? `url(#${ getPatternId( chartId, index ) })`
+				: getColor( dataSorted[ index ], index ),
+		[ withPatterns, getColor, dataSorted, chartId ]
+	);
+
+	const renderDefaultTooltip = useCallback(
+		( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+			const nearestDatum = tooltipData?.nearestDatum?.datum;
+			if ( ! nearestDatum ) return null;
+
+			return (
+				<div className={ styles[ 'bar-chart__tooltip' ] }>
+					<div className={ styles[ 'bar-chart__tooltip-header' ] }>
+						{ tooltipData?.nearestDatum?.key }
+					</div>
+					<div className={ styles[ 'bar-chart__tooltip-row' ] }>
+						<span className={ styles[ 'bar-chart__tooltip-label' ] }>
+							{ chartOptions.tooltip.labelFormatter(
+								nearestDatum.label || ( nearestDatum.date ? nearestDatum.date.getTime() : 0 ),
+								0,
+								[]
+							) }
+							:
+						</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
+					</div>
+				</div>
+			);
+		},
+		[ chartOptions.tooltip ]
+	);
+
+	const renderPattern = useCallback(
+		( index: number, color: string ) => {
+			const patternType = index % 4;
+			const id = getPatternId( chartId, index );
+			const commonProps = {
+				id,
+				stroke: 'white',
+				strokeWidth: 1,
+				background: color,
+			};
+
+			switch ( patternType ) {
+				case 0:
+				default:
+					return (
+						<PatternLines
+							key={ id }
+							{ ...commonProps }
+							width={ 5 }
+							height={ 5 }
+							orientation={ [ 'diagonal' ] }
+						/>
+					);
+				case 1:
+					return (
+						<PatternCircles key={ id } { ...commonProps } width={ 6 } height={ 6 } fill="white" />
+					);
+				case 2:
+					return <PatternWaves key={ id } { ...commonProps } width={ 4 } height={ 4 } />;
+				case 3:
+					return <PatternHexagons key={ id } { ...commonProps } size={ 8 } height={ 3 } />;
+			}
+		},
+		[ chartId ]
+	);
+
+	const createPatternBorderStyle = useCallback(
+		( index: number, color: string ) => {
+			const patternId = getPatternId( chartId, index );
+			return `
+			.visx-bar[fill="url(#${ patternId })"] {
+				stroke: ${ color };
+				stroke-width: 1;
+				}
+			`;
+		},
+		[ chartId ]
+	);
+
+	const createKeyboardHighlightStyle = useCallback( () => {
+		if ( selectedIndex === undefined ) return '';
+
+		// Calculate which bar should be highlighted based on selectedIndex
+		// Pattern: [series1[0], series2[0], series3[0], series1[1], series2[1], series3[1], ...]
+		const maxDataPoints = Math.max( ...data.map( s => s.data.length ) );
+		const dataPointIndex = Math.floor( selectedIndex / data.length );
+		const seriesIndex = selectedIndex % data.length;
+
+		// Only highlight if we're within valid bounds
+		if ( dataPointIndex >= maxDataPoints || seriesIndex >= data.length ) {
+			return '';
+		}
+
+		const seriesData = data[ seriesIndex ];
+		if ( dataPointIndex >= seriesData.data.length ) {
+			return '';
+		}
+
+		// Based on the DOM structure analysis:
+		// - All bars are in a single .visx-bar-group
+		// - Bars are ordered as: [series1[0], series1[1], series2[0], series2[1], ...]
+		// - So we need to calculate the actual bar index in the DOM
+		const actualBarIndex = seriesIndex * maxDataPoints + dataPointIndex;
+
+		// Use a CSS class selector instead of ID since useId() generates invalid CSS ID characters
+		const generatedStyles = `
+			.bar-chart[data-chart-id="bar-chart-${ chartId }"] .visx-bar-group .visx-bar:nth-child(${
+				actualBarIndex + 1
+			}) {
+				stroke: #005fcc;
+				stroke-width: 2px;
+			}
+		`;
+
+		return generatedStyles;
+	}, [ selectedIndex, data, chartId ] );
+
+	// Validate data first
+	const error = validateData( dataSorted );
+	const isDataValid = ! error;
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			orientation,
+			withPatterns,
+		} ),
+		[ orientation, withPatterns ]
+	);
+
+	// Register chart with context only if data is valid
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'bar',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
+
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
 
-	const margins = margin;
-	const xMax = width - margins.left - margins.right;
-	const yMax = height - margins.top - margins.bottom;
-
-	// Get labels for x-axis from the first series (assuming all series have same labels)
-	const labels = data[ 0 ].data?.map( d => {
-		return d?.label || tickFormat( d?.date );
-	} );
-
-	// Create scales
-	const xScale = scaleBand< string >( {
-		range: [ 0, xMax ],
-		domain: labels,
-		padding: 0.2,
-	} );
-
-	const innerScale = scaleBand( {
-		range: [ 0, xScale.bandwidth() ],
-		domain: data.map( ( _, i ) => i.toString() ),
-		padding: 0.1,
-	} );
-
-	const yScale = scaleLinear< number >( {
-		range: [ yMax, 0 ],
-		domain: [
-			0,
-			Math.max( ...data.map( series => Math.max( ...series.data.map( d => d?.value || 0 ) ) ) ),
-		],
-	} );
-
-	// Create legend items from group labels, this iterates over groups rather than data points
-	const legendItems = data.map( ( group, index ) => ( {
-		label: group.label, // Label for each unique group
-		value: '', // Empty string since we don't want to show a specific value
-		color: group.options?.stroke || theme.colors[ index % theme.colors.length ],
-	} ) );
+	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
+	const highlightedBarStyle = createKeyboardHighlightStyle();
 
 	return (
-		<div
-			className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
-			data-testid="bar-chart"
-			role="img"
-			aria-label="bar chart"
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: width,
+				chartHeight: height - ( showLegend ? legendHeight : 0 ),
+			} }
 		>
-			<svg width={ width } height={ height }>
-				<Group left={ margins.left } top={ margins.top }>
-					<GridControl
-						width={ xMax }
-						height={ yMax }
-						xScale={ xScale }
-						yScale={ yScale }
-						gridVisibility={ gridVisibility }
+			<div
+				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+				data-testid="bar-chart"
+				role="grid"
+				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+				style={ {
+					width,
+					height,
+					display: 'flex',
+					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+				} }
+				tabIndex={ 0 }
+				onKeyDown={ onChartKeyDown }
+				onFocus={ onChartFocus }
+				onBlur={ onChartBlur }
+				ref={ chartRef }
+				data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
+			>
+				<XYChart
+					theme={ theme }
+					width={ width }
+					height={ height - ( showLegend ? legendHeight : 0 ) }
+					margin={ {
+						...defaultMargin,
+						...margin,
+						...( showLegend && legendPosition === 'top'
+							? { top: ( defaultMargin.top || 0 ) + legendHeight }
+							: {} ),
+					} }
+					xScale={ chartOptions.xScale }
+					yScale={ chartOptions.yScale }
+					horizontal={ horizontal }
+					pointerEventsDataKey="nearest"
+				>
+					<Grid
+						columns={ gridVisibility.includes( 'y' ) }
+						rows={ gridVisibility.includes( 'x' ) }
+						numTicks={ 4 }
 					/>
-					{ data.map( ( series, seriesIndex ) => (
-						<Group key={ seriesIndex }>
-							{ series.data.map( d => {
-								const xLabel = d?.label || tickFormat( d?.date );
-								const xPos = xScale( xLabel );
-								if ( xPos === undefined ) return null;
 
-								const barWidth = innerScale.bandwidth();
-								const barX = xPos + ( innerScale( seriesIndex.toString() ) ?? 0 );
-								const barColor =
-									series.options?.stroke || theme.colors[ seriesIndex % theme.colors.length ];
-								const handleBarMouseMove = ( event: MouseEvent< SVGRectElement > ) =>
-									handleMouseMove( event, d.value, xLabel, series.label, seriesIndex );
+					{ withPatterns && (
+						<>
+							<defs data-testid="bar-chart-patterns">
+								{ dataSorted.map( ( seriesData, index ) =>
+									renderPattern( index, getColor( seriesData, index ) )
+								) }
+							</defs>
+							<style>
+								{ dataSorted.map( ( seriesData, index ) =>
+									createPatternBorderStyle( index, getColor( seriesData, index ) )
+								) }
+							</style>
+						</>
+					) }
 
-								return (
-									<Bar
-										key={ `bar-${ seriesIndex }-${ xLabel }` }
-										x={ barX }
-										y={ yScale( d.value ) }
-										width={ barWidth }
-										height={ yMax - ( yScale( d.value ) ?? 0 ) }
-										fill={ barColor }
-										onMouseMove={ withTooltips ? handleBarMouseMove : undefined }
-										onMouseLeave={ withTooltips ? hideTooltip : undefined }
-									/>
-								);
-							} ) }
-						</Group>
-					) ) }
-					<AxisLeft scale={ yScale } />
-					<AxisBottom scale={ xScale } top={ yMax } />
-				</Group>
-			</svg>
+					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-			{ withTooltips && tooltipOpen && tooltipData && (
-				<BaseTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-					{ renderTooltip( tooltipData ) }
-				</BaseTooltip>
-			) }
+					<BarGroup padding={ chartOptions.barGroup.padding }>
+						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
+							<BarSeries
+								key={ seriesData?.label }
+								dataKey={ seriesData?.label }
+								data={ seriesData.data as DataPointDate[] }
+								yAccessor={ chartOptions.accessors.yAccessor }
+								xAccessor={ chartOptions.accessors.xAccessor }
+								colorAccessor={ getBarBackground( index ) }
+							/>
+						) ) }
+					</BarGroup>
 
-			{ showLegend && (
-				<Legend
-					items={ legendItems }
-					orientation={ legendOrientation }
-					className={ styles[ 'bar-chart__legend' ] }
-				/>
-			) }
-		</div>
+					<Axis { ...chartOptions.axis.x } />
+					<Axis { ...chartOptions.axis.y } />
+
+					{ withTooltips && (
+						<AccessibleTooltip
+							detectBounds
+							snapTooltipToDatumX
+							snapTooltipToDatumY
+							renderTooltip={ renderTooltip || renderDefaultTooltip }
+							selectedIndex={ selectedIndex }
+							tooltipRef={ tooltipRef }
+							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
+							series={ data }
+							mode="individual"
+						/>
+					) }
+				</XYChart>
+
+				{ showLegend && (
+					<Legend
+						orientation={ legendOrientation }
+						position={ legendPosition }
+						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
+						className={ styles[ 'bar-chart__legend' ] }
+						shape={ legendShape }
+						ref={ legendRef }
+						chartId={ chartId }
+					/>
+				) }
+
+				{ children }
+			</div>
+		</SingleChartContext.Provider>
 	);
 };
 
-export default withResponsive< BarChartProps >( BarChart );
+const BarChartWithProvider: FC< BarChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <BarChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<BarChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+BarChartWithProvider.displayName = 'BarChart';
+
+// Create BarChart with composition API
+const BarChart = attachSubComponents( BarChartWithProvider, {
+	Legend: Legend,
+} ) as BarChartComponent;
+
+// Create responsive BarChart with composition API
+const BarChartResponsive = attachSubComponents(
+	withResponsive< BarChartProps >( BarChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+) as BarChartResponsiveComponent;
+
+export { BarChartResponsive as default, BarChart as BarChartUnresponsive };

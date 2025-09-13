@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A buffer for constructing sitemap news xml files using XMLWriter.
  *
@@ -14,21 +18,24 @@
 class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 
 	/**
-	 * Initialize the buffer with required headers and root element.
+	 * Initialize the buffer with required headers (no root element here).
 	 */
 	protected function initialize_buffer() {
 		// Add generator comment
 		$this->writer->writeComment( "generator='jetpack-" . JETPACK__VERSION . "'" );
 		$this->writer->writeComment( 'Jetpack_Sitemap_Buffer_News_XMLWriter' );
-		$this->writer->writeComment( 'TEST COMMENT - GENERATED AT: ' . gmdate( 'Y-m-d H:i:s' ) );
 
 		// Add stylesheet
 		$this->writer->writePi(
 			'xml-stylesheet',
 			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'news-sitemap.xsl' ) . '"'
 		);
+	}
 
-		// Start root element with namespaces
+	/**
+	 * Start the root element and write its namespaces.
+	 */
+	protected function start_root() {
 		$this->writer->startElement( 'urlset' );
 
 		/**
@@ -62,30 +69,7 @@ class Jetpack_Sitemap_Buffer_News_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWr
 	 */
 	protected function append_item( $array ) {
 		if ( ! empty( $array['url'] ) ) {
-			$this->writer->startElement( 'url' );
-
-			// Add URL elements
-			foreach ( $array['url'] as $tag => $value ) {
-				if ( $tag === 'news:news' ) {
-					$this->writer->startElement( 'news:news' );
-					foreach ( $value as $news_tag => $news_value ) {
-						if ( $news_tag === 'news:publication' ) {
-							$this->writer->startElement( 'news:publication' );
-							foreach ( $news_value as $pub_tag => $pub_value ) {
-								$this->writer->writeElement( $pub_tag, strval( $pub_value ) );
-							}
-							$this->writer->endElement(); // news:publication
-						} else {
-							$this->writer->writeElement( $news_tag, strval( $news_value ) );
-						}
-					}
-					$this->writer->endElement(); // news:news
-				} else {
-					$this->writer->writeElement( $tag, strval( $value ) );
-				}
-			}
-
-			$this->writer->endElement(); // url
+			$this->array_to_xml( $array );
 		}
 	}
 }

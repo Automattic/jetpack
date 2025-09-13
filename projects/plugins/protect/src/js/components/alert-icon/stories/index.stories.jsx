@@ -1,4 +1,3 @@
-import React from 'react';
 import AlertIcon from '../index.jsx';
 
 export default {

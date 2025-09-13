@@ -346,19 +346,19 @@ describe( 'bin/eslint-changed.js', () => {
 						{
 							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
 							plugin: {
-								name: '@stylistic/eslint-plugin-js',
-								url: 'https://eslint.style/packages/js',
+								name: '@stylistic/eslint-plugin',
+								url: 'https://eslint.style',
 							},
 							rule: {
 								name: 'quotes',
-								url: 'https://eslint.style/rules/js/quotes',
+								url: 'https://eslint.style/rules/quotes',
 							},
 							url: 'https://eslint.style/guide/migration',
 						},
 					],
 					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
 				},
-				replacedBy: [ '@stylistic/js/quotes' ],
+				replacedBy: [ '@stylistic/quotes' ],
 				ruleId: 'quotes',
 			},
 			{
@@ -370,19 +370,19 @@ describe( 'bin/eslint-changed.js', () => {
 						{
 							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
 							plugin: {
-								name: '@stylistic/eslint-plugin-js',
-								url: 'https://eslint.style/packages/js',
+								name: '@stylistic/eslint-plugin',
+								url: 'https://eslint.style',
 							},
 							rule: {
 								name: 'semi',
-								url: 'https://eslint.style/rules/js/semi',
+								url: 'https://eslint.style/rules/semi',
 							},
 							url: 'https://eslint.style/guide/migration',
 						},
 					],
 					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
 				},
-				replacedBy: [ '@stylistic/js/semi' ],
+				replacedBy: [ '@stylistic/semi' ],
 				ruleId: 'semi',
 			},
 		];

@@ -7,8 +7,9 @@ import WpcomTourKitRating from './wpcom-tour-kit-rating';
 import WpcomTourKitStepCardNavigation from './wpcom-tour-kit-step-card-navigation';
 import WpcomTourKitStepCardOverlayControls from './wpcom-tour-kit-step-card-overlay-controls';
 import type { WpcomTourStepRendererProps } from '../../../types';
+import type { FunctionComponent } from 'react';
 
-const WpcomTourKitStepCard: React.FunctionComponent< WpcomTourStepRendererProps > = ( {
+const WpcomTourKitStepCard: FunctionComponent< WpcomTourStepRendererProps > = ( {
 	steps,
 	currentStepIndex,
 	onMinimize,

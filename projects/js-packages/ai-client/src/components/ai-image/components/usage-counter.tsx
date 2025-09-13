@@ -1,12 +1,7 @@
-/**
- * External dependencies
- */
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
 import './usage-counter.scss';
+import type { ReactElement } from 'react';
 
 type UsageCounterProps = {
 	currentLimit: number;
@@ -17,7 +12,7 @@ type UsageCounterProps = {
 /**
  * UsageCounter component
  * @param {UsageCounterProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function UsageCounter( { currentLimit, currentUsage, cost }: UsageCounterProps ) {
 	const requestsBalance = currentLimit - currentUsage;

@@ -4,7 +4,6 @@ import { Placeholder } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { get } from 'lodash';
 import ConnectBanner from '../../shared/components/connect-banner';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import PaymentsIntroBlockPicker from './block-picker';
@@ -84,8 +83,8 @@ export default function JetpackPaymentsIntroEdit( { name, clientId } ) {
 	} else if ( ! hasInnerBlocks && displayVariations ) {
 		content = (
 			<Placeholder
-				icon={ get( blockType, [ 'icon', 'src' ] ) }
-				label={ get( blockType, [ 'title' ] ) }
+				icon={ blockType?.icon?.src }
+				label={ blockType?.title }
 				instructions={ instructions }
 			>
 				{ hasPatterns && (

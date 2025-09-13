@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	useAnalytics,
 	PLAN_TYPE_UNLIMITED,
@@ -12,9 +9,6 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
 import './style.scss';
 import { PLACEMENT_JETPACK_SIDEBAR, PLACEMENT_DOCUMENT_SETTINGS } from '../../constants.ts';
 import useAiFeature from '../../hooks/use-ai-feature/index.ts';
@@ -32,6 +26,7 @@ import {
 } from './types.ts';
 import type { ImageResponse } from './hooks/use-ai-image.ts';
 import type { EditorSelectors } from './types.ts';
+import type { ReactElement } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-client:featured-image' );
 
@@ -45,7 +40,7 @@ type FeaturedImageProps = {
 /**
  * FeaturedImage component
  * @param {FeaturedImageProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function FeaturedImage( {
 	busy,

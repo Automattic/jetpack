@@ -11,6 +11,10 @@ use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for users.
  */
@@ -357,7 +361,11 @@ class Users extends Module {
 	 * @param string   $user_login The user login.
 	 * @param \WP_User $user       The user object.
 	 */
-	public function wp_login_handler( $user_login, $user ) {
+	public function wp_login_handler( $user_login, $user = null ) {
+		if ( ! $user instanceof \WP_User || empty( $user->ID ) ) {
+			return;
+		}
+
 		/**
 		 * Fires when a user is logged into a site.
 		 *
@@ -728,7 +736,7 @@ class Users extends Module {
 	 * @todo Refactor to prepare the SQL query before executing it.
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
@@ -912,7 +920,7 @@ class Users extends Module {
 	 * @return int ID of the user that got reassigned as the author of the posts.
 	 */
 	protected function get_reassigned_network_user_id() {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		foreach ( $backtrace as $call ) {
 			if (
 				'remove_user_from_blog' === $call['function'] &&
@@ -934,7 +942,7 @@ class Users extends Module {
 	 * @return bool
 	 */
 	protected function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}

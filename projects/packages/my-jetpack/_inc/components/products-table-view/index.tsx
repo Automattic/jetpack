@@ -3,7 +3,7 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useAnalytics from '../../hooks/use-analytics';
 import ActionButton from '../action-button';

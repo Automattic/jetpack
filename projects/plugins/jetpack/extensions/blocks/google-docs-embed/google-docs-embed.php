@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\GoogleDocsEmbed;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the blocks for use in Gutenberg
  * This is done via an action so that we can disable
@@ -41,7 +45,7 @@ function render_callback( $attributes ) {
 		'jetpack-block-' . sanitize_title_with_dashes( Blocks::get_block_feature( __DIR__ ) ),
 		'Jetpack_Google_Docs',
 		array(
-			'error_msg' => __( 'This document is private. To view the document, login to a Google account that the document has been shared with and then refresh this page.', 'jetpack' ),
+			'error_msg' => __( 'This document is private. To view the document, log in to a Google account that the document has been shared with and then refresh this page.', 'jetpack' ),
 		)
 	);
 

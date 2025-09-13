@@ -118,7 +118,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			/>
 		<?php
 
-		$is_only_one_unchecked = is_countable( $post_types ) && ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
+		$is_only_one_unchecked = ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
 
 		foreach ( $post_types as $post_type ) {
 			$input_id = Helper::generate_post_type_customizer_id( $post_type );

@@ -14,6 +14,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -109,20 +113,6 @@ add_action(
 			apply_filters( 'ai_response_feedback_enabled', true )
 		) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-response-feedback' );
-		}
-	}
-);
-
-/**
- * Register the `ai-use-chrome-ai-sometimes` extension.
- */
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) &&
-			apply_filters( 'ai_chrome_ai_enabled', true )
-		) {
-			\Jetpack_Gutenberg::set_extension_available( 'ai-use-chrome-ai-sometimes' );
 		}
 	}
 );

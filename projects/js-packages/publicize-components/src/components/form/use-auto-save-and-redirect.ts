@@ -1,6 +1,7 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
+import type { DOMAttributes } from 'react';
 
 /**
  * Hook to handle autosaving and redirecting to a new page.
@@ -8,7 +9,7 @@ import { useCallback } from '@wordpress/element';
  *
  * @return {Function} Function to handle autosaving and redirecting.
  */
-export function useAutoSaveAndRedirect(): React.DOMAttributes< HTMLAnchorElement >[ 'onClick' ] {
+export function useAutoSaveAndRedirect(): DOMAttributes< HTMLAnchorElement >[ 'onClick' ] {
 	const { isEditedPostDirty } = useSelect( editorStore, [] );
 	const { autosave } = useDispatch( editorStore );
 

@@ -9,7 +9,11 @@ window.wp = window.wp || {};
 		 * This is the standard uploader response handler.
 		 */
 		handleStandardResponse: function ( response, file ) {
-			if ( ! _.isObject( response ) || _.isUndefined( response.success ) ) {
+			if (
+				response === null ||
+				typeof response !== 'object' ||
+				typeof response.success === 'undefined'
+			) {
 				return error( pluploadL10n.default_error, null, file );
 			} else if ( ! response.success ) {
 				return error( response.data && response.data.message, response.data, file );

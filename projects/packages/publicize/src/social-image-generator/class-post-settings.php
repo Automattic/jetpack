@@ -172,6 +172,15 @@ class Post_Settings {
 	}
 
 	/**
+	 * Get the font to use for the text in the generated image.
+	 *
+	 * @return string
+	 */
+	public function get_font() {
+		return $this->settings['font'] ?? '';
+	}
+
+	/**
 	 * Get an image token.
 	 *
 	 * @return string

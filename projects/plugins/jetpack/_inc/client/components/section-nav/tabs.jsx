@@ -4,7 +4,7 @@ import { getWindowInnerWidth } from '@automattic/viewport';
 import clsx from 'clsx';
 import { debounce } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { createRef, Children, cloneElement, Component } from 'react';
 import SelectDropdown from 'components/select-dropdown';
 import DropdownItem from 'components/select-dropdown/item';
 
@@ -13,7 +13,7 @@ import DropdownItem from 'components/select-dropdown/item';
  */
 const MOBILE_PANEL_THRESHOLD = 660;
 
-class NavTabs extends React.Component {
+class NavTabs extends Component {
 	static propTypes = {
 		selectedText: PropTypes.string,
 		selectedCount: PropTypes.number,
@@ -25,7 +25,7 @@ class NavTabs extends React.Component {
 		hasSiblingControls: false,
 	};
 
-	navGroupRef = React.createRef();
+	navGroupRef = createRef();
 	tabRefs = {};
 
 	state = {
@@ -49,9 +49,9 @@ class NavTabs extends React.Component {
 
 	render() {
 		const self = this;
-		const tabs = React.Children.map( this.props.children, function ( child, index ) {
-			self.tabRefs[ 'tab-' + index ] = React.createRef();
-			return child && React.cloneElement( child, { ref: self.tabRefs[ 'tab-' + index ] } );
+		const tabs = Children.map( this.props.children, function ( child, index ) {
+			self.tabRefs[ 'tab-' + index ] = createRef();
+			return child && cloneElement( child, { ref: self.tabRefs[ 'tab-' + index ] } );
 		} );
 
 		const tabsClassName = clsx( {
@@ -83,7 +83,7 @@ class NavTabs extends React.Component {
 		const self = this;
 		let totalWidth = 0;
 
-		React.Children.forEach(
+		Children.forEach(
 			this.props.children,
 			function ( child, index ) {
 				if ( ! child ) {
@@ -98,7 +98,7 @@ class NavTabs extends React.Component {
 	};
 
 	getDropdown = () => {
-		const dropdownOptions = React.Children.map( this.props.children, function ( child, index ) {
+		const dropdownOptions = Children.map( this.props.children, function ( child, index ) {
 			if ( ! child ) {
 				return null;
 			}

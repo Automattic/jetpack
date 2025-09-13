@@ -3,8 +3,8 @@
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
-import { get } from 'lodash';
-import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { createHashRouter, Navigate } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
@@ -18,7 +18,7 @@ import './style.scss';
 
 let settings = {};
 
-export const config = ( key: string ) => get( settings, key );
+export const config = ( key: string ) => settings?.[ key ];
 
 window.addEventListener( 'load', () => {
 	const container = document.getElementById( 'jp-forms-dashboard' );
@@ -49,14 +49,10 @@ window.addEventListener( 'load', () => {
 					path: 'responses',
 					element: <Inbox />,
 				},
-				...( config( 'enableIntegrationsTab' )
-					? [
-							{
-								path: 'integrations',
-								element: <Integrations />,
-							},
-					  ]
-					: [] ),
+				{
+					path: 'integrations',
+					element: <Integrations />,
+				},
 				{
 					path: 'about',
 					element: <About />,

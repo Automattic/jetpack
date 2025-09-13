@@ -9,7 +9,7 @@ import nspell from 'nspell';
  * Internal dependencies
  */
 import getFeatureData from '../../utils/get-feature-data';
-import a8c from './a8c';
+import customDictionary from './custom-dictionary';
 /**
  * Types
  */
@@ -53,8 +53,8 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 	);
 	exceptions.forEach( exception => spellChecker.add( exception ) );
 
-	// Add the Automattic dictionary
-	spellChecker.personal( a8c );
+	// Add the custom dictionary
+	spellChecker.personal( customDictionary );
 
 	spellCheckers[ language ] = spellChecker;
 

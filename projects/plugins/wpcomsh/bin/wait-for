@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # Copied from https://github.com/eficode/wait-for/blob/828386460d138e418c31a1ebf87d9a40f5cedc32/wait-for
 
 TIMEOUT=15

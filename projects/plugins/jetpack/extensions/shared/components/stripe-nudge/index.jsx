@@ -1,9 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useAnalytics,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import GridiconStar from 'gridicons/dist/star';
@@ -16,7 +13,6 @@ export const StripeNudge = ( { blockName } ) => {
 	const store = select( membershipProductsStore );
 	const stripeConnectUrl = store.getConnectUrl();
 	const { tracks } = useAnalytics();
-	const isWpcom = isAtomicSite() || isSimpleSite();
 
 	const recordTracksEvent = () =>
 		tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
@@ -28,6 +24,8 @@ export const StripeNudge = ( { blockName } ) => {
 	}
 
 	let readMoreUrl;
+
+	const isWpcom = isWpcomPlatformSite();
 
 	switch ( blockName ) {
 		case 'payment-buttons':

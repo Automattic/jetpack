@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( (string) $latest_draft_id ) );
 				}
 
 				return admin_url( 'post-new.php' );
@@ -517,7 +517,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
@@ -1517,12 +1516,6 @@ function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper =
 	}
 
 	$user_attributes = get_object_vars( $decoded_body->user_attributes );
-	if ( ! is_array( $user_attributes ) ) {
-		return new \WP_Error(
-			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
-		);
-	}
 
 	$cached_attributes = array_merge( $cached_attributes, $user_attributes );
 
@@ -2620,8 +2613,8 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * Mark the WooCommerce setup task as complete the setup task list is in
  * the completed list or in the hidden list.
  *
- * @param string $old_value The old value of the option.
- * @param string $value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @param array $value The new value of the option.
  *
  * @return void
  */

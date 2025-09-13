@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new Jetpack_JSON_API_Plugins_List_Endpoint(
 	array(
 		'description'             => 'Get installed Plugins on your blog',
@@ -32,6 +36,8 @@ new Jetpack_JSON_API_Plugins_List_Endpoint(
  * GET /sites/%s/plugins
  *
  * No v1.2 versions since they are .com only
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_List_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	/**

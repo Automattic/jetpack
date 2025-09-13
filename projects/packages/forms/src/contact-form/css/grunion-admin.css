@@ -1,11 +1,15 @@
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^="action"], body.no-js #doaction, body.no-js #doaction2 {
-	display: none
+.add-new-h2,
+.view-switch,
+body.no-js .tablenav select[name^="action"],
+body.no-js #doaction,
+body.no-js #doaction2 {
+	display: none;
 }
 
 .column-feedback_from img {
-	float:left;
-	margin-right:10px;
-	margin-top:3px;
+	float: left;
+	margin-right: 10px;
+	margin-top: 3px;
 }
 
 .widefat .column-feedback_from,
@@ -67,15 +71,15 @@
 }
 
 .spam a {
-	color: #BC0B0B;
+	color: #bc0b0b;
 }
 
 .untrash a {
-	color: #D98500;
+	color: #d98500;
 }
 
 .unspam a {
-	color: #D98500;
+	color: #d98500;
 }
 
 .post-type-feedback #jetpack-check-feedback-spam {
@@ -162,7 +166,8 @@
 	isolation: isolate;
 }
 
-.export-card__body, .export-card__header {
+.export-card__body,
+.export-card__header {
 	display: flex;
 }
 
@@ -208,8 +213,8 @@
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: -0.01em;
-	color: #FFF;
+	color: #fff;
 	background: #000;
-	border: 1px solid #FFF;
+	border: 1px solid #fff;
 	border-radius: 4px;
 }

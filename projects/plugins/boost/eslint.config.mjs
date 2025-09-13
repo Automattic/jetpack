@@ -1,10 +1,14 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import makeBaseConfig, { typescriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
+import {
+	makeBaseConfig,
+	defineConfig,
+	javascriptFiles,
+	typescriptFiles,
+} from 'jetpack-js-tools/eslintrc/base.mjs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
+export default defineConfig(
+	makeBaseConfig( import.meta.url ),
 	{
 		files: typescriptFiles,
 		languageOptions: {
@@ -15,9 +19,24 @@ export default [
 		},
 	},
 	{
+		files: javascriptFiles,
 		rules: {
-			'import/no-extraneous-dependencies': 'error',
-
+			'import/no-unresolved': [
+				'error',
+				{
+					ignore: [
+						// Image guide doesn't have a `jetpack:src` entry, so it needs to be built to work and may not be when linting.
+						// And since it uses svelte, if we did want to add a `jetpack:src` entry then we'd also need to teach Boost's webpack config how to build svelte files. Sigh.
+						// Easier to just ignore it for this rule.
+						'^@automattic/jetpack-image-guide$',
+					],
+				},
+			],
+		},
+	},
+	{
+		files: javascriptFiles, // @todo Which of the rule changes here should only really apply to typescriptFiles?
+		rules: {
 			'jsx-a11y/anchor-has-content': 'error',
 			'jsx-a11y/anchor-is-valid': 'error',
 
@@ -43,5 +62,5 @@ export default [
 				{ argsIgnorePattern: '^_', caughtErrors: 'none' },
 			],
 		},
-	},
-];
+	}
+);

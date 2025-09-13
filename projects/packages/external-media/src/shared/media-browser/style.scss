@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 $grid-size: 8px;
 
@@ -32,7 +32,7 @@ $grid-size: 8px;
 		// Unset button appearance.
 		border: 0;
 		border-radius: 4px;
-		background-color: $gray-400;
+		background-color: gb.$gray-400;
 
 		img {
 			display: block;
@@ -42,7 +42,7 @@ $grid-size: 8px;
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
-			border: 1px solid rgba(0,0,0,0.1);
+			border: 1px solid rgba(0, 0, 0, 0.1);
 			border-radius: 4px;
 			user-select: none;
 		}
@@ -59,7 +59,7 @@ $grid-size: 8px;
 		}
 
 		&:hover img {
-			border-color: rgba(0,0,0,0.2);
+			border-color: rgba(0, 0, 0, 0.2);
 		}
 
 		&:focus img {

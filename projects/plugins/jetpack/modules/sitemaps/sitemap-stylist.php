@@ -8,6 +8,10 @@
  * @since 4.8.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Builds the XSL files required by Jetpack_Sitemap_Manager.
  *

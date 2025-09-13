@@ -1,4 +1,4 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // Progress Footer
 
@@ -8,7 +8,7 @@
 	width: 100%;
 	align-items: center;
 	justify-content: space-between;
-	border-top: 1px solid $gray-200;
+	border-top: 1px solid gb.$gray-200;
 	padding-top: 8px;
 	gap: 16px;
 
@@ -21,12 +21,12 @@
 	}
 
 	&__file-size {
-		color: $gray-600;
+		color: gb.$gray-600;
 	}
 
 	&__progress {
 		height: 8px;
-		background: #D2D2D2;
+		background: #d2d2d2;
 		width: 150px;
 		border-radius: 4px;
 		box-sizing: border-box;
@@ -48,7 +48,7 @@
 		justify-content: space-between;
 		align-items: center;
 	}
-	
+
 	&__error-actions {
 		gap: 16px;
 	}
@@ -76,7 +76,7 @@
 	}
 
 	&__scrubber-help {
-		color: $gray-700;
+		color: gb.$gray-700;
 	}
 
 	&__poster-buttons {
@@ -133,8 +133,8 @@
 	}
 
 	&.is-error {
-		background-color: $gray-100;
-		border-left-color: $alert-red;
+		background-color: gb.$gray-100;
+		border-left-color: gb.$alert-red;
 		border-radius: 2px;
 		position: relative;
 	}

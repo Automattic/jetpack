@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\Button;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME = 'button';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
@@ -24,9 +28,10 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
-			'selectors'       => array(
+			'render_callback'       => __NAMESPACE__ . '\render_block',
+			'render_email_callback' => __NAMESPACE__ . '\render_email',
+			'uses_context'          => array( 'jetpack/parentBlockWidth' ),
+			'selectors'             => array(
 				'border' => '.wp-block-jetpack-button .wp-block-button__link',
 			),
 		)
@@ -87,12 +92,125 @@ function render_block( $attributes, $content ) {
 		$button_attributes .= sprintf( ' type="submit" value="%s"', esc_attr( wp_strip_all_tags( $text, true ) ) );
 	}
 
+	$button_attributes .= ' data-wp-class--is-submitting="state.isSubmitting" data-wp-bind--aria-disabled="state.isAriaDisabled"';
+
+	$svg                  = '<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"/><path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"><animateTransform attributeName="transform" type="rotate" dur="0.75s" values="0 12 12;360 12 12" repeatCount="indefinite"/></path></svg>';
+	$form_submitting_text = '<span class="is-visually-hidden">' . __( 'Submitting form', 'jetpack' ) . '</span>';
+	$spinner              = '<span class="spinner" aria-hidden="true">' . $svg . $form_submitting_text . '</span>';
+
 	$button = 'input' === $element
 		? '<' . $element . $button_attributes . ' />'
-		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
+		: '<' . $element . $button_attributes . '>' . $text . $spinner . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	return '<div' . $wrapper_attributes . '>' . $button . '</div>';
+}
+
+/**
+ * WooCommerce Email Editor render callback for the button block.
+ *
+ * @param string $block_content The block content.
+ * @param array  $parsed_block  The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	// Validate input parameters and required dependencies
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+		return '';
+	}
+
+	$attributes = $parsed_block['attrs'];
+
+	// Create a mock innerHTML that WooCommerce's button renderer can parse
+	$button_text = ! empty( $attributes['text'] ) ? sanitize_text_field( $attributes['text'] ) : __( 'Click here', 'jetpack' );
+	$button_url  = ! empty( $attributes['url'] ) ? $attributes['url'] : '#';
+
+	// Create the innerHTML that WooCommerce's button renderer expects
+	$inner_html = sprintf(
+		'<div class="wp-block-button"><a class="wp-block-button__link" href="%s">%s</a></div>',
+		esc_url( $button_url ),
+		esc_html( $button_text )
+	);
+
+	// Format attributes for WooCommerce's Styles_Helper
+	$formatted_attributes = format_attributes_for_woocommerce( $attributes );
+
+	// Create a mock parsed block that WooCommerce's button renderer can handle
+	$mock_parsed_block = array(
+		'innerHTML' => $inner_html,
+		'attrs'     => $formatted_attributes,
+	);
+
+	// Use WooCommerce's core button renderer
+	$woo_button_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button();
+
+	return $woo_button_renderer->render( $block_content, $mock_parsed_block, $rendering_context );
+}
+
+/**
+ * Format button attributes for WooCommerce's Styles_Helper.
+ *
+ * @param array $attributes The original attributes.
+ * @return array The formatted attributes.
+ */
+function format_attributes_for_woocommerce( $attributes ) {
+	$formatted = array();
+
+	// Handle background colors (prioritize subscription attributes)
+	// Named colors go in backgroundColor, hex colors go in style.color.background
+	if ( ! empty( $attributes['buttonBackgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['buttonBackgroundColor'];
+	} elseif ( ! empty( $attributes['backgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['backgroundColor'];
+	}
+
+	if ( ! empty( $attributes['customButtonBackgroundColor'] ) ) {
+		$formatted['style']['color']['background'] = $attributes['customButtonBackgroundColor'];
+	} elseif ( ! empty( $attributes['customBackgroundColor'] ) ) {
+		$formatted['style']['color']['background'] = $attributes['customBackgroundColor'];
+	}
+
+	// Named colors go in textColor, hex colors go in style.color.text
+	if ( ! empty( $attributes['textColor'] ) ) {
+		$formatted['textColor'] = $attributes['textColor'];
+	}
+	if ( ! empty( $attributes['customTextColor'] ) ) {
+		$formatted['style']['color']['text'] = $attributes['customTextColor'];
+	}
+
+	// Handle typography (font size)
+	if ( ! empty( $attributes['fontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['fontSize'];
+	}
+	if ( ! empty( $attributes['customFontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['customFontSize'];
+	}
+
+	// Handle borders
+	if ( ! empty( $attributes['borderRadius'] ) ) {
+		$formatted['style']['border']['radius'] = $attributes['borderRadius'] . 'px';
+	}
+	// Named colors go in borderColor, hex colors go in style.color.border
+	if ( ! empty( $attributes['borderColor'] ) ) {
+		$formatted['borderColor'] = $attributes['borderColor'];
+	}
+	if ( ! empty( $attributes['customBorderColor'] ) ) {
+		$formatted['style']['border']['color'] = $attributes['customBorderColor'];
+	}
+	// Handle border weight (subscription block uses borderWeight, button block expects style.border.width)
+	if ( ! empty( $attributes['borderWeight'] ) ) {
+		$formatted['style']['border']['width'] = $attributes['borderWeight'] . 'px';
+	}
+
+	// Handle padding
+	if ( ! empty( $attributes['padding'] ) ) {
+		$formatted['style']['spacing']['padding'] = $attributes['padding'] . 'px';
+	}
+
+	return $formatted;
 }
 
 /**
@@ -271,7 +389,7 @@ function get_button_wrapper_styles( $attributes ) {
 	$styles    = array();
 	$has_width = array_key_exists( 'width', $attributes );
 
-	if ( $has_width ) {
+	if ( $has_width && ! empty( $attributes['width'] ) ) {
 		$styles[] = sprintf( 'width: %s;', $attributes['width'] );
 	}
 

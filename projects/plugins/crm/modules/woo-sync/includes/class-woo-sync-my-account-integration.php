@@ -27,7 +27,7 @@ class Woo_Sync_My_Account_Integration {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 		// Initialise Hooks
 		$this->init_hooks();
 		// Styles and scripts
@@ -56,7 +56,7 @@ class Woo_Sync_My_Account_Integration {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add menu item to Woo My Account
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'append_items_to_woo_menu' ), 99, 1 );
@@ -168,7 +168,7 @@ class Woo_Sync_My_Account_Integration {
 	public function register_styles_scripts() {
 		global $zbs;
 		wp_register_style( 'jpcrm-woo-sync-my-account', plugins_url( '/css/jpcrm-woo-sync-my-account' . wp_scripts_get_suffix() . '.css', JPCRM_WOO_SYNC_ROOT_FILE ), array(), $zbs::VERSION );
-		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/vendor/fortawesome/font-awesome/css/font-awesome' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
+		wp_register_style( 'jpcrm-woo-sync-fa', plugins_url( '/build/lib/font-awesome/css/font-awesome.min.css', ZBS_ROOTFILE ), array(), $zbs::VERSION );
 	}
 
 	/**

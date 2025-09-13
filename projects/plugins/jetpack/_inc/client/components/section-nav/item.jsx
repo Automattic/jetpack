@@ -3,13 +3,13 @@
 import { ExternalLink } from '@wordpress/components';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 import Count from 'components/count';
 
 /**
  * Main
  */
-class NavItem extends React.PureComponent {
+class NavItem extends PureComponent {
 	static displayName = 'NavItem';
 
 	static propTypes = {

@@ -60,7 +60,7 @@ $zeroBSCRM_Conf_Setup = array(
 ================================================================================*/
 
 // Only declared here, then gets shuttled into $zeroBSCRM_Conf_Setup
-// ... left seperate for ease of reading
+// ... left separate for ease of reading
 // global $zeroBSCRM_Conf_Def;
 $zeroBSCRM_Conf_Def = array(
 

@@ -1,9 +1,5 @@
-import {
-	isAtomicSite,
-	isSimpleSite,
-	getRequiredPlan,
-	useUpgradeFlow,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -12,6 +8,7 @@ import { external } from '@wordpress/icons';
 import clsx from 'clsx';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import type { ReactElement } from 'react';
 
 const getDescriptions = () => ( {
 	start: __(
@@ -59,7 +56,7 @@ function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnection
 /**
  * Upsell notice for the Publicize feature.
  *
- * @return {React.ReactElement} The upsell notice.
+ * @return {ReactElement} The upsell notice.
  */
 export function UpsellNotice() {
 	const {
@@ -92,7 +89,7 @@ export function UpsellNotice() {
 	// Define plan name, with a fallback value.
 	const planName = planData?.product_name || __( 'paid', 'jetpack-publicize-components' );
 
-	const isPureJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+	const isPureJetpackSite = ! isWpcomPlatformSite();
 	const upgradeFeatureTitle = isPureJetpackSite
 		? __( 'Re-sharing your content', 'jetpack-publicize-components' )
 		: _x( 'Share Your Content Again', '', 'jetpack-publicize-components' );
@@ -117,7 +114,7 @@ export function UpsellNotice() {
 				<br />
 
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__( 'This feature is for sites with a %s plan.', 'jetpack-publicize-components' ),
 					planName
 				) }
@@ -135,7 +132,7 @@ export function UpsellNotice() {
 		<div className="jetpack-publicize__upsell">
 			<div className="jetpack-publicize__upsell-description">
 				{ sprintf(
-					/* translators: placeholder is the product name of the plan. */
+					/* translators: %s: the product name of the plan. */
 					__(
 						'To re-share a post, you need to upgrade to the %s plan',
 						'jetpack-publicize-components'

@@ -1,3 +1,43 @@
+## [3.2.10] - 2025-09-08
+### Changed
+- Update package dependencies. [#45097]
+
+## [3.2.9] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [3.2.8] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [3.2.7] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [3.2.6] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [3.2.5] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [3.2.4] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [3.2.3] - 2025-06-16
+### Changed
+- Update package dependencies. [#43914]
+
+## [3.2.2] - 2025-06-04
+### Changed
+- Update package dependencies. [#43766]
+
+## [3.2.1] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718]
+
 ## [3.2.0] - 2025-05-12
 ### Removed
 - Remove Skype since the service no longer exists. [#43375]
@@ -220,6 +260,16 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.2.10]: https://github.com/Automattic/social-logos/compare/v3.2.9...v3.2.10
+[3.2.9]: https://github.com/Automattic/social-logos/compare/v3.2.8...v3.2.9
+[3.2.8]: https://github.com/Automattic/social-logos/compare/v3.2.7...v3.2.8
+[3.2.7]: https://github.com/Automattic/social-logos/compare/v3.2.6...v3.2.7
+[3.2.6]: https://github.com/Automattic/social-logos/compare/v3.2.5...v3.2.6
+[3.2.5]: https://github.com/Automattic/social-logos/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/Automattic/social-logos/compare/v3.2.3...v3.2.4
+[3.2.3]: https://github.com/Automattic/social-logos/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/Automattic/social-logos/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/social-logos/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/Automattic/social-logos/compare/v3.1.21...v3.2.0
 [3.1.21]: https://github.com/Automattic/social-logos/compare/v3.1.20...v3.1.21
 [3.1.20]: https://github.com/Automattic/social-logos/compare/v3.1.19...v3.1.20

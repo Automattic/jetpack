@@ -1,0 +1,167 @@
+// Custom Combobox Styles for Country Selector
+.jetpack-custom-combobox {
+	letter-spacing: normal; // don't let input attributes rule over this
+	background-color: inherit;
+
+	// keyboardShortcuts adds a wrapping div, so we need to style it
+	> div {
+		color: currentColor;
+		background-color: inherit;
+	}
+
+	.jetpack-combobox-trigger {
+		width: 100%;
+		border: 0 solid #ddd;
+		border-radius: 4px;
+		background: transparent;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		font: inherit;
+		line-height: inherit;
+		padding-block: 0;
+		padding-inline: 0;
+		gap: 0.4em;
+		color: inherit;
+
+		&:focus {
+			outline: 0;
+			text-decoration: none;
+			box-shadow: none;
+		}
+
+		&:hover {
+			text-decoration: none;
+		}
+
+		.jetpack-combobox-trigger-arrow {
+			transition: transform 0.2s;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 0.6em;
+			margin-left: 4px;
+
+			svg {
+				width: 100%;
+				height: 100%;
+				color: inherit;
+			}
+
+			&.is-open {
+				transform: scaleY(-1);
+			}
+		}
+	}
+
+	.jetpack-combobox-dropdown {
+		position: absolute;
+		left: -1px;
+		top: 100%;
+		width: -webkit-fill-available;
+		min-width: 60%;
+
+		background-color: var(--jetpack--contact-form--input-background-fallback);
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
+		border-width: var(--jetpack--contact-form--border-size, 1px);
+		border-radius: var(--jetpack--contact-form--border-radius, 4px);
+		// some line-heights are too small,
+		//use max() to ensure a minimum height of 8 * 25px
+		max-height: max(calc(var(--jetpack--contact-form--line-height, 25px) * 8), 200px);
+		z-index: 1000;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		overflow: hidden;
+
+		&.jetpack-combobox-open {
+			display: block;
+		}
+
+		.jetpack-combobox-search {
+			width: 100%;
+			padding: 8px 12px;
+			border: none;
+			border-bottom: 1px solid #eee;
+			outline: none;
+			font-size: 14px;
+			position: sticky;
+			top: 0;
+			color: inherit;
+			background-color: inherit;
+			z-index: 1;
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+
+			&:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+		}
+		// for styles on search input, themes keep finding ways of messing with this
+		input[type="text"].jetpack-combobox-search {
+			background-color: inherit !important;
+		}
+
+		.jetpack-combobox-options {
+			max-height: calc(var(--jetpack--contact-form--line-height, 25px) * 7);
+			overflow-y: auto;
+			color: currentColor;
+		}
+
+		.jetpack-combobox-option {
+			padding: 8px 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: flex-start;
+			font-size: 14px;
+			transition: background-color 0.1s;
+			gap: 8px;
+			background-color: transparent;
+			border: none;
+			line-height: inherit;
+			color: currentColor;
+
+			&:hover,
+			&.is-focused {
+				background-color: var(--wp--preset--color--secondary, #f5f5f5);
+				color: var(--wp--preset--color--background, #000);
+			}
+
+			&.jetpack-combobox-option-selected {
+				background-color: var(--wp--preset--color--secondary, #f5f5f5);
+				font-weight: 600;
+				color: var(--wp--preset--color--background, #000);
+
+				&:hover {
+					background-color: var(--wp--preset--color--secondary, #f5f5f5);
+				}
+			}
+		}
+	}
+}
+
+
+.jetpack-combobox-option-icon {
+	color: currentColor;
+	pointer-events: none;
+}
+
+.jetpack-combobox-option-value {
+	font-weight: 500;
+	pointer-events: none;
+	color: currentColor;
+}
+
+.jetpack-combobox-option-description {
+	pointer-events: none;
+	color: currentColor;
+}
+
+// Editor styles
+.wp-block .jetpack-custom-combobox {
+
+	.jetpack-combobox-option {
+		width: 100%;
+	}
+}

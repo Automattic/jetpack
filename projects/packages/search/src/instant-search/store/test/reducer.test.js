@@ -302,15 +302,15 @@ describe( 'staticFilters Reducer', () => {
 				],
 			},
 		];
-		const windowSpy = jest.spyOn( window, 'window', 'get' );
-		windowSpy.mockImplementation( () => ( {
-			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
-		} ) );
-		const state = staticFilters( undefined, setStaticFilter( 'group_id', 'p2' ) );
-		expect( state ).toEqual( {
-			group_id: 'p2',
-		} );
-		windowSpy.mockRestore();
+		try {
+			window[ SERVER_OBJECT_NAME ] = { staticFilters: mockStaticFilters };
+			const state = staticFilters( undefined, setStaticFilter( 'group_id', 'p2' ) );
+			expect( state ).toEqual( {
+				group_id: 'p2',
+			} );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
 	} );
 	test( 'ignores set filter actions with invalid filter names', () => {
 		const mockStaticFilters = [
@@ -325,13 +325,13 @@ describe( 'staticFilters Reducer', () => {
 				],
 			},
 		];
-		const windowSpy = jest.spyOn( window, 'window', 'get' );
-		windowSpy.mockImplementation( () => ( {
-			[ SERVER_OBJECT_NAME ]: { staticFilters: mockStaticFilters },
-		} ) );
-		const state = staticFilters( undefined, setStaticFilter( 'what', 'how' ) );
-		expect( state ).toEqual( {} );
-		windowSpy.mockRestore();
+		try {
+			window[ SERVER_OBJECT_NAME ] = { staticFilters: mockStaticFilters };
+			const state = staticFilters( undefined, setStaticFilter( 'what', 'how' ) );
+			expect( state ).toEqual( {} );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
 	} );
 } );
 

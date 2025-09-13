@@ -1,10 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	isAtomicSite,
-	isSimpleSite,
-	useAnalytics,
-	getBlockIconComponent,
-} from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { useAnalytics, getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Placeholder } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -40,10 +36,9 @@ export const InactiveRelatedPostsPlaceholder = ( {
 		tracks.recordEvent( 'jetpack_editor_related_posts_placeholder_view' );
 	}, [ tracks ] );
 
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'https://wordpress.com/support/related-posts/'
-			: getRedirectUrl( 'jetpack-support-related-posts' );
+	const supportLink = isWpcomPlatformSite()
+		? 'https://wordpress.com/support/related-posts/'
+		: getRedirectUrl( 'jetpack-support-related-posts' );
 
 	return (
 		<div className={ className }>

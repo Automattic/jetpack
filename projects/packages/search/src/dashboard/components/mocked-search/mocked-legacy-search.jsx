@@ -1,12 +1,11 @@
 import { Gridicon } from '@automattic/jetpack-components';
-import React from 'react';
 import TextRowPlaceHolder from './placeholder';
 import './mocked-legacy-search.scss';
 
 /**
  * Generate mocked search dialog
  *
- * @return {React.Component} Mocked Search dialog component.
+ * @return {import('react').Component} Mocked Search dialog component.
  */
 export default function MockedLegacySearch() {
 	return (

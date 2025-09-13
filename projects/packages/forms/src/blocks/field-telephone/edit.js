@@ -1,0 +1,146 @@
+import {
+	InspectorControls,
+	useBlockProps,
+	useInnerBlocksProps,
+	BlockContextProvider,
+	BlockControls,
+} from '@wordpress/block-editor';
+import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { globe } from '@wordpress/icons';
+import clsx from 'clsx';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls';
+import useFieldSelected from '../shared/hooks/use-field-selected';
+import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import { countries } from './country-list';
+import { getTranslatedCountryName } from './country-names-translated';
+
+const EMPTY_ARRAY = [];
+
+const isBoolean = value => {
+	return value === true || value === false;
+};
+
+export default function PhoneFieldEdit( props ) {
+	const { setAttributes, attributes, clientId, isSelected } = props;
+	const {
+		showCountrySelector,
+		width,
+		id,
+		required,
+		requiredText,
+		placeholder,
+		default: defaultCountry,
+	} = attributes;
+	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
+
+	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
+	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field', 'jetpack-field-phone', 'jetpack-field-telephone', {
+			[ `jetpack-field__width-${ width }` ]: width,
+			'is-selected': isSelected || isInnerBlockSelected,
+			'has-placeholder': hasPlaceholder,
+		} ),
+		style: blockStyle,
+	} );
+
+	useFormWrapper( props );
+
+	const countryPairs = useMemo( () => {
+		return countries.map( country => ( {
+			...country,
+			country: getTranslatedCountryName( country.code ),
+		} ) );
+	}, [] );
+
+	const onChangeShowCountrySelector = value => {
+		if ( ! isBoolean( value ) ) {
+			// if not a boolean (ie, event object), toggle the value
+			value = ! showCountrySelector;
+		}
+		setAttributes( {
+			showCountrySelector: value,
+		} );
+		setCountryList( value ? countryPairs : EMPTY_ARRAY );
+	};
+
+	useEffect( () => {
+		if ( showCountrySelector === undefined || showCountrySelector === true ) {
+			setAttributes( { showCountrySelector: true, default: defaultCountry || 'US' } );
+			setCountryList( countryPairs );
+		}
+	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
+
+	const innerBlocksProps = useInnerBlocksProps( blockProps, {
+		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
+		template: [
+			[
+				'jetpack/label',
+				{
+					label: __( 'Phone number', 'jetpack-forms' ),
+					placeholder,
+					required,
+					requiredText,
+				},
+			],
+			[ 'jetpack/phone-input', {} ],
+		],
+		templateLock: 'all',
+		__experimentalCaptureToolbars: true,
+	} );
+
+	// Handler is provided as context from edit as index.js can't pass it as a prop.
+	const onChangeDefaultCountry = useCallback(
+		event => {
+			setAttributes( { default: event.target.value } );
+		},
+		[ setAttributes ]
+	);
+
+	return (
+		<>
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-prefix-onChange': onChangeDefaultCountry,
+					'jetpack/field-prefix-options': countryList,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
+
+			<BlockControls __experimentalShareWithChildBlocks>
+				<ToolbarGroup>
+					<ToolbarButton
+						title={ __( 'Show country selector', 'jetpack-forms' ) }
+						icon={ globe }
+						onClick={ onChangeShowCountrySelector }
+						className={ showCountrySelector ? 'is-pressed' : undefined }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
+
+			<InspectorControls>
+				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
+					<ToggleControl
+						label={ __( 'Show country selector', 'jetpack-forms' ) }
+						checked={ showCountrySelector || false }
+						onChange={ onChangeShowCountrySelector }
+						__nextHasNoMarginBottom={ true }
+					/>
+				</PanelBody>
+			</InspectorControls>
+
+			<JetpackFieldControls
+				clientId={ clientId }
+				id={ id }
+				required={ required }
+				attributes={ attributes }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
+		</>
+	);
+}

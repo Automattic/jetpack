@@ -6,6 +6,7 @@ module.exports = {
 	collectCoverageFrom: [
 		'<rootDir>/components/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/hooks.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		'<rootDir>/utils/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom,
 	],
 };

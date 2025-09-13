@@ -2,7 +2,7 @@ import { ContextualUpgradeTrigger, ThemeProvider } from '@automattic/jetpack-com
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import DonutMeterContainer, { formatNumber } from '../../donut-meter-container';
 import PlanSummary from './plan-summary';
 

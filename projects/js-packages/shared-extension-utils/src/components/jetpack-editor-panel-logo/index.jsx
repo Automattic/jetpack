@@ -1,12 +1,11 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import React from 'react';
 
 import './style.scss';
 
 /**
  * The Jetpack logo used for block editor panels
  *
- * @return {React.Component} Jetpack logo component
+ * @return {import('react').Component} Jetpack logo component
  */
 const JetpackEditorPanelLogo = () => (
 	<JetpackLogo

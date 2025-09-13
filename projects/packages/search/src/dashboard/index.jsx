@@ -1,6 +1,5 @@
 import { createReduxStore, register } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
-import React from 'react';
 import SearchDashboard from './components/dashboard/wrapped-dashboard';
 import { STORE_ID, storeConfig } from './store';
 

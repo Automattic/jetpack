@@ -1,5 +1,4 @@
 import { useSelect } from '@wordpress/data';
-import { range } from 'lodash';
 import { Bullet } from './components';
 
 export const ProgressBullet = ( {
@@ -59,7 +58,7 @@ export const ProgressBar = ( { playerId, slides, disabled, onSlideSeek, maxBulle
 			{ firstReachableSlideIndex > 0 && (
 				<Bullet key="bullet-0" index={ firstReachableSlideIndex - 1 } progress={ 100 } isEllipsis />
 			) }
-			{ range( 1, bulletCount + 1 ).map( ( slide, bulletIndex ) => {
+			{ Array.from( Array( bulletCount ), ( _, i ) => i + 1 ).map( ( slide, bulletIndex ) => {
 				const slideIndex = bulletIndex + firstReachableSlideIndex;
 				let progress = null;
 				if ( slideIndex < currentSlideIndex ) {

@@ -1,7 +1,7 @@
 import { Tip } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { get, filter, deburr, lowerCase, includes } from 'lodash';
+import { deburr, lowerCase } from 'lodash';
 import tipsList from './list';
 
 /**
@@ -11,7 +11,7 @@ import tipsList from './list';
  * @param {string}   props.searchTerm    - Search term text.
  * @param {boolean}  props.random        - Whether to choose a random tooltip on multiple matches.
  * @param {Function} props.canUserCreate - Function to check user permission.
- * @return {JSX.Element|null} - The contextual tip element or null if no tip is found.
+ * @return {import('react').JSX.Element|null} - The contextual tip element or null if no tip is found.
  */
 function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 	if ( ! searchTerm ) {
@@ -24,12 +24,10 @@ function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 
 	const normalizedSearchTerm = deburr( lowerCase( searchTerm ) ).replace( /^\//, '' );
 
-	const foundTips = filter(
-		tipsList,
+	const foundTips = tipsList.filter(
 		( { keywords, permission } ) =>
 			canUserCreate( permission ) &&
-			filter( [ ...new Set( keywords ) ], keyword => includes( normalizedSearchTerm, keyword ) )
-				.length
+			[ ...new Set( keywords ) ].some( keyword => normalizedSearchTerm.includes( keyword ) )
 	);
 
 	if ( ! foundTips.length ) {
@@ -40,7 +38,7 @@ function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 
 	return (
 		<div className="contextual-tip">
-			<Tip>{ get( foundTips, [ index, 'description' ] ) }</Tip>
+			<Tip>{ foundTips[ index ]?.description }</Tip>
 		</div>
 	);
 }

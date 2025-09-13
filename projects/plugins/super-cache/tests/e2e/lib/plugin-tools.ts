@@ -70,6 +70,7 @@ export async function authenticatedRequest(
 		method,
 		data: data ? new URLSearchParams( data ).toString() : null,
 		headers: {
+			Accept: 'text/html',
 			Cookie: authCookie,
 			'Content-Type': 'application/x-www-form-urlencoded',
 		},

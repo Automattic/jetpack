@@ -23,13 +23,6 @@ if ( ! window.CSS ) {
 	};
 }
 
-// Needed for react-dom 18
-if ( ! global.TextEncoder ) {
-	const { TextEncoder, TextDecoder } = require( 'node:util' );
-	global.TextEncoder = TextEncoder;
-	global.TextDecoder = TextDecoder;
-}
-
 // Mock this that's usually set by automattic/jetpack-connection.
 window.JP_CONNECTION_INITIAL_STATE = {
 	userConnectionData: {

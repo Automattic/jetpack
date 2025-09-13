@@ -5,6 +5,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 
 	/**
@@ -222,7 +226,7 @@ if ( ! function_exists( 'jetpack_featured_images_post_class' ) ) {
 	 * Adds custom class to the array of post classes.
 	 *
 	 * @param array $classes Classes for the post element.
-	 * @param array $class   Optional. Comma separated list of additional classes.
+	 * @param array $class   Optional. Comma-separated list of additional classes.
 	 * @param int   $post_id Unique The post ID to check.
 	 *
 	 * @return array $classes

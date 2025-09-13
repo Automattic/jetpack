@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router';
 import QueryIntroOffers from 'components/data/query-intro-offers';
 import QueryRecommendationsConditional from 'components/data/query-recommendations-conditional';
 import QueryRecommendationsData from 'components/data/query-recommendations-data';

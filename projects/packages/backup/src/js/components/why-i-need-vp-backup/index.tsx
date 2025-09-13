@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import autorenewIcon from '../icons/autorenew.svg';
 import cloudDoneIcon from '../icons/cloud-done.svg';
 import groupWorkIcon from '../icons/group-work.svg';

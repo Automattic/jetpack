@@ -12,6 +12,10 @@ use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the REST routes for Search.
  */

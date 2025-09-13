@@ -1,9 +1,8 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
-import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
@@ -12,7 +11,24 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 	const { setModal } = useModal();
 	const { fixThreats, isLoading: isFixersLoading } = useFixers();
 
-	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => parseInt( id ) ) );
+	const bulkFixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => threat.fixable && threat.fixable.extras?.isBulkFixable !== false
+			),
+		[ threatList ]
+	);
+	const nonBulkFixableThreats = useMemo(
+		() =>
+			threatList.filter(
+				threat => ! threat.fixable || threat.fixable.extras?.isBulkFixable === false
+			),
+		[ threatList ]
+	);
+
+	const [ threatIds, setThreatIds ] = useState(
+		bulkFixableThreats.map( ( { id } ) => parseInt( id ) )
+	);
 
 	const handleCancelClick = useCallback(
 		event => {
@@ -45,29 +61,51 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 
 	return (
 		<UserConnectionGate>
-			<CredentialsGate>
-				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Fix all threats', 'jetpack-protect' ) }
-				</Text>
-				<Text mb={ 3 }>
-					{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
-				</Text>
-
-				<div className={ styles.list }>
-					{ threatList.map( threat => (
-						<ThreatFixHeader
-							key={ threat.id }
-							threat={ threat }
-							fixAllDialog={ true }
-							onCheckFix={ handleCheckboxClick }
-						/>
-					) ) }
-				</div>
-
-				<div className={ styles.footer }>
-					<Button variant="secondary" onClick={ handleCancelClick }>
-						{ __( 'Cancel', 'jetpack-protect' ) }
-					</Button>
+			<Text variant="title-medium" mb={ 2 }>
+				{ __( 'Fix all threats', 'jetpack-protect' ) }
+			</Text>
+			{ bulkFixableThreats.length > 0 && (
+				<>
+					<Text mb={ 3 }>
+						{ __( 'Jetpack will be fixing the selected threats:', 'jetpack-protect' ) }
+					</Text>
+					<div className={ styles.list }>
+						{ bulkFixableThreats.map( threat => (
+							<ThreatFixHeader
+								key={ threat.id }
+								threat={ threat }
+								fixAllDialog={ true }
+								onCheckFix={ handleCheckboxClick }
+							/>
+						) ) }
+					</div>
+				</>
+			) }
+			{ nonBulkFixableThreats.length > 0 && (
+				<>
+					<Text mb={ 3 } mr={ 6 }>
+						{ __(
+							'These threats cannot be fixed in bulk because individual confirmation is required:',
+							'jetpack-protect'
+						) }
+					</Text>
+					<div className={ styles.list }>
+						{ nonBulkFixableThreats.map( threat => (
+							<ThreatFixHeader
+								key={ threat.id }
+								threat={ threat }
+								fixAllDialog={ false }
+								onCheckFix={ handleCheckboxClick }
+							/>
+						) ) }
+					</div>
+				</>
+			) }
+			<div className={ styles.footer }>
+				<Button variant="secondary" onClick={ handleCancelClick }>
+					{ __( 'Cancel', 'jetpack-protect' ) }
+				</Button>
+				{ bulkFixableThreats.length > 0 && (
 					<Button
 						isLoading={ isFixersLoading }
 						onClick={ handleFixClick }
@@ -75,8 +113,8 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 					>
 						{ __( 'Fix all threats', 'jetpack-protect' ) }
 					</Button>
-				</div>
-			</CredentialsGate>
+				) }
+			</div>
 		</UserConnectionGate>
 	);
 };

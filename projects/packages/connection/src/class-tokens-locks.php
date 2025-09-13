@@ -17,6 +17,8 @@ namespace Automattic\Jetpack\Connection;
  *
  * @see https://github.com/Automattic/jetpack/pull/23597
  * @see \Automattic\Jetpack\Connection\Tokens::is_locked()
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Tokens_Locks {
 

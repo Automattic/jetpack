@@ -5,8 +5,9 @@ import { store as socialStore } from '../../social-store';
 import { getSocialAdminPageUrl } from '../../utils';
 import Notice from '../notice';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-export const UnsupportedConnectionsNotice: React.FC = () => {
+export const UnsupportedConnectionsNotice: FC = () => {
 	const unsupportedServices = useSelect( select => {
 		const { getServicesBy, getConnectionsByService } = select( socialStore );
 

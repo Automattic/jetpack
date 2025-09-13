@@ -195,6 +195,8 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_V1_MONTHLY                   = 'jetpack_social_v1_monthly'; // 2606
 	private const JETPACK_SOCIAL_V1_YEARLY                    = 'jetpack_social_v1_yearly'; // 2605
 	private const JETPACK_SOCIAL_V1_BI_YEARLY                 = 'jetpack_social_v1_bi_yearly'; // 2607
+	private const A4A_WPCOM_BUSINESS_BUNDLE_YEARLY            = 'a4a_wp_bundle_business_yearly'; // 3300
+	private const A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY           = 'a4a_wp_bundle_business_monthly'; // 3301
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -204,7 +206,7 @@ class WPCOM_Features {
 	private const WPCOM_PRO_PLANS               = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
 	private const WPCOM_MIGRATION_TRIAL_PLANS   = array( self::WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_HOSTING_TRIAL_PLANS     = array( self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
-	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY );
+	private const WPCOM_BUSINESS_PLANS          = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y, self::WPCOM_MIGRATION_TRIAL_PLANS, self::WPCOM_HUNDRED_YEAR_BUNDLE, self::WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY, self::A4A_WPCOM_BUSINESS_BUNDLE_YEARLY, self::A4A_WPCOM_BUSINESS_BUNDLE_MONTHLY );
 	private const WPCOM_ECOMMERCE_PLANS         = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
 	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
@@ -212,6 +214,12 @@ class WPCOM_Features {
 	private const GOOGLE_WORKSPACE_PRODUCTS     = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
+
+	private const WPCOM_PERSONAL_AND_PREMIUM_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_PREMIUM_PLANS );
+	private const WPCOM_SUMMER_SPECIAL_2025_PLANS  = array(
+		'required_sticker' => 'summer-special-2025',
+		self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+	);
 
 	// WPCOM "Level 3" A: Groups of level 2s.
 	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
@@ -392,6 +400,7 @@ class WPCOM_Features {
 	public const MONITOR_1_MINUTE_CHECK_INTERVAL   = 'monitor-1-minute-check-interval';
 	public const MONITOR_MULTIPLE_EMAIL_RECIPIENTS = 'monitor-multiple-email-recipients';
 	public const MONITOR_SMS_NOTIFICATIONS         = 'monitor-sms-notifications';
+	public const MULTISTEP_FORM                    = 'multistep-form';
 	public const NO_ADVERTS_NO_ADVERTS_PHP         = 'no-adverts/no-adverts.php';
 	public const NO_WPCOM_BRANDING                 = 'no-wpcom-branding';
 	public const OPENTABLE                         = 'opentable';
@@ -528,6 +537,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                           => array(
@@ -542,6 +552,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STAGING_PRODUCT,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// BACKUPS_DAILY - Site has product that includes daily backups.
 		self::BACKUPS_DAILY                     => array(
@@ -552,6 +563,7 @@ class WPCOM_Features {
 		self::BACKUPS_RESTORE                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -683,6 +695,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                       => array(
@@ -691,6 +704,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
 		self::EMAIL_PROFESSIONAL                => array(
@@ -759,6 +773,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS         => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -767,6 +782,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_THEMES                    => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -775,6 +791,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::INSTALL_WOO_ONBOARDING_PLUGINS    => array(
 			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
@@ -800,6 +817,7 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                      => array(
@@ -839,6 +857,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		// MONITOR_1_MINUTE_CHECK_INTERVAL - Jetpack Monitor checks site uptime once per minute
@@ -856,7 +875,10 @@ class WPCOM_Features {
 			self::JETPACK_MONITOR_MONTHLY,
 			self::JETPACK_MONITOR_YEARLY,
 		),
-
+		self::MULTISTEP_FORM                    => array(
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP         => array(
 			self::NO_ADS,
 			// Deliberately leaves out the Starter plan.
@@ -933,6 +955,7 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::RECURRING_PAYMENTS                => array(
 			self::WPCOM_ALL_SITES,
@@ -966,6 +989,7 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -975,6 +999,7 @@ class WPCOM_Features {
 		self::SCAN_MANAGED                      => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -1221,6 +1246,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 		self::UPLOAD_SPACE_1GB                  => array(
 			self::SPACE_1GB,
@@ -1261,6 +1287,7 @@ class WPCOM_Features {
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 			),
+			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 		),
 
 		/*
@@ -1441,7 +1468,15 @@ class WPCOM_Features {
 		163161552, // brwpgo.wordpress.com
 		53424024, // discover.wordpress.com
 		489937, // dailypost.wordpress.com
-		33534099, // developer.wordpress.com
+		33534099,  // developer.wordpress.com
+		233643880, // eswpcomdeveloper.wordpress.com
+		244311505, // jawpcomdeveloper.wordpress.com
+		244447807, // frwpcomdeveloper.wordpress.com
+		244448116, // dewpcomdeveloper.wordpress.com
+		244448279, // ptbrwpcomdeveloper.wordpress.com
+		244517526, // idwpcomdeveloper.wordpress.com
+		244516213, // itwpcomdeveloper.wordpress.com
+		244518337, // nlwpcomdeveloper.wordpress.com
 		22994, // theme.wordpress.com
 		16390, // learn.wordpress.com
 		54117, // automattic.wordpress.com
@@ -1490,10 +1525,11 @@ class WPCOM_Features {
 	 * @param string $feature   A singular feature.
 	 * @param array  $purchases A collection of purchases.
 	 * @param string $site_type Site type to check. Can be 'wpcom' or 'jetpack'. Default empty string.
+	 * @param int    $blog_id   The blog ID to check. Default null.
 	 *
 	 * @return bool Is the feature included in one of the purchases.
 	 */
-	public static function has_feature( $feature, $purchases, $site_type = '' ) {
+	public static function has_feature( $feature, $purchases, $site_type = '', $blog_id = null ) {
 		if ( ! self::feature_exists( $feature ) ) {
 			return false;
 		}
@@ -1509,7 +1545,7 @@ class WPCOM_Features {
 		}
 
 		foreach ( $purchases as $purchase ) {
-			if ( self::purchase_in_products_map( $purchase, $products_map ) ) {
+			if ( self::purchase_in_products_map( $purchase, $products_map, $blog_id ) ) {
 				return true;
 			}
 		}
@@ -1543,10 +1579,11 @@ class WPCOM_Features {
 	 *
 	 * @param object $purchase A single purchase.
 	 * @param array  $products_map A feature map definition array.
+	 * @param int    $blog_id The blog ID to check. Default null.
 	 *
 	 * @return bool If the purchase is included in $products_map and meets any purchase date-range rules.
 	 */
-	public static function purchase_in_products_map( $purchase, $products_map ) {
+	public static function purchase_in_products_map( $purchase, $products_map, $blog_id = null ) {
 
 		// First check if the current purchase is excluded in the product definition.
 		if ( isset( $products_map[ self::EXCLUDE_PLANS ] ) ) {
@@ -1567,7 +1604,24 @@ class WPCOM_Features {
 				continue;
 			}
 
-			$purchase_eligible_by_date = false;
+			$purchase_eligible_by_date    = false;
+			$purchase_eligible_by_sticker = false;
+
+			// Check if sticker requirement exists.
+			$required_sticker = $product_definition['required_sticker'] ?? null;
+			if ( $required_sticker ) {
+				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+					// Fallback for Atomic sites
+					$purchase_eligible_by_sticker = wpcomsh_is_site_sticker_active( $required_sticker );
+				} elseif ( function_exists( 'has_blog_sticker' ) ) {
+					$blog_id                    ??= get_current_blog_id();
+					$purchase_eligible_by_sticker = has_blog_sticker( $required_sticker, $blog_id );
+				}
+				// Remove the sticker key so $product_definition is clean for in_array_recursive search.
+				unset( $product_definition['required_sticker'] );
+			} else {
+				$purchase_eligible_by_sticker = true; // No sticker requirement, so eligible by default.
+			}
 
 			// If 'before' & 'after' are empty, this is not a legacy feature.
 			if ( empty( $product_definition['before'] ) && empty( $product_definition['after'] ) ) {
@@ -1601,8 +1655,8 @@ class WPCOM_Features {
 				}
 			}
 
-			// If the date range hurtle is cleared, check if the purchase is included in the $product_definition.
-			if ( $purchase_eligible_by_date ) {
+			// If the date range and sticker requirements are cleared, check if the purchase is included in the $product_definition.
+			if ( $purchase_eligible_by_date && $purchase_eligible_by_sticker ) {
 				if ( self::in_array_recursive( $purchase->product_slug ?? null, array( $product_definition ) ) ) {
 					return true;
 				}

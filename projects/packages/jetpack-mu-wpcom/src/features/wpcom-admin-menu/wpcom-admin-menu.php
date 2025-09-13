@@ -7,12 +7,11 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+
+require_once __DIR__ . '/../../common/wpcom-callout.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -37,6 +36,68 @@ function current_user_has_wpcom_account() {
 }
 
 /**
+ * Adds the Dashboard > Updates menu on Simple sites
+ */
+function wpcom_add_dashboard_updates_menu() {
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( ! $is_simple_site || ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) ) {
+		return;
+	}
+
+	add_submenu_page(
+		'index.php',
+		__( 'WordPress Updates', 'jetpack-mu-wpcom' ),
+		__( 'Updates', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'wpcom-dashboard-updates',
+		'wpcom_display_dashboard_updates_page'
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_dashboard_updates_menu' );
+
+/**
+ * Displays a WordPress Updates page for Simple sites.
+ */
+function wpcom_display_dashboard_updates_page() {
+	?>
+	<div class="wrap">
+		<h1><?php esc_html_e( 'WordPress Updates', 'jetpack-mu-wpcom' ); ?></h1>
+		<p><?php esc_html_e( "WordPress.com automatically keeps your site's plugins, themes, and WordPress version up to date.", 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'WordPress', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your version of WordPress is up to date.', 'jetpack-mu-wpcom' ); ?></p>
+		<h2><?php esc_html_e( 'Plugins', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your plugins are all up to date.', 'jetpack-mu-wpcom' ); ?>
+		<h2><?php esc_html_e( 'Themes', 'jetpack-mu-wpcom' ); ?></h2>
+		<p><?php esc_html_e( 'Your themes are all up to date.', 'jetpack-mu-wpcom' ); ?>
+	</div>
+	<?php
+}
+
+/**
+ * Checks if menu items can link to Calypso.
+ *
+ * This way we can avoid a broken nav experience for super admins who are not members of the current site,
+ * since Calypso doesn't support this flow.
+ */
+function wpcom_can_link_to_calypso() {
+	return is_user_member_of_blog();
+}
+
+/**
+ * Adds a My Home menu.
+ */
+function wpcom_add_my_home_menu() {
+	if ( ! wpcom_can_link_to_calypso() ) {
+		return;
+	}
+
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	add_menu_page( __( 'My Home', 'jetpack-mu-wpcom' ), __( 'My Home', 'jetpack-mu-wpcom' ), 'read', 'https://wordpress.com/home/' . $domain, null, 'dashicons-admin-home', 2.01 ); // The 2.01 position is to ensure it's above the VIP menu on P2 sites.'
+}
+add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
+
+/**
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
@@ -55,15 +116,6 @@ function wpcom_add_hosting_menu() {
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		'dashicons-cloud',
 		3
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'My Home', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/home/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
 	add_submenu_page(
@@ -120,24 +172,6 @@ function wpcom_add_hosting_menu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/marketing/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Site Settings', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/sites/settings/site/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,
@@ -147,103 +181,153 @@ function wpcom_add_hosting_menu() {
 add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
 
 /**
+ * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
+ *
+ * @param string $menu_slug The menu slug.
+ * @param array  $desired_order A list of the submenu slugs in the desired order.
+ */
+function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
+	// Re-order menu.
+	global $submenu;
+	if ( ! isset( $submenu[ $menu_slug ] ) ) {
+		return;
+	}
+
+	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
+	$ordered_submenu = array();
+
+	// Re-add submenu items in the desired order.
+	foreach ( $desired_order as $submenu_slug ) {
+		foreach ( $submenu[ $menu_slug ] as $item ) {
+			$clean_url = str_replace( $domain, '', $item[2] );
+			if ( str_contains( $clean_url, $submenu_slug ) ) {
+				$ordered_submenu[] = $item;
+			}
+		}
+	}
+
+	// Add any remaining submenu items.
+	foreach ( $submenu[ $menu_slug ] as $item ) {
+		if ( ! in_array( $item, $ordered_submenu, true ) ) {
+			$ordered_submenu[] = $item;
+		}
+	}
+
+	// phpcs:ignore WordPress.WP.GlobalVariablesOverride
+	$submenu[ $menu_slug ] = $ordered_submenu;
+}
+
+/**
  * Adds WordPress.com submenu items related to Jetpack under the Jetpack admin menu.
  */
 function wpcom_add_jetpack_submenu() {
-	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-	$is_atomic_site          = ! $is_simple_site;
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-
-	if ( ! $uses_wp_admin_interface ) {
-		return;
-	}
-
-	if ( $is_atomic_site && ( ( new Status() )->is_offline_mode() || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) ) {
-		return;
-	}
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 	$blog_id = Connection_Manager::get_site_id();
 	if ( is_wp_error( $blog_id ) ) {
 		return;
 	}
 
-	// Hide submenu items that link to Jetpack Cloud.
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
-	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
-	$domain           = wp_parse_url( home_url(), PHP_URL_HOST );
-	$activity_log_url = 'https://wordpress.com/activity-log/' . $domain;
-	$vaultpress_url   = 'https://wordpress.com/backup/' . $domain;
-	$monetize_url     = 'https://wordpress.com/earn/' . $domain;
-	$subscribers_url  = 'https://wordpress.com/subscribers/' . $domain;
-	$newsletter_url   = 'https://wordpress.com/settings/newsletter/' . $domain;
-	$scan_url         = 'https://wordpress.com/scan/' . $domain;
-	$podcasting_url   = 'https://wordpress.com/settings/podcasting/' . $domain;
+	// @codeCoverageIgnoreStart
+	// Hide certain Jetpack submenus for Atomic sites on Personal or Premium plans.
+	$is_personal_or_premium = false;
+	if ( class_exists( '\\Automattic\\Jetpack\\Current_Plan' ) ) {
+		$current_plan           = \Automattic\Jetpack\Current_Plan::get();
+		$plan_class             = $current_plan['class'] ?? '';
+		$is_personal_or_premium = in_array( $plan_class, array( 'personal', 'premium' ), true );
+	}
 
-	// Add submenu items that link to WordPress.com.
-	add_submenu_page(
-		'jetpack',
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$activity_log_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+	if ( ! $is_simple_site && $is_personal_or_premium ) {
+		// Jetpack > My Jetpack.
+		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
-	add_submenu_page(
-		'jetpack',
-		__( 'VaultPress', 'jetpack-mu-wpcom' ),
-		__( 'VaultPress', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$vaultpress_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+		// Jetpack > Settings.
+		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
 
-	add_submenu_page(
-		'jetpack',
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		__( 'Monetize', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		$monetize_url,
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-	);
+		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
+		add_action(
+			'admin_init',
+			function () {
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
+				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
+					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					exit;
+				}
+			}
+		);
 
-	if ( $is_atomic_site ) {
+		// Jetpack > Traffic (Calypso).
 		add_submenu_page(
 			'jetpack',
-			__( 'Scan', 'jetpack-mu-wpcom' ),
-			__( 'Scan', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'Traffic', 'jetpack-mu-wpcom' ),
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			$scan_url,
+			'https://wordpress.com/marketing/traffic/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
+		// Jetpack > Newsletter (Calypso).
+		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page exposes broken pages.
+		add_submenu_page(
+			'jetpack',
+			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/newsletter/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	}
+	// @codeCoverageIgnoreEnd
 
+	// Jetpack > Scan.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
+	add_submenu_page(
+		'jetpack',
+		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
+		__( 'Scan', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/scan/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	// Jetpack > Backup.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	add_submenu_page(
+		'jetpack',
+		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
+		__( 'Backup', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/backup/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	// Jetpack > Monetize.
+	add_submenu_page(
+		'jetpack',
+		esc_attr__( 'Monetize', 'jetpack-mu-wpcom' ),
+		__( 'Monetize', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/earn/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+	);
+
+	// Jetpack > Subscribers.
 	if ( ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 		add_submenu_page(
 			'jetpack',
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
 			__( 'Subscribers', 'jetpack-mu-wpcom' ),
 			'manage_options',
-			$subscribers_url,
+			'https://wordpress.com/subscribers/' . $domain,
 			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		);
 	} else {
 		$subscribers_dashboard = new Subscribers_Dashboard();
 		$subscribers_dashboard->add_wp_admin_submenu();
-	}
-
-	if ( $is_simple_site ) {
-		add_submenu_page(
-			'jetpack',
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			$newsletter_url,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
 	}
 
 	// Jetpack > Podcasting
@@ -252,47 +336,64 @@ function wpcom_add_jetpack_submenu() {
 		__( 'Podcasting', 'jetpack-mu-wpcom' ),
 		__( 'Podcasting', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		$podcasting_url,
+		'https://wordpress.com/settings/podcasting/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Re-order menu.
-	global $submenu;
-	if ( ! isset( $submenu['jetpack'] ) ) {
-		return;
+	if ( $is_simple_site ) {
+		// Jetpack > Newsletter.
+		add_submenu_page(
+			'jetpack',
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			__( 'Newsletter', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/settings/newsletter/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
+
+		// Jetpack > Traffic
+		add_submenu_page(
+			'jetpack',
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
+			__( 'Traffic', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'https://wordpress.com/marketing/traffic/' . $domain,
+			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		);
 	}
 
-	$desired_order   = array(
-		'my-jetpack',
-		'stats',
-		$activity_log_url,
-		$vaultpress_url,
-		'akismet-key-config',
-		'jetpack-search',
-		$scan_url,
-		$monetize_url,
-		$subscribers_url,
+	// Jetpack > Activity Log.
+	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
+	add_submenu_page(
+		'jetpack',
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		'https://wordpress.com/activity-log/' . $domain,
+		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
-	$ordered_submenu = array();
 
-	// Re-add submenu items in the desired order.
-	foreach ( $desired_order as $slug ) {
-		foreach ( $submenu['jetpack'] as $item ) {
-			if ( $item[2] === $slug ) {
-				$ordered_submenu[] = $item;
-			}
-		}
-	}
-
-	// Add any remaining submenu items.
-	foreach ( $submenu['jetpack'] as $item ) {
-		if ( ! in_array( $item[2], $desired_order, true ) ) {
-			$ordered_submenu[] = $item;
-		}
-	}
-
-	// phpcs:ignore WordPress.WP.GlobalVariablesOverride
-	$submenu['jetpack'] = $ordered_submenu;
+	wpcom_reorder_submenu(
+		'jetpack',
+		array(
+			'my-jetpack',
+			'stats',
+			'boost',
+			'social',
+			'akismet-key-config',
+			'activity-log',
+			'scan',
+			'backup',
+			'forms',
+			'earn',
+			'search',
+			'subscribers',
+			'newsletter',
+			'podcasting',
+			'traffic',
+			'jetpack#/settings',
+		)
+	);
 }
 add_action( 'admin_menu', 'wpcom_add_jetpack_submenu', 999999 );
 
@@ -476,23 +577,133 @@ function wpcom_add_plugins_menu() {
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
 
 /**
- * Adds a submenu item for Jetpack Forms.
+ * Adds some Tools menus that are missing on Simple sites.
  */
-function add_submenu_jetpack_forms() {
-	$has_switch_class = class_exists( 'Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch' );
+function wpcom_add_tools_menu() {
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	add_submenu_page(
+		'tools.php',
+		__( 'Marketing', 'jetpack-mu-wpcom' ),
+		__( 'Marketing', 'jetpack-mu-wpcom' ),
+		'publish_posts',
+		'https://wordpress.com/marketing/tools/' . $domain,
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		1
+	);
 
-	if ( ! $has_switch_class || ! Dashboard\Dashboard_View_Switch::is_jetpack_forms_admin_page_available() ) {
-		return;
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( $is_simple_site ) {
+		add_submenu_page(
+			'tools.php',
+			__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+			__( 'Export Personal Data', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'wpcom-export-personal-data',
+			'wpcom_display_export_erase_personal_data_page'
+		);
+
+		add_submenu_page(
+			'tools.php',
+			__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+			__( 'Erase Personal Data', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'wpcom-erase-personal-data',
+			'wpcom_display_export_erase_personal_data_page'
+		);
+
+		add_submenu_page(
+			'tools.php',
+			__( 'Site Health', 'jetpack-mu-wpcom' ),
+			__( 'Site Health', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			'wpcom-site-health',
+			'wpcom_display_site_health_page'
+		);
 	}
 
-	$forms_dashboard = new Dashboard\Dashboard();
-
-	Admin_Menu::add_menu(
-		__( 'Jetpack Forms', 'jetpack-mu-wpcom' ),
-		__( 'Forms', 'jetpack-mu-wpcom' ),
-		'edit_pages',
-		'jetpack-forms-admin',
-		array( $forms_dashboard, 'render_new_dashboard' )
+	wpcom_reorder_submenu(
+		'tools.php',
+		array(
+			'tools.php',
+			'advertising',
+			'marketing',
+			'monetize',
+			'import',
+			'export.php',
+			'export-media-files',
+			'site-health',
+			'export-personal-data',
+			'erase-personal-data',
+			'theme-editor',
+			'plugin-editor',
+		)
 	);
 }
-add_action( 'admin_menu', 'add_submenu_jetpack_forms' );
+add_action( 'admin_menu', 'wpcom_add_tools_menu', 999999 );
+
+/**
+ * Displays an Export/Erase Personal Date page for Simple sites.
+ */
+function wpcom_display_export_erase_personal_data_page() {
+	if ( str_contains( get_current_screen()->id, 'export-personal-data' ) ) {
+		$page_title = __( 'Export Personal Data', 'jetpack-mu-wpcom' );
+	} else {
+		$page_title = __( 'Erase Personal Data', 'jetpack-mu-wpcom' );
+	}
+
+	wpcom_display_callout(
+		'dashicons-id-alt',
+		$page_title,
+		array(
+			__( 'WordPress.com gives you the tools to manage personal data from your dashboard, like viewing or deleting comments tied to a visitor.', 'jetpack-mu-wpcom' ),
+			__( 'To support privacy requests, make sure people can reach you easily, whether through a contact form or an email in your Privacy Policy.', 'jetpack-mu-wpcom' ),
+		),
+		localized_wpcom_url( 'https://wordpress.com/support/your-site-and-the-gdpr/' ),
+		__( 'Learn more', 'jetpack-mu-wpcom' ),
+		plugins_url( 'images/performance.svg', __FILE__ )
+	);
+}
+
+/**
+ * Displays a callout on Simple Sites for Tools > Site Health menu.
+ *
+ * @return void
+ */
+function wpcom_display_site_health_page() {
+	wpcom_display_callout(
+		'dashicons-admin-site-alt3',
+		__( 'Your site\'s in good hands', 'jetpack-mu-wpcom' ),
+		array(
+			__( 'No need to stress over performance or security checks, WordPress.com handles that for you behind the scenes.', 'jetpack-mu-wpcom' ),
+			__( 'That way, your site stays fast, safe, and reliable, without any extra effort from you.', 'jetpack-mu-wpcom' ),
+		),
+		localized_wpcom_url( 'https://wordpress.com/support/choose-a-host/#frequently-asked-questions-about-managed-hosting-with-word-press-com' ),
+		__( 'Learn more', 'jetpack-mu-wpcom' ),
+		plugins_url( 'images/cloud.svg', __FILE__ )
+	);
+}
+
+/**
+ * Adjust the Settings submenus so they are sorted consistently.
+ */
+function wpcom_add_settings_menu() {
+	wpcom_reorder_submenu(
+		'options-general.php',
+		array(
+			'general',
+			'writing',
+			'reading',
+			'discussion',
+			'media',
+			'permalink',
+			'privacy',
+			'sharing',
+			'optimize',
+			'crowdsignal',
+			'rating',
+			'newsletter',
+			'podcasting',
+		)
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_settings_menu', 999999 );

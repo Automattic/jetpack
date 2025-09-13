@@ -4,6 +4,22 @@ use Automattic\Jetpack\Stats_Admin\TestCase as BaseTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 class Admin_Post_List_Test extends BaseTestCase {
+	/**
+	 * Get a mock for the WP_Query class.
+	 *
+	 * @param int $post_id The ID of the post to be included in the query.
+	 *
+	 * @return WP_Query The mocked WP_Query object.
+	 */
+	private function get_wp_query_mock( int $post_id ) {
+		$wp_query = $this->createMock( WP_Query::class );
+
+		$wp_query->query_vars = array();
+		$wp_query->posts      = array( (object) array( 'ID' => $post_id ) );
+
+		return $wp_query;
+	}
+
 	public function test_register_creates_instance() {
 		// Ensure the register method creates an instance of the class
 		$instance = Admin_Post_List_Column::register();
@@ -15,6 +31,36 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$columns = array(
 			'title' => 'Title',
 			'date'  => 'Date',
+		);
+
+		wp_set_current_user( $this->admin_id );
+
+		$set_cap = function ( $caps ) {
+			$caps['view_stats'] = true;
+
+			return $caps;
+		};
+
+		add_filter( 'user_has_cap', $set_cap );
+		// Call the method to add the stats column
+		$columns_with_stats = Admin_Post_List_Column::register()->add_stats_post_table( $columns );
+		remove_filter( 'user_has_cap', $set_cap );
+
+		// Assert that the 'stats' column is added
+		$this->assertArrayHasKey( 'stats', $columns_with_stats );
+		$this->assertEquals( 'Stats', $columns_with_stats['stats'] );
+	}
+
+	/**
+	 * Test if the stats column is added when comments is the first column of the table.
+	 *
+	 * @return void
+	 */
+	public function test_adds_stats_column_when_comments_is_the_first_column() {
+		// Prepare a simple columns array
+		$columns = array(
+			'comments' => 'comments',
+			'date'     => 'Date',
 		);
 
 		wp_set_current_user( $this->admin_id );
@@ -88,9 +134,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 
 		// Mock the global $wp_query to simulate a post list query
 		global $wp_query;
-		$wp_query = (object) array(
-			'posts' => array( (object) array( 'ID' => $post_id ) ), // Simulate the post in the query
-		);
+		$wp_query = $this->get_wp_query_mock( $post_id );
 
 		// Create a mock for the protected `get_stats` method
 		$mocked_stats = $this->getMockBuilder( Automattic\Jetpack\Stats\WPCOM_Stats::class )
@@ -122,7 +166,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		// Assert that the stats link is present in the output
-		$this->assertStringContainsString( 'admin.php?page=stats#!/stats/post/' . $post_id, $output );
+		$this->assertStringContainsString( 'admin.php?page=stats&from=postList&jp_post_type=post#!/stats/post/' . $post_id, html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ) );
 
 		$this->assertStringContainsString( '1.2M', $output );
 
@@ -155,9 +199,7 @@ class Admin_Post_List_Test extends BaseTestCase {
 		$column = 'stats';
 
 		global $wp_query;
-		$wp_query = (object) array(
-			'posts' => array( (object) array( 'ID' => $post_id ) ), // Simulate the post in the query
-		);
+		$wp_query = $this->get_wp_query_mock( $post_id );
 
 		// Create an instance of the Admin_Post_List_Column class
 		$column_instance = Admin_Post_List_Column::register();

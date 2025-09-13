@@ -49,13 +49,13 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Broken version, and a fix hasn't been released for a while yet.
-	// p1743531431572359-slack-C02DQP0FP
+	// Currently v3 of @automattic/components has some issues:
+	// https://github.com/Automattic/wp-calypso/pull/103385
 	if (
-		pkg.name.startsWith( '@automattic/launchpad' ) &&
-		pkg.dependencies?.[ '@automattic/data-stores' ] === '^3.1.0'
+		pkg.name.startsWith( '@automattic/calypso-products' ) ||
+		pkg.name.startsWith( '@automattic/launchpad' )
 	) {
-		pkg.dependencies[ '@automattic/data-stores' ] = '3.1.0 || >3.1.1';
+		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
 	}
 
 	// Outdated dependency version causing dependabot warnings.
@@ -98,9 +98,8 @@ async function fixDeps( pkg ) {
 			}
 		}
 
-		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
-		// https://github.com/WordPress/gutenberg/issues/60975
-		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
+		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
+		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
 	}
 
 	// Missing dep or peer dep.
@@ -112,6 +111,15 @@ async function fixDeps( pkg ) {
 	) {
 		pkg.peerDependencies ??= {};
 		pkg.peerDependencies.typescript = '*';
+	}
+
+	// Missing dep. Already fixed upstream, pending release.
+	// https://github.com/typescript-eslint/typescript-eslint/issues/11382
+	if (
+		pkg.name === '@typescript-eslint/type-utils' &&
+		! pkg.dependencies[ '@typescript-eslint/types' ]
+	) {
+		pkg.dependencies[ '@typescript-eslint/types' ] = '8.36.0';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -172,9 +180,16 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
+	// https://github.com/istanbuljs/babel-plugin-istanbul/issues/300
+	// https://github.com/jestjs/jest/issues/15236
+	if ( pkg.name === 'babel-plugin-istanbul' && pkg.dependencies[ 'test-exclude' ] === '^6.0.0' ) {
+		pkg.dependencies[ 'test-exclude' ] = '^7.0.0';
+	}
+
+	// Outdated dependency.
 	// No upstream bug link yet, upstream seems unmaintained anyway.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
-		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
@@ -192,12 +207,6 @@ async function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
-	}
-
-	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
-	// https://github.com/WordPress/gutenberg/issues/60975
-	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
-		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
@@ -235,6 +244,23 @@ async function fixDeps( pkg ) {
 				pkg.dependencies[ k ] = '*';
 			}
 		}
+	}
+
+	// Hack-update Jest to v30 for ts-jest and @storybook/test-runner. Not sure if they'd 100% work, but they seem to work for us in CI.
+	// https://github.com/storybookjs/test-runner/issues/567
+	if ( pkg.name === '@storybook/test-runner' && pkg.dependencies.jest === '^29.6.4' ) {
+		pkg.dependencies.jest = '^30.0.0';
+		pkg.dependencies[ 'jest-circus' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-environment-node' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-runner' ] = '^30.0.0';
+		pkg.dependencies[ 'jest-watch-typeahead' ] = '^3.0.0';
+	}
+	// https://github.com/playwright-community/jest-playwright/issues/824
+	if ( pkg.name === 'jest-playwright-preset' && pkg.peerDependencies.jest === '^29.3.1' ) {
+		pkg.peerDependencies.jest += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
+		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
 	}
 
 	return pkg;
@@ -282,6 +308,15 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
 		pkg.peerDependenciesMeta ??= {};
 		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+	}
+
+	// Override @automattic/launchpad peer dependency to use @wordpress/i18n v6 if it's on v5.
+	if (
+		pkg.name === '@automattic/launchpad' &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
+		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
+	) {
+		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
 	return pkg;

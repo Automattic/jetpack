@@ -5,9 +5,10 @@ import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
 import Text from '../text/index.tsx';
 import type { TermsOfServiceProps } from './types.ts';
+import type { FC, ReactNode } from 'react';
 import './styles.scss';
 
-const TermsOfService: React.FC< TermsOfServiceProps > = ( {
+const TermsOfService: FC< TermsOfServiceProps > = ( {
 	className,
 	multipleButtons,
 	agreeButtonLabel,
@@ -92,7 +93,7 @@ const TermsOfServiceTextOnly = () =>
 		}
 	);
 
-const Link: React.FC< { slug: string; children?: React.ReactNode } > = ( { slug, children } ) => (
+const Link: FC< { slug: string; children?: ReactNode } > = ( { slug, children } ) => (
 	<ExternalLink className="terms-of-service__link" href={ getRedirectUrl( slug ) }>
 		{ children }
 	</ExternalLink>

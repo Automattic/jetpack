@@ -1,0 +1,23 @@
+export default `
+Akismet
+Automattic
+Automattician
+Automatticians
+bbPress
+BuddyPress
+Cloudup
+Crowdsignal
+Gravatar
+Jetpack
+Longreads
+Mullenweg
+Newspack
+Pressable
+Sensei
+Simplenote
+Tumblr
+VideoPress
+WooCommerce
+WordCamp
+WPScan
+`;

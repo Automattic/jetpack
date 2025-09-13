@@ -36,8 +36,9 @@ export const useStorageUsageText = ( bytesUsed, bytesAvailable ) => {
 			return createInterpolateElement(
 				// eslint-disable-next-line @wordpress/valid-sprintf
 				sprintf(
-					// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g., 20.0GB of 30GB used, 0.5GB of 20GB used)
+					// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1.1f: numeric amount of disk space used, %2f: numeric amount of disk space available.
 					__( 'Using <strong>%1.1fGB</strong> of %2fGB', 'jetpack-backup-pkg' ),
+					// @ts-expect-error sprintf types seem to be wrong to expect only 1 argument here.
 					usedGigabytes,
 					availableUnitAmount
 				),
@@ -49,7 +50,7 @@ export const useStorageUsageText = ( bytesUsed, bytesAvailable ) => {
 
 		return createInterpolateElement(
 			sprintf(
-				// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g., 20.0GB of 1TB used, 0.5GB of 2TB used)
+				// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 1TB used, 0.5GB of 2TB used). %1$d: numeric amount of disk space used, %2$d: numeric amount of disk space available.
 				__( 'Using <strong>%1$dGB</strong> of %2$dTB', 'jetpack-backup-pkg' ),
 				usedGigabytes,
 				availableUnitAmount

@@ -15,6 +15,10 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_PostImages;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const EMBED_SIZE        = array( 360, 640 ); // twice as many pixels for retina displays.
 const CROP_UP_TO        = 0.2;
 const MAX_BULLETS       = 7;
@@ -347,7 +351,7 @@ function render_static_slide( $media_files ) {
 	}
 
 	// if no "static" media was found for the thumbnail try to render a video tag without poster.
-	if ( empty( $media_template ) && ! empty( $media_files ) ) {
+	if ( empty( $media_template ) ) {
 		$media_template = render_video( $media_files[0] );
 	}
 

@@ -5,6 +5,113 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [1.2.6] - 2025-09-01
+### Fixed
+- Social: Allow default image to be cleared. [#44994]
+
+## [1.2.5] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [1.2.4] - 2025-08-18
+### Changed
+- Update dependencies. [#43971]
+
+## [1.2.3] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+### Removed
+- Removed unused dependencies. [#44746]
+
+## [1.2.2] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [1.2.1] - 2025-08-05
+### Added
+- Social: Add font option for Image Generator. [#44514]
+
+## [1.2.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- Fix UX for Social modal when resharing without user connection. [#44513]
+
+## [1.1.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [1.1.5] - 2025-07-21
+### Changed
+- Change the new badge color to match WordPress colors in the connection management. [#44310]
+- Update package dependencies. [#44356]
+
+### Fixed
+- SIG: Ensure the modal loads the featured image. [#44227]
+- Social: Fix image validation when images sizes are customised. [#44368]
+
+## [1.1.4] - 2025-07-14
+### Changed
+- Update package dependencies. [#44217] [#44219]
+
+## [1.1.3] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+### Removed
+- Utilities: Remove post editor fallback as we no longer need to ensure compatibility. [#44164]
+
+## [1.1.2] - 2025-06-30
+### Changed
+- Internal updates.
+
+## [1.1.1] - 2025-06-24
+### Changed
+- Update dependencies. [#43971]
+
+## [1.1.0] - 2025-06-23
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+- Update package dependencies. [#44020]
+
+### Fixed
+- Social Previews: Prevent text overflow with Mastodon. [#44019]
+
+## [1.0.2] - 2025-06-16
+### Changed
+- Update dependencies. [#43878]
+
+## [1.0.1] - 2025-06-05
+### Changed
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## [0.86.2] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+- Social: Hide preview modal if there are no connections. [#43701]
+
+## [0.86.1] - 2025-05-26
+### Changed
+- Update package dependencies. [#43578]
+
 ## [0.86.0] - 2025-05-22
 ### Added
 - Added option to set default image for Social Image Generator. [#43461]
@@ -1063,7 +1170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.16.0] - 2023-02-15
 ### Changed
-- Refactored media picker into seperate componetn [#28773]
+- Refactor media picker into separate components. [#28773]
 - Update to React 18. [#28710]
 
 ## [0.15.2] - 2023-02-08
@@ -1253,6 +1360,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.3.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.6...v1.3.0
+[1.2.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.5...v1.2.6
+[1.2.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.4...v1.2.5
+[1.2.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.3...v1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.2...v1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.6...v1.2.0
+[1.1.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.4...v1.1.5
+[1.1.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.3...v1.1.4
+[1.1.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.2...v1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.2...v1.0.0
+[0.86.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.1...v0.86.2
+[0.86.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.86.0...v0.86.1
 [0.86.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.5...v0.86.0
 [0.85.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.4...v0.85.5
 [0.85.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.85.3...v0.85.4

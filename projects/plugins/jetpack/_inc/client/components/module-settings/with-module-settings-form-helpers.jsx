@@ -1,5 +1,4 @@
-import { each, get, omit } from 'lodash';
-import React from 'react';
+import { Component } from 'react';
 import { connectModuleOptions } from 'components/module-settings/connect-module-options';
 import analytics from 'lib/analytics';
 
@@ -7,11 +6,11 @@ import analytics from 'lib/analytics';
  * High order component that provides a <form> with functionality
  * to handle input values on the forms' own React component state.
  *
- * @param {React.Component} InnerComponent - The component with a top level form element
- * @return {[React.Component]} The component with new functionality
+ * @param {import('react').Component} InnerComponent - The component with a top level form element
+ * @return {[import('react').Component]} The component with new functionality
  */
 export function withModuleSettingsFormHelpers( InnerComponent ) {
-	class SettingsForm extends React.Component {
+	class SettingsForm extends Component {
 		state = {
 			options: {},
 		};
@@ -51,7 +50,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		};
 
 		resetFormStateOption = optionToReset => {
-			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
+			const { [ optionToReset ]: _, ...optionsToKeep } = this.state.options;
+			this.setState( { options: optionsToKeep } );
 			return true;
 		};
 
@@ -121,12 +121,9 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 				.then( () => {
 					// Track it
 
-					const saneOptions = {};
-
-					each( this.state.options, ( value, key ) => {
-						key = key.replace( /-/, '_' );
-						saneOptions[ key ] = value;
-					} );
+					const saneOptions = Object.fromEntries(
+						Object.entries( this.state.options ).map( ( [ k, v ] ) => [ k.replace( /-/, '_' ), v ] )
+					);
 
 					this.trackFormSubmission( saneOptions );
 
@@ -147,9 +144,8 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * @return {*}                 the current value of the settings.
 		 */
 		getOptionValue = ( settingName, module = '', ignoreDisabledModules = true ) => {
-			return get(
-				this.state.options,
-				settingName,
+			return (
+				this.state.options?.[ settingName ] ??
 				this.props.getSettingCurrentValue( settingName, module, ignoreDisabledModules )
 			);
 		};

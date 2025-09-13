@@ -79,6 +79,34 @@ class Host {
 	}
 
 	/**
+	 * Determine if this is a P2 site.
+	 * This covers both P2 and P2020 themes.
+	 *
+	 * @return bool
+	 */
+	public function is_p2_site() {
+		$site_id = $this->get_wpcom_site_id();
+		if ( ! $site_id ) {
+			return false;
+		}
+		return str_contains( get_stylesheet(), 'pub/p2' ) || ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( $site_id ) );
+	}
+
+	/**
+	 * Get the current site's WordPress.com ID.
+	 *
+	 * @return mixed The site's WordPress.com ID.
+	 */
+	public function get_wpcom_site_id() {
+		if ( $this->is_wpcom_simple() ) {
+			return get_current_blog_id();
+		} elseif ( class_exists( 'Jetpack' ) && \Jetpack::is_connection_ready() ) {
+			return \Jetpack_Options::get_option( 'id' );
+		}
+		return false;
+	}
+
+	/**
 	 * Add all wordpress.com environments to the safe redirect allowed list.
 	 *
 	 * To be used with a filter of allowed domains for a redirect.
@@ -136,122 +164,14 @@ class Host {
 	}
 
 	/**
-	 * Returns an array of nameservers for the current site.
-	 *
-	 * @param string $domain The domain of the site to check.
-	 * @return array
-	 */
-	public function get_nameserver_dns_records( $domain ) {
-		if ( ! function_exists( 'dns_get_record' ) ) {
-			return array();
-		}
-
-		$dns_records = dns_get_record( $domain, DNS_NS ); // Fetches the DNS records of type NS (Name Server)
-		if ( false === $dns_records ) {
-			return array();
-		}
-
-		$nameservers = array();
-		foreach ( $dns_records as $record ) {
-			if ( isset( $record['target'] ) ) {
-				$nameservers[] = $record['target']; // Adds the nameserver to the array
-			}
-		}
-
-		return $nameservers; // Returns an array of nameserver names
-	}
-
-	/**
-	 * Given a DNS entry, will return a hosting provider if one can be determined. Otherwise, will return 'unknown'.
-	 * Sourced from: fbhepr%2Skers%2Sjcpbz%2Sjc%2Qpbagrag%2Syvo%2Subfgvat%2Qcebivqre%2Sanzrfreiref.cuc-og
-	 *
-	 * @param string $domain The domain of the site to check.
-	 * @return string The hosting provider of 'unknown'.
-	 */
-	public function get_hosting_provider_by_nameserver( $domain ) {
-		$known_nameservers = array(
-			'bluehost'     => array(
-				'.bluehost.com',
-			),
-			'dreamhost'    => array(
-				'.dreamhost.com',
-			),
-			'mediatemple'  => array(
-				'.mediatemple.net',
-			),
-			'xserver'      => array(
-				'.xserver.jp',
-			),
-			'namecheap'    => array(
-				'.namecheaphosting.com',
-			),
-			'hostmonster'  => array(
-				'.hostmonster.com',
-			),
-			'justhost'     => array(
-				'.justhost.com',
-			),
-			'digitalocean' => array(
-				'.digitalocean.com',
-			),
-			'one'          => array(
-				'.one.com',
-			),
-			'hostpapa'     => array(
-				'.hostpapa.com',
-			),
-			'siteground'   => array(
-				'.sgcloud.net',
-				'.sgedu.site',
-				'.sgsrv1.com',
-				'.sgvps.net',
-				'.siteground.biz',
-				'.siteground.net',
-				'.siteground.eu',
-			),
-			'inmotion'     => array(
-				'.inmotionhosting.com',
-			),
-			'ionos'        => array(
-				'.ui-dns.org',
-				'.ui-dns.de',
-				'.ui-dns.biz',
-				'.ui-dns.com',
-			),
-		);
-
-		$dns_records = $this->get_nameserver_dns_records( $domain );
-		$dns_records = array_map( 'strtolower', $dns_records );
-
-		foreach ( $known_nameservers as $host => $ns_patterns ) {
-			foreach ( $ns_patterns as $ns_pattern ) {
-				foreach ( $dns_records as $record ) {
-					if ( false !== strpos( $record, $ns_pattern ) ) {
-						return $host;
-					}
-				}
-			}
-		}
-
-		return 'unknown';
-	}
-
-	/**
 	 * Returns a guess of the hosting provider for the current site based on various checks.
 	 *
 	 * @since 5.0.4 Added $guess parameter.
-	 *
-	 * @param bool $guess Whether to guess the hosting provider.
+	 * @since 6.0.0 Removed $guess parameter.
 	 *
 	 * @return string
 	 */
-	public function get_known_host_guess( $guess = true ) {
-		$host = Cache::get( 'host_guess' );
-
-		if ( null !== $host ) {
-			return $host;
-		}
-
+	public function get_known_host_guess() {
 		// First, let's check if we can recognize provider manually:
 		switch ( true ) {
 			case $this->is_woa_site():
@@ -275,14 +195,6 @@ class Host {
 				break;
 		}
 
-		// Second, let's check if we can recognize provider by nameservers.
-		// Only do this if we're asked to guess.
-		$domain = isset( $_SERVER['SERVER_NAME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) ) : '';
-		if ( $provider === 'unknown' && ! empty( $domain ) && $guess ) {
-			$provider = $this->get_hosting_provider_by_nameserver( $domain );
-		}
-
-		Cache::set( 'host_guess', $provider );
 		return $provider;
 	}
 

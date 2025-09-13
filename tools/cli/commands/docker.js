@@ -398,7 +398,7 @@ const buildExecCmd = argv => {
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
 			case 'crm':
-				unitTestArgs.plugin = 'crm';
+				unitTestArgs.plugin = 'zero-bs-crm';
 				break;
 			case 'wpcomsh':
 				unitTestArgs.plugin = 'wpcomsh';

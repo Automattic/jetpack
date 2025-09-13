@@ -129,8 +129,6 @@ class Jetpack_Redux_State_Helper {
 
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
-		$host = new Host();
-
 		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 
 		$block_availability = Jetpack_Gutenberg::get_cached_availability();
@@ -176,6 +174,7 @@ class Jetpack_Redux_State_Helper {
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
+				'representativeImage'        => self::get_site_image(),
 				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				/**
 				 * Whether promotions are visible or not.
@@ -185,9 +184,6 @@ class Jetpack_Redux_State_Helper {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite'               => $host->is_woa_site(), // do not use - to be removed.
-				'isWoASite'                  => $host->is_woa_site(),
-				'isAtomicPlatform'           => $host->is_atomic_platform(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
@@ -431,6 +427,19 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
+	}
+
+	/**
+	 * Get a representative image for the site.
+	 *
+	 * @since 15.0
+	 *
+	 * @return string
+	 */
+	public static function get_site_image(): string {
+		// Get the dynamic image generated for the Open Graph Meta tags.
+		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
+		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
 	}
 }
 

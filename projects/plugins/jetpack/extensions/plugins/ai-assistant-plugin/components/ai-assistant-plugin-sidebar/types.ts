@@ -1,4 +1,5 @@
 import { PLACEMENT_DOCUMENT_SETTINGS, PLACEMENT_JETPACK_SIDEBAR } from './constants';
+import type { ReactNode } from 'react';
 
 export type JetpackSettingsContentProps = {
 	placement: typeof PLACEMENT_JETPACK_SIDEBAR | typeof PLACEMENT_DOCUMENT_SETTINGS;
@@ -19,5 +20,5 @@ export interface PanelProps {
 	icon?: JSX.Element;
 	initialOpen?: boolean;
 	name?: string;
-	children: React.ReactNode;
+	children: ReactNode;
 }

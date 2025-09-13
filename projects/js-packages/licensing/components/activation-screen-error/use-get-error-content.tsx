@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
 import { LICENSE_ERRORS } from './constants';
 
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;

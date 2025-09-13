@@ -6,10 +6,10 @@ Clipboard Button is a React component to facilitate creating a "click-to-copy" b
 ## Usage
 
 ```jsx
-import React from 'react';
+import { createClass } from 'react';
 import ClipboardButton from 'components/form/clipboard-button';
 
-React.createClass( {
+createClass( {
 	render: function() {
 		return (
 			<ClipboardButton text="Text to copy" prompt="Highlight and copy the following text to your clipboard:">

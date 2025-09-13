@@ -1,6 +1,6 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { store as coreStore } from '@wordpress/core-data';
-import { WPDataRegistry, createRegistry } from '@wordpress/data';
+import { createRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as noticesStore } from '@wordpress/notices';
 import { store as socialStore } from '../social-store';
@@ -63,7 +63,7 @@ export const connections = [
  *
  * @param {object} postAttributes - Post attributes.
  *
- * @return {WPDataRegistry} Registry.
+ * @return {import('@wordpress/data').WPDataRegistry} Registry.
  */
 export function createRegistryWithStores( postAttributes = {} ) {
 	// Create a registry.

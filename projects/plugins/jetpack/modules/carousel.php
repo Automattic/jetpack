@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Carousel
- * Module Description: Display images and galleries in a gorgeous, full-screen browsing experience
+ * Module Description: Turn your image galleries into immersive, full‑screen slideshows.
  * Sort Order: 22
  * Recommendation Order: 12
  * First Introduced: 1.5
@@ -13,6 +13,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Require the jetpack-carousel module code

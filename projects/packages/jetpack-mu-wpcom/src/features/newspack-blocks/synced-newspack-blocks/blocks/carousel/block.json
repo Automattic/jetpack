@@ -33,6 +33,14 @@
 			"type": "boolean",
 			"default": true
 		},
+		"categoryJoinType": {
+			"type": "string",
+			"default": "or",
+			"enum": [
+				"or",
+				"all"
+			]
+		},
 		"tags": {
 			"type": "array"
 		},

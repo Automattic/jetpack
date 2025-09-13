@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # This script is ran as part of the `UpdateJetpackStaging` TeamCity build.
 # It updates pre-defined Atomic test sites with the latest plugin versions.
 

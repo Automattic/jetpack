@@ -1,4 +1,3 @@
-import { assign, get } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	JETPACK_ACTION_NOTICES_DISMISS,
@@ -20,10 +19,10 @@ const notice = ( state = false, action ) => {
 const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 	switch ( action.type ) {
 		case JETPACK_ACTION_NOTICES_DISMISS:
-			return assign( {}, state, { [ action.notice ]: true } );
+			return Object.assign( {}, state, { [ action.notice ]: true } );
 
 		case JETPACK_NOTICES_DISMISS_SUCCESS:
-			return assign( {}, state, action.dismissedNotices );
+			return Object.assign( {}, state, action.dismissedNotices );
 
 		case RESET_OPTIONS_SUCCESS:
 			return false;
@@ -55,7 +54,7 @@ export function getJetpackNotices( state ) {
  * @return {number}  An error code.
  */
 export function getJetpackStateNoticesErrorCode( state ) {
-	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorCode' ] );
+	return state.jetpack.initialState?.jetpackStateNotices?.errorCode;
 }
 
 /**
@@ -65,7 +64,7 @@ export function getJetpackStateNoticesErrorCode( state ) {
  * @return {number}  A message code.
  */
 export function getJetpackStateNoticesMessageCode( state ) {
-	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageCode' ] );
+	return state.jetpack.initialState?.jetpackStateNotices?.messageCode;
 }
 
 /**
@@ -75,7 +74,7 @@ export function getJetpackStateNoticesMessageCode( state ) {
  * @return {string} The message content.
  */
 export function getJetpackStateNoticesMessageContent( state ) {
-	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageContent' ] );
+	return state.jetpack.initialState?.jetpackStateNotices?.messageContent;
 }
 
 /**
@@ -85,7 +84,7 @@ export function getJetpackStateNoticesMessageContent( state ) {
  * @return {string}  An error description.
  */
 export function getJetpackStateNoticesErrorDescription( state ) {
-	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorDescription' ] );
+	return state.jetpack.initialState?.jetpackStateNotices?.errorDescription;
 }
 
 /**
@@ -96,5 +95,5 @@ export function getJetpackStateNoticesErrorDescription( state ) {
  * @return {boolean}          False if notice is still active, True if it's been dismissed.
  */
 export function isNoticeDismissed( state, notice_name ) {
-	return get( state.jetpack.jetpackNotices.dismissed, [ notice_name ], false );
+	return state.jetpack.jetpackNotices.dismissed?.[ notice_name ] ?? false;
 }

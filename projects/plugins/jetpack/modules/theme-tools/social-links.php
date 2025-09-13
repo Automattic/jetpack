@@ -15,6 +15,10 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
@@ -22,7 +26,6 @@ if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
 	 * Init Social_Links if the theme declares support.
 	 */
 	function jetpack_theme_supports_social_links() {
-			// @phan-suppress-next-line PhanNoopNew
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 	}
 	if ( ! ( new Host() )->is_wpcom_platform() ) {
@@ -46,7 +49,6 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		 */
 		public function __construct() {
 			_deprecated_function( __METHOD__, '13.8', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Social_Links->__construct' );
-			// @phan-suppress-next-line PhanNoopNew
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
 

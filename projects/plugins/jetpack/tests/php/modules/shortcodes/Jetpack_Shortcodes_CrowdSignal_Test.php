@@ -268,4 +268,33 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 		);
 		wp_reset_postdata();
 	}
+
+	/**
+	 * Test that the crowdsignal_link function prevents XSS attacks by not processing URLs inside HTML tags.
+	 *
+	 * This test verifies that malicious URLs embedded in HTML attributes are not processed
+	 * by the crowdsignal_link function, preventing potential XSS vulnerabilities.
+	 *
+	 * @since 15.1
+	 */
+	public function test_crowdsignal_link_xss_prevention() {
+		// Use the reporter's payload format with URLs on separate lines to trigger the regex
+		$malicious_content = "<a title='\nhttps://a\"b\"c\"d\"e.survey.fm/' data-title=\"abc\nhttps://a'b'c'd'e.survey.fm/ tabindex=1 id=1 autofocus=1 onfocus=alert(1) \" class='a\"b\"c/def'>test</a>";
+
+		// Test that the malicious content is processed by crowdsignal_link
+		$processed_content = crowdsignal_link( $malicious_content );
+
+		// With the secure jetpack_preg_replace_outside_tags, URLs inside HTML tags should NOT be processed
+		// This prevents the XSS vulnerability
+		$this->assertEquals( $malicious_content, $processed_content );
+
+		// Verify that no shortcode was generated from the malicious URLs
+		$this->assertStringNotContainsString( '[crowdsignal', $processed_content );
+		$this->assertStringNotContainsString( 'type="iframe"', $processed_content );
+		$this->assertStringNotContainsString( 'survey="true"', $processed_content );
+
+		// The URLs inside HTML attributes should remain unchanged
+		$this->assertStringContainsString( 'title=\'', $processed_content );
+		$this->assertStringContainsString( 'data-title="abc', $processed_content );
+	}
 }

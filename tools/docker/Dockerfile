@@ -7,8 +7,8 @@ ARG COMPOSER_VERSION
 ARG NODE_VERSION
 ARG PNPM_VERSION
 
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
 
 # Bypass WP-CLI `--allow-root` check. Reworking the container to not run as root would be a lot of work for basically no benefit.
 ENV WP_CLI_ALLOW_ROOT=1
@@ -87,7 +87,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
 RUN \
 	: "${PNPM_VERSION:?Build argument PNPM_VERSION needs to be set and non-empty.}" \
 	&& npm install --global pnpm@$PNPM_VERSION \
-	&& SHELL=/bin/bash pnpm setup \
+	&& SHELL=bash pnpm setup \
 	&& rm -rf ~/.npm
 
 # Install wp-cli.

@@ -1,9 +1,9 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 
-const isWpcom = isSimpleSite() || isAtomicSite();
+const isWpcom = isWpcomPlatformSite();
 
 // We do not want the Jetpack collection on WordPress.com (Simple or Atomic).
 if ( ! isWpcom ) {

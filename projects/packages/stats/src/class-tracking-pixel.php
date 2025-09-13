@@ -91,7 +91,8 @@ class Tracking_Pixel {
 			if ( $wp_the_query->is_home() ) {
 				$view_data['arch_home'] = '1';
 			} elseif ( $wp_the_query->is_search() ) {
-				$view_data['arch_search']  = sanitize_text_field( $wp_the_query->query['s'] );
+				$search_term               = $wp_the_query->query['s'] ?? $wp_the_query->query_vars['s'] ?? '';
+				$view_data['arch_search']  = sanitize_text_field( $search_term );
 				$view_data['arch_filters'] = sanitize_text_field( self::build_search_filters( $wp_the_query ) );
 				$view_data['arch_results'] = $wp_the_query->posts ? $wp_the_query->post_count : 0;
 			} elseif ( $wp_the_query->is_archive() ) {
@@ -105,7 +106,7 @@ class Tracking_Pixel {
 					$view_data['arch_cat'] = $wp_the_query->query['category_name'] ?? $wp_the_query->query_vars['category_name'] ?? '';
 				}
 				if ( $wp_the_query->is_tag ) {
-					$view_data['arch_tag'] = $wp_the_query->query['tag'];
+					$view_data['arch_tag'] = $wp_the_query->query['tag'] ?? $wp_the_query->query_vars['tag'] ?? '';
 				}
 				if ( $wp_the_query->is_author ) {
 					$view_data['arch_author'] = $wp_the_query->query['author_name'] ?? '';
@@ -150,7 +151,7 @@ class Tracking_Pixel {
 		$terms         = array();
 		if ( ! empty( $the_tax_query->queried_terms ) && is_array( $the_tax_query->queried_terms ) ) {
 			foreach ( $the_tax_query->queries as $tax_query ) {
-				if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
+				if ( ! is_array( $tax_query ) || ! isset( $tax_query['taxonomy'] ) ) {
 					continue;
 				}
 				$taxonomy = $tax_query['taxonomy'];

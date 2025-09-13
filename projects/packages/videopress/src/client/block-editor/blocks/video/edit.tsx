@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL, getBlobByURL } from '@wordpress/blob';
 import {
@@ -49,12 +50,12 @@ import { description, title } from '.';
  * Types
  */
 import type { VideoBlockAttributes } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
-const { myJetpackConnectUrl, jetpackVideoPressSettingUrl } = window?.videoPressEditorState || {};
+const { jetpackVideoPressSettingUrl } = window?.videoPressEditorState || {};
 
 /**
  * It considers VideoPress active
@@ -105,14 +106,14 @@ export const PlaceholderWrapper = withNotices( function ( {
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean}  props.isSelected    - Whether the block is selected.
  * @param {string}   props.clientId      - Block client ID.
- * @return {React.ReactNode}            - React component.
+ * @return {ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
 	attributes,
 	setAttributes,
 	isSelected,
 	clientId,
-} ): React.ReactNode {
+} ): ReactNode {
 	const {
 		autoplay,
 		loop,
@@ -414,7 +415,7 @@ export default function VideoPressEdit( {
 								analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 									block: 'VideoPress',
 								} );
-								return ( window.location.href = myJetpackConnectUrl );
+								return ( window.location.href = getUserConnectionUrl() );
 							}
 							analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
 								block: 'VideoPress',
@@ -617,7 +618,7 @@ export default function VideoPressEdit( {
 						analyticsTracks.recordEvent( 'jetpack_editor_connect_banner_click', {
 							block: 'VideoPress',
 						} );
-						return ( window.location.href = myJetpackConnectUrl );
+						return ( window.location.href = getUserConnectionUrl() );
 					}
 					analyticsTracks.recordEvent( 'jetpack_editor_activate_banner_click', {
 						block: 'VideoPress',

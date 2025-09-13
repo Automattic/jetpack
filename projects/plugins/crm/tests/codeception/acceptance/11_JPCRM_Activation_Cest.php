@@ -26,22 +26,36 @@ class JPCRM_Activation_Cest {
 		}
 	}
 
-	public function jpcrm_activation( AcceptanceTester $I ) {
-		// If it's installed, activate the plugin
+	public function test_single_plugin_activation_shows_wizard( AcceptanceTester $I ) {
 		$I->amOnPluginsPage();
+
 		$I->seePluginInstalled( 'jetpack-crm' );
 		$I->activatePlugin( 'jetpack-crm' );
 
-		// Activating the plugin directly loads the welcome wizard, so no need to move pages here.
-
-		// check no activation errors
+		// Check no activation errors and wizard is shown
 		$I->dontSeeElement( '#message.error' );
+		$this->assertWizardIsShown( $I );
+	}
 
-		// The plugin is activated, now we can see the JPCRM set up page
+	/**
+	 * Assert that the wizard UI is currently shown
+	 */
+	private function assertWizardIsShown( AcceptanceTester $I ) {
 		$I->see( 'Essential Details' );
 		$I->see( 'Essentials' );
 		$I->see( 'Your Contacts' );
 		$I->see( 'Which Extensions?' );
 		$I->see( 'Finish' );
+	}
+
+	/**
+	 * Assert that the wizard UI is not shown
+	 */
+	private function assertWizardIsNotShown( AcceptanceTester $I ) {
+		$I->dontSee( 'Essential Details' );
+		$I->dontSee( 'Essentials' );
+		$I->dontSee( 'Your Contacts' );
+		$I->dontSee( 'Which Extensions?' );
+		$I->dontSee( 'Finish' );
 	}
 }

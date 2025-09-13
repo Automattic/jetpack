@@ -11,6 +11,10 @@ use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  */
@@ -364,7 +368,7 @@ class Helper {
 		} elseif ( is_array( $_GET['post_type'] ) ) {
 			$post_types_from_query = $_GET['post_type'];
 		} else {
-			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
+			$post_types_from_query = explode( ',', $_GET['post_type'] );
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 
@@ -459,7 +463,7 @@ class Helper {
 			}
 		}
 
-		if ( empty( $action ) || empty( $widget ) ) {
+		if ( empty( $widget ) ) {
 			return false;
 		}
 

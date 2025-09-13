@@ -1,5 +1,5 @@
 import { useEffect } from '@wordpress/element';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { config } from '../';
 import InboxView from './dataviews';
 import './style.scss';

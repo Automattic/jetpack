@@ -1,12 +1,11 @@
 import { Path, Rect, SVG } from '@wordpress/components';
-import React from 'react';
 
 /**
  * Close circle icon component
  *
  * @param {object} props       - Component props
  * @param {string} props.color - Color code for the icon
- * @return {React.ReactElement} Component template
+ * @return {import('react').ReactElement} Component template
  */
 export default function CloseCircleIcon( { color = '#D63638' } ) {
 	return (

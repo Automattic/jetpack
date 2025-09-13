@@ -1,4 +1,4 @@
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import VideoQuickActions from '..';
 import type { StoryFn, Meta } from '@storybook/react';
 

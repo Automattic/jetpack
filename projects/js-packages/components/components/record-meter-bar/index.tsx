@@ -1,7 +1,8 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
+import type { FC, ReactElement } from 'react';
 
 import './style.scss';
 
@@ -63,9 +64,9 @@ export type RecordMeterBarProps = {
  * Generate Record Meter bar
  *
  * @param {RecordMeterBarProps} props - Props
- * @return {React.ReactElement} - JSX element
+ * @return {ReactElement} - JSX element
  */
-const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
+const RecordMeterBar: FC< RecordMeterBarProps > = ( {
 	totalCount,
 	items = [],
 	showLegendLabelBeforeCount = false,

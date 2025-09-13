@@ -3,7 +3,6 @@ import { Spinner, Composite } from '@wordpress/components';
 import { useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import MediaBrowserSelectButton from './media-browser-select-button';
 import MediaItem from './media-item';
 import usePageSource from './use-page-source';
@@ -28,7 +27,7 @@ const MAX_SELECTED = 10;
  * @param {Function} props.onCopy           - To handle the copy
  * @param {Function} props.selectButtonText - To get the select button text
  * @param {boolean}  props.shouldProxyImg   - Whether to use the proxy for the media URL
- * @return {React.ReactElement} - JSX element
+ * @return {import('react').ReactElement} - JSX element
  */
 function MediaBrowser( {
 	media,

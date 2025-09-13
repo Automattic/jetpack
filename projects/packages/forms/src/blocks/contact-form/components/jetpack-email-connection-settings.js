@@ -1,9 +1,9 @@
 import { TextControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import emailValidator from 'email-validator';
+import { validate as emailValidatorValidate } from 'email-validator';
+import InspectorHint from '../../shared/components/inspector-hint';
 import HelpMessage from '../components/help-message';
-import InspectorHint from '../components/inspector-hint';
 
 const JetpackEmailConnectionSettings = ( {
 	emailAddress = '',
@@ -21,7 +21,7 @@ const JetpackEmailConnectionSettings = ( {
 			return false; // ignore the empty emails
 		}
 
-		if ( ! emailValidator.validate( email ) ) {
+		if ( ! emailValidatorValidate( email ) ) {
 			return { email };
 		}
 
@@ -37,7 +37,7 @@ const JetpackEmailConnectionSettings = ( {
 			if ( emailErrors.length === 1 ) {
 				if ( emailErrors[ 0 ] && emailErrors[ 0 ].email ) {
 					return sprintf(
-						/* translators: placeholder is an email address. */
+						/* translators: %s: an email address. */
 						__( '%s is not a valid email address.', 'jetpack-forms' ),
 						emailErrors[ 0 ].email
 					);
@@ -47,8 +47,8 @@ const JetpackEmailConnectionSettings = ( {
 
 			if ( emailErrors.length === 2 ) {
 				return sprintf(
-					/* translators: placeholders are email addresses. */
-					__( '%1$s and %2$s are not a valid email address.', 'jetpack-forms' ),
+					/* translators: %1$s, %2$s: email addresses. */
+					__( '%1$s and %2$s are not valid email addresses.', 'jetpack-forms' ),
 					emailErrors[ 0 ].email,
 					emailErrors[ 1 ].email
 				);
@@ -57,8 +57,8 @@ const JetpackEmailConnectionSettings = ( {
 			const inValidEmails = emailErrors.map( error => error.email );
 
 			return sprintf(
-				/* translators: placeholder is a list of email addresses. */
-				__( '%s are not a valid email address.', 'jetpack-forms' ),
+				/* translators: %s: a list of email addresses. */
+				__( '%s are not valid email addresses.', 'jetpack-forms' ),
 				inValidEmails.join( ', ' )
 			);
 		}

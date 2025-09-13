@@ -7,15 +7,15 @@ import clsx from 'clsx';
  */
 import styles from './style.module.scss';
 import { ProgressBarProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * Progress Bar component
  *
  * @param {ProgressBarProps} props - Component props.
- * @return {React.ReactNode} - ProgressBar react component.
+ * @return {ReactNode} - ProgressBar react component.
  */
-const ProgressBar: React.FC< ProgressBarProps > = ( {
+const ProgressBar: FC< ProgressBarProps > = ( {
 	className,
 	progressClassName,
 	progress,

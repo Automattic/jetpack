@@ -4,6 +4,7 @@ import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import createCookie from '../../utils/create-cookie';
 import useAnalytics from '../use-analytics';
+import { assignLocation } from './assignLocation';
 import { useGetExpiringNoticeContent } from './use-get-expiring-notice-content';
 import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
@@ -62,7 +63,7 @@ const useExpiringPlansNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =>
 	}, [ alertToDisplay, redBubbleAlerts, resetNotice, cookieKey ] );
 
 	const onPrimaryCtaClick = useCallback( () => {
-		window.location.href = manageUrl;
+		assignLocation( manageUrl );
 		recordEvent(
 			isExpiredAlert
 				? 'jetpack_my_jetpack_plan_expired_notice_primary_cta_click'

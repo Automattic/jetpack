@@ -1,12 +1,12 @@
 import { localizeUrl } from '@automattic/i18n-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import React, { JSXElementConstructor, ReactElement } from 'react';
+import { JSXElementConstructor, ReactElement } from 'react';
 import blockInfoMapping, {
 	blockInfoWithVariations,
 	childrenBlockInfoWithDifferentUrl,
 } from './src/block-links-map';
-import DescriptionSupportLink from './src/inline-support-link';
+import DescriptionSupportLink from './src/description-support-link';
 
 const createLocalizedDescriptionWithLearnMore = (
 	title: string,

@@ -53,4 +53,10 @@ export default {
 	width: {
 		type: 'string',
 	},
+	customVariant: {
+		type: 'string',
+	},
+	metaName: {
+		type: 'string',
+	},
 };

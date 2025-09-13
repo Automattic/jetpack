@@ -2,8 +2,14 @@
 
 use Automattic\Jetpack\Sync\Defaults;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Get option endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Option_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

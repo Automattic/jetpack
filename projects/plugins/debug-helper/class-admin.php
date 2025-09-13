@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Debug_Helper;
 
 /**
  * Class Jetpack_Debug_Helper_Admin
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Admin {
 

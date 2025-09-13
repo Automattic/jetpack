@@ -9,7 +9,6 @@ import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetp
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import styles from './styles.module.scss';
 
 const Admin = () => {

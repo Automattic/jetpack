@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.17] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.13.16] - 2025-08-25
+### Changed
+- Internal updates.
+
+## [0.13.15] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.13.14] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- Prevent PHP errors when directly accessing various files. [#44646]
+
+## [0.13.13] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.13.12] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.13.11] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.13.10] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.13.9] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+## [0.13.8] - 2025-06-30
+### Changed
+- Update dependencies. [#44061]
+
+## [0.13.7] - 2025-06-23
+### Changed
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
+## [0.13.6] - 2025-06-16
+### Changed
+- Settings: Open support links in Help Center. [#43930]
+- Update package dependencies. [#43914]
+
+## [0.13.5] - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## [0.13.4] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.13.3] - 2025-06-02
+### Changed
+- Update dependencies. [#42876]
+
+## [0.13.2] - 2025-05-26
+### Changed
+- Update package dependencies. [#43516] [#43578]
+
+### Fixed
+- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
+
 ## [0.13.1] - 2025-05-19
 ### Changed
 - Update package dependencies. [#43398]
@@ -296,6 +368,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.13.17]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.16...v0.13.17
+[0.13.16]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.15...v0.13.16
+[0.13.15]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.14...v0.13.15
+[0.13.14]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.13...v0.13.14
+[0.13.13]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.12...v0.13.13
+[0.13.12]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.11...v0.13.12
+[0.13.11]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.10...v0.13.11
+[0.13.10]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.9...v0.13.10
+[0.13.9]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.8...v0.13.9
+[0.13.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.7...v0.13.8
+[0.13.7]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.6...v0.13.7
+[0.13.6]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.5...v0.13.6
+[0.13.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.4...v0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.3...v0.13.4
+[0.13.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.2...v0.13.3
+[0.13.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.12.0...v0.12.1

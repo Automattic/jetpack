@@ -4,12 +4,17 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**/changelog/**'
   repository_dispatch:
     types: [ 'e2e tests**' ]
 
 concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1
+  USE_CLOUDFLARE_TUNNEL: ${{ vars.E2E_TUNNEL_TYPE == 'cloudflare' && '1' || '' }}
 
 jobs:
   create-test-matrix:
@@ -143,6 +148,7 @@ jobs:
     timeout-minutes: 60
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
+      PROJECT_NAME: '${{ matrix.project }}' # used in tests for enhanced reporting of global projects
     strategy:
       fail-fast: false
       matrix:
@@ -163,6 +169,13 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+
+      - name: Install cloudflared
+        if: env.USE_CLOUDFLARE_TUNNEL
+        run: |
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/download/2025.7.0/cloudflared-linux-amd64.deb
+          echo "a65ceb838f1deb941f7ea9101ff54eaba04179135fd562456a59ea293479e113  cloudflared.deb" | sha256sum -c
+          sudo dpkg -i cloudflared.deb
 
       - name: Install monorepo
         run: |
@@ -284,7 +297,7 @@ jobs:
         continue-on-error: true
         run: |
           # Copy debug.log to output folder, if it exists
-          [[ ! -f "$WP_DEBUG_PATH" ]] || cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"
+          [[ ! -f "$WP_DEBUG_PATH" ]] || { mkdir -p "output/logs" && cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"; }
 
           pnpm run tunnel:down
           echo "::group::Tunnel logs"
@@ -306,7 +319,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:
@@ -357,7 +370,7 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ success() || failure() }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
     steps:
