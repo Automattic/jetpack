@@ -31,20 +31,10 @@ if ( $php_content === false ) {
 
 $time_stamped_version = $version . '-' . time();
 
-// Replace both constants
-$version_pattern     = "/const PACKAGE_VERSION = '[^']+';/";
-$version_replacement = "const PACKAGE_VERSION = '$version';";
-
 $timestamp_pattern     = "/const PACKAGE_VERSION_AND_TIMESTAMP = '[^']+';/";
 $timestamp_replacement = "const PACKAGE_VERSION_AND_TIMESTAMP = '$time_stamped_version';";
 
 $updated = false;
-
-// Update PACKAGE_VERSION constant
-if ( preg_match( $version_pattern, $php_content ) ) {
-	$php_content = preg_replace( $version_pattern, $version_replacement, $php_content );
-	$updated     = true;
-}
 
 // Update PACKAGE_VERSION_AND_TIMESTAMP constant
 if ( preg_match( $timestamp_pattern, $php_content ) ) {
@@ -62,9 +52,9 @@ if ( $updated ) {
 	}
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is a CLI script
-	echo "✅ Updated PACKAGE_VERSION to '$version' and PACKAGE_VERSION_AND_TIMESTAMP to '$time_stamped_version' in class-jetpack-forms.php\n";
+	echo "✅ Updated PACKAGE_VERSION_AND_TIMESTAMP constant to '$time_stamped_version' in class-jetpack-forms.php\n";
 } else {
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is a CLI script
-	echo "❌ Error: Could not find PACKAGE_VERSION constants to update\n";
+	echo "❌ Error: Could not find PACKAGE_VERSION_AND_TIMESTAMP constants to update\n";
 	exit( 1 );
 }
