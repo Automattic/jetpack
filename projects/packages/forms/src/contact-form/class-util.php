@@ -41,12 +41,37 @@ class Util {
 	}
 
 	/**
-	 * Returns the version of the contact form.
+	 * Cached version value to avoid repeated file operations.
 	 *
-	 * @return string The version of the contact form.
+	 * @var string|null
+	 */
+	private static $cached_version = null;
+
+	/**
+	 * Returns the version of the contact form with build timestamp for cache busting.
+	 *
+	 * @return string The version of the contact form with timestamp, or fallback to PACKAGE_VERSION constant.
 	 */
 	public static function get_version() {
-		return Jetpack_Forms::PACKAGE_VERSION_AND_TIMESTAMP;
+		// Return cached version if already loaded
+		if ( null !== self::$cached_version ) {
+			return self::$cached_version;
+		}
+
+		$version_file = __DIR__ . '/../../dist/version.php';
+
+		// Check if version file exists and is readable
+		if ( is_readable( $version_file ) ) {
+			$version_data = include $version_file;
+			if ( is_array( $version_data ) && isset( $version_data['timestamped_version'] ) ) {
+				self::$cached_version = $version_data['timestamped_version'];
+				return self::$cached_version;
+			}
+		}
+
+		// Fallback to constant if version file doesn't exist or is invalid
+		self::$cached_version = Jetpack_Forms::PACKAGE_VERSION;
+		return self::$cached_version;
 	}
 
 	/**

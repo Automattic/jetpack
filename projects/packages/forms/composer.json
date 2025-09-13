@@ -46,12 +46,12 @@
 			"@php tools/update-version.php"
 		],
 		"build-production": [
-			"@update-version",
-			"pnpm run build-production"
+			"pnpm run build-production",
+			"@update-version"
 		],
 		"build-development": [
-			"@update-version",
-			"pnpm run build"
+			"pnpm run build",
+			"@update-version"
 		],
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
