@@ -294,7 +294,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 				style={ {
 					width,
-					height,
+					height: height + ( showLegend ? legendHeight : 0 ),
 					display: 'flex',
 					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 				} }
