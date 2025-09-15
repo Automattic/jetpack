@@ -2454,4 +2454,76 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( 'こんにちは世界', $saved_response->get_field_value_by_label( 'Special' ), 'Special field value should match saved value' );
 		$this->assertEquals( '🙈', $saved_response->get_field_value_by_label( 'Message' ), 'Message field value should match saved value' );
 	}
+
+	public function test_rating_field_handling() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'heart' => '2',
+				'star'  => '4',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Heart' type='rating' required='1' iconstyle='hearts' /]"
+			. "[contact-field label='Star' type='rating' required='1' iconstyle='stars' max='10' /]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( '♥♥♡♡♡', $response->get_field_value_by_label( 'Heart' ), 'Heart field value should match' );
+		$this->assertEquals( '★★★★☆☆☆☆☆☆', $response->get_field_value_by_label( 'Star' ), 'Star field value should match' );
+
+		$this->assertEquals( '♥♥♡♡♡', $saved_response->get_field_value_by_label( 'Heart' ), 'Heart field value should match saved value' );
+		$this->assertEquals( '★★★★☆☆☆☆☆☆', $saved_response->get_field_value_by_label( 'Star' ), 'Star field value should match saved value' );
+	}
+
+	public function test_rating_field_handling_invalid() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'heart'    => '10', // Invalid, max is 5
+				'star'     => 'abc', // Invalid, not a number
+				'negative' => '-3', // Invalid, negative number
+				'decimal'  => '4.5', // Invalid, decimal number
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Heart' type='rating' required='1' iconstyle='hearts' /]"
+			. "[contact-field label='Star' type='rating' required='1' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Negative' type='rating' required='1' iconstyle='hearts' /]"
+			. "[contact-field label='Decimal' type='rating' required='1' iconstyle='stars' max='10' /]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( '♥♥♥♥♥', $response->get_field_value_by_label( 'Heart' ), 'Heart field value should match' );
+		$this->assertEquals( '☆☆☆☆☆☆☆☆☆☆', $response->get_field_value_by_label( 'Star' ), 'Star field value should match' );
+
+		$this->assertEquals( '♡♡♡♡♡', $response->get_field_value_by_label( 'Negative' ), 'Negative field value should match' );
+		$this->assertEquals( '★★★★☆☆☆☆☆☆', $response->get_field_value_by_label( 'Decimal' ), 'Decimal field value should match' );
+
+		$this->assertEquals( '♥♥♥♥♥', $saved_response->get_field_value_by_label( 'Heart' ), 'Heart field value should match saved value' );
+		$this->assertEquals( '☆☆☆☆☆☆☆☆☆☆', $saved_response->get_field_value_by_label( 'Star' ), 'Star field value should match saved value' );
+
+		$this->assertEquals( '♡♡♡♡♡', $saved_response->get_field_value_by_label( 'Negative' ), 'Negative field value should match saved value' );
+		$this->assertEquals( '★★★★☆☆☆☆☆☆', $saved_response->get_field_value_by_label( 'Decimal' ), 'Decimal field value should match saved value' );
+	}
 }

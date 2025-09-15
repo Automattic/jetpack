@@ -258,8 +258,12 @@ class Feedback_Field {
 
 		if ( $this->is_of_type( 'rating' ) ) {
 			if ( $this->meta['icon'] ?? false ) {
-				$max        = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
-				$value      = is_numeric( $this->value ) && (int) $this->value > 0 ? (int) $this->value : 0;
+				$max   = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
+				$value = is_numeric( $this->value ) && (int) $this->value > 0 ? (int) $this->value : 0;
+
+				if ( $value > $max ) {
+					$value = $max;
+				}
 				$empty_icon = '☆';
 				$full_icon  = '★';
 				if ( $this->meta['icon'] === 'hearts' ) {

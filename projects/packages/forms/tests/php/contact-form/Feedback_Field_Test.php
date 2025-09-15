@@ -335,6 +335,56 @@ class Feedback_Field_Test extends BaseTestCase {
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 
+	public function test_feedback_field_rating_legacy_value() {
+
+		$legacy_field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			'3/4',
+			'rating'
+		);
+
+		$this->assertEquals( '3/4', $legacy_field->get_render_value() );
+		$this->assertEquals( '3/4', $legacy_field->get_render_value( 'api' ) );
+		$this->assertEquals( '3/4', $legacy_field->get_render_value( 'csv' ) );
+	}
+
+	public function test_feedback_field_star_rating_values() {
+
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			'3',
+			'rating',
+			array(
+				'icon' => 'stars',
+				'max'  => '',
+			)
+		);
+
+		$this->assertEquals( '★★★☆☆', $field->get_render_value() );
+		$this->assertEquals( '★★★☆☆', $field->get_render_value( 'api' ) );
+		$this->assertEquals( '3/5', $field->get_render_value( 'csv' ) );
+	}
+
+	public function test_feedback_field_heart_rating_values() {
+
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			'2',
+			'rating',
+			array(
+				'icon' => 'hearts',
+				'max'  => '8',
+			)
+		);
+
+		$this->assertEquals( '♥♥♡♡♡♡♡♡', $field->get_render_value() );
+		$this->assertEquals( '♥♥♡♡♡♡♡♡', $field->get_render_value( 'api' ) );
+		$this->assertEquals( '2/8', $field->get_render_value( 'csv' ) );
+	}
+
 	public function test_render_label_in_different_contexts() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_label', $field->get_label() );

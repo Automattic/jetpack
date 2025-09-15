@@ -1358,7 +1358,7 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = $this->get_field_meta( $field, $post_data );
+			$meta           = $this->get_field_meta( $field );
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
@@ -1371,7 +1371,7 @@ class Feedback {
 	/**
 	 * Get additional metadata for specific field types.
 	 *
-	 * @param Feedback_Field $field The field object.
+	 * @param Contact_Form_Field $field The field object.
 	 * @return array An array of metadata.
 	 */
 	private function get_field_meta( $field ) {

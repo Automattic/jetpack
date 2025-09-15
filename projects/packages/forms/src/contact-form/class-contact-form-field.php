@@ -473,6 +473,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$this->add_error( sprintf( __( '%s requires a time', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
+			case 'rating':
+				$max_rating = $this->get_attribute( 'max' ) ? (int) $this->get_attribute( 'max' ) : 5;
+				if ( str_ends_with( $field_value, '/' . $max_rating ) ) {
+					$field_value = explode( '/', $field_value )[0];
+				}
+
+				if ( ! is_numeric( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s rating must be a number.', 'jetpack-forms' ), $field_label ) );
+					break;
+				}
+
+				$min_value = $this->get_attribute( 'required' ) ? 1 : 0;
+
+				if ( $max_rating < $field_value || $field_value < $min_value ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%1$s rating must be between %2$d and %3$d.', 'jetpack-forms' ), $field_label, $min_value, $max_rating ) );
+				}
+
+				break;
 			case 'file':
 				// Make sure the file field is not empty
 				if ( ! is_array( $field_value ) || empty( $field_value[0] ) ) {

@@ -3463,4 +3463,39 @@ EOT;
 
 		Contact_Form::reset_errors();
 	}
+
+	public function test_ratinf_form_submittion() {
+		$form_id = Utility::get_form_id();
+
+		$_POST = Utility::get_post_request(
+			array(
+				'heart'    => '10', // Invalid, max is 5
+				'star'     => 'abc',
+				'negative' => '-1', // Invalid, min is 0.
+				'zero'     => '0', // Invalid, min is 1.
+				'zeroint'  => '0', // Valid, min is 0.
+				'other'    => '5/10', // Valid this is the previous format, and should be accepted.
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Heart' type='rating' required='1' iconstyle='hearts' /]"
+			. "[contact-field label='Star' type='rating' required='1' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Negative' type='rating' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Zero' type='rating' required='1' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Zeroint' type='rating' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Other' type='rating' required='1' iconstyle='stars' max='10' /]"
+		);
+
+		$form->validate();
+		unset( $_POST ); // Clean up the global $_POST variable after the test.
+
+		$this->assertTrue( $form->has_errors(), 'Form should have errors after validation.' );
+		$this->assertEquals( array( 'Heart rating must be between 1 and 5.', 'Star rating must be a number.', 'Negative rating must be between 0 and 10.', 'Zero rating must be between 1 and 10.' ), $form->get_error_messages(), 'Form should have errors after validation.' );
+	}
 }
