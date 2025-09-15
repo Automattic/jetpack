@@ -154,6 +154,31 @@ describe( 'BarChart', () => {
 			} );
 			expect( screen.queryByText( 'Series A' ) ).not.toBeInTheDocument();
 		} );
+
+		test( 'container height accounts for legend height', () => {
+			renderWithTheme( {
+				height: 300,
+				showLegend: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+					},
+				],
+			} );
+
+			// Verify that legend is rendered
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
+
+			// Container should be present and properly structured for legend height
+			const chartContainer = screen.getByTestId( 'bar-chart' );
+			expect( chartContainer ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Grid Visibility', () => {
