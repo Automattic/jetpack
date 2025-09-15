@@ -72,7 +72,7 @@ const variations = [
 					[
 						'core/button',
 						{
-							text: __( 'Contact Us', 'jetpack-forms' ),
+							text: __( 'Contact us', 'jetpack-forms' ),
 							tagName: 'button',
 							className: 'jetpack-form-submit-button',
 							type: 'submit',
