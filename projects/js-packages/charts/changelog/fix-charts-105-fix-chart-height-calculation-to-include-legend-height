@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: include legend height in chart height calculation
