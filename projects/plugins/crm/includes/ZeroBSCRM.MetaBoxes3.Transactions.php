@@ -316,98 +316,118 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 					</div>
 				</div>
 
-			    <?php // ========== Line Items 
-				if ( isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] ) ) {
+				<?php
+				// Start line items
+				if (
+					// @phan-suppress-next-line PhanImpossibleCondition -- Line items are not currently supported on transactions, so disabled for now.
+					false
+					|| isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] )
+				) {
 					?>
 
-			    <div class="ui divider"></div>
-			    <h5><?php echo esc_html( __( 'Line Items', 'zero-bs-crm' ) );?></h5>
-			    <table class="ui table green">
-			    	<thead>
-              <tr>
-    		    		<th><?php echo esc_html( __( 'Name', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Quantity', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Tax', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Shipping', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Handling', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Amount', 'zero-bs-crm' ) );?></th>
-              </tr>
-			    	</thead>
-			    	<tbody><?php
+					<div class="ui divider"></div>
+					<h5><?php echo esc_html( __( 'Line Items', 'zero-bs-crm' ) ); ?></h5>
+					<table class="ui table green">
+						<thead>
+							<tr>
+								<th><?php echo esc_html( __( 'Name', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Quantity', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Tax', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Shipping', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Handling', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Amount', 'zero-bs-crm' ) ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							if ( count( $transaction['lineitems'] ) > 0 ) {
+								// res
+								foreach ( $transaction['lineitems'] as $item ) {
+									echo '<tr>';
+									if ( isset( $item['name'] ) ) {
+										echo '<td>' . esc_html( $item['name'] ) . '</td>';
+									}
+									if ( isset( $item['quantity'] ) ) {
+										echo '<td>' . esc_html( $item['quantity'] ) . '</td>';
+									}
+									if ( isset( $item['tax'] ) ) {
+										echo '<td>' . esc_html( $item['tax'] ) . '</td>';
+									}
+									if ( isset( $item['ship'] ) ) {
+										echo '<td>' . esc_html( $item['ship'] ) . '</td>';
+									}
+									if ( isset( $item['handle'] ) ) {
+										echo '<td>' . esc_html( $item['handle'] ) . '</td>';
+									}
+									if ( isset( $item['amount'] ) ) {
+										echo '<td>' . esc_html( $item['amount'] ) . '</td>';
+									}
+									echo '</tr>';
+								}
+							} else {
+								// no res
+								?>
+								<tr>
+									<td colspan="6"><?php echo esc_html( __( 'No Line Items Found', 'zero-bs-crm' ) ); ?></td>
+								</tr>
+								<?php
+							}
+							?>
+						</tbody>
+					</table>
+					<?php
+				}
+				// End line items
+				?>
 
-				    	if (count($transaction['lineitems']) > 0){
+				<table class="form-table wh-metatab wptbp">
 
-				    		// res
-				    		foreach ($transaction['lineitems'] as $item){
-				    			echo "<tr>";
-				    				if (isset($item["name"])) echo "<td>" . esc_html( $item["name"] ) . "</td>";
-				    				if (isset($item["quantity"])) echo "<td>" . esc_html( $item["quantity"] ) . "</td>";
-				    				if (isset($item["tax"])) echo "<td>" . esc_html( $item["tax"] ) . "</td>";
-				    				if (isset($item["ship"])) echo "<td>" . esc_html( $item["ship"] ) . "</td>";
-				    				if (isset($item["handle"])) echo "<td>" . esc_html( $item["handle"] ) . "</td>";
-				    				if (isset($item["amount"])) echo "<td>" . esc_html( $item["amount"] ) . "</td>";
-				    			echo "</tr>";
-				    		}
+					<tr><td><hr /></td></tr>
 
-				    	} else {
+					<tr>
+						<td>
+							<h2 style="font-size: 20px"><i class="linkify icon"></i> <?php echo esc_html( __( 'Assign Transaction to', 'zero-bs-crm' ) ); ?></h2>
+						</td>
+					</tr>
 
-				    		// no res
-				    		?><tr><td colspan="6"><?php echo esc_html( __( 'No Line Items Found', 'zero-bs-crm' ) ); ?></td></tr><?php
-				    		
-				    	} ?>
-				    </tbody>
-
-			    </table>
-
-
-			   	<?php }
-			   	// / ========== Line Items ?>
-
-			    <table class="form-table wh-metatab wptbp">
-
-			        <tr><td><hr /></td></tr>
-
-			        <tr><td>
-			        	<h2 style="font-size: 20px"><i class="linkify icon"></i> <?php echo esc_html( __( 'Assign Transaction to', 'zero-bs-crm' ) );?></h2></td></tr>
-
-			        <tr class="wh-large" id="zbs-transaction-assignment-wrap">
-			        	<td>	
-			        		<?php // hidden inputs dictating any assignment typeaheads ?>
+					<tr class="wh-large" id="zbs-transaction-assignment-wrap">
+						<td>
+							<?php // hidden inputs dictating any assignment typeaheads ?>
 			        		<input id="customer" name="customer" value="<?php echo esc_attr( $contactID ); ?>" class="form-control widetext" type="hidden">
 			             	<input id="customer_name" name="customer_name" value="<?php echo esc_attr( $contactName ); ?>" class="form-control widetext" type="hidden">
 			             	<input type="hidden" name="zbsct_company" id="zbsct_company" value="<?php echo esc_attr( $companyID ); ?>" />
 		                    <?php 
 		                    	if (zeroBSCRM_getSetting('companylevelcustomers') != "1"){ 
 
-		                    		// Just contact
-								?>
+							// Just contact
+							?>
 									<div id="zbs-customer-title"><label><?php echo esc_html( __( 'Contact', 'zero-bs-crm' ) ); ?></label></div>
 									<?php
 		                    		echo zeroBSCRM_CustomerTypeList('zbscrmjs_transaction_setCustomer', $contactName,false,'zbscrmjs_transaction_unsetCustomer');
 
-		                    		// mikes inv selector
-								?>
+							// mikes inv selector
+							?>
 									<div class="assignInvToCust" style="display:none;max-width:658px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox zbs-infobox-transaction" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 									<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php echo esc_attr( isset( $transaction['invoice_id'] ) ? $transaction['invoice_id'] : '' ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" /></div>
 									<?php
 
 		                    	} else {
 
-		                    		// contact or co
-								?>
+							// contact or co
+							?>
 									<div class="ui grid"><div class="seven wide column">
 										<div id="zbs-customer-title"><label>
 											<?php
 											echo esc_html( __( 'Contact', 'zero-bs-crm' ) );
-										?>
+									?>
 										</label></div>
 										<?php
 
-			                    		// contact
+										// contact
 										echo zeroBSCRM_CustomerTypeList( 'zbscrmjs_transaction_setCustomer', $contactName, false, 'zbscrmjs_transaction_unsetCustomer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			                    		
-			                    		// mikes inv selector
-										?>
+
+								// mikes inv selector
+								?>
 										<div class="assignInvToCust" style="display:none;max-width:658px;margin-top:21px;margin-bottom:10px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?>&nbsp;</label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 										<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php echo esc_attr( isset( $transaction['invoice_id'] ) ? $transaction['invoice_id'] : '' ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" /></div>
 
@@ -599,35 +619,32 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
   Create Tags Box
    ====================================================== */
 
-class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
+// phpcs:ignore
+class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags {
 
+	public function __construct( $plugin_file ) { // phpcs:ignore
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->objTypeID       = ZBS_TYPE_TRANSACTION;
+		$this->objType         = 'transaction';
+		$this->metaboxID       = 'zerobs-transaction-tags';
+		$this->metaboxTitle    = __( 'Transaction Tags', 'zero-bs-crm' );
+		$this->metaboxScreen   = 'zbs-add-edit-transaction-edit'; // we can use anything here as is now using our func
+		$this->metaboxArea     = 'side';
+		$this->metaboxLocation = 'high';
+		$this->showSuggestions = true;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->capabilities = array(
+			'can_hide'        => true, // can be hidden
+			'areas'           => array( 'side' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => false,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+		);
 
-    public function __construct( $plugin_file ) {
-    
-        $this->objTypeID = ZBS_TYPE_TRANSACTION;
-        $this->objType = 'transaction';
-        $this->metaboxID = 'zerobs-transaction-tags';
-        $this->metaboxTitle = __('Transaction Tags',"zero-bs-crm");
-        $this->metaboxScreen = 'zbs-add-edit-transaction-edit'; //'zerobs_edit_contact'; // we can use anything here as is now using our func
-        $this->metaboxArea = 'side';
-        $this->metaboxLocation = 'high';
-        $this->showSuggestions = true;
-        $this->capabilities = array(
-
-            'can_hide'          => true, // can be hidden
-            'areas'             => array('side'), // areas can be dragged to - normal side = only areas currently
-            'can_accept_tabs'   => false,  // can/can't accept tabs onto it
-            'can_become_tab'    => false, // can be added as tab
-            'can_minimise'      => true // can be minimised
-
-        );
-
-        // call this 
-        $this->initMetabox();
-
-    }
-
-    // html + save dealt with by parent class :) 
+		// call this
+		$this->initMetabox();
+	}
+	// html + save dealt with by parent class :)
 }
 
 /* ======================================================
@@ -639,93 +656,77 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
     Transaction Actions Metabox
    ====================================================== */
 
-    class zeroBS__Metabox_TransactionActions extends zeroBS__Metabox{ 
+// phpcs:ignore
+class zeroBS__Metabox_TransactionActions extends zeroBS__Metabox {
+	public function __construct( $plugin_file ) { // phpcs:ignore
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->objType         = 'transaction';
+		$this->metaboxID       = 'zerobs-transaction-actions';
+		$this->metaboxTitle    = __( 'Transaction', 'zero-bs-crm' ) . ' ' . __( 'Actions', 'zero-bs-crm' ); // will be headless anyhow
+		$this->headless        = true;
+		$this->metaboxScreen   = 'zbs-add-edit-transaction-edit';
+		$this->metaboxArea     = 'side';
+		$this->metaboxLocation = 'high';
+		$this->saveOrder       = 1;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->capabilities = array(
+			'can_hide'        => false, // can be hidden
+			'areas'           => array( 'side' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => true,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+			'can_move'        => true, // can be moved
+		);
 
-        public function __construct( $plugin_file ) {
+		// call this
+		$this->initMetabox();
+	}
 
-            // set these
-            $this->objType = 'transaction';
-            $this->metaboxID = 'zerobs-transaction-actions';
-            $this->metaboxTitle = __('Transaction','zero-bs-crm').' '.__('Actions','zero-bs-crm'); // will be headless anyhow
-            $this->headless = true;
-            $this->metaboxScreen = 'zbs-add-edit-transaction-edit';
-            $this->metaboxArea = 'side';
-            $this->metaboxLocation = 'high';
-            $this->saveOrder = 1;
-            $this->capabilities = array(
+	public function html( $transaction, $metabox ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		?>
+		<div class="zbs-generic-save-wrap">
+			<div class="ui medium dividing header"><i class="save icon"></i> <?php echo esc_html( __( 'Transaction Actions', 'zero-bs-crm' ) ); ?></div>
+			<?php
 
-                'can_hide'          => false, // can be hidden
-                'areas'             => array('side'), // areas can be dragged to - normal side = only areas currently
-                'can_accept_tabs'   => true,  // can/can't accept tabs onto it
-                'can_become_tab'    => false, // can be added as tab
-                'can_minimise'      => true, // can be minimised
-                'can_move'          => true // can be moved
+			// localise ID & content
+			$transaction_id = -1;
+			if ( is_array( $transaction ) && isset( $transaction['id'] ) ) {
+				$transaction_id = (int) $transaction['id'];
+			}
 
-            );
+			// if a saved post...
+			if ( $transaction_id > 0 ) {
+				?>
+				<div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
+					<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
+					<?php
+					// for now just check if can modify, later better, granular perms.
+					if ( zeroBSCRM_permsTransactions() ) {
+						?>
+						<div id="zbs-transaction-actions-delete" class="zbs-objedit-actions-delete">
+							<a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $transaction_id, 'transaction' ); ?>"><?php echo esc_html( __( 'Delete Permanently', 'zero-bs-crm' ) ); ?></a>
+						</div>
+						<?php
+					}
+					?>
+					<div class='clear'></div>
+				</div>
+				<?php
+			} else {
+				// NEW transaction
+				?>
+				<div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
+					<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction', 'zero-bs-crm' ) ); ?></button>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	} // html
 
-            // call this 
-            $this->initMetabox();
-
-        }
-
-        public function html( $transaction, $metabox ) {
-
-            ?><div class="zbs-generic-save-wrap">
-
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php echo esc_html( __( 'Transaction Actions', 'zero-bs-crm' ) ); ?></div>
-
-            <?php
-
-            // localise ID & content
-            $transactionID = -1; if (is_array($transaction) && isset($transaction['id'])) $transactionID = (int)$transaction['id'];
-
-                #} if a saved post...
-                //if (isset($post->post_status) && $post->post_status != "auto-draft"){
-                if ($transactionID > 0){ // existing
-
-                	?>
-
-                    <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
-
-							<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
-
-                        <?php
-
-                            // delete?
-
-                         // for now just check if can modify, later better, granular perms.
-                         if ( zeroBSCRM_permsTransactions() ) { 
-                        ?><div id="zbs-transaction-actions-delete" class="zbs-objedit-actions-delete">
-                             <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $transactionID, 'transaction' ); ?>"><?php echo esc_html( __( 'Delete Permanently', 'zero-bs-crm' ) ); ?></a>
-                        </div>
-                        <?php } // can delete  ?>
-                        
-                        <div class='clear'></div>
-
-                    </div>
-                <?php
-
-
-                } else {
-
-                    // NEW transaction ?>
-
-                    <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
-                    	
-						<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction', 'zero-bs-crm' ) ); ?></button>
-
-                    </div>
-
-                 <?php
-
-                }
-
-            ?></div><?php // / .zbs-generic-save-wrap
-              
-        } // html
-
-        // saved via main metabox
-    }
+	// saved via main metabox
+}
 
 /**
  * End of Transaction Action Metabox
