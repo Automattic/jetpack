@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+REST API: Ensure endpoint argument registration uses valid types for booleans.
