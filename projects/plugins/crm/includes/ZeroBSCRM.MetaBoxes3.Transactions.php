@@ -619,35 +619,32 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
   Create Tags Box
    ====================================================== */
 
-class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
+// phpcs:ignore
+class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags {
 
+	public function __construct( $plugin_file ) { // phpcs:ignore
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->objTypeID       = ZBS_TYPE_TRANSACTION;
+		$this->objType         = 'transaction';
+		$this->metaboxID       = 'zerobs-transaction-tags';
+		$this->metaboxTitle    = __( 'Transaction Tags', 'zero-bs-crm' );
+		$this->metaboxScreen   = 'zbs-add-edit-transaction-edit'; // we can use anything here as is now using our func
+		$this->metaboxArea     = 'side';
+		$this->metaboxLocation = 'high';
+		$this->showSuggestions = true;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->capabilities = array(
+			'can_hide'        => true, // can be hidden
+			'areas'           => array( 'side' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => false,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+		);
 
-    public function __construct( $plugin_file ) {
-    
-        $this->objTypeID = ZBS_TYPE_TRANSACTION;
-        $this->objType = 'transaction';
-        $this->metaboxID = 'zerobs-transaction-tags';
-        $this->metaboxTitle = __('Transaction Tags',"zero-bs-crm");
-        $this->metaboxScreen = 'zbs-add-edit-transaction-edit'; //'zerobs_edit_contact'; // we can use anything here as is now using our func
-        $this->metaboxArea = 'side';
-        $this->metaboxLocation = 'high';
-        $this->showSuggestions = true;
-        $this->capabilities = array(
-
-            'can_hide'          => true, // can be hidden
-            'areas'             => array('side'), // areas can be dragged to - normal side = only areas currently
-            'can_accept_tabs'   => false,  // can/can't accept tabs onto it
-            'can_become_tab'    => false, // can be added as tab
-            'can_minimise'      => true // can be minimised
-
-        );
-
-        // call this 
-        $this->initMetabox();
-
-    }
-
-    // html + save dealt with by parent class :) 
+		// call this
+		$this->initMetabox();
+	}
+	// html + save dealt with by parent class :)
 }
 
 /* ======================================================
@@ -659,93 +656,77 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
     Transaction Actions Metabox
    ====================================================== */
 
-    class zeroBS__Metabox_TransactionActions extends zeroBS__Metabox{ 
+// phpcs:ignore
+class zeroBS__Metabox_TransactionActions extends zeroBS__Metabox {
+	public function __construct( $plugin_file ) { // phpcs:ignore
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->objType         = 'transaction';
+		$this->metaboxID       = 'zerobs-transaction-actions';
+		$this->metaboxTitle    = __( 'Transaction', 'zero-bs-crm' ) . ' ' . __( 'Actions', 'zero-bs-crm' ); // will be headless anyhow
+		$this->headless        = true;
+		$this->metaboxScreen   = 'zbs-add-edit-transaction-edit';
+		$this->metaboxArea     = 'side';
+		$this->metaboxLocation = 'high';
+		$this->saveOrder       = 1;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$this->capabilities = array(
+			'can_hide'        => false, // can be hidden
+			'areas'           => array( 'side' ), // areas can be dragged to - normal side = only areas currently
+			'can_accept_tabs' => true,  // can/can't accept tabs onto it
+			'can_become_tab'  => false, // can be added as tab
+			'can_minimise'    => true, // can be minimised
+			'can_move'        => true, // can be moved
+		);
 
-        public function __construct( $plugin_file ) {
+		// call this
+		$this->initMetabox();
+	}
 
-            // set these
-            $this->objType = 'transaction';
-            $this->metaboxID = 'zerobs-transaction-actions';
-            $this->metaboxTitle = __('Transaction','zero-bs-crm').' '.__('Actions','zero-bs-crm'); // will be headless anyhow
-            $this->headless = true;
-            $this->metaboxScreen = 'zbs-add-edit-transaction-edit';
-            $this->metaboxArea = 'side';
-            $this->metaboxLocation = 'high';
-            $this->saveOrder = 1;
-            $this->capabilities = array(
+	public function html( $transaction, $metabox ) { // phpcs:ignore Squiz.Commenting.FunctionComment.Missing,VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		?>
+		<div class="zbs-generic-save-wrap">
+			<div class="ui medium dividing header"><i class="save icon"></i> <?php echo esc_html( __( 'Transaction Actions', 'zero-bs-crm' ) ); ?></div>
+			<?php
 
-                'can_hide'          => false, // can be hidden
-                'areas'             => array('side'), // areas can be dragged to - normal side = only areas currently
-                'can_accept_tabs'   => true,  // can/can't accept tabs onto it
-                'can_become_tab'    => false, // can be added as tab
-                'can_minimise'      => true, // can be minimised
-                'can_move'          => true // can be moved
+			// localise ID & content
+			$transaction_id = -1;
+			if ( is_array( $transaction ) && isset( $transaction['id'] ) ) {
+				$transaction_id = (int) $transaction['id'];
+			}
 
-            );
+			// if a saved post...
+			if ( $transaction_id > 0 ) {
+				?>
+				<div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
+					<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
+					<?php
+					// for now just check if can modify, later better, granular perms.
+					if ( zeroBSCRM_permsTransactions() ) {
+						?>
+						<div id="zbs-transaction-actions-delete" class="zbs-objedit-actions-delete">
+							<a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $transaction_id, 'transaction' ); ?>"><?php echo esc_html( __( 'Delete Permanently', 'zero-bs-crm' ) ); ?></a>
+						</div>
+						<?php
+					}
+					?>
+					<div class='clear'></div>
+				</div>
+				<?php
+			} else {
+				// NEW transaction
+				?>
+				<div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
+					<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction', 'zero-bs-crm' ) ); ?></button>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<?php
+	} // html
 
-            // call this 
-            $this->initMetabox();
-
-        }
-
-        public function html( $transaction, $metabox ) {
-
-            ?><div class="zbs-generic-save-wrap">
-
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php echo esc_html( __( 'Transaction Actions', 'zero-bs-crm' ) ); ?></div>
-
-            <?php
-
-            // localise ID & content
-            $transactionID = -1; if (is_array($transaction) && isset($transaction['id'])) $transactionID = (int)$transaction['id'];
-
-                #} if a saved post...
-                //if (isset($post->post_status) && $post->post_status != "auto-draft"){
-                if ($transactionID > 0){ // existing
-
-                	?>
-
-                    <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
-
-							<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
-
-                        <?php
-
-                            // delete?
-
-                         // for now just check if can modify, later better, granular perms.
-                         if ( zeroBSCRM_permsTransactions() ) { 
-                        ?><div id="zbs-transaction-actions-delete" class="zbs-objedit-actions-delete">
-                             <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $transactionID, 'transaction' ); ?>"><?php echo esc_html( __( 'Delete Permanently', 'zero-bs-crm' ) ); ?></a>
-                        </div>
-                        <?php } // can delete  ?>
-                        
-                        <div class='clear'></div>
-
-                    </div>
-                <?php
-
-
-                } else {
-
-                    // NEW transaction ?>
-
-                    <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
-                    	
-						<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction', 'zero-bs-crm' ) ); ?></button>
-
-                    </div>
-
-                 <?php
-
-                }
-
-            ?></div><?php // / .zbs-generic-save-wrap
-              
-        } // html
-
-        // saved via main metabox
-    }
+	// saved via main metabox
+}
 
 /**
  * End of Transaction Action Metabox
