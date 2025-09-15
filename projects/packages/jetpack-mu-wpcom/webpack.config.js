@@ -32,6 +32,8 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.js',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
+				'wpcom-blocks-code-block-definition':
+					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
 				'wpcom-blocks-event-countdown-editor':
 					'./src/features/wpcom-blocks/event-countdown/editor.js',
 				'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
@@ -124,6 +126,7 @@ module.exports = async () => {
 			},
 			externals: {
 				...jetpackWebpackConfig.externals,
+				'@a8cCodeBlock/block-edit-function': 'import @a8cCodeBlock/block-edit-function',
 				jetpackConfig: JSON.stringify( {
 					consumer_slug: 'jetpack-mu-wpcom',
 				} ),
