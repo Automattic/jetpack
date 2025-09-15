@@ -3464,7 +3464,7 @@ EOT;
 		Contact_Form::reset_errors();
 	}
 
-	public function test_ratinf_form_submittion() {
+	public function test_rating_form_submission() {
 		$form_id = Utility::get_form_id();
 
 		$_POST = Utility::get_post_request(
