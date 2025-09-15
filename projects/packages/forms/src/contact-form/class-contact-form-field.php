@@ -2903,7 +2903,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Gets an array of translatable country names indexed by their two-letter country codes.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return array Array of country names with two-letter country codes as keys.
 	 */
@@ -3154,7 +3154,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	/**
 	 * Enqueues scripts and styles needed for the slider field.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.4.0
 	 *
 	 * @return void
 	 */

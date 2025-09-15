@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-a.3 - 2025-09-15
+### Enhancements
+- Forms: Add new block toggle to skip saving form submisions on WP Admin. [#45072]
+- Forms: Add integrations permissions check. [#45063]
+- Forms: Add preloaded config endpoint. [#45091]
+- Forms: Improve supported integrations filter. [#45123]
+- Forms: Phone field can now contain a country selector combobox. [#45120]
+
+### Improved compatibility
+- Forms: Add integrations feature flag. [#45037]
+- Site Accelerator (Image CDN): Add support for images added via Breakdance blocks. [#45059]
+
+### Bug fixes
+- AI Assistant: Fix spacing on Forms block. [#45143]
+- Forms: Fix MailPoet string warning. [#45114]
+- Widget Visibility: Prevent PHP error under specific block conditions. [#45087]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Prevent a PHP error when fetching a non-existing menu in JSON API. [#45147]
+- Garden Sites: Expose the Garden flags and information on the site endpoint. [#45107]
+- Sharing: Prevent PHP warnings when dealing with unexpected data. [#45165]
+- Shortcodes: Load Recipe dependency via PNPM. [#45089] [#45134] [#45140]
+- Update package dependencies. [#45127] [#45128]
+
 ## 15.1-a.1 - 2025-09-08
 ### Enhancements
 - Forms: Add hidden input field block. [#44079]
@@ -74,7 +98,7 @@
 - Editor assets endpoint: Disallow the VideoPress block type. [#44848]
 - Editor assets endpoint: Expand allowed block types. [#44616]
 - Fix JavaScript in one-image Slideshow shortcodes. [#44643]
-- Fix LaTex Block selector. [#44920]
+- Fix LaTeX Block selector. [#44920]
 - I18n: Improve context hints in comments for translators. [#44686]
 - Image CDN: Prevent PHP warnings when handling malformed data. [#45015]
 - Memberships: Fix JSON parsing error. [#44812]
