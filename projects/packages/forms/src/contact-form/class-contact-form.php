@@ -568,6 +568,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
+		$version = \JETPACK__VERSION;
+
+		// Extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/form/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+
+		if ( $asset && isset( $asset['version'] ) ) {
+			$version = $asset['version'];
+		}
+
 		$config = array(
 			'error_types'    => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
@@ -582,7 +592,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'jp-forms-view',
 			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION
+			$version
 		);
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
