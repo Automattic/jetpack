@@ -17,7 +17,6 @@ return [
     // PhanTypeVoidArgument : 5 occurrences
     // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
-    // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanContextNotObject : 1 occurrence
@@ -44,9 +43,6 @@ return [
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'private-site/access-denied-coming-soon-template.php' => ['PhanTypeSuspiciousEcho'],
-        'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
-        'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],

@@ -47,7 +47,6 @@ return [
     // PhanParamSignaturePHPDocMismatchReturnType : 20+ occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 20+ occurrences
     // PhanTypeArraySuspiciousNull : 20+ occurrences
-    // PhanTypeSuspiciousStringExpression : 20+ occurrences
     // PhanUndeclaredClassProperty : 20+ occurrences
     // PhanUndeclaredFunction : 20+ occurrences
     // PhanUndeclaredVariableDim : 20+ occurrences
@@ -56,6 +55,7 @@ return [
     // PhanTypeComparisonFromArray : 15+ occurrences
     // PhanTypeMismatchDeclaredReturnNullable : 15+ occurrences
     // PhanTypeMismatchProperty : 15+ occurrences
+    // PhanTypeSuspiciousStringExpression : 15+ occurrences
     // PhanUndeclaredGlobalVariable : 15+ occurrences
     // PhanUndeclaredTypeProperty : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 10+ occurrences
@@ -71,7 +71,6 @@ return [
     // PhanAbstractStaticMethodCallInStatic : 6 occurrences
     // PhanTypeInvalidLeftOperandOfNumericOp : 6 occurrences
     // PhanTypeMismatchDeclaredReturn : 6 occurrences
-    // PhanTypeSuspiciousEcho : 6 occurrences
     // PhanTypeConversionFromArray : 5 occurrences
     // PhanUndeclaredClassReference : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
@@ -133,7 +132,7 @@ return [
         'admin/settings/field-options.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeInvalidDimOffset'],
         'admin/settings/field-sorts.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'admin/settings/forms.page.php' => ['PhanUndeclaredVariableDim'],
-        'admin/settings/general.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeSuspiciousEcho'],
+        'admin/settings/general.page.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredGlobalVariable', 'PhanTypeMismatchArgumentNullable'],
         'admin/settings/license.page.php' => ['PhanPluginDuplicateAdjacentStatement'],
         'admin/settings/locale.page.php' => ['PhanPossiblyUndeclaredGlobalVariable', 'PhanUndeclaredVariableDim'],
         'admin/settings/mail-delivery.ajax.php' => ['PhanRedundantCondition'],
@@ -156,9 +155,9 @@ return [
         'includes/ZeroBSCRM.AJAX.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignment', 'PhanPluginNeverReturnFunction', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDimFetch', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeVoidAssignment', 'PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.API.php' => ['PhanCommentParamWithoutRealParam', 'PhanRedefineFunctionInternal', 'PhanRedundantCondition'],
         'includes/ZeroBSCRM.AdminPages.Checks.php' => ['PhanPluginUnreachableCode'],
-        'includes/ZeroBSCRM.AdminPages.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginRedundantAssignment', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeSuspiciousEcho'],
+        'includes/ZeroBSCRM.AdminPages.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateAdjacentStatement', 'PhanPluginRedundantAssignment', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.AdminStyling.php' => ['PhanDeprecatedFunction', 'PhanPluginSimplifyExpressionBool'],
-        'includes/ZeroBSCRM.CSVImporter.php' => ['PhanPluginRedundantAssignment', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousEcho', 'PhanUndeclaredVariableDim'],
+        'includes/ZeroBSCRM.CSVImporter.php' => ['PhanPluginRedundantAssignment', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredVariableDim'],
         'includes/ZeroBSCRM.Core.Extensions.php' => ['PhanRedundantCondition', 'PhanTypePossiblyInvalidDimOffset'],
         'includes/ZeroBSCRM.Core.Localisation.php' => ['PhanParamTooFew', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Core.Menus.Top.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument', 'PhanTypeVoidArgument'],
@@ -193,7 +192,7 @@ return [
         'includes/ZeroBSCRM.ExternalSources.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginUnreachableCode'],
         'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeComparisonFromArray', 'PhanTypeMismatchDimFetch'],
         'includes/ZeroBSCRM.FormatHelpers.php' => ['PhanNoopVariable', 'PhanPluginRedundantAssignment', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgument'],
-        'includes/ZeroBSCRM.Forms.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeNonVarPassByRef', 'PhanTypeSuspiciousEcho', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariable'],
+        'includes/ZeroBSCRM.Forms.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeNonVarPassByRef'],
         'includes/ZeroBSCRM.GeneralFuncs.php' => ['PhanCommentParamWithoutRealParam', 'PhanMisspelledAnnotation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction', 'PhanUndeclaredVariableDim'],
         'includes/ZeroBSCRM.IntegrationFuncs.php' => ['PhanPluginRedundantAssignment', 'PhanPluginUnreachableCode', 'PhanRedundantCondition'],
         'includes/ZeroBSCRM.InternalAutomatorRecipes.php' => ['PhanPluginRedundantAssignment', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
