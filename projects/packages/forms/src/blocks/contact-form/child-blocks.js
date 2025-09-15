@@ -64,7 +64,15 @@ export const childBlocks = [
 	JetpackRatingInput,
 	JetpackFieldSlider,
 	JetpackSliderInput,
-	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField, JetpackHiddenField ] : [] ),
+	...( getJetpackBlocksVariation() === 'beta'
+		? [
+				JetpackTimeField,
+				JetpackHiddenField,
+				JetpackImageSelectField,
+				JetpackImageOptionsFieldset,
+				JetpackImageOptionInput,
+		  ]
+		: [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to
@@ -79,8 +87,5 @@ export const childBlocks = [
 				JetpackStepNavigation,
 				JetpackProgressIndicator,
 		  ]
-		: [] ),
-	...( hasFeatureFlag( 'image-select-field' )
-		? [ JetpackImageSelectField, JetpackImageOptionsFieldset, JetpackImageOptionInput ]
 		: [] ),
 ];
