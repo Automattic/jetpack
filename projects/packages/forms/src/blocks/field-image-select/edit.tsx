@@ -26,8 +26,6 @@ import './editor.scss';
  */
 import type { Block, BlockEditorStoreSelect } from '../../types';
 
-const showOtherOption = false;
-
 export default function ImageSelectFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes, name } = props;
 	const { id, required, width } = attributes;
@@ -155,18 +153,6 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Randomize', 'jetpack-forms' ) }
 								checked={ attributes?.randomizeOptions }
 								onChange={ ( value: boolean ) => setAttributes( { randomizeOptions: value } ) }
-							/>
-						),
-					},
-					showOtherOption && {
-						index: 5,
-						element: (
-							<ToggleControl
-								__nextHasNoMarginBottom
-								key="show-other-option"
-								label={ __( '"Other" option', 'jetpack-forms' ) }
-								checked={ attributes?.showOtherOption }
-								onChange={ ( value: boolean ) => setAttributes( { showOtherOption: value } ) }
 							/>
 						),
 					},
