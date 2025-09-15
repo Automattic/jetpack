@@ -316,8 +316,12 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 					</div>
 				</div>
 
-			    <?php // ========== Line Items 
-				if ( isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] ) ) {
+				<?php
+				if (
+					// @phan-suppress-next-line PhanImpossibleCondition -- Line items are not currently supported on transactions, so disabled for now.
+					false
+					|| isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] )
+				) {
 					?>
 
 			    <div class="ui divider"></div>
