@@ -248,7 +248,7 @@ function zeroBS_getCustomerIcoHTML($cID=-1,$additionalClasses=''){
 	global $zbs; $thumbURL = $zbs->DAL->contacts->getContactAvatarURL($cID);
 	if (!empty($thumbURL)) {
 
-		$thumbHTML = '<img src="'.$thumb_url.'" alt="" />';
+		$thumbHTML = '<img src="' . $thumbURL . '" alt="" />'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 
@@ -7313,11 +7313,11 @@ function zeroBSCRM_getCompanyStatuses() {
 					// exception: event tags
 					if ( $objTypeID == ZBS_TYPE_TASK ) {
 
-						return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->slugs['manage-tasks-list'] . '&zbs_tag=' . $taxonomy ) );
+						return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->slugs['manage-tasks-list'] . ( is_string( $taxonomy ) ? '&zbs_tag=' . $taxonomy : '' ) ) );
 
 					}
 
-					return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->DAL->listViewSlugFromObjID( $objTypeID ) . '&zbs_tag=' . $taxonomy ) );
+					return esc_url_raw( admin_url( 'admin.php?page=' . $zbs->DAL->listViewSlugFromObjID( $objTypeID ) . ( is_string( $taxonomy ) ? '&zbs_tag=' . $taxonomy : '' ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				} // / got objType
 				break;

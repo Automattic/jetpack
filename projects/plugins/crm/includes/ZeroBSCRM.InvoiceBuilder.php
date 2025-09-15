@@ -356,7 +356,7 @@ function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF =
 
             //print the pdf file to the screen for saving
             header('Content-type: application/pdf');
-            header('Content-Disposition: attachment; filename="invoice-'.$invoiceID.'.pdf"');
+			header( 'Content-Disposition: attachment; filename="' . __( 'statement', 'zero-bs-crm' ) . '-' . $contactID . '.pdf' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             header('Content-Transfer-Encoding: binary');
             header('Content-Length: ' . filesize($statementFilename));
             header('Accept-Ranges: bytes');

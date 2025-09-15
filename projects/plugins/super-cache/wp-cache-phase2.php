@@ -1353,6 +1353,9 @@ function wpsc_delete_url_cache( $url ) {
 }
 
 // from legolas558 d0t users dot sf dot net at http://www.php.net/is_writable
+/**
+ * @param string $path
+ */
 function is_writeable_ACLSafe( $path ) {
 
 	if (
@@ -1365,7 +1368,7 @@ function is_writeable_ACLSafe( $path ) {
 
 	// PHP's is_writable does not work with Win32 NTFS
 
-	if ( $path[ strlen( $path ) - 1 ] == '/' ) { // recursively return a temporary file path
+	if ( $path[ strlen( $path ) - 1 ] === '/' ) { // recursively return a temporary file path
 		return is_writeable_ACLSafe( $path . uniqid( (string) wp_rand() ) . '.tmp' );
 	} elseif ( is_dir( $path ) ) {
 		return is_writeable_ACLSafe( $path . '/' . uniqid( (string) wp_rand() ) . '.tmp' );
@@ -1404,7 +1407,7 @@ function wp_cache_setting( $field, $value ) {
 }
 
 function wp_cache_replace_line( $old, $new, $my_file ) {
-	if ( @is_file( $my_file ) == false ) {
+	if ( ! is_string( $my_file ) || @is_file( $my_file ) === false ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		if ( function_exists( 'set_transient' ) ) {
 			set_transient( 'wpsc_config_error', 'config_file_missing', 10 );
 		}

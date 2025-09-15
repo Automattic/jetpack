@@ -129,7 +129,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Get the blog ID.
 	 *
-	 * @return Object current blog id.
+	 * @return mixed current blog id.
 	 */
 	protected function get_blog_id() {
 		return Jetpack_Options::get_option( 'id' );
