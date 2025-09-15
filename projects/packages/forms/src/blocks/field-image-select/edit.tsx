@@ -55,9 +55,12 @@ export default function ImageSelectFieldEdit( props ) {
 	const { addOption } = useAddImageOption( optionsBlock?.clientId );
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-field-image-select', {
-			'is-selected': isSelected || isInnerBlockSelected,
-		} ),
+		className: clsx(
+			'jetpack-field jetpack-field-image-select is-non-animated-label is-non-outlined-block',
+			{
+				'is-selected': isSelected || isInnerBlockSelected,
+			}
+		),
 		style: blockStyle,
 	} );
 
