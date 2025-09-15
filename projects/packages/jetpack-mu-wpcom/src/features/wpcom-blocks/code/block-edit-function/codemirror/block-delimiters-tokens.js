@@ -1,5 +1,5 @@
 import { ExternalTokenizer, InputStream } from '@lezer/lr';
-import * as terms from './blocks.grammar';
+import * as terms from './blocks.grammar?terms';
 
 const chars = {
 	'-': 0x2d,

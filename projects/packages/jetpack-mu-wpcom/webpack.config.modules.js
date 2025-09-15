@@ -4,14 +4,14 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-const { mode, devtool, output, optimization, resolve } = jetpackWebpackConfig;
+const { mode, devtool, output, optimization } = jetpackWebpackConfig;
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
 	mode,
 	devtool,
 	optimization,
-	resolve,
+	resolve: jetpackWebpackConfig.resolve,
 	node: false,
 	name: 'jetpack-mu-wpcom/modules',
 	entry: {
@@ -59,6 +59,12 @@ module.exports = {
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
 			} ),
+
+			// Process Lezer grammar files.
+			{
+				test: /\.grammar(\.parser|\.terms)?$/,
+				use: path.resolve( __dirname, 'lezer-loader.js' ),
+			},
 		],
 	},
 };
