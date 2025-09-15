@@ -243,6 +243,16 @@ class Feedback {
 			return array( 'choices' => array() );
 		}
 
+		if ( $type === 'rating' ) {
+			if ( isset( $post_data[ $key ] ) ) {
+				if ( str_contains( $post_data[ $key ], '/' ) ) {
+					$parts = explode( '/', $post_data[ $key ] );
+					return absint( $parts[0] );
+				}
+				return intval( $post_data[ $key ] );
+			}
+		}
+
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
 				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
