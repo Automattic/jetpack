@@ -253,6 +253,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				style={ {
 					display: 'flex',
 					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+					height: height + ( showLegend ? legendHeight : 0 ),
 				} }
 			>
 				<svg
