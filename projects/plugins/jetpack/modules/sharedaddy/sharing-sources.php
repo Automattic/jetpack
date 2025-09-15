@@ -159,7 +159,7 @@ abstract class Sharing_Source {
 		 * @param int $post_id Post ID.
 		 * @param int $this->id Sharing ID.
 		 */
-		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
+		$title = apply_filters( 'sharing_title', $post->post_title ?? '', $post_id, $this->id );
 
 		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
