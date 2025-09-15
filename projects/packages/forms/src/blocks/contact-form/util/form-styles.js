@@ -128,7 +128,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		fontSize,
 		fontFamily,
 		lineHeight,
-		inputHeight,
+		height: inputHeight,
 	} = window.getComputedStyle( inputNode );
 
 	styleProbe.remove();
