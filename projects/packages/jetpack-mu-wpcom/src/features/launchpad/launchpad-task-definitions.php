@@ -390,8 +390,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 
@@ -658,8 +659,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Enable post sharing', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 		'front_page_updated'              => array(
@@ -2946,4 +2948,13 @@ function wpcom_launchpad_has_added_subscribe_block() {
 	}
 
 	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
+}
+
+/**
+ * Will return true if the user can set up social connections.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_jetpack_social_available() {
+	return ! ( new Automattic\Jetpack\Status() )->is_private_site();
 }
