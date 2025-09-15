@@ -99,7 +99,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 * integration here will prevent it from being returned by the REST
 		 * integrations endpoints and from being displayed in the UI.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.4.0
 		 *
 		 * @param array $supported_integrations Associative array of integration
 		 *                                     configurations keyed by slug. Each

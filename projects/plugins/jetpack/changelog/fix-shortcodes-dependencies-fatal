@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix fatal caused by an undefined shortcode dependencies function.

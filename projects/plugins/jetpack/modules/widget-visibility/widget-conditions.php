@@ -802,7 +802,7 @@ class Jetpack_Widget_Conditions {
 	/**
 	 * Normalize widget `content` into a string suitable for block scanning.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.1
 	 *
 	 * @param mixed $content The widget instance 'content' value.
 	 * @return string|false Normalized string content or false if none.

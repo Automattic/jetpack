@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Widget Visibility: Fix thrown PHP error under specific block conditions

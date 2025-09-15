@@ -2,7 +2,7 @@
 /**
  * Compatibility functions for the Breakdance plugin.
  *
- * @since $$next-version$$
+ * @since 0.7.20
  *
  * @package automattic/jetpack-image-cdn
  */
@@ -14,7 +14,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN;
 /**
  * Hook the compatibility functions into Breakdance filters.
  *
- * @since $$next-version$$
+ * @since 0.7.20
  *
  * @return void
  */
@@ -28,7 +28,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_breakdance_compat' );
  * in the Breakdance settings, the content will not be filtered by the_content filter.
  * This ensures that images are passed through Image CDN when it's enabled.
  *
- * @since $$next-version$$
+ * @since 0.7.20
  *
  * @param string $content The content to filter.
  * @return string The filtered content.
