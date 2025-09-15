@@ -1196,16 +1196,13 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__warning-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: auto 0;
+	margin-top: 0.125em;
 }
 
 .contact-form__warning-icon svg {
 	fill: currentColor;
-	display: block;
-	margin: 0 auto;
+	width: 1em;
+	height: 1em;
 }
 
 .contact-form__checkbox-wrap {
