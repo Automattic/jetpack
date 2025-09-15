@@ -40,8 +40,10 @@ export default function ImageOptionInputEdit( props ) {
 
 	const {
 		'jetpack/field-image-select-is-supersized': isSupersized,
-		'jetpack/field-image-options-type': selectionType = 'radio',
+		'jetpack/field-image-select-is-multiple': isMultiple,
 	} = context || {};
+
+	const selectionType = isMultiple ? 'checkbox' : 'radio';
 
 	const { isInnerBlockSelected, imageBlockAttributes, positionLetter, rowOptionsCount } = useSelect(
 		select => {

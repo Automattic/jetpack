@@ -9,7 +9,7 @@ import {
 } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -24,9 +24,8 @@ import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageOptionsFieldsetEdit( props ) {
-	const { attributes, clientId, isSelected, context, setAttributes } = props;
+	const { attributes, clientId, isSelected } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
-	const { 'jetpack/field-image-select-is-multiple': isMultiple } = context || {};
 
 	const { addOption, newImageOption } = useAddImageOption( clientId );
 
@@ -40,15 +39,6 @@ export default function ImageOptionsFieldsetEdit( props ) {
 		},
 		[ clientId ]
 	);
-
-	// Update the type attribute when the parent's isMultiple context changes
-	useEffect( () => {
-		const newType = isMultiple ? 'checkbox' : 'radio';
-
-		if ( attributes.type !== newType ) {
-			setAttributes( { type: newType } );
-		}
-	}, [ isMultiple, attributes.type, setAttributes ] );
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-fieldset-image-options', {

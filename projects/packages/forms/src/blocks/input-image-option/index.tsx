@@ -20,7 +20,7 @@ const settings = {
 	usesContext: [
 		'jetpack/field-image-select-is-supersized',
 		'jetpack/field-image-select-show-labels',
-		'jetpack/field-image-options-type',
+		'jetpack/field-image-select-is-multiple',
 		'jetpack/field-share-attributes',
 	],
 	providesContext: {
