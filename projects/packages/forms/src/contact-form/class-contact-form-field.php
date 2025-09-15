@@ -3161,9 +3161,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	private function enqueue_phone_field_assets() {
 		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
 
-		// TODO: remove this manual cache busting
-		// SEE: p1757517146878719-slack-C01U2KGS2PQ
-		$version .= '-jetpack-combobox-v1';
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/field-phone/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
 
 		// combobox styles
 		\wp_enqueue_style(
