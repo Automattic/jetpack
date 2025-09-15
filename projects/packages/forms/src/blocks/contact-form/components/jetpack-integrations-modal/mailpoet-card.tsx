@@ -125,11 +125,8 @@ const MailPoetCard = ( {
 	};
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet email marketing', 'jetpack-forms' ) }
-			description={ __(
-				'Send newsletters and marketing emails directly from your site.',
-				'jetpack-forms'
-			) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <MailPoetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

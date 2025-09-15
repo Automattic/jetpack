@@ -34,64 +34,62 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
-	 * Supported integrations configuration.
-	 *
-	 * Each integration array supports the following keys:
-	 * - type (string)                  : 'plugin' or 'service'
-	 * - file (string|null)             : Plugin file path (for plugins), or null for services
-	 * - settings_url (string|null)     : Relative admin URL for settings, or null if none
-	 * - marketing_redirect_slug (string|null) : Slug for Redirect::get_url() for marketing links, or null if none
-	 *
-	 * For marketing_redirect_slug, you'll need to add those here first:
-	 * https://mc.a8c.com/jetpack-crew/redirects/
-	 *
-	 * @var array
-	 */
-	private $supported_integrations = array(
-		'akismet'                           => array(
-			'type'                    => 'plugin',
-			'file'                    => 'akismet/akismet.php',
-			'settings_url'            => 'admin.php?page=akismet-key-config',
-			'marketing_redirect_slug' => 'org-spam',
-		),
-		'creative-mail-by-constant-contact' => array(
-			'type'                    => 'plugin',
-			'file'                    => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-			'settings_url'            => 'admin.php?page=creativemail',
-			'marketing_redirect_slug' => 'creative-mail',
-		),
-		'zero-bs-crm'                       => array(
-			'type'                    => 'plugin',
-			'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
-			'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
-			'marketing_redirect_slug' => 'org-crm',
-		),
-		'salesforce'                        => array(
-			'type'                    => 'service',
-			'file'                    => null,
-			'settings_url'            => null,
-			'marketing_redirect_slug' => null,
-		),
-		'google-drive'                      => array(
-			'type'                    => 'service',
-			'file'                    => null,
-			'settings_url'            => null,
-			'marketing_redirect_slug' => null,
-		),
-		'mailpoet'                          => array(
-			'type'                    => 'plugin',
-			'file'                    => 'mailpoet/mailpoet.php',
-			'settings_url'            => 'admin.php?page=mailpoet-homepage',
-			'marketing_redirect_slug' => 'org-mailpoet',
-		),
-	);
-
-	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
 	 */
 	private function get_supported_integrations() {
+		$supported_integrations = array(
+			'akismet'                           => array(
+				'type'                    => 'plugin',
+				'file'                    => 'akismet/akismet.php',
+				'settings_url'            => 'admin.php?page=akismet-key-config',
+				'marketing_redirect_slug' => 'org-spam',
+				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
+				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+			),
+			'creative-mail-by-constant-contact' => array(
+				'type'                    => 'plugin',
+				'file'                    => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
+				'settings_url'            => 'admin.php?page=creativemail',
+				'marketing_redirect_slug' => 'creative-mail',
+				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
+				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
+			),
+			'zero-bs-crm'                       => array(
+				'type'                    => 'plugin',
+				'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
+				'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
+				'marketing_redirect_slug' => 'org-crm',
+				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
+				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+			),
+			'salesforce'                        => array(
+				'type'                    => 'service',
+				'file'                    => null,
+				'settings_url'            => null,
+				'marketing_redirect_slug' => null,
+				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
+				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+			),
+			'google-drive'                      => array(
+				'type'                    => 'service',
+				'file'                    => null,
+				'settings_url'            => null,
+				'marketing_redirect_slug' => null,
+				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
+				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+			),
+			'mailpoet'                          => array(
+				'type'                    => 'plugin',
+				'file'                    => 'mailpoet/mailpoet.php',
+				'settings_url'            => 'admin.php?page=mailpoet-homepage',
+				'marketing_redirect_slug' => 'org-mailpoet',
+				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
+				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+			),
+		);
+
 		/**
 		 * Filters the list of supported integrations available in Jetpack Forms.
 		 *
@@ -101,15 +99,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *
 		 * @since 6.4.0
 		 *
-		 * @param array $supported_integrations Associative array of integration
-		 *                                     configurations keyed by slug. Each
-		 *                                     configuration supports the following keys:
-		 *                                     - type (string)                  : 'plugin' or 'service'.
-		 *                                     - file (string|null)             : Plugin file path for plugins; null for services.
-		 *                                     - settings_url (string|null)     : Relative admin URL for settings, or null.
-		 *                                     - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
+		 * @param array $integrations Associative array of integration configurations keyed by slug.
+		 *                            Each configuration supports the following keys:
+		 *                            - type (string)                  : 'plugin' or 'service'.
+		 *                            - file (string|null)             : Plugin file path for plugins; null for services.
+		 *                            - settings_url (string|null)     : Relative admin URL for settings, or null.
+		 *                            - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
+		 *                            - title (string)                 : Default UI title for the integration.
+		 *                            - subtitle (string)              : Default UI subtitle/description for the integration.
 		 */
-		return apply_filters( 'jetpack_forms_supported_integrations', $this->supported_integrations );
+		return apply_filters( 'jetpack_forms_supported_integrations', $supported_integrations );
 	}
 
 	/**
@@ -841,11 +840,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return array Integration status data.
 	 */
 	private function get_integration( $slug ) {
-		$config       = $this->get_supported_integrations()[ $slug ];
-		$status       = $config['type'] === 'plugin'
-			? $this->get_plugin_status( $slug )
-			: $this->get_service_status( $slug );
-		$status['id'] = $slug;
+		$config = $this->get_supported_integrations()[ $slug ];
+		$type   = $config['type'] ?? null;
+
+		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
+
+		// Base shape for all integrations.
+		$base = array(
+			'id'              => $slug,
+			'slug'            => $slug,
+			'type'            => $type,
+			'title'           => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
+			'subtitle'        => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
+			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
+			'pluginFile'      => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
+			'isInstalled'     => false,
+			'isActive'        => false,
+			'needsConnection' => ( $type === 'service' ),
+			'isConnected'     => false,
+			'version'         => null,
+			'settingsUrl'     => null,
+			'details'         => array(),
+		);
+
+		// Override base shape based on integration type.
+		$status = $type === 'plugin'
+			? $this->get_plugin_status( $slug, $base )
+			: $this->get_service_status( $slug, $base );
+
 		return $status;
 	}
 
@@ -889,40 +911,25 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Get status for internal/service integrations.
 	 *
-	 * @param string $slug Service slug.
+	 * @param string $slug   Service slug.
+	 * @param array  $status Base status shape to mutate and return.
 	 * @return array Service status data.
 	 */
-	private function get_service_status( $slug ) {
-		$config                  = $this->get_supported_integrations()[ $slug ];
-		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
+	private function get_service_status( $slug, array $status ) {
+		$config = $this->get_supported_integrations()[ $slug ];
 
-		// Default response for all integrations
-		$response = array(
-			'type'            => $config['type'],
-			'slug'            => $slug,
-			'needsConnection' => true,
-			'isConnected'     => false,
-			'settingsUrl'     => $config['settings_url'] ?? null,
-			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
-			'pluginFile'      => null,
-			'isInstalled'     => false,
-			'isActive'        => false,
-			'version'         => null,
-			'details'         => array(),
-		);
-
-		// Process settingsUrl to return a full URL if present (for services only)
-		if ( $response['settingsUrl'] ) {
-			$response['settingsUrl'] = esc_url( Redirect::get_url( $response['settingsUrl'] ) );
+		// If a settings redirect slug/url is configured, convert to full URL
+		if ( ! empty( $config['settings_url'] ) ) {
+			$status['settingsUrl'] = esc_url( Redirect::get_url( $config['settings_url'] ) );
 		}
 
+		// Override base shape for specific services.
 		switch ( $slug ) {
 			case 'google-drive':
-				$user_id                 = get_current_user_id();
-				$jetpack_connected       = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
-				$is_connected            = $jetpack_connected && Google_Drive::has_valid_connection();
-				$response['isConnected'] = $is_connected;
-				$response['settingsUrl'] = External_Connections::get_connect_url( $slug );
+				$user_id               = get_current_user_id();
+				$jetpack_connected     = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
+				$status['isConnected'] = $jetpack_connected && Google_Drive::has_valid_connection();
+				$status['settingsUrl'] = External_Connections::get_connect_url( $slug );
 				break;
 			case 'salesforce':
 				// No overrides needed for now; keep defaults.
@@ -930,74 +937,67 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			// Add other service cases as needed.
 		}
 
-		return $response;
+		return $status;
 	}
 
 	/**
 	 * Get plugin status.
 	 *
 	 * @param string $plugin_slug Plugin slug.
+	 * @param array  $status      Base status shape to mutate and return.
 	 * @return array Plugin status data.
 	 */
-	private function get_plugin_status( $plugin_slug ) {
+	private function get_plugin_status( $plugin_slug, array $status ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$integrations            = $this->get_supported_integrations();
-		$plugin_config           = $integrations[ $plugin_slug ];
-		$marketing_redirect_slug = $plugin_config['marketing_redirect_slug'] ?? null;
+		$integrations  = $this->get_supported_integrations();
+		$plugin_config = $integrations[ $plugin_slug ];
 
 		$installed_plugins = get_plugins();
 		$is_installed      = isset( $installed_plugins[ $plugin_config['file'] ] );
 		$is_active         = is_plugin_active( $plugin_config['file'] );
 
-		$response = array(
-			'type'            => 'plugin',
-			'slug'            => $plugin_slug,
-			'pluginFile'      => str_replace( '.php', '', $plugin_config['file'] ),
-			'isInstalled'     => $is_installed,
-			'isActive'        => $is_active,
-			'needsConnection' => false,
-			'isConnected'     => false,
-			'version'         => $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null,
-			'settingsUrl'     => $is_active ? admin_url( $plugin_config['settings_url'] ) : null,
-			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
-			'details'         => array(),
-		);
+		// Override base shape for all plugins.
+		$status['pluginFile']  = str_replace( '.php', '', $plugin_config['file'] );
+		$status['isInstalled'] = $is_installed;
+		$status['isActive']    = $is_active;
+		$status['version']     = $is_installed ? $installed_plugins[ $plugin_config['file'] ]['Version'] : null;
+		$status['settingsUrl'] = $is_active ? admin_url( $plugin_config['settings_url'] ) : null;
 
-		// Refactored to use a switch statement for plugin-specific logic.
+		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {
 			case 'akismet':
-				$dashboard_view_switch                         = new Dashboard_View_Switch();
-				$response['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-				$response['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
-				$response['needsConnection']                   = true;
+				$dashboard_view_switch                       = new Dashboard_View_Switch();
+				$status['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
+				$status['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+				$status['needsConnection']                   = true;
 				break;
 			case 'zero-bs-crm':
 				if ( $is_active ) {
-					$has_extension       = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
-					$response['details'] = array(
+					$has_extension     = function_exists( 'zeroBSCRM_isExtensionInstalled' ) && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ); // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first
+					$status['details'] = array(
 						'hasExtension'         => $has_extension,
 						'canActivateExtension' => current_user_can( 'manage_options' ),
 					);
 				}
 				break;
 			case 'mailpoet':
-				$response['needsConnection'] = true;
+				$status['needsConnection'] = true;
 				// Determine if MailPoet setup is complete using the public API.
 				if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
 					$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
 					if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
-						$response['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
+						$status['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
 					}
 				}
 				// Add MailPoet lists to details
-				$response['details']['lists'] = MailPoet_Integration::get_all_lists();
+				$status['details']['lists'] = MailPoet_Integration::get_all_lists();
 				break;
 		}
 
-		return $response;
+		return $status;
 	}
 
 	/**

@@ -56,8 +56,8 @@ const AkismetDashboardCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Akismet Spam Protection', 'jetpack-forms' ) }
-			description={ __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <AkismetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
