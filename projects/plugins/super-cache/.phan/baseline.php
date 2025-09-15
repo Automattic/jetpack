@@ -11,21 +11,19 @@ return [
     // # Issue statistics:
     // PhanPluginSimplifyExpressionBool : 80+ occurrences
     // PhanUndeclaredGlobalVariable : 45+ occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 25+ occurrences
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanUndeclaredVariable : 20+ occurrences
-    // PhanTypeMismatchArgumentInternal : 15+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
+    // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
     // PhanTypeNonVarPassByRef : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
-    // PhanTypeSuspiciousStringExpression : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanUndeclaredFunction : 8 occurrences
-    // PhanTypeArraySuspiciousNull : 7 occurrences
-    // PhanTypeArraySuspiciousNullable : 7 occurrences
     // PhanSuspiciousValueComparison : 6 occurrences
+    // PhanTypeArraySuspiciousNull : 6 occurrences
     // PhanTypeInvalidDimOffset : 6 occurrences
     // PhanUndeclaredVariableDim : 6 occurrences
+    // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 4 occurrences
     // PhanTypeMismatchArgumentInternalReal : 4 occurrences
@@ -40,15 +38,16 @@ return [
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 2 occurrences
     // PhanRedundantCondition : 2 occurrences
+    // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
+    // PhanTypeSuspiciousStringExpression : 2 occurrences
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanPluginDuplicateIfCondition : 1 occurrence
-    // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 1 occurrence
     // PhanTypeInvalidRightOperandOfAdd : 1 occurrence
     // PhanTypeInvalidRightOperandOfBitwiseOp : 1 occurrence
-    // PhanTypeMismatchArgumentNullable : 1 occurrence
+    // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
@@ -75,8 +74,8 @@ return [
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'wp-cache-phase1.php' => ['PhanTypeNonVarPassByRef'],
-        'wp-cache-phase2.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNull', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariableDim'],
-        'wp-cache.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
+        'wp-cache-phase2.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateIfCondition', 'PhanPluginRedundantAssignment', 'PhanPluginSimplifyExpressionBool', 'PhanPluginUnreachableCode', 'PhanPossiblyUndeclaredVariable', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredVariableDim'],
+        'wp-cache.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginNeverReturnFunction', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanSuspiciousValueComparison', 'PhanTypeArraySuspiciousNullable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfBitwiseOp', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfAdd', 'PhanTypeInvalidRightOperandOfBitwiseOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentInternalProbablyReal', 'PhanTypeMismatchArgumentInternalReal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeNonVarPassByRef', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach', 'PhanUndeclaredFunction', 'PhanUndeclaredVariable', 'PhanUndeclaredVariableDim'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
