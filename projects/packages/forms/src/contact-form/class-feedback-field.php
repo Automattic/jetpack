@@ -181,7 +181,7 @@ class Feedback_Field {
 		}
 
 		if ( $this->is_of_type( 'rating' ) ) {
-			if ( $this->meta['icon'] ?? false ) {
+			if ( isset( $this->meta['icon'] ) ) { // Check if the icon is set. This means that we are using the new format.
 				$max = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
 				return sprintf( '%d/%d', $this->value, $max );
 			}
@@ -257,7 +257,7 @@ class Feedback_Field {
 		}
 
 		if ( $this->is_of_type( 'rating' ) ) {
-			if ( $this->meta['icon'] ?? false ) {
+			if ( isset( $this->meta['icon'] ) ) { // Check if the icon is set. This means that we are using the new format.
 				$max   = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
 				$value = is_numeric( $this->value ) && (int) $this->value > 0 ? (int) $this->value : 0;
 
