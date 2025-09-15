@@ -49,6 +49,10 @@ export const NewsletterWidget = ( {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
 
+	if ( showHeader && ! isStatsModuleActive && ! showChart ) {
+		return null;
+	}
+
 	const subscribersText = sprintf(
 		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
 		_n(
@@ -72,7 +76,7 @@ export const NewsletterWidget = ( {
 
 	return (
 		<div className="newsletter-widget">
-			{ showHeader && (
+			{ showHeader && isStatsModuleActive && (
 				<div className="newsletter-widget__header">
 					<div className="newsletter-widget__stats">
 						<span className="newsletter-widget__stat-item">
@@ -83,7 +87,7 @@ export const NewsletterWidget = ( {
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
 										isInternalLink,
-										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										getSubscriberStatsUrl( site, adminUrl ),
 										'all_subscribers_click',
 										subscribersText
 									) }
@@ -98,7 +102,7 @@ export const NewsletterWidget = ( {
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
 										isInternalLink,
-										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										getSubscriberStatsUrl( site, adminUrl ),
 										'paid_subscribers_click',
 										paidSubscribersText
 									) }
@@ -144,12 +148,13 @@ export const NewsletterWidget = ( {
 							</a>
 						</li>
 						<li>
-							{ DashboardLink(
-								isInternalLink,
-								getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
-								'view_stats_click',
-								__( 'View subscriber stats', 'jetpack' )
-							) }
+							{ isStatsModuleActive &&
+								DashboardLink(
+									isInternalLink,
+									getSubscriberStatsUrl( site, adminUrl ),
+									'view_stats_click',
+									__( 'View subscriber stats', 'jetpack' )
+								) }
 						</li>
 						<li>
 							{ DashboardLink(
