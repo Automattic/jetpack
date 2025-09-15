@@ -37,9 +37,12 @@ setup(
 			// use the browser to ensure JS routing is executed
 			const page = await authenticatedContext.newPage();
 			await page.goto( 'https://wordpress.com/me' );
-			expect
-				.soft( await page.content(), 'User is redirected to profile page' )
-				.toContain( `Howdy, ${ dotComCredentials.username }` );
+			await expect
+				.soft(
+					page.getByRole( 'link', { name: `Howdy, ${ dotComCredentials.username }` } ),
+					'User is logged in and username is visible'
+				)
+				.toBeVisible();
 		} );
 	}
 );
