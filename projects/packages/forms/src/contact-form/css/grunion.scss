@@ -347,6 +347,8 @@ that needs to mimic the input element styles */
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	width: fit-content;
+	height: var(--jetpack--contact-form--input-height, auto);
+	align-self: flex-end;
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
