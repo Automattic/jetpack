@@ -317,6 +317,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				</div>
 
 				<?php
+				// Start line items
 				if (
 					// @phan-suppress-next-line PhanImpossibleCondition -- Line items are not currently supported on transactions, so disabled for now.
 					false
@@ -324,94 +325,109 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				) {
 					?>
 
-			    <div class="ui divider"></div>
-			    <h5><?php echo esc_html( __( 'Line Items', 'zero-bs-crm' ) );?></h5>
-			    <table class="ui table green">
-			    	<thead>
-              <tr>
-    		    		<th><?php echo esc_html( __( 'Name', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Quantity', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Tax', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Shipping', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Handling', 'zero-bs-crm' ) );?></th>
-    		    		<th><?php echo esc_html( __( 'Amount', 'zero-bs-crm' ) );?></th>
-              </tr>
-			    	</thead>
-			    	<tbody><?php
+					<div class="ui divider"></div>
+					<h5><?php echo esc_html( __( 'Line Items', 'zero-bs-crm' ) ); ?></h5>
+					<table class="ui table green">
+						<thead>
+							<tr>
+								<th><?php echo esc_html( __( 'Name', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Quantity', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Tax', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Shipping', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Handling', 'zero-bs-crm' ) ); ?></th>
+								<th><?php echo esc_html( __( 'Amount', 'zero-bs-crm' ) ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							if ( count( $transaction['lineitems'] ) > 0 ) {
+								// res
+								foreach ( $transaction['lineitems'] as $item ) {
+									echo '<tr>';
+									if ( isset( $item['name'] ) ) {
+										echo '<td>' . esc_html( $item['name'] ) . '</td>';
+									}
+									if ( isset( $item['quantity'] ) ) {
+										echo '<td>' . esc_html( $item['quantity'] ) . '</td>';
+									}
+									if ( isset( $item['tax'] ) ) {
+										echo '<td>' . esc_html( $item['tax'] ) . '</td>';
+									}
+									if ( isset( $item['ship'] ) ) {
+										echo '<td>' . esc_html( $item['ship'] ) . '</td>';
+									}
+									if ( isset( $item['handle'] ) ) {
+										echo '<td>' . esc_html( $item['handle'] ) . '</td>';
+									}
+									if ( isset( $item['amount'] ) ) {
+										echo '<td>' . esc_html( $item['amount'] ) . '</td>';
+									}
+									echo '</tr>';
+								}
+							} else {
+								// no res
+								?>
+								<tr>
+									<td colspan="6"><?php echo esc_html( __( 'No Line Items Found', 'zero-bs-crm' ) ); ?></td>
+								</tr>
+								<?php
+							}
+							?>
+						</tbody>
+					</table>
+					<?php
+				}
+				// End line items
+				?>
 
-				    	if (count($transaction['lineitems']) > 0){
+				<table class="form-table wh-metatab wptbp">
 
-				    		// res
-				    		foreach ($transaction['lineitems'] as $item){
-				    			echo "<tr>";
-				    				if (isset($item["name"])) echo "<td>" . esc_html( $item["name"] ) . "</td>";
-				    				if (isset($item["quantity"])) echo "<td>" . esc_html( $item["quantity"] ) . "</td>";
-				    				if (isset($item["tax"])) echo "<td>" . esc_html( $item["tax"] ) . "</td>";
-				    				if (isset($item["ship"])) echo "<td>" . esc_html( $item["ship"] ) . "</td>";
-				    				if (isset($item["handle"])) echo "<td>" . esc_html( $item["handle"] ) . "</td>";
-				    				if (isset($item["amount"])) echo "<td>" . esc_html( $item["amount"] ) . "</td>";
-				    			echo "</tr>";
-				    		}
+					<tr><td><hr /></td></tr>
 
-				    	} else {
+					<tr>
+						<td>
+							<h2 style="font-size: 20px"><i class="linkify icon"></i> <?php echo esc_html( __( 'Assign Transaction to', 'zero-bs-crm' ) ); ?></h2>
+						</td>
+					</tr>
 
-				    		// no res
-				    		?><tr><td colspan="6"><?php echo esc_html( __( 'No Line Items Found', 'zero-bs-crm' ) ); ?></td></tr><?php
-				    		
-				    	} ?>
-				    </tbody>
-
-			    </table>
-
-
-			   	<?php }
-			   	// / ========== Line Items ?>
-
-			    <table class="form-table wh-metatab wptbp">
-
-			        <tr><td><hr /></td></tr>
-
-			        <tr><td>
-			        	<h2 style="font-size: 20px"><i class="linkify icon"></i> <?php echo esc_html( __( 'Assign Transaction to', 'zero-bs-crm' ) );?></h2></td></tr>
-
-			        <tr class="wh-large" id="zbs-transaction-assignment-wrap">
-			        	<td>	
-			        		<?php // hidden inputs dictating any assignment typeaheads ?>
+					<tr class="wh-large" id="zbs-transaction-assignment-wrap">
+						<td>
+							<?php // hidden inputs dictating any assignment typeaheads ?>
 			        		<input id="customer" name="customer" value="<?php echo esc_attr( $contactID ); ?>" class="form-control widetext" type="hidden">
 			             	<input id="customer_name" name="customer_name" value="<?php echo esc_attr( $contactName ); ?>" class="form-control widetext" type="hidden">
 			             	<input type="hidden" name="zbsct_company" id="zbsct_company" value="<?php echo esc_attr( $companyID ); ?>" />
 		                    <?php 
 		                    	if (zeroBSCRM_getSetting('companylevelcustomers') != "1"){ 
 
-		                    		// Just contact
-								?>
+							// Just contact
+							?>
 									<div id="zbs-customer-title"><label><?php echo esc_html( __( 'Contact', 'zero-bs-crm' ) ); ?></label></div>
 									<?php
 		                    		echo zeroBSCRM_CustomerTypeList('zbscrmjs_transaction_setCustomer', $contactName,false,'zbscrmjs_transaction_unsetCustomer');
 
-		                    		// mikes inv selector
-								?>
+							// mikes inv selector
+							?>
 									<div class="assignInvToCust" style="display:none;max-width:658px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox zbs-infobox-transaction" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 									<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php echo esc_attr( isset( $transaction['invoice_id'] ) ? $transaction['invoice_id'] : '' ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" /></div>
 									<?php
 
 		                    	} else {
 
-		                    		// contact or co
-								?>
+							// contact or co
+							?>
 									<div class="ui grid"><div class="seven wide column">
 										<div id="zbs-customer-title"><label>
 											<?php
 											echo esc_html( __( 'Contact', 'zero-bs-crm' ) );
-										?>
+									?>
 										</label></div>
 										<?php
 
-			                    		// contact
+										// contact
 										echo zeroBSCRM_CustomerTypeList( 'zbscrmjs_transaction_setCustomer', $contactName, false, 'zbscrmjs_transaction_unsetCustomer' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			                    		
-			                    		// mikes inv selector
-										?>
+
+								// mikes inv selector
+								?>
 										<div class="assignInvToCust" style="display:none;max-width:658px;margin-top:21px;margin-bottom:10px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?>&nbsp;</label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 										<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php echo esc_attr( isset( $transaction['invoice_id'] ) ? $transaction['invoice_id'] : '' ); ?>" class="form-control" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" /></div>
 
