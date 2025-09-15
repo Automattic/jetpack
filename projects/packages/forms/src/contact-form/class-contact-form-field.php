@@ -2700,7 +2700,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						id="%1$s"
 						type="radio"
 						name="%2$s"
-						value="%3$s/%4$s"
+						value="%3$s"
 						data-wp-on--change="actions.onFieldChange"
 						class="jetpack-field-rating__input visually-hidden"
 						%5$s

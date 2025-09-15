@@ -1358,7 +1358,7 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = array();
+			$meta           = $this->get_field_meta( $field, $post_data );
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
@@ -1367,6 +1367,23 @@ class Feedback {
 		}
 
 		return $fields;
+	}
+	/**
+	 * Get additional metadata for specific field types.
+	 *
+	 * @param Feedback_Field $field The field object.
+	 * @return array An array of metadata.
+	 */
+	private function get_field_meta( $field ) {
+		$meta = array();
+
+		// For file fields, we need to store the upload ID and name.
+		if ( $field->get_attribute( 'type' ) === 'rating' ) {
+			$meta['max']  = $field->get_attribute( 'max' );
+			$meta['icon'] = $field->get_attribute( 'iconstyle' );
+		}
+
+		return $meta;
 	}
 
 	/**

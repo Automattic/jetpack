@@ -180,6 +180,15 @@ class Feedback_Field {
 			);
 		}
 
+		if ( $this->is_of_type( 'rating' ) ) {
+			if ( $this->meta['icon'] ?? false ) {
+				$max = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
+				return sprintf( '%d/%d', $this->value, $max );
+			}
+
+			return $this->value;
+		}
+
 		return $this->get_render_default_value();
 	}
 
@@ -247,6 +256,24 @@ class Feedback_Field {
 			return $this->value;
 		}
 
+		if ( $this->is_of_type( 'rating' ) ) {
+			if ( $this->meta['icon'] ?? false ) {
+				$max        = is_numeric( $this->meta['max'] ) && (int) $this->meta['max'] > 0 ? (int) $this->meta['max'] : 5;
+				$value      = is_numeric( $this->value ) && (int) $this->value > 0 ? (int) $this->value : 0;
+				$empty_icon = '☆';
+				$full_icon  = '★';
+				if ( $this->meta['icon'] === 'hearts' ) {
+					$empty_icon = '♡';
+					$full_icon  = '♥';
+				}
+				$icon = array_fill( 0, $value, $full_icon );
+				$icon = array_merge( $icon, array_fill( 0, $max - $value, $empty_icon ) );
+				return sprintf( '%s', implode( '', $icon ) );
+			}
+			// Return the array as is.
+			return $this->value;
+		}
+
 		if ( is_array( $this->value ) ) {
 			return implode( ', ', $this->value );
 		}
@@ -281,6 +308,11 @@ class Feedback_Field {
 		if ( $this->is_of_type( 'image-select' ) ) {
 			// Return the array as is.
 			return $this->value;
+		}
+
+		if ( $this->is_of_type( 'rating' ) ) {
+			// If the value is an array, we can return it as a JSON string.
+			return $this->get_render_default_value();
 		}
 
 		if ( is_array( $this->value ) ) {
