@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.10
+ * Stubs automatically generated from PHPUnit 12.3.11
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -28159,7 +28159,10 @@ final class Parser
 }
 final class AmbiguousOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $candiates
+     */
+    public function __construct(string $option, array $candiates)
     {
     }
 }
@@ -28180,7 +28183,10 @@ final class RequiredOptionArgumentMissingException extends \RuntimeException imp
 }
 final class UnknownOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $similarOptions
+     */
+    public function __construct(string $option, array $similarOptions)
     {
     }
 }
