@@ -16,12 +16,12 @@ import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../.
 
 interface MailPoetCardProps extends SingleIntegrationCardProps {
 	mailpoet: {
-		enabledForForm: boolean;
+		enabledForForm?: boolean;
 		listId?: string | null;
 		listName?: string | null;
 	};
 	setAttributes: ( attrs: {
-		mailpoet: { enabledForForm: boolean; listId?: string | null; listName?: string | null };
+		mailpoet: { enabledForForm?: boolean; listId?: string | null; listName?: string | null };
 	} ) => void;
 }
 
@@ -67,6 +67,15 @@ const MailPoetCard = ( {
 	};
 
 	useEffect( () => {
+		if ( ! data ) {
+			return;
+		}
+		if ( typeof mailpoet?.enabledForForm === 'undefined' ) {
+			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: !! data.enabledByDefault } } );
+		}
+	}, [ data, data.enabledByDefault, mailpoet, setAttributes ] );
+
+	useEffect( () => {
 		if ( ! mailpoet.enabledForForm ) {
 			return;
 		}
@@ -102,7 +111,7 @@ const MailPoetCard = ( {
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: ( mailpoetActiveWithKey && mailpoet?.enabledForForm ) ?? false,
+		headerToggleValue: !! mailpoet?.enabledForForm,
 		isHeaderToggleEnabled: mailpoetActiveWithKey,
 		onHeaderToggleChange: ( value: boolean ) =>
 			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),

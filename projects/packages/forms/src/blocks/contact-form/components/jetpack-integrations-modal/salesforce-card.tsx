@@ -1,7 +1,7 @@
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 import { TextControl, BaseControl, ExternalLink } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
@@ -32,6 +32,18 @@ const SalesforceCard = ( {
 	setAttributes,
 }: SalesforceCardProps ) => {
 	const [ organizationIdError, setOrganizationIdError ] = useState( false );
+
+	useEffect( () => {
+		if ( ! data ) return;
+		if ( typeof salesforceData?.sendToSalesforce === 'undefined' ) {
+			setAttributes( {
+				salesforceData: {
+					...salesforceData,
+					sendToSalesforce: !! data.enabledByDefault,
+				},
+			} );
+		}
+	}, [ data, data.enabledByDefault, salesforceData, setAttributes ] );
 
 	const onHeaderToggleChange = ( value: boolean ) => {
 		setAttributes( {
