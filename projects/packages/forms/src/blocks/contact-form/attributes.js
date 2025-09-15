@@ -52,4 +52,8 @@ export default {
 			listName: null,
 		},
 	},
+	saveResponses: {
+		type: 'boolean',
+		default: true,
+	},
 };

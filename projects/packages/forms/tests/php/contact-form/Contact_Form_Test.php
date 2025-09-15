@@ -40,6 +40,140 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test that form submissions are stored in database when saveResponses is 'yes' (default)
+	 */
+	public function test_process_submission_stores_feedback_when_save_responses_yes() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			)
+		);
+
+		// Create form with saveResponses explicitly set to 'yes'
+		$form = new Contact_Form(
+			array(
+				'saveResponses' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should be successful
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Check that a new feedback post was created
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created when saveResponses is yes' );
+
+		// Verify the feedback post was created with correct type
+		$feedback_id = end( $final_posts )->ID;
+		$submission  = get_post( $feedback_id );
+		$this->assertEquals( 'feedback', $submission->post_type, 'Post type should be feedback' );
+
+		// Verify the form attribute is correctly set
+		$this->assertEquals( 'yes', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to yes' );
+	}
+
+	/**
+	 * Test that form submissions are stored with 'jp-temp-feedback' status when saveResponses is 'no'
+	 */
+	public function test_process_submission_does_not_store_feedback_when_save_responses_no() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'Jane Doe',
+				'email'   => 'jane@example.com',
+				'message' => 'Test message for no save',
+			)
+		);
+
+		// Create form with saveResponses set to 'no'
+		$form = new Contact_Form(
+			array(
+				'saveResponses' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should still be successful (email should still be sent)
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful even when not saving responses' );
+
+		// Check that a new feedback post was created
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created when saveResponses is no' );
+
+		// Get the newly created post
+		$new_post = end( $final_posts );
+		$this->assertInstanceOf( 'stdClass', $new_post, 'The new post should be a stdClass instance' );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback' );
+		$this->assertEquals( 'jp-temp-feedback', $new_post->post_status, 'The new post should have jp-temp-feedback status when saveResponses is no' );
+
+		// Verify the form attribute is correctly set
+		$this->assertEquals( 'no', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to no' );
+	}
+
+	/**
+	 * Test that form submissions are stored in database when saveResponses is not specified (defaults to 'yes')
+	 */
+	public function test_process_submission_stores_feedback_when_save_responses_default() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'Default User',
+				'email'   => 'default@example.com',
+				'message' => 'Test message for default behavior',
+			)
+		);
+
+		// Create form without specifying saveResponses (should default to 'yes')
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should be successful
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Check that a new feedback post was created (default behavior)
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created by default' );
+
+		// Verify the feedback post was created with correct type
+		$feedback_id = end( $final_posts )->ID;
+		$submission  = get_post( $feedback_id );
+		$this->assertEquals( 'feedback', $submission->post_type, 'Post type should be feedback' );
+
+		// Verify the form attribute defaults to 'yes'
+		$this->assertEquals( 'yes', $form->get_attribute( 'saveResponses' ), 'Form should default saveResponses to yes' );
+	}
+
+	/**
 	 * Test the esc_shortcode_val method with various input types
 	 */
 	public function test_esc_shortcode_val() {
@@ -2591,6 +2725,7 @@ EOT;
 		$expected_attributes['block_template']      = '';
 		$expected_attributes['block_template_part'] = '';
 		$expected_attributes['id']                  = 'widget-string';
+		$expected_attributes['saveResponses']       = 'yes';
 
 		$form = new Contact_Form(
 			$attributes,
