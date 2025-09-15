@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: improve button alignment when field width allows wrapping the submit button
