@@ -568,7 +568,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
-		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/form/view.asset.php';
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/form/view.asset.php';
 		$version    = Util::get_view_asset_version( $asset_file );
 
 		$config = array(

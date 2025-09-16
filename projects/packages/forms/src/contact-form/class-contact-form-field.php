@@ -2884,7 +2884,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_slider_field_assets() {
-		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/slider-field/view.asset.php';
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/slider-field/view.asset.php';
 		$version    = Util::get_view_asset_version( $asset_file );
 
 		\wp_enqueue_style(
