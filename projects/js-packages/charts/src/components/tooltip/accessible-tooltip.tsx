@@ -37,6 +37,13 @@ interface AccessibleTooltipProps
 	 * Or to show individual tooltips for each series. This is useful for bar charts.
 	 */
 	mode?: 'individual' | 'group';
+	/**
+	 * Offset for tooltip positioning (in pixels).
+	 * Can be a number for both x/y offset, or an object with x/y values.
+	 * Passed through to visx Tooltip as offsetTop and offsetLeft.
+	 * @default 10
+	 */
+	tooltipOffset?: number | { x?: number; y?: number };
 }
 
 export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
@@ -46,6 +53,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	keyboardFocusedClassName,
 	series = [],
 	mode = 'group',
+	tooltipOffset,
 	...props
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
@@ -148,7 +156,27 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		};
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
 
-	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
+	// Calculate offset values for visx Tooltip
+	const offsetLeft = useMemo( () => {
+		if ( tooltipOffset === undefined ) return undefined;
+		if ( typeof tooltipOffset === 'number' ) return tooltipOffset;
+		return tooltipOffset.x ?? 10;
+	}, [ tooltipOffset ] );
+
+	const offsetTop = useMemo( () => {
+		if ( tooltipOffset === undefined ) return undefined;
+		if ( typeof tooltipOffset === 'number' ) return tooltipOffset;
+		return tooltipOffset.y ?? 10;
+	}, [ tooltipOffset ] );
+
+	return (
+		<Tooltip
+			{ ...props }
+			offsetLeft={ offsetLeft }
+			offsetTop={ offsetTop }
+			renderTooltip={ focusableRenderTooltip }
+		/>
+	);
 };
 
 // Keyboard navigation hook for charts
