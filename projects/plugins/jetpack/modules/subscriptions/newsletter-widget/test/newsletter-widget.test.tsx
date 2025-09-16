@@ -68,9 +68,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'View subscriber stats',
-				href: getRedirectUrl(
-					`https://${ redirectDomain }/stats/subscribers/${ defaultProps.site }`
-				),
+				href: 'https://example.com/wp-admin/admin.php?page=stats#!/stats/subscribers/example.com',
 			},
 			{
 				text: 'Import subscribers',
