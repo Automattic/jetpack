@@ -32,23 +32,19 @@ const SYNCED_ATTRIBUTE_KEYS = [
 ];
 
 export default function ImageOptionInputEdit( props ) {
-	const { clientId, isSelected, context, name, attributes, setAttributes } = props;
+	const { clientId, context, name, attributes, setAttributes } = props;
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	const { label } = attributes;
 
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
-	const {
-		'jetpack/field-image-select-is-supersized': isSupersized,
-		'jetpack/field-image-options-type': selectionType = 'radio',
-	} = context || {};
+	const { 'jetpack/field-image-select-is-supersized': isSupersized } = context || {};
 
-	const { isInnerBlockSelected, imageBlockAttributes, positionLetter, rowOptionsCount } = useSelect(
+	const { positionLetter, rowOptionsCount } = useSelect(
 		select => {
 			const blockEditor = select( blockEditorStore ) as BlockEditorStoreSelect;
-			const { getBlock, hasSelectedInnerBlock } = blockEditor;
+			const { getBlock } = blockEditor;
 
-			const currentBlock = getBlock( clientId );
 			const parentClientIds = blockEditor.getBlockParentsByBlockName(
 				clientId,
 				'jetpack/fieldset-image-options'
@@ -67,8 +63,6 @@ export default function ImageOptionInputEdit( props ) {
 			const rowSiblingCount = Math.min( totalOptionsCount, maxImagesPerRow );
 
 			return {
-				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-				imageBlockAttributes: currentBlock?.innerBlocks[ 1 ]?.attributes,
 				positionLetter: getImageOptionLetter( position ),
 				rowOptionsCount: rowSiblingCount,
 			};
@@ -81,9 +75,6 @@ export default function ImageOptionInputEdit( props ) {
 
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-input-image-option', {
-			'is-selected': isSelected || isInnerBlockSelected,
-			'has-image': !! imageBlockAttributes?.url,
-			[ `is-${ selectionType }` ]: !! selectionType,
 			'is-supersized': isSupersized,
 		} ),
 		style: {
