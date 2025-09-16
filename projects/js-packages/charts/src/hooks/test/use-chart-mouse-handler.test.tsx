@@ -1,12 +1,20 @@
 import { renderHook, act } from '@testing-library/react';
+import { localPoint } from '@visx/event';
 import { useChartMouseHandler } from '../use-chart-mouse-handler';
 import type { MouseEvent } from 'react';
 
 jest.mock( '@visx/event', () => ( {
-	localPoint: () => ( { x: 100, y: 200 } ),
+	localPoint: jest.fn( () => ( { x: 100, y: 200 } ) ),
 } ) );
 
+const mockedLocalPoint = localPoint as jest.MockedFunction< typeof localPoint >;
+
 describe( 'useChartMouseHandler', () => {
+	beforeEach( () => {
+		// Reset the mock to default behavior before each test
+		mockedLocalPoint.mockReturnValue( { x: 100, y: 200 } );
+	} );
+
 	const mockEvent = {
 		clientX: 100,
 		clientY: 200,
@@ -19,10 +27,8 @@ describe( 'useChartMouseHandler', () => {
 		target: document.createElement( 'svg' ),
 	} as unknown as MouseEvent< SVGElement >;
 
-	const margin = { margin: { left: 0, right: 0, top: 0, bottom: 0 }, withTooltips: true };
-
 	test( 'initializes with default values', () => {
-		const { result } = renderHook( () => useChartMouseHandler( margin ) );
+		const { result } = renderHook( () => useChartMouseHandler( { withTooltips: true } ) );
 		expect( result.current.tooltipData ).toBeNull();
 		expect( result.current.tooltipOpen ).toBe( false );
 	} );
@@ -65,6 +71,42 @@ describe( 'useChartMouseHandler', () => {
 		expect( result.current.tooltipLeft ).toBe( 100 );
 	} );
 
+	test( 'uses custom tooltip offset with x and y values', () => {
+		const { result } = renderHook( () =>
+			useChartMouseHandler( { withTooltips: true, tooltipOffset: { x: 10, y: 20 } } )
+		);
+		const mockData = { value: 42, label: 'Test' };
+
+		act( () => {
+			result.current.onMouseMove( mockEvent, mockData );
+		} );
+
+		expect( result.current.tooltipTop ).toBe( 180 ); // 200 - 20
+		expect( result.current.tooltipLeft ).toBe( 110 ); // 100 + 10
+	} );
+
+	test( 'applies boundary checking to prevent negative top position', () => {
+		const mockEventNearTop = {
+			...mockEvent,
+			clientY: 3,
+		} as unknown as MouseEvent< SVGElement >;
+
+		// Mock localPoint to return coordinates near top
+		mockedLocalPoint.mockReturnValueOnce( { x: 100, y: 3 } );
+
+		const { result } = renderHook( () =>
+			useChartMouseHandler( { withTooltips: true, tooltipOffset: 10 } )
+		);
+		const mockData = { value: 42, label: 'Test' };
+
+		act( () => {
+			result.current.onMouseMove( mockEventNearTop, mockData );
+		} );
+
+		expect( result.current.tooltipTop ).toBe( 0 ); // Math.max(0, 3 - 10) = 0
+		expect( result.current.tooltipLeft ).toBe( 100 );
+	} );
+
 	test( 'does not show tooltip when tooltips are disabled', () => {
 		const { result } = renderHook( () =>
 			useChartMouseHandler( { withTooltips: false, tooltipOffset: 10 } )
@@ -82,7 +124,7 @@ describe( 'useChartMouseHandler', () => {
 	} );
 
 	test( 'handles mouse leave', () => {
-		const { result } = renderHook( () => useChartMouseHandler( margin ) );
+		const { result } = renderHook( () => useChartMouseHandler( { withTooltips: true } ) );
 
 		act( () => {
 			result.current.onMouseMove( mockEvent, { value: 42, label: 'Test' } );
