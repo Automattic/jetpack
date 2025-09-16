@@ -9,10 +9,11 @@ type UseChartMouseHandlerProps = {
 	 */
 	withTooltips: boolean;
 	/**
-	 * Vertical offset for tooltip positioning (in pixels)
+	 * Offset for tooltip positioning (in pixels).
+	 * Can be a number for vertical offset only, or an object with x/y values.
 	 * @default 5
 	 */
-	tooltipOffset?: number;
+	tooltipOffset?: number | { x?: number; y?: number };
 };
 
 type UseChartMouseHandlerReturn = {
@@ -55,6 +56,14 @@ export const useChartMouseHandler = ( {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
+	// Normalize offset to always have x and y values
+	const normalizedOffset = useCallback( ( offset: typeof tooltipOffset ) => {
+		if ( typeof offset === 'number' ) {
+			return { x: 0, y: offset };
+		}
+		return { x: offset.x ?? 0, y: offset.y ?? 5 };
+	}, [] );
+
 	// TODO: either debounce/throttle or use useTooltipInPortal with built-in debounce
 	const onMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, data: DataPoint ) => {
@@ -67,13 +76,19 @@ export const useChartMouseHandler = ( {
 				return;
 			}
 
+			const offset = normalizedOffset( tooltipOffset );
+
+			// Apply offset with basic boundary checking
+			const tooltipX = coords.x + offset.x;
+			const tooltipY = Math.max( 0, coords.y - offset.y );
+
 			showTooltip( {
 				tooltipData: data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - tooltipOffset,
+				tooltipLeft: tooltipX,
+				tooltipTop: tooltipY,
 			} );
 		},
-		[ withTooltips, showTooltip, tooltipOffset ]
+		[ withTooltips, showTooltip, tooltipOffset, normalizedOffset ]
 	);
 
 	const onMouseLeave = useCallback( () => {
