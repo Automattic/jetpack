@@ -312,6 +312,14 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	withTooltips?: boolean;
 	/**
+	 * Offset for tooltip positioning (in pixels).
+	 * Can be a number for vertical offset only, or an object with x/y values.
+	 * For visx-based charts (Line, Bar), passed as offsetTop/offsetLeft.
+	 * For manual tooltip charts (Pie), applied as coordinate offset.
+	 * @default 5 for Pie charts, 10 for visx charts
+	 */
+	tooltipOffset?: number | { x?: number; y?: number };
+	/**
 	 * Whether to show legend
 	 */
 	showLegend?: boolean;
