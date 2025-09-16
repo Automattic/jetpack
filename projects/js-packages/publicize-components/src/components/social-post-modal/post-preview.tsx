@@ -133,7 +133,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-components' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
-					description={ message || title || description }
+					description={ message || description || title }
 				/>
 			);
 
