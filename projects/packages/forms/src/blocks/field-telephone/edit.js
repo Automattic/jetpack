@@ -1,5 +1,4 @@
 import {
-	InspectorControls,
 	useBlockProps,
 	useInnerBlocksProps,
 	BlockContextProvider,
@@ -169,6 +168,19 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<ToggleControl
+								label={ __( 'Show country selector', 'jetpack-forms' ) }
+								checked={ showCountrySelector || false }
+								onChange={ onChangeShowCountrySelector }
+								__nextHasNoMarginBottom={ true }
+							/>
+						),
+					},
+				] }
 			/>
 		</>
 	);
