@@ -181,7 +181,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 			'submit button with jetpack class'  => array(
 				'<button class="wp-block-button__link jetpack-form-submit-button">Submit</button>',
 				array( 'attrs' => array( 'className' => 'jetpack-form-submit-button' ) ),
-				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="wp-block-button__link jetpack-form-submit-button">Submit</button>',
+				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-bind--disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="wp-block-button__link jetpack-form-submit-button">Submit</button>',
 			),
 			'button without jetpack class'      => array(
 				'<button class="wp-block-button__link">Submit</button>',
@@ -191,7 +191,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 			'submit button with multiple classes including jetpack' => array(
 				'<button class="my-custom-class jetpack-form-submit-button another-class">Submit</button>',
 				array( 'attrs' => array( 'className' => 'my-custom-class jetpack-form-submit-button another-class' ) ),
-				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="my-custom-class jetpack-form-submit-button another-class">Submit</button>',
+				'<button data-wp-bind--aria-disabled="state.isAriaDisabled" data-wp-bind--disabled="state.isAriaDisabled" data-wp-class--is-submitting="state.isSubmitting" class="my-custom-class jetpack-form-submit-button another-class">Submit</button>',
 			),
 			'block with no className attribute' => array(
 				'<button>Submit</button>',
