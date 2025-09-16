@@ -72,6 +72,12 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * Vertical offset for tooltip positioning (in pixels)
+	 * @default 5
+	 */
+	tooltipOffset?: number;
 }
 
 // Base props type with optional responsive properties
@@ -134,6 +140,7 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
+	tooltipOffset,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
@@ -142,6 +149,7 @@ const PieChartInternal = ( {
 	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
 		useChartMouseHandler( {
 			withTooltips,
+			tooltipOffset,
 		} );
 
 	// Memoize legend options to prevent unnecessary re-calculations
