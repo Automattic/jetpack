@@ -247,9 +247,9 @@ class Feedback {
 			if ( isset( $post_data[ $key ] ) ) {
 				if ( str_contains( $post_data[ $key ], '/' ) ) {
 					$parts = explode( '/', $post_data[ $key ] );
-					return absint( $parts[0] );
+					return (string) absint( $parts[0] );
 				}
-				return intval( $post_data[ $key ] );
+				return $post_data[ $key ];
 			}
 		}
 
