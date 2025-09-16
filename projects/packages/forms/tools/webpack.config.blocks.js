@@ -89,8 +89,11 @@ module.exports = [
 			new CopyWebpackPlugin( {
 				patterns: [
 					{
-						from: 'src/blocks/**/block.json',
-						to: '[name][ext]',
+						from: 'src/blocks',
+						to: '.',
+						globOptions: {
+							ignore: [ '**/*.js', '**/*.ts', '**/*.tsx', '**/*.scss', '**/*.css' ],
+						},
 						noErrorOnMissing: true,
 					},
 				],

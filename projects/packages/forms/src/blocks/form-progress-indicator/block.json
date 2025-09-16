@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack/form-progress-indicator",
+	"title": "Form Progress Indicator",
+	"description": "Display a progress indicator for multi-step forms.",
+	"keywords": [ "progress", "steps", "indicator", "form" ],
+	"version": "1.0.0",
+	"textdomain": "jetpack-forms",
+	"category": "contact-form",
+	"parent": [ "jetpack/contact-form" ],
+	"icon": "controls-forward",
+	"supports": {
+		"html": false,
+		"inserter": false,
+		"color": {
+			"text": true,
+			"background": false
+		}
+	},
+	"attributes": {
+		"variant": {
+			"type": "string",
+			"default": "line"
+		},
+		"progressColor": {
+			"type": "string"
+		},
+		"progressBackgroundColor": {
+			"type": "string"
+		},
+		"textColor": {
+			"type": "string"
+		},
+		"style": {
+			"type": "object"
+		}
+	},
+	"style": "file:./style.css",
+	"viewScriptModule": "file:../../modules/form-progress-indicator/view.js",
+	"render": "file:./render.php"
+}

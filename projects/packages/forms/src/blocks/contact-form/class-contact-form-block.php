@@ -524,11 +524,9 @@ class Contact_Form_Block {
 			)
 		);
 
+		// Register form-progress-indicator using enhanced Jetpack method
 		Blocks::jetpack_register_block(
-			'jetpack/form-progress-indicator',
-			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
-			)
+			dirname( __DIR__, 3 ) . '/dist/blocks/form-progress-indicator'
 		);
 
 		Blocks::jetpack_register_block(
