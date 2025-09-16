@@ -315,7 +315,6 @@ class Feedback_Field {
 		}
 
 		if ( $this->is_of_type( 'rating' ) ) {
-			// If the value is an array, we can return it as a JSON string.
 			return $this->get_render_default_value();
 		}
 
