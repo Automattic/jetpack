@@ -10,6 +10,13 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Tooltips',
+	argTypes: {
+		...lineChartMetaArgs.argTypes,
+		tooltipOffset: {
+			control: { type: 'number' },
+			description: 'Tooltip offset in pixels (for both x and y)',
+		},
+	},
 };
 
 export default meta;
@@ -86,5 +93,33 @@ Custom.args = {
 				</table>
 			</div>
 		);
+	},
+};
+
+export const WithOffset: StoryObj< typeof LineChart > = Template.bind( {} );
+WithOffset.args = {
+	...tooltipStoryArgs,
+	tooltipOffset: 25,
+};
+WithOffset.parameters = {
+	docs: {
+		description: {
+			story:
+				'Tooltip positioned with custom offset from cursor. Try hovering over data points to see the increased distance between cursor and tooltip.',
+		},
+	},
+};
+
+export const WithHorizontalOffset: StoryObj< typeof LineChart > = Template.bind( {} );
+WithHorizontalOffset.args = {
+	...tooltipStoryArgs,
+	tooltipOffset: { x: 20, y: 5 },
+};
+WithHorizontalOffset.parameters = {
+	docs: {
+		description: {
+			story:
+				'Tooltip positioned with separate x and y offsets. This example shows 20px horizontal and 5px vertical offset.',
+		},
 	},
 };
