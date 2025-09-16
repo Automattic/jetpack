@@ -30,6 +30,10 @@ export const settings = {
 		default: {
 			type: 'string',
 		},
+		searchPlaceholder: {
+			type: 'string',
+			default: '',
+		},
 	},
 	supports: {
 		...defaultSettings.supports,

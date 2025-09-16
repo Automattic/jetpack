@@ -1085,7 +1085,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							<input
 								class="jetpack-combobox-search"
 								type="text"
-								placeholder="<?php echo esc_attr__( 'Search countries…', 'jetpack-forms' ); ?>"
+								placeholder="<?php echo esc_attr( $this->get_attribute( 'searchPlaceholder' ) ); ?>"
 								data-wp-on--input="actions.phoneComboboxInputHandler"
 								data-wp-on--keydown="actions.phoneComboboxKeydownHandler">
 							<div class="jetpack-combobox-options">

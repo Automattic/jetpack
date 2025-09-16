@@ -5,7 +5,13 @@ import {
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	PanelBody,
+	TextControl,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -32,6 +38,7 @@ export default function PhoneFieldEdit( props ) {
 		required,
 		requiredText,
 		placeholder,
+		searchPlaceholder,
 		default: defaultCountry,
 	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
@@ -106,6 +113,7 @@ export default function PhoneFieldEdit( props ) {
 				value={ {
 					'jetpack/field-prefix-onChange': onChangeDefaultCountry,
 					'jetpack/field-prefix-options': countryList,
+					'jetpack/field-phone-searchPlaceholder': searchPlaceholder,
 				} }
 			>
 				<div { ...innerBlocksProps } />
@@ -130,6 +138,16 @@ export default function PhoneFieldEdit( props ) {
 						onChange={ onChangeShowCountrySelector }
 						__nextHasNoMarginBottom={ true }
 					/>
+					{ showCountrySelector && (
+						<TextControl
+							label={ __( 'Search input placeholder', 'jetpack-forms' ) }
+							value={ searchPlaceholder }
+							placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
+							onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					) }
 				</PanelBody>
 			</InspectorControls>
 
