@@ -261,28 +261,10 @@ describe( 'NewsletterWidget', () => {
 	} );
 
 	describe( 'Stats module inactive behavior', () => {
-		it( 'uses WordPress.com URL for stats URL when stats module is inactive, even if we are on a self-hosted site', () => {
-			render(
-				<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ false } />
-			);
+		it( 'hides subscriber stats link when stats module is inactive', () => {
+			render( <NewsletterWidget { ...defaultProps } isStatsModuleActive={ false } /> );
 
-			const statsLink = screen.getByText( 'View subscriber stats' );
-			expect( statsLink ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
-			);
-		} );
-
-		it( 'uses WordPress.com for stats URL on WordPress.com site, regardless of stats module status', () => {
-			render(
-				<NewsletterWidget { ...defaultProps } isWpcomSite={ true } isStatsModuleActive={ false } />
-			);
-
-			const statsLink = screen.getByText( 'View subscriber stats' );
-			expect( statsLink ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
-			);
+			expect( screen.queryByText( 'View subscriber stats' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );
