@@ -1598,7 +1598,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/file-field/view.asset.php';
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
@@ -2883,7 +2884,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_slider_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/slider-field/view.asset.php';
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		\wp_enqueue_style(
 			'jetpack-form-slider-field',
@@ -3159,12 +3161,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_phone_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
-
-		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
 		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/field-phone/view.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
-		$version   .= $asset['version'] ?? '';
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		// combobox styles
 		\wp_enqueue_style(

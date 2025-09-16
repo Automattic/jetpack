@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * This class serves as a container for what previously were standalone grunion functions.
  * In the long term we should aim to move things to other classes and gradually get rid of this rather than adding more.
@@ -385,5 +387,21 @@ class Util {
 				sanitize_file_name( get_bloginfo( 'name' ) ),
 				sanitize_file_name( $source )
 			);
+	}
+
+	/**
+	 * Get version hash from generated `view.asset.php` files, or fallback to Jetpack version, to be used as cache bust for enqueing JS and CSS files.
+	 *
+	 * @param string $asset_file Path to view.asset.php file.
+	 * @return string either asset hash or Jetpack version.
+	 */
+	public static function get_view_asset_version( $asset_file ) {
+		$asset           = file_exists( $asset_file ) ? require $asset_file : null;
+		$jetpack_version = Constants::get_constant( 'JETPACK__VERSION' );
+		if ( empty( $jetpack_version ) ) {
+			$jetpack_version = '0.1';
+		}
+
+		return ( $asset && ! empty( $asset['version'] ) ) ? $asset['version'] : $jetpack_version;
 	}
 }

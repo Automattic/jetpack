@@ -568,15 +568,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
-		$version = \JETPACK__VERSION;
-
-		// Extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
 		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/form/view.asset.php';
-		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
-
-		if ( $asset && isset( $asset['version'] ) ) {
-			$version = $asset['version'];
-		}
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		$config = array(
 			'error_types'    => array(

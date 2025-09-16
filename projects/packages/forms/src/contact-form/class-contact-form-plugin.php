@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -772,10 +771,8 @@ class Contact_Form_Plugin {
 	public static function gutenblock_render_form_step( $atts, $content ) {
 		self::$step_count = 1 + self::$step_count;
 
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/form-step/view.asset.php';
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		\wp_enqueue_script_module(
 			'jetpack-form-step',
@@ -827,11 +824,9 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the number field.
 	 */
 	public static function gutenblock_render_form_step_navigation( $atts, $content ) {
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/form-step-navigation/view.asset.php';
+		$version    = Util::get_view_asset_version( $asset_file );
 
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
 		\wp_enqueue_script_module(
 			'jetpack-form-step-navigation',
 			plugins_url( '../../dist/modules/form-step-navigation/view.js', __FILE__ ),
@@ -909,10 +904,8 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the progress indicator.
 	 */
 	public static function gutenblock_render_form_progress_indicator( $attributes ) {
-		$version = Constants::get_constant( 'JETPACK__VERSION' );
-		if ( empty( $version ) ) {
-			$version = '0.1';
-		}
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/form-progress-indicator/view.asset.php';
+		$version    = Util::get_view_asset_version( $asset_file );
 
 		// Get step count from Contact_Form_Block
 		$max_steps = Contact_Form_Block::get_form_step_count();
