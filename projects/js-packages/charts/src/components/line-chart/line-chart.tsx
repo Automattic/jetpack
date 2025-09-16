@@ -206,6 +206,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			className,
 			margin,
 			withTooltips = true,
+			tooltipOffset,
 			withTooltipCrosshairs,
 			showLegend = false,
 			legendOrientation = 'horizontal',
@@ -489,6 +490,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 									showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
 									selectedIndex={ selectedIndex }
 									tooltipRef={ tooltipRef }
+									tooltipOffset={ tooltipOffset }
 									keyboardFocusedClassName={ styles[ 'line-chart__tooltip--keyboard-focused' ] }
 									series={ dataSorted }
 								/>

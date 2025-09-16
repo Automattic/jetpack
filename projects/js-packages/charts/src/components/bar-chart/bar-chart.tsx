@@ -78,6 +78,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	className,
 	margin,
 	withTooltips = false,
+	tooltipOffset,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
@@ -378,6 +379,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							renderTooltip={ renderTooltip || renderDefaultTooltip }
 							selectedIndex={ selectedIndex }
 							tooltipRef={ tooltipRef }
+							tooltipOffset={ tooltipOffset }
 							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
 							series={ data }
 							mode="individual"
