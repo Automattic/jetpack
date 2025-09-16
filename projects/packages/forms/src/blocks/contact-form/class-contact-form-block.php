@@ -127,6 +127,7 @@ class Contact_Form_Block {
 
 		$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
 		$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+		$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
 
 		return $p->get_updated_html();
 	}
