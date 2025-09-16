@@ -1085,8 +1085,12 @@ class User_Admin extends Base_Admin {
 	 * @return false|string returns the user invite code if the user is invited, false otherwise.
 	 */
 	private static function has_pending_wpcom_invite( $user_id ) {
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user instanceof \WP_User ) {
+			return false;
+		}
+
 		$blog_id       = Manager::get_site_id( true );
-		$user          = get_user_by( 'id', $user_id );
 		$cached_invite = self::get_pending_cached_wpcom_invite( $user->user_email );
 
 		if ( $cached_invite ) {
