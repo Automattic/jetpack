@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: change how Forms iAPI modules are versioned to avoid sticky cache busted versions
