@@ -480,7 +480,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				}
 
 				if ( ! is_numeric( $field_value ) ) {
-					/* translators: %s is the name of a form field */
+					/* translators: %s is the name of a form field - For example "Rate our website rating must be a number." where "Rate our website" is the name. */
 					$this->add_error( sprintf( __( '%s rating must be a number.', 'jetpack-forms' ), $field_label ) );
 					break;
 				}
@@ -488,7 +488,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$min_value = $this->get_attribute( 'required' ) ? 1 : 0;
 
 				if ( $max_rating < $field_value || $field_value < $min_value ) {
-					/* translators: %s is the name of a form field */
+					/* translators: %s is the name of a form field - For example "Rate our website rating must be between 1 and 5." where "Rate our website" is the name. */
 					$this->add_error( sprintf( __( '%1$s rating must be between %2$d and %3$d.', 'jetpack-forms' ), $field_label, $min_value, $max_rating ) );
 				}
 
