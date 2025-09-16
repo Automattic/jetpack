@@ -1,14 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	store as blockEditorStore,
-	useBlockProps,
-	useInnerBlocksProps,
-	BlockControls,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, BlockControls } from '@wordpress/block-editor';
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -18,32 +12,15 @@ import clsx from 'clsx';
 import { getImageOptionLabel } from '../input-image-option/label';
 import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-/**
- * Types
- */
-import type { BlockEditorStoreSelect } from '../../types';
 
 export default function ImageOptionsFieldsetEdit( props ) {
-	const { attributes, clientId, isSelected } = props;
+	const { attributes, clientId } = props;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	const { addOption, newImageOption } = useAddImageOption( clientId );
 
-	const { isInnerBlockSelected } = useSelect(
-		select => {
-			const { hasSelectedInnerBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
-
-			return {
-				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
-			};
-		},
-		[ clientId ]
-	);
-
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-fieldset-image-options', {
-			'is-selected': isSelected || isInnerBlockSelected,
-		} ),
+		className: clsx( 'jetpack-field jetpack-fieldset-image-options' ),
 		style: blockStyle,
 	} );
 

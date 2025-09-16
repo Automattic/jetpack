@@ -27,18 +27,15 @@ import './editor.scss';
 import type { Block, BlockEditorStoreSelect } from '../../types';
 
 export default function ImageSelectFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes, name } = props;
+	const { attributes, clientId, setAttributes, name } = props;
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { isInnerBlockSelected, optionsBlock } = useSelect(
+	const { optionsBlock } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock, getBlock } = select(
-				blockEditorStore
-			) as BlockEditorStoreSelect;
+			const { getBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
 
 			return {
-				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 				optionsBlock: getBlock( clientId )?.innerBlocks.find(
 					( block: Block ) => block.name === 'jetpack/fieldset-image-options'
 				),
@@ -54,10 +51,7 @@ export default function ImageSelectFieldEdit( props ) {
 
 	const blockProps = useBlockProps( {
 		className: clsx(
-			'jetpack-field jetpack-field-image-select is-non-animated-label is-non-outlined-block',
-			{
-				'is-selected': isSelected || isInnerBlockSelected,
-			}
+			'jetpack-field jetpack-field-image-select is-non-animated-label is-non-outlined-block'
 		),
 		style: blockStyle,
 	} );
