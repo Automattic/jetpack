@@ -2495,6 +2495,7 @@ class Feedback_Test extends BaseTestCase {
 				'star'     => 'abc', // Invalid, not a number
 				'negative' => '-3', // Invalid, negative number
 				'decimal'  => '4.5', // Invalid, decimal number
+				'legacy'   => '4/5', // valid
 			),
 			'g' . $form_id
 		);
@@ -2508,6 +2509,7 @@ class Feedback_Test extends BaseTestCase {
 			. "[contact-field label='Star' type='rating' required='1' iconstyle='stars' max='10' /]"
 			. "[contact-field label='Negative' type='rating' required='1' iconstyle='hearts' /]"
 			. "[contact-field label='Decimal' type='rating' required='1' iconstyle='stars' max='10' /]"
+			. "[contact-field label='Legacy' type='rating' required='1' iconstyle='stars' max='5' /]"
 		);
 
 		$response         = Feedback::from_submission( $_post_data, $form );
@@ -2519,11 +2521,13 @@ class Feedback_Test extends BaseTestCase {
 
 		$this->assertEquals( '♡♡♡♡♡', $response->get_field_value_by_label( 'Negative' ), 'Negative field value should match' );
 		$this->assertEquals( '★★★★☆☆☆☆☆☆', $response->get_field_value_by_label( 'Decimal' ), 'Decimal field value should match' );
+		$this->assertEquals( '★★★★☆', $response->get_field_value_by_label( 'Legacy' ), 'Legacy field value should match' );
 
 		$this->assertEquals( '♥♥♥♥♥', $saved_response->get_field_value_by_label( 'Heart' ), 'Heart field value should match saved value' );
 		$this->assertEquals( '☆☆☆☆☆☆☆☆☆☆', $saved_response->get_field_value_by_label( 'Star' ), 'Star field value should match saved value' );
 
 		$this->assertEquals( '♡♡♡♡♡', $saved_response->get_field_value_by_label( 'Negative' ), 'Negative field value should match saved value' );
 		$this->assertEquals( '★★★★☆☆☆☆☆☆', $saved_response->get_field_value_by_label( 'Decimal' ), 'Decimal field value should match saved value' );
+		$this->assertEquals( '★★★★☆', $saved_response->get_field_value_by_label( 'Legacy' ), 'Legacy field value should match saved value' );
 	}
 }
