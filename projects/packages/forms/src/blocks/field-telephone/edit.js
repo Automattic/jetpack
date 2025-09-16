@@ -140,7 +140,7 @@ export default function PhoneFieldEdit( props ) {
 					/>
 					{ showCountrySelector && (
 						<TextControl
-							label={ __( 'Search input placeholder', 'jetpack-forms' ) }
+							label={ __( 'Search placeholder', 'jetpack-forms' ) }
 							value={ searchPlaceholder }
 							placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
 							onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
