@@ -2,17 +2,16 @@ import { useEffect } from '@wordpress/element';
 import { useIntegrationsStatus } from '../../components/jetpack-integrations-modal/hooks/use-integrations-status';
 
 /**
- * Allows us to apply default form block settings, if needed,
- * when form block is created.
+ * Apply default form block settings once per block instance when needed.
  *
- * Example: We first created to this apply enabledByDefault settings for
- * specific form integrations that developers can filter on the backend.
+ * Example: initialize integration flags from backend-filtered enabledByDefault
+ * values for MailPoet, Salesforce, and Jetpack CRM when those flags are undefined.
  *
  * @param {object}   params               - Hook parameters.
  * @param {object}   params.attributes    - Block attributes
  * @param {Function} params.setAttributes - Setter for block attributes
  */
-export default function useFormDefaults( { attributes, setAttributes } ) {
+export default function useFormBlockDefaults( { attributes, setAttributes } ) {
 	const { integrations, isLoading } = useIntegrationsStatus();
 
 	useEffect( () => {

@@ -44,7 +44,7 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import useFormDefaults from './shared/hooks/use-form-defaults';
+import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
 import './util/form-styles.js';
 import VariationPicker from './variation-picker';
@@ -90,8 +90,8 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
-	// Initialize defaults for undefined flags using integrations status inside the hook
-	useFormDefaults( { attributes, setAttributes } );
+	// Initialize default form block settings as needed.
+	useFormBlockDefaults( { attributes, setAttributes } );
 
 	const {
 		to,
