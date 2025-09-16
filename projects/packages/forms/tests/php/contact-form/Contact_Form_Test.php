@@ -3504,7 +3504,7 @@ EOT;
 
 		$_POST = Utility::get_post_request(
 			array(
-				'heart' => '3/5', // Invalid, max is 5
+				'heart' => '3/5',
 			),
 			'g' . $form_id
 		);
