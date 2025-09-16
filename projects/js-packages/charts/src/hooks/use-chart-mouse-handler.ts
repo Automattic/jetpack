@@ -8,6 +8,11 @@ type UseChartMouseHandlerProps = {
 	 * Whether tooltips are enabled
 	 */
 	withTooltips: boolean;
+	/**
+	 * Vertical offset for tooltip positioning (in pixels)
+	 * @default 5
+	 */
+	tooltipOffset?: number;
 };
 
 type UseChartMouseHandlerReturn = {
@@ -45,6 +50,7 @@ type UseChartMouseHandlerReturn = {
  */
 export const useChartMouseHandler = ( {
 	withTooltips,
+	tooltipOffset = 5,
 }: UseChartMouseHandlerProps ): UseChartMouseHandlerReturn => {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
@@ -64,10 +70,10 @@ export const useChartMouseHandler = ( {
 			showTooltip( {
 				tooltipData: data,
 				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
+				tooltipTop: coords.y - tooltipOffset,
 			} );
 		},
-		[ withTooltips, showTooltip ]
+		[ withTooltips, showTooltip, tooltipOffset ]
 	);
 
 	const onMouseLeave = useCallback( () => {
