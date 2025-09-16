@@ -67,15 +67,6 @@ const MailPoetCard = ( {
 	};
 
 	useEffect( () => {
-		if ( ! data ) {
-			return;
-		}
-		if ( typeof mailpoet?.enabledForForm === 'undefined' ) {
-			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: !! data.enabledByDefault } } );
-		}
-	}, [ data, data.enabledByDefault, mailpoet, setAttributes ] );
-
-	useEffect( () => {
 		if ( ! mailpoet.enabledForForm ) {
 			return;
 		}

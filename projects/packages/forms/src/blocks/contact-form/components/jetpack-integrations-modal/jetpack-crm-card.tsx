@@ -1,7 +1,7 @@
 import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Button, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement, useEffect } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
 import IntegrationCard from './integration-card';
@@ -33,12 +33,6 @@ const JetpackCRMCard = ( {
 		'To connect this form to Jetpack CRM, enable the toggle above.',
 		'jetpack-forms'
 	);
-
-	useEffect( () => {
-		if ( typeof jetpackCRM === 'undefined' ) {
-			setAttributes( { jetpackCRM: !! data.enabledByDefault } );
-		}
-	}, [ data.enabledByDefault, jetpackCRM, setAttributes ] );
 
 	const cardData = {
 		...data,
