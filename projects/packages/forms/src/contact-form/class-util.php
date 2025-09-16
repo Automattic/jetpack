@@ -402,6 +402,6 @@ class Util {
 			$jetpack_version = '0.1';
 		}
 
-		return ( $asset && ! empty( $asset['version'] ) ) ? $asset['version'] : $jetpack_version;
+		return ! empty( $asset['version'] ) ? $asset['version'] : $jetpack_version;
 	}
 }
