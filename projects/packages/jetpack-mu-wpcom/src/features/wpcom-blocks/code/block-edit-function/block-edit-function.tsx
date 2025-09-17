@@ -313,7 +313,13 @@ function EditCodeMirror( props: EditBlockProps ) {
 
 			return exts;
 		},
-		[ updateCode, insertBlocksAfter, attributes.lineNumbersStartAt, attributes.showLineNumbers ]
+		[
+			attributes.lineNumbersStartAt,
+			attributes.showLineNumbers,
+			insertBlocksAfter,
+			onRemove,
+			updateCode,
+		]
 	);
 
 	React.useEffect( () => {
