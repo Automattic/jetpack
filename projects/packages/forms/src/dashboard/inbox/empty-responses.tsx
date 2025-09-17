@@ -8,12 +8,12 @@ type EmptyResponsesProps = {
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	const searchMessage = __( 'No responses found', 'jetpack-forms' );
 	if ( isSearch ) {
-		return searchMessage;
+		return <p>{ searchMessage }</p>;
 	}
 
 	const noTrashMessage = __( 'Trash is empty', 'jetpack-forms' );
 	if ( status === 'trash' ) {
-		return noTrashMessage;
+		return <p>{ noTrashMessage }</p>;
 	}
 
 	const noSpamMessage = __(
@@ -21,10 +21,10 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 		'jetpack-forms'
 	);
 	if ( status === 'spam' ) {
-		return noSpamMessage;
+		return <p>{ noSpamMessage }</p>;
 	}
 
-	return __( 'No responses', 'jetpack-forms' );
+	return <p>{ __( 'No responses', 'jetpack-forms' ) }</p>;
 };
 
 export default EmptyResponses;
