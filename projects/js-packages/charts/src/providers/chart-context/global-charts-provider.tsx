@@ -1,5 +1,5 @@
 import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { mergeThemes } from '../../utils';
+import { getSeriesLineStyles, mergeThemes } from '../../utils';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -51,7 +51,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const resolveGroupColor = useCallback< GlobalChartsContextValue[ 'resolveGroupColor' ] >(
+	const resolveColor = useCallback< GlobalChartsContextValue[ 'resolveColor' ] >(
 		( { group, index, overrideColor } ) => {
 			// Highest precedence: explicit series stroke
 			if ( overrideColor ) {
@@ -80,6 +80,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ providerTheme.colors ]
 	);
 
+	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
+		( { data, index, overrideColor } ) => {
+			return {
+				color: resolveColor( { group: data?.group, index, overrideColor } ),
+				lineStyles:
+					data && typeof data === 'object' && 'data' in data && 'options' in data
+						? getSeriesLineStyles( data, index, providerTheme )
+						: {},
+			};
+		},
+		[ providerTheme, resolveColor ]
+	);
+
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
@@ -87,9 +100,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
-			resolveGroupColor,
+			resolveColor,
+			getElementStyles,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme, resolveGroupColor ]
+		[
+			charts,
+			registerChart,
+			unregisterChart,
+			getChartData,
+			providerTheme,
+			resolveColor,
+			getElementStyles,
+		]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;

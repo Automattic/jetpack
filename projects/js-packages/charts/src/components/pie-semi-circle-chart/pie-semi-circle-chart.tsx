@@ -161,7 +161,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
@@ -171,10 +171,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
-			fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
-				resolveGroupColor( { group, index, overrideColor } ),
+			fill: ( d: DataPointPercentage & { index: number } ) =>
+				getElementStyles( { data: d, index: d.index, overrideColor: d.color } ).color,
 		} ),
-		[ resolveGroupColor ]
+		[ getElementStyles ]
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations

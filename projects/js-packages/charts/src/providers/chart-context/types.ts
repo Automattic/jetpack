@@ -1,13 +1,27 @@
 import type { ChartTypes } from './constants';
 import type { BaseLegendItem } from '../../components/legend';
-import type { CompleteChartTheme } from '../../types';
-export type ChartType = keyof typeof ChartTypes;
+import type { CompleteChartTheme, DataPointPercentage, SeriesData } from '../../types';
+import type { LineStyles } from '@visx/xychart';
+
+export type ChartType = ( typeof ChartTypes )[ keyof typeof ChartTypes ];
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
 	chartType: ChartType;
 	metadata?: Record< string, unknown >;
 }
+
+export type GetElementStylesParams = {
+	index: number;
+	chartType?: ChartType;
+	data?: SeriesData | DataPointPercentage | BaseLegendItem;
+	overrideColor?: string;
+};
+
+export type ElementStyles = {
+	color: string;
+	lineStyles: LineStyles;
+};
 
 export interface GlobalChartsContextValue {
 	charts: Map< string, ChartRegistration >;
@@ -22,9 +36,9 @@ export interface GlobalChartsContextValue {
 	 * - If a group is provided, returns a stable color per group across charts.
 	 * - If no group, falls back to index-based color from the theme palette.
 	 */
-	resolveGroupColor: ( params: {
-		group?: string;
-		index: number;
-		overrideColor?: string;
-	} ) => string;
+	resolveColor: ( params: { group?: string; index: number; overrideColor?: string } ) => string;
+	/**
+	 * Get the styles for a series.
+	 */
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 }

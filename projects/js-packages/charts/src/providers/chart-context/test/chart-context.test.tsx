@@ -218,7 +218,7 @@ describe( 'ChartContext', () => {
 	} );
 
 	describe( 'Group Color Resolver', () => {
-		it( 'provides resolveGroupColor function', () => {
+		it( 'provides resolveColor function', () => {
 			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
@@ -232,7 +232,7 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			expect( contextValue.resolveGroupColor ).toBeInstanceOf( Function );
+			expect( contextValue.resolveColor ).toBeInstanceOf( Function );
 		} );
 
 		it( 'returns consistent colors for same group across different indices', () => {
@@ -249,9 +249,9 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color1 = contextValue.resolveGroupColor( { group: 'united-states', index: 0 } );
-			const color2 = contextValue.resolveGroupColor( { group: 'united-states', index: 5 } );
-			const color3 = contextValue.resolveGroupColor( { group: 'united-states', index: 10 } );
+			const color1 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
+			const color2 = contextValue.resolveColor( { group: 'united-states', index: 5 } );
+			const color3 = contextValue.resolveColor( { group: 'united-states', index: 10 } );
 
 			expect( color1 ).toBe( color2 );
 			expect( color2 ).toBe( color3 );
@@ -271,9 +271,9 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const usColor = contextValue.resolveGroupColor( { group: 'united-states', index: 0 } );
-			const gbColor = contextValue.resolveGroupColor( { group: 'great-britain', index: 0 } );
-			const jpColor = contextValue.resolveGroupColor( { group: 'japan', index: 0 } );
+			const usColor = contextValue.resolveColor( { group: 'united-states', index: 0 } );
+			const gbColor = contextValue.resolveColor( { group: 'great-britain', index: 0 } );
+			const jpColor = contextValue.resolveColor( { group: 'japan', index: 0 } );
 
 			expect( usColor ).not.toBe( gbColor );
 			expect( gbColor ).not.toBe( jpColor );
@@ -295,12 +295,12 @@ describe( 'ChartContext', () => {
 			);
 
 			const overrideColor = '#ff6600';
-			const colorWithOverride = contextValue.resolveGroupColor( {
+			const colorWithOverride = contextValue.resolveColor( {
 				group: 'united-states',
 				index: 0,
 				overrideColor,
 			} );
-			const colorWithoutOverride = contextValue.resolveGroupColor( {
+			const colorWithoutOverride = contextValue.resolveColor( {
 				group: 'united-states',
 				index: 0,
 			} );
@@ -323,7 +323,7 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color = contextValue.resolveGroupColor( { group: undefined, index: 0 } );
+			const color = contextValue.resolveColor( { group: undefined, index: 0 } );
 
 			expect( color ).toBe( mockTheme.colors[ 0 ] );
 		} );
@@ -342,7 +342,7 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color = contextValue.resolveGroupColor( { group: '', index: 0 } );
+			const color = contextValue.resolveColor( { group: '', index: 0 } );
 
 			expect( color ).toBe( mockTheme.colors[ 0 ] );
 		} );
@@ -361,9 +361,9 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color1 = contextValue.resolveGroupColor( { group: undefined, index: 0 } );
-			const color2 = contextValue.resolveGroupColor( { group: '', index: 1 } );
-			const color3 = contextValue.resolveGroupColor( {
+			const color1 = contextValue.resolveColor( { group: undefined, index: 0 } );
+			const color2 = contextValue.resolveColor( { group: '', index: 1 } );
+			const color3 = contextValue.resolveColor( {
 				group: null as string | undefined,
 				index: 2,
 			} );
@@ -388,8 +388,8 @@ describe( 'ChartContext', () => {
 			);
 
 			// mockTheme has 3 colors, so index 3 should wrap to index 0
-			const color1 = contextValue.resolveGroupColor( { group: undefined, index: 3 } );
-			const color2 = contextValue.resolveGroupColor( { group: undefined, index: 0 } );
+			const color1 = contextValue.resolveColor( { group: undefined, index: 3 } );
+			const color2 = contextValue.resolveColor( { group: undefined, index: 0 } );
 
 			expect( color1 ).toBe( color2 );
 			expect( color1 ).toBe( mockTheme.colors[ 0 ] );
@@ -412,9 +412,9 @@ describe( 'ChartContext', () => {
 			const groupName = 'consistent-group';
 			const colors = [];
 
-			// Call resolveGroupColor multiple times for the same group
+			// Call resolveColor multiple times for the same group
 			for ( let i = 0; i < 10; i++ ) {
-				colors.push( contextValue.resolveGroupColor( { group: groupName, index: i } ) );
+				colors.push( contextValue.resolveColor( { group: groupName, index: i } ) );
 			}
 
 			// All colors should be the same
@@ -441,8 +441,8 @@ describe( 'ChartContext', () => {
 			const groupName = 'test-group';
 			const overrideColor = '#purple';
 
-			const groupColor = contextValue.resolveGroupColor( { group: groupName, index: 0 } );
-			const overriddenColor = contextValue.resolveGroupColor( {
+			const groupColor = contextValue.resolveColor( { group: groupName, index: 0 } );
+			const overriddenColor = contextValue.resolveColor( {
 				group: groupName,
 				index: 0,
 				overrideColor,
@@ -475,7 +475,7 @@ describe( 'ChartContext', () => {
 
 			// Get initial colors for all groups
 			const initialColors = initialGroups.map( ( { group, index } ) =>
-				contextValue.resolveGroupColor( { group, index } )
+				contextValue.resolveColor( { group, index } )
 			);
 
 			// Simulate removing the middle group (great-britain)
@@ -487,7 +487,7 @@ describe( 'ChartContext', () => {
 
 			// Get colors after "filtering"
 			const filteredColors = filteredGroups.map( ( { group, index } ) =>
-				contextValue.resolveGroupColor( { group, index } )
+				contextValue.resolveColor( { group, index } )
 			);
 
 			// Colors should remain the same despite index changes
@@ -513,18 +513,18 @@ describe( 'ChartContext', () => {
 			);
 
 			// Get initial colors for all groups
-			const usColor1 = contextValue.resolveGroupColor( { group: 'united-states', index: 0 } );
-			const gbColor1 = contextValue.resolveGroupColor( { group: 'great-britain', index: 1 } );
-			const jpColor1 = contextValue.resolveGroupColor( { group: 'japan', index: 2 } );
+			const usColor1 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
+			const gbColor1 = contextValue.resolveColor( { group: 'great-britain', index: 1 } );
+			const jpColor1 = contextValue.resolveColor( { group: 'japan', index: 2 } );
 
 			// Simulate removing great-britain (only US and Japan visible)
-			const usColor2 = contextValue.resolveGroupColor( { group: 'united-states', index: 0 } );
-			const jpColor2 = contextValue.resolveGroupColor( { group: 'japan', index: 1 } );
+			const usColor2 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
+			const jpColor2 = contextValue.resolveColor( { group: 'japan', index: 1 } );
 
 			// Simulate re-adding great-britain back (all groups visible again)
-			const usColor3 = contextValue.resolveGroupColor( { group: 'united-states', index: 0 } );
-			const gbColor3 = contextValue.resolveGroupColor( { group: 'great-britain', index: 1 } );
-			const jpColor3 = contextValue.resolveGroupColor( { group: 'japan', index: 2 } );
+			const usColor3 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
+			const gbColor3 = contextValue.resolveColor( { group: 'great-britain', index: 1 } );
+			const jpColor3 = contextValue.resolveColor( { group: 'japan', index: 2 } );
 
 			// All colors should remain stable throughout the process
 			expect( usColor1 ).toBe( usColor2 );
@@ -548,7 +548,7 @@ describe( 'ChartContext', () => {
 				registerChart: GlobalChartsContextValue[ 'registerChart' ];
 				unregisterChart: GlobalChartsContextValue[ 'unregisterChart' ];
 				getChartData: GlobalChartsContextValue[ 'getChartData' ];
-				resolveGroupColor: GlobalChartsContextValue[ 'resolveGroupColor' ];
+				resolveColor: GlobalChartsContextValue[ 'resolveColor' ];
 			} > = [];
 
 			const TestComponent = () => {
@@ -557,7 +557,7 @@ describe( 'ChartContext', () => {
 					registerChart: context.registerChart,
 					unregisterChart: context.unregisterChart,
 					getChartData: context.getChartData,
-					resolveGroupColor: context.resolveGroupColor,
+					resolveColor: context.resolveColor,
 				} );
 				return <div>Test</div>;
 			};
@@ -578,7 +578,7 @@ describe( 'ChartContext', () => {
 			expect( functionRefs[ 0 ].registerChart ).toBe( functionRefs[ 1 ].registerChart );
 			expect( functionRefs[ 0 ].unregisterChart ).toBe( functionRefs[ 1 ].unregisterChart );
 			expect( functionRefs[ 0 ].getChartData ).toBe( functionRefs[ 1 ].getChartData );
-			expect( functionRefs[ 0 ].resolveGroupColor ).toBe( functionRefs[ 1 ].resolveGroupColor );
+			expect( functionRefs[ 0 ].resolveColor ).toBe( functionRefs[ 1 ].resolveColor );
 		} );
 	} );
 } );

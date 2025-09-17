@@ -20,7 +20,7 @@ import {
 	useGlobalChartsTheme,
 	ChartTypes,
 } from '../../providers';
-import { attachSubComponents, getSeriesLineStyles } from '../../utils';
+import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
@@ -253,7 +253,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { resolveGroupColor } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -304,21 +304,18 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 				// Resolve group color for tooltip glyph
 				const seriesData = dataSorted[ seriesIndex ];
-				const resolvedColor = seriesData
-					? resolveGroupColor( {
-							group: seriesData.group,
-							index: seriesIndex,
-							overrideColor: seriesData.options?.stroke,
-					  } )
+				const color = seriesData
+					? getElementStyles( { data: seriesData, index: seriesIndex, chartType: ChartTypes.Line } )
+							.color
 					: props.color;
 
-				const propsWithResolvedColor = { ...props, color: resolvedColor };
+				const propsWithResolvedColor = { ...props, color };
 				const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
 				return themeGlyph
 					? themeGlyph( propsWithResolvedColor )
 					: renderGlyph( propsWithResolvedColor );
 			};
-		}, [ dataSorted, providerTheme.glyphs, renderGlyph, resolveGroupColor ] );
+		}, [ dataSorted, providerTheme.glyphs, renderGlyph, getElementStyles ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -423,15 +420,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const stroke = resolveGroupColor( {
-									group: seriesData.group,
+								const { color, lineStyles } = getElementStyles( {
+									data: seriesData,
 									index,
-									overrideColor: seriesData.options?.stroke,
+									chartType: ChartTypes.Line,
 								} );
-								const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
 
 								const lineProps = {
-									stroke,
+									stroke: color,
 									...lineStyles,
 								};
 
@@ -441,7 +437,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											<StartGlyph
 												index={ index }
 												data={ seriesData }
-												color={ stroke }
+												color={ color }
 												renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
 												accessors={ accessors }
 												glyphStyle={ glyphStyle }
@@ -451,7 +447,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 										{ withGradientFill && (
 											<LinearGradient
 												id={ `area-gradient-${ chartId }-${ index + 1 }` }
-												from={ stroke }
+												from={ color }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
 												to={ providerTheme.backgroundColor }

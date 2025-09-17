@@ -91,24 +91,25 @@ export const BaseLegend: ForwardRefExoticComponent<
 	) => {
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
-		const resolveGroupColor = context?.resolveGroupColor;
+		const getElementStyles = context?.getElementStyles;
 
 		// Resolve colors dynamically for items that have group info
 		const itemsWithResolvedColors = useMemo( () => {
 			return items.map( item => {
 				// If item has group info and we have a context, resolve color dynamically
-				if ( item.group !== undefined && item.index !== undefined && resolveGroupColor ) {
-					const resolvedColor = resolveGroupColor( {
-						group: item.group,
+				if ( item.group !== undefined && item.index !== undefined && getElementStyles ) {
+					const { color } = getElementStyles( {
+						data: item,
 						index: item.index,
 						overrideColor: item.overrideColor,
 					} );
-					return { ...item, color: resolvedColor };
+
+					return { ...item, color };
 				}
 				// Otherwise use the static color
 				return item;
 			} );
-		}, [ items, resolveGroupColor ] );
+		}, [ items, getElementStyles ] );
 
 		const legendScale = scaleOrdinal( {
 			domain: itemsWithResolvedColors.map( item => item.label ),
