@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: track on .com how often forms get submitted without a JWT token.
