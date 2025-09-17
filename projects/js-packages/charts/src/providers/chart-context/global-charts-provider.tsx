@@ -51,8 +51,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const resolveColor = useCallback< GlobalChartsContextValue[ 'resolveColor' ] >(
-		( { group, index, overrideColor } ) => {
+	const resolveColor = useCallback(
+		( {
+			group,
+			index,
+			overrideColor,
+		}: {
+			group?: string;
+			index: number;
+			overrideColor?: string;
+		} ): string => {
 			// Highest precedence: explicit series stroke
 			if ( overrideColor ) {
 				return overrideColor;
@@ -100,18 +108,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
-			resolveColor,
 			getElementStyles,
 		} ),
-		[
-			charts,
-			registerChart,
-			unregisterChart,
-			getChartData,
-			providerTheme,
-			resolveColor,
-			getElementStyles,
-		]
+		[ charts, registerChart, unregisterChart, getChartData, providerTheme, getElementStyles ]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
