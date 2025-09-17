@@ -126,7 +126,7 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-rating {"required":true} -->
-							<div><!-- wp:jetpack/label {"label":"Rating"} /-->
+							<div><!-- wp:jetpack/label {"label":"Please rate our website"} /-->
 						<!-- wp:jetpack/input-rating /--></div>
 						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
