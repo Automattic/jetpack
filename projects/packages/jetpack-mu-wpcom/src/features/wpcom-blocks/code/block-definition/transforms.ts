@@ -253,7 +253,6 @@ export const transforms = {
 					case 'f#':
 					case 'fs':
 						blockAttributes.language = 'F#';
-						blockAttributes.language = 'F#';
 						break;
 					case 'gherkin':
 						blockAttributes.language = 'Gherkin';
