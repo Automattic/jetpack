@@ -8,9 +8,11 @@ function initBlock() {
 		btn.addEventListener(
 			'click',
 			function () {
-				navigator.clipboard
-					.writeText( this.dataset.copyText! )
-					.catch();
+				// TypeScript wants the […] accessor because of an index signature.
+				// Eslint + Prettier want the dot notation.
+				// Just pick one to satisfy tooling.
+				// eslint-disable-next-line dot-notation
+				navigator.clipboard.writeText( this.dataset[ 'copyText' ]! ).catch();
 			},
 			{ passive: true }
 		);
