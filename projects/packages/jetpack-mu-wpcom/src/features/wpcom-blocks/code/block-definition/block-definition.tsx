@@ -30,43 +30,6 @@ const LINE_NUMBER_START_MAX = 10_000;
 
 type Props = EditBlockProps | SaveBlockProps;
 
-// This is helpful for validating the definition aligns with types, but is likely imperfect.
-type AttributesConfig = {
-	[ key in keyof Attributes ]:
-		| {
-				type: 'string';
-				default?: string;
-		  }
-		| {
-				type: 'string';
-				default?: string;
-				source: 'text';
-				selector: string;
-		  }
-		| {
-				type: 'boolean';
-				default?: boolean;
-		  }
-		| {
-				type: 'number';
-				default?: number;
-		  }
-		| {
-				type: 'array';
-				default?: Array< unknown >;
-		  }
-		| {
-				type: 'html';
-				default: string;
-				source: string;
-				selector: string;
-		  }
-		| {
-				type: 'object';
-				default: Record< string, unknown >;
-		  };
-};
-
 const exampleBlock = {
 	attributes: {
 		code: `// ✨ Code is poetry. ✨
