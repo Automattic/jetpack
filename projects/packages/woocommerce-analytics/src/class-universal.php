@@ -117,8 +117,8 @@ class Universal {
 			'remove_from_cart',
 			$this->compose_event_properties(
 				array(
-					'pi' => $item['product_id'],
-					'pq' => $item['quantity'],
+					'pi' => (int) $item['product_id'],
+					'pq' => (int) $item['quantity'],
 				)
 			)
 		);
@@ -464,7 +464,8 @@ class Universal {
 	 */
 	public function compose_event_properties( $event_properties = array() ) {
 		if ( isset( $event_properties['pq'] ) ) {
-			$event_properties['pq'] = 0 === $event_properties['pq'] ? 1 : ( $event_properties['pq'] ?? null );
+			$event_properties['pq'] = 0 === $event_properties['pq'] ? 1 : $event_properties['pq'];
+			$event_properties['pq'] = (string) $event_properties['pq'];
 		}
 		$product          = isset( $event_properties['pi'] ) ? wc_get_product( $event_properties['pi'] ) : null;
 		$product_details  = $product instanceof WC_Product ? $this->get_product_details( $product ) : array();
