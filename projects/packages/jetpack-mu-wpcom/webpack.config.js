@@ -126,7 +126,6 @@ module.exports = async () => {
 			},
 			externals: {
 				...jetpackWebpackConfig.externals,
-				'@a8cCodeBlock/block-edit-function': 'import @a8cCodeBlock/block-edit-function',
 				jetpackConfig: JSON.stringify( {
 					consumer_slug: 'jetpack-mu-wpcom',
 				} ),
