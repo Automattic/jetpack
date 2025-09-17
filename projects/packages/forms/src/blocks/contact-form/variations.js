@@ -670,53 +670,12 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/field-radio',
-					attributes: { required: true },
+					name: 'jetpack/field-rating',
+					attributes: { required: true, max: 5 },
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
-							attributes: { label: __( 'Please rate our website', 'jetpack-forms' ) },
-						},
-						{
-							name: 'jetpack/options',
-							attributes: { type: 'radio' },
-							innerBlocks: [
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '1 - Very Bad', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '2 - Poor', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '3 - Average', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '4 - Good', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '5 - Excellent', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-							],
+							attributes: { label: __( 'Rate your experience', 'jetpack-forms' ) },
 						},
 					],
 				},
