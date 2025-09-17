@@ -6231,6 +6231,17 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 
 	}
 
+/**
+ * Generate a lookup key for tax rate duplicate detection
+ *
+ * @param string $name Tax rate name.
+ * @param float  $rate Tax rate percentage.
+ * @return string Normalized lookup key.
+ */
+function jpcrm_tax_rates_generate_lookup_key( $name, $rate ) {
+	return strtolower( trim( $name ) ) . '_' . floatval( $rate );
+}
+
      /**
      * adds or updates a taxrate object
      *
@@ -6292,7 +6303,7 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 			$all_tax_rates = array();
 			if ( $results ) {
 				foreach ( $results as $rate ) {
-					$lookup_key                   = strtolower( trim( $rate['zbsc_tax_name'] ) ) . '_' . floatval( $rate['zbsc_rate'] );
+					$lookup_key                   = jpcrm_tax_rates_generate_lookup_key( $rate['zbsc_tax_name'], $rate['zbsc_rate'] );
 					$all_tax_rates[ $lookup_key ] = (int) $rate['ID'];
 				}
 			}
@@ -6302,7 +6313,7 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 		}
 
 		// Check if this combination exists
-		$lookup_key       = strtolower( trim( $data['name'] ) ) . '_' . floatval( $data['rate'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		$lookup_key       = jpcrm_tax_rates_generate_lookup_key( $data['name'], $data['rate'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		$existing_rate_id = isset( $all_tax_rates[ $lookup_key ] ) ? $all_tax_rates[ $lookup_key ] : 0;
 
 		if ( $existing_rate_id > 0 ) {
