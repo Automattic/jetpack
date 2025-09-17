@@ -84,7 +84,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return $event_obj->error;
 		}
 
-		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	}
 
 	/**
@@ -98,7 +98,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		if ( is_wp_error( $event_obj->error ) ) {
 			return $event_obj->error;
 		}
-		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	}
 
 	/**
