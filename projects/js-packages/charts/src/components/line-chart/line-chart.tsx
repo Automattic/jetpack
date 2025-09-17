@@ -305,8 +305,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				// Resolve group color for tooltip glyph
 				const seriesData = dataSorted[ seriesIndex ];
 				const color = seriesData
-					? getElementStyles( { data: seriesData, index: seriesIndex, chartType: ChartTypes.Line } )
-							.color
+					? getElementStyles( { data: seriesData, index: seriesIndex } ).color
 					: props.color;
 
 				const propsWithResolvedColor = { ...props, color };
@@ -423,7 +422,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								const { color, lineStyles } = getElementStyles( {
 									data: seriesData,
 									index,
-									chartType: ChartTypes.Line,
 								} );
 
 								const lineProps = {

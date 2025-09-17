@@ -130,11 +130,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const { getElementStyles } = useGlobalChartsContext();
 
 	const getBarBackground = useCallback(
-		( index: number ) => () => {
-			return withPatterns
+		( index: number ) => () =>
+			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getElementStyles( { data: dataSorted[ index ], index, chartType: ChartTypes.Bar } ).color;
-		},
+				: getElementStyles( { data: dataSorted[ index ], index } ).color,
 		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
