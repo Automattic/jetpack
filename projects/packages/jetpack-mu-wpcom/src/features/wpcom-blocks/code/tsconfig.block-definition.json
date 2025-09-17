@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": [ "./tsconfig.base.json" ],
+	"compilerOptions": {
+		"rootDir": "block-definition",
+		"paths": {
+			"@a8cCodeBlock/block-edit-function": [ "./block-edit-function/block-edit-function.tsx" ]
+		}
+	},
+	"include": [ "block-definition" ],
+	"references": [
+		{ "path": "./tsconfig.block-edit-function.json" },
+		{ "path": "./tsconfig.common.json" }
+	]
+}
