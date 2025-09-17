@@ -5,7 +5,7 @@ import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
 import type { BaseLegendItem } from '../../../components/legend';
-import type { ChartTheme } from '../../../types';
+import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
 
 describe( 'ChartContext', () => {
@@ -17,6 +17,13 @@ describe( 'ChartContext', () => {
 		{ label: 'Series 1', value: '100', color: '#ff0000' },
 		{ label: 'Series 2', value: '200', color: '#00ff00' },
 	];
+
+	// Helper function to create mock data for color resolution tests
+	const createMockDataWithGroup = ( group: string | undefined ): SeriesData => ( {
+		label: 'Test',
+		data: [ { value: 100 } ],
+		group,
+	} );
 
 	describe( 'GlobalChartsProvider', () => {
 		it( 'provides context to child components', () => {
@@ -218,7 +225,7 @@ describe( 'ChartContext', () => {
 	} );
 
 	describe( 'Group Color Resolver', () => {
-		it( 'provides resolveColor function', () => {
+		it( 'provides getElementStyles function for color resolution', () => {
 			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
@@ -232,7 +239,7 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			expect( contextValue.resolveColor ).toBeInstanceOf( Function );
+			expect( contextValue.getElementStyles ).toBeInstanceOf( Function );
 		} );
 
 		it( 'returns consistent colors for same group across different indices', () => {
@@ -249,9 +256,18 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color1 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
-			const color2 = contextValue.resolveColor( { group: 'united-states', index: 5 } );
-			const color3 = contextValue.resolveColor( { group: 'united-states', index: 10 } );
+			const color1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 0,
+			} ).color;
+			const color2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 5,
+			} ).color;
+			const color3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 10,
+			} ).color;
 
 			expect( color1 ).toBe( color2 );
 			expect( color2 ).toBe( color3 );
@@ -271,9 +287,18 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const usColor = contextValue.resolveColor( { group: 'united-states', index: 0 } );
-			const gbColor = contextValue.resolveColor( { group: 'great-britain', index: 0 } );
-			const jpColor = contextValue.resolveColor( { group: 'japan', index: 0 } );
+			const usColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 0,
+			} ).color;
+			const gbColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'great-britain' ),
+				index: 0,
+			} ).color;
+			const jpColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'japan' ),
+				index: 0,
+			} ).color;
 
 			expect( usColor ).not.toBe( gbColor );
 			expect( gbColor ).not.toBe( jpColor );
@@ -295,15 +320,15 @@ describe( 'ChartContext', () => {
 			);
 
 			const overrideColor = '#ff6600';
-			const colorWithOverride = contextValue.resolveColor( {
-				group: 'united-states',
+			const colorWithOverride = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
 				index: 0,
 				overrideColor,
-			} );
-			const colorWithoutOverride = contextValue.resolveColor( {
-				group: 'united-states',
+			} ).color;
+			const colorWithoutOverride = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
 				index: 0,
-			} );
+			} ).color;
 
 			expect( colorWithOverride ).toBe( overrideColor );
 			expect( colorWithoutOverride ).not.toBe( overrideColor );
@@ -323,7 +348,10 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color = contextValue.resolveColor( { group: undefined, index: 0 } );
+			const color = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 0,
+			} ).color;
 
 			expect( color ).toBe( mockTheme.colors[ 0 ] );
 		} );
@@ -342,7 +370,10 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color = contextValue.resolveColor( { group: '', index: 0 } );
+			const color = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( '' ),
+				index: 0,
+			} ).color;
 
 			expect( color ).toBe( mockTheme.colors[ 0 ] );
 		} );
@@ -361,12 +392,18 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			const color1 = contextValue.resolveColor( { group: undefined, index: 0 } );
-			const color2 = contextValue.resolveColor( { group: '', index: 1 } );
-			const color3 = contextValue.resolveColor( {
-				group: null as string | undefined,
+			const color1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 0,
+			} ).color;
+			const color2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( '' ),
+				index: 1,
+			} ).color;
+			const color3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( null as string | undefined ),
 				index: 2,
-			} );
+			} ).color;
 
 			expect( color1 ).toBe( mockTheme.colors[ 0 ] );
 			expect( color2 ).toBe( mockTheme.colors[ 1 ] );
@@ -388,8 +425,14 @@ describe( 'ChartContext', () => {
 			);
 
 			// mockTheme has 3 colors, so index 3 should wrap to index 0
-			const color1 = contextValue.resolveColor( { group: undefined, index: 3 } );
-			const color2 = contextValue.resolveColor( { group: undefined, index: 0 } );
+			const color1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 3,
+			} ).color;
+			const color2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 0,
+			} ).color;
 
 			expect( color1 ).toBe( color2 );
 			expect( color1 ).toBe( mockTheme.colors[ 0 ] );
@@ -412,9 +455,14 @@ describe( 'ChartContext', () => {
 			const groupName = 'consistent-group';
 			const colors = [];
 
-			// Call resolveColor multiple times for the same group
+			// Call getElementStyles multiple times for the same group
 			for ( let i = 0; i < 10; i++ ) {
-				colors.push( contextValue.resolveColor( { group: groupName, index: i } ) );
+				colors.push(
+					contextValue.getElementStyles( {
+						data: createMockDataWithGroup( groupName ),
+						index: i,
+					} ).color
+				);
 			}
 
 			// All colors should be the same
@@ -441,12 +489,15 @@ describe( 'ChartContext', () => {
 			const groupName = 'test-group';
 			const overrideColor = '#purple';
 
-			const groupColor = contextValue.resolveColor( { group: groupName, index: 0 } );
-			const overriddenColor = contextValue.resolveColor( {
-				group: groupName,
+			const groupColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( groupName ),
+				index: 0,
+			} ).color;
+			const overriddenColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( groupName ),
 				index: 0,
 				overrideColor,
-			} );
+			} ).color;
 
 			expect( groupColor ).not.toBe( overrideColor );
 			expect( overriddenColor ).toBe( overrideColor );
@@ -474,8 +525,12 @@ describe( 'ChartContext', () => {
 			];
 
 			// Get initial colors for all groups
-			const initialColors = initialGroups.map( ( { group, index } ) =>
-				contextValue.resolveColor( { group, index } )
+			const initialColors = initialGroups.map(
+				( { group, index } ) =>
+					contextValue.getElementStyles( {
+						data: createMockDataWithGroup( group ),
+						index,
+					} ).color
 			);
 
 			// Simulate removing the middle group (great-britain)
@@ -486,8 +541,12 @@ describe( 'ChartContext', () => {
 			];
 
 			// Get colors after "filtering"
-			const filteredColors = filteredGroups.map( ( { group, index } ) =>
-				contextValue.resolveColor( { group, index } )
+			const filteredColors = filteredGroups.map(
+				( { group, index } ) =>
+					contextValue.getElementStyles( {
+						data: createMockDataWithGroup( group ),
+						index,
+					} ).color
 			);
 
 			// Colors should remain the same despite index changes
@@ -513,18 +572,42 @@ describe( 'ChartContext', () => {
 			);
 
 			// Get initial colors for all groups
-			const usColor1 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
-			const gbColor1 = contextValue.resolveColor( { group: 'great-britain', index: 1 } );
-			const jpColor1 = contextValue.resolveColor( { group: 'japan', index: 2 } );
+			const usColor1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 0,
+			} ).color;
+			const gbColor1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'great-britain' ),
+				index: 1,
+			} ).color;
+			const jpColor1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'japan' ),
+				index: 2,
+			} ).color;
 
 			// Simulate removing great-britain (only US and Japan visible)
-			const usColor2 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
-			const jpColor2 = contextValue.resolveColor( { group: 'japan', index: 1 } );
+			const usColor2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 0,
+			} ).color;
+			const jpColor2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'japan' ),
+				index: 1,
+			} ).color;
 
 			// Simulate re-adding great-britain back (all groups visible again)
-			const usColor3 = contextValue.resolveColor( { group: 'united-states', index: 0 } );
-			const gbColor3 = contextValue.resolveColor( { group: 'great-britain', index: 1 } );
-			const jpColor3 = contextValue.resolveColor( { group: 'japan', index: 2 } );
+			const usColor3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'united-states' ),
+				index: 0,
+			} ).color;
+			const gbColor3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'great-britain' ),
+				index: 1,
+			} ).color;
+			const jpColor3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'japan' ),
+				index: 2,
+			} ).color;
 
 			// All colors should remain stable throughout the process
 			expect( usColor1 ).toBe( usColor2 );
@@ -548,7 +631,7 @@ describe( 'ChartContext', () => {
 				registerChart: GlobalChartsContextValue[ 'registerChart' ];
 				unregisterChart: GlobalChartsContextValue[ 'unregisterChart' ];
 				getChartData: GlobalChartsContextValue[ 'getChartData' ];
-				resolveColor: GlobalChartsContextValue[ 'resolveColor' ];
+				getElementStyles: GlobalChartsContextValue[ 'getElementStyles' ];
 			} > = [];
 
 			const TestComponent = () => {
@@ -557,7 +640,7 @@ describe( 'ChartContext', () => {
 					registerChart: context.registerChart,
 					unregisterChart: context.unregisterChart,
 					getChartData: context.getChartData,
-					resolveColor: context.resolveColor,
+					getElementStyles: context.getElementStyles,
 				} );
 				return <div>Test</div>;
 			};
@@ -578,7 +661,7 @@ describe( 'ChartContext', () => {
 			expect( functionRefs[ 0 ].registerChart ).toBe( functionRefs[ 1 ].registerChart );
 			expect( functionRefs[ 0 ].unregisterChart ).toBe( functionRefs[ 1 ].unregisterChart );
 			expect( functionRefs[ 0 ].getChartData ).toBe( functionRefs[ 1 ].getChartData );
-			expect( functionRefs[ 0 ].resolveColor ).toBe( functionRefs[ 1 ].resolveColor );
+			expect( functionRefs[ 0 ].getElementStyles ).toBe( functionRefs[ 1 ].getElementStyles );
 		} );
 	} );
 } );

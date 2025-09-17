@@ -13,14 +13,11 @@ export interface GlobalChartsProviderProps {
 	theme?: Partial< ChartTheme >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
-	children,
-	theme = {},
-} ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
 	const providerTheme: CompleteChartTheme = useMemo(
-		() => mergeThemes( defaultTheme, theme ),
+		() => ( theme ? mergeThemes( defaultTheme, theme ) : defaultTheme ),
 		[ theme ]
 	);
 
@@ -61,7 +58,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			index: number;
 			overrideColor?: string;
 		} ): string => {
-			// Highest precedence: explicit series stroke
+			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
 				return overrideColor;
 			}
