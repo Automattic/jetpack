@@ -31,10 +31,10 @@ const { isKeyboardEvent, BACKSPACE: KEY_CODE_BACKSPACE } = window.wp.keycodes;
 function EditCodeMirror( props: EditBlockProps ) {
 	const { attributes, isSelected, setAttributes, insertBlocksAfter, onRemove } = props;
 
-	const ref: React.RefObject< HTMLDivElement | null > = React.useRef( null );
-	const viewRef: React.RefObject< import('@codemirror/view').EditorView | undefined > =
+	const ref: React.RefObject< HTMLDivElement > = React.useRef( null );
+	const viewRef: React.MutableRefObject< import('@codemirror/view').EditorView | undefined > =
 		React.useRef( undefined );
-	const currentLanguageRef: React.RefObject< LanguageSupport | undefined > =
+	const currentLanguageRef: React.MutableRefObject< LanguageSupport | undefined > =
 		React.useRef( undefined );
 	const trailingNewlineCounterRef = React.useRef( 0 );
 
