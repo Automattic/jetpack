@@ -431,7 +431,7 @@ export function colorsToStyle( attributes: Attributes ): {
 	const textColorProperties: CSSProperties = {};
 	if ( attributes.textColor ) {
 		backgroundProperties[ '--colorText' ] = `var( --wp--preset--color--${ attributes.textColor } )`;
-	} else if ( attributes.style?.color?.background ) {
+	} else if ( attributes.style?.color?.text ) {
 		backgroundProperties[ '--colorText' ] = attributes.style.color.text;
 	}
 
