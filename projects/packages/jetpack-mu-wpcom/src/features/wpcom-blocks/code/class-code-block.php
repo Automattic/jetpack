@@ -23,11 +23,19 @@ abstract class Code_Block {
 	const MODULE_PREFIX = '@a8cCodeBlock/';
 	const BLOCK_NAME    = 'a8c/code';
 
+	/**
+	 * Filterable check for whether the block should be available.
+	 *
+	 * @return bool
+	 */
 	private static function should_load_block(): bool {
 		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', false );
 		return is_bool( $filtered_value ) ? $filtered_value : false;
 	}
 
+	/**
+	 * Set up the block.
+	 */
 	public static function setup() {
 		if ( ! self::should_load_block() ) {
 			return;
