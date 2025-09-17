@@ -44,8 +44,16 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 * @return array
 	 */
 	public static function get_config_data() {
-		$subscriber_counts = array();
-		$config_data       = array();
+		$config_data = array(
+			'emailSubscribers'       => 0,
+			'paidSubscribers'        => 0,
+			'allSubscribers'         => 0,
+			'subscriberTotalsByDate' => array(),
+			'isStatsModuleActive'    => false,
+			'showHeader'             => false,
+			'showChart'              => false,
+			'isWidgetVisible'        => false,
+		);
 
 		if ( Jetpack::is_connection_ready() ) {
 			$site_id  = Jetpack_Options::get_option( 'id' );
@@ -80,9 +88,8 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			$config_data['isStatsModuleActive'] = ( new Modules() )->is_active( 'stats' );
 
 			$config_data['showHeader'] = $config_data['isStatsModuleActive'] && ( $config_data['allSubscribers'] > 0 || $config_data['paidSubscribers'] > 0 );
-			$config_data['showChart']  = false;
 			foreach ( $config_data['subscriberTotalsByDate'] as $day ) {
-				if ( $day && ( $day['all'] >= 5 || $day['paid'] > 0 ) ) {
+				if ( $day && ( $day['all'] > 5 || $day['paid'] > 0 ) ) {
 					$config_data['showChart'] = true;
 					break;
 				}
