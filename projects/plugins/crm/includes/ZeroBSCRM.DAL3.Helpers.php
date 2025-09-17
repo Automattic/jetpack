@@ -6272,17 +6272,45 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 	}
 
 	// check if exists already (where no id passed)
-	if ( $id < 1 && ! empty( $data['name'] ) && isset( $data['rate'] ) ) {
+	if ( $id < 1 && ! empty( $data['name'] ) && isset( $data['rate'] ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-            		// simple query
-		    				$query = 'SELECT ID FROM '.$ZBSCRM_t['tax'].' WHERE zbsc_tax_name = %s AND zbsc_rate = %d ORDER BY ID DESC LIMIT 0,1';
-            		$existing_rate_id = (int)$wpdb->get_var( $wpdb->prepare( $query, $data['name'], $data['rate'] ) );
+		// Get all tax rates from cache or database
+		$all_tax_rates = wp_cache_get( 'all_tax_rates', 'zbscrm_tax_rates' );
 
-            		if ( $existing_rate_id > 0 ){
-            				$id = $existing_rate_id;
-            		}
+		if ( false === $all_tax_rates ) {
+			// Cache miss - load all tax rates
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$table_name = $ZBSCRM_t['tax'];
+			$results    = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->prepare(
+					'SELECT ID, zbsc_tax_name, zbsc_rate 
+					FROM ' . esc_sql( $table_name ) . ' 
+					ORDER BY ID DESC'
+				),
+				ARRAY_A
+			);
 
-            }
+			// Build lookup array for fast searching
+			$all_tax_rates = array();
+			if ( $results ) {
+				foreach ( $results as $rate ) {
+					$lookup_key                   = strtolower( trim( $rate['zbsc_tax_name'] ) ) . '_' . floatval( $rate['zbsc_rate'] );
+					$all_tax_rates[ $lookup_key ] = (int) $rate['ID'];
+				}
+			}
+
+			// Cache for shorter time due to frequent updates
+			wp_cache_set( 'all_tax_rates', $all_tax_rates, 'zbscrm_tax_rates', 5 * MINUTE_IN_SECONDS );
+		}
+
+		// Check if this combination exists
+		$lookup_key       = strtolower( trim( $data['name'] ) ) . '_' . floatval( $data['rate'] ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		$existing_rate_id = isset( $all_tax_rates[ $lookup_key ] ) ? $all_tax_rates[ $lookup_key ] : 0;
+
+		if ( $existing_rate_id > 0 ) {
+			$id = $existing_rate_id;
+		}
+	}
 
         #} ========= / CHECK FIELDS ===========
 
@@ -6329,8 +6357,9 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
                             '%d'
                             )) !== false){
 
-                            // Successfully updated - Return id
-                            return $id;
+						// Successfully updated - clear cache and return id
+						wp_cache_delete( 'all_tax_rates', 'zbscrm_tax_rates' );
+						return $id;
 
                         } else {
 
@@ -6358,6 +6387,9 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 
                     #} Successfully inserted, lets return new ID
                     $newID = $wpdb->insert_id;
+
+					// Clear cache after successful insert
+					wp_cache_delete( 'all_tax_rates', 'zbscrm_tax_rates' );
 
                     return $newID;
 
