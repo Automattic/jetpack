@@ -473,7 +473,11 @@ export const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'syntaxhighlighter/code' ],
-			transform: ( { content = '', ...attributes } ) => {
+			transform: ( { content = '', ...attributes }: {
+				content?: string;
+				language?: string;
+				firstLineNumber?: string;
+			} ) => {
 				const blockAttributes: Partial< Attributes > = {
 					code: content,
 				};
