@@ -90,12 +90,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor } ) => {
+			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
+
 			return {
-				color: resolveColor( { group: data?.group, index, overrideColor } ),
-				lineStyles:
-					data && typeof data === 'object' && 'data' in data && 'options' in data
-						? getSeriesLineStyles( data, index, providerTheme )
-						: {},
+				color: resolveColor( {
+					group: data?.group,
+					index,
+					overrideColor: overrideColor || ( isSeriesData && data?.options?.stroke ),
+				} ),
+				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
 			};
 		},
 		[ providerTheme, resolveColor ]
