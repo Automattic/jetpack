@@ -627,50 +627,16 @@ const variations = [
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
-				'jetpack/field-radio',
-				{ required: true },
+				'jetpack/field-rating',
+				{ required: true, max: 5 },
 				[
-					[ 'jetpack/label', { label: __( 'Please rate our website', 'jetpack-forms' ) } ],
 					[
-						'jetpack/options',
-						{ type: 'radio' },
-						[
-							[
-								'jetpack/option',
-								{
-									label: __( '1 - Very Bad', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '2 - Poor', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '3 - Average', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '4 - Good', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '5 - Excellent', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-						],
+						{
+							name: 'jetpack/label',
+							attributes: {
+								label: __( 'Rate your experience', 'jetpack-forms' ),
+							},
+						},
 					],
 				],
 			],
