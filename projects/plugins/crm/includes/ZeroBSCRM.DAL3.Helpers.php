@@ -6239,7 +6239,7 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
  * @return string Normalized lookup key.
  */
 function jpcrm_tax_rates_generate_lookup_key( $name, $rate ) {
-	return strtolower( trim( $name ) ) . '_' . floatval( $rate );
+	return strtolower( trim( $name ) ) . '_' . number_format( (float) $rate, 4, '.', '' );
 }
 
      /**
