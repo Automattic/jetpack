@@ -118,7 +118,12 @@ export class WorkerAdmin {
 			return null;
 		}
 
-		const workerSourceBlob = await fetch( url ).then( response => response.blob() );
+		const workerSourceBlob = await fetch( url ).then( response => {
+			if ( ! response.ok ) {
+				throw new Error( `Failed to load worker with: ${ response.status }` );
+			}
+			return response.blob();
+		} );
 		const workerObjectURL = URL.createObjectURL( workerSourceBlob );
 
 		const worker = new Worker( workerObjectURL, {
