@@ -290,7 +290,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			);
 		}
 
-		return value;
+		return <div dangerouslySetInnerHTML={ { __html: value } } />;
 	};
 
 	useEffect( () => {

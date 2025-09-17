@@ -178,6 +178,16 @@
 	align-items: center;
 }
 
+.jetpack-field-rating__icon {
+	width: 16px;
+	height: 16px;
+}
+
+.jetpack-field-rating__icon.is-filled,
+.jetpack-field-rating__icon.is-filled path {
+	fill: var(--wp-admin-theme-color, #2271b1);
+}
+
 .jp-forms__inbox-response-data-value .file-field {
 	margin-top: 4px;
 
