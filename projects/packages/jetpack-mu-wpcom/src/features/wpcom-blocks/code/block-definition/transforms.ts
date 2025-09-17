@@ -39,7 +39,6 @@ export const transforms = {
 				content: string | { text: string };
 			} ) => {
 				const content = typeof _content === 'string' ? _content : _content.text;
-				// biome-ignore lint/style/noNonNullAssertion: This regexp has already matched
 				const [ , langCandidate ] = CODE_FENCE_REGEXP.exec( content )!;
 
 				let language;
@@ -649,7 +648,6 @@ export const transforms = {
 			},
 			transform: ( files: [ File, ...unknown[] ] ) => {
 				const [ file ] = files;
-				// biome-ignore lint/style/noNonNullAssertion: We know there's a match already.
 				const language = getLanguage( file )!;
 
 				// Grab the last segment of the file name. Try to handle different path separators.
@@ -688,7 +686,6 @@ const getLanguage: GetLanguage = ( file: File ) => {
 		);
 	}
 
-	// biome-ignore lint/style/noNonNullAssertion: There's an element, really.
 	const extension = file.name.split( '.' ).at( -1 )!.toLowerCase();
 	return getLanguage.extensionMap.get( extension );
 };

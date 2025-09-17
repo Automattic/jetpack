@@ -9,7 +9,6 @@ function initBlock() {
 			'click',
 			function () {
 				navigator.clipboard
-					// biome-ignore lint/style/noNonNullAssertion: We just set the attribute.
 					.writeText( this.dataset.copyText! )
 					.catch();
 			},

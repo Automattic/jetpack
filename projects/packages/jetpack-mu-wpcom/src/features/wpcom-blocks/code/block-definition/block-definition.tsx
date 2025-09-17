@@ -46,7 +46,6 @@ const fibonacci = ( n ) => n < 1 ? 0
 };
 
 const icon = (
-	// biome-ignore lint/a11y/noSvgWithoutTitle: The icon a11y is handled by the block editor.
 	<svg width="24" height="24">
 		<path d="m8.53 7.531-4.293 4.277a.25.25 0 0 0 0 .353l4.294 4.31-1.062 1.058-4.294-4.31a1.75 1.75 0 0 1-.116-2.342l.12-.132L7.47 6.47 8.529 7.53ZM18.53 5.53l-1.292 1.292a.25.25 0 0 0 .001.354l3.582 3.57.12.131a1.75 1.75 0 0 1-.116 2.343l-4.294 4.31-1.062-1.06 4.294-4.309a.25.25 0 0 0 .031-.314l-.031-.04-3.582-3.569a1.75 1.75 0 0 1-.003-2.476L17.47 4.47l1.06 1.06Z" />
 	</svg>
@@ -291,7 +290,6 @@ const Filename = ( props: Props ) => {
 				) }
 				value={ filename }
 				onChange={ ( nextValue: string ) => {
-					// biome-ignore lint/style/noNonNullAssertion: setAttributes must exist here.
 					setAttributes!( { filename: nextValue } );
 				} }
 				__next40pxDefaultSize
@@ -337,7 +335,6 @@ const DisplayLanguage = ( props: Props ) => {
 			}: {
 				selectedItem: { name: string; key: string };
 			} ) => {
-				// biome-ignore lint/style/noNonNullAssertion: Only called in edit.
 				setAttributes!( {
 					language: newLanguage,
 					languageConfidence: 'certain',

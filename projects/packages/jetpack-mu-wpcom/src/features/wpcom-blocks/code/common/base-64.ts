@@ -2,7 +2,6 @@ const decoder = new TextDecoder();
 const fromBase64 =
 	typeof Uint8Array.fromBase64 === 'function'
 		? ( toDecode: string ): string => {
-				// biome-ignore lint/style/noNonNullAssertion: This is checked aboid and should narrow here.
 				return decoder.decode( Uint8Array.fromBase64!( toDecode ) );
 		  }
 		: ( toDecode: string ): string => {
@@ -16,7 +15,6 @@ const encoder = new TextEncoder();
 const toBase64 =
 	typeof Uint8Array.prototype.toBase64 === 'function'
 		? ( toEncode: string ): string => {
-				// biome-ignore lint/style/noNonNullAssertion: This is checked aboid and should narrow here.
 				return encoder.encode( toEncode ).toBase64!();
 		  }
 		: ( toEncode: string ): string => {
