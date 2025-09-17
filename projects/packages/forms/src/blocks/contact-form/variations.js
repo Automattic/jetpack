@@ -629,16 +629,7 @@ const variations = [
 			[
 				'jetpack/field-rating',
 				{ required: true, max: 5 },
-				[
-					[
-						{
-							name: 'jetpack/label',
-							attributes: {
-								label: __( 'Rate your experience', 'jetpack-forms' ),
-							},
-						},
-					],
-				],
+				[ [ 'jetpack/label', { label: __( 'Rate your experience', 'jetpack-forms' ) } ] ],
 			],
 			[
 				'jetpack/field-textarea',
