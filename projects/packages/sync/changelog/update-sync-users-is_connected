@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Sync: Add 'is_connected' property to synced users
