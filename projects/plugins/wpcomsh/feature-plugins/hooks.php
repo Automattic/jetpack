@@ -5,6 +5,9 @@
  * @package wpcomsh
  */
 
+// Load Permalinks upsell screen for Atomic sites without the feature.
+require_once __DIR__ . '/permalinks/upsell-permalinks.php';
+
 /**
  * Disables theme and plugin related capabilities if the site doesn't have the required features.
  *
@@ -217,6 +220,10 @@ function wpcomsh_maybe_remove_permalinks_menu_item() {
 		return;
 	}
 	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
+	// Add replacement upsell submenu on Atomic sites without the feature.
+	if ( function_exists( 'wpcomsh_permalinks_upsell_page_on_atomic_sites' ) ) {
+		wpcomsh_permalinks_upsell_page_on_atomic_sites();
+	}
 }
 add_action( 'admin_menu', 'wpcomsh_maybe_remove_permalinks_menu_item' );
 
