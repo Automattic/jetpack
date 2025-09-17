@@ -1,9 +1,11 @@
+import type { ChartTypes } from './constants';
 import type { BaseLegendItem } from '../../components/legend';
 import type { CompleteChartTheme } from '../../types';
+export type ChartType = keyof typeof ChartTypes;
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
-	chartType: string;
+	chartType: ChartType;
 	metadata?: Record< string, unknown >;
 }
 

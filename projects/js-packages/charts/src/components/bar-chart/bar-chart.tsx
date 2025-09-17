@@ -16,6 +16,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	GlobalChartsContext,
+	ChartTypes,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
@@ -277,7 +278,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	useChartRegistration( {
 		chartId,
 		legendItems,
-		chartType: 'bar',
+		chartType: ChartTypes.Bar,
 		isDataValid,
 		metadata: chartMetadata,
 	} );

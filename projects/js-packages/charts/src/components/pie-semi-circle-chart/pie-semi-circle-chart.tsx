@@ -12,6 +12,7 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	GlobalChartsContext,
+	ChartTypes,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
@@ -204,7 +205,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	useChartRegistration( {
 		chartId,
 		legendItems,
-		chartType: 'pie-semi-circle',
+		chartType: ChartTypes.PieSemiCircle,
 		isDataValid: isValid,
 		metadata: chartMetadata,
 	} );
