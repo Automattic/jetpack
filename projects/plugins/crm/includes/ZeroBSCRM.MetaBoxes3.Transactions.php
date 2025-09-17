@@ -321,7 +321,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 				if (
 					// @phan-suppress-next-line PhanImpossibleCondition -- Line items are not currently supported on transactions, so disabled for now.
 					false
-					|| isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] )
+					&& isset( $transaction['lineitems'] ) && is_array( $transaction['lineitems'] )
 				) {
 					?>
 
