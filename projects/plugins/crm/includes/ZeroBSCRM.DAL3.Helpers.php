@@ -6282,11 +6282,9 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$table_name = $ZBSCRM_t['tax'];
 			$results    = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				$wpdb->prepare(
-					'SELECT ID, zbsc_tax_name, zbsc_rate 
-					FROM ' . esc_sql( $table_name ) . ' 
-					ORDER BY ID DESC'
-				),
+				'SELECT ID, zbsc_tax_name, zbsc_rate 
+				FROM ' . esc_sql( $table_name ) . ' 
+				ORDER BY ID DESC',
 				ARRAY_A
 			);
 
