@@ -365,8 +365,10 @@ const Loading = ( props: EditBlockProps ) => {
 };
 
 /**
+ * Transforms attributes into CSS custom properties for inline style use.
  *
- * @param attributes
+ * @param attributes - Block attributes.
+ * @return CSS style object.
  */
 export function colorsToStyle( attributes: Attributes ): {
 	[ key in `--${ keyof Pick<
@@ -429,7 +431,8 @@ export function colorsToStyle( attributes: Attributes ): {
  * A numeric encoding is used for `&` as a workaround for
  * {@link https://core.trac.wordpress.org/ticket/63630|Trac 63630}.
  * The issue should be fixed in WordPress 6.9.
- * @param content
+ * @param content - Original content.
+ * @return Encoded content.
  */
 function htmlEncode( content: string ): string {
 	return content
