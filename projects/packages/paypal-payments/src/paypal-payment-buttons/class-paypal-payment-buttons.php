@@ -77,6 +77,11 @@ class PayPal_Payment_Buttons {
 				'script_loader_tag',
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					if ( 'paypal-payment-buttons-block-head' === $handle ) {
+						// Add namespace to avoid conflicts with other PayPal SDK versions
+						if ( ! str_contains( $tag, 'data-namespace' ) ) {
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+						}
+						// Add partner attribution ID
 						if ( ! str_contains( $tag, 'data-paypal-partner-attribution-id' ) ) {
 							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
 						}
@@ -92,7 +97,7 @@ class PayPal_Payment_Buttons {
 			$button_html  = '<div id="' . $container_id . '"></div>';
 
 			$inline_script = sprintf(
-				'paypal.HostedButtons({
+				'(window.paypal_payment_buttons || window.paypal).HostedButtons({
 					hostedButtonId: "%s",
 				}).render("#%s");',
 				esc_js( $hosted_button_id ),
