@@ -125,7 +125,10 @@ class Util {
                     <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very Bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} /-->
+                        <!-- wp:jetpack/field-rating {"required":true} -->
+							<div><!-- wp:jetpack/label {"label":"Please rate our website"} /-->
+						<!-- wp:jetpack/input-rating /--></div>
+						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
                         <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
                     </div>
