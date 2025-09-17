@@ -6,7 +6,7 @@ const { createBlock } = window.wp.blocks;
 const { dispatch } = window.wp.data;
 const { store: editorStore } = window.wp.editor;
 
-const CODE_FENCE_REGEXP = /^```([a-z0-9\+-]*)$/i;
+const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
 export const transforms = {
 	to: [
@@ -473,7 +473,10 @@ export const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'syntaxhighlighter/code' ],
-			transform: ( { content = '', ...attributes }: {
+			transform: ( {
+				content = '',
+				...attributes
+			}: {
 				content?: string;
 				language?: string;
 				firstLineNumber?: string;
