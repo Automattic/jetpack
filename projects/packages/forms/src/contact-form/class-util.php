@@ -291,8 +291,8 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt  = current_time( 'mysql', 1 );
-		$sql      = $wpdb->prepare(
+		$now_gmt = current_time( 'mysql', 1 );
+		$sql     = $wpdb->prepare(
 			"
 			SELECT `ID`
 			FROM $wpdb->posts
@@ -304,6 +304,8 @@ class Util {
 			$now_gmt,
 			$grunion_delete_limit
 		);
+
+		// The SQL query is already prepared with $wpdb->prepare() above, and direct query is needed for performance-critical cleanup operation
 		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( (array) $post_ids as $post_id ) {
@@ -323,6 +325,7 @@ class Util {
 			 */
 			apply_filters( 'grunion_optimize_table', false )
 		) {
+			// OPTIMIZE TABLE is a MySQL-specific maintenance command that cannot be prepared and is only run when explicitly enabled via filter
 			$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		}
 
