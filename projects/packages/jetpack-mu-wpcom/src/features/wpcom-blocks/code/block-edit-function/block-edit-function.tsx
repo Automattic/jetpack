@@ -332,44 +332,49 @@ function EditCodeMirror( props: EditBlockProps ) {
 		} );
 	}, [ makeExtensions ] );
 
-	React.useEffect( () => {
-		if ( ! ref.current || viewRef.current ) {
-			return;
-		}
+	React.useEffect(
+		() => {
+			if ( ! ref.current || viewRef.current ) {
+				return;
+			}
 
-		viewRef.current = new View.EditorView( {
-			doc: attributes.code,
-			extensions: makeExtensions(),
-			parent: ref.current,
-		} );
-
-		viewRef.current.contentDOM.addEventListener(
-			'keydown',
-			selectAllEventHandlerRef.current.handler
-		);
-
-		if ( attributes.language ) {
-			languageUtils.getLanguage( attributes.language ).then( ( [ , extension ] ) => {
-				currentLanguageRef.current = extension;
-				viewRef.current?.dispatch( {
-					effects: [
-						State.StateEffect.appendConfig.of( {
-							extension,
-						} ),
-					],
-				} );
+			viewRef.current = new View.EditorView( {
+				doc: attributes.code,
+				extensions: makeExtensions(),
+				parent: ref.current,
 			} );
-		}
 
-		return () => {
-			viewRef.current?.contentDOM.removeEventListener(
+			viewRef.current.contentDOM.addEventListener(
 				'keydown',
 				selectAllEventHandlerRef.current.handler
 			);
-			viewRef.current?.destroy();
-			viewRef.current = undefined;
-		};
-	}, [] );
+
+			if ( attributes.language ) {
+				languageUtils.getLanguage( attributes.language ).then( ( [ , extension ] ) => {
+					currentLanguageRef.current = extension;
+					viewRef.current?.dispatch( {
+						effects: [
+							State.StateEffect.appendConfig.of( {
+								extension,
+							} ),
+						],
+					} );
+				} );
+			}
+
+			return () => {
+				viewRef.current?.contentDOM.removeEventListener(
+					'keydown',
+					// eslint-disable-next-line react-hooks/exhaustive-deps
+					selectAllEventHandlerRef.current.handler
+				);
+				viewRef.current?.destroy();
+				viewRef.current = undefined;
+			};
+		},
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- This should only run for initialization.
+		[]
+	);
 
 	// Update language when changed
 	React.useEffect( () => {
