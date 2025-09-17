@@ -278,27 +278,31 @@ const Filename = ( props: Props ) => {
 	const { setAttributes, isSelected = false } = props;
 	const { filename } = props.attributes;
 
-	return isSelected ? (
-		<TextControl
-			label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-			hideLabelFromVision
-			className="a8c/code__filename"
-			placeholder={ _x(
-				'filename.txt',
-				'An example filename input placeholder.',
-				'jetpack-mu-wpcom'
-			) }
-			value={ filename }
-			onChange={ ( nextValue: string ) => {
-				// biome-ignore lint/style/noNonNullAssertion: setAttributes must exist here.
-				setAttributes!( { filename: nextValue } );
-			} }
-			__next40pxDefaultSize
-			__nextHasNoMarginBottom
-		/>
-	) : filename ? (
-		<span className="a8c/code__filename">{ filename }</span>
-	) : null;
+	if ( isSelected ) {
+		return (
+			<TextControl
+				label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
+				hideLabelFromVision
+				className="a8c/code__filename"
+				placeholder={ _x(
+					'filename.txt',
+					'An example filename input placeholder.',
+					'jetpack-mu-wpcom'
+				) }
+				value={ filename }
+				onChange={ ( nextValue: string ) => {
+					// biome-ignore lint/style/noNonNullAssertion: setAttributes must exist here.
+					setAttributes!( { filename: nextValue } );
+				} }
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+			/>
+		);
+	}
+	if ( filename ) {
+		return <span className="a8c/code__filename">{ filename }</span>;
+	}
+	return null;
 };
 
 const DisplayLanguage = ( props: Props ) => {
