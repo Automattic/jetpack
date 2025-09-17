@@ -183,16 +183,30 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.1 - 2025-08-25
+### 4.4.0-beta1 - 2025-09-17
+#### Added
+- Cornerstone Pages: Add filter to allow the full list of pages to be changed.
+
 #### Changed
-- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
-- Cornerstone Pages: Improve behavior when running on WordPress MU installations.
-- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
-- My Jetpack: Fixed multisite availability check for restricted products and modules.
+- Critical CSS: Updated UI to indicate when generated CSS is too much.
+- Do not force CRM installation for Complete plan users
+- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels)
+- Updated PNG import location after refactors in My Jetpack.
+- Update package dependencies.
+- Update package dependencies.
+- Update package dependencies.
+- Update package dependencies.
+- Update package dependencies.
+- Update package dependencies.
 - Update package dependencies.
 
 #### Fixed
-- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.
+- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list.
+- E2E tests: improved connection flow
+- General: Fix translation warning when activating Boost.
+- Image CDN: Add support for images added via Breakdance blocks.
+- Image CDN: gracefully handle an attempt to filter null.
+- Page Cache: Fix fatal error when updating a page on multisite.
 
 --------
 
