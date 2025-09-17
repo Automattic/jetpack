@@ -257,7 +257,7 @@ abstract class Code_Block {
 				'<button class="%s element-button a8c/code__btn-copy" type="button" data-copy-text="%s" hidden>%s</button>',
 				WP_Theme_JSON::get_element_class_name( 'button' ),
 				esc_attr( $code_string ),
-				esc_html__( 'Copy', 'jetpack-mu-wpcom' ),
+				esc_html__( 'Copy', 'jetpack-mu-wpcom' )
 			)
 			: '';
 
