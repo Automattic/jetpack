@@ -112,19 +112,31 @@ registerBlockType( blockJson, {
 						<ToggleControl
 							label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
 							checked={ attributes.showLanguageName }
-							onChange={ ( next: boolean ) => setAttributes( { showLanguageName: next } ) }
+							onChange={ ( next: boolean ) =>
+								setAttributes( {
+									showLanguageName: next,
+								} )
+							}
 							__nextHasNoMarginBottom
 						/>
 						<ToggleControl
 							label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
 							checked={ attributes.showCopyButton }
-							onChange={ ( next: boolean ) => setAttributes( { showCopyButton: next } ) }
+							onChange={ ( next: boolean ) =>
+								setAttributes( {
+									showCopyButton: next,
+								} )
+							}
 							__nextHasNoMarginBottom
 						/>
 						<ToggleControl
 							label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
 							checked={ attributes.showLineNumbers }
-							onChange={ ( next: boolean ) => setAttributes( { showLineNumbers: next } ) }
+							onChange={ ( next: boolean ) =>
+								setAttributes( {
+									showLineNumbers: next,
+								} )
+							}
 							__nextHasNoMarginBottom
 						/>
 						<TextControl
@@ -386,20 +398,18 @@ export function colorsToStyle( attributes: Attributes ): {
 		lineProperties[ '--line-number-gutter-width' ] = `${ maxLineNumberWidth }ch`;
 	}
 
-	const backgroundProperties: CSSProperties = {};
+	const extraColorProperties: CSSProperties = {};
 	if ( attributes.backgroundColor ) {
-		backgroundProperties[
+		extraColorProperties[
 			'--colorBackground'
 		] = `var( --wp--preset--color--${ attributes.backgroundColor } )`;
 	} else if ( attributes.style?.color?.background ) {
-		backgroundProperties[ '--colorBackground' ] = attributes.style.color.background;
+		extraColorProperties[ '--colorBackground' ] = attributes.style.color.background;
 	}
-
-	const textColorProperties: CSSProperties = {};
 	if ( attributes.textColor ) {
-		backgroundProperties[ '--colorText' ] = `var( --wp--preset--color--${ attributes.textColor } )`;
+		extraColorProperties[ '--colorText' ] = `var( --wp--preset--color--${ attributes.textColor } )`;
 	} else if ( attributes.style?.color?.text ) {
-		backgroundProperties[ '--colorText' ] = attributes.style.color.text;
+		extraColorProperties[ '--colorText' ] = attributes.style.color.text;
 	}
 
 	return {
@@ -415,8 +425,7 @@ export function colorsToStyle( attributes: Attributes ): {
 		'--colorClassName': attributes.colorClassName,
 		'--colorInvalid': attributes.colorInvalid,
 		...lineProperties,
-		...backgroundProperties,
-		...textColorProperties,
+		...extraColorProperties,
 	} satisfies React.CSSProperties;
 }
 
