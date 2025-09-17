@@ -66,11 +66,12 @@ if ( isset( $_POST['editzbstax'] ) ) {
 
 			// Check for errors (e.g., duplicate tax rates)
 			if ( is_wp_error( $added_rate_id ) ) {
-				$tax_errors[] = sprintf(
+				$error_message = $added_rate_id->get_error_message();
+				$tax_errors[]  = sprintf(
 					/* translators: %1$s is the tax rate name, %2$s is the error message */
 					__( 'Tax rate "%1$s": %2$s', 'zero-bs-crm' ),
 					sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
-					$added_rate_id->get_error_message()
+					$error_message
 				);
 				continue;
 			}
