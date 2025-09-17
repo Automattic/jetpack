@@ -218,7 +218,7 @@ registerBlockType( blockJson, {
 				<code
 					className={
 						language
-							? `language-${ language.toLowerCase().replace( ' \t\n\r\f', '_' ) }`
+							? `language-${ language.toLowerCase().replaceAll( /[ \t\n\r\f]/g, '_' ) }`
 							: undefined
 					}
 				>
