@@ -682,8 +682,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Manage responses', 'jetpack-forms' ) }
-						className="jetpack-contact-form__manage-responses-panel"
+						title={ __( 'Responses storage', 'jetpack-forms' ) }
+						className="jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings
