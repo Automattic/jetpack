@@ -76,7 +76,8 @@ abstract class Code_Block {
 				'wp-i18n',
 				'wp-keycodes',
 			),
-			self::get_version( '../../../build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.js' )
+			self::get_version( '../../../build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.js' ),
+			array( 'in_footer' => true )
 		);
 
 		wp_register_script_module(

@@ -56,10 +56,9 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			return null;
 		}
 
-		/** @todo make this an array */
-		$replacement_code_html = '';
+		$replacement_code_html = array();
 		foreach ( $tokenized_code_data as $line ) {
-			$replacement_code_html .= '<div class="cm-line">';
+			$replacement_code_html[] = '<div class="cm-line">';
 			foreach ( $line as $chunk ) {
 				$code = base64_decode( $chunk[0], true );
 				if ( false === $code ) {
@@ -68,9 +67,9 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 				$class = $chunk[1] ?? null;
 
 				if ( ! $class ) {
-					$replacement_code_html .= esc_html( $code );
+					$replacement_code_html[] = esc_html( $code );
 				} else {
-					$replacement_code_html .= sprintf(
+					$replacement_code_html[] = sprintf(
 						'<span class="%s">%s</span>',
 						esc_attr( $class ),
 						_wp_specialchars(
@@ -82,7 +81,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 					);
 				}
 			}
-			$replacement_code_html .= '</div>';
+			$replacement_code_html[] = '</div>';
 		}
 
 		// We'll start at the end of the CODE opener.
@@ -94,7 +93,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		$this->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$start,
 			$length,
-			$replacement_code_html
+			implode( '', $replacement_code_html )
 		);
 
 		return array( $code_string, $this->get_updated_html() );
