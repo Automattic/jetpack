@@ -1,8 +1,10 @@
+import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useElementHeight } from '../../hooks';
+import { useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -17,7 +19,6 @@ import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
-import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
@@ -72,12 +73,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
-
-	/**
-	 * Vertical offset for tooltip positioning (in pixels)
-	 * @default 5
-	 */
-	tooltipOffset?: number;
 }
 
 // Base props type with optional responsive properties
@@ -140,17 +135,35 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
-	tooltipOffset,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
-		useChartMouseHandler( {
-			withTooltips,
-			tooltipOffset,
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
+		useTooltip< DataPointPercentage >();
+
+	const { TooltipInPortal } = useTooltipInPortal( {
+		scroll: true,
+	} );
+
+	const onMouseMove = ( event: MouseEvent< SVGElement >, arcData: DataPointPercentage ) => {
+		if ( ! withTooltips ) return;
+
+		const coords = localPoint( event );
+		if ( ! coords ) return;
+
+		showTooltip( {
+			tooltipData: arcData,
+			tooltipLeft: coords.x,
+			tooltipTop: coords.y,
 		} );
+	};
+
+	const onMouseLeave = () => {
+		if ( ! withTooltips ) return;
+		hideTooltip();
+	};
 
 	// Memoize legend options to prevent unnecessary re-calculations
 	const legendOptions = useMemo(
@@ -338,14 +351,25 @@ const PieChartInternal = ( {
 				) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ tooltipData }
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
+					<TooltipInPortal
+						top={ tooltipTop }
+						left={ tooltipLeft }
 						style={ {
-							transform: 'translate(-50%, -100%)',
+							padding: '0.5rem',
+							backgroundColor: 'rgba(0, 0, 0, 0.85)',
+							color: '#fff',
+							borderRadius: '4px',
+							fontSize: '14px',
+							boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+							pointerEvents: 'none',
 						} }
-					/>
+					>
+						<div>
+							<strong>{ tooltipData.label }</strong>
+							<br />
+							{ tooltipData.valueDisplay || tooltipData.value } ({ tooltipData.percentage }%)
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ /* Render HTML component children from PieChart.HTML */ }
