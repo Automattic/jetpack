@@ -1,6 +1,7 @@
 /**
- * Compute the CSS left value for the slider value indicator so it stays centered
- * above the thumb. Matches the formula used on the frontend interactivity store.
+ * Compute the CSS left value for the slider value indicator
+ * so it stays centered above the thumb. Used for both editor
+ * and frontend for slider field.
  *
  * @param {number|string} minParam   - Minimum slider value
  * @param {number|string} maxParam   - Maximum slider value
