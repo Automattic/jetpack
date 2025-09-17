@@ -106,7 +106,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 				return;
 			}
 
-			if ( '' === code.trim() || ! workerRef.current ) {
+			if ( ! workerRef.current ) {
 				return;
 			}
 
