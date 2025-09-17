@@ -6292,12 +6292,12 @@ function jpcrm_tax_rates_generate_lookup_key( $name, $rate ) {
 			// Cache miss - load all tax rates
 			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$table_name = $ZBSCRM_t['tax'];
-			$results    = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-				'SELECT ID, zbsc_tax_name, zbsc_rate 
-				FROM ' . esc_sql( $table_name ) . ' 
-				ORDER BY ID DESC',
-				ARRAY_A
-			);
+			$sql        = "SELECT ID, zbsc_tax_name, zbsc_rate
+					FROM `{$table_name}`
+					ORDER BY ID DESC";
+
+			/* phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared -- Safe: table name is internal mapping, not user input */
+			$results = $wpdb->get_results( $wpdb->prepare( $sql ), ARRAY_A );
 
 			// Build lookup array for fast searching
 			$all_tax_rates = array();

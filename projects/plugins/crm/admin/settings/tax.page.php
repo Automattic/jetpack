@@ -64,14 +64,24 @@ if ( isset( $_POST['editzbstax'] ) ) {
 				)
 			);
 
-			// Check for errors (e.g., duplicate tax rates)
-			if ( is_wp_error( $added_rate_id ) ) {
-				$error_message = $added_rate_id->get_error_message();
-				$tax_errors[]  = sprintf(
+			// Duplicate / logical error (WP_Error)
+			if ( $added_rate_id instanceof WP_Error ) {
+				$tax_errors[] = sprintf(
 					/* translators: %1$s is the tax rate name, %2$s is the error message */
 					__( 'Tax rate "%1$s": %2$s', 'zero-bs-crm' ),
 					sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
-					$error_message
+					$added_rate_id->get_error_message()
+				);
+				continue;
+			}
+
+			// Hard DB failure (false)
+			if ( $added_rate_id === false ) {
+				$tax_errors[] = sprintf(
+					/* translators: %1$s is the tax rate name, %2$s is the error message */
+					__( 'Tax rate "%1$s": %2$s', 'zero-bs-crm' ),
+					sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
+					__( 'Failed to save tax rate due to a database error.', 'zero-bs-crm' )
 				);
 				continue;
 			}
