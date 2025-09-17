@@ -1,9 +1,9 @@
 import { BLOCK_NAME } from '../common/block';
 
 export class WorkerAdmin {
-	private worker: Worker;
-	private workerPort: MessagePort;
-	private outbox: Map< string, Function > = new Map();
+	#worker: Worker;
+	#workerPort: MessagePort;
+	#outbox: Map< string, Function > = new Map();
 
 	static async start(): Promise< WorkerAdmin > {
 		const worker = await WorkerAdmin.loadWorker();
@@ -37,7 +37,7 @@ export class WorkerAdmin {
 	}
 
 	public terminate() {
-		this.worker?.terminate();
+		this.#worker?.terminate();
 	}
 
 	public guessLanguage( code: string ): Promise< string > {
@@ -47,8 +47,8 @@ export class WorkerAdmin {
 	}
 
 	private constructor( worker: Worker, workerPort: MessagePort ) {
-		this.worker = worker;
-		this.workerPort = workerPort;
+		this.#worker = worker;
+		this.#workerPort = workerPort;
 
 		workerPort.onmessage = ( event: MessageEvent ) => {
 			const ref = event.data.ref;
@@ -56,7 +56,7 @@ export class WorkerAdmin {
 				return;
 			}
 
-			const responder = this.outbox.get( ref );
+			const responder = this.#outbox.get( ref );
 			if ( ! responder ) {
 				return;
 			}
@@ -73,8 +73,8 @@ export class WorkerAdmin {
 		return new Promise( ( resolve, reject ) => {
 			const ref = this.ref();
 
-			this.workerPort.postMessage( { ...args, method, ref } );
-			this.outbox.set( ref, ( response: unknown ) => {
+			this.#workerPort.postMessage( { ...args, method, ref } );
+			this.#outbox.set( ref, ( response: unknown ) => {
 				const [ success, data ] = responder( response );
 				if ( success ) {
 					resolve( data );
@@ -82,7 +82,7 @@ export class WorkerAdmin {
 					reject( data );
 				}
 
-				this.outbox.delete( ref );
+				this.#outbox.delete( ref );
 			} );
 		} );
 	}
@@ -95,6 +95,8 @@ export class WorkerAdmin {
 	 * the module, but because it’s being passed as a string
 	 * to `new WebWorker()` it’s a bit more complicated than
 	 * calling `import( './code-block-worker' );`.
+	 *
+	 * @return The worker URL or null if not found.
 	 */
 	private static getWorkerURL(): string | null {
 		const importMap = document.querySelector( '[type=importmap]' );
