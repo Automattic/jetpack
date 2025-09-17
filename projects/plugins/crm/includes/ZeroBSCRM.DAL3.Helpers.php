@@ -6297,7 +6297,7 @@ function jpcrm_tax_rates_generate_lookup_key( $name, $rate ) {
 					ORDER BY ID DESC";
 
 			/* phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared -- Safe: table name is internal mapping, not user input */
-			$results = $wpdb->get_results( $wpdb->prepare( $sql ), ARRAY_A );
+			$results = $wpdb->get_results( $sql, ARRAY_A );
 
 			// Build lookup array for fast searching
 			$all_tax_rates = array();
