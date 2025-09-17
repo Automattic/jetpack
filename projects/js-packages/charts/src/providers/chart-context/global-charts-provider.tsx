@@ -88,12 +88,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
+			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
 
 			return {
 				color: resolveColor( {
 					group: data?.group,
 					index,
-					overrideColor: overrideColor || ( isSeriesData && data?.options?.stroke ),
+					overrideColor:
+						overrideColor ||
+						( isSeriesData && data?.options?.stroke ) ||
+						( isPointPercentageData && data?.color ),
 				} ),
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
 				glyph: providerTheme.glyphs?.[ index ],

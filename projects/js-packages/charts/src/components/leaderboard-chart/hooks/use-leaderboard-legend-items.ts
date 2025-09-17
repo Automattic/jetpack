@@ -55,8 +55,6 @@ export function useLeaderboardLegendItems( {
 			label: legendLabels?.primary || __( 'Current period', 'jetpack-charts' ),
 			value: '',
 			color: resolvedPrimaryColor,
-			index: 0,
-			overrideColor: primaryColor,
 		} );
 
 		// Add comparison period legend item if comparison is enabled and overlay label is not enabled
@@ -70,8 +68,6 @@ export function useLeaderboardLegendItems( {
 				label: legendLabels?.comparison || __( 'Previous period', 'jetpack-charts' ),
 				value: '',
 				color: resolvedSecondaryColor,
-				index: 1,
-				overrideColor: secondaryColor,
 			} );
 		}
 

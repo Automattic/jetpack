@@ -11,7 +11,7 @@ export interface ChartRegistration {
 
 export type GetElementStylesParams = {
 	index: number;
-	data?: SeriesData | DataPointPercentage | BaseLegendItem;
+	data?: SeriesData | DataPointPercentage;
 	overrideColor?: string;
 };
 

@@ -2,16 +2,9 @@ import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import {
-	type RefAttributes,
-	type ForwardRefExoticComponent,
-	forwardRef,
-	useCallback,
-	useMemo,
-	useContext,
-} from 'react';
+import { type RefAttributes, type ForwardRefExoticComponent, forwardRef, useCallback } from 'react';
 import { useTextTruncation } from '../../../hooks';
-import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
+import { useGlobalChartsTheme } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
@@ -90,38 +83,16 @@ export const BaseLegend: ForwardRefExoticComponent<
 		ref
 	) => {
 		const theme = useGlobalChartsTheme();
-		const context = useContext( GlobalChartsContext );
-		const getElementStyles = context?.getElementStyles;
-
-		// Resolve colors dynamically for items that have group info
-		const itemsWithResolvedColors = useMemo( () => {
-			return items.map( item => {
-				// If item has group info and we have a context, resolve color dynamically
-				if ( item.group !== undefined && item.index !== undefined && getElementStyles ) {
-					const { color } = getElementStyles( {
-						data: item,
-						index: item.index,
-						overrideColor: item.overrideColor,
-					} );
-
-					return { ...item, color };
-				}
-				// Otherwise use the static color
-				return item;
-			} );
-		}, [ items, getElementStyles ] );
 
 		const legendScale = scaleOrdinal( {
-			domain: itemsWithResolvedColors.map( item => item.label ),
-			range: itemsWithResolvedColors.map( item => item.color ),
+			domain: items.map( item => item.label ),
+			range: items.map( item => item.color ),
 		} );
 		const domain = legendScale.domain();
 
-		// For right-aligned vertical legends, use row-reverse to align text consistently
-
 		const getShapeStyle = useCallback(
-			( { index }: { index: number } ) => itemsWithResolvedColors[ index ]?.shapeStyle,
-			[ itemsWithResolvedColors ]
+			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
+			[ items ]
 		);
 
 		return (

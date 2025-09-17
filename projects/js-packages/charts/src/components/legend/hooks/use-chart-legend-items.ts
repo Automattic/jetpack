@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
-import { useGlobalChartsTheme } from '../../../providers';
-import { getItemShapeStyles, getSeriesStroke, formatPercentage } from '../../../utils';
-import type { ChartTheme, SeriesData, DataPointDate, DataPointPercentage } from '../../../types';
+import {
+	useGlobalChartsContext,
+	type GetElementStylesParams,
+	type ElementStyles,
+} from '../../../providers';
+import { formatPercentage } from '../../../utils';
+import type { SeriesData, DataPointDate, DataPointPercentage } from '../../../types';
 import type { BaseLegendItem } from '../types';
-import type { LegendShape } from '@visx/legend/lib/types';
-import type { GlyphProps } from '@visx/xychart';
-import type { ReactNode } from 'react';
+import type { GlyphProps, LineStyles } from '@visx/xychart';
+import type { ReactNode, CSSProperties } from 'react';
 
 export type LegendValueDisplay = 'percentage' | 'value' | 'valueDisplay' | 'none';
 
@@ -58,42 +61,44 @@ function formatPointValue(
 
 /**
  * Processes SeriesData into legend items
- * @param seriesData  - The series data to process
- * @param theme       - The chart theme for colors
- * @param showValues  - Whether to show values in legend
- * @param withGlyph   - Whether to include glyph rendering
- * @param glyphSize   - Size of the glyph
- * @param renderGlyph - Component to render the glyph
- * @param legendShape - The shape to use for the legend
+ * @param seriesData       - The series data to process
+ * @param getElementStyles - Function to get element styles
+ * @param showValues       - Whether to show values in legend
+ * @param withGlyph        - Whether to include glyph rendering
+ * @param glyphSize        - Size of the glyph
+ * @param renderGlyph      - Component to render the glyph
  * @return Array of processed legend items
  */
 function processSeriesData(
 	seriesData: SeriesData[],
-	theme: ChartTheme,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
 	showValues: boolean,
 	withGlyph: boolean,
 	glyphSize: number,
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
-	legendShape?: LegendShape< SeriesData[], number >
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode
 ): BaseLegendItem[] {
 	const mapper = ( series: SeriesData, index: number ) => {
-		const { shapeStyles } = getItemShapeStyles( series, index, theme, legendShape );
-		const baseItem = {
+		const { color, lineStyles, glyph } = getElementStyles( {
+			data: series,
+			index,
+		} );
+
+		const baseItem: BaseLegendItem = {
 			label: series.label,
 			value: showValues ? series.data?.length?.toString() || '0' : '',
-			color: getSeriesStroke( series, index, theme.colors ),
-			shapeStyle: shapeStyles,
-			group: series.group,
-			index,
-			overrideColor: series.options?.stroke,
+			color,
+			shapeStyle: lineStyles as CSSProperties & LineStyles,
 		};
 
-		if ( withGlyph && renderGlyph ) {
-			return {
-				...baseItem,
-				glyphSize,
-				renderGlyph,
-			};
+		if ( withGlyph ) {
+			const glyphToUse = renderGlyph || glyph;
+			if ( glyphToUse ) {
+				return {
+					...baseItem,
+					glyphSize,
+					renderGlyph: glyphToUse,
+				};
+			}
 		}
 
 		return baseItem;
@@ -105,7 +110,7 @@ function processSeriesData(
 /**
  * Processes point data into legend items
  * @param pointData          - The point data to process
- * @param theme              - The chart theme for colors
+ * @param getElementStyles   - Function to get element styles
  * @param showValues         - Whether to show values in legend
  * @param legendValueDisplay - What type of value to display
  * @param withGlyph          - Whether to include glyph rendering
@@ -115,7 +120,7 @@ function processSeriesData(
  */
 function processPointData(
 	pointData: ( DataPointDate | DataPointPercentage )[],
-	theme: ChartTheme,
+	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
 	showValues: boolean,
 	legendValueDisplay: LegendValueDisplay,
 	withGlyph: boolean,
@@ -123,23 +128,27 @@ function processPointData(
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode
 ): BaseLegendItem[] {
 	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
-		const baseItem = {
+		const { color, lineStyles, glyph } = getElementStyles( {
+			data: point as DataPointPercentage,
+			index,
+		} );
+
+		const baseItem: BaseLegendItem = {
 			label: point.label,
 			value: formatPointValue( point, showValues, legendValueDisplay ),
-			color: ( point as DataPointPercentage ).color ?? theme.colors[ index % theme.colors.length ],
-			group: ( point as DataPointPercentage ).group,
-			index,
-			overrideColor: ( point as DataPointPercentage ).color,
+			color,
+			shapeStyle: lineStyles as CSSProperties & LineStyles,
 		};
 
-		if ( withGlyph && renderGlyph ) {
-			const itemWithGlyph = {
-				...baseItem,
-				glyphSize,
-				renderGlyph,
-			};
-
-			return itemWithGlyph;
+		if ( withGlyph ) {
+			const glyphToUse = renderGlyph || glyph;
+			if ( glyphToUse ) {
+				return {
+					...baseItem,
+					glyphSize,
+					renderGlyph: glyphToUse,
+				};
+			}
 		}
 
 		return baseItem;
@@ -150,18 +159,13 @@ function processPointData(
 
 /**
  * Hook to transform chart data into legend items
- * @param data        - The chart data to transform
- * @param options     - Configuration options for legend generation
- * @param legendShape - The shape type for legend items (string literal or React component)
+ * @param data    - The chart data to transform
+ * @param options - Configuration options for legend generation
  * @return Array of legend items ready for display
  */
 export function useChartLegendItems<
 	T extends SeriesData[] | DataPointDate[] | DataPointPercentage[],
->(
-	data: T,
-	options: ChartLegendOptions = {},
-	legendShape?: LegendShape< SeriesData[], number >
-): BaseLegendItem[] {
+>( data: T, options: ChartLegendOptions = {} ): BaseLegendItem[] {
 	const {
 		showValues = false,
 		legendValueDisplay = 'percentage',
@@ -169,7 +173,7 @@ export function useChartLegendItems<
 		glyphSize = 8,
 		renderGlyph,
 	} = options;
-	const theme = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || ! Array.isArray( data ) || data.length === 0 ) {
@@ -180,19 +184,18 @@ export function useChartLegendItems<
 		if ( 'data' in data[ 0 ] ) {
 			return processSeriesData(
 				data as SeriesData[],
-				theme,
+				getElementStyles,
 				showValues,
 				withGlyph,
 				glyphSize,
-				renderGlyph,
-				legendShape
+				renderGlyph
 			);
 		}
 
 		// Handle DataPointDate or DataPointPercentage (single data points)
 		return processPointData(
 			data as ( DataPointDate | DataPointPercentage )[],
-			theme,
+			getElementStyles,
 			showValues,
 			legendValueDisplay,
 			withGlyph,
@@ -201,12 +204,11 @@ export function useChartLegendItems<
 		);
 	}, [
 		data,
-		theme,
+		getElementStyles,
 		showValues,
 		legendValueDisplay,
 		withGlyph,
 		glyphSize,
 		renderGlyph,
-		legendShape,
 	] );
 }
