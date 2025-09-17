@@ -351,14 +351,14 @@ class Code_Block_Code_Replacer extends WP_HTML_Processor {
 		// <code>### text ###</code>.
 		if (
 			! $this->next_token() ||
-			! $this->get_token_type() === '#text'
+			$this->get_token_type() !== '#text'
 		) {
 			return null;
 		}
 		$code_string = $this->get_modifiable_text();
 		if (
 			! $this->next_token() ||
-			! $this->get_tag() === 'CODE' ||
+			$this->get_tag() !== 'CODE' ||
 			! $this->is_tag_closer()
 		) {
 			return null;
