@@ -128,7 +128,7 @@ function zeroBSCRM_notifyme_echo_type($type = '', $title = '', $sender = -999, $
         break;
 
     case 'salesdash.suggestion':
-        esc_html_e( '⛽ See all your sales information in a sales dashboard built just for you.', 'zero-bs-crm') . ' ';
+			echo esc_html( __( '⛽ See all your sales information in a sales dashboard built just for you.', 'zero-bs-crm' ) . ' ' );
         break;
 
 

@@ -17,8 +17,8 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		/**
 		 * Get option.
 		 *
-		 * @param string        $option_name Option name.
-		 * @param string|boolen $default     Optional. Default false.
+		 * @param string         $option_name Option name.
+		 * @param string|boolean $default     Optional. Default false.
 		 * @return mixed Option value.
 		 */
 		public static function get_option( $option_name, $default = false ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound

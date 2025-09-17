@@ -1355,7 +1355,9 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
 				}
 
 				// build message
+				// @phan-suppress-next-line PhanTypeSuspiciousStringExpression - These vars are defined at the beginning of the function.
 				$raw_message = "From: {$send_from_name} <{$send_from}>\r\n";
+				// @phan-suppress-next-line PhanTypeSuspiciousStringExpression - These vars are defined at the beginning of the function.
 				$raw_message .= "To: {$send_to_name} <{$send_to}>\r\n";
 				// @phan-suppress-next-line PhanCoalescingAlwaysNull - Phan is understandably confused, but $subject is defined at the beginning of the function.
 				$raw_message .= 'Subject: =?utf-8?B?' . base64_encode( $subject ?? '' ) . "?=\r\n"; // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
