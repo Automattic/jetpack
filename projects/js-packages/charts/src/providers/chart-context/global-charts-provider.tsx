@@ -66,7 +66,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				return overrideColor;
 			}
 
-			const palette = providerTheme.colors ?? [];
+			const { colors } = providerTheme;
 
 			// If group provided, maintain a stable assignment
 			if ( group ) {
@@ -77,15 +77,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				// Assign next color from palette in a deterministic cycling manner
 
 				const assignedCount = groupToColorMapRef.current.size;
-				const color = palette.length > 0 ? palette[ assignedCount % palette.length ] : '#000000';
+				const color = colors.length > 0 ? colors[ assignedCount % colors.length ] : '#000000';
 				groupToColorMapRef.current.set( group, color );
 				return color;
 			}
 
 			// Fallback: index-based color cycling
-			return palette.length > 0 ? palette[ ( index || 0 ) % palette.length ] : '#000000';
+			return colors.length > 0 ? colors[ ( index || 0 ) % colors.length ] : '#000000';
 		},
-		[ providerTheme.colors ]
+		[ providerTheme ]
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
