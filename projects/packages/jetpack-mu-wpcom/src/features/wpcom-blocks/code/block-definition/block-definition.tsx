@@ -439,12 +439,4 @@ function htmlEncode( content: string ): string {
 		.replaceAll( '[', '&#91;' );
 }
 
-const EditCodeMirror = React.lazy( async () => {
-	const i = import( '@a8cCodeBlock/block-edit-function' );
-	new Promise( resolve => {
-		// biome-ignore lint/suspicious/noTsIgnore: just debugging
-		// @ts-ignore
-		window.__continue = resolve;
-	} );
-	return i;
-} );
+const EditCodeMirror = React.lazy( () => import( '@a8cCodeBlock/block-edit-function' ) );
