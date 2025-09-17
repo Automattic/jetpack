@@ -84,7 +84,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return $event_obj->error;
 		}
 
-		return WC_Tracks_Client::record_event( $event_obj );
+		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 	}
 
 	/**
@@ -98,7 +98,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		if ( is_wp_error( $event_obj->error ) ) {
 			return $event_obj->error;
 		}
-		return WC_Tracks_Client::record_event( $event_obj );
+		return WC_Tracks_Client::record_event( $event_obj ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 	}
 
 	/**
@@ -116,9 +116,9 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		$common_properties = array_merge(
 			array(
-				'session_id'     => isset( $session_details['session_id'] ) ? $session_details['session_id'] : null,
-				'landing_page'   => isset( $session_details['landing_page'] ) ? $session_details['landing_page'] : null,
-				'is_engaged'     => isset( $session_details['is_engaged'] ) ? $session_details['is_engaged'] : null,
+				'session_id'     => $session_details['session_id'] ?? null,
+				'landing_page'   => $session_details['landing_page'] ?? null,
+				'is_engaged'     => $session_details['is_engaged'] ?? null,
 				'ui'             => $blog_user_id,
 				'blog_id'        => $blog_details['blog_id'],
 				'store_id'       => $blog_details['store_id'],
