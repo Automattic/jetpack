@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: allow block module files to live on ./module directory relative to block
