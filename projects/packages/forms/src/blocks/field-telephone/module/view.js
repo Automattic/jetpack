@@ -1,7 +1,7 @@
 import { store, getContext, getConfig, getElement, withSyncEvent } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
-import { countries } from '../../blocks/field-telephone/country-list';
-import { isEmptyValue } from '../../contact-form/js/validate-helper';
+import { isEmptyValue } from '../../../contact-form/js/validate-helper';
+import { countries } from '../country-list';
 const NAMESPACE = 'jetpack/form';
 
 const asYouTypes = {};

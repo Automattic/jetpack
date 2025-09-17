@@ -7,6 +7,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 const { glob } = require( 'glob' );
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
+const blocksSrcDir = path.join( __dirname, '../src/blocks' );
 
 // Check if modules directory exists
 if ( ! fs.existsSync( moduleSrcDir ) ) {
@@ -16,12 +17,17 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 } else {
 	// Find all JS and TS files in the modules directory
 	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.{js,ts}' ) );
+	const blockModuleFiles = glob.sync( path.join( blocksSrcDir, '**/module/*.{js,ts}' ) );
 
 	// Create entry points
-	const entry = moduleFiles.reduce( ( acc, filepath ) => {
+	const entry = [ ...moduleFiles, ...blockModuleFiles ].reduce( ( acc, filepath ) => {
 		// Maintain the directory structure relative to src/modules
 		const relativePath = path.relative( moduleSrcDir, filepath );
-		const outputPath = path.join( path.dirname( relativePath ), path.parse( filepath ).name );
+		const outputPath = path
+			.join( path.dirname( relativePath ), path.parse( filepath ).name )
+			.replace( '/module/', '/' ) // NOTE: these 2 replacements are for block module
+			.replace( '../blocks/', '' ); // files so they go into the dist/modules directory
+
 		acc[ outputPath ] = filepath;
 		return acc;
 	}, {} );
