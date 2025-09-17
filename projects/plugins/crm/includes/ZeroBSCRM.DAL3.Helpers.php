@@ -6308,7 +6308,8 @@ function zeroBSCRM_taxRates_getTaxValue( $subtotal = 0.0, $taxRateIDCSV = '' ) {
 		$existing_rate_id = isset( $all_tax_rates[ $lookup_key ] ) ? $all_tax_rates[ $lookup_key ] : 0;
 
 		if ( $existing_rate_id > 0 ) {
-			$id = $existing_rate_id;
+			// Return error for duplicate tax rate
+			return new WP_Error( 'duplicate_tax_rate', __( 'A tax rate with this name and rate already exists.', 'zero-bs-crm' ) );
 		}
 	}
 

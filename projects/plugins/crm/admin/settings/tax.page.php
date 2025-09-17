@@ -14,7 +14,8 @@ global $wpdb, $zbs;  // } Req
 $confirmAct = false;
 $taxTables  = zeroBSCRM_taxRates_getTaxTableArr(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-$sbupdated = false;
+$sbupdated  = false;
+$tax_errors = array();
 
 // } Act on any edits!
 if ( isset( $_POST['editzbstax'] ) ) {
@@ -63,6 +64,17 @@ if ( isset( $_POST['editzbstax'] ) ) {
 				)
 			);
 
+			// Check for errors (e.g., duplicate tax rates)
+			if ( is_wp_error( $added_rate_id ) ) {
+				$tax_errors[] = sprintf(
+					/* translators: %1$s is the tax rate name, %2$s is the error message */
+					__( 'Tax rate "%1$s": %2$s', 'zero-bs-crm' ),
+					sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
+					$added_rate_id->get_error_message()
+				);
+				continue;
+			}
+
 			if ( $potential_rate_id === -1 && $added_rate_id > 0 ) {
 				$new_tax_table_ids[] = $added_rate_id;
 			}
@@ -79,8 +91,10 @@ if ( isset( $_POST['editzbstax'] ) ) {
 	// Reload most recent tax rate table
 	$taxTables = zeroBSCRM_taxRates_getTaxTableArr(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-	$sbupdated = true;
-
+	// Only mark as updated if there were no errors
+	if ( empty( $tax_errors ) ) {
+		$sbupdated = true;
+	}
 }
 
 // Debug echo '<pre>'.print_r($taxTables,1).'</pre>';
@@ -91,6 +105,20 @@ if ( isset( $_POST['editzbstax'] ) ) {
 if ( $sbupdated ) {
 	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
 	zeroBSCRM_html_msg( 0, __( 'Settings Updated', 'zero-bs-crm' ) );
+	echo '</div><br>';
+}
+
+// Display errors if any
+if ( ! empty( $tax_errors ) ) {
+	echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
+	echo '<div class="ui negative message">';
+	echo '<div class="header">' . esc_html__( 'Tax Rate Errors', 'zero-bs-crm' ) . '</div>';
+	echo '<ul class="list">';
+	foreach ( $tax_errors as $tax_error ) {
+		echo '<li>' . esc_html( $tax_error ) . '</li>';
+	}
+	echo '</ul>';
+	echo '</div>';
 	echo '</div><br>';
 }
 ?>
