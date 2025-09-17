@@ -1,6 +1,7 @@
+import { ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type { CompleteChartTheme, DataPointPercentage, SeriesData } from '../../types';
-import type { LineStyles } from '@visx/xychart';
+import type { GlyphProps, LineStyles } from '@visx/xychart';
 
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
@@ -17,6 +18,7 @@ export type GetElementStylesParams = {
 export type ElementStyles = {
 	color: string;
 	lineStyles: LineStyles;
+	glyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 };
 
 export interface GlobalChartsContextValue {

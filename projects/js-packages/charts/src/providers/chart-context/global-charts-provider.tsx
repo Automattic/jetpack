@@ -99,6 +99,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 					overrideColor: overrideColor || ( isSeriesData && data?.options?.stroke ),
 				} ),
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
+				glyph: providerTheme.glyphs?.[ index ],
 			};
 		},
 		[ providerTheme, resolveColor ]

@@ -301,19 +301,20 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						series.label === props.key || series.data.includes( props.datum as DataPointDate )
 				);
 
-				// Resolve group color for tooltip glyph
 				const seriesData = dataSorted[ seriesIndex ];
-				const color = seriesData
-					? getElementStyles( { data: seriesData, index: seriesIndex } ).color
-					: props.color;
+
+				const { color, glyph: themeGlyph } = getElementStyles( {
+					data: seriesData,
+					index: seriesIndex,
+				} );
 
 				const propsWithResolvedColor = { ...props, color };
-				const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
+
 				return themeGlyph
 					? themeGlyph( propsWithResolvedColor )
 					: renderGlyph( propsWithResolvedColor );
 			};
-		}, [ dataSorted, providerTheme.glyphs, renderGlyph, getElementStyles ] );
+		}, [ dataSorted, renderGlyph, getElementStyles ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
