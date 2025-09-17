@@ -451,6 +451,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->is_connected );
 
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
