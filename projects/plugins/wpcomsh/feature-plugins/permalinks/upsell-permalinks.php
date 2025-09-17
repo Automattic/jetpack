@@ -12,25 +12,6 @@ declare( strict_types = 1 );
 
 use Automattic\Jetpack\Plans;
 
-const UPSELL_PAGE_TEMPLATE_ALLOWED_HTML = array(
-	'a'      => array(
-		'class'       => array(),
-		'href'        => array(),
-		'target'      => array(),
-		'data-target' => array(),
-		'rel'         => array(),
-	),
-	'div'    => array( 'class' => array() ),
-	'h1'     => array(),
-	'h2'     => array(),
-	'h3'     => array(),
-	'li'     => array(),
-	'p'      => array(),
-	'strong' => array(),
-	'sup'    => array(),
-	'ul'     => array( 'class' => array() ),
-);
-
 /**
  * Upsell page for options-permalink.php
  */
@@ -57,7 +38,7 @@ function wpcomsh_upsell_page_permalink() {
 					<?php echo esc_html( $description ); ?>
 					<a href="https://wordpress.com/support/<?php echo esc_attr( $support_link ); ?>" target="_blank" rel="noopener noreferrer" data-target="wpcom-help-center"><?php echo esc_html( __( 'Learn more', 'wpcomsh' ) ); ?></a>
 				</p>
-				<a class="button button-primary" href="https://wordpress.com/checkout/<?php echo esc_attr( (int) \Jetpack_Options::get_option( 'id' ) ); ?>/business?redirect_to=<?php echo esc_attr( get_site_url() . $checkout_redirect_to ); ?>&ref=<?php echo esc_attr( $slug ); ?>">
+				<a class="button button-primary" href="https://wordpress.com/checkout/<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>/business?redirect_to=<?php echo esc_attr( get_site_url() . $checkout_redirect_to ); ?>&ref=<?php echo esc_attr( $slug ); ?>">
 					<?php
 					/* translators: %s: Plan name. */
 					echo esc_html( sprintf( __( 'Get %s plan', 'wpcomsh' ), $plan_name ) );
