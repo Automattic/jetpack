@@ -49,6 +49,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		}
 		$this->set_bookmark( 'code_block_html_replace_end' );
 
+		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
 		if ( ! isset(
 			$this->bookmarks['_code_block_html_replace_start'],
 			$this->bookmarks['_code_block_html_replace_end']
@@ -60,6 +61,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		foreach ( $tokenized_code_data as $line ) {
 			$replacement_code_html[] = '<div class="cm-line">';
 			foreach ( $line as $chunk ) {
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				$code = base64_decode( $chunk[0], true );
 				if ( false === $code ) {
 					continue;
