@@ -8,7 +8,7 @@
  * @param {number|string} valueParam - Current slider value
  * @return {string} CSS calc expression for the left position
  */
-export function computeSliderPosition( minParam, maxParam, valueParam ) {
+export function computeSliderValuePosition( minParam, maxParam, valueParam ) {
 	const min = Number( minParam );
 	const max = Number( maxParam );
 	let value = Number( valueParam );

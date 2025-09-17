@@ -1,5 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
-import { computeSliderPosition } from '../../util/compute-slider-position';
+import { computeSliderValuePosition } from '../../util/compute-slider-value-position';
 
 const NAMESPACE = 'jetpack/form';
 
@@ -27,7 +27,7 @@ store( NAMESPACE, {
 			const context = getContext();
 			const { min, max } = getSliderMinMax( context );
 			const value = context.fieldValue ?? context.default ?? min;
-			return computeSliderPosition( min, max, value );
+			return computeSliderValuePosition( min, max, value );
 		},
 	},
 	actions: {
