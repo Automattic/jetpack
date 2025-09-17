@@ -243,9 +243,10 @@ describe( 'useKeyboardNavigation', () => {
 		} );
 
 		return (
-			<button
+			<div
 				ref={ chartRef }
-				type="button"
+				role="button"
+				tabIndex={ 0 }
 				onFocus={ onChartFocus }
 				onBlur={ onChartBlur }
 				onKeyDown={ onChartKeyDown }
@@ -258,7 +259,7 @@ describe( 'useKeyboardNavigation', () => {
 						Tooltip { selectedIndex }
 					</div>
 				) }
-			</button>
+			</div>
 		);
 	};
 

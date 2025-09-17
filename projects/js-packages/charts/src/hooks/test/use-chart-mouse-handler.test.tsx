@@ -3,6 +3,7 @@ import { localPoint } from '@visx/event';
 import { useChartMouseHandler } from '../use-chart-mouse-handler';
 import type { MouseEvent } from 'react';
 
+// Mock localPoint to return simple x,y coordinates
 jest.mock( '@visx/event', () => ( {
 	localPoint: jest.fn( () => ( { x: 100, y: 200 } ) ),
 } ) );
@@ -12,6 +13,7 @@ const mockedLocalPoint = localPoint as jest.MockedFunction< typeof localPoint >;
 describe( 'useChartMouseHandler', () => {
 	beforeEach( () => {
 		// Reset the mock to default behavior before each test
+		// @ts-expect-error - Mocking simplified return value for tests
 		mockedLocalPoint.mockReturnValue( { x: 100, y: 200 } );
 	} );
 
@@ -92,6 +94,7 @@ describe( 'useChartMouseHandler', () => {
 		} as unknown as MouseEvent< SVGElement >;
 
 		// Mock localPoint to return coordinates near top
+		// @ts-expect-error - Mocking simplified return value for tests
 		mockedLocalPoint.mockReturnValueOnce( { x: 100, y: 3 } );
 
 		const { result } = renderHook( () =>
