@@ -226,24 +226,24 @@ abstract class Code_Block {
 		);
 		foreach ( $color_attributes as $color_attr ) {
 			if ( ! empty( $attributes[ $color_attr ] ) ) {
-				$style_properties[] = "--{$color_attr}: {$attributes[ $color_attr ]};";
+				$style_properties[] = "--{$color_attr}: {$attributes[ $color_attr ]}";
 			}
 		}
 
 		if ( isset( $attributes['backgroundColor'] ) ) {
-			$style_properties[] = "--colorBackground: var( --wp--preset--color--{$attributes['backgroundColor']} );";
+			$style_properties[] = "--colorBackground: var( --wp--preset--color--{$attributes['backgroundColor']} )";
 		} elseif ( isset( $attributes['style']['color']['background'] ) ) {
-			$style_properties[] = "--colorBackground: {$attributes['style']['color']['background']};";
+			$style_properties[] = "--colorBackground: {$attributes['style']['color']['background']}";
 		}
 
 		if ( isset( $attributes['textColor'] ) ) {
-			$style_properties[] = "--colorText: var( --wp--preset--color--{$attributes['textColor']} );";
+			$style_properties[] = "--colorText: var( --wp--preset--color--{$attributes['textColor']} )";
 		} elseif ( isset( $attributes['style']['color']['text'] ) ) {
-			$style_properties[] = "--colorText: {$attributes['style']['color']['text']};";
+			$style_properties[] = "--colorText: {$attributes['style']['color']['text']}";
 		}
 
 		if ( ! empty( $style_properties ) ) {
-			$extra_attrs['style'] = implode( '; ', $style_properties );
+			$extra_attrs['style'] = implode( '; ', $style_properties ) . ';';
 		}
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
