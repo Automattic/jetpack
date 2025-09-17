@@ -194,7 +194,7 @@ abstract class Code_Block {
 			wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
 		}
 
-		$show_line_numbers = isset( $attributes['showLineNumbers'] );
+		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
 		if ( $show_line_numbers && ! empty( $attributes['tokenizedLines'] ) ) {
 			$extra_attrs['class']  = 'show-line-numbers';
 			$line_numbers_start_at = isset( $attributes['lineNumbersStartAt'] )
@@ -252,7 +252,7 @@ abstract class Code_Block {
 			? sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 
-		$copy_html = isset( $attributes['showCopyButton'] )
+		$copy_html = ( $attributes['showCopyButton'] ?? false )
 			? sprintf(
 				'<button class="%s element-button a8c/code__btn-copy" type="button" data-copy-text="%s" hidden>%s</button>',
 				WP_Theme_JSON::get_element_class_name( 'button' ),
@@ -261,7 +261,7 @@ abstract class Code_Block {
 			)
 			: '';
 
-		$language_html = isset( $attributes['showLanguageName'] ) && ! empty( $attributes['language'] )
+		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
 			? sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
 			: '';
 
