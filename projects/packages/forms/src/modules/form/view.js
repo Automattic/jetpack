@@ -3,6 +3,7 @@
  */
 import {
 	getContext,
+	getElement,
 	store,
 	getConfig,
 	withSyncEvent as originalWithSyncEvent,
@@ -46,7 +47,6 @@ const setSubmissionData = ( data = [] ) => {
 	const context = getContext();
 
 	context.submissionData = data;
-
 	// This cannot be a derived state because it needs to be defined on the backend for first render to avoid hydration errors.
 	context.formattedSubmissionData = data.map( item => ( {
 		label: maybeAddColonToLabel( item.label ),
@@ -562,6 +562,12 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+
+		renderContent() {
+			const context = getContext();
+			const element = getElement();
+			element.ref.innerHTML = context.submission.value;
 		},
 
 		scrollToWrapper() {

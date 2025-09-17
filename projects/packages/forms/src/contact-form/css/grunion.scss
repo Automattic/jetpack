@@ -270,6 +270,15 @@ that needs to mimic the input element styles */
 	white-space: pre-wrap;
 }
 
+.contact-form-submission .field-value svg {
+	width: 1em;
+}
+
+.contact-form-submission .field-value svg.is-filled,
+.contact-form-submission .field-value svg.is-filled path {
+	fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+}
+
 .form-errors .form-error-message {
 	color: var(--jetpack--contact-form--error-color);
 }

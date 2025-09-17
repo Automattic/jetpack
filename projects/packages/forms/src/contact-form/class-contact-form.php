@@ -990,7 +990,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 				<div>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-					<div class="field-value" data-wp-text="context.submission.value"></div>
+					<div class="field-value" data-wp-watch="callbacks.renderContent"></div>
 					<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 						<template data-wp-each--image="context.submission.images">
 							<img class="field-image" data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image"/>

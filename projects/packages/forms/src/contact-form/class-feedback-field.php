@@ -264,15 +264,23 @@ class Feedback_Field {
 				if ( $value > $max ) {
 					$value = $max;
 				}
-				$empty_icon = '☆';
-				$full_icon  = '★';
+
+				/* translators: %1$d is the current rating, %2$d is the maximum rating, %3$s is the type of rating (stars or hearts). */
+				$accessibility_label = sprintf( __( '%1$d out of %2$d stars', 'jetpack-forms' ), $value, $max );
+				$icon_path           = '<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>';
 				if ( $this->meta['icon'] === 'hearts' ) {
-					$empty_icon = '♡';
-					$full_icon  = '♥';
+					$icon_path = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>';
+
+					/* translators: %1$d is the current rating, %2$d is the maximum rating). */
+					$accessibility_label = sprintf( __( '%1$d out of %2$d hearts', 'jetpack-forms' ), $value, $max );
 				}
-				$icon = array_fill( 0, $value, $full_icon );
-				$icon = array_merge( $icon, array_fill( 0, $max - $value, $empty_icon ) );
-				return sprintf( '%s', implode( '', $icon ) );
+
+				$icon_svg   = '<svg class="jetpack-field-rating__icon is-filled" viewBox="0 0 24 24" aria-hidden="true">' . $icon_path . '</svg>';
+				$empty_icon = '<svg class="jetpack-field-rating__icon is-empty" viewBox="0 0 24 24" aria-hidden="true">' . $icon_path . '</svg>';
+				$icons      = array_fill( 0, $value, $icon_svg );
+				$icons      = array_merge( $icons, array_fill( 0, $max - $value, $empty_icon ) );
+
+				return '<span aria-label="' . esc_attr( $accessibility_label ) . '">' . implode( '', $icons ) . '</span>';
 			}
 			// Return the array as is.
 			return $this->value;
