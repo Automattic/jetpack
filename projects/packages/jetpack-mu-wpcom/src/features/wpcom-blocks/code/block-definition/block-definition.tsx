@@ -249,6 +249,7 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 
 	if ( globalThis.SCRIPT_DEBUG ) {
 		if ( typeof __experimentalGetElementClassName !== 'function' ) {
+			// eslint-disable-next-line no-console -- Console message in debug.
 			console.warn( '__experimentalGetElementClassName not available.' );
 		}
 	}
