@@ -167,7 +167,7 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 */
 	public static function data_provider_test_render_submit_button() {
 		// Skip HTML Tag Processor tests if the class doesn't exist (WordPress < 6.2)
-		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
+		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
 			return array(
 				'no html tag processor' => array(
 					'<button>Submit</button>',
