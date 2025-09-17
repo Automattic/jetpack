@@ -89,7 +89,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 
 			$config_data['showHeader'] = $config_data['isStatsModuleActive'] && ( $config_data['allSubscribers'] > 0 || $config_data['paidSubscribers'] > 0 );
 			foreach ( $config_data['subscriberTotalsByDate'] as $day ) {
-				if ( $day && ( $day['all'] > 5 || $day['paid'] > 0 ) ) {
+				if ( $day && ( $day['all'] >= 5 || $day['paid'] > 0 ) ) {
 					$config_data['showChart'] = true;
 					break;
 				}
