@@ -6,7 +6,7 @@
  */
 
 /**
- * Adds some Tools menus that are missing on Simple sites.
+ * Registers the Tools > Marketing menu.
  */
 function wpcom_add_marketing_submenu() {
 	add_submenu_page(
