@@ -47,6 +47,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-spam',
 				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
 			'creative-mail-by-constant-contact' => array(
@@ -56,6 +57,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'creative-mail',
 				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
 				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
 			'zero-bs-crm'                       => array(
@@ -65,6 +67,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => true,
 			),
 			'salesforce'                        => array(
@@ -74,6 +77,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
 			'google-drive'                      => array(
@@ -83,6 +87,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
 			'mailpoet'                          => array(
@@ -92,6 +97,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-mailpoet',
 				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
 		);
