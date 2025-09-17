@@ -78,6 +78,17 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			}
 
 			$config_data['isStatsModuleActive'] = ( new Modules() )->is_active( 'stats' );
+
+			$config_data['showHeader'] = $config_data['isStatsModuleActive'] && ( $config_data['allSubscribers'] > 0 || $config_data['paidSubscribers'] > 0 );
+			$config_data['showChart']  = false;
+			foreach ( $config_data['subscriberTotalsByDate'] as $day ) {
+				if ( $day && ( $day['all'] >= 5 || $day['paid'] > 0 ) ) {
+					$config_data['showChart'] = true;
+					break;
+				}
+			}
+
+			$config_data['isWidgetVisible'] = $config_data['showHeader'] || $config_data['showChart'];
 		}
 
 		return $config_data;
@@ -93,12 +104,18 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		}
 
 		if ( Jetpack::is_connection_ready() ) {
+			$config_data = static::get_config_data();
+
+			if ( ! $config_data['isWidgetVisible'] ) {
+				return;
+			}
+
 			static::load_admin_scripts(
 				'jp-newsletter-widget',
 				'newsletter-widget',
 				array(
 					'config_variable_name' => 'jetpackNewsletterWidgetConfigData',
-					'config_data'          => static::get_config_data(),
+					'config_data'          => $config_data,
 					'load_minified_js'     => false,
 				)
 			);

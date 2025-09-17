@@ -26,6 +26,8 @@ export interface NewsletterWidgetProps {
 	paidSubscribers?: number;
 	allSubscribers?: number;
 	subscriberTotalsByDate?: SubscriberTotalsByDate;
+	showHeader?: boolean;
+	showChart?: boolean;
 }
 
 export const NewsletterWidget = ( {
@@ -37,21 +39,14 @@ export const NewsletterWidget = ( {
 	paidSubscribers = 0,
 	allSubscribers = 0,
 	subscriberTotalsByDate = {},
+	showHeader,
+	showChart,
 }: NewsletterWidgetProps ) => {
-	const showHeader = allSubscribers > 0 || paidSubscribers > 0;
-	const showChart = Object.values( subscriberTotalsByDate ).some(
-		day => day?.all >= 5 || day?.paid > 0
-	);
-
 	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
-
-	if ( showHeader && ! isStatsModuleActive && ! showChart ) {
-		return null;
-	}
 
 	const subscribersText = sprintf(
 		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
@@ -71,12 +66,9 @@ export const NewsletterWidget = ( {
 		formatNumber( paidSubscribers )
 	);
 
-	// For WordPress.com sites, links should always be considered internal.
-	const isInternalLink = isStatsModuleActive || isWpcomSite;
-
 	return (
 		<div className="newsletter-widget">
-			{ showHeader && isStatsModuleActive && (
+			{ showHeader && (
 				<div className="newsletter-widget__header">
 					<div className="newsletter-widget__stats">
 						<span className="newsletter-widget__stat-item">
@@ -86,7 +78,7 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										isInternalLink,
+										true,
 										getSubscriberStatsUrl( site, adminUrl ),
 										'all_subscribers_click',
 										subscribersText
@@ -101,7 +93,7 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										isInternalLink,
+										true,
 										getSubscriberStatsUrl( site, adminUrl ),
 										'paid_subscribers_click',
 										paidSubscribersText
@@ -150,7 +142,7 @@ export const NewsletterWidget = ( {
 						<li>
 							{ isStatsModuleActive &&
 								DashboardLink(
-									isInternalLink,
+									true,
 									getSubscriberStatsUrl( site, adminUrl ),
 									'view_stats_click',
 									__( 'View subscriber stats', 'jetpack' )
