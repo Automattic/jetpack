@@ -25,8 +25,10 @@ const { __ } = window.wp.i18n;
 const { isKeyboardEvent, BACKSPACE: KEY_CODE_BACKSPACE } = window.wp.keycodes;
 
 /**
+ * The Edit function with CodeMirror available.
  *
- * @param props
+ * @param props - Block props.
+ * @return Element.
  */
 function EditCodeMirror( props: EditBlockProps ) {
 	const { attributes, isSelected, setAttributes, insertBlocksAfter, onRemove } = props;
