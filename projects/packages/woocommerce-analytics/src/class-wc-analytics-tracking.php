@@ -242,7 +242,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		$ip = '';
 
 		$ip_headers = array(
-			'HTTP_CF_CONNECTING_IP',
+			'HTTP_CF_CONNECTING_IP', // Cloudflare specific header.
 			'HTTP_X_FORWARDED_FOR',
 			'REMOTE_ADDR',
 			'HTTP_CLIENT_IP',
