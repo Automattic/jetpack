@@ -1,13 +1,10 @@
-import type { ChartTypes } from './constants';
 import type { BaseLegendItem } from '../../components/legend';
 import type { CompleteChartTheme, DataPointPercentage, SeriesData } from '../../types';
 import type { LineStyles } from '@visx/xychart';
 
-export type ChartType = ( typeof ChartTypes )[ keyof typeof ChartTypes ];
-
 export interface ChartRegistration {
 	legendItems: BaseLegendItem[];
-	chartType: ChartType;
+	chartType: string;
 	metadata?: Record< string, unknown >;
 }
 

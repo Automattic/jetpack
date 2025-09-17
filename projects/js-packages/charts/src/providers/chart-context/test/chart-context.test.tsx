@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 import { useMemo } from 'react';
-import { GlobalChartsProvider, ChartTypes } from '../global-charts-provider';
+import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
@@ -107,7 +107,7 @@ describe( 'ChartContext', () => {
 				useChartRegistration( {
 					chartId,
 					legendItems: mockLegendItems,
-					chartType: ChartTypes.Bar,
+					chartType: 'bar',
 					isDataValid: true,
 					metadata,
 				} );
@@ -124,7 +124,7 @@ describe( 'ChartContext', () => {
 			const chartData = contextValue.getChartData( 'test-chart' );
 			expect( chartData ).toEqual( {
 				legendItems: mockLegendItems,
-				chartType: ChartTypes.Bar,
+				chartType: 'bar',
 				metadata: { test: true },
 			} );
 		} );
@@ -140,13 +140,13 @@ describe( 'ChartContext', () => {
 				useChartRegistration( {
 					chartId: chartId1,
 					legendItems: mockLegendItems,
-					chartType: ChartTypes.Bar,
+					chartType: 'bar',
 					isDataValid: true,
 				} );
 				useChartRegistration( {
 					chartId: chartId2,
 					legendItems: mockLegendItems,
-					chartType: ChartTypes.Line,
+					chartType: 'line',
 					isDataValid: true,
 				} );
 
@@ -160,8 +160,8 @@ describe( 'ChartContext', () => {
 			);
 
 			expect( contextValue.charts.size ).toBe( 2 );
-			expect( contextValue.getChartData( 'chart-1' )?.chartType ).toBe( ChartTypes.Bar );
-			expect( contextValue.getChartData( 'chart-2' )?.chartType ).toBe( ChartTypes.Line );
+			expect( contextValue.getChartData( 'chart-1' )?.chartType ).toBe( 'bar' );
+			expect( contextValue.getChartData( 'chart-2' )?.chartType ).toBe( 'line' );
 		} );
 
 		it( 'returns undefined for non-existent charts', () => {
@@ -192,14 +192,14 @@ describe( 'ChartContext', () => {
 				useChartRegistration( {
 					chartId,
 					legendItems: mockLegendItems,
-					chartType: ChartTypes.Bar,
+					chartType: 'bar',
 					isDataValid: true,
 				} );
 				// Register second chart with same ID
 				useChartRegistration( {
 					chartId,
 					legendItems: mockLegendItems,
-					chartType: ChartTypes.Line,
+					chartType: 'line',
 					isDataValid: true,
 				} );
 
@@ -213,7 +213,7 @@ describe( 'ChartContext', () => {
 			);
 
 			expect( contextValue.charts.size ).toBe( 1 );
-			expect( contextValue.getChartData( 'same-id' )?.chartType ).toBe( ChartTypes.Line );
+			expect( contextValue.getChartData( 'same-id' )?.chartType ).toBe( 'line' );
 		} );
 	} );
 

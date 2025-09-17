@@ -18,7 +18,6 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
-	ChartTypes,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
@@ -350,7 +349,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		useChartRegistration( {
 			chartId,
 			legendItems,
-			chartType: ChartTypes.Line,
+			chartType: 'line',
 			isDataValid,
 			metadata: chartMetadata,
 		} );

@@ -15,7 +15,6 @@ import {
 	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
-	ChartTypes,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
@@ -195,7 +194,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	useChartRegistration( {
 		chartId,
 		legendItems,
-		chartType: ChartTypes.Leaderboard,
+		chartType: 'leaderboard',
 		isDataValid,
 		metadata: chartMetadata,
 	} );

@@ -10,7 +10,6 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 	GlobalChartsContext,
-	ChartTypes,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
@@ -173,7 +172,7 @@ const PieChartInternal = ( {
 	useChartRegistration( {
 		chartId,
 		legendItems,
-		chartType: ChartTypes.Pie,
+		chartType: 'pie',
 		isDataValid: isValid,
 		metadata: chartMetadata,
 	} );
