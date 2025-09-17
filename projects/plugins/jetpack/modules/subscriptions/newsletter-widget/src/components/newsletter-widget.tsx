@@ -139,15 +139,16 @@ export const NewsletterWidget = ( {
 								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
-						<li>
-							{ isStatsModuleActive &&
-								DashboardLink(
+						{ isStatsModuleActive && (
+							<li>
+								{ DashboardLink(
 									true,
 									getSubscriberStatsUrl( site, adminUrl ),
 									'view_stats_click',
 									__( 'View subscriber stats', 'jetpack' )
 								) }
-						</li>
+							</li>
+						) }
 						<li>
 							{ DashboardLink(
 								isWpcomSite,
