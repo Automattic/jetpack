@@ -116,7 +116,7 @@ class Contact_Form_Block {
 			return $content;
 		}
 
-		if ( ! class_exists( '\WP_HTML_Tag_Processor' ) ) {
+		if ( ! class_exists( \WP_HTML_Tag_Processor::class ) ) {
 			return $content;
 		}
 
