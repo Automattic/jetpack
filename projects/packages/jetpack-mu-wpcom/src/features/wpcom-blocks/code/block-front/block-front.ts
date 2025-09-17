@@ -1,5 +1,5 @@
 /**
- *
+ * Find and initialize Code blocks.
  */
 function initBlock() {
 	for ( const btn of document.querySelectorAll< HTMLButtonElement >(
