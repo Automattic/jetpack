@@ -439,4 +439,5 @@ function htmlEncode( content: string ): string {
 		.replaceAll( '[', '&#91;' );
 }
 
+// eslint-disable-next-line import/no-unresolved --  The feature registers this module for import.
 const EditCodeMirror = React.lazy( () => import( '@a8cCodeBlock/block-edit-function' ) );
