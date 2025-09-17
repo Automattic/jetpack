@@ -153,8 +153,8 @@ function EditCodeMirror( props: EditBlockProps ) {
 					code,
 					tree,
 					classHighlighter,
-					( code, classes ) => {
-						const encodedCode = toBase64( code );
+					( codeSegment, classes ) => {
+						const encodedCode = toBase64( codeSegment );
 						if ( classes ) {
 							currentLine.push( [ encodedCode, classes ] );
 						} else {
