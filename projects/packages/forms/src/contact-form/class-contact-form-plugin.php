@@ -1517,7 +1517,7 @@ class Contact_Form_Plugin {
 			// Process the form
 			return $form->process_submission();
 		}
-		/** This action is documented in already in this file. */
+		/** This action is documented already in this file. */
 		do_action( 'jetpack_forms_log', 'submission_missing_jwt' );
 
 		if ( $is_widget ) {
