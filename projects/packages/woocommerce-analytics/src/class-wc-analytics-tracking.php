@@ -147,14 +147,10 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		$required_properties = $event_name
 			? array(
-				'_en'      => $event_name,
-				'_ts'      => WC_Tracks_Client::build_timestamp(),
-				'_ut'      => 'anon',
-				'_ui'      => self::get_visitor_id(),
-				'_via_ref' => isset( $_SERVER['HTTP_REFERER'] ) ? wc_clean( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				'_via_ip'  => self::get_user_ip_address(),
-				// Get the first language defined from the request headers.
-				'_lg'      => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ), 0, 5 ) : '', // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				'_en' => $event_name,
+				'_ts' => WC_Tracks_Client::build_timestamp(),
+				'_ut' => 'anon',
+				'_ui' => self::get_visitor_id(),
 			)
 			: array();
 
@@ -173,6 +169,25 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return $blogid . ':' . $userid;
 		}
 		return null;
+	}
+
+	/**
+	 * Gather details from the request to the server.
+	 *
+	 * @return array Server details.
+	 */
+	public static function get_server_details() {
+		$data = parent::get_server_details();
+		return array_merge(
+			$data,
+			array(
+				 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				'_via_ref' => isset( $_SERVER['HTTP_REFERER'] ) ? wc_clean( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '',
+				'_via_ip'  => self::get_user_ip_address(),
+				// Get the first language defined from the request headers.
+				'_lg'      => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ), 0, 5 ) : '',
+			)
+		);
 	}
 
 	/**
