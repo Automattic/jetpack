@@ -53,7 +53,7 @@ abstract class Code_Block {
 					self::enqueue_editor_assets();
 				}
 
-				if ( ! wp_should_load_block_assets_on_demand() ) {
+				if ( ! \wp_should_load_block_assets_on_demand() ) {
 					wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
 				}
 			}
