@@ -42,8 +42,8 @@ class WC_Analytics_Tracking_Proxy extends \WC_REST_Controller {
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'track_events' ),
 					'permission_callback' => '__return_true', // no need to check permissions
+					'schema'              => array( $this, 'get_public_item_schema' ),
 				),
-				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
 	}
@@ -57,7 +57,8 @@ class WC_Analytics_Tracking_Proxy extends \WC_REST_Controller {
 	public function track_events( $request ) {
 		$events = $request->get_json_params();
 
-		if ( ! is_array( $events ) ) {
+		if ( ! is_array( $events ) || ( isset( $events['event_name'] ) ) ) {
+			// If $events is a single event (associative array), wrap it in an array.
 			$events = array( $events );
 		}
 
@@ -76,8 +77,8 @@ class WC_Analytics_Tracking_Proxy extends \WC_REST_Controller {
 			}
 
 			// Validate event name and properties.
-			$event_name = isset( $event['event_name'] ) ? $event['event_name'] : null;
-			$properties = isset( $event['properties'] ) ? $event['properties'] : array();
+			$event_name = $event['event_name'] ?? null;
+			$properties = $event['properties'] ?? array();
 			if ( ! $event_name || ! is_array( $properties ) ) {
 				$results[ $index ] = array(
 					'success' => false,
