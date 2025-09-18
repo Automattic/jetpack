@@ -42,6 +42,7 @@ export const settings = {
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-prefix-default': 'default',
+		'jetpack/field-phone-search-placeholder': 'searchPlaceholder',
 		'jetpack/field-phone-country-toggle': 'showCountrySelector',
 	},
 	allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],

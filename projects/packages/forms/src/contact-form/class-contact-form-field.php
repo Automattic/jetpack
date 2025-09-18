@@ -992,6 +992,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$show_country_selector = $this->get_attribute( 'showcountryselector' );
 		$default_country       = $this->get_attribute( 'default' );
+		$search_placeholder    = $this->get_attribute( 'searchPlaceholder' );
+		l( 'search_placeholder:', $search_placeholder );
 
 		if ( ! $show_country_selector ) {
 			// old telephone field treatment
@@ -999,6 +1001,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
 			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 			return $label . $field;
+		}
+
+		if ( empty( $search_placeholder ) ) {
+			$search_placeholder = __( 'Search countries…', 'jetpack-forms' );
 		}
 
 		$this->enqueue_phone_field_assets();
@@ -1085,7 +1091,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 							<input
 								class="jetpack-combobox-search"
 								type="text"
-								placeholder="<?php echo esc_attr( $this->get_attribute( 'searchPlaceholder' ) ); ?>"
+								placeholder="<?php echo esc_attr( $search_placeholder ); ?>"
 								data-wp-on--input="actions.phoneComboboxInputHandler"
 								data-wp-on--keydown="actions.phoneComboboxKeydownHandler">
 							<div class="jetpack-combobox-options">

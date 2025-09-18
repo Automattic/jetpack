@@ -113,7 +113,7 @@ export default function PhoneFieldEdit( props ) {
 				value={ {
 					'jetpack/field-prefix-onChange': onChangeDefaultCountry,
 					'jetpack/field-prefix-options': countryList,
-					'jetpack/field-phone-searchPlaceholder': searchPlaceholder,
+					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
 				<div { ...innerBlocksProps } />
