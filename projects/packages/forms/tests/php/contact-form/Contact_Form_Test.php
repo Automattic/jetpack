@@ -2752,6 +2752,8 @@ EOT;
 		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
 
 		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
+
+		$this->assertEquals( $form->get_source(), $form_copy->get_source(), 'Form sources should match' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {

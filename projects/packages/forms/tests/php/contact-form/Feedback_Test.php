@@ -1072,7 +1072,7 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
-		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
+		$this->assertEquals( '[Deleted] ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
 	public function test_get_all_values() {
@@ -1766,7 +1766,7 @@ class Feedback_Test extends BaseTestCase {
 				'2_field'                 => 'value2',
 				'email_marketing_consent' => 'no',
 				'entry_title'             => 'Cool Post Title',
-				'entry_permalink'         => '',
+				'entry_permalink'         => 'http://example.org',
 				'feedback_id'             => 'skip',
 			),
 		);

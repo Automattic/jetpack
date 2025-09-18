@@ -26,6 +26,21 @@ export const viewAction = {
 	},
 };
 
+export const editFormAction = {
+	id: 'edit-form',
+	label: __( 'Edit form', 'jetpack-forms' ),
+	icon: <Icon icon={ backup } />,
+	isEligible: item => !! item?.edit_form_url,
+	supportsBulk: false,
+	async callback( items ) {
+		const [ item ] = items;
+		if ( item?.edit_form_url ) {
+			const url = new URL( item.edit_form_url, window.location.origin );
+			window.open( url.toString(), '_blank', 'noopener' );
+		}
+	},
+};
+
 // TODO: We should probably have better error messages in case of failure.
 const getGenericErrorMessage = numberOfErrors => {
 	return numberOfErrors.length === 1
