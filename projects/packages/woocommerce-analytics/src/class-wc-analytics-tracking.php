@@ -251,11 +251,9 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	/**
 	 * Get the user's IP address.
 	 *
-	 * @return string
+	 * @return string The user's IP address. An empty string if no valid IP address is found.
 	 */
 	private static function get_user_ip_address() {
-		$ip = '';
-
 		$ip_headers = array(
 			'HTTP_CF_CONNECTING_IP', // Cloudflare specific header.
 			'HTTP_X_FORWARDED_FOR',
@@ -265,18 +263,20 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		foreach ( $ip_headers as $header ) {
 			if ( isset( $_SERVER[ $header ] ) ) {
-				$ip = wp_kses( wp_unslash( $_SERVER[ $header ] ), 'strip' );
-
-				if ( strpos( $ip, ',' ) !== false ) {
-					$ip = explode( ',', $ip );
-
-					return trim( $ip[0] );
+				$ip_list = explode( ',', wp_unslash( $_SERVER[ $header ] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				foreach ( $ip_list as $ip_candidate ) {
+					$ip_candidate = trim( $ip_candidate );
+					if ( filter_var(
+						$ip_candidate,
+						FILTER_VALIDATE_IP,
+						array( FILTER_FLAG_NO_RES_RANGE, FILTER_FLAG_IPV6 )
+					) ) {
+						return $ip_candidate;
+					}
 				}
-
-				return $ip;
 			}
 		}
 
-		return $ip;
+		return '';
 	}
 }
