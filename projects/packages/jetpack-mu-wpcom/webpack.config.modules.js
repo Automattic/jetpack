@@ -4,14 +4,14 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-const { mode, devtool, output, optimization } = jetpackWebpackConfig;
+const { mode, devtool, output, optimization, resolve } = jetpackWebpackConfig;
 
 /** @type {import('webpack').Configuration} */
 module.exports = {
 	mode,
 	devtool,
 	optimization,
-	resolve: jetpackWebpackConfig.resolve,
+	resolve,
 	node: false,
 	name: 'jetpack-mu-wpcom/modules',
 	entry: {
