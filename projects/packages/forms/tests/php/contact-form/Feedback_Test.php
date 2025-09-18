@@ -1072,7 +1072,7 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
-		$this->assertEquals( '[Deleted] ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
+		$this->assertEquals( '(deleted) ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
 	public function test_get_all_values() {

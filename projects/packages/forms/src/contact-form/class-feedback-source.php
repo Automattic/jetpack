@@ -92,7 +92,7 @@ class Feedback_Source {
 			}
 			if ( empty( $entry_post ) ) {
 				/* translators: %s is the post title */
-				$this->title     = sprintf( __( '[Deleted] %s', 'jetpack-forms' ), $this->title );
+				$this->title     = sprintf( __( '(deleted) %s', 'jetpack-forms' ), $this->title );
 				$this->permalink = '';
 			}
 		}

@@ -808,7 +808,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source Title',
-					'value' => '[Deleted] Cool Post Title', // the default value in the create_legacy_feedback
+					'value' => '(deleted) Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
 					'name'  => 'Source URL:',

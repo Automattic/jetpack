@@ -38,7 +38,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$entry = new Feedback_Source( -5, 'Test Title' );
 
 		$this->assertSame( 0, $entry->get_id() );
-		$this->assertEquals( '[Deleted] Test Title', $entry->get_title() );
+		$this->assertEquals( '(deleted) Test Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
 		$this->assertSame( '', $entry->get_permalink() );
 	}
@@ -50,7 +50,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$entry = new Feedback_Source( 999999, 'Fallback Title' );
 
 		$this->assertSame( 999999, $entry->get_id() );
-		$this->assertEquals( '[Deleted] Fallback Title', $entry->get_title() );
+		$this->assertEquals( '(deleted) Fallback Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
 		$this->assertSame( '', $entry->get_permalink() );
 		$this->assertSame( '', $entry->get_relative_permalink() );
