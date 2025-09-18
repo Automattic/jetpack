@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Namespace PayPal SDK to minimize loading conflicts when using other PayPal blocks.

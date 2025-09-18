@@ -64,7 +64,7 @@ const generateHeadCode = scriptSrc => {
 	if ( ! scriptSrc ) {
 		return '';
 	}
-	return `<script src="${ scriptSrc }"></script>`;
+	return `<script src="${ scriptSrc }" data-namespace="paypal_payment_buttons"></script>`;
 };
 
 const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = '' ) => {
@@ -83,7 +83,7 @@ const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = 
 
 	return `<div id="paypal-container-${ hostedButtonId }"></div>
 <script>
-  paypal.HostedButtons({
+  (window.paypal_payment_buttons || window.paypal).HostedButtons({
     hostedButtonId: "${ hostedButtonId }",
   }).render("#paypal-container-${ hostedButtonId }")
 </script>`;

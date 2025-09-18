@@ -230,7 +230,7 @@ describe( 'Edit', () => {
 		fireEvent.change( inputs[ 1 ], {
 			target: {
 				value:
-					'paypal.HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
+					'(window.paypal_payment_buttons || window.paypal).HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
 			},
 		} );
 
