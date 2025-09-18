@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: restrict button flex setup after last changes to improve overall layout
