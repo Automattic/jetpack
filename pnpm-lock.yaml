@@ -7,7 +7,7 @@ settings:
 overrides:
   esbuild-sass-plugin>sass: npm:sass-embedded@1.87.0
 
-pnpmfileChecksum: sha256-l7aG7NKykvRib8R1L5PIlh/nsByaXjoKKlZ/T+K0s3U=
+pnpmfileChecksum: sha256-YDpdpIHQj3g4K8AUyR3UOEtgYZDcSuWJ2qXiqWTTWSY=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -22495,6 +22495,7 @@ snapshots:
       highlight-words-core: 1.2.3
       is-plain-object: 5.0.0
       memize: 2.1.1
+      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-day-picker: 9.9.0(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
@@ -22542,6 +22543,7 @@ snapshots:
       highlight-words-core: 1.2.3
       is-plain-object: 5.0.0
       memize: 2.1.1
+      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-day-picker: 9.9.0(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
