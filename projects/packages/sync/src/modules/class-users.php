@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\Password_Checker;
 use Automattic\Jetpack\Sync\Defaults;
@@ -252,6 +253,8 @@ class Users extends Module {
 		if ( get_locale() !== get_user_locale( $user->ID ) ) {
 			$user->locale = get_user_locale( $user->ID );
 		}
+
+		$user->is_connected = ( new Manager( 'jetpack' ) )->is_user_connected( $user->ID );
 
 		return $user;
 	}

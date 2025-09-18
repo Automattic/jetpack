@@ -55,6 +55,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->is_connected );
 
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
 	}
@@ -450,6 +451,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->is_connected );
 
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
@@ -579,7 +581,31 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
 
+		$this->assertFalse( $retrieved_user->data->is_connected );
+		unset( $retrieved_user->data->is_connected );
+
 		$this->assertEquals( $synced_user, $retrieved_user );
+	}
+
+	public function test_returns_user_object_by_id_with_connected_user() {
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->user_id => 'apple.a.' . $this->user_id,
+			)
+		);
+
+		$user_sync_module = Modules::get_module( 'users' );
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode(
+			$codec->encode(
+				$user_sync_module->get_object_by_id( 'user', $this->user_id )
+			)
+		);
+
+		$this->assertTrue( $retrieved_user->data->is_connected );
 	}
 
 	public function test_update_user_locale_changed_is_synced() {
