@@ -60,7 +60,7 @@ export function getItemShapeStyles(
 	index: number,
 	theme: ChartTheme,
 	legendShape?: LegendShape< SeriesData[], number >
-): { shapeStyles: CSSProperties & LineStyles } {
+): CSSProperties & LineStyles {
 	const seriesShapeStyles = series.options?.legendShapeStyle ?? {};
 	const lineStyles = legendShape === 'line' ? getSeriesLineStyles( series, index, theme ) : {};
 	const themeShapeStyles = theme.legendShapeStyles?.[ index ];
@@ -76,9 +76,9 @@ export function getItemShapeStyles(
 			value => value !== undefined && value !== null && value !== ''
 		)
 	) {
-		return { shapeStyles: itemShapeStyles as CSSProperties & LineStyles };
+		return itemShapeStyles as CSSProperties & LineStyles;
 	}
 
 	// Fallback to theme shape styles if defined
-	return { shapeStyles: themeShapeStyles ?? {} };
+	return themeShapeStyles ?? {};
 }
