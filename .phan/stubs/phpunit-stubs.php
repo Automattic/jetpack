@@ -28203,18 +28203,6 @@ final class CodeCoverage
     public function __construct(\SebastianBergmann\CodeCoverage\Driver\Driver $driver, \SebastianBergmann\CodeCoverage\Filter $filter)
     {
     }
-    /**
-     * @return array{
-     *     cacheDirectory: ?string,
-     *     checkForUnintentionallyCoveredCode: bool,
-     *     includeUncoveredFiles: bool,
-     *     ignoreDeprecatedCode: bool,
-     *     parentClassesExcludedFromUnintentionallyCoveredCodeCheck: list<class-string>,
-     *     filter: Filter,
-     *     data: Data\ProcessedCodeCoverageData,
-     *     tests: array<string, TestType>
-     * }
-     */
     public function __serialize(): array
     {
     }
@@ -29211,6 +29199,9 @@ namespace SebastianBergmann\CodeCoverage\Report;
 final class Clover
 {
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29220,6 +29211,8 @@ final class Clover
 final class Cobertura
 {
     /**
+     * @param null|non-empty-string $target
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
@@ -29232,6 +29225,9 @@ final readonly class Crap4j
     {
     }
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29249,6 +29245,11 @@ final class OpenClover
 }
 final class PHP
 {
+    /**
+     * @param null|non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
     }
@@ -31006,6 +31007,14 @@ final class Filesystem
     public static function createDirectory(string $directory): void
     {
     }
+    /**
+     * @param non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
+    public static function write(string $target, string $buffer): void
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
@@ -31022,6 +31031,20 @@ final readonly class Percentage
     {
     }
     public function asFixedWidthString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Xml
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\XmlException
+     *
+     * @see https://bugs.php.net/bug.php?id=79191
+     */
+    public static function asString(\DOMDocument $document): string
     {
     }
 }
