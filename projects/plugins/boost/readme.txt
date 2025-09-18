@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.4.0-beta1 - 2025-09-17
+### 4.4.0 - 2025-09-18
 #### Added
 - Cornerstone Pages: Add filter to allow the full list of pages to be changed.
 
@@ -192,12 +192,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Do not force CRM installation for Complete plan users
 - LCP Optimization: Add User-facing notice for unstable LCP elements (carousels)
 - Updated PNG import location after refactors in My Jetpack.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
 - Update package dependencies.
 
 #### Fixed
