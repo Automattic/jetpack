@@ -189,20 +189,12 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 #### Changed
 - Critical CSS: Updated UI to indicate when generated CSS is too much.
-- Do not force CRM installation for Complete plan users
 - LCP Optimization: Add User-facing notice for unstable LCP elements (carousels)
 - Updated PNG import location after refactors in My Jetpack.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
-- Update package dependencies.
 - Update package dependencies.
 
 #### Fixed
 - Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list.
-- E2E tests: improved connection flow
 - General: Fix translation warning when activating Boost.
 - Image CDN: Add support for images added via Breakdance blocks.
 - Image CDN: gracefully handle an attempt to filter null.
