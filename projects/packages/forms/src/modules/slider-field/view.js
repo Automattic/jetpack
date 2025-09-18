@@ -1,5 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
-import { computeSliderValuePosition } from '../../util/compute-slider-value-position';
+import { computeSliderValuePosition } from '../../blocks/input-range/utils';
 
 const NAMESPACE = 'jetpack/form';
 
