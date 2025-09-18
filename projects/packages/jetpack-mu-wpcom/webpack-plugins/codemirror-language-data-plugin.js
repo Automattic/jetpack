@@ -9,17 +9,14 @@
  */
 
 class CodeMirrorLanguageDataPlugin {
-	constructor( options = {} ) {
-		this.options = options;
-		this.virtualModuleName = '@@codemirrorLanguageData@@';
-	}
+	static virtualModuleName = '@@codemirrorLanguageData@@';
 
 	apply( compiler ) {
 		compiler.hooks.normalModuleFactory.tap( 'CodeMirrorLanguageDataPlugin', factory => {
 			factory.hooks.beforeResolve.tap( 'CodeMirrorLanguageDataPlugin', resolveData => {
 				const request = resolveData.request;
 
-				if ( request === this.virtualModuleName ) {
+				if ( request === CodeMirrorLanguageDataPlugin.virtualModuleName ) {
 					// Generate the language data
 					const moduleContent = this.generateModuleContent();
 
