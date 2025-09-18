@@ -26,7 +26,7 @@ const variations = [
 			variationName: 'default-empty',
 		},
 		scope: [ 'transform' ],
-		isActive: ( { variationName } ) => variationName !== 'multistep',
+		isActive: ( { variationName } ) => ![ 'multistep', 'horizontal' ].includes( variationName ),
 	},
 	{
 		name: 'contact-form',
@@ -1009,6 +1009,54 @@ const variations = [
 					},
 				},
 			],
+		},
+	},
+	{
+		name: 'horizontal-form',
+		title: __( 'Horizontal', 'jetpack-forms' ),
+		description: __( 'A form with fields displayed horizontally side by side.', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<>
+					<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
+					<Path
+						fillRule="evenodd"
+						clipRule="evenodd"
+						d="M9.5 7.5H7.5V9.5H9.5V7.5ZM7.5 6H9.5C10.3284 6 11 6.67157 11 7.5V9.5C11 10.3284 10.3284 11 9.5 11H7.5C6.67157 11 6 10.3284 6 9.5V7.5C6 6.67157 6.67157 6 7.5 6Z"
+					/>
+					<Path
+						fillRule="evenodd"
+						clipRule="evenodd"
+						d="M19 4.5H5C4.72386 4.5 4.5 4.72386 4.5 5V19C4.5 19.2761 4.72386 19.5 5 19.5H19C19.2761 19.5 19.5 19.2761 19.5 19V5C19.5 4.72386 19.2761 4.5 19 4.5ZM5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5Z"
+					/>
+				</>
+			),
+		},
+		innerBlocks: [
+			[
+				'jetpack/field-name',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/field-email',
+				{ required: true },
+				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+			],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Subscribe', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			],
+		],
+		scope: [ 'block', 'inserter', 'transform' ],
+		isActive: [ 'variationName' ],
+		attributes: {
+			variationName: 'horizontal',
 		},
 	},
 ].filter( Boolean );

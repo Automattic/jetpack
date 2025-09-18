@@ -1208,3 +1208,36 @@
 		}
 	}
 }
+
+/* Horizontal form layout */
+.wp-block-jetpack-contact-form.is-horizontal {
+
+	.jetpack-contact-form {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		gap: var(--wp--style--block-gap, 1.5rem);
+
+		> .wp-block {
+			flex: 1 1 0;
+			min-width: 0;
+
+			&.wp-block-jetpack-button {
+				flex: 0 0 auto;
+			}
+
+			&.wp-block-jetpack-field-textarea {
+				flex: 1 1 100%;
+			}
+		}
+
+		@media (max-width: #{ (gb.$break-mobile) }) {
+			flex-direction: column;
+
+			> .wp-block {
+				flex: 1 1 auto;
+			}
+		}
+	}
+}

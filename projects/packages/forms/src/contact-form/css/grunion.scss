@@ -1243,3 +1243,33 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form-ajax-submission:not(.submission-success) {
 	display: none;
 }
+
+/* Horizontal form layout */
+.wp-block-jetpack-contact-form.is-horizontal {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--wp--style--block-gap, 1.5rem);
+
+	> * {
+		flex: 1 1 0;
+		min-width: 0;
+
+		&.wp-block-jetpack-button {
+			flex: 0 0 auto;
+		}
+
+		&.grunion-field-textarea-wrap {
+			flex: 1 1 100%;
+		}
+	}
+
+	@media (max-width: 480px) {
+		flex-direction: column;
+
+		> * {
+			flex: 1 1 auto;
+		}
+	}
+}
