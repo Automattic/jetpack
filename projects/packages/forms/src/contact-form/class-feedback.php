@@ -240,7 +240,10 @@ class Feedback {
 				return self::process_image_select_field_value( $post_data[ $key ] );
 			}
 
-			return array( 'choices' => array() );
+			return array(
+				'type'    => 'image-select',
+				'choices' => array(),
+			);
 		}
 
 		if ( isset( $post_data[ $key ] ) ) {

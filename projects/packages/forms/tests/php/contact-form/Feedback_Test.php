@@ -1181,6 +1181,64 @@ class Feedback_Test extends BaseTestCase {
 		);
 	}
 
+	public function test_get_all_values_with_image_select() {
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+
+		// Create a form submission with two selected image choices
+		$_post_data = Utility::get_post_request(
+			array(
+				'images' => array(
+					'{"perceived":"B","selected":"B","label":"Test choice","showLabels":true,"image":{"id":null,"src":"https://www.example.com/test-choice.png"}}',
+					'{"perceived":"C","selected":"C","label":"Another test choice","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/another-test-choice.png"}}',
+				),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
+		);
+
+		$expected_images = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'B',
+					'label'      => 'Test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://www.example.com/test-choice.png',
+					),
+				),
+				array(
+					'perceived'  => 'C',
+					'selected'   => 'C',
+					'label'      => 'Another test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => 12346,
+						'src' => 'https://www.example.com/another-test-choice.png',
+					),
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		Utility::destroy_post_context( $current_post );
+
+		$this->assertEquals( $expected_images, $response->get_all_values( 'submit' )['1_Images'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_images, $saved_response->get_all_values( 'submit' )['1_Images'], 'Saved response all values should match the expected values' );
+	}
+
 	public function test_get_all_values_with_file_upload() {
 
 		add_filter( 'jetpack_forms_is_file_field_renderable', '__return_true' );
