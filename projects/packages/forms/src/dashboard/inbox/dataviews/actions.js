@@ -36,7 +36,8 @@ export const editFormAction = {
 		const [ item ] = items;
 		if ( item?.edit_form_url ) {
 			const url = new URL( item.edit_form_url, window.location.origin );
-			window.open( url.toString(), '_blank', 'noopener' );
+			// redirect to the form edit page
+			window.location.href = url.toString();
 		}
 	},
 };
