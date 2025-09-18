@@ -3,6 +3,7 @@ import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from 'react';
 import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+import { computeSliderValuePosition } from './utils';
 import './style.scss';
 import './editor.scss';
 
@@ -49,11 +50,7 @@ export default function SliderInputEdit( props ) {
 	};
 
 	const getSliderPosition = () => {
-		const min = Number( minFromContext );
-		const max = Number( maxFromContext );
-		const value = Number( defaultFromContext );
-		const percent = ( ( value - min ) * 100 ) / ( max - min );
-		return `calc(${ percent }% + (${ 8 - percent * 0.15 }px))`;
+		return computeSliderValuePosition( minFromContext, maxFromContext, defaultFromContext );
 	};
 
 	const handleMinClick = e => {
