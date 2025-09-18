@@ -94,7 +94,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 							onOptionChange={ handleChangeDefaultPrefix }
 							isOpen={ comboboxOpen }
 							onOpenChange={ setComboboxOpen }
-							placeholer={ searchPlaceholder }
+							placeholder={ searchPlaceholder }
 							parentStyle={ blockProps?.style }
 						/>
 					</div>
