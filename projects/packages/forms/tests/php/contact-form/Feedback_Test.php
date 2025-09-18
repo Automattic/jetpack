@@ -1181,7 +1181,7 @@ class Feedback_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_process_image_select_field_value() {
+	public function test_get_all_values_with_image_select() {
 		$current_post = Utility::create_post_context();
 		$form_id      = Utility::get_form_id();
 
@@ -1204,15 +1204,7 @@ class Feedback_Test extends BaseTestCase {
 			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
 		);
 
-		$response          = Feedback::from_submission( $_post_data, $form );
-		$feedback_post_id  = $response->save();
-		$saved_response    = Feedback::get( $feedback_post_id );
-		$saved_values      = $saved_response->get_all_values( 'submit' )['1_Images']['choices'];
-		$saved_values_json = array_map( 'json_encode', $saved_values );
-
-		Utility::destroy_post_context( $current_post );
-
-		$expected = array(
+		$expected_images = array(
 			'type'    => 'image-select',
 			'choices' => array(
 				array(
@@ -1238,7 +1230,13 @@ class Feedback_Test extends BaseTestCase {
 			),
 		);
 
-		$this->assertEquals( $expected, Feedback::process_image_select_field_value( $saved_values_json ), 'Processed image select field value should match the expected values' );
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		Utility::destroy_post_context( $current_post );
+
+		$this->assertEquals( $expected_images, $response->get_all_values( 'submit' )['1_Images'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_images, $saved_response->get_all_values( 'submit' )['1_Images'], 'Saved response all values should match the expected values' );
 	}
 
 	public function test_get_all_values_with_file_upload() {
