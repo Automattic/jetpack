@@ -335,5 +335,3 @@ abstract class Code_Block {
 		return (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
 	}
 }
-
-// phpcs:ignore
