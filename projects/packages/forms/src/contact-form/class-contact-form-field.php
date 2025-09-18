@@ -993,7 +993,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$show_country_selector = $this->get_attribute( 'showcountryselector' );
 		$default_country       = $this->get_attribute( 'default' );
 		$search_placeholder    = $this->get_attribute( 'searchPlaceholder' );
-		l( 'search_placeholder:', $search_placeholder );
 
 		if ( ! $show_country_selector ) {
 			// old telephone field treatment
