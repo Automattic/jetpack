@@ -666,4 +666,594 @@ describe( 'ChartContext', () => {
 			expect( lastTwoRefs[ 0 ].getElementStyles ).toBe( lastTwoRefs[ 1 ].getElementStyles );
 		} );
 	} );
+
+	describe( 'getElementStyles - DataPointPercentage handling', () => {
+		it( 'handles DataPointPercentage data with color override', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const percentageDataWithColor = {
+				label: 'Custom Color Point',
+				value: 100,
+				percentage: 50,
+				color: '#ff9900',
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: percentageDataWithColor,
+				index: 0,
+			} );
+
+			expect( styles.color ).toBe( '#ff9900' );
+			expect( styles.lineStyles ).toEqual( {} );
+			expect( styles.shapeStyles ).toEqual( {} );
+		} );
+
+		it( 'handles DataPointPercentage data without color override', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const percentageDataWithoutColor = {
+				label: 'No Color Point',
+				value: 100,
+				percentage: 50,
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: percentageDataWithoutColor,
+				index: 1,
+			} );
+
+			expect( styles.color ).toBe( mockTheme.colors[ 1 ] );
+			expect( styles.lineStyles ).toEqual( {} );
+			expect( styles.shapeStyles ).toEqual( {} );
+		} );
+
+		it( 'handles DataPointPercentage data with group', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const percentageDataWithGroup = {
+				label: 'Grouped Point',
+				value: 100,
+				percentage: 50,
+				group: 'pie-segment-group',
+			};
+
+			const styles1 = contextValue.getElementStyles( {
+				data: percentageDataWithGroup,
+				index: 0,
+			} );
+			const styles2 = contextValue.getElementStyles( {
+				data: percentageDataWithGroup,
+				index: 5,
+			} );
+
+			// Should have same color due to group consistency
+			expect( styles1.color ).toBe( styles2.color );
+		} );
+
+		it( 'prioritizes DataPointPercentage color over group color', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const percentageDataWithBoth = {
+				label: 'Both Color and Group',
+				value: 100,
+				percentage: 50,
+				color: '#priority-color',
+				group: 'test-group',
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: percentageDataWithBoth,
+				index: 0,
+			} );
+
+			expect( styles.color ).toBe( '#priority-color' );
+		} );
+	} );
+
+	describe( 'getElementStyles - SeriesData line and shape styles', () => {
+		it( 'returns line styles for SeriesData', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const extendedTheme = {
+				...mockTheme,
+				seriesLineStyles: [ { strokeWidth: 2 }, { strokeWidth: 3, strokeDasharray: '2 2' } ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ extendedTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesData = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+				options: {
+					seriesLineStyle: { strokeWidth: 5, strokeDasharray: '10 5' },
+				},
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 0,
+			} );
+
+			expect( styles.lineStyles ).toEqual( {
+				strokeWidth: 5,
+				strokeDasharray: '10 5',
+			} );
+		} );
+
+		it( 'returns shape styles for SeriesData', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const extendedTheme = {
+				...mockTheme,
+				legendShapeStyles: [
+					{ fill: '#LEGEND1', stroke: '#BORDER1' },
+					{ fill: '#LEGEND2', strokeWidth: 3 },
+				],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ extendedTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesDataWithShapeStyle = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+				options: {
+					legendShapeStyle: { fill: '#CUSTOM', strokeWidth: 5 },
+				},
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesDataWithShapeStyle,
+				index: 0,
+			} );
+
+			expect( styles.shapeStyles ).toEqual( {
+				fill: '#CUSTOM',
+				strokeWidth: 5,
+			} );
+		} );
+
+		it( 'combines line styles with shape styles when legendShape is line', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const extendedTheme = {
+				...mockTheme,
+				lineChart: {
+					lineStyles: {
+						comparison: {
+							strokeDasharray: '4 4',
+							strokeLinecap: 'square' as const,
+							strokeWidth: 1.5,
+						},
+					},
+				},
+			};
+
+			render(
+				<GlobalChartsProvider theme={ extendedTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const comparisonSeries = {
+				label: 'Comparison Series',
+				data: [ { value: 100 } ],
+				options: {
+					type: 'comparison' as const,
+					legendShapeStyle: { fill: '#CUSTOM' },
+				},
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: comparisonSeries,
+				index: 0,
+				legendShape: 'line',
+			} );
+
+			expect( styles.shapeStyles ).toEqual( {
+				fill: '#CUSTOM',
+				strokeDasharray: '4 4',
+				strokeLinecap: 'square',
+				strokeWidth: 1.5,
+			} );
+		} );
+
+		it( 'does not include line styles in shapeStyles when legendShape is not line', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const extendedTheme = {
+				...mockTheme,
+				lineChart: {
+					lineStyles: {
+						comparison: {
+							strokeDasharray: '4 4',
+							strokeLinecap: 'square' as const,
+							strokeWidth: 1.5,
+						},
+					},
+				},
+				legendShapeStyles: [ { fill: '#LEGEND1', stroke: '#BORDER1' } ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ extendedTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const comparisonSeries = {
+				label: 'Comparison Series',
+				data: [ { value: 100 } ],
+				options: {
+					type: 'comparison' as const,
+				},
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: comparisonSeries,
+				index: 0,
+				legendShape: 'rect',
+			} );
+
+			// Should get theme legend shape styles, not line styles
+			expect( styles.shapeStyles ).toEqual( {
+				fill: '#LEGEND1',
+				stroke: '#BORDER1',
+			} );
+		} );
+	} );
+
+	describe( 'getElementStyles - glyph assignment', () => {
+		it( 'assigns glyph from theme based on index', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mockGlyph1 = jest.fn();
+			const mockGlyph2 = jest.fn();
+
+			const themeWithGlyphs = {
+				...mockTheme,
+				glyphs: [ mockGlyph1, mockGlyph2 ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ themeWithGlyphs }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesData = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+			};
+
+			const styles1 = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 0,
+			} );
+			const styles2 = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 1,
+			} );
+
+			expect( styles1.glyph ).toBe( mockGlyph1 );
+			expect( styles2.glyph ).toBe( mockGlyph2 );
+		} );
+
+		it( 'handles undefined glyph when index exceeds glyph array', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mockGlyph = jest.fn();
+			const themeWithGlyphs = {
+				...mockTheme,
+				glyphs: [ mockGlyph ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ themeWithGlyphs }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesData = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 5, // Beyond array length
+			} );
+
+			expect( styles.glyph ).toBeUndefined();
+		} );
+
+		it( 'handles missing glyphs in theme', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesData = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 0,
+			} );
+
+			expect( styles.glyph ).toBeUndefined();
+		} );
+	} );
+
+	describe( 'getElementStyles - complete object structure', () => {
+		it( 'returns complete ElementStyles object for SeriesData', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mockGlyph = jest.fn();
+			const completeTheme = {
+				...mockTheme,
+				glyphs: [ mockGlyph ],
+				seriesLineStyles: [ { strokeWidth: 2 } ],
+				legendShapeStyles: [ { fill: '#SHAPE1' } ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ completeTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesData = {
+				label: 'Test Series',
+				data: [ { value: 100 } ],
+				group: 'test-group',
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesData,
+				index: 0,
+			} );
+
+			// Verify all properties are present
+			expect( styles ).toHaveProperty( 'color' );
+			expect( styles ).toHaveProperty( 'lineStyles' );
+			expect( styles ).toHaveProperty( 'glyph' );
+			expect( styles ).toHaveProperty( 'shapeStyles' );
+
+			// Verify types
+			expect( typeof styles.color ).toBe( 'string' );
+			expect( typeof styles.lineStyles ).toBe( 'object' );
+			expect( typeof styles.glyph ).toBe( 'function' );
+			expect( typeof styles.shapeStyles ).toBe( 'object' );
+		} );
+
+		it( 'returns complete ElementStyles object for DataPointPercentage', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const mockGlyph = jest.fn();
+			const completeTheme = {
+				...mockTheme,
+				glyphs: [ mockGlyph ],
+			};
+
+			render(
+				<GlobalChartsProvider theme={ completeTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const percentageData = {
+				label: 'Test Point',
+				value: 100,
+				percentage: 50,
+				color: '#custom',
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: percentageData,
+				index: 0,
+			} );
+
+			// Verify all properties are present
+			expect( styles ).toHaveProperty( 'color' );
+			expect( styles ).toHaveProperty( 'lineStyles' );
+			expect( styles ).toHaveProperty( 'glyph' );
+			expect( styles ).toHaveProperty( 'shapeStyles' );
+
+			// Verify values for percentage data
+			expect( styles.color ).toBe( '#custom' );
+			expect( styles.lineStyles ).toEqual( {} );
+			expect( styles.glyph ).toBe( mockGlyph );
+			expect( styles.shapeStyles ).toEqual( {} );
+		} );
+
+		it( 'handles undefined data gracefully', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const styles = contextValue.getElementStyles( {
+				data: undefined,
+				index: 0,
+			} );
+
+			expect( styles ).toHaveProperty( 'color' );
+			expect( styles ).toHaveProperty( 'lineStyles' );
+			expect( styles ).toHaveProperty( 'glyph' );
+			expect( styles ).toHaveProperty( 'shapeStyles' );
+
+			expect( styles.color ).toBe( mockTheme.colors[ 0 ] );
+			expect( styles.lineStyles ).toEqual( {} );
+			expect( styles.shapeStyles ).toEqual( {} );
+		} );
+	} );
+
+	describe( 'getElementStyles - overrideColor precedence with SeriesData', () => {
+		it( 'prioritizes explicit overrideColor over series stroke', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesWithStroke = {
+				label: 'Series with stroke',
+				data: [ { value: 100 } ],
+				options: { stroke: '#series-stroke' },
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesWithStroke,
+				index: 0,
+				overrideColor: '#explicit-override',
+			} );
+
+			expect( styles.color ).toBe( '#explicit-override' );
+		} );
+
+		it( 'uses series stroke when no explicit overrideColor', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const seriesWithStroke = {
+				label: 'Series with stroke',
+				data: [ { value: 100 } ],
+				options: { stroke: '#series-stroke' },
+			};
+
+			const styles = contextValue.getElementStyles( {
+				data: seriesWithStroke,
+				index: 0,
+			} );
+
+			expect( styles.color ).toBe( '#series-stroke' );
+		} );
+	} );
 } );
