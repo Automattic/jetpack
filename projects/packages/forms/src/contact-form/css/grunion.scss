@@ -346,7 +346,14 @@ that needs to mimic the input element styles */
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
-	width: fit-content;
+	min-height: var(--jetpack--contact-form--input-height, auto);
+	align-self: flex-end;
+
+	.wp-block-button__link {
+		min-height: var(--jetpack--contact-form--input-height, auto);
+		padding: var(--jetpack--contact-form--input-padding);
+	}
+
 }
 
 .wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
@@ -371,6 +378,7 @@ that needs to mimic the input element styles */
 .wp-block-jetpack-contact-form .grunion-field-wrap {
 	box-sizing: border-box;
 	position: relative;
+	flex: 1 1 100%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
