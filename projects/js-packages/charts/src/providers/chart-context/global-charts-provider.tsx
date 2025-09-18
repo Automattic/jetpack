@@ -1,5 +1,5 @@
 import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { getSeriesLineStyles, mergeThemes } from '../../utils';
+import { getItemShapeStyles, getSeriesLineStyles, mergeThemes } from '../../utils';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -86,7 +86,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
-		( { data, index, overrideColor } ) => {
+		( { data, index, overrideColor, legendShape } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
 			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
 
@@ -101,6 +101,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				} ),
 				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
 				glyph: providerTheme.glyphs?.[ index ],
+				shapeStyles: isSeriesData
+					? getItemShapeStyles( data, index, providerTheme, legendShape )
+					: {},
 			};
 		},
 		[ providerTheme, resolveColor ]

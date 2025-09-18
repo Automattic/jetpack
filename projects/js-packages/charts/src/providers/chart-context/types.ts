@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type { CompleteChartTheme, DataPointPercentage, SeriesData } from '../../types';
+import type { LegendShape } from '@visx/legend/lib/types';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 
 export interface ChartRegistration {
@@ -13,12 +14,14 @@ export type GetElementStylesParams = {
 	index: number;
 	data?: SeriesData | DataPointPercentage;
 	overrideColor?: string;
+	legendShape?: LegendShape< SeriesData[], number >;
 };
 
 export type ElementStyles = {
 	color: string;
 	lineStyles: LineStyles;
 	glyph: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+	shapeStyles: CSSProperties & LineStyles;
 };
 
 export interface GlobalChartsContextValue {
