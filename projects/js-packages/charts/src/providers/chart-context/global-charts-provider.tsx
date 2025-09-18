@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
+import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
 import { getItemShapeStyles, getSeriesLineStyles, mergeThemes } from '../../utils';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
@@ -9,24 +9,24 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
-	/** Optional theme override. Considered static for provider lifecycle. */
 	theme?: Partial< ChartTheme >;
 }
 
 export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
-	const providerTheme: CompleteChartTheme = useMemo(
-		() => ( theme ? mergeThemes( defaultTheme, theme ) : defaultTheme ),
-		[ theme ]
+	const providerTheme: CompleteChartTheme = useMemo( () => {
+		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
+	}, [ theme ] );
+
+	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
+		() => new Map()
 	);
 
-	// Stable group -> color mapping for this provider lifecycle
-	const groupToColorMapRef = useRef< Map< string, string > >( new Map() );
-
-	// Reset group color mappings when theme changes
+	// Reset group color mappings when theme colors change
 	useEffect( () => {
-		groupToColorMapRef.current = new Map();
+		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
+		setGroupToColorMap( new Map() );
 	}, [ providerTheme.colors ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
@@ -67,22 +67,22 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 			// If group provided, maintain a stable assignment
 			if ( group ) {
-				const existing = groupToColorMapRef.current.get( group );
+				const existing = groupToColorMap.get( group );
 				if ( existing ) {
 					return existing;
 				}
 				// Assign next color from palette in a deterministic cycling manner
 
-				const assignedCount = groupToColorMapRef.current.size;
+				const assignedCount = groupToColorMap.size;
 				const color = colors.length > 0 ? colors[ assignedCount % colors.length ] : '#000000';
-				groupToColorMapRef.current.set( group, color );
+				groupToColorMap.set( group, color );
 				return color;
 			}
 
 			// Fallback: index-based color cycling
 			return colors.length > 0 ? colors[ ( index || 0 ) % colors.length ] : '#000000';
 		},
-		[ providerTheme ]
+		[ providerTheme, groupToColorMap ]
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(

@@ -626,7 +626,7 @@ describe( 'ChartContext', () => {
 	} );
 
 	describe( 'Context stability', () => {
-		it( 'maintains stable function references', () => {
+		it( 'maintains stable function references when no theme changes', () => {
 			const functionRefs: Array< {
 				registerChart: GlobalChartsContextValue[ 'registerChart' ];
 				unregisterChart: GlobalChartsContextValue[ 'unregisterChart' ];
@@ -646,22 +646,24 @@ describe( 'ChartContext', () => {
 			};
 
 			const { rerender } = render(
-				<GlobalChartsProvider>
+				<GlobalChartsProvider theme={ mockTheme }>
 					<TestComponent />
 				</GlobalChartsProvider>
 			);
 
 			rerender(
-				<GlobalChartsProvider>
+				<GlobalChartsProvider theme={ mockTheme }>
 					<TestComponent />
 				</GlobalChartsProvider>
 			);
 
-			expect( functionRefs ).toHaveLength( 2 );
-			expect( functionRefs[ 0 ].registerChart ).toBe( functionRefs[ 1 ].registerChart );
-			expect( functionRefs[ 0 ].unregisterChart ).toBe( functionRefs[ 1 ].unregisterChart );
-			expect( functionRefs[ 0 ].getChartData ).toBe( functionRefs[ 1 ].getChartData );
-			expect( functionRefs[ 0 ].getElementStyles ).toBe( functionRefs[ 1 ].getElementStyles );
+			// After initial mount and theme effect, function refs should be stable across re-renders
+			const lastTwoRefs = functionRefs.slice( -2 );
+			expect( lastTwoRefs ).toHaveLength( 2 );
+			expect( lastTwoRefs[ 0 ].registerChart ).toBe( lastTwoRefs[ 1 ].registerChart );
+			expect( lastTwoRefs[ 0 ].unregisterChart ).toBe( lastTwoRefs[ 1 ].unregisterChart );
+			expect( lastTwoRefs[ 0 ].getChartData ).toBe( lastTwoRefs[ 1 ].getChartData );
+			expect( lastTwoRefs[ 0 ].getElementStyles ).toBe( lastTwoRefs[ 1 ].getElementStyles );
 		} );
 	} );
 } );
