@@ -29,10 +29,6 @@ export interface GlobalChartsContextValue {
 	registerChart: ( id: string, data: ChartRegistration ) => void;
 	unregisterChart: ( id: string ) => void;
 	getChartData: ( id: string ) => ChartRegistration | undefined;
-	/** Theme provided by the GlobalChartsProvider (merged with defaults) */
 	theme: CompleteChartTheme;
-	/**
-	 * Get the styles for a series.
-	 */
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 }
