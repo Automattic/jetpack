@@ -125,7 +125,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 				'url'            => $blog_details['url'],
 				'woo_version'    => $blog_details['wc_version'],
 				'wp_version'     => get_bloginfo( 'version' ),
-				'store_admin'    => in_array( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles, true ) ? 1 : 0,
+				'store_admin'    => count( array_intersect( array( 'administrator', 'shop_manager' ), wp_get_current_user()->roles ) ) > 0 ? 1 : 0,
 				'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
 				'store_currency' => get_woocommerce_currency(),
 				'timezone'       => wp_timezone_string(),
