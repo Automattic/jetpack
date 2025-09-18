@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
+const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
@@ -100,6 +101,7 @@ module.exports = async () => {
 						__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
 					},
 				} ),
+				new CodeMirrorLanguageDataPlugin(),
 			],
 			module: {
 				strictExportPresence: true,

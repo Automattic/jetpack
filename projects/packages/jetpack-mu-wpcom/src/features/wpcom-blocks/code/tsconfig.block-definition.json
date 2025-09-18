@@ -5,7 +5,8 @@
 		"rootDir": "block-definition",
 		"paths": {
 			"@a8cCodeBlock/block-edit-function": [ "./block-edit-function/block-edit-function.tsx" ]
-		}
+		},
+		"types": [ "@@codemirrorLanguageData@@", "global", "grammars" ]
 	},
 	"include": [ "block-definition" ],
 	"references": [

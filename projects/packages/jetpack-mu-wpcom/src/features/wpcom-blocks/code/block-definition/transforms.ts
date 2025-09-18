@@ -1,5 +1,6 @@
+// eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
+import { extensionToLang } from '@@codemirrorLanguageData@@';
 import { BLOCK_NAME } from '../common/block.ts';
-import extensionToLang from './extensions-to-langs.json';
 import type { Attributes } from '../common/block.ts';
 
 const { createBlock } = window.wp.blocks;

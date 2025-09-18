@@ -1,3 +1,5 @@
+// eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
+import { langNames } from '@@codemirrorLanguageData@@';
 import blockJson from '../common/block.json';
 import {
 	type Attributes,
@@ -6,7 +8,6 @@ import {
 	type SaveBlockProps,
 } from '../common/block.ts';
 import { ColorTools } from './color-tools.tsx';
-import langNames from './lang-names.json';
 import { transforms } from './transforms.ts';
 import type { CSSProperties } from 'react';
 
