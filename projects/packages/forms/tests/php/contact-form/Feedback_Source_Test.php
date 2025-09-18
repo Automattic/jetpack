@@ -40,7 +40,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$this->assertSame( 0, $entry->get_id() );
 		$this->assertEquals( '[Deleted] Test Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
-		$this->assertSame( home_url(), $entry->get_permalink() );
+		$this->assertSame( '', $entry->get_permalink() );
 	}
 
 	/**
@@ -52,7 +52,7 @@ class Feedback_Source_Test extends BaseTestCase {
 		$this->assertSame( 999999, $entry->get_id() );
 		$this->assertEquals( '[Deleted] Fallback Title', $entry->get_title() );
 		$this->assertSame( 1, $entry->get_page_number() );
-		$this->assertSame( 'http://example.org', $entry->get_permalink() );
+		$this->assertSame( '', $entry->get_permalink() );
 		$this->assertSame( '', $entry->get_relative_permalink() );
 	}
 
@@ -119,16 +119,24 @@ class Feedback_Source_Test extends BaseTestCase {
 	 * Test from_submission with post missing title
 	 */
 	public function test_from_submission_with_missing_title() {
-		$post_id = \wp_insert_post(
-			array(
 
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-				'post_title'  => '', // Empty title (missing title)
+		$post_id = wp_insert_post(
+			array(
+				'post_status'  => 'publish',
+				'post_type'    => 'post',
+				'post_content' => 'Content without title',
+				'post_title'   => 'howdy',
 			)
 		);
-		$post    = \get_post( $post_id );
-		$entry   = Feedback_Source::from_submission( $post, 3 );
+		wp_update_post(
+			array(
+				'ID'         => $post_id,
+				'post_title' => '',
+			)
+		);
+		$post = \get_post( $post_id );
+
+		$entry = Feedback_Source::from_submission( $post, 3 );
 
 		$this->assertEquals( $post_id, $entry->get_id() );
 		$this->assertSame( '', $entry->get_title() );

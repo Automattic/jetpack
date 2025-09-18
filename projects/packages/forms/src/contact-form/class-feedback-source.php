@@ -61,11 +61,11 @@ class Feedback_Source {
 	/**
 	 * Constructor for Feedback_Source.
 	 *
-	 * @param string $id          The Source ID = post ID, widget ID, block template ID, or 0 for homepage or non-post/page.
-	 * @param string $title       The title of the feedback entry.
-	 * @param int    $page_number The page number of the feedback entry, default is 1.
-	 * @param string $source_type The source type of the feedback entry, default is 'single'.
-	 * @param string $request_url The request URL of the feedback entry.
+	 * @param string|int $id          The Source ID = post ID, widget ID, block template ID, or 0 for homepage or non-post/page.
+	 * @param string     $title       The title of the feedback entry.
+	 * @param int        $page_number The page number of the feedback entry, default is 1.
+	 * @param string     $source_type The source type of the feedback entry, default is 'single'.
+	 * @param string     $request_url The request URL of the feedback entry.
 	 */
 	public function __construct( $id = 0, $title = '', $page_number = 1, $source_type = 'single', $request_url = '' ) {
 
@@ -92,7 +92,8 @@ class Feedback_Source {
 			}
 			if ( empty( $entry_post ) ) {
 				/* translators: %s is the post title */
-				$this->title = sprintf( __( '[Deleted] %s', 'jetpack-forms' ), $this->title );
+				$this->title     = sprintf( __( '[Deleted] %s', 'jetpack-forms' ), $this->title );
+				$this->permalink = '';
 			}
 		}
 	}
@@ -177,11 +178,11 @@ class Feedback_Source {
 	 * @return Feedback_Source Returns an instance of Feedback_Source.
 	 */
 	public static function from_serialized( $data ) {
-		$id          = isset( $data['source_id'] ) ? $data['source_id'] : 0;
-		$title       = isset( $data['entry_title'] ) ? $data['entry_title'] : '';
-		$page_number = isset( $data['entry_page'] ) ? (int) $data['entry_page'] : 1;
-		$source_type = isset( $data['source_type'] ) ? $data['source_type'] : 'single';
-		$request_url = isset( $data['request_url'] ) ? $data['request_url'] : '';
+		$id          = $data['source_id'] ?? 0;
+		$title       = $data['entry_title'] ?? '';
+		$page_number = $data['entry_page'] ?? 1;
+		$source_type = $data['source_type'] ?? 'single';
+		$request_url = $data['request_url'] ?? '';
 
 		return new self( $id, $title, $page_number, $source_type, $request_url );
 	}
@@ -257,7 +258,7 @@ class Feedback_Source {
 	/**
 	 * Get the post id of the feedback entry.
 	 *
-	 * @return int The ID of the feedback entry.
+	 * @return int|string The ID of the feedback entry.
 	 */
 	public function get_id() {
 		return $this->id;

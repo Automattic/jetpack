@@ -917,7 +917,7 @@ class Feedback {
 	 *
 	 * This is the post ID of the post or page that the feedback was submitted from.
 	 *
-	 * @return int|null
+	 * @return int|string
 	 */
 	public function get_entry_id() {
 		return $this->source->get_id();

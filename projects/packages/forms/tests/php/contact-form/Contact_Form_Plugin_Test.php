@@ -812,7 +812,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source URL:',
-					'value' => 'http://example.org',
+					'value' => '',
 				),
 				array(
 					'name'  => 'field',
