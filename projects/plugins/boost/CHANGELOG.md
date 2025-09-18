@@ -823,7 +823,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.4.0-beta1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0-beta1
+[4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
 [4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
 [4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1
