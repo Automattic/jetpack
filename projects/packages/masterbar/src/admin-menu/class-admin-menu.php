@@ -20,7 +20,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		$this->add_stats_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
 		$this->add_media_menu();
@@ -101,14 +100,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_mailboxes_menu() {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', 4.64424 );
-	}
-
-	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), __( 'Stats', 'jetpack-masterbar' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
 	}
 
 	/**
