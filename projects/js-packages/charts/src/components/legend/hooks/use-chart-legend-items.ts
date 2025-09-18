@@ -62,6 +62,36 @@ function formatPointValue(
 }
 
 /**
+ * Applies glyph configuration to a legend item if needed
+ * @param baseItem    - The base legend item
+ * @param withGlyph   - Whether to include glyph rendering
+ * @param glyph       - Glyph component from theme
+ * @param renderGlyph - Custom glyph render function
+ * @param glyphSize   - Size of the glyph
+ * @return The legend item with glyph configuration applied if applicable
+ */
+function applyGlyphToLegendItem(
+	baseItem: BaseLegendItem,
+	withGlyph: boolean,
+	glyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
+	glyphSize?: number
+): BaseLegendItem {
+	if ( withGlyph ) {
+		const glyphToUse = glyph || renderGlyph;
+		if ( glyphToUse ) {
+			return {
+				...baseItem,
+				glyphSize,
+				renderGlyph: glyphToUse,
+			};
+		}
+	}
+
+	return baseItem;
+}
+
+/**
  * Processes SeriesData into legend items
  * @param seriesData       - The series data to process
  * @param getElementStyles - Function to get element styles
@@ -95,18 +125,7 @@ function processSeriesData(
 			shapeStyle: shapeStyles,
 		};
 
-		if ( withGlyph ) {
-			const glyphToUse = renderGlyph || glyph;
-			if ( glyphToUse ) {
-				return {
-					...baseItem,
-					glyphSize,
-					renderGlyph: glyphToUse,
-				};
-			}
-		}
-
-		return baseItem;
+		return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
 	};
 
 	return seriesData.map( mapper );
@@ -148,18 +167,7 @@ function processPointData(
 			shapeStyle: shapeStyles,
 		};
 
-		if ( withGlyph ) {
-			const glyphToUse = renderGlyph || glyph;
-			if ( glyphToUse ) {
-				return {
-					...baseItem,
-					glyphSize,
-					renderGlyph: glyphToUse,
-				};
-			}
-		}
-
-		return baseItem;
+		return applyGlyphToLegendItem( baseItem, withGlyph, glyph, renderGlyph, glyphSize );
 	};
 
 	return pointData.map( mapper );
