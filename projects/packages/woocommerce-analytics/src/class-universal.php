@@ -115,7 +115,7 @@ class Universal {
 
 		WC_Analytics_Tracking::record_event(
 			'remove_from_cart',
-			$this->compose_event_properties(
+			$this->get_cart_checkout_event_properties(
 				array(
 					'pi' => (int) $item['product_id'],
 					'pq' => (int) $item['quantity'],
@@ -139,7 +139,7 @@ class Universal {
 		if ( $quantity > $old_quantity ) {
 			WC_Analytics_Tracking::record_event(
 				'add_to_cart',
-				$this->compose_event_properties(
+				$this->get_cart_checkout_event_properties(
 					array(
 						'pi' => $product_id,
 						'pq' => $quantity,
@@ -153,7 +153,7 @@ class Universal {
 		if ( $quantity < $old_quantity ) {
 			WC_Analytics_Tracking::record_event(
 				'remove_from_cart',
-				$this->compose_event_properties(
+				$this->get_cart_checkout_event_properties(
 					array(
 						'pi' => $product_id,
 						'pq' => $quantity,
@@ -350,7 +350,7 @@ class Universal {
 
 			WC_Analytics_Tracking::record_event(
 				'product_purchase',
-				$this->compose_event_properties(
+				$this->get_cart_checkout_event_properties(
 					array(
 						'oi'                       => $order->get_order_number(),
 						'pi'                       => $product_id,
@@ -448,7 +448,7 @@ class Universal {
 		}
 		WC_Analytics_Tracking::record_event(
 			'add_to_cart',
-			$this->compose_event_properties(
+			$this->get_cart_checkout_event_properties(
 				array(
 					'pi' => $product_id,
 					'pq' => $quantity,
@@ -458,18 +458,32 @@ class Universal {
 	}
 
 	/**
-	 * Compose event properties. Composes the event properties with the product details.
+	 * Get the event properties for the cart and checkout events.
 	 *
 	 * @param array $event_properties Event properties.
 	 */
-	public function compose_event_properties( $event_properties = array() ) {
+	public function get_cart_checkout_event_properties( $event_properties = array() ) {
 		if ( isset( $event_properties['pq'] ) ) {
 			$event_properties['pq'] = 0 === $event_properties['pq'] ? 1 : $event_properties['pq'];
 			$event_properties['pq'] = (string) $event_properties['pq'];
 		}
-		$product          = isset( $event_properties['pi'] ) ? wc_get_product( $event_properties['pi'] ) : null;
-		$product_details  = $product instanceof WC_Product ? $this->get_product_details( $product ) : array();
-		$event_properties = array_merge( $event_properties, $product_details );
+		$product         = isset( $event_properties['pi'] ) ? wc_get_product( $event_properties['pi'] ) : null;
+		$product_details = $product instanceof WC_Product ? $this->get_product_details( $product ) : array();
+
+		$checkout_cart_details = array(
+			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
+			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
+			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
+			'order_value'                        => $this->get_cart_subtotal(),
+			'order_total'                        => $this->get_cart_total(),
+			'total_tax'                          => $this->get_cart_taxes(),
+			'total_discount'                     => $this->get_total_discounts(),
+			'total_shipping'                     => $this->get_cart_shipping_total(),
+			'products_count'                     => $this->get_cart_items_count(),
+		);
+		$cart_checkout_info    = $this->get_cart_checkout_info();
+
+		$event_properties = array_merge( $event_properties, $product_details, $checkout_cart_details, $cart_checkout_info );
 
 		return $event_properties;
 	}
