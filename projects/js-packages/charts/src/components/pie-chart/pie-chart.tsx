@@ -215,10 +215,8 @@ const PieChartInternal = ( {
 
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
-		// Use the color property from the data object as a last resort. The theme provides colours by default.
 		fill: ( d: DataPointPercentage & { index: number } ) => {
-			const { index, color: overrideColor } = d;
-			return getElementStyles( { data: d, index, overrideColor } ).color;
+			return getElementStyles( { data: d, index: d.index } ).color;
 		},
 	};
 

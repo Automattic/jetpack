@@ -171,7 +171,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
 			fill: ( d: DataPointPercentage & { index: number } ) =>
-				getElementStyles( { data: d, index: d.index, overrideColor: d.color } ).color,
+				getElementStyles( { data: d, index: d.index } ).color,
 		} ),
 		[ getElementStyles ]
 	);
