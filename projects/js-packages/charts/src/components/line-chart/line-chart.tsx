@@ -419,7 +419,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const { color, lineStyles } = getElementStyles( {
+								const { color, lineStyles, glyph } = getElementStyles( {
 									data: seriesData,
 									index,
 								} );
@@ -436,7 +436,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												index={ index }
 												data={ seriesData }
 												color={ color }
-												renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
+												renderGlyph={ glyph ?? renderGlyph }
 												accessors={ accessors }
 												glyphStyle={ glyphStyle }
 											/>
