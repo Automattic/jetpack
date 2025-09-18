@@ -30,6 +30,10 @@ export const settings = {
 		default: {
 			type: 'string',
 		},
+		searchPlaceholder: {
+			type: 'string',
+			default: '',
+		},
 	},
 	supports: {
 		...defaultSettings.supports,
@@ -38,6 +42,7 @@ export const settings = {
 	providesContext: {
 		...defaultSettings.providesContext,
 		'jetpack/field-prefix-default': 'default',
+		'jetpack/field-phone-search-placeholder': 'searchPlaceholder',
 		'jetpack/field-phone-country-toggle': 'showCountrySelector',
 	},
 	allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],

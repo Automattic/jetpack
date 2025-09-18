@@ -1326,6 +1326,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'default'             => 'foo',
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
+			'searchplaceholder'   => 'Search…',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
@@ -1345,6 +1346,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
 			'showcountryselector' => true,
+			'searchplaceholder'   => 'Search…',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );

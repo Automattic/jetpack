@@ -349,6 +349,10 @@ class Contact_Form_Block {
 						'type' => 'string',
 						'role' => 'content',
 					),
+					'searchPlaceholder'   => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
 				),
 				'supports'         => array(
 					'interactivity' => true,
@@ -358,6 +362,7 @@ class Contact_Form_Block {
 					'jetpack/field-required'             => 'required',
 					'jetpack/field-prefix-default'       => 'default',
 					'jetpack/field-phone-country-toggle' => 'showCountrySelector',
+					'jetpack/field-phone-search-placeholder' => 'searchPlaceholder',
 				),
 			)
 		);
