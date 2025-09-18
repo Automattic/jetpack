@@ -2074,6 +2074,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
+		// schedule deletes of old temp feedbacks
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete_temp' ) ) {
+			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete_temp' );
+		}
+
 		if (
 			$is_spam !== true &&
 			/**
