@@ -110,6 +110,9 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 					I18nCheckPlugin: false,
 				} ),
 			],
+			watchOptions: {
+				ignored: [ '**/node_modules' ],
+			},
 		};
 
 		module.exports = moduleWebpackConfig;
