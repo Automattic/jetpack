@@ -622,8 +622,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
-		$is_multistep = $max_steps > 0;
-		$element_id   = 'jp-form-' . esc_attr( $form->hash );
+		$is_multistep  = $max_steps > 0;
+		$is_horizontal = isset( $attributes['variationName'] ) && $attributes['variationName'] === 'horizontal';
+		$element_id    = 'jp-form-' . esc_attr( $form->hash );
 
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
@@ -746,6 +747,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$form_classes .= ' wp-block-jetpack-contact-form';
 			}
 
+			if ( $is_horizontal ) {
+				$form_classes .= ' is-horizontal ';
+			}
+
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
 				method='post'
@@ -769,7 +774,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			} elseif ( $has_submit_button_block ) {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence.
-				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
+				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper( $is_horizontal ) . ' <div class="wp-block-jetpack-button', $r, 1 );
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -806,7 +811,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					$submit_button_text = $form->get_attribute( 'submit_button_text' );
 				}
 
-				$r .= self::render_error_wrapper();
+				$r .= self::render_error_wrapper( $is_horizontal );
 				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
 				if ( ! empty( $submit_button_styles ) ) {
 					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
@@ -927,9 +932,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
+	 * @param bool $do_not_render Whether to render the error wrapper or not.
+	 *
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper() {
+	private static function render_error_wrapper( $do_not_render = false ) {
+		if ( $do_not_render ) {
+			return '';
+		}
 		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
 		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
 				<span data-wp-text="state.getFormErrorMessage"></span>

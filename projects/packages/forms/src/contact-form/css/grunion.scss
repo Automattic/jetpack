@@ -1192,6 +1192,13 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
 }
 
+.is-horizontal {
+
+	.contact-form__input-error.has-errors {
+		position: absolute;
+	}
+}
+
 .contact-form [aria-invalid="true"]:not(fieldset),
 .contact-form .wp-block-jetpack-contact-form.is-style-outlined fieldset[aria-invalid="true"] {
 	border: solid 1px var(--jetpack--contact-form--error-color);
@@ -1245,7 +1252,7 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 /* Horizontal form layout */
-.wp-block-jetpack-contact-form.is-horizontal {
+.wp-block-jetpack-contact-form.is-horizontal > .wp-block-jetpack-contact-form {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
