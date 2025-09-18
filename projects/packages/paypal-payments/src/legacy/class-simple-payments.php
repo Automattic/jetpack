@@ -16,6 +16,10 @@ use Automattic\Jetpack\PayPal_Payments;
 use PayPal_Payments_Currencies;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Simple_Payments
  */
