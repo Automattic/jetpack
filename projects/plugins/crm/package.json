@@ -69,7 +69,7 @@
 		"sweetalert2": "7.33.1",
 		"typeahead.js": "0.11.1",
 		"typescript": "5.9.2",
-		"webpack": "5.94.0",
+		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	}
 }
