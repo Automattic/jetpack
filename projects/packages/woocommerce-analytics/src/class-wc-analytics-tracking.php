@@ -270,7 +270,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 				if ( strpos( $ip, ',' ) !== false ) {
 					$ip = explode( ',', $ip );
 
-					return $ip[0];
+					return trim( $ip[0] );
 				}
 
 				return $ip;
