@@ -47,6 +47,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-spam',
 				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'creative-mail-by-constant-contact' => array(
 				'type'                    => 'plugin',
@@ -55,6 +57,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'creative-mail',
 				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
 				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'zero-bs-crm'                       => array(
 				'type'                    => 'plugin',
@@ -63,6 +67,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => true,
 			),
 			'salesforce'                        => array(
 				'type'                    => 'service',
@@ -71,6 +77,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'google-drive'                      => array(
 				'type'                    => 'service',
@@ -79,6 +87,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'mailpoet'                          => array(
 				'type'                    => 'plugin',
@@ -87,6 +97,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-mailpoet',
 				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 		);
 
@@ -847,20 +859,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Base shape for all integrations.
 		$base = array(
-			'id'              => $slug,
-			'slug'            => $slug,
-			'type'            => $type,
-			'title'           => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
-			'subtitle'        => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
-			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
-			'pluginFile'      => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
-			'isInstalled'     => false,
-			'isActive'        => false,
-			'needsConnection' => ( $type === 'service' ),
-			'isConnected'     => false,
-			'version'         => null,
-			'settingsUrl'     => null,
-			'details'         => array(),
+			'id'               => $slug,
+			'slug'             => $slug,
+			'type'             => $type,
+			'title'            => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
+			'subtitle'         => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
+			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
+			'pluginFile'       => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
+			'isInstalled'      => false,
+			'isActive'         => false,
+			'needsConnection'  => ( $type === 'service' ),
+			'isConnected'      => false,
+			'version'          => null,
+			'settingsUrl'      => null,
+			'details'          => array(),
+			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
 		);
 
 		// Override base shape based on integration type.

@@ -15,6 +15,8 @@ export interface Integration {
 	title?: string;
 	/** Default subtitle/description for the integration (server-provided, filterable). */
 	subtitle?: string;
+	/** Whether this integration should be enabled by default for new forms. */
+	enabledByDefault?: boolean;
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
