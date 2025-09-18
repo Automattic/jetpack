@@ -64,6 +64,19 @@
 				flex-basis: auto;
 				min-height: var(--jetpack--contact-form--input-height, auto);
 				align-self: flex-end;
+				line-height: 1;
+
+				.wp-block-button__link {
+					min-height: var(--jetpack--contact-form--input-height, auto);
+				}
+			}
+
+			&.wp-block-group-is-layout-flex:not(.is-vertical) {
+				// when the button is on a row stack, we expect it to fill the width of the
+				// button block container (which is filling the provided column width)
+				.wp-block.wp-block-jetpack-button .wp-block-button__link {
+					width: 100%;
+				}
 			}
 
 			&.jetpack-field__width-25,
