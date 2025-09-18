@@ -187,6 +187,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'hiddenFields'           => null,
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 			'saveResponses'          => 'yes',
+			'emailNotifications'     => 'yes',
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -194,6 +195,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Transform boolean saveResponses to string for backend compatibility
 		if ( isset( $attributes['saveResponses'] ) && is_bool( $attributes['saveResponses'] ) ) {
 			$attributes['saveResponses'] = $attributes['saveResponses'] ? 'yes' : 'no';
+		}
+
+		// Transform boolean emailNotifications to string for backend compatibility
+		if ( isset( $attributes['emailNotifications'] ) && is_bool( $attributes['emailNotifications'] ) ) {
+			$attributes['emailNotifications'] = $attributes['emailNotifications'] ? 'yes' : 'no';
 		}
 
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
@@ -2081,6 +2087,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if (
 			$is_spam !== true &&
+			// Check if email notifications are enabled for this form
+			( $this->get_attribute( 'emailNotifications' ) !== 'no' ) &&
 			/**
 			 * Filter to choose whether an email should be sent after each successful contact form submission.
 			 *

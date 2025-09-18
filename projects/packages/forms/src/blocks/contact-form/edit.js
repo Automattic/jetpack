@@ -102,6 +102,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		formTitle,
 		variationName,
+		emailNotifications,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -751,6 +752,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
+							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
 							postAuthorEmail={ postAuthorEmail }
 							setAttributes={ setAttributes }
