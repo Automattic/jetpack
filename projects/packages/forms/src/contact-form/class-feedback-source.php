@@ -112,7 +112,7 @@ class Feedback_Source {
 			return new self( 0, '', $current_page_number );
 		}
 
-		$title = $current_post->post_title ?? __( '[Missing Title]', 'jetpack-forms' );
+		$title = $current_post->post_title ?? __( '(no title)', 'jetpack-forms' );
 
 		return new self( $id, $title, $current_page_number );
 	}
