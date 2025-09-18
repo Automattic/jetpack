@@ -62,7 +62,7 @@
 
 			&.wp-block-jetpack-button {
 				flex-basis: auto;
-				height: var(--jetpack--contact-form--input-height, auto);
+				min-height: var(--jetpack--contact-form--input-height, auto);
 				align-self: flex-end;
 			}
 
