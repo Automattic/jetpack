@@ -1,29 +1,58 @@
+/* eslint-disable prettier/prettier */
 /**
  * Webpack plugin for creating a virtual module with CodeMirror language data
  *
  * This plugin creates a virtual module that can be imported using:
- * import { extensionsToLanguages, sortedLangNames } from '@@codemirrorLanguageData@@';
+ * import { extensionToLang, langNames } from '@@codemirrorLanguageData@@';
  *
  * The plugin generates the data from @codemirror/language-data at build time
  * and makes it available as a virtual module without writing files to disk.
  */
 
+const path = require( 'path' );
+
 class CodeMirrorLanguageDataPlugin {
+	/** @readonly */
 	static virtualModuleName = '@@codemirrorLanguageData@@';
 
+	/** @type {?string} */
+	virtualModulePath = null;
+
+	/**
+	 * Plugin apply method.
+	 *
+	 * @param {import('webpack').Compiler} compiler -- The Webpack compiler instance.
+	 */
 	apply( compiler ) {
+		// Create virtual file path
+		this.virtualModulePath = path.resolve(
+			compiler.context,
+			this.constructor.virtualModuleName
+		);
+
+		// Hook into afterEnvironment to set up the virtual file system
+		compiler.hooks.afterEnvironment.tap( this.constructor.name, () => {
+			const content = this.generateModuleContent();
+			this.writeVirtualFile(
+				compiler.inputFileSystem,
+				this.virtualModulePath,
+				content
+			);
+		} );
+
+		// Hook into normalModuleFactory to intercept module resolution
 		compiler.hooks.normalModuleFactory.tap( 'CodeMirrorLanguageDataPlugin', factory => {
-			factory.hooks.beforeResolve.tap( 'CodeMirrorLanguageDataPlugin', resolveData => {
-				const request = resolveData.request;
-
-				if ( request === CodeMirrorLanguageDataPlugin.virtualModuleName ) {
-					// Generate the language data
-					const moduleContent = this.generateModuleContent();
-
-					// Create a virtual module
-					resolveData.request = 'data:text/javascript,' + encodeURIComponent( moduleContent );
+			factory.hooks.beforeResolve.tap(
+				'CodeMirrorLanguageDataPlugin',
+				resolveData => {
+					if (
+						resolveData.request ===
+						this.constructor.virtualModuleName
+					) {
+						resolveData.request = this.virtualModulePath;
+					}
 				}
-			} );
+			);
 		} );
 	}
 
@@ -53,6 +82,88 @@ class CodeMirrorLanguageDataPlugin {
 		// Return the module content as a string
 		return `export const extensionToLang = ${ JSON.stringify( extensionsToLanguages ) };
 export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
+	}
+
+	/**
+	 * Write the file.
+	 *
+	 * @param {import('webpack').InputFileSystem} fs - Virtual file system.
+	 * @param {string} filePath - Path.
+	 * @param {string} contents - File contents.
+	 */
+	writeVirtualFile( fs, filePath, contents ) {
+		const stats = {
+			isFile: () => true,
+			isDirectory: () => false,
+			isBlockDevice: () => false,
+			isCharacterDevice: () => false,
+			isSymbolicLink: () => false,
+			isFIFO: () => false,
+			isSocket: () => false,
+			dev: 8675309,
+			nlink: 1,
+			uid: 501,
+			gid: 20,
+			rdev: 0,
+			blksize: 4096,
+			ino: Math.random(),
+			mode: 33188,
+			size: contents ? contents.length : 0,
+			blocks: Math.floor( contents ? contents.length / 4096 : 0 ),
+			atime: new Date(),
+			mtime: new Date(),
+			ctime: new Date(),
+			birthtime: new Date(),
+		};
+
+		// Store the file content
+		const virtualData = {
+			contents,
+			stats,
+		};
+
+		// Patch the filesystem methods
+		const originalReadFileSync = fs.readFileSync;
+		const originalStatSync = fs.statSync;
+		const originalReadFile = fs.readFile;
+		const originalStat = fs.stat;
+
+		// readFileSync
+		fs.readFileSync = function ( filename, options ) {
+			if ( filename === filePath ) {
+				return virtualData.contents;
+			}
+			return originalReadFileSync.call( this, filename, options );
+		}.bind( this );
+
+		// statSync
+		fs.statSync = function ( filename, options ) {
+			if ( filename === filePath ) {
+				return virtualData.stats;
+			}
+			return originalStatSync.call( this, filename, options );
+		}.bind( this );
+
+		fs.readFile = function ( filename, options, callback ) {
+			if ( typeof options === 'function' ) {
+				callback = options;
+				options = undefined;
+			}
+			if ( filename === filePath ) {
+				callback( null, virtualData.contents );
+				return;
+			}
+			return originalReadFile.call( this, filename, options, callback );
+		}.bind( this );
+
+		// stat (async)
+		fs.stat = function ( filename, callback ) {
+			if ( filename === filePath ) {
+				callback( null, virtualData.stats );
+				return;
+			}
+			return originalStat.call( this, filename, callback );
+		}.bind( this );
 	}
 }
 
