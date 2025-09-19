@@ -7,7 +7,7 @@ settings:
 overrides:
   esbuild-sass-plugin>sass: npm:sass-embedded@1.87.0
 
-pnpmfileChecksum: sha256-l7aG7NKykvRib8R1L5PIlh/nsByaXjoKKlZ/T+K0s3U=
+pnpmfileChecksum: sha256-YDpdpIHQj3g4K8AUyR3UOEtgYZDcSuWJ2qXiqWTTWSY=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -1283,8 +1283,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 7.0.0
-        version: 7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -1465,8 +1465,8 @@ importers:
         specifier: 30.4.0
         version: 30.4.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 7.0.0
-        version: 7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -2553,8 +2553,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 7.0.0
-        version: 7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
       '@wordpress/dom-ready':
         specifier: 4.31.0
         version: 4.31.0
@@ -3101,8 +3101,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 7.0.0
-        version: 7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -3660,8 +3660,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 7.0.0
-        version: 7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)
+        specifier: 9.0.0
+        version: 9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)
       '@wordpress/element':
         specifier: 6.31.0
         version: 6.31.0
@@ -9586,12 +9586,6 @@ packages:
 
   '@wordpress/data@10.31.0':
     resolution: {integrity: sha512-iuQxrmbW55q+xy7lnXH8D6qHFAoG0/YcnjZ6jvqpDekRhdgl4kAPE+crx/kJ5RkrIIo38a+cLgVskCaKo+9E3w==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-
-  '@wordpress/dataviews@7.0.0':
-    resolution: {integrity: sha512-CPoTyKgbX1SSg2mFf3XqR7Xj3Fl8pirtDv1TjZ1IeTHDlQUG+FphXXSxR3XaFEbNFYeXJS8jrgE/zYeouElu1g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -22463,100 +22457,6 @@ snapshots:
       rememo: 4.0.2
       use-memo-one: 1.1.3(react@18.3.1)
 
-  '@wordpress/dataviews@7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)':
-    dependencies:
-      '@ariakit/react': 0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@babel/runtime': 7.27.6
-      '@wordpress/base-styles': 6.7.0
-      '@wordpress/components': 30.4.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 7.31.0(react@18.3.1)
-      '@wordpress/data': 10.31.0(react@18.3.1)
-      '@wordpress/element': 6.31.0
-      '@wordpress/i18n': 6.4.0
-      '@wordpress/icons': 10.31.0(react@18.3.1)
-      '@wordpress/keycodes': 4.31.0
-      '@wordpress/primitives': 4.31.0(react@18.3.1)
-      '@wordpress/private-apis': 1.31.0
-      '@wordpress/url': 4.31.0
-      '@wordpress/warning': 3.31.0
-      clsx: 2.1.1
-      react: 18.3.1
-      remove-accents: 0.5.0
-    optionalDependencies:
-      '@emotion/cache': 11.14.0
-      '@emotion/css': 11.13.5
-      '@emotion/react': 11.14.0(@types/react@18.3.23)(react@18.3.1)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.23)(react@18.3.1))(@types/react@18.3.23)(react@18.3.1)
-      '@emotion/utils': 1.4.2
-      '@floating-ui/react-dom': 2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@use-gesture/react': 10.3.1(react@18.3.1)
-      '@wordpress/date': 5.31.0
-      '@wordpress/hooks': 4.31.0
-      change-case: 4.1.2
-      colord: 2.9.3
-      date-fns: 4.1.0
-      deepmerge: 4.3.1
-      fast-deep-equal: 3.1.3
-      framer-motion: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      highlight-words-core: 1.2.3
-      is-plain-object: 5.0.0
-      memize: 2.1.1
-      react-day-picker: 9.9.0(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
-      use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - supports-color
-
-  '@wordpress/dataviews@7.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)':
-    dependencies:
-      '@ariakit/react': 0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@babel/runtime': 7.27.6
-      '@wordpress/base-styles': 6.7.0
-      '@wordpress/components': 30.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 7.31.0(react@18.3.1)
-      '@wordpress/data': 10.31.0(react@18.3.1)
-      '@wordpress/element': 6.31.0
-      '@wordpress/i18n': 6.4.0
-      '@wordpress/icons': 10.31.0(react@18.3.1)
-      '@wordpress/keycodes': 4.31.0
-      '@wordpress/primitives': 4.31.0(react@18.3.1)
-      '@wordpress/private-apis': 1.31.0
-      '@wordpress/url': 4.31.0
-      '@wordpress/warning': 3.31.0
-      clsx: 2.1.1
-      react: 18.3.1
-      remove-accents: 0.5.0
-    optionalDependencies:
-      '@emotion/cache': 11.14.0
-      '@emotion/css': 11.13.5
-      '@emotion/react': 11.14.0(react@18.3.1)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(react@18.3.1))(react@18.3.1)
-      '@emotion/utils': 1.4.2
-      '@floating-ui/react-dom': 2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@use-gesture/react': 10.3.1(react@18.3.1)
-      '@wordpress/date': 5.31.0
-      '@wordpress/hooks': 4.31.0
-      change-case: 4.1.2
-      colord: 2.9.3
-      date-fns: 4.1.0
-      deepmerge: 4.3.1
-      fast-deep-equal: 3.1.3
-      framer-motion: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      highlight-words-core: 1.2.3
-      is-plain-object: 5.0.0
-      memize: 2.1.1
-      react-day-picker: 9.9.0(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
-      use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - supports-color
-
   '@wordpress/dataviews@9.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.23)(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -22595,6 +22495,7 @@ snapshots:
       highlight-words-core: 1.2.3
       is-plain-object: 5.0.0
       memize: 2.1.1
+      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-day-picker: 9.9.0(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
@@ -22642,6 +22543,7 @@ snapshots:
       highlight-words-core: 1.2.3
       is-plain-object: 5.0.0
       memize: 2.1.1
+      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-day-picker: 9.9.0(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)

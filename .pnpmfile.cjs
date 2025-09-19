@@ -20,6 +20,7 @@ const wpPkgs = {
 		'uuid',
 		'@wordpress/date',
 		'@wordpress/hooks',
+		'react-colorful',
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
