@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -80,7 +81,13 @@ const requestMediaToken = function (
 				break;
 		}
 
-		fetch( adminAjaxAPI, {
+		const urlOrPath = /^https?:\/\//.test( adminAjaxAPI )
+			? { url: adminAjaxAPI }
+			: { path: adminAjaxAPI };
+
+		apiFetch( {
+			...urlOrPath,
+			parse: false,
 			method: 'POST',
 			credentials: 'same-origin',
 			body: new URLSearchParams( fetchData ),
