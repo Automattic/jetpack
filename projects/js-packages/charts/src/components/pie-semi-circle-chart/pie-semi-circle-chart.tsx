@@ -18,6 +18,7 @@ import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
+import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
@@ -68,6 +69,12 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * - 'none': Shows no values, only labels
 	 */
 	legendValueDisplay?: LegendValueDisplay;
+
+	/**
+	 * Vertical offset for tooltip positioning (in pixels)
+	 * @default 15
+	 */
+	tooltipOffset?: number;
 }
 
 // Base props type with optional responsive properties
@@ -121,6 +128,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendTextOverflow = 'wrap',
 	legendShape = 'circle',
 	legendValueDisplay = 'percentage',
+	tooltipOffset = 15,
 	label,
 	note,
 	className,
@@ -149,12 +157,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					showTooltip( {
 						tooltipData: arc.data,
 						tooltipLeft: coords.x,
-						tooltipTop: coords.y - 15, // Standard offset above cursor
+						tooltipTop: coords.y - tooltipOffset,
 					} );
 				}
 			}
 		},
-		[ showTooltip ]
+		[ showTooltip, tooltipOffset ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
@@ -329,9 +337,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">
-							{ tooltipData.label }: { tooltipData.valueDisplay || tooltipData.value }
-						</div>
+						<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
 					</TooltipInPortal>
 				) }
 
