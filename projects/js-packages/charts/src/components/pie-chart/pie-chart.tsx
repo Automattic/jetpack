@@ -302,7 +302,7 @@ const PieChartInternal = ( {
 												showTooltip( {
 													tooltipData: arc.data,
 													tooltipLeft: coords.x,
-													tooltipTop: coords.y - 8, // Closer offset above cursor
+													tooltipTop: coords.y - 15, // Standard offset above cursor
 												} );
 											}
 										}
