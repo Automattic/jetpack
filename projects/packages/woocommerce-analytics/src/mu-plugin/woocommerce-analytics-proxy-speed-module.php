@@ -13,43 +13,52 @@
  */
 class WooCommerceAnalyticsProxySpeed {
 	/**
-	 * Is current request a request to our proxy?
-	 *
-	 * @var bool
-	 */
-	private $is_proxy_request = false;
-
-	/**
-	 * Current request URI.
-	 *
-	 * @var string
-	 */
-	private $request_uri = '';
-
-	/**
 	 * Path of the proxy request.
 	 *
 	 * @var string
 	 */
-	private $path = 'woocommerce-analytics/v1/track';
+	const PROXY_REQUEST_PATH = 'woocommerce-analytics/v1/track';
 
 	/**
-	 * Allowed plugin files.
+	 * Allowed plugin files for proxy request.
 	 *
 	 * @var array
 	 */
 	private $allowed_plugin_files = array( 'woocommerce.php', 'woocommerce-analytics.php', 'jetpack.php' );
 
 	/**
-	 * Build properties.
+	 * Add filters and actions.
 	 *
 	 * @return void
 	 */
-	public function __construct() {
-		$this->request_uri      = $this->get_request_uri();
-		$this->is_proxy_request = $this->is_proxy_request();
+	public function init() {
+		add_filter( 'option_active_plugins', array( $this, 'filter_active_plugins' ) );
+	}
 
-		$this->init();
+	/**
+	 * Filter the list of active plugins for custom endpoint requests.
+	 *
+	 * @param array $active_plugins The list of active plugins.
+	 *
+	 * @return array The filtered list of active plugins.
+	 */
+	public function filter_active_plugins( $active_plugins ) {
+		if ( ! $this->is_proxy_request() || ! is_array( $active_plugins ) ) {
+			return $active_plugins;
+		}
+
+		$filtered_plugins = array();
+
+		foreach ( $active_plugins as $plugin ) {
+			foreach ( $this->allowed_plugin_files as $allowed_plugin_file ) {
+				if ( strpos( $plugin, $allowed_plugin_file ) !== false ) {
+					$filtered_plugins[] = $plugin;
+					break;
+				}
+			}
+		}
+
+		return $filtered_plugins;
 	}
 
 	/**
@@ -67,48 +76,8 @@ class WooCommerceAnalyticsProxySpeed {
 	 * @return bool
 	 */
 	private function is_proxy_request() {
-
-		if ( ! $this->path ) {
-			return false;
-		}
-
-		return strpos( $this->request_uri, $this->path ) !== false;
-	}
-
-	/**
-	 * Add filters and actions.
-	 *
-	 * @return void
-	 */
-	private function init() {
-		add_filter( 'option_active_plugins', array( $this, 'filter_active_plugins' ) );
-	}
-
-	/**
-	 * Filter the list of active plugins for custom endpoint requests.
-	 *
-	 * @param array $active_plugins The list of active plugins.
-	 *
-	 * @return array The filtered list of active plugins.
-	 */
-	public function filter_active_plugins( $active_plugins ) {
-		if ( ! $this->is_proxy_request || ! is_array( $active_plugins ) ) {
-			return $active_plugins;
-		}
-
-		$filtered_plugins = array();
-
-		foreach ( $active_plugins as $plugin ) {
-			foreach ( $this->allowed_plugin_files as $allowed_plugin_file ) {
-				if ( strpos( $plugin, $allowed_plugin_file ) !== false ) {
-					$filtered_plugins[] = $plugin;
-					break;
-				}
-			}
-		}
-
-		return $filtered_plugins;
+		return strpos( $this->get_request_uri(), self::PROXY_REQUEST_PATH ) !== false;
 	}
 }
 
-new WooCommerceAnalyticsProxySpeed(); // @phan-suppress-current-line PhanNoopNew
+( new WooCommerceAnalyticsProxySpeed() )->init();
