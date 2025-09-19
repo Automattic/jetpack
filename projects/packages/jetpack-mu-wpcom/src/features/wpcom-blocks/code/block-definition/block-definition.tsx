@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
-import { langNames } from '@@codemirrorLanguageData@@';
+import { extensionToLang, langNames } from '@@codemirrorLanguageData@@';
 import {
 	InspectorControls,
 	useBlockProps,
@@ -16,7 +16,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { __, _x } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
 import blockJson from '../common/block.json';
 import {
@@ -273,14 +273,16 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 		<div { ...blockProps }>
 			<div className="a8c/code__header">
 				<Filename { ...props } />
-				{ ( props.attributes.showCopyButton || props.attributes.showLanguageName ) && (
+				{ ( props.isSelected ||
+					props.attributes.showCopyButton ||
+					props.attributes.showLanguageName ) && (
 					<div className="a8c/code__header-right">
 						{ props.attributes.showCopyButton && (
 							<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
 								{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 							</button>
 						) }
-						{ props.attributes.showLanguageName && <DisplayLanguage { ...props } /> }
+						<DisplayLanguage { ...props } />
 					</div>
 				) }
 			</div>
@@ -293,16 +295,21 @@ const Filename = ( props: Props ) => {
 	const { setAttributes, isSelected = false } = props;
 	const { filename } = props.attributes;
 
+	const placeholderExtension =
+		extensionToLang.find(
+			( [ , langaugeName ] ) => props.attributes.language === langaugeName
+		)?.[ 0 ] ?? 'txt';
+
 	if ( isSelected ) {
 		return (
 			<TextControl
 				label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
 				hideLabelFromVision
 				className="a8c/code__filename"
-				placeholder={ _x(
-					'filename.txt',
-					'An example filename input placeholder.',
-					'jetpack-mu-wpcom'
+				placeholder={ sprintf(
+					/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
+					__( 'filename.%s', 'jetpack-mu-wpcom' ),
+					placeholderExtension
 				) }
 				value={ filename }
 				onChange={ ( nextValue: string ) => {
@@ -322,45 +329,48 @@ const Filename = ( props: Props ) => {
 const DisplayLanguage = ( props: Props ) => {
 	const { attributes, setAttributes } = props;
 
-	if ( ! attributes.language ) {
+	if ( props.isSelected ) {
+		const emptyOption = {
+			name: __( 'Plain text', 'jetpack-mu-wpcom' ),
+			key: '',
+		};
+		return (
+			<CustomSelectControl
+				className="a8c/code__language-select"
+				label={ __( 'Language', 'jetpack-mu-wpcom' ) }
+				hideLabelFromVision
+				value={
+					attributes.language
+						? { name: attributes.language, key: attributes.language }
+						: emptyOption
+				}
+				options={ [
+					emptyOption,
+					...langNames.map( lang => ( {
+						name: lang,
+						key: lang,
+					} ) ),
+				] }
+				onChange={ ( {
+					selectedItem: { key: newLanguage },
+				}: {
+					selectedItem: { name: string; key: string };
+				} ) => {
+					setAttributes!( {
+						language: newLanguage,
+						languageConfidence: 'certain',
+					} );
+				} }
+				__next40pxDefaultSize
+			/>
+		);
+	}
+
+	if ( ! props.attributes.showLanguageName || ! attributes.language ) {
 		return null;
 	}
 
-	const emptyOption = {
-		name: __( 'Plain text', 'jetpack-mu-wpcom' ),
-		key: '',
-	};
-
-	return props.isSelected ? (
-		<CustomSelectControl
-			className="a8c/code__language-select"
-			label={ __( 'Language', 'jetpack-mu-wpcom' ) }
-			hideLabelFromVision
-			value={
-				attributes.language ? { name: attributes.language, key: attributes.language } : emptyOption
-			}
-			options={ [
-				emptyOption,
-				...langNames.map( lang => ( {
-					name: lang,
-					key: lang,
-				} ) ),
-			] }
-			onChange={ ( {
-				selectedItem: { key: newLanguage },
-			}: {
-				selectedItem: { name: string; key: string };
-			} ) => {
-				setAttributes!( {
-					language: newLanguage,
-					languageConfidence: 'certain',
-				} );
-			} }
-			__next40pxDefaultSize
-		/>
-	) : (
-		<span>{ attributes.language }</span>
-	);
+	return <span>{ attributes.language }</span>;
 };
 
 const Loading = ( props: EditBlockProps ) => {
