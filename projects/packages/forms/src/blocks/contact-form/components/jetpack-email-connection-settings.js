@@ -89,13 +89,9 @@ const JetpackEmailConnectionSettings = ( {
 	return (
 		<>
 			<ToggleControl
-				label={ __( 'Send email notifications', 'jetpack-forms' ) }
+				label={ __( 'Send responses to email', 'jetpack-forms' ) }
 				checked={ emailNotifications }
 				onChange={ value => setAttributes( { emailNotifications: value } ) }
-				help={ __(
-					'Form submissions will be sent to the specified email address.',
-					'jetpack-forms'
-				) }
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ emailNotifications && (

@@ -748,7 +748,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email connection', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
