@@ -453,6 +453,6 @@ function htmlEncode( content: string ): string {
 }
 
 const EditCodeMirror = React.lazy(
-	// eslint-disable-next-line import/no-unresolved --  The feature registers this module for import.
+	// eslint-disable-next-line import/no-unresolved -- The feature registers this module for import.
 	() => import( /* webpackIgnore: true */ '@a8cCodeBlock/block-edit-function' )
 );
