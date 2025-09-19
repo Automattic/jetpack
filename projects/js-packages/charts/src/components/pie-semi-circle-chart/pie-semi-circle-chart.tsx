@@ -128,7 +128,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-	// Import useTooltip back temporarily for semi-circle chart
+	// Use tooltip hook for interactive tooltips
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
@@ -139,14 +139,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		debounce: 0,
 	} );
 
-	// Container ref for tooltip portal
-
 	const handleMouseMove = useCallback(
 		( event: MouseEvent, arc: ArcData ) => {
 			// Get SVG element and use localPoint as recommended by visx docs
 			const svg = ( event.currentTarget as SVGElement ).ownerSVGElement;
 			if ( svg ) {
-				const coords = localPoint( svg, event.nativeEvent );
+				const coords = localPoint( svg, event );
 				if ( coords ) {
 					showTooltip( {
 						tooltipData: arc.data,
