@@ -13,6 +13,15 @@ import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from '../shared/components/jetpack-field-width';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 
+// Helper: centralize the consent placeholder string
+function getConsentPlaceholder( type ) {
+	return sprintf(
+		/* translators: %s a type of consent: implicit or explicit */
+		__( 'Add %s consent message…', 'jetpack-forms' ),
+		type
+	);
+}
+
 export default function ConsentFieldEdit( props ) {
 	const { attributes, clientId, setAttributes } = props;
 	const { consentType, width, implicitConsentMessage, explicitConsentMessage, className } =
@@ -42,11 +51,7 @@ export default function ConsentFieldEdit( props ) {
 				'jetpack/option',
 				{
 					label: implicitConsentMessage,
-					placeholder: sprintf(
-						/* translators: %s a type of consent: implicit or explicit */
-						__( 'Add %s consent message…', 'jetpack-forms' ),
-						'implicit'
-					),
+					placeholder: getConsentPlaceholder( 'implicit' ),
 					isStandalone: true,
 					hideInput: true,
 				},
@@ -73,26 +78,31 @@ export default function ConsentFieldEdit( props ) {
 	const prevConsentType = usePrevious( consentType );
 	const prevLabel = usePrevious( optionBlock?.attributes?.label );
 
-	// Update the inner option block when the consentType changes.
+	// Update inner option block when the consentType changes
+	// or hideInput is out of sync with the consentType.
 	useEffect( () => {
-		if ( optionBlockId && consentType !== prevConsentType ) {
-			const label = consentType === 'explicit' ? explicitConsentMessage : implicitConsentMessage;
+		if ( ! optionBlockId ) {
+			return;
+		}
 
-			// As this is an automated update, ensure it doesn't end up in the undo stack
-			// by calling `__unstableMarkNextChangeAsNotPersistent`.
+		const shouldHideInput = consentType !== 'explicit';
+		const label = shouldHideInput ? implicitConsentMessage : explicitConsentMessage;
+		const placeholder = getConsentPlaceholder( consentType );
+
+		const shouldUpdate =
+			optionBlock?.attributes?.hideInput !== shouldHideInput || consentType !== prevConsentType;
+
+		if ( shouldUpdate ) {
 			__unstableMarkNextChangeAsNotPersistent();
 			updateBlockAttributes( optionBlockId, {
+				hideInput: shouldHideInput,
 				label,
-				placeholder: sprintf(
-					/* translators: %s a type of consent: implicit or explicit */
-					__( 'Add %s consent message…', 'jetpack-forms' ),
-					consentType
-				),
-				hideInput: consentType !== 'explicit',
+				placeholder,
 			} );
 		}
 	}, [
 		optionBlockId,
+		optionBlock?.attributes?.hideInput,
 		consentType,
 		prevConsentType,
 		explicitConsentMessage,

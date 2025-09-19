@@ -58,11 +58,14 @@ const MailPoetCard = ( {
 		if ( consentBlock ) {
 			await removeBlock( consentBlock.clientId, false );
 		} else {
-			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-				( { name }: { name: string } ) => name === 'jetpack/button'
+			// Insert consent after the email field or at end if not found
+			const emailBlockIndex = selectedBlock.innerBlocks.findIndex(
+				( { name }: { name: string } ) => name === 'jetpack/field-email'
 			);
-			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
-			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
+			const insertIndex =
+				emailBlockIndex === -1 ? selectedBlock.innerBlocks.length : emailBlockIndex + 1;
+			const newConsentBlock = createBlock( 'jetpack/field-consent', { consentType: 'explicit' } );
+			await insertBlock( newConsentBlock, insertIndex, selectedBlock.clientId, false );
 		}
 	};
 
@@ -192,7 +195,10 @@ const MailPoetCard = ( {
 					{ hasEmailBlock && (
 						<div className="integration-card__section">
 							<ToggleControl
-								label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
+								label={ __(
+									'Add email permission request after the email field',
+									'jetpack-forms'
+								) }
 								checked={ !! consentBlock }
 								onChange={ toggleConsent }
 								__nextHasNoMarginBottom
