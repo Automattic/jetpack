@@ -384,7 +384,9 @@ const PieChartInternal = ( {
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
+						<div role="tooltip">
+							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
+						</div>
 					</TooltipInPortal>
 				) }
 
