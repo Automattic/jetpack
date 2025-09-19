@@ -1011,6 +1011,39 @@ const variations = [
 			],
 		},
 	},
+	{
+		name: 'simple-subscribe-form',
+		title: __( 'Subscribe form', 'jetpack-forms' ),
+		description: __( 'A simple subscribe form.', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: people,
+		},
+		innerBlocks: [
+			[
+				'core/group',
+				{ layout: { type: 'flex', justifyContent: 'space-between' }, flexWrap: 'nowrap' },
+				[
+					[
+						'jetpack/field-email',
+						{ required: true, width: 75 },
+						[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+					],
+					[
+						'jetpack/button',
+						{
+							text: __( 'Subscribe', 'jetpack-forms' ),
+							element: 'button',
+							borderRadius: 0,
+							width: '',
+							lock: { move: false, remove: false },
+						},
+					],
+				],
+			],
+		],
+		attributes: {},
+	},
 ].filter( Boolean );
 
 export default variations;
