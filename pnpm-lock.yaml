@@ -481,7 +481,7 @@ importers:
         version: 5.0.3(jest@30.0.4)
       mini-css-extract-plugin:
         specifier: ^2.7.0
-        version: 2.9.1(webpack@5.101.3)
+        version: 2.9.4(webpack@5.101.3)
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -1916,8 +1916,8 @@ importers:
         specifier: 9.0.2
         version: 9.0.2(typescript@5.9.2)(webpack@5.101.3)
       mini-css-extract-plugin:
-        specifier: 2.9.1
-        version: 2.9.1(webpack@5.101.3)
+        specifier: 2.9.4
+        version: 2.9.4(webpack@5.101.3)
       terser-webpack-plugin:
         specifier: 5.3.3
         version: 5.3.3(webpack@5.101.3)
@@ -13725,8 +13725,8 @@ packages:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
     engines: {node: '>=4'}
 
-  mini-css-extract-plugin@2.9.1:
-    resolution: {integrity: sha512-+Vyi+GCCOHnrJ2VPS+6aPoXN2k2jgUzDRhTFLjjTBn23qyXJXkjUWQgTL+mXpF5/A8ixLdCc6kWsoeOjKGejKQ==}
+  mini-css-extract-plugin@2.9.4:
+    resolution: {integrity: sha512-ZWYT7ln73Hptxqxk2DxPU9MmapXRhxkJD6tkSR04dnQxm8BGu2hzgKLugK5yySD97u/8yy7Ma7E76k9ZdvtjkQ==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
@@ -28558,7 +28558,7 @@ snapshots:
 
   min-indent@1.0.1: {}
 
-  mini-css-extract-plugin@2.9.1(webpack@5.101.3):
+  mini-css-extract-plugin@2.9.4(webpack@5.101.3):
     dependencies:
       schema-utils: 4.3.2
       tapable: 2.2.3
