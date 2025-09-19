@@ -15,15 +15,8 @@ const React = window.React;
 const { InspectorControls, useBlockProps, withColors, __experimentalGetElementClassName } =
 	window.wp.blockEditor;
 const { registerBlockType, registerBlockStyle } = window.wp.blocks;
-const {
-	ExternalLink,
-	Notice,
-	PanelBody,
-	CustomSelectControl,
-	SelectControl,
-	TextControl,
-	ToggleControl,
-} = window.wp.components;
+const { CustomSelectControl, Notice, PanelBody, SelectControl, TextControl, ToggleControl } =
+	window.wp.components;
 const { __, _x } = window.wp.i18n;
 
 const LINE_NUMBER_START_MIN = 0;
