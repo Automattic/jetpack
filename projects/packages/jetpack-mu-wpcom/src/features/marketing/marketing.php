@@ -18,7 +18,7 @@ function wpcom_add_marketing_submenu() {
 		'tools.php',
 		__( 'Marketing', 'jetpack-mu-wpcom' ),
 		__( 'Marketing', 'jetpack-mu-wpcom' ),
-		'publish_posts',
+		'manage_options',
 		'wpcom-marketing-tools',
 		'wpcom_display_marketing_tools_page',
 		1
