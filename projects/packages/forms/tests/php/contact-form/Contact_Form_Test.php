@@ -2720,6 +2720,7 @@ EOT;
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
 			'mailpoet'               => '',
+			'emailNotifications'     => 'yes',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
