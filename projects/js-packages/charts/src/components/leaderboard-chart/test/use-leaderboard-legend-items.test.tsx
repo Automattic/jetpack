@@ -82,8 +82,6 @@ describe( 'useLeaderboardLegendItems', () => {
 				label: 'Current period',
 				value: '',
 				color: expect.any( String ),
-				index: 0,
-				overrideColor: undefined,
 			} );
 		} );
 
@@ -106,8 +104,6 @@ describe( 'useLeaderboardLegendItems', () => {
 				label: 'Current period',
 				value: '',
 				color: expect.any( String ),
-				index: 0,
-				overrideColor: undefined,
 			} );
 
 			// Previous period item
@@ -115,8 +111,6 @@ describe( 'useLeaderboardLegendItems', () => {
 				label: 'Previous period',
 				value: '',
 				color: expect.any( String ),
-				index: 1,
-				overrideColor: undefined,
 			} );
 		} );
 	} );
@@ -143,8 +137,6 @@ describe( 'useLeaderboardLegendItems', () => {
 			// Note: The actual color will be resolved by the context, but we can check structure
 			expect( result.current[ 0 ].color ).toBeTruthy();
 			expect( result.current[ 1 ].color ).toBeTruthy();
-			expect( result.current[ 0 ].overrideColor ).toBeUndefined();
-			expect( result.current[ 1 ].overrideColor ).toBeUndefined();
 		} );
 
 		it( 'should use custom primary color override', () => {
@@ -161,7 +153,7 @@ describe( 'useLeaderboardLegendItems', () => {
 				{ wrapper }
 			);
 
-			expect( result.current[ 0 ].overrideColor ).toBe( customPrimary );
+			expect( result.current[ 0 ].color ).toBe( customPrimary );
 		} );
 
 		it( 'should use custom secondary color override', () => {
@@ -180,8 +172,8 @@ describe( 'useLeaderboardLegendItems', () => {
 				{ wrapper }
 			);
 
-			expect( result.current[ 0 ].overrideColor ).toBe( customPrimary );
-			expect( result.current[ 1 ].overrideColor ).toBe( customSecondary );
+			expect( result.current[ 0 ].color ).toBe( customPrimary );
+			expect( result.current[ 1 ].color ).toBe( customSecondary );
 		} );
 
 		it( 'should use both custom colors with comparison', () => {
@@ -201,8 +193,8 @@ describe( 'useLeaderboardLegendItems', () => {
 			);
 
 			expect( result.current ).toHaveLength( 2 );
-			expect( result.current[ 0 ].overrideColor ).toBe( customPrimary );
-			expect( result.current[ 1 ].overrideColor ).toBe( customSecondary );
+			expect( result.current[ 0 ].color ).toBe( customPrimary );
+			expect( result.current[ 1 ].color ).toBe( customSecondary );
 		} );
 	} );
 
@@ -576,7 +568,7 @@ describe( 'useLeaderboardLegendItems', () => {
 	} );
 
 	describe( 'Index and structure validation', () => {
-		it( 'should have correct indices for items', () => {
+		it( 'should have correct number of items with comparison', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
@@ -588,8 +580,9 @@ describe( 'useLeaderboardLegendItems', () => {
 				{ wrapper }
 			);
 
-			expect( result.current[ 0 ].index ).toBe( 0 );
-			expect( result.current[ 1 ].index ).toBe( 1 );
+			expect( result.current ).toHaveLength( 2 );
+			expect( result.current[ 0 ].label ).toBe( 'Current period' );
+			expect( result.current[ 1 ].label ).toBe( 'Previous period' );
 		} );
 
 		it( 'should have empty value strings for all items', () => {

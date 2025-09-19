@@ -36,7 +36,7 @@ export function useLeaderboardLegendItems( {
 	};
 } ): BaseLegendItem[] {
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
-	const { resolveGroupColor } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	return useMemo( () => {
 		if ( ! data || data.length === 0 ) {
@@ -46,7 +46,7 @@ export function useLeaderboardLegendItems( {
 		const items: BaseLegendItem[] = [];
 
 		// Add current period legend item
-		const resolvedPrimaryColor = resolveGroupColor( {
+		const { color: resolvedPrimaryColor } = getElementStyles( {
 			index: 0,
 			overrideColor: primaryColor || leaderboardChartSettings.primaryColor,
 		} );
@@ -55,13 +55,11 @@ export function useLeaderboardLegendItems( {
 			label: legendLabels?.primary || __( 'Current period', 'jetpack-charts' ),
 			value: '',
 			color: resolvedPrimaryColor,
-			index: 0,
-			overrideColor: primaryColor,
 		} );
 
 		// Add comparison period legend item if comparison is enabled and overlay label is not enabled
 		if ( withComparison && ! withOverlayLabel ) {
-			const resolvedSecondaryColor = resolveGroupColor( {
+			const { color: resolvedSecondaryColor } = getElementStyles( {
 				index: 1,
 				overrideColor: secondaryColor || leaderboardChartSettings.secondaryColor,
 			} );
@@ -70,8 +68,6 @@ export function useLeaderboardLegendItems( {
 				label: legendLabels?.comparison || __( 'Previous period', 'jetpack-charts' ),
 				value: '',
 				color: resolvedSecondaryColor,
-				index: 1,
-				overrideColor: secondaryColor,
 			} );
 		}
 
@@ -83,7 +79,7 @@ export function useLeaderboardLegendItems( {
 		withComparison,
 		legendLabels,
 		leaderboardChartSettings,
-		resolveGroupColor,
+		getElementStyles,
 		withOverlayLabel,
 	] );
 }

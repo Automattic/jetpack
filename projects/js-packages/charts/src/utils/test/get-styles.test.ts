@@ -131,7 +131,7 @@ describe( 'Series styling utility functions', () => {
 			};
 
 			const result = getItemShapeStyles( seriesWithShapeStyle, 0, mockTheme as ChartTheme, 'rect' );
-			expect( result.shapeStyles ).toEqual( customShapeStyle );
+			expect( result ).toEqual( customShapeStyle );
 		} );
 
 		it( 'combines line styles when legendShape is "line"', () => {
@@ -141,7 +141,7 @@ describe( 'Series styling utility functions', () => {
 			};
 
 			const result = getItemShapeStyles( comparisonSeries, 0, mockTheme as ChartTheme, 'line' );
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				strokeDasharray: '4 4',
 				strokeLinecap: 'square',
 				strokeWidth: 1.5,
@@ -155,7 +155,7 @@ describe( 'Series styling utility functions', () => {
 			};
 
 			const result = getItemShapeStyles( comparisonSeries, 0, mockTheme as ChartTheme, 'rect' );
-			expect( result.shapeStyles ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
+			expect( result ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
 		} );
 
 		it( 'merges custom shape styles with line styles for line shape', () => {
@@ -169,7 +169,7 @@ describe( 'Series styling utility functions', () => {
 			};
 
 			const result = getItemShapeStyles( comparisonSeries, 0, mockTheme as ChartTheme, 'line' );
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				fill: '#CUSTOM',
 				strokeDasharray: '4 4',
 				strokeLinecap: 'square',
@@ -189,7 +189,7 @@ describe( 'Series styling utility functions', () => {
 				mockTheme as ChartTheme,
 				'rect'
 			);
-			expect( result.shapeStyles ).toEqual( mockTheme.legendShapeStyles[ 1 ] );
+			expect( result ).toEqual( mockTheme.legendShapeStyles[ 1 ] );
 		} );
 
 		it( 'returns empty object when no theme shape styles and no meaningful custom styles', () => {
@@ -199,7 +199,7 @@ describe( 'Series styling utility functions', () => {
 			} as ChartTheme;
 
 			const result = getItemShapeStyles( mockSeriesData, 0, themeWithoutShapeStyles, 'rect' );
-			expect( result.shapeStyles ).toEqual( {} );
+			expect( result ).toEqual( {} );
 		} );
 
 		it( 'returns custom styles even with undefined/null values when meaningful values exist', () => {
@@ -221,7 +221,7 @@ describe( 'Series styling utility functions', () => {
 				mockTheme as ChartTheme,
 				'rect'
 			);
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				fill: '#VALID',
 				stroke: '',
 				strokeWidth: undefined,
@@ -242,7 +242,7 @@ describe( 'Series styling utility functions', () => {
 			};
 
 			const result = getItemShapeStyles( complexSeries, 0, mockTheme as ChartTheme, 'line' );
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				fill: '#OVERRIDE',
 				strokeWidth: 1.5, // Semantic style wins over custom style
 				strokeDasharray: '4 4',
@@ -252,12 +252,12 @@ describe( 'Series styling utility functions', () => {
 
 		it( 'returns empty object when index exceeds theme shape styles array length', () => {
 			const result = getItemShapeStyles( mockSeriesData, 3, mockTheme as ChartTheme, 'rect' );
-			expect( result.shapeStyles ).toEqual( {} ); // index 3 doesn't exist in array of length 2
+			expect( result ).toEqual( {} ); // index 3 doesn't exist in array of length 2
 		} );
 
 		it( 'works without legendShape parameter', () => {
 			const result = getItemShapeStyles( mockSeriesData, 0, mockTheme as ChartTheme );
-			expect( result.shapeStyles ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
+			expect( result ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
 		} );
 
 		it( 'handles other legendShape string values like "circle"', () => {
@@ -268,7 +268,7 @@ describe( 'Series styling utility functions', () => {
 
 			const result = getItemShapeStyles( comparisonSeries, 0, mockTheme as ChartTheme, 'circle' );
 			// Should not include line styles for circle shape
-			expect( result.shapeStyles ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
+			expect( result ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
 		} );
 
 		it( 'handles React component as legendShape parameter', () => {
@@ -285,7 +285,7 @@ describe( 'Series styling utility functions', () => {
 				CustomShape
 			);
 			// Should not include line styles for component shape
-			expect( result.shapeStyles ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
+			expect( result ).toEqual( mockTheme.legendShapeStyles[ 0 ] );
 		} );
 
 		it( 'prioritizes series line styles over theme line styles when legendShape is line', () => {
@@ -302,7 +302,7 @@ describe( 'Series styling utility functions', () => {
 				mockTheme as ChartTheme,
 				'line'
 			);
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				strokeWidth: 99,
 				strokeDasharray: '10 10',
 			} );
@@ -324,7 +324,7 @@ describe( 'Series styling utility functions', () => {
 				'line'
 			);
 			// Should return line styles even though legendShapeStyle is empty
-			expect( result.shapeStyles ).toEqual( {
+			expect( result ).toEqual( {
 				strokeDasharray: '4 4',
 				strokeLinecap: 'square',
 				strokeWidth: 1.5,

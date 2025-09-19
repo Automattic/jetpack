@@ -177,7 +177,7 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	if ( ! isValid ) {
 		return (
@@ -215,9 +215,9 @@ const PieChartInternal = ( {
 
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
-		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( { group, index, color: overrideColor }: DataPointPercentage & { index: number } ) =>
-			resolveGroupColor( { group, index, overrideColor } ),
+		fill: ( d: DataPointPercentage & { index: number } ) => {
+			return getElementStyles( { data: d, index: d.index } ).color;
+		},
 	};
 
 	return (
