@@ -50,7 +50,8 @@ function enqueue_marketing_tools_assets() {
  * Displays the WordPress Marketing Tools page.
  */
 function wpcom_display_marketing_tools_page() {
-	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	$domain     = wp_parse_url( home_url(), PHP_URL_HOST );
+	$is_private = ( new Status() )->is_private_site();
 
 	$features = array(
 		array(
@@ -112,7 +113,7 @@ function wpcom_display_marketing_tools_page() {
 		);
 	}
 
-	if ( ( new Host() )->is_wpcom_simple() && ! wpcom_activitypub_is_active() ) {
+	if ( ( new Host() )->is_wpcom_simple() && ! $is_private && ! wpcom_activitypub_is_active() ) {
 		$features[] = array(
 			'title'       => __( 'Share your blog with a new audience', 'jetpack-mu-wpcom' ),
 			'description' => __(
@@ -140,7 +141,7 @@ function wpcom_display_marketing_tools_page() {
 		'target'      => '_blank',
 	);
 
-	if ( ! ( new Status() )->is_private_site() ) {
+	if ( ! $is_private ) {
 		$features[] = array(
 			'title'       => __( 'Share your blog posts with everyone', 'jetpack-mu-wpcom' ),
 			'description' => __(
