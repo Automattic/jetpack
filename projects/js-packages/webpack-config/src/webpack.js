@@ -118,6 +118,9 @@ const resolve = {
 		'...',
 	],
 };
+const watchOptions = {
+	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
+};
 
 /****** Plugins ******/
 
@@ -303,6 +306,7 @@ module.exports = {
 	TerserPlugin,
 	CssMinimizerPlugin,
 	resolve,
+	watchOptions,
 	// Plugins.
 	StandardPlugins,
 	DefinePlugin,

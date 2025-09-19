@@ -89,6 +89,9 @@ const sharedWebpackConfig = {
 				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
 	],
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 };
 
 // CSS files using `wp_style_add_data( $handle, 'rtl', 'replace' )` need the

@@ -98,4 +98,7 @@ module.exports = {
 		],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 };
