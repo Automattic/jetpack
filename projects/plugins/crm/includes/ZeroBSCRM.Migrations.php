@@ -35,7 +35,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'create_workflows_table', // Create "workflows" table.
 	'invoice_language_fixes', // Store invoice statuses and mappings consistently
 	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
-	'tax_rate_precision_fix', // increase tax rate precision from 2 to 4 decimal places
+	'tax_rate_precision_fix', // increase tax rate precision from 2 to 10 decimal places
 	);
 
 global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
