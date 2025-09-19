@@ -330,10 +330,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<TooltipInPortal
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
-					>
+					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
 						<div role="tooltip">
 							{ tooltipData.label }: { tooltipData.valueDisplay || tooltipData.value }
 						</div>
