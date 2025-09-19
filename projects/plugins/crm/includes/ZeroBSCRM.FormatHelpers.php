@@ -1201,7 +1201,10 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 		}
 		$email_details_html .= '</div></div>';
 
-		echo $email_details_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Use wp_kses_post to allow commonly-safe post HTML while preventing XSS.
+// If you need to allow only a specific subset of tags, replace with wp_kses( $email_details_html, $allowed_tags ).
+echo wp_kses_post( $email_details_html );
+
 	}
 }
 
