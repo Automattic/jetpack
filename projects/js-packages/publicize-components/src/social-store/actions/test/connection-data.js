@@ -61,7 +61,7 @@ describe( 'Social store actions: connectionData', () => {
 			const registry = createRegistryWithStores();
 
 			const connectionsBeforeSync = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
@@ -70,7 +70,7 @@ describe( 'Social store actions: connectionData', () => {
 			registry.dispatch( socialStore ).syncConnectionsToPostMeta();
 
 			const connectionsAfterSync = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
@@ -83,10 +83,9 @@ describe( 'Social store actions: connectionData', () => {
 			// Create registry.
 			const registry = createRegistryWithStores();
 
-			// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 			const connectionsBeforeToggle = registry.select( socialStore ).getConnections();
 			const connectionsFromMetaBeforeToggle = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
@@ -95,7 +94,6 @@ describe( 'Social store actions: connectionData', () => {
 
 			registry.dispatch( socialStore ).toggleConnectionById( connections[ 0 ].connection_id );
 
-			// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 			const connectionsAfterToggle = registry.select( socialStore ).getConnections();
 
 			expect( connectionsAfterToggle[ 0 ] ).toEqual( {
@@ -105,7 +103,7 @@ describe( 'Social store actions: connectionData', () => {
 
 			// Check that the connections in the post meta are updated.
 			const connectionsFromMetaAfterToggle = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
@@ -118,7 +116,6 @@ describe( 'Social store actions: connectionData', () => {
 			// Create registry.
 			const registry = createRegistryWithStores();
 
-			// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 			const connectionsBeforeMerge = registry.select( socialStore ).getConnections();
 
 			expect( connectionsBeforeMerge ).toEqual( connections );
@@ -130,7 +127,6 @@ describe( 'Social store actions: connectionData', () => {
 
 			registry.dispatch( socialStore ).mergeConnections( freshConnections );
 
-			// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 			const connectionsAfterMerge = registry.select( socialStore ).getConnections();
 
 			expect( connectionsAfterMerge ).toEqual( freshConnections );
@@ -168,7 +164,7 @@ describe( 'Social store actions: connectionData', () => {
 			const registry = createRegistryWithStores();
 
 			const connectionsFromMetaBeforeRefresh = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 
@@ -176,7 +172,6 @@ describe( 'Social store actions: connectionData', () => {
 
 			await registry.dispatch( socialStore ).refreshConnectionTestResults();
 
-			// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
 			const connectionsAfterRefresh = registry.select( socialStore ).getConnections();
 
 			expect( connectionsAfterRefresh ).toEqual(
@@ -188,7 +183,7 @@ describe( 'Social store actions: connectionData', () => {
 
 			// Ensure that the connections in the post meta are not updated by default
 			const connectionsFromMetaAfterRefresh = registry
-				// eslint-disable-next-line testing-library/no-node-access -- https://github.com/testing-library/eslint-plugin-testing-library/issues/1032#issuecomment-3058729104
+
 				.select( editorStore )
 				.getEditedPostAttribute( 'jetpack_publicize_connections' );
 			expect( connectionsFromMetaBeforeRefresh ).toEqual( connectionsFromMetaAfterRefresh );
