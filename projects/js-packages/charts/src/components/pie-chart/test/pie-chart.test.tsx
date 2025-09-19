@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import PieChart from '../pie-chart';
@@ -259,7 +259,7 @@ describe( 'PieChart', () => {
 			await waitFor( () => {
 				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
 			} );
-			
+
 			const tooltip = screen.getByRole( 'tooltip' );
 			expect( tooltip ).toHaveTextContent( 'Windows: 80K' );
 		} );
