@@ -111,7 +111,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 				} ),
 			],
 			watchOptions: {
-				ignored: [ '**/node_modules' ],
+				...jetpackWebpackConfig.watchOptions,
 			},
 		};
 

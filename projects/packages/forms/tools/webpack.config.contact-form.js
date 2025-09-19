@@ -90,7 +90,7 @@ const sharedWebpackConfig = {
 		} ),
 	],
 	watchOptions: {
-		ignored: [ '**/node_modules' ],
+		...jetpackWebpackConfig.watchOptions,
 	},
 };
 
