@@ -22,6 +22,11 @@ class Woocommerce_Analytics {
 	 */
 	const PACKAGE_VERSION = '0.8.0';
 
+	/**
+	 * Proxy speed module version.
+	 *
+	 * @var string
+	*/
 	const PROXY_SPEED_MODULE_VERSION = '1.0.0';
 
 	/**
@@ -138,10 +143,6 @@ class Woocommerce_Analytics {
 	 * Maybe add proxy speed module.
 	 */
 	public static function maybe_add_proxy_speed_module() {
-		if ( ! current_user_can( 'install_plugins' ) ) {
-			return;
-		}
-
 		if ( ! function_exists( 'WP_Filesystem' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
@@ -165,8 +166,9 @@ class Woocommerce_Analytics {
 		}
 
 		update_option( 'woocommerce_analytics_proxy_speed_module_version', self::PROXY_SPEED_MODULE_VERSION );
-		$mu_plugin_src_dir = __DIR__ . '/mu-plugin';
-		$results           = copy_dir( $mu_plugin_src_dir, WPMU_PLUGIN_DIR );
+		$mu_plugin_src_file  = __DIR__ . '/mu-plugin/woocommerce-analytics-proxy-speed-module.php';
+		$mu_plugin_dest_file = WPMU_PLUGIN_DIR . '/woocommerce-analytics-proxy-speed-module.php';
+		$results             = copy( $mu_plugin_src_file, $mu_plugin_dest_file );
 
 		if ( is_wp_error( $results ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
@@ -176,13 +178,9 @@ class Woocommerce_Analytics {
 	}
 
 	/**
-	 * Maybe remove proxy speed module.
+	 * Maybe removes the proxy speed module. This should be invoked when the plugin is deactivated.
 	 */
 	public static function maybe_remove_proxy_speed_module() {
-		if ( ! current_user_can( 'install_plugins' ) ) {
-			return;
-		}
-
 		/**
 		 * Clean up MU plugin.
 		 */

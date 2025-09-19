@@ -39,6 +39,7 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Woocommerce_Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -2623,6 +2624,10 @@ p {
 			Sync_Actions::do_only_first_initial_sync();
 		}
 
+		if ( ! defined( 'WC_ANALYTICS' ) && class_exists( 'Automattic\Woocommerce_Analytics' ) ) {
+			Woocommerce_Analytics::maybe_add_proxy_speed_module();
+		}
+
 		self::plugin_initialize();
 	}
 
@@ -2802,6 +2807,10 @@ p {
 			add_filter( 'jetpack_update_activated_state_on_disconnect', '__return_false' );
 			self::disconnect();
 			Jetpack_Options::delete_option( 'version' );
+		}
+
+		if ( ! defined( 'WC_ANALYTICS' ) && class_exists( 'Automattic\Woocommerce_Analytics' ) ) {
+			Woocommerce_Analytics::maybe_remove_proxy_speed_module();
 		}
 	}
 
