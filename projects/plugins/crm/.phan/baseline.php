@@ -211,7 +211,7 @@ return [
         'includes/ZeroBSCRM.MetaBoxes3.Quotes.php' => ['PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.MetaBoxes3.Tags.php' => ['PhanDeprecatedFunction'],
         'includes/ZeroBSCRM.MetaBoxes3.Tasks.php' => ['PhanRedundantCondition', 'PhanTypeVoidAssignment'],
-        'includes/ZeroBSCRM.MetaBoxes3.Transactions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
+        'includes/ZeroBSCRM.MetaBoxes3.Transactions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'includes/ZeroBSCRM.Migrations.php' => ['PhanPluginRedundantAssignment'],
         'includes/ZeroBSCRM.NotifyMe.php' => ['PhanPluginDuplicateAdjacentStatement'],
         'includes/ZeroBSCRM.Permissions.php' => ['PhanDeprecatedFunction', 'PhanPluginNeverReturnFunction', 'PhanPossiblyUndeclaredVariable'],
