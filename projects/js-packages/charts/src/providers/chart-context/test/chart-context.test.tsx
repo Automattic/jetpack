@@ -224,7 +224,7 @@ describe( 'ChartContext', () => {
 		} );
 	} );
 
-	describe( 'Group Color Resolver', () => {
+	describe( 'Color resolution', () => {
 		it( 'provides getElementStyles function for color resolution', () => {
 			let contextValue: GlobalChartsContextValue;
 
