@@ -44,14 +44,29 @@ function jpcrm_hide_track_notice() {
 	}
 }
 
-	add_action( 'wp_ajax_jpcrm_hide_feature_alert', 'jpcrm_hide_feature_alert' );
+add_action( 'wp_ajax_jpcrm_hide_feature_alert', 'jpcrm_hide_feature_alert' );
 function jpcrm_hide_feature_alert() {
-	if ( current_user_can( 'activate_plugins' ) && isset( $_POST['feature_alert'] ) ) {
-		$option = 'jpcrm_hide_' . sanitize_text_field( $_POST['feature_alert'] );
+	// Expect a nonce field named 'jpcrm_feature_alert_nonce' (frontend should send it).
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		wp_send_json_error( 'insufficient permissions', 403 );
+	}
+
+	// Check nonce
+	$nonce = isset( $_POST['jpcrm_feature_alert_nonce'] ) ? wp_unslash( $_POST['jpcrm_feature_alert_nonce'] ) : '';
+	if ( ! wp_verify_nonce( $nonce, 'jpcrm_hide_feature' ) ) {
+		wp_send_json_error( 'invalid nonce', 403 );
+	}
+
+	if ( isset( $_POST['feature_alert'] ) ) {
+		$feature_alert = sanitize_text_field( wp_unslash( $_POST['feature_alert'] ) );
+		$option = 'jpcrm_hide_' . $feature_alert;
 		update_option( $option, true, false );
 		wp_send_json_success();
 	}
+
+	wp_send_json_error( 'missing parameter', 400 );
 }
+
 
 	// AJAX email template population (as backup)
 	add_action( 'wp_ajax_zbs_create_email_templates', 'zbs_create_email_templates' );
