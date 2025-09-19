@@ -202,9 +202,9 @@ function wpcom_display_marketing_tools_page() {
 					<p><?php echo esc_html( $feature['description'] ); ?></p>
 					<a
 						href="<?php echo esc_url( $feature['url'] ); ?>"
-						target="<?php echo esc_attr( $feature['target'] ?? '_self' ); ?>"
+						target="<?php echo esc_attr( $feature['target'] ?? '_self' ); // @phan-suppress-current-line PhanCoalescingNeverNullInLoop ?>"
 						data-event="<?php echo esc_attr( $feature['event'] ); ?>"
-						data-callback="<?php echo esc_attr( $feature['callback'] ?? '' ); ?>"
+						data-callback="<?php echo esc_attr( $feature['callback'] ?? '' ); // @phan-suppress-current-line PhanCoalescingNeverNullInLoop ?>"
 					>
 						<?php echo esc_html( $feature['action'] ); ?>
 						<span class="dashicons dashicons-arrow-right-alt"></span>
