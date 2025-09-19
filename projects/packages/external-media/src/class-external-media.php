@@ -18,7 +18,7 @@ use Jetpack_Options;
  * Class External_Media
  */
 class External_Media {
-	const PACKAGE_VERSION = '0.5.2';
+	const PACKAGE_VERSION = '0.5.3';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 

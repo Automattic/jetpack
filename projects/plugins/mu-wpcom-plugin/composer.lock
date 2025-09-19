@@ -1538,7 +1538,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "2ddf4b6a02c6fb2ce425bcd0f2075682beec6cee"
+                "reference": "5001fa55b765879df69e7cd989cbf2ac0835a0a0"
             },
             "require": {
                 "automattic/jetpack-blaze": "@dev",
@@ -1564,7 +1564,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.28.x-dev"
+                    "dev-trunk": "0.29.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -1672,7 +1672,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/subscribers-dashboard",
-                "reference": "81690137b50542f41b9ee5eb00841156118021e2"
+                "reference": "2a23295d3018a359726b9c37e66f5b6baa6218fb"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1697,7 +1697,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-subscribers-dashboard",
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-subscribers-dashboard",
                 "version-constants": {
@@ -1751,7 +1751,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "af10348f9f9b9be5a2093dc8810b1170d55a4e49"
+                "reference": "3e8c7ce95c903fe6b9fbd003338806827ba8d6df"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1785,7 +1785,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.21.x-dev"
+                    "dev-trunk": "4.22.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

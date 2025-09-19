@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.27.0] - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
 ## [5.26.3] - 2025-09-15
 ### Changed
 - Update dependencies. [#45130]
@@ -2347,6 +2352,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.3...5.27.0
 [5.26.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.2...5.26.3
 [5.26.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.1...5.26.2
 [5.26.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.0...5.26.1

@@ -287,7 +287,7 @@ class Util {
 	/**
 	 * Deletes old temp feedback to keep the posts table size under control.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.5.0
 	 */
 	public static function grunion_delete_old_temp_feedback() {
 		global $wpdb;
@@ -322,7 +322,7 @@ class Util {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 6.5.0
 			 *
 			 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 			 */
