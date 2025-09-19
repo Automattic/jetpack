@@ -1286,7 +1286,8 @@ function zeroBSCRM_migration_tax_rate_precision_fix() {
 	// For MySQL/MariaDB - check if the column exists and get its current data type.
 	$column_type = zeraBSCRM_migration_get_column_data_type( $ZBSCRM_t['tax'], 'zbsc_rate' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	if ( $column_type && strpos( $column_type, 'decimal(20,10)' ) === false ) {
-		$wpdb->query( $wpdb->prepare( 'ALTER TABLE %1s MODIFY zbsc_rate DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000', $ZBSCRM_t['tax'] ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Table name is constructed internally and considered safe.
+		$wpdb->query( "ALTER TABLE `{$ZBSCRM_t['tax']}` MODIFY zbsc_rate DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
 	zeroBSCRM_migrations_markComplete( 'tax_rate_precision_fix', array( 'updated' => 1 ) );
