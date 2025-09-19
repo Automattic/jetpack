@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 /**
  * Webpack plugin for creating a virtual module with CodeMirror language data
  *
@@ -25,34 +24,21 @@ class CodeMirrorLanguageDataPlugin {
 	 */
 	apply( compiler ) {
 		// Create virtual file path
-		this.virtualModulePath = path.resolve(
-			compiler.context,
-			this.constructor.virtualModuleName
-		);
+		this.virtualModulePath = path.resolve( compiler.context, this.constructor.virtualModuleName );
 
 		// Hook into afterEnvironment to set up the virtual file system
 		compiler.hooks.afterEnvironment.tap( this.constructor.name, () => {
 			const content = this.generateModuleContent();
-			this.writeVirtualFile(
-				compiler.inputFileSystem,
-				this.virtualModulePath,
-				content
-			);
+			this.writeVirtualFile( compiler.inputFileSystem, this.virtualModulePath, content );
 		} );
 
 		// Hook into normalModuleFactory to intercept module resolution
 		compiler.hooks.normalModuleFactory.tap( 'CodeMirrorLanguageDataPlugin', factory => {
-			factory.hooks.beforeResolve.tap(
-				'CodeMirrorLanguageDataPlugin',
-				resolveData => {
-					if (
-						resolveData.request ===
-						this.constructor.virtualModuleName
-					) {
-						resolveData.request = this.virtualModulePath;
-					}
+			factory.hooks.beforeResolve.tap( 'CodeMirrorLanguageDataPlugin', resolveData => {
+				if ( resolveData.request === this.constructor.virtualModuleName ) {
+					resolveData.request = this.virtualModulePath;
 				}
-			);
+			} );
 		} );
 	}
 
@@ -87,9 +73,9 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 	/**
 	 * Write the file.
 	 *
-	 * @param {import('webpack').InputFileSystem} fs - Virtual file system.
-	 * @param {string} filePath - Path.
-	 * @param {string} contents - File contents.
+	 * @param {import('webpack').InputFileSystem} fs       - Virtual file system.
+	 * @param {string}                            filePath - Path.
+	 * @param {string}                            contents - File contents.
 	 */
 	writeVirtualFile( fs, filePath, contents ) {
 		const stats = {
