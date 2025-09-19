@@ -748,7 +748,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			if ( $is_horizontal ) {
-				$form_classes .= ' is-horizontal ';
+				$form_classes .= ' variation-horizontal ';
 			}
 
 			$r .= "<form action='" . esc_url( $url ) . "'

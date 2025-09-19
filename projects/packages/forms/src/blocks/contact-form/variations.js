@@ -26,7 +26,7 @@ const variations = [
 			variationName: 'default-empty',
 		},
 		scope: [ 'transform' ],
-		isActive: ( { variationName } ) => ![ 'multistep', 'horizontal' ].includes( variationName ),
+		isActive: ( { variationName } ) => ! [ 'multistep', 'horizontal' ].includes( variationName ),
 	},
 	{
 		name: 'contact-form',
@@ -1013,7 +1013,7 @@ const variations = [
 	},
 	{
 		name: 'horizontal-form',
-		title: __( 'Horizontal', 'jetpack-forms' ),
+		title: __( 'Horizontal form', 'jetpack-forms' ),
 		description: __( 'A form with fields displayed horizontally side by side.', 'jetpack-forms' ),
 		icon: {
 			foreground: getIconColor(),

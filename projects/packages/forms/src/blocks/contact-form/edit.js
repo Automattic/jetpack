@@ -183,7 +183,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const innerRef = useRef();
 	const blockProps = useBlockProps( {
 		ref: wrapperRef,
-		className: { 'is-horizontal': variationName === 'horizontal' },
+		className: { 'variation-horizontal': variationName === 'horizontal' },
 	} );
 	const formClassnames = clsx(
 		className,
