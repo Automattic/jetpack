@@ -119,7 +119,7 @@ const resolve = {
 	],
 };
 const watchOptions = {
-	ignored: [ '**/node_modules' ],
+	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
 };
 
 /****** Plugins ******/

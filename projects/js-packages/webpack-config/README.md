@@ -139,7 +139,7 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 `watchOptions` is an object suitable for spreading some defaults into Webpack's `watchOptions` setting. It sets the following:
 
-* `ignored`: `[ '**/node_modules' ]`.
+* `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
 
 #### Plugins
 
