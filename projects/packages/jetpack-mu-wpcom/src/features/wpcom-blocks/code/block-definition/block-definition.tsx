@@ -365,6 +365,9 @@ const DisplayLanguage = ( props: Props ) => {
 
 const Loading = ( props: EditBlockProps ) => {
 	let code = props.attributes.code;
+	if ( ! code ) {
+		code = __( 'Loading…', 'jetpack-mu-wpcom' );
+	}
 	if ( code.endsWith( '\n' ) ) {
 		code += '\n';
 	}
