@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import AkismetCard from './akismet-card';
 import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
+import HostingerReachCard from './hostinger-reach-card';
 import JetpackCRMCard from './jetpack-crm-card';
 import MailPoetCard from './mailpoet-card';
 import SalesforceCard from './salesforce-card';
@@ -35,6 +36,7 @@ const IntegrationsModal = ( {
 		creativemail: false,
 		salesforce: false,
 		mailpoet: false,
+		hostingerReach: false,
 	} );
 
 	if ( ! isOpen ) {
@@ -51,6 +53,7 @@ const IntegrationsModal = ( {
 	const mailpoetData = findIntegrationById( 'mailpoet' );
 	const salesforceData = findIntegrationById( 'salesforce' );
 	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
+	const hostingerReachData = findIntegrationById( 'hostinger-reach' );
 
 	const toggleCard = ( cardId: string ) => {
 		setExpandedCards( prev => {
@@ -121,6 +124,16 @@ const IntegrationsModal = ( {
 						data={ salesforceData }
 						refreshStatus={ refreshIntegrations }
 						salesforceData={ attributes.salesforceData }
+						setAttributes={ setAttributes }
+					/>
+				) }
+				{ hostingerReachData && (
+					<HostingerReachCard
+						isExpanded={ expandedCards.hostingerReach }
+						onToggle={ () => toggleCard( 'hostingerReach' ) }
+						data={ hostingerReachData }
+						refreshStatus={ refreshIntegrations }
+						hostingerReach={ attributes.hostingerReach }
 						setAttributes={ setAttributes }
 					/>
 				) }

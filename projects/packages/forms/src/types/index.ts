@@ -214,6 +214,8 @@ export type BlockEditorStoreSelect = {
 export interface FormsConfigData {
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
+	/** Whether Hostinger Reach integration is enabled across contexts. */
+	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
