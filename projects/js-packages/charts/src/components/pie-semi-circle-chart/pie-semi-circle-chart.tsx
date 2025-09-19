@@ -162,7 +162,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: MouseEvent ) => {
+		( arc: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
 			handleMouseMove( event, arc );
 		},
 		[ handleMouseMove ]

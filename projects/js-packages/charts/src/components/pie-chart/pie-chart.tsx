@@ -288,7 +288,7 @@ const PieChartInternal = ( {
 										}
 									};
 
-									const pathProps: SVGProps< SVGPathElement > = {
+									const pathProps: SVGProps< SVGPathElement > & { 'data-testid'?: string } = {
 										d: pie.path( arc ) || '',
 										fill: accessors.fill( arc.data ),
 										'data-testid': 'pie-segment',
