@@ -289,13 +289,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						>
 							{ pie => {
 								return pie.arcs.map( arc => (
-									<g key={ arc.data.label }>
+									<g
+										key={ arc.data.label }
+										onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+									>
 										<path
 											d={ pie.path( arc ) || '' }
 											fill={ accessors.fill( arc.data ) }
 											data-testid="pie-segment"
-											onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
-											onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
 										/>
 									</g>
 								) );
