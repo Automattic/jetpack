@@ -1231,8 +1231,8 @@ class Woo_Sync_Background_Sync_Job {
 						// name
 						$tax_label === $tax_rate_detail['name']
 	        			&&
-	        			// rate
-	        			$tax_rate == $tax_rate_detail['rate']
+						// rate - compare with full precision to preserve accuracy
+						(float) $tax_rate === (float) $tax_rate_detail['rate']
 	        			
 	        			){
 
