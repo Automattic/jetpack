@@ -89,6 +89,11 @@ class Feedback_Source {
 				$this->title     = get_the_title( $entry_post );
 			} elseif ( $entry_post ) {
 				$this->permalink = '';
+
+				if ( $entry_post->post_status === 'trash' ) {
+					/* translators: %s is the post title */
+					$this->title = sprintf( __( '(trashed) %s', 'jetpack-forms' ), $this->title );
+				}
 			}
 			if ( empty( $entry_post ) ) {
 				/* translators: %s is the post title */
@@ -221,6 +226,10 @@ class Feedback_Source {
 		}
 
 		if ( $this->id && is_numeric( $this->id ) && $this->id > 0 && current_user_can( 'edit_post', (int) $this->id ) ) {
+			$entry_post = get_post( $this->id );
+			if ( $entry_post && $entry_post->post_status === 'trash' ) {
+				return ''; // No edit link is possible for trashed posts. They need to be restored first.
+			}
 			return \get_edit_post_link( (int) $this->id, 'url' );
 		}
 
