@@ -311,6 +311,7 @@ const PieChartInternal = ( {
 									const pathProps: SVGProps< SVGPathElement > = {
 										d: pie.path( arc ) || '',
 										fill: accessors.fill( arc.data ),
+										'data-testid': 'pie-segment',
 									};
 
 									if ( withTooltips ) {
