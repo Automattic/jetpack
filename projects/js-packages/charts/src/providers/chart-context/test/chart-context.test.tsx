@@ -1194,6 +1194,7 @@ describe( 'ChartContext', () => {
 
 			expect( styles.color ).toBe( mockTheme.colors[ 0 ] );
 			expect( styles.lineStyles ).toEqual( {} );
+			expect( styles.glyph ).toBeUndefined();
 			expect( styles.shapeStyles ).toEqual( {} );
 		} );
 	} );
