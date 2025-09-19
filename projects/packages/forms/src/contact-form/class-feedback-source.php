@@ -82,8 +82,7 @@ class Feedback_Source {
 		$this->request_url = $request_url;
 
 		if ( is_numeric( $id ) && ! empty( $id ) ) {
-			$id         = (int) $id;
-			$entry_post = get_post( $id );
+			$entry_post = get_post( (int) $id );
 			if ( $entry_post && $entry_post->post_status === 'publish' ) {
 				$this->permalink = get_permalink( $entry_post );
 				$this->title     = get_the_title( $entry_post );
@@ -226,7 +225,7 @@ class Feedback_Source {
 		}
 
 		if ( $this->id && is_numeric( $this->id ) && $this->id > 0 && current_user_can( 'edit_post', (int) $this->id ) ) {
-			$entry_post = get_post( $this->id );
+			$entry_post = get_post( (int) $this->id );
 			if ( $entry_post && $entry_post->post_status === 'trash' ) {
 				return ''; // No edit link is possible for trashed posts. They need to be restored first.
 			}
