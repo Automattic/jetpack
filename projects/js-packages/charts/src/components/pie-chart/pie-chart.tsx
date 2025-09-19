@@ -19,6 +19,7 @@ import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
+import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
@@ -73,6 +74,12 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * Vertical offset for tooltip positioning (in pixels)
+	 * @default 15
+	 */
+	tooltipOffset?: number;
 }
 
 // Base props type with optional responsive properties
@@ -113,27 +120,27 @@ const validateData = ( data: DataPointPercentage[] ) => {
 /**
  * Renders a pie or donut chart using the provided data.
  *
- * @param {PieChartProps} props - Component props.
- * @param {DataPointPercentage[]} props.data - Array of data points with percentage values.
- * @param {string} [props.chartId] - Optional chart identifier.
- * @param {boolean} [props.withTooltips] - Whether to show tooltips on hover.
- * @param {string} [props.className] - Optional CSS class name.
- * @param {boolean} [props.showLegend] - Whether to display the legend.
- * @param {'horizontal'|'vertical'} [props.legendOrientation] - Legend orientation.
- * @param {'top'|'bottom'|'left'|'right'} [props.legendPosition] - Legend position.
- * @param {'start'|'center'|'end'} [props.legendAlignment] - Legend alignment.
- * @param {number} [props.legendMaxWidth] - Maximum width for legend.
- * @param {'wrap'|'truncate'} [props.legendTextOverflow] - Text overflow behavior for legend.
- * @param {'circle'|'rect'|'line'} [props.legendShape] - Shape of legend markers.
- * @param {number} [props.size] - Chart size in pixels.
- * @param {number} [props.thickness] - Thickness of pie chart (0-1).
- * @param {number} [props.padding] - Padding around chart in pixels.
- * @param {number} [props.gapScale] - Scale of gaps between segments (0-1).
- * @param {number} [props.cornerScale] - Scale of corner radius for segments (0-1).
- * @param {boolean} [props.showLabels] - Whether to show labels on pie segments.
- * @param {LegendValueDisplay} [props.legendValueDisplay] - Type of values to display in legend.
- * @param {ReactNode} [props.children] - Child components to render.
- * @returns {JSX.Element} The rendered chart component.
+ * @param {PieChartProps}                 props                      - Component props.
+ * @param {DataPointPercentage[]}         props.data                 - Array of data points with percentage values.
+ * @param {string}                        [props.chartId]            - Optional chart identifier.
+ * @param {boolean}                       [props.withTooltips]       - Whether to show tooltips on hover.
+ * @param {string}                        [props.className]          - Optional CSS class name.
+ * @param {boolean}                       [props.showLegend]         - Whether to display the legend.
+ * @param {'horizontal'|'vertical'}       [props.legendOrientation]  - Legend orientation.
+ * @param {'top'|'bottom'|'left'|'right'} [props.legendPosition]     - Legend position.
+ * @param {'start'|'center'|'end'}        [props.legendAlignment]    - Legend alignment.
+ * @param {number}                        [props.legendMaxWidth]     - Maximum width for legend.
+ * @param {'wrap'|'truncate'}             [props.legendTextOverflow] - Text overflow behavior for legend.
+ * @param {'circle'|'rect'|'line'}        [props.legendShape]        - Shape of legend markers.
+ * @param {number}                        [props.size]               - Chart size in pixels.
+ * @param {number}                        [props.thickness]          - Thickness of pie chart (0-1).
+ * @param {number}                        [props.padding]            - Padding around chart in pixels.
+ * @param {number}                        [props.gapScale]           - Scale of gaps between segments (0-1).
+ * @param {number}                        [props.cornerScale]        - Scale of corner radius for segments (0-1).
+ * @param {boolean}                       [props.showLabels]         - Whether to show labels on pie segments.
+ * @param {LegendValueDisplay}            [props.legendValueDisplay] - Type of values to display in legend.
+ * @param {ReactNode}                     [props.children]           - Child components to render.
+ * @return {JSX.Element} The rendered chart component.
  */
 const PieChartInternal = ( {
 	data,
@@ -154,6 +161,7 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
+	tooltipOffset = 15,
 	children = null,
 }: PieChartProps ) => {
 	const providerTheme = useGlobalChartsTheme();
@@ -302,7 +310,7 @@ const PieChartInternal = ( {
 												showTooltip( {
 													tooltipData: arc.data,
 													tooltipLeft: coords.x,
-													tooltipTop: coords.y - 15, // Standard offset above cursor
+													tooltipTop: coords.y - tooltipOffset,
 												} );
 											}
 										}
@@ -383,9 +391,7 @@ const PieChartInternal = ( {
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">
-							{ tooltipData.label }: { tooltipData.valueDisplay || tooltipData.value }
-						</div>
+						<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
 					</TooltipInPortal>
 				) }
 
