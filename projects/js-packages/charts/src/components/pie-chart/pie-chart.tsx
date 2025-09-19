@@ -1,8 +1,10 @@
+import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useContext, useMemo } from 'react';
-import { useChartMouseHandler, useElementHeight } from '../../hooks';
+import { useCallback, useContext, useMemo } from 'react';
+import { useElementHeight } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -17,7 +19,6 @@ import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
-import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
@@ -112,8 +113,27 @@ const validateData = ( data: DataPointPercentage[] ) => {
 /**
  * Renders a pie or donut chart using the provided data.
  *
- * @param {PieChartProps} props - Component props
- * @return {JSX.Element} The rendered chart component
+ * @param props                    - Component props
+ * @param props.data
+ * @param props.chartId
+ * @param props.withTooltips
+ * @param props.className
+ * @param props.showLegend
+ * @param props.legendOrientation
+ * @param props.legendPosition
+ * @param props.legendAlignment
+ * @param props.legendMaxWidth
+ * @param props.legendTextOverflow
+ * @param props.legendShape
+ * @param props.size
+ * @param props.thickness
+ * @param props.padding
+ * @param props.gapScale
+ * @param props.cornerScale
+ * @param props.showLabels
+ * @param props.legendValueDisplay
+ * @param props.children
+ * @return The rendered chart component
  */
 const PieChartInternal = ( {
 	data,
@@ -139,10 +159,24 @@ const PieChartInternal = ( {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
-		useChartMouseHandler( {
-			withTooltips,
-		} );
+	// Use tooltip directly for better control over coordinates
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPointPercentage >();
+
+	// Set up portal tooltip for better z-index handling
+	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+		detectBounds: true,
+		scroll: true,
+		debounce: 0,
+	} );
+
+	// Mouse handlers for tooltips
+	const onMouseLeave = useCallback( () => {
+		if ( ! withTooltips ) {
+			return;
+		}
+		hideTooltip();
+	}, [ withTooltips, hideTooltip ] );
 
 	// Memoize legend options to prevent unnecessary re-calculations
 	const legendOptions = useMemo(
@@ -229,6 +263,7 @@ const PieChartInternal = ( {
 			} }
 		>
 			<div
+				ref={ containerRef }
 				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
 				style={ {
 					display: 'flex',
@@ -254,8 +289,24 @@ const PieChartInternal = ( {
 								return pie.arcs.map( ( arc, index ) => {
 									const [ centroidX, centroidY ] = pie.path.centroid( arc );
 									const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-									const handleMouseMove = ( event: MouseEvent< SVGElement > ) =>
-										onMouseMove( event, arc.data );
+									const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+										if ( ! withTooltips ) {
+											return;
+										}
+
+										// Get SVG element and use localPoint as recommended by visx docs
+										const svg = ( event.currentTarget as SVGElement ).ownerSVGElement;
+										if ( svg ) {
+											const coords = localPoint( svg, event.nativeEvent );
+											if ( coords ) {
+												showTooltip( {
+													tooltipData: arc.data,
+													tooltipLeft: coords.x,
+													tooltipTop: coords.y - 8, // Closer offset above cursor
+												} );
+											}
+										}
+									};
 
 									const pathProps: SVGProps< SVGPathElement > = {
 										d: pie.path( arc ) || '',
@@ -330,14 +381,11 @@ const PieChartInternal = ( {
 				) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ tooltipData }
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
-						style={ {
-							transform: 'translate(-50%, -100%)',
-						} }
-					/>
+					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+						<div role="tooltip">
+							{ tooltipData.label }: { tooltipData.valueDisplay || tooltipData.value }
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ /* Render HTML component children from PieChart.HTML */ }
