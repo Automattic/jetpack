@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.18] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
 ## [0.52.17] - 2025-09-15
 ### Changed
 - Update package dependencies. [#45127] [#45128]
@@ -1328,6 +1332,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.52.18]: https://github.com/Automattic/jetpack-search/compare/v0.52.17...v0.52.18
 [0.52.17]: https://github.com/Automattic/jetpack-search/compare/v0.52.16...v0.52.17
 [0.52.16]: https://github.com/Automattic/jetpack-search/compare/v0.52.15...v0.52.16
 [0.52.15]: https://github.com/Automattic/jetpack-search/compare/v0.52.14...v0.52.15

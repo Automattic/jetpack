@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-a.5 - 2025-09-19
+### Enhancements
+- Forms: Add hidden field. [#45104]
+- Forms: Add scheduled deletion for submissions that skip the submission's inbox and are stored as temporary feedback. [#45178]
+- Forms: Allow enabling integration by default. [#45201]
+- Forms: Return integration titles from endpoint. [#45151]
+
+### Improved compatibility
+- Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats". [#44524]
+
+### Bug fixes
+- Forms: Fix slider min/max editing. [#45219]
+- Forms: Fix slider value position. [#45218]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- On Dotcom Simple site, show all sharing settings even when the site is using a block theme, so that the sharing buttons filter can be disabled. [#45176]
+- Subscriptions: Always link to WP Admin in Newsletter widget. [#45180]
+- Update package dependencies. [#45173] [#45200] [#45229]
+- Widgets: Prevent PHP warnings when handling malformed data. [#45185]
+
 ## 15.1-a.3 - 2025-09-15
 ### Enhancements
 - Forms: Add new block toggle to skip saving form submisions on WP Admin. [#45072]

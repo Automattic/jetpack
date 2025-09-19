@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Add cache busting on new version for interactivity API script file on top level context
