@@ -297,7 +297,7 @@ const PieChartInternal = ( {
 										// Get SVG element and use localPoint as recommended by visx docs
 										const svg = ( event.currentTarget as SVGElement ).ownerSVGElement;
 										if ( svg ) {
-											const coords = localPoint( svg, event.nativeEvent );
+											const coords = localPoint( svg, event );
 											if ( coords ) {
 												showTooltip( {
 													tooltipData: arc.data,
