@@ -2,7 +2,7 @@ import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { useElementHeight } from '../../hooks';
@@ -18,7 +18,6 @@ import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { LegendValueDisplay } from '../legend';
@@ -129,19 +128,33 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	// Import useTooltip back temporarily for semi-circle chart
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
+	// Set up portal tooltip for better z-index handling
+	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+		detectBounds: true,
+		scroll: true,
+		debounce: 0,
+	} );
+
+	// Container ref for tooltip portal
+
 	const handleMouseMove = useCallback(
 		( event: MouseEvent, arc: ArcData ) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
-
-			showTooltip( {
-				tooltipData: arc.data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
+			// Get SVG element and use localPoint as recommended by visx docs
+			const svg = ( event.currentTarget as SVGElement ).ownerSVGElement;
+			if ( svg ) {
+				const coords = localPoint( svg, event.nativeEvent );
+				if ( coords ) {
+					showTooltip( {
+						tooltipData: arc.data,
+						tooltipLeft: coords.x,
+						tooltipTop: coords.y - 8, // Closer offset above cursor
+					} );
+				}
+			}
 		},
 		[ showTooltip ]
 	);
@@ -248,6 +261,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			} }
 		>
 			<div
+				ref={ containerRef }
 				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 				data-testid="pie-chart-container"
 				style={ {
@@ -277,15 +291,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						>
 							{ pie => {
 								return pie.arcs.map( arc => (
-									<g
-										key={ arc.data.label }
-										onMouseMove={ handleArcMouseMove( arc ) }
-										onMouseLeave={ handleMouseLeave }
-									>
+									<g key={ arc.data.label }>
 										<path
 											d={ pie.path( arc ) || '' }
 											fill={ accessors.fill( arc.data ) }
 											data-testid="pie-segment"
+											onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+											onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
 										/>
 									</g>
 								) );
@@ -318,15 +330,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ {
-							label: tooltipData.label,
-							value: tooltipData.value,
-							valueDisplay: tooltipData.valueDisplay,
-						} }
+					<TooltipInPortal
 						top={ tooltipTop || 0 }
 						left={ tooltipLeft || 0 }
-					/>
+					>
+						<div role="tooltip">
+							{ tooltipData.label }: { tooltipData.valueDisplay || tooltipData.value }
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ showLegend && (
