@@ -395,8 +395,8 @@ importers:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -819,8 +819,8 @@ importers:
         specifier: 1.2.0
         version: 1.2.0
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -1011,7 +1011,7 @@ importers:
         version: 0.4.3(rollup@3.29.5)
       '@rollup/plugin-typescript':
         specifier: 12.1.0
-        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.9.2)
+        version: 12.1.0(rollup@3.29.5)(tslib@2.8.1)(typescript@5.9.2)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -1040,8 +1040,8 @@ importers:
         specifier: 6.0.2
         version: 6.0.2(@babel/core@7.28.0)(postcss@8.5.6)(sass-embedded@1.87.0)(svelte@4.2.19)(typescript@5.9.2)
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -1144,7 +1144,7 @@ importers:
         version: 4.4.1
       tslib:
         specifier: ^2.5.0
-        version: 2.5.0
+        version: 2.8.1
     devDependencies:
       '@babel/core':
         specifier: 7.28.0
@@ -1416,8 +1416,8 @@ importers:
         specifier: ^18.0.0
         version: 18.3.1(react@18.3.1)
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -1838,8 +1838,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -3357,8 +3357,8 @@ importers:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -4230,8 +4230,8 @@ importers:
         specifier: 9.0.15
         version: 9.0.15(@testing-library/dom@10.4.0)
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.2
         version: 5.9.2
@@ -4520,8 +4520,8 @@ importers:
   projects/plugins/inspect:
     dependencies:
       tslib:
-        specifier: 2.5.0
-        version: 2.5.0
+        specifier: 2.8.1
+        version: 2.8.1
     devDependencies:
       '@babel/core':
         specifier: 7.28.0
@@ -4540,7 +4540,7 @@ importers:
         version: 0.4.3(rollup@3.29.5)
       '@rollup/plugin-typescript':
         specifier: 12.1.0
-        version: 12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.9.2)
+        version: 12.1.0(rollup@3.29.5)(tslib@2.8.1)(typescript@5.9.2)
       '@wordpress/i18n':
         specifier: 6.4.0
         version: 6.4.0
@@ -16218,9 +16218,6 @@ packages:
   tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
-  tslib@2.5.0:
-    resolution: {integrity: sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==}
-
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
@@ -16963,7 +16960,7 @@ snapshots:
       cookie: 0.7.2
       debug: 4.4.1
       hash.js: 1.1.7
-      tslib: 2.5.0
+      tslib: 2.8.1
       uuid: 9.0.1
     transitivePeerDependencies:
       - supports-color
@@ -16978,7 +16975,7 @@ snapshots:
       '@types/cookie': 0.6.0
       '@types/node': 22.18.1
       cookie: 0.7.2
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/calypso-products@1.2.2(@babel/runtime@7.27.6)(@types/react@18.3.23)(@wordpress/data@10.31.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -17053,7 +17050,7 @@ snapshots:
   '@automattic/create-calypso-config@1.0.0-alpha.0':
     dependencies:
       cookie: 0.7.2
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/data-stores@3.1.2(@babel/runtime@7.27.6)(@types/react@18.3.23)(@wordpress/data@10.31.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -17097,19 +17094,19 @@ snapshots:
     dependencies:
       '@automattic/explat-client': 0.1.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/explat-client@0.1.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/format-currency@1.0.1':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/format-currency@2.1.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/i18n-utils@1.2.3':
     dependencies:
@@ -17119,7 +17116,7 @@ snapshots:
       '@wordpress/compose': 7.31.0(react@18.3.1)
       '@wordpress/i18n': 5.26.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -17133,7 +17130,7 @@ snapshots:
 
   '@automattic/languages@1.0.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@automattic/launchpad@1.1.5(@babel/runtime@7.27.6)(@types/react@18.3.23)(@wordpress/data@10.31.0(react@18.3.1))(@wordpress/element@6.31.0)(@wordpress/i18n@6.4.0)(debug@4.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -17179,7 +17176,7 @@ snapshots:
     dependencies:
       '@wordpress/date': 5.31.0
       debug: 4.4.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -18223,17 +18220,17 @@ snapshots:
   '@emnapi/core@1.5.0':
     dependencies:
       '@emnapi/wasi-threads': 1.1.0
-      tslib: 2.5.0
+      tslib: 2.8.1
     optional: true
 
   '@emnapi/runtime@1.5.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
     optional: true
 
   '@emnapi/wasi-threads@1.1.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
     optional: true
 
   '@emotion/babel-plugin@11.13.5':
@@ -20008,14 +20005,14 @@ snapshots:
     optionalDependencies:
       rollup: 3.29.5
 
-  '@rollup/plugin-typescript@12.1.0(rollup@3.29.5)(tslib@2.5.0)(typescript@5.9.2)':
+  '@rollup/plugin-typescript@12.1.0(rollup@3.29.5)(tslib@2.8.1)(typescript@5.9.2)':
     dependencies:
       '@rollup/pluginutils': 5.3.0(rollup@3.29.5)
       resolve: 1.22.10
       typescript: 5.9.2
     optionalDependencies:
       rollup: 3.29.5
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   '@rollup/pluginutils@4.2.1':
     dependencies:
@@ -20391,7 +20388,7 @@ snapshots:
       flat-cache: 4.0.1
       micromatch: 4.0.8
       react-docgen-typescript: 2.4.0(typescript@5.9.2)
-      tslib: 2.5.0
+      tslib: 2.8.1
       typescript: 5.9.2
       webpack: 5.101.3(webpack-cli@6.0.1)
     transitivePeerDependencies:
@@ -20746,7 +20743,7 @@ snapshots:
 
   '@tybys/wasm-util@0.10.0':
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
     optional: true
 
   '@types/aria-query@5.0.4': {}
@@ -23756,7 +23753,7 @@ snapshots:
 
   aria-hidden@1.2.6:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   aria-query@5.1.3:
     dependencies:
@@ -23857,11 +23854,11 @@ snapshots:
 
   ast-types@0.13.4:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   ast-types@0.16.1:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   astral-regex@2.0.0: {}
 
@@ -24232,7 +24229,7 @@ snapshots:
   camel-case@4.1.2:
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   camelcase@1.2.1: {}
 
@@ -24256,7 +24253,7 @@ snapshots:
   capital-case@1.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
       upper-case-first: 2.0.2
 
   case-sensitive-paths-webpack-plugin@2.4.0: {}
@@ -24310,7 +24307,7 @@ snapshots:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   change-case@5.4.4: {}
 
@@ -24349,7 +24346,7 @@ snapshots:
       htmlparser2: 6.1.0
       parse5: 6.0.1
       parse5-htmlparser2-tree-adapter: 6.0.1
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   cheerio@1.1.2:
     dependencies:
@@ -24625,7 +24622,7 @@ snapshots:
   constant-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
       upper-case: 2.0.2
 
   content-disposition@0.5.4:
@@ -25147,7 +25144,7 @@ snapshots:
   dot-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   dot-prop@9.0.0:
     dependencies:
@@ -26179,7 +26176,7 @@ snapshots:
     dependencies:
       motion-dom: 11.18.1
       motion-utils: 11.18.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -26459,7 +26456,7 @@ snapshots:
   header-case@2.0.4:
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   highlight-words-core@1.2.3: {}
 
@@ -28118,7 +28115,7 @@ snapshots:
 
   lower-case@2.0.2:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   lru-cache@10.4.3: {}
 
@@ -28655,7 +28652,7 @@ snapshots:
   no-case@3.0.4:
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   node-abort-controller@3.1.1: {}
 
@@ -28983,7 +28980,7 @@ snapshots:
   param-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   parent-module@1.0.1:
     dependencies:
@@ -29040,14 +29037,14 @@ snapshots:
   pascal-case@3.1.2:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   path-browserify@1.0.1: {}
 
   path-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   path-exists@3.0.0: {}
 
@@ -29116,7 +29113,7 @@ snapshots:
       crc32: 0.2.2
       debug: 4.4.1
       seed-random: 2.2.0
-      tslib: 2.5.0
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -29676,7 +29673,7 @@ snapshots:
       normalize-wheel: 1.0.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   react-fast-compare@3.2.2: {}
 
@@ -29726,7 +29723,7 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-style-singleton: 2.2.3(@types/react@18.3.23)(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
@@ -29734,14 +29731,14 @@ snapshots:
     dependencies:
       react: 18.3.1
       react-style-singleton: 2.2.3(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   react-remove-scroll@2.7.1(@types/react@18.3.23)(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-remove-scroll-bar: 2.3.8(@types/react@18.3.23)(react@18.3.1)
       react-style-singleton: 2.2.3(@types/react@18.3.23)(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
       use-callback-ref: 1.3.3(@types/react@18.3.23)(react@18.3.1)
       use-sidecar: 1.1.3(@types/react@18.3.23)(react@18.3.1)
     optionalDependencies:
@@ -29752,7 +29749,7 @@ snapshots:
       react: 18.3.1
       react-remove-scroll-bar: 2.3.8(react@18.3.1)
       react-style-singleton: 2.2.3(react@18.3.1)
-      tslib: 2.5.0
+      tslib: 2.8.1
       use-callback-ref: 1.3.3(react@18.3.1)
       use-sidecar: 1.1.3(react@18.3.1)
 
@@ -29786,7 +29783,7 @@ snapshots:
     dependencies:
       get-nonce: 1.0.1
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
@@ -29794,7 +29791,7 @@ snapshots:
     dependencies:
       get-nonce: 1.0.1
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -29847,7 +29844,7 @@ snapshots:
       esprima: 4.0.1
       source-map: 0.6.1
       tiny-invariant: 1.3.3
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   rechoir@0.8.0:
     dependencies:
@@ -30163,7 +30160,7 @@ snapshots:
 
   rxjs@7.8.2:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   safe-array-concat@1.1.3:
     dependencies:
@@ -30357,7 +30354,7 @@ snapshots:
   sentence-case@3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
       upper-case-first: 2.0.2
 
   serialize-javascript@6.0.2:
@@ -30506,7 +30503,7 @@ snapshots:
   snake-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   social-logos@3.2.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -31301,8 +31298,6 @@ snapshots:
 
   tslib@1.14.1: {}
 
-  tslib@2.5.0: {}
-
   tslib@2.8.1: {}
 
   tsup@8.5.0(postcss@8.5.6)(typescript@5.9.2):
@@ -31553,11 +31548,11 @@ snapshots:
 
   upper-case-first@2.0.2:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   upper-case@2.0.2:
     dependencies:
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   uppercamelcase@1.1.0:
     dependencies:
@@ -31575,14 +31570,14 @@ snapshots:
   use-callback-ref@1.3.3(@types/react@18.3.23)(react@18.3.1):
     dependencies:
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
   use-callback-ref@1.3.3(react@18.3.1):
     dependencies:
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   use-debounce@10.0.0(react@18.3.1):
     dependencies:
@@ -31600,7 +31595,7 @@ snapshots:
     dependencies:
       detect-node-es: 1.1.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
     optionalDependencies:
       '@types/react': 18.3.23
 
@@ -31608,7 +31603,7 @@ snapshots:
     dependencies:
       detect-node-es: 1.1.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.8.1
 
   use-subscription@1.6.0(react@18.3.1):
     dependencies:
