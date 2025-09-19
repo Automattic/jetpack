@@ -19,7 +19,8 @@
 			"padding": true,
 			"margin": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"layout": true
 	},
 	"attributes": {},
 	"editorScript": "file:./editor.js"
