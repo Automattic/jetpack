@@ -114,25 +114,25 @@ const validateData = ( data: DataPointPercentage[] ) => {
  * Renders a pie or donut chart using the provided data.
  *
  * @param props                    - Component props
- * @param props.data
- * @param props.chartId
- * @param props.withTooltips
- * @param props.className
- * @param props.showLegend
- * @param props.legendOrientation
- * @param props.legendPosition
- * @param props.legendAlignment
- * @param props.legendMaxWidth
- * @param props.legendTextOverflow
- * @param props.legendShape
- * @param props.size
- * @param props.thickness
- * @param props.padding
- * @param props.gapScale
- * @param props.cornerScale
- * @param props.showLabels
- * @param props.legendValueDisplay
- * @param props.children
+ * @param props.data               - Array of data points with percentage values
+ * @param props.chartId            - Optional chart identifier
+ * @param props.withTooltips       - Whether to show tooltips on hover
+ * @param props.className          - Optional CSS class name
+ * @param props.showLegend         - Whether to display the legend
+ * @param props.legendOrientation  - Legend orientation (horizontal/vertical)
+ * @param props.legendPosition     - Legend position (top/bottom/left/right)
+ * @param props.legendAlignment    - Legend alignment (start/center/end)
+ * @param props.legendMaxWidth     - Maximum width for legend
+ * @param props.legendTextOverflow - Text overflow behavior for legend
+ * @param props.legendShape        - Shape of legend markers
+ * @param props.size               - Chart size in pixels
+ * @param props.thickness          - Thickness of pie chart (0-1)
+ * @param props.padding            - Padding around chart in pixels
+ * @param props.gapScale           - Scale of gaps between segments (0-1)
+ * @param props.cornerScale        - Scale of corner radius for segments (0-1)
+ * @param props.showLabels         - Whether to show labels on pie segments
+ * @param props.legendValueDisplay - Type of values to display in legend
+ * @param props.children           - Child components to render
  * @return The rendered chart component
  */
 const PieChartInternal = ( {
