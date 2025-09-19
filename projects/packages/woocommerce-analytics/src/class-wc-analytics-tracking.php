@@ -56,17 +56,29 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		$prefixed_event_name = self::PREFIX . $event_name;
 		$properties          = self::get_properties( $prefixed_event_name, $event_properties );
 
+		// Record Tracks event.
+		$tracks_error  = null;
+		$tracks_result = self::record_tracks_event( $properties );
+		if ( is_wp_error( $tracks_result ) ) {
+			$tracks_error = $tracks_result;
+		}
+
+		// Record ClickHouse event, if applicable.
+		$ch_error = null;
 		if ( self::should_send_to_clickhouse( $prefixed_event_name ) ) {
 			$properties['ch'] = 1;
-			$result           = self::record_ch_event( $properties );
-			if ( is_wp_error( $result ) ) {
-				return $result;
+			$ch_result        = self::record_ch_event( $properties );
+			if ( is_wp_error( $ch_result ) ) {
+				$ch_error = $ch_result;
 			}
 		}
 
-		$result = self::record_tracks_event( $properties );
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		// If both failed, return the Tracks error (primary), else the CH error, else true.
+		if ( $tracks_error ) {
+			return $tracks_error;
+		}
+		if ( $ch_error ) {
+			return $ch_error;
 		}
 
 		return true;
