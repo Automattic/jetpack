@@ -304,7 +304,6 @@ that needs to mimic the input element styles */
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-	flex-direction: row;
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
@@ -318,9 +317,50 @@ that needs to mimic the input element styles */
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
-	flex-direction: row;
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
+
+	/* Horizontal layout: fields flow side by side */
+	&.is-layout-flex {
+
+		.contact-form {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			gap: var(--wp--style--block-gap, 1.5rem);
+
+			> .grunion-field-wrap {
+				flex: 1 1 auto;
+				min-width: 200px;
+
+				/* Responsive: stack on mobile */
+				@media (max-width: 600px) {
+					flex: 1 1 100%;
+					max-width: 100%;
+				}
+			}
+
+			.contact-submit {
+				flex: 0 0 auto;
+				min-width: auto;
+			}
+		}
+	}
+
+	/* Vertical layout: fields stack vertically (default) */
+	&.is-layout-flow {
+
+		.contact-form {
+			display: flex;
+			flex-direction: column;
+			gap: var(--wp--style--block-gap, 1.5rem);
+
+			> .grunion-field-wrap {
+				flex: 1 1 100%;
+				max-width: 100%;
+			}
+		}
+	}
 }
 
 .wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
@@ -1243,3 +1283,4 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form-ajax-submission:not(.submission-success) {
 	display: none;
 }
+

@@ -47,7 +47,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
-		flex-direction: row;
 		gap: var(--wp--style--block-gap, 1.5rem);
 
 		> div {
@@ -155,6 +154,44 @@
 
 		.wp-block {
 			margin: unset;
+		}
+	}
+
+	/* Horizontal layout: fields flow side by side */
+	&.is-layout-flex {
+
+		.jetpack-contact-form {
+			flex-direction: row;
+
+			.wp-block {
+				flex: 1 1 auto;
+				min-width: 200px;
+				max-width: none;
+
+				&.wp-block-jetpack-button {
+					flex: 0 0 auto;
+					min-width: auto;
+				}
+
+				/* Responsive: stack on mobile */
+				@media (max-width: #{ (gb.$break-mobile) }) {
+					flex: 1 1 100%;
+					max-width: 100%;
+				}
+			}
+		}
+	}
+
+	/* Vertical layout: fields stack vertically */
+	&.is-layout-flow {
+
+		.jetpack-contact-form {
+			flex-direction: column;
+
+			.wp-block {
+				flex: 1 1 100%;
+				max-width: 100%;
+			}
 		}
 	}
 }
@@ -1208,3 +1245,4 @@
 		}
 	}
 }
+

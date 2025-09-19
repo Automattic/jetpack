@@ -192,7 +192,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,
-			className: formClassnames,
+			className: clsx( formClassnames, blockProps?.className ),
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
 		{
