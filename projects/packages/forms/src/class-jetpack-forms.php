@@ -30,6 +30,39 @@ class Jetpack_Forms {
 		// Register integrations
 		MailPoet_Integration::register();
 
+		// Register test integrations to demonstrate the system
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// Test plugin integration
+			Integrations::register(
+				new \Automattic\Jetpack\Forms\Service\Integration(
+					'test-newsletter',
+					array(
+						'type'                    => 'plugin',
+						'file'                    => 'hostinger-reach/hostinger-reach.php',
+						'settings_url'            => 'admin.php?page=hostinger-reach',
+						'marketing_redirect_slug' => 'hostinger-reach',
+						'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
+						'subtitle'                => __( 'AI-Powered Email Marketing for WordPress.', 'jetpack-forms' ),
+						'enabled_by_default'      => false,
+						'icon_url'                => 'https://ps.w.org/hostinger-reach/assets/icon.svg',
+					)
+				)
+			);
+
+			// Test service integration
+			Integrations::register(
+				new \Automattic\Jetpack\Forms\Service\Integration(
+					'test-api-service',
+					array(
+						'type'         => 'service',
+						'settings_url' => 'admin.php?page=test-api-service',
+						'title'        => __( 'Test API Service', 'jetpack-forms' ),
+						'subtitle'     => __( 'A test service integration to demonstrate the generic system.', 'jetpack-forms' ),
+					)
+				)
+			);
+		}
+
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();

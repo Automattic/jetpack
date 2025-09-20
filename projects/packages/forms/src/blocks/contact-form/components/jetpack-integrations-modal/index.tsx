@@ -13,7 +13,9 @@ import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
 import JetpackCRMCard from './jetpack-crm-card';
 import MailPoetCard from './mailpoet-card';
+import PluginIntegrationCard from './plugin-integration-card';
 import SalesforceCard from './salesforce-card';
+import ServiceIntegrationCard from './service-integration-card';
 import './style.scss';
 /**
  * Types
@@ -28,29 +30,11 @@ const IntegrationsModal = ( {
 	integrationsData,
 	refreshIntegrations,
 } ) => {
-	const [ expandedCards, setExpandedCards ] = useState( {
-		akismet: false,
-		googleSheets: false,
-		crm: false,
-		creativemail: false,
-		salesforce: false,
-		mailpoet: false,
-	} );
+	const [ expandedCards, setExpandedCards ] = useState( {} );
 
 	if ( ! isOpen ) {
 		return null;
 	}
-
-	const findIntegrationById = ( id: string ) =>
-		integrationsData?.find( ( integration: Integration ) => integration.id === id );
-
-	// Only supported integrations will be returned from endpoint.
-	const akismetData = findIntegrationById( 'akismet' );
-	const googleDriveData = findIntegrationById( 'google-drive' );
-	const crmData = findIntegrationById( 'zero-bs-crm' );
-	const mailpoetData = findIntegrationById( 'mailpoet' );
-	const salesforceData = findIntegrationById( 'salesforce' );
-	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
 
 	const toggleCard = ( cardId: string ) => {
 		setExpandedCards( prev => {
@@ -78,61 +62,76 @@ const IntegrationsModal = ( {
 			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
-				{ akismetData && (
-					<AkismetCard
-						isExpanded={ expandedCards.akismet }
-						onToggle={ () => toggleCard( 'akismet' ) }
-						data={ akismetData }
-						refreshStatus={ refreshIntegrations }
-					/>
-				) }
-				{ googleDriveData && (
-					<GoogleSheetsCard
-						isExpanded={ expandedCards.googleSheets }
-						onToggle={ () => toggleCard( 'googleSheets' ) }
-						data={ googleDriveData }
-						refreshStatus={ refreshIntegrations }
-					/>
-				) }
-				{ crmData && (
-					<JetpackCRMCard
-						isExpanded={ expandedCards.crm }
-						onToggle={ () => toggleCard( 'crm' ) }
-						jetpackCRM={ attributes.jetpackCRM }
-						setAttributes={ setAttributes }
-						data={ crmData }
-						refreshStatus={ refreshIntegrations }
-					/>
-				) }
-				{ mailpoetData && (
-					<MailPoetCard
-						isExpanded={ expandedCards.mailpoet }
-						onToggle={ () => toggleCard( 'mailpoet' ) }
-						data={ mailpoetData }
-						refreshStatus={ refreshIntegrations }
-						mailpoet={ attributes.mailpoet }
-						setAttributes={ setAttributes }
-					/>
-				) }
-				{ salesforceData && (
-					<SalesforceCard
-						isExpanded={ expandedCards.salesforce }
-						onToggle={ () => toggleCard( 'salesforce' ) }
-						data={ salesforceData }
-						refreshStatus={ refreshIntegrations }
-						salesforceData={ attributes.salesforceData }
-						setAttributes={ setAttributes }
-					/>
-				) }
-				{ creativeMailData && (
-					<CreativeMailCard
-						isExpanded={ expandedCards.creativemail }
-						onToggle={ () => toggleCard( 'creativemail' ) }
-						data={ creativeMailData }
-						refreshStatus={ refreshIntegrations }
-						borderBottom={ false }
-					/>
-				) }
+				{ integrationsData &&
+					integrationsData.map( ( integration: Integration, index: number ) => {
+						const commonProps = {
+							key: integration.id,
+							isExpanded: !! expandedCards[ integration.id ],
+							onToggle: () => toggleCard( integration.id ),
+							data: integration,
+							refreshStatus: refreshIntegrations,
+							borderBottom: index < integrationsData.length - 1,
+						};
+
+						// Use specific components for known integrations
+						switch ( integration.id ) {
+							case 'akismet':
+								return <AkismetCard { ...commonProps } />;
+							case 'google-drive':
+								return <GoogleSheetsCard { ...commonProps } />;
+							case 'zero-bs-crm':
+								return (
+									<JetpackCRMCard
+										{ ...commonProps }
+										jetpackCRM={ attributes.jetpackCRM }
+										setAttributes={ setAttributes }
+									/>
+								);
+							case 'mailpoet':
+								return (
+									<MailPoetCard
+										{ ...commonProps }
+										mailpoet={ attributes.mailpoet }
+										setAttributes={ setAttributes }
+									/>
+								);
+							case 'salesforce':
+								return (
+									<SalesforceCard
+										{ ...commonProps }
+										salesforceData={ attributes.salesforceData }
+										setAttributes={ setAttributes }
+									/>
+								);
+							case 'creative-mail-by-constant-contact':
+								return <CreativeMailCard { ...commonProps } />;
+							default:
+								// Use generic components for new/unknown integrations
+								if ( integration.type === 'service' ) {
+									return (
+										<ServiceIntegrationCard
+											integration={ integration }
+											isExpanded={ !! expandedCards[ integration.id ] }
+											onToggle={ () => toggleCard( integration.id ) }
+											borderBottom={ index < integrationsData.length - 1 }
+											attributes={ attributes }
+											setAttributes={ setAttributes }
+											refreshIntegrations={ refreshIntegrations }
+										/>
+									);
+								}
+
+								return (
+									<PluginIntegrationCard
+										integration={ integration }
+										isExpanded={ !! expandedCards[ integration.id ] }
+										onToggle={ () => toggleCard( integration.id ) }
+										borderBottom={ index < integrationsData.length - 1 }
+										refreshIntegrations={ refreshIntegrations }
+									/>
+								);
+						}
+					} ) }
 			</VStack>
 		</Modal>
 	);
