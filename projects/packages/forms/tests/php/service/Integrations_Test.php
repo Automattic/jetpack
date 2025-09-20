@@ -279,4 +279,77 @@ class Integrations_Test extends BaseTestCase {
 		$this->assertEquals( array(), $registered['empty-config'] );
 		$this->assertEquals( array( 'type' => 'plugin' ), $registered['minimal-config'] );
 	}
+
+	/**
+	 * Test registering Integration objects.
+	 */
+	public function test_register_integration_object() {
+		$integration_config = array(
+			'type'  => 'service',
+			'title' => 'Object Integration',
+		);
+
+		$integration = new Integration( 'object-integration', $integration_config );
+		Integrations::register( $integration );
+
+		$registered = Integrations::get_registered_integrations();
+
+		$this->assertArrayHasKey( 'object-integration', $registered );
+		$this->assertEquals( $integration_config, $registered['object-integration'] );
+	}
+
+	/**
+	 * Test mixing Integration objects and array registrations.
+	 */
+	public function test_mixed_registration_types() {
+		// Register with array
+		Integrations::register( 'array-integration', array( 'type' => 'plugin' ) );
+
+		// Register with Integration object
+		$integration = new Integration( 'object-integration', array( 'type' => 'service' ) );
+		Integrations::register( $integration );
+
+		$registered = Integrations::get_registered_integrations();
+
+		$this->assertCount( 2, $registered );
+		$this->assertArrayHasKey( 'array-integration', $registered );
+		$this->assertArrayHasKey( 'object-integration', $registered );
+		$this->assertEquals( array( 'type' => 'plugin' ), $registered['array-integration'] );
+		$this->assertEquals( array( 'type' => 'service' ), $registered['object-integration'] );
+	}
+
+	/**
+	 * Test that Integration object overwrites existing integration with same name.
+	 */
+	public function test_integration_object_overwrites() {
+		// Register with array first
+		Integrations::register(
+			'same-name',
+			array(
+				'type'    => 'plugin',
+				'version' => 1,
+			)
+		);
+
+		// Register with Integration object with same name
+		$integration = new Integration(
+			'same-name',
+			array(
+				'type'    => 'service',
+				'version' => 2,
+			)
+		);
+		Integrations::register( $integration );
+
+		$registered = Integrations::get_registered_integrations();
+
+		$this->assertCount( 1, $registered );
+		$this->assertEquals(
+			array(
+				'type'    => 'service',
+				'version' => 2,
+			),
+			$registered['same-name']
+		);
+	}
 }

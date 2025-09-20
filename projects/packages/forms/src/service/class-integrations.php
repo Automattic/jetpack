@@ -44,11 +44,16 @@ class Integrations {
 	/**
 	 * Register a new integration.
 	 *
-	 * @param string $slug The integration slug.
-	 * @param array  $config The integration configuration.
+	 * @param string|Integration $slug_or_integration The integration slug or Integration object.
+	 * @param array              $config The integration configuration (optional if first param is Integration).
 	 */
-	public static function register( $slug, $config ) {
-		self::$integrations[ $slug ] = $config;
+	public static function register( $slug_or_integration, $config = null ) {
+		if ( $slug_or_integration instanceof Integration ) {
+			$integration                                    = $slug_or_integration;
+			self::$integrations[ $integration->get_name() ] = $integration->to_array();
+		} else {
+			self::$integrations[ $slug_or_integration ] = $config;
+		}
 	}
 
 	/**

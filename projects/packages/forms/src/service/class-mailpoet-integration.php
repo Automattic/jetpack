@@ -20,7 +20,7 @@ class MailPoet_Integration {
 	 * Register the MailPoet integration.
 	 */
 	public static function register() {
-		Integrations::register(
+		$mailpoet_integration = new Integration(
 			'mailpoet',
 			array(
 				'type'                    => 'plugin',
@@ -32,6 +32,8 @@ class MailPoet_Integration {
 				'enabled_by_default'      => false,
 			)
 		);
+
+		Integrations::register( $mailpoet_integration );
 	}
 	/**
 	 * MailPoet API instance
