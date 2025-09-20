@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Service\Integrations;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -46,6 +48,23 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		parent::setUp();
 		global $wp_rest_server;
 
+		// Reset and initialize integrations system
+		remove_all_filters( 'jetpack_forms_supported_integrations' );
+
+		// Reset static state using reflection
+		$reflection            = new \ReflectionClass( Integrations::class );
+		$integrations_property = $reflection->getProperty( 'integrations' );
+		$integrations_property->setAccessible( true );
+		$integrations_property->setValue( null, array() );
+
+		$initialized_property = $reflection->getProperty( 'initialized' );
+		$initialized_property->setAccessible( true );
+		$initialized_property->setValue( null, false );
+
+		// Initialize integrations system
+		Integrations::init();
+		MailPoet_Integration::register();
+
 		$this->plugin = Contact_Form_Plugin::init();
 
 		$wp_rest_server = new WP_REST_Server();
@@ -70,6 +89,9 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		parent::tearDown();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+
+		// Clean up integrations
+		remove_all_filters( 'jetpack_forms_supported_integrations' );
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();

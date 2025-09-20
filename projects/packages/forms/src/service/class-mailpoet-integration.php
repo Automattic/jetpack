@@ -15,6 +15,24 @@ use Automattic\Jetpack\Forms\ContactForm\Feedback;
  * Handles integration with MailPoet for Jetpack Contact Forms.
  */
 class MailPoet_Integration {
+
+	/**
+	 * Register the MailPoet integration.
+	 */
+	public static function register() {
+		Integrations::register(
+			'mailpoet',
+			array(
+				'type'                    => 'plugin',
+				'file'                    => 'mailpoet/mailpoet.php',
+				'settings_url'            => 'admin.php?page=mailpoet-homepage',
+				'marketing_redirect_slug' => 'org-mailpoet',
+				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
+				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				'enabled_by_default'      => false,
+			)
+		);
+	}
 	/**
 	 * MailPoet API instance
 	 *

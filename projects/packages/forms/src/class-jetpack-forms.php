@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Forms\Service\Integrations;
+use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -21,6 +23,12 @@ class Jetpack_Forms {
 	 */
 	public static function load_contact_form() {
 		Util::init();
+
+		// Initialize the integration registry
+		Integrations::init();
+
+		// Register integrations
+		MailPoet_Integration::register();
 
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();

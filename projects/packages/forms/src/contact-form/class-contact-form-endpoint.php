@@ -90,16 +90,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'mailpoet'                          => array(
-				'type'                    => 'plugin',
-				'file'                    => 'mailpoet/mailpoet.php',
-				'settings_url'            => 'admin.php?page=mailpoet-homepage',
-				'marketing_redirect_slug' => 'org-mailpoet',
-				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
-				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-			),
 		);
 
 		/**
