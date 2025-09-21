@@ -1,0 +1,4 @@
+Significance: patch
+Type: maintenance
+
+Improve code formatting and docblocks in class-blocks.php
