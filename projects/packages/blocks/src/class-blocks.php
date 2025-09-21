@@ -1,5 +1,6 @@
 <?php
-/** Blocks package.
+/**
+ * Blocks package.
  *
  * @since 1.1.0
  *
@@ -43,8 +44,8 @@ class Blocks {
 	public static function jetpack_register_block( $slug, $args = array() ) {
 		// Slug doesn't start with `jetpack/`, isn't an absolute path, or doesn't contain a slash
 		// (synonym of a namespace) at all.
-		if ( ! str_starts_with( $slug, 'jetpack/' ) && ! path_is_absolute( $slug ) && ! strpos( $slug, '/' ) ) {
-			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', 'Jetpack 9.0.0' );
+		if ( ! str_starts_with( $slug, 'jetpack/' ) && ! path_is_absolute( $slug ) && strpos( $slug, '/' ) === false ) {
+			_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/', 'Jetpack 9.0.0' );
 			$slug = 'jetpack/' . $slug;
 		}
 
@@ -57,10 +58,7 @@ class Blocks {
 			$slug       = self::get_block_name_from_path_convention( $slug );
 		}
 
-		if (
-			isset( $args['version_requirements'] )
-			&& ! self::is_gutenberg_version_available( $args['version_requirements'], $slug )
-		) {
+		if ( isset( $args['version_requirements'] ) && ! self::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
 			return false;
 		}
 
@@ -273,9 +271,17 @@ class Blocks {
 	 * @return string The unprefixed extension name.
 	 */
 	public static function remove_extension_prefix( $extension_name ) {
-		if ( str_starts_with( $extension_name, 'jetpack/' ) || str_starts_with( $extension_name, 'jetpack-' ) ) {
-			return substr( $extension_name, strlen( 'jetpack/' ) );
+		$prefix = '';
+		if ( str_starts_with( $extension_name, 'jetpack/' ) ) {
+			$prefix = 'jetpack/';
+		} elseif ( str_starts_with( $extension_name, 'jetpack-' ) ) {
+			$prefix = 'jetpack-';
 		}
+
+		if ( '' !== $prefix ) {
+			return substr( $extension_name, strlen( $prefix ) );
+		}
+
 		return $extension_name;
 	}
 
@@ -319,10 +325,7 @@ class Blocks {
 			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
 		}
 
-		if (
-			! $version_available
-			&& ! self::is_standalone_block() // This is only useful in Jetpack.
-		) {
+		if ( ! $version_available && ! self::is_standalone_block() ) {
 			$slug = Jetpack_Gutenberg::remove_extension_prefix( $slug );
 			Jetpack_Gutenberg::set_extension_unavailable(
 				$slug,
@@ -363,10 +366,7 @@ class Blocks {
 		);
 
 		// Add alignment if provided.
-		if (
-			! empty( $attr['align'] )
-			&& in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true )
-		) {
+		if ( ! empty( $attr['align'] ) && in_array( $attr['align'], array( 'left', 'center', 'right', 'wide', 'full' ), true ) ) {
 			$classes[] = 'align' . $attr['align'];
 		}
 
@@ -478,19 +478,19 @@ class Blocks {
 		 * or the jetpack_blocks_variation filter
 		 * to set the block variation in your code.
 		 */
-		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		$default = Jetpack_Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
 		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
 			$block_variation = $default;
 		}
 
 		/**
-		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		*
-		* @since jetpack-6.9.0
-		* @deprecated jetpack-11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
+		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		 *
+		 * @since jetpack-6.9.0
+		 * @deprecated jetpack-11.8.0 Use jetpack_blocks_variation filter instead.
+		 *
+		 * @param boolean
+		 */
 		$is_beta = apply_filters_deprecated(
 			'jetpack_load_beta_blocks',
 			array( false ),
@@ -503,23 +503,18 @@ class Blocks {
 		 * or the deprecated jetpack_load_beta_blocks filter.
 		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
 		 */
-		if ( empty( $default )
-				&& (
-					$is_beta
-					|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
-				)
-			) {
+		if ( empty( $default ) && ( $is_beta || Jetpack_Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) ) {
 			$block_variation = 'beta';
 		}
 
 		/**
-		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		*
-		* @since jetpack-6.9.0
-		* @deprecated jetpack-11.8.0 Use jetpack_blocks_variation filter instead.
-		*
-		* @param boolean
-		*/
+		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		 *
+		 * @since jetpack-6.9.0
+		 * @deprecated jetpack-11.8.0 Use jetpack_blocks_variation filter instead.
+		 *
+		 * @param boolean
+		 */
 		$is_experimental = apply_filters_deprecated(
 			'jetpack_load_experimental_blocks',
 			array( false ),
@@ -532,12 +527,7 @@ class Blocks {
 		 * or the deprecated jetpack_load_experimental_blocks filter.
 		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
 		 */
-		if ( empty( $default )
-			&& (
-				$is_experimental
-				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
-			)
-			) {
+		if ( empty( $default ) && ( $is_experimental || Jetpack_Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) ) {
 			$block_variation = 'experimental';
 		}
 
