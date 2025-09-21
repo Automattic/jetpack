@@ -1,6 +1,7 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
+import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -35,7 +36,7 @@ import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-const X_TICK_WIDTH = 100;
+const X_TICK_WIDTH = 60;
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -144,6 +145,45 @@ const formatDateTick = ( timestamp: number ) => {
 		month: 'short',
 		day: 'numeric',
 	} );
+};
+
+const guessOptimalNumTicks = (
+	data: ReturnType< typeof useChartDataTransform >,
+	chartWidth: number
+) => {
+	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
+	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
+	const xScale = scaleTime( { domain: [ minX, maxX ] } );
+
+	// Calculate upper bound of tick numbers based on data points and chart width
+	const upperBound = Math.min( data[ 0 ]?.data.length, Math.ceil( chartWidth / X_TICK_WIDTH ) );
+	let secondBestGuess = 1; // a tick number that's no greater than upperBound
+
+	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
+		const ticks = xScale.ticks( numTicks ).map( d => formatDateTick( d.getTime() ) );
+
+		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
+		if ( ticks.length > upperBound ) {
+			continue;
+		}
+
+		secondBestGuess = Math.max( secondBestGuess, ticks.length );
+
+		const uniqueTicks = Array.from( new Set( ticks ) );
+		if ( uniqueTicks.length === 1 ) {
+			// All ticks are the same, so skip further processing
+			return 1;
+		}
+
+		const hasDuplicate = uniqueTicks.length < ticks.length;
+		if ( hasDuplicate ) {
+			continue;
+		}
+
+		return ticks.length;
+	}
+
+	return secondBestGuess;
 };
 
 const validateData = ( data: SeriesData[] ) => {
@@ -265,12 +305,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
 			return {
 				axis: {
 					x: {
 						orientation: 'bottom' as const,
-						numTicks: xNumTicks,
+						numTicks: guessOptimalNumTicks( dataSorted, width ),
 						tickFormat: formatDateTick,
 						...options?.axis?.x,
 					},
