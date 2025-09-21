@@ -156,7 +156,7 @@ function jpcrm_render_export_page() {
 	<input type="hidden" name="jpcrm-export-request-segment-id" value="<?php echo esc_attr( $potential_segment_id ); ?>" />
 	<?php } ?>
 
-	<h2><?php echo esc_html__( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
+	<h2><?php echo esc_html( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
 
 	<div class="ui segment" id="zbs-export-filetype-wrap">
 	<i class="file alternate outline icon"></i> <?php esc_html_e( 'Export as .CSV file', 'zero-bs-crm' ); // later offer choice (excel variant? Outlook addressbook?) ?>
