@@ -97,5 +97,6 @@
 		"colorTypeName": { "type": "string" },
 		"colorClassName": { "type": "string" },
 		"colorInvalid": { "type": "string" }
-	}
+	},
+	"textdomain": "jetpack-mu-wpcom"
 }
