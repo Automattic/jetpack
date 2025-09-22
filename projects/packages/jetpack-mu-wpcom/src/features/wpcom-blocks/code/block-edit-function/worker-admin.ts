@@ -42,7 +42,7 @@ export class WorkerAdmin {
 	}
 
 	public guessLanguage( code: string ): Promise< string > {
-		return this.dispatch( 'guessLanguage', { code }, ( lang: string ) =>
+		return this.dispatch< string >( 'guessLanguage', { code }, ( lang: string ) =>
 			lang ? [ true, lang ] : [ false, null ]
 		);
 	}
@@ -70,8 +70,12 @@ export class WorkerAdmin {
 		return crypto.randomUUID();
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-	private dispatch< T >( method: string, args: object, responder: Function ): Promise< T > {
+	private dispatch< T >(
+		method: string,
+		args: object,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		responder: ( ...args: any[] ) => [ true, T ] | [ false, unknown? ]
+	): Promise< T > {
 		return new Promise( ( resolve, reject ) => {
 			const ref = this.ref();
 
