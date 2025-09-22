@@ -272,14 +272,19 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
-	const { primaryColor, positiveChangeColor, negativeChangeColor } = conversionFunnelChartSettings;
+	const {
+		primaryColor: barColor,
+		backgroundColor,
+		positiveChangeColor,
+		negativeChangeColor,
+	} = conversionFunnelChartSettings;
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
 	const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
 
-	// Create light background version of primary color
-	const barBackgroundColor = hexToRgba( primaryColor, 0.08 );
+	// Create light background version of primary color if not set
+	const barBackgroundColor = backgroundColor || hexToRgba( barColor, 0.08 );
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
@@ -393,7 +398,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 										className={ clsx( styles[ 'funnel-bar' ] ) }
 										style={ {
 											height: `${ barHeight }%`,
-											backgroundColor: primaryColor,
+											backgroundColor: barColor,
 										} }
 									/>
 								</div>
