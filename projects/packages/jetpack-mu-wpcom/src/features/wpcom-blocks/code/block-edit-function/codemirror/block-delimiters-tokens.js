@@ -10,8 +10,10 @@ const chars = {
 };
 
 /**
- * @param {string}      literal
- * @param {InputStream} input
+ * Token
+ *
+ * @param {string}      literal - Literal
+ * @param {InputStream} input   - Input stream
  * @return {boolean} whether the token was matched
  */
 const token = ( literal, input ) => {
@@ -28,10 +30,12 @@ const token = ( literal, input ) => {
 };
 
 /**
- * @param {InputStream} input
+ * Skip whitespace.
+ *
+ * @param {InputStream} input - Input stream.
  * @return {number} how many code points of whitespace were skipped
  */
-const skipWhitespace = input => {
+const skipWhitespaceOuter = input => {
 	const startedAt = input.pos;
 
 	while ( input.next > 0 && /\s/.test( String.fromCharCode( input.next ) ) ) {
@@ -49,7 +53,7 @@ export const OpeningBlockStart = new ExternalTokenizer( input => {
 		return;
 	}
 
-	skipWhitespace( input );
+	skipWhitespaceOuter( input );
 
 	if ( ! token( 'wp:', input ) ) {
 		input.advance( start - input.pos );
@@ -67,7 +71,7 @@ export const ClosingBlockStart = new ExternalTokenizer( input => {
 		return;
 	}
 
-	skipWhitespace( input );
+	skipWhitespaceOuter( input );
 
 	if ( ! token( '/wp:', input ) ) {
 		input.advance( start - input.pos );
@@ -112,6 +116,7 @@ export const JsonAttributes = new ExternalTokenizer( input => {
 	let closerAt = input.pos;
 
 	/**
+	 * Find closer
 	 * @return {void}
 	 */
 	const findCloser = () => {
@@ -130,6 +135,7 @@ export const JsonAttributes = new ExternalTokenizer( input => {
 	};
 
 	/**
+	 * Skip whitespace
 	 * @return {void}
 	 */
 	const skipWhitespace = () => {
@@ -155,6 +161,7 @@ export const JsonAttributes = new ExternalTokenizer( input => {
 	};
 
 	/**
+	 * Find end
 	 * @return {void}
 	 */
 	const findEnd = () => {
@@ -172,14 +179,15 @@ export const JsonAttributes = new ExternalTokenizer( input => {
 		}
 
 		/**
-		 * Example:
-		 *
-		 *     0123456789A
-		 *     {...}   -->
-		 *         │  │  └─ input.pos     =  A
-		 *         │  └──── input.pos - 3 =  7
-		 *         └─────── closerAt      =  4
-		 *     closerAt - input.pos       = -6
+		 * @example
+		 * ```
+		 * 0123456789A
+		 * {...}   -->
+		 *     │  │  └─ input.pos     =  A
+		 *     │  └──── input.pos - 3 =  7
+		 *     └─────── closerAt      =  4
+		 * closerAt - input.pos       = -6
+		 * ```
 		 */
 		input.acceptTokenTo( terms.JsonAttributes, closerAt );
 		input.advance( closerAt - input.pos );
