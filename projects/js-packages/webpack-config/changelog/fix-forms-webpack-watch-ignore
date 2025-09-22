@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Webpack Config: Add watchOptions to shared config

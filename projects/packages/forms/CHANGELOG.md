@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.5.1] - 2025-09-22
+### Fixed
+- Fix lints. [#45242]
+- Forms: Fix image choice widths. [#45257]
+
 ## [6.5.0] - 2025-09-19
 ### Added
 - Add extra layer of cache busting for interactivity API files (view.js) with hash suffix. [#45138]
@@ -1586,6 +1591,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.5.1]: https://github.com/automattic/jetpack-forms/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/automattic/jetpack-forms/compare/v6.4.0...v6.5.0
 [6.4.0]: https://github.com/automattic/jetpack-forms/compare/v6.3.0...v6.4.0
 [6.3.0]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.3.0
