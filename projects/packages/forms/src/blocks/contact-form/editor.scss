@@ -44,13 +44,23 @@
 
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		gap: var(--wp--style--block-gap, 1.5rem);
 
-		> div {
-			flex: 1 1 100%;
+		// not horizontal or vertical means a form created
+		// before layout support was added
+		&:not(.is-horizontal, .is-vertical) {
+
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: flex-start;
+			gap: var(--wp--style--block-gap, 1.5rem);
+
+			> div {
+				flex: 1 1 100%;
+			}
+
+			.wp-block-jetpack-button {
+				align-self: flex-end;
+			}
 		}
 
 		.wp-block {
