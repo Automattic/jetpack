@@ -7,7 +7,7 @@ import {
 	highConversionFunnelData,
 	themeArgTypes,
 } from '../../../stories';
-import { ConversionFunnelChart } from '../conversion-funnel-chart';
+import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;
@@ -17,191 +17,6 @@ const meta: Meta< StoryArgs > = {
 	component: ConversionFunnelChart,
 	parameters: {
 		layout: 'centered',
-		docs: {
-			description: {
-				component: `
-A focused conversion funnel chart component for visualizing step-by-step conversion rates with a prominent main metric display and change indicators.
-
-## Features
-
-- 📊 Clear funnel visualization with proportional bar heights and light backgrounds
-- 📈 Main conversion rate highlighting with positive/negative change indicators
-- 🎨 Dynamic color theming - bar backgrounds automatically adapt to primary color
-- 🔧 **Render Props** - Complete customization control with \`renderMainMetric\`, \`renderStepLabel\`, \`renderStepRate\`, and \`renderTooltip\`
-- 🎭 **CSS Variables** - Easy theming with \`--funnel-font-family\` and \`--step-font-family\`
-- 📱 Flexible layouts that adapt to container size
-- 🎯 TypeScript support with full type definitions
-- ♿ Accessible design with semantic markup
-- 🧪 Comprehensive test coverage
-
-## Usage
-
-### Basic Usage
-
-\`\`\`typescript
-import { ConversionFunnelChart } from '@automattic/charts';
-
-const funnelData = [
-  { id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
-  { id: 'cart', label: 'Cart', rate: 71.1, count: 7110 },
-  { id: 'checkout', label: 'Checkout', rate: 52.5, count: 5250 },
-  { id: 'purchase', label: 'Purchase', rate: 10.3, count: 1030 },
-];
-
-function MyComponent() {
-  return (
-    <ConversionFunnelChart
-      mainRate={10.3}
-      changeIndicator="+2%"
-      steps={funnelData}
-    />
-  );
-}
-\`\`\`
-
-### With Header and Metrics
-
-\`\`\`typescript
-import { ConversionFunnelChart } from '@automattic/charts';
-
-function FullDashboard() {
-  return (
-    <div>
-      <header>
-        <h2>Store conversion rate</h2>
-        <div className="metrics">
-          <span className="main-rate">10.3%</span>
-          <span className="change positive">+2%</span>
-        </div>
-      </header>
-      <ConversionFunnelChart
-        mainRate={10.3}
-        changeIndicator="+2%"
-        steps={funnelData}
-      />
-    </div>
-  );
-}
-\`\`\`
-
-### E-commerce Conversion Funnel
-
-\`\`\`typescript
-const ecommerceFunnel = [
-  { id: 'sessions', label: 'Sessions', rate: 100 },
-  { id: 'product_views', label: 'Product Views', rate: 45.2 },
-  { id: 'cart', label: 'Add to Cart', rate: 28.8 },
-  { id: 'checkout', label: 'Checkout', rate: 18.1 },
-  { id: 'purchase', label: 'Purchase', rate: 12.3 },
-];
-
-<ConversionFunnelChart
-  mainRate={12.3}
-  changeIndicator="+3.2%"
-  steps={ecommerceFunnel}
-/>
-\`\`\`
-
-### SaaS Signup Funnel
-
-\`\`\`typescript
-const saasFunnel = [
-  { id: 'visitors', label: 'Visitors', rate: 100 },
-  { id: 'trial', label: 'Trial Signup', rate: 12.5 },
-  { id: 'activation', label: 'Activated', rate: 8.2 },
-  { id: 'subscription', label: 'Paid Plan', rate: 3.1 },
-];
-
-<ConversionFunnelChart
-  mainRate={3.1}
-  changeIndicator="-0.4%"
-  steps={saasFunnel}
-/>
-\`\`\`
-
-## FunnelStep Interface
-
-\`\`\`typescript
-interface FunnelStep {
-  id: string;           // Unique identifier
-  label: string;        // Display name for the step
-  rate: number;         // Conversion rate as percentage (0-100)
-  count?: number;       // Optional absolute count
-}
-\`\`\`
-
-## Customization
-
-### Render Props
-
-Complete control over component rendering with optional render functions:
-
-\`\`\`typescript
-<ConversionFunnelChart
-  renderMainMetric={({ mainRate, changeIndicator, className, changeColor }) => (
-    <div className={className}>
-      <h2>Custom Header</h2>
-      <span>{mainRate}%</span> <span style={{color: changeColor}}>{changeIndicator}</span>
-    </div>
-  )}
-  renderStepLabel={({ step, index, className }) => (
-    <span className={className}>#{index + 1} {step.label}</span>
-  )}
-  renderStepRate={({ step, className }) => (
-    <strong className={className}>{step.rate}%</strong>
-  )}
-  renderTooltip={({ step }) => (
-    <div>Custom tooltip for {step.label}: {step.rate}%</div>
-  )}
-/>
-\`\`\`
-
-### CSS Variables
-
-Easy theming with CSS custom properties:
-
-\`\`\`css
-.myCustomChart {
-  --primary-color: #3858e9;
-  --light-background-color: rgba(56, 88, 233, 0.08);
-  --funnel-font-family: "SF Pro Text", sans-serif;
-  --step-font-family: "SF Pro", sans-serif;
-}
-\`\`\`
-
-**Available CSS Variables:**
-- \`--primary-color\` - Chart bar colors
-- \`--light-background-color\` - Bar container backgrounds
-- \`--funnel-font-family\` - Font for main rate and change indicator
-- \`--step-font-family\` - Font for step labels and rates
-
-## Accessibility
-
-The component includes:
-- Semantic HTML structure with proper headings
-- Color contrast ratios meeting WCAG guidelines
-- Screen reader compatible text and labels
-- Keyboard navigation support
-
-## Examples
-
-### Marketing Funnel Analysis
-
-Track user journey from awareness to conversion:
-- Sessions → Lead Capture → Qualification → Sales
-
-### Product Onboarding
-
-Monitor user activation through key steps:
-- Signup → Profile Setup → First Action → Active User
-
-### Content Engagement
-
-Measure content consumption funnel:
-- Page Views → Scroll Depth → CTA Clicks → Conversions
-				`,
-			},
-		},
 	},
 	tags: [ 'autodocs' ],
 	argTypes: {
@@ -313,11 +128,6 @@ export const CustomRenderProps: Story = {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,
-		style: {
-			'--primary-color': '#4F46E5',
-			'--light-background-color': 'rgba(79, 70, 229, 0.08)',
-			'--step-font-family': 'Roboto, sans-serif',
-		} as React.CSSProperties,
 		renderMainMetric: ( { mainRate, changeIndicator, className } ) => (
 			<div
 				className={ className }
@@ -437,14 +247,6 @@ export const CustomRenderProps: Story = {
 			</div>
 		),
 	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Custom typography with renderMainMetric and renderTooltip showing a dashboard-style header and custom tooltip, both with gradient background, larger fonts, and enhanced styling compared to the default display.',
-			},
-		},
-	},
 	decorators: [ Story => <Story /> ],
 };
 
@@ -455,13 +257,5 @@ export const WithoutTooltips: Story = {
 		steps: ecommerceFunnelData,
 		renderMainMetric: () => null,
 		renderTooltip: () => null,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Demonstrates disabling the main metric display and tooltips by returning null from renderMainMetric and renderTooltip render props.',
-			},
-		},
 	},
 };
