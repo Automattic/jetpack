@@ -3,11 +3,11 @@
 /**
  * Attach event listeners for my account page
  *
- * @param {object} analytics - Analytics object
+ * @param {Function} recordEvent - Record event function
  */
-export function initListeners( analytics ) {
+export function initListeners( recordEvent ) {
 	jQuery( '.woocommerce-MyAccount-navigation-link--customer-logout' ).on( 'click', function () {
-		analytics.recordEvent( 'my_account_tab_click', {
+		recordEvent( 'my_account_tab_click', {
 			tab: 'logout',
 		} );
 	} );

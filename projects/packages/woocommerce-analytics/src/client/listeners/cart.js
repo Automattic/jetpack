@@ -3,9 +3,9 @@
 /**
  * Attach event listeners for cart page
  *
- * @param {object} analytics - Analytics object
+ * @param {Function} recordEvent - Record event function
  */
-export function initListeners( analytics ) {
+export function initListeners( recordEvent ) {
 	/**
 	 * On the cart page, add an event listener for product removal clicks.
 	 * We listen at div.woocommerce because the cart 'form' contents get forcibly
@@ -19,7 +19,7 @@ export function initListeners( analytics ) {
 			id: productID,
 			quantity: quantity ? quantity : '1',
 		};
-		analytics.recordEvent( 'remove_from_cart', {
+		recordEvent( 'remove_from_cart', {
 			pi: productDetails.id,
 			pq: productDetails.quantity,
 		} );
@@ -35,7 +35,7 @@ export function initListeners( analytics ) {
 			if ( qtyInput && qtyInput.value === '0' ) {
 				const productRemoveLink = item.querySelector( '.product-remove a' );
 				const productID = productRemoveLink ? productRemoveLink.dataset.product_id : null;
-				analytics.recordEvent( 'remove_from_cart', {
+				recordEvent( 'remove_from_cart', {
 					pi: productID,
 				} );
 			}

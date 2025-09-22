@@ -39,7 +39,7 @@ export class Analytics {
 	/**
 	 * Initialize the analytics.
 	 */
-	init() {
+	init = () => {
 		this.commonProps = {
 			...this.commonProps,
 			sessionId: this.sessionManager.sessionId,
@@ -56,32 +56,32 @@ export class Analytics {
 		this.processEventQueue();
 		this.initListeners();
 		this.isInitialized = true;
-	}
+	};
 
 	/**
 	 * Initialize Listeners for pages.
 	 */
-	initListeners() {
+	initListeners = () => {
 		this.listenToStoreAPICalls();
 
 		// Initialize Listeners for pages.
 		if ( this.pages.isAccountPage ) {
 			import( './listeners/account' ).then( ( { initListeners } ) => {
-				initListeners( this );
+				initListeners( this.recordEvent );
 			} );
 		}
 
 		if ( this.pages.isCart ) {
 			import( './listeners/cart' ).then( ( { initListeners } ) => {
-				initListeners( this );
+				initListeners( this.recordEvent );
 			} );
 		}
-	}
+	};
 
 	/**
 	 * Listen to Store API calls to record engagement event.
 	 */
-	listenToStoreAPICalls() {
+	listenToStoreAPICalls = () => {
 		const originalFetch = window.fetch;
 		const self = this;
 
@@ -97,17 +97,17 @@ export class Analytics {
 
 			return originalFetch.apply( this, arguments );
 		};
-	}
+	};
 
 	/**
 	 * Process the event queue.
 	 */
-	processEventQueue() {
+	processEventQueue = () => {
 		// Record events from the queue.
 		for ( const event of this.eventQueue ) {
 			this.recordEvent( event.eventName, event.props );
 		}
-	}
+	};
 
 	/**
 	 * Record an event.
@@ -115,7 +115,7 @@ export class Analytics {
 	 * @param {string} event      - The event name.
 	 * @param {object} properties - The event properties.
 	 */
-	recordEvent( event, properties = {} ) {
+	recordEvent = ( event, properties = {} ) => {
 		if ( ! window._wca ) {
 			return;
 		}
@@ -143,14 +143,14 @@ export class Analytics {
 		if ( this.isInitialized ) {
 			this.maybeRecordEngagementEvent();
 		}
-	}
+	};
 
-	maybeRecordEngagementEvent() {
+	maybeRecordEngagementEvent = () => {
 		if ( this.sessionManager.isEngaged ) {
 			return;
 		}
 
 		this.sessionManager.setEngaged();
 		this.recordEvent( 'session_engagement' );
-	}
+	};
 }
