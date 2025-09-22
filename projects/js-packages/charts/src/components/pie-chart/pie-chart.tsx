@@ -289,10 +289,13 @@ const PieChartInternal = ( {
 										// Get coordinates relative to the current target element
 										const coords = localPoint( event );
 										if ( coords ) {
+											// Account for legend offset when legend is on top
+											const legendOffset =
+												showLegend && legendPosition === 'top' ? legendHeight : 0;
 											showTooltip( {
 												tooltipData: arc.data,
 												tooltipLeft: coords.x + tooltipOffsetX,
-												tooltipTop: coords.y + tooltipOffsetY,
+												tooltipTop: coords.y + legendOffset + tooltipOffsetY,
 											} );
 										}
 									};
