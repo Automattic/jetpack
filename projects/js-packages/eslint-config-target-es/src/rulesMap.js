@@ -211,6 +211,12 @@ module.exports = {
 		'javascript.statements.function.trailing_comma_in_parameters',
 		'javascript.statements.generator_function.trailing_comma_in_parameters',
 	],
+	'no-uint8array-frombase64': 'javascript.builtins.Uint8Array.fromBase64',
+	'no-uint8array-fromhex': 'javascript.builtins.Uint8Array.fromHex',
+	'no-uint8array-prototype-setfrombase64': 'javascript.builtins.Uint8Array.setFromBase64',
+	'no-uint8array-prototype-setfromhex': 'javascript.builtins.Uint8Array.setFromHex',
+	'no-uint8array-prototype-tobase64': 'javascript.builtins.Uint8Array.toBase64',
+	'no-uint8array-prototype-tohex': 'javascript.builtins.Uint8Array.toHex',
 
 	// ES2016
 	'no-array-prototype-includes': 'javascript.builtins.Array.includes',
@@ -261,6 +267,7 @@ module.exports = {
 	'no-math-log2': 'javascript.builtins.Math.log2',
 	'no-math-sign': 'javascript.builtins.Math.sign',
 	'no-math-sinh': 'javascript.builtins.Math.sinh',
+	'no-math-sumprecise': 'javascript.builtins.Math.sumPrecise',
 	'no-math-tanh': 'javascript.builtins.Math.tanh',
 	'no-math-trunc': 'javascript.builtins.Math.trunc',
 	'no-modules': [ 'javascript.statements.import', 'javascript.statements.export' ],
