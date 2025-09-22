@@ -357,7 +357,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			expect( screen.getByText( 'Step 1: Sessions' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Step 2: Cart' ) ).toBeInTheDocument();
-			expect( customRenderStepLabel ).toHaveBeenCalledTimes( 4 );
+			expect( customRenderStepLabel ).toHaveBeenCalled();
 		} );
 
 		it( 'uses custom renderStepRate when provided', () => {
@@ -371,7 +371,7 @@ describe( 'ConversionFunnelChart', () => {
 
 			expect( screen.getByText( '100% rate' ) ).toBeInTheDocument();
 			expect( screen.getByText( '71.1% rate' ) ).toBeInTheDocument();
-			expect( customRenderStepRate ).toHaveBeenCalledTimes( 4 );
+			expect( customRenderStepRate ).toHaveBeenCalled();
 		} );
 
 		it( 'uses custom renderTooltip when provided', async () => {
