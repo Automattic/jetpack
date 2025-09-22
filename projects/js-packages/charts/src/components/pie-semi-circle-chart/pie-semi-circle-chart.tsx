@@ -2,7 +2,7 @@ import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { useElementHeight } from '../../hooks';
@@ -69,6 +69,16 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * - 'none': Shows no values, only labels
 	 */
 	legendValueDisplay?: LegendValueDisplay;
+
+	/**
+	 * Horizontal offset for tooltip positioning in pixels (default: 0)
+	 */
+	tooltipOffsetX?: number;
+
+	/**
+	 * Vertical offset for tooltip positioning in pixels (default: -15)
+	 */
+	tooltipOffsetY?: number;
 }
 
 // Base props type with optional responsive properties
@@ -126,24 +136,36 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	note,
 	className,
 	children,
+	tooltipOffsetX = 0,
+	tooltipOffsetY = -15,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	const handleMouseMove = useCallback(
-		( event: MouseEvent, arc: ArcData ) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
+	// Set up portal tooltip for better z-index handling
+	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+		detectBounds: true,
+		scroll: true,
+		debounce: 0,
+	} );
 
-			showTooltip( {
-				tooltipData: arc.data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
+	const handleMouseMove = useCallback(
+		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
+			// Get coordinates relative to the current target element
+			const coords = localPoint( event );
+			if ( coords ) {
+				// Account for legend offset when legend is on top
+				const legendOffset = showLegend && legendPosition === 'top' ? legendHeight : 0;
+				showTooltip( {
+					tooltipData: arc.data,
+					tooltipLeft: coords.x + tooltipOffsetX,
+					tooltipTop: coords.y + legendOffset + tooltipOffsetY,
+				} );
+			}
 		},
-		[ showTooltip ]
+		[ showTooltip, tooltipOffsetX, tooltipOffsetY, showLegend, legendPosition, legendHeight ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
@@ -151,7 +173,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: MouseEvent ) => {
+		( arc: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
 			handleMouseMove( event, arc );
 		},
 		[ handleMouseMove ]
@@ -248,6 +270,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			} }
 		>
 			<div
+				ref={ containerRef }
 				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 				data-testid="pie-chart-container"
 				style={ {
@@ -279,8 +302,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								return pie.arcs.map( arc => (
 									<g
 										key={ arc.data.label }
-										onMouseMove={ handleArcMouseMove( arc ) }
-										onMouseLeave={ handleMouseLeave }
+										onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
 									>
 										<path
 											d={ pie.path( arc ) || '' }
@@ -318,15 +341,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ {
-							label: tooltipData.label,
-							value: tooltipData.value,
-							valueDisplay: tooltipData.valueDisplay,
-						} }
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
-					/>
+					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+						<div role="tooltip">
+							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ showLegend && (
