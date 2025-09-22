@@ -3782,4 +3782,40 @@ EOT;
 
 		remove_filter( 'grunion_should_send_email', '__return_true' );
 	}
+
+	/**
+	 * Test the get_block_container_classes method
+	 */
+	public function test_get_block_container_classes() {
+		// Test with no attributes (default case)
+		$classes = Contact_Form::get_block_container_classes();
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with empty attributes array
+		$classes = Contact_Form::get_block_container_classes( array() );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+
+		// Test with align attribute set to 'wide'
+		$attributes = array( 'align' => 'wide' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignwide', $classes );
+
+		// Test with align attribute set to 'full'
+		$attributes = array( 'align' => 'full' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringContainsString( 'alignfull', $classes );
+
+		// Test with unsupported align attribute (should not add alignment class)
+		$attributes = array( 'align' => 'left' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertStringContainsString( 'jetpack-contact-form-container', $classes );
+		$this->assertStringNotContainsString( 'alignleft', $classes );
+
+		// Test that classes are space-separated string
+		$attributes = array( 'align' => 'wide' );
+		$classes    = Contact_Form::get_block_container_classes( $attributes );
+		$this->assertEquals( 'jetpack-contact-form-container alignwide', $classes );
+	}
 }
