@@ -10,7 +10,7 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 			<ToggleControl
 				label={ __( 'Save responses', 'jetpack-forms' ) }
 				help={ __(
-					'Store form submissions in your WordPress admin for review and export.',
+					'Keep responses saved, or set up email/integration to avoid losing them.',
 					'jetpack-forms'
 				) }
 				checked={ saveResponses }
