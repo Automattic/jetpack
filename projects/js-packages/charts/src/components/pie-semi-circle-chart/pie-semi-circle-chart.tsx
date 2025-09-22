@@ -69,6 +69,16 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	 * - 'none': Shows no values, only labels
 	 */
 	legendValueDisplay?: LegendValueDisplay;
+
+	/**
+	 * Horizontal offset for tooltip positioning in pixels (default: 0)
+	 */
+	tooltipOffsetX?: number;
+
+	/**
+	 * Vertical offset for tooltip positioning in pixels (default: -15)
+	 */
+	tooltipOffsetY?: number;
 }
 
 // Base props type with optional responsive properties
@@ -126,6 +136,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	note,
 	className,
 	children,
+	tooltipOffsetX = 0,
+	tooltipOffsetY = -15,
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -148,13 +160,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				if ( coords ) {
 					showTooltip( {
 						tooltipData: arc.data,
-						tooltipLeft: coords.x,
-						tooltipTop: coords.y - 15,
+						tooltipLeft: coords.x + tooltipOffsetX,
+						tooltipTop: coords.y + tooltipOffsetY,
 					} );
 				}
 			}
 		},
-		[ showTooltip ]
+		[ showTooltip, tooltipOffsetX, tooltipOffsetY ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
