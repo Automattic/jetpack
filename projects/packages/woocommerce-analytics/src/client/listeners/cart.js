@@ -48,12 +48,12 @@ export function initListeners( analytics ) {
 	 */
 	document
 		.querySelector( 'button[name=update_cart]' )
-		.addEventListener( 'click', trigger_cart_remove );
+		?.addEventListener( 'click', trigger_cart_remove );
 
 	// The duplicated listener is needed because updated_wc_div replaces all the DOM and then the initial listener stops working.
 	document.body.onupdated_wc_div = function () {
 		document
 			.querySelector( 'button[name=update_cart]' )
-			.addEventListener( 'click', trigger_cart_remove );
+			?.addEventListener( 'click', trigger_cart_remove );
 	};
 }
