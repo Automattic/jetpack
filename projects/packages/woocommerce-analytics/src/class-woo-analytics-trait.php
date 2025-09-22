@@ -646,7 +646,7 @@ trait Woo_Analytics_Trait {
 	 *
 	 * @return array The breadcrumb trail as an array of titles.
 	 */
-	public function get_breadcrumb_titles() {
+	private function get_breadcrumb_titles() {
 		if ( is_front_page() ) {
 			return array( __( 'Home', 'woocommerce-analytics' ) );
 		}
