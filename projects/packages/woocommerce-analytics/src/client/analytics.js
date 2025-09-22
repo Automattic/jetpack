@@ -50,17 +50,17 @@ export class Analytics {
 		 */
 		if ( this.features.ch ) {
 			this.sessionManager.init();
+			const { sessionId, landingPage, isNewSession } = this.sessionManager;
 
 			// Add session ID and landing page to common properties.
 			this.commonProps = {
 				...this.commonProps,
-				sessionId: this.sessionManager.sessionId,
-				landingPage: this.sessionManager.landingPage,
+				sessionId,
+				landingPage,
 			};
 
-			// Record session started event if it's a new session.
-			if ( this.sessionManager.isNewSession && this.sessionManager.sessionId ) {
-				this.recordEvent( 'session_started' );
+			if ( isNewSession ) {
+				this.maybeRecordSessionStartedEvent();
 			} else {
 				this.maybeRecordEngagementEvent();
 			}
@@ -144,6 +144,21 @@ export class Analytics {
 	};
 
 	/**
+	 * Record the session started event if it's a new session and session ID is set.
+	 */
+	maybeRecordSessionStartedEvent = () => {
+		if ( ! this.features.ch ) {
+			return;
+		}
+
+		if ( ! this.sessionManager.isNewSession || ! this.sessionManager.sessionId ) {
+			return;
+		}
+
+		this.recordEvent( 'session_started' );
+	};
+
+	/**
 	 * Record the session engagement event if session is not engaged and session ID is set.
 	 */
 	maybeRecordEngagementEvent = () => {
@@ -151,7 +166,7 @@ export class Analytics {
 			return;
 		}
 
-		if ( ! this.sessionManager.sessionId || this.sessionManager.isEngaged ) {
+		if ( this.sessionManager.isEngaged || ! this.sessionManager.sessionId ) {
 			return;
 		}
 
