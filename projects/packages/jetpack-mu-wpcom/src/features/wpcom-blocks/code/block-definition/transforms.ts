@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang } from '@@codemirrorLanguageData@@';
+// @ts-expect-error No types.
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';

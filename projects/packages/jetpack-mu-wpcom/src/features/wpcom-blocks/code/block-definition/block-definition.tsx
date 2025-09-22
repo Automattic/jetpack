@@ -6,7 +6,10 @@ import {
 	withColors,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- We'll use it safely.
 	__experimentalGetElementClassName,
+
+	// @ts-expect-error No types.
 } from '@wordpress/block-editor';
+// @ts-expect-error No types.
 import { registerBlockType, registerBlockStyle } from '@wordpress/blocks';
 import {
 	CustomSelectControl,
@@ -341,7 +344,10 @@ const DisplayLanguage = ( props: Props ) => {
 				hideLabelFromVision
 				value={
 					attributes.language
-						? { name: attributes.language, key: attributes.language }
+						? {
+								name: attributes.language,
+								key: attributes.language,
+						  }
 						: emptyOption
 				}
 				options={ [
