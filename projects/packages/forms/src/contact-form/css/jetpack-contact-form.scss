@@ -3,14 +3,19 @@
 // while honoring the same markup structure.
 .jetpack-contact-form.is-layout-flex {
 
-	&.is-nowrap {
-		flex-wrap: nowrap;
-	}
 
 	&.is-horizontal {
 
+		&.is-nowrap {
+			align-items: flex-end;
+		}
+
 		.wp-block-jetpack-button {
 			align-self: flex-end;
+
+			.wp-block-button__link {
+				word-break: normal;
+			}
 		}
 	}
 
