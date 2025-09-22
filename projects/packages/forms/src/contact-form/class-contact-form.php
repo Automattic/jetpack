@@ -831,7 +831,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', $url, $GLOBALS['post'], $id, $page );
 			$has_submit_button_block = str_contains( $content, 'wp-block-jetpack-button' );
-			$form_classes            = 'contact-form commentsblock';
+			$form_classes            = 'contact-form jetpack-contact-form__form';
 			if ( $submission_success ) {
 				$form_classes .= ' submission-success';
 			}
