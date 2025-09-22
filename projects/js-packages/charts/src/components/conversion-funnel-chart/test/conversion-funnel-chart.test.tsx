@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ConversionFunnelChart } from '../conversion-funnel-chart';
-import type { FunnelStep } from '../conversion-funnel-chart';
+import ConversionFunnelChart from '../conversion-funnel-chart';
+import type { FunnelStep } from '../types';
 
 // Mock data for testing
 const mockSteps: FunnelStep[] = [

@@ -7,7 +7,7 @@ import {
 	highConversionFunnelData,
 	themeArgTypes,
 } from '../../../stories';
-import { ConversionFunnelChart } from '../conversion-funnel-chart';
+import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;

@@ -1,17 +1,24 @@
 import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
-import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useGlobalChartsTheme } from '../../providers';
+import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
+import {
+	GlobalChartsProvider,
+	GlobalChartsContext,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsTheme,
+} from '../../providers';
 import { hexToRgba, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
 
 /**
- * ConversionFunnelChart component displays a conversion funnel with main metric and visualization
+ * Internal ConversionFunnelChart component with chart registration
  *
  * @param props                  - Component props
+ * @param props.chartId          - Optional unique identifier for the chart
  * @param props.mainRate         - Main conversion rate to highlight
  * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
  * @param props.steps            - Array of funnel steps
@@ -24,18 +31,20 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.renderTooltip    - Custom render function for tooltip content
  * @return JSX element representing the conversion funnel chart
  */
-export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
+const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	mainRate,
 	changeIndicator,
 	steps,
 	loading = false,
 	className,
+	chartId: providedChartId,
 	style,
 	renderStepLabel,
 	renderStepRate,
 	renderMainMetric,
 	renderTooltip,
 } ) => {
+	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
@@ -231,8 +240,29 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		</>
 	);
 
+	// Validate data
+	const isDataValid = Boolean( steps && steps.length > 0 );
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			mainRate,
+			changeIndicator,
+			stepsCount: steps?.length || 0,
+		} ),
+		[ mainRate, changeIndicator, steps?.length ]
+	);
+
+	useChartRegistration( {
+		chartId,
+		legendItems: [],
+		chartType: 'conversion-funnel',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
+
 	// Handle empty or undefined data
-	if ( ! steps || steps.length === 0 ) {
+	if ( ! isDataValid ) {
 		return (
 			<div
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
@@ -363,4 +393,28 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	);
 };
 
-export default ConversionFunnelChart;
+/**
+ * ConversionFunnelChart component with provider wrapper
+ *
+ * @param props - Component props
+ * @return JSX element representing the conversion funnel chart
+ */
+const ConversionFunnelChartWithProvider: FC< ConversionFunnelChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <ConversionFunnelChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<ConversionFunnelChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+ConversionFunnelChartWithProvider.displayName = 'ConversionFunnelChart';
+
+export { ConversionFunnelChartWithProvider as default };
