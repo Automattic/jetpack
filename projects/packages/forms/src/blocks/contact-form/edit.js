@@ -18,6 +18,7 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -103,6 +104,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		formTitle,
 		variationName,
 		emailNotifications,
+		disableGoBack,
+		disableSummary,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -712,6 +715,24 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 								},
 							] }
 							onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+
+						<ToggleControl
+							label={ __( 'Disable "Go back" link', 'jetpack-forms' ) }
+							checked={ disableGoBack }
+							onChange={ newDisableGoBack => setAttributes( { disableGoBack: newDisableGoBack } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+
+						<ToggleControl
+							label={ __( 'Disable summary', 'jetpack-forms' ) }
+							checked={ disableSummary }
+							onChange={ newDisableSummary =>
+								setAttributes( { disableSummary: newDisableSummary } )
+							}
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }
 						/>

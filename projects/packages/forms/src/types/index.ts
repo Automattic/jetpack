@@ -110,6 +110,10 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesSpamUrl?: string;
 	/** Whether MailPoet integration is enabled. */
 	isMailPoetEnabled?: boolean;
+	/** The default subject for the form. */
+	subject?: string;
+	/** The default recipient email address for the form. */
+	to?: string;
 }
 
 /**
