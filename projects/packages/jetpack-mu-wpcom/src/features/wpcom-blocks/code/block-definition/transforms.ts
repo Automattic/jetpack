@@ -1,11 +1,9 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang } from '@@codemirrorLanguageData@@';
-import { BLOCK_NAME } from '../common/block.ts';
-import type { Attributes } from '../common/block.ts';
-
-const { createBlock } = window.wp.blocks;
-const { dispatch } = window.wp.data;
-const { store: editorStore } = window.wp.editor;
+import { createBlock } from '@wordpress/blocks';
+import { dispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { type Attributes, BLOCK_NAME } from '../common/block.ts';
 
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
