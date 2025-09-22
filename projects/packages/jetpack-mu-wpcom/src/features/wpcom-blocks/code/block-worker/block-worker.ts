@@ -24,12 +24,10 @@ const respond = < T extends OutboundMessage >( data: InboundMessage, response: T
 /**
  * Attempts to infer the language inside the code block.
  *
- * This belongs in a WebWorker to avoid delaying the render!
- *
- * @param code
- * @todo Move into a WebWorker
+ * @param code -- Code content string.
+ * @return Language name or `null` if no match found.
  */
-const guessLanguage = ( code: string ) => {
+const guessLanguage = ( code: string ): string | null => {
 	if ( ! code ) {
 		return null;
 	}
@@ -77,9 +75,7 @@ const guessLanguage = ( code: string ) => {
 	}
 
 	if (
-		/^\d{4}[-\/]\d{2}[-\/]\d{2} \d{2}:\d{2}:\d{2} (?:DEBUG|INFO|WARNING|ERROR|CRITICAL) /.test(
-			code
-		)
+		/^\d{4}[-/]\d{2}[-/]\d{2} \d{2}:\d{2}:\d{2} (?:DEBUG|INFO|WARNING|ERROR|CRITICAL) /.test( code )
 	) {
 		return 'Log';
 	}
