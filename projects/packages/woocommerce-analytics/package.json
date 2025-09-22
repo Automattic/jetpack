@@ -25,7 +25,6 @@
 		"watch": "pnpm build && pnpm build-client --watch"
 	},
 	"dependencies": {
-		"@automattic/jetpack-analytics": "workspace:*",
 		"debug": "4.4.3"
 	},
 	"devDependencies": {

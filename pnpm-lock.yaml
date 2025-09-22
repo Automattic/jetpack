@@ -3927,9 +3927,6 @@ importers:
 
   projects/packages/woocommerce-analytics:
     dependencies:
-      '@automattic/jetpack-analytics':
-        specifier: workspace:*
-        version: link:../../js-packages/analytics
       debug:
         specifier: 4.4.3
         version: 4.4.3
@@ -23905,7 +23902,7 @@ snapshots:
       '@babel/core': 7.28.0
       find-cache-dir: 3.3.2
       schema-utils: 4.3.2
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   babel-loader@9.2.1(@babel/core@7.28.0)(webpack@5.101.3):
     dependencies:
@@ -24687,7 +24684,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.1
     optionalDependencies:
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@7.0.2(webpack@5.101.3):
     dependencies:
@@ -28529,7 +28526,7 @@ snapshots:
     dependencies:
       schema-utils: 4.3.2
       tapable: 2.2.3
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
 
