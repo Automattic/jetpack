@@ -87,16 +87,6 @@ export interface ConversionFunnelChartProps {
 }
 
 /**
- * Default settings for ConversionFunnelChart component
- */
-const DEFAULT_FUNNEL_SETTINGS = {
-	primaryColor: '#4F46E5',
-	backgroundColor: '#F3F4F6',
-	positiveChangeColor: '#10B981',
-	negativeChangeColor: '#EF4444',
-} as const;
-
-/**
  * ConversionFunnelChart component displays a conversion funnel with main metric and visualization
  *
  * @param props                  - Component props
@@ -124,7 +114,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	renderMainMetric,
 	renderTooltip,
 } ) => {
-	const theme = useGlobalChartsTheme();
+	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -282,33 +272,23 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
-	const funnelSettings = theme.conversionFunnelChart;
-	const primaryColor = funnelSettings?.primaryColor || DEFAULT_FUNNEL_SETTINGS.primaryColor;
-	const positiveChangeColor =
-		funnelSettings?.positiveChangeColor || DEFAULT_FUNNEL_SETTINGS.positiveChangeColor;
-	const negativeChangeColor =
-		funnelSettings?.negativeChangeColor || DEFAULT_FUNNEL_SETTINGS.negativeChangeColor;
+	const { primaryColor, positiveChangeColor, negativeChangeColor } = conversionFunnelChartSettings;
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
 	const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
 
 	// Create light background version of primary color
-	const lightBackgroundColor = hexToRgba( primaryColor, 0.08 );
-
-	const chartStyle = {
-		'--primary-color': primaryColor,
-		'--light-background-color': lightBackgroundColor,
-		'--change-indicator-color': changeColor,
-		...style,
-	} as React.CSSProperties;
+	const barBackgroundColor = hexToRgba( primaryColor, 0.08 );
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
 		<>
 			<span className={ styles[ 'main-rate' ] }>{ formatPercentage( mainRate ) }</span>
 			{ changeIndicator && (
-				<span className={ styles[ 'change-indicator' ] }>{ changeIndicator }</span>
+				<span className={ styles[ 'change-indicator' ] } style={ { color: changeColor } }>
+					{ changeIndicator }
+				</span>
 			) }
 		</>
 	);
@@ -329,7 +309,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		return (
 			<div
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+				style={ style }
 			>
 				<div className={ styles[ 'empty-state' ] }>
 					{ loading ? 'Loading...' : 'No data available' }
@@ -350,7 +330,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 					chartRef.current = node;
 				} }
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+				style={ style }
 			>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (
@@ -368,7 +348,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 				<div className={ styles[ 'funnel-container' ] }>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
-						const { isClicked, isBlurred } = getStepState( step.id );
+						const { isBlurred } = getStepState( step.id );
 
 						return (
 							<div
@@ -401,19 +381,16 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 								{ /* Funnel Bar */ }
 								<div
-									className={ clsx(
-										styles[ 'bar-container' ],
-										isClicked && styles.selected,
-										isBlurred && styles.disabled
-									) }
+									className={ clsx( styles[ 'bar-container' ], isBlurred && styles.disabled ) }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 									role="button"
 									tabIndex={ isBlurred ? -1 : 0 }
 									aria-label={ step.label }
+									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
-										className={ clsx( styles[ 'funnel-bar' ], isClicked && styles.selected ) }
+										className={ clsx( styles[ 'funnel-bar' ] ) }
 										style={ {
 											height: `${ barHeight }%`,
 											backgroundColor: primaryColor,

@@ -313,11 +313,6 @@ export const CustomRenderProps: Story = {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,
-		style: {
-			'--primary-color': '#4F46E5',
-			'--light-background-color': 'rgba(79, 70, 229, 0.08)',
-			'--step-font-family': 'Roboto, sans-serif',
-		} as React.CSSProperties,
 		renderMainMetric: ( { mainRate, changeIndicator, className } ) => (
 			<div
 				className={ className }
