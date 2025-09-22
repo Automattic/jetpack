@@ -3,6 +3,7 @@ import { BLOCK_NAME } from '../common/block';
 export class WorkerAdmin {
 	#worker: Worker;
 	#workerPort: MessagePort;
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	#outbox: Map< string, Function > = new Map();
 
 	static async start(): Promise< WorkerAdmin > {
@@ -69,6 +70,7 @@ export class WorkerAdmin {
 		return crypto.randomUUID();
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 	private dispatch< T >( method: string, args: object, responder: Function ): Promise< T > {
 		return new Promise( ( resolve, reject ) => {
 			const ref = this.ref();
