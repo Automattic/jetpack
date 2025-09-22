@@ -20,7 +20,8 @@ const blockDelimiterParser = BlockDelimiterLanguage.parser.configure( {
 	} ),
 } );
 
-// @ts-ignore This is intentional monkey-patching.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- This is intentional monkey-patching.
+// @ts-ignore
 HtmlLanguage.htmlLanguage.parser = HtmlLanguage.htmlLanguage.parser.configure( {
 	wrap: parseMixed( ( node ): NestedParse | null => {
 		if ( 'Comment' === node.type.name ) {

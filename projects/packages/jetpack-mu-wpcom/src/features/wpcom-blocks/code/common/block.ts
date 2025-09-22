@@ -102,6 +102,7 @@ export interface EditBlockProps {
 	) => void;
 	isSelected: boolean;
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	insertBlocksAfter: ( blocks: any ) => void;
 
 	mergeBlocks: ( firstBlockClientId: string, secondBlockClientId: string ) => void;
