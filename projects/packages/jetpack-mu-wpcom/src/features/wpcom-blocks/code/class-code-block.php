@@ -45,7 +45,6 @@ abstract class Code_Block {
 		add_action( 'wp_loaded', array( __CLASS__, 'register_block' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 
-		// Core should handle this, but Script Module assets are not currently handled.
 		add_action(
 			'wp_enqueue_scripts',
 			function () {
@@ -53,8 +52,17 @@ abstract class Code_Block {
 					self::enqueue_editor_assets();
 				}
 
-				if ( ! wp_should_load_block_assets_on_demand() ) {
-					wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
+				/*
+				 * Core should handle this, but Script Module assets are not currently handled.
+				 *
+				 * `wp_should_load_block_assets_on_demand()` was added in WordPress 6.8. The
+				 * `function_exists()` can be removed when 6.8+ is required.
+				 */
+				if (
+					function_exists( 'wp_should_load_block_assets_on_demand' )
+					&& ! wp_should_load_block_assets_on_demand()
+				) {
+						wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' );
 				}
 			}
 		);
