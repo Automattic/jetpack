@@ -68,16 +68,16 @@
 	allowing themes to easily override these styles
  */
 :where(
-	.contact-form input[type="text"],
-	.contact-form input[type="email"],
-	.contact-form input[type="tel"],
-	.contact-form input[type="url"],
-	.contact-form input[type="number"],
-	.contact-form input[type="time"],
-	.contact-form textarea,
-	/** for compound fields, input-wrap is the input element wrapper
-	that needs to mimic the input element styles */
-	.contact-form .wp-block-jetpack-input-wrap .jetpack-field__input-phone-wrapper
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form input[type="tel"],
+.contact-form input[type="url"],
+.contact-form input[type="number"],
+.contact-form input[type="time"],
+.contact-form textarea,
+/* for compound fields, input-wrap is the input element wrapper
+that needs to mimic the input element styles */
+.contact-form .jetpack-field__input-element-wrap .jetpack-field__input-element
 ) {
 	box-sizing: border-box;
 	width: 100%;
