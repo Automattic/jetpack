@@ -1120,14 +1120,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
 
-		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
-
-		if ( $is_single_input_form ) {
-			$container_classes[] = 'is-single-input-form';
-		}
-
-		$container_classes[]      = self::get_block_alignment_class( $attributes );
-		$container_classes_string = implode( ' ', $container_classes );
+		$container_classes_string = self::get_block_container_classes( $attributes, $is_single_input_form );
 
 		$is_reload_after_success = isset( $_GET['contact-form-id'] )
 		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
@@ -3517,6 +3510,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return addslashes( $value );
+	}
+
+	/**
+	 * Get the block's classes.
+	 * This gathers both the alignment classes and the layout classes,
+	 * which go on the outermost div.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @param bool  $is_single_input_form Whether the form is a single input form.
+	 * @return string The block's classes.
+	 */
+	public static function get_block_container_classes( $attributes = array(), $is_single_input_form = false ) {
+		// using wp-block-jetpack-contact-form-container here
+		// confuses the layout support process, making it place the CSS classes on the container
+		// instead of the actual block.
+		$classes = array( 'jetpack-contact-form-container', 'wp-block-jetpack-contact-form-container' );
+
+		if ( $is_single_input_form ) {
+			$classes[] = 'is-single-input-form';
+		}
+
+		$classes[] = self::get_block_alignment_class( $attributes );
+
+		return implode( ' ', $classes );
 	}
 
 	/**
