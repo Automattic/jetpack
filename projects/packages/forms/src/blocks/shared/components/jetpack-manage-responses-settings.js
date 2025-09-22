@@ -20,9 +20,6 @@ const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 			{ saveResponses && (
 				<Button variant="secondary" href={ FULL_RESPONSES_PATH } __next40pxDefaultSize={ true }>
 					{ __( 'View form responses', 'jetpack-forms' ) }
-					<span className="screen-reader-text">
-						{ __( '(opens in a new tab)', 'jetpack-forms' ) }
-					</span>
 				</Button>
 			) }
 		</>
