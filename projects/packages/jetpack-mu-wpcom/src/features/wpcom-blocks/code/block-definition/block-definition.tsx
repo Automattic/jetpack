@@ -1,16 +1,9 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang, langNames } from '@@codemirrorLanguageData@@';
-import {
-	InspectorControls,
-	useBlockProps,
-	withColors,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- We'll use it safely.
-	__experimentalGetElementClassName,
-
-	// @ts-expect-error No types.
-} from '@wordpress/block-editor';
 // @ts-expect-error No types.
-import { registerBlockType, registerBlockStyle } from '@wordpress/blocks';
+import * as wpBlockEditor from '@wordpress/block-editor';
+// @ts-expect-error No types.
+import * as wpBlocks from '@wordpress/blocks';
 import {
 	CustomSelectControl,
 	Notice,
@@ -31,6 +24,15 @@ import {
 import { ColorTools } from './color-tools.tsx';
 import { transforms } from './transforms.ts';
 import type { CSSProperties } from 'react';
+
+const {
+	InspectorControls,
+	useBlockProps,
+	withColors,
+	__experimentalGetElementClassName,
+}: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
+
+const { registerBlockType, registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
