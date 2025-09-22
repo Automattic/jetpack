@@ -1,3 +1,5 @@
+import type { BaseChartProps } from '../../types';
+
 /**
  * Represents a single step in the conversion funnel
  */
@@ -54,7 +56,7 @@ export interface TooltipRenderProps {
 /**
  * Props for the ConversionFunnelChart component
  */
-export interface ConversionFunnelChartProps {
+export interface ConversionFunnelChartProps extends Pick< BaseChartProps, 'className' > {
 	/** Main conversion rate to highlight */
 	mainRate: number;
 	/** Change indicator (e.g., +2%, -1.5%) */
@@ -63,8 +65,6 @@ export interface ConversionFunnelChartProps {
 	steps: FunnelStep[];
 	/** Whether the chart is in loading state */
 	loading?: boolean;
-	/** Additional CSS class name */
-	className?: string;
 	/** Custom styling */
 	style?: React.CSSProperties;
 	/** Custom render function for step labels */
