@@ -97,18 +97,20 @@ abstract class Code_Block {
 			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
-		wp_register_style(
-			self::MODULE_PREFIX . 'editor',
-			plugins_url( 'editor.css', __FILE__ ),
-			array(),
-			self::get_version( 'editor.css' )
-		);
-
+		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
 		wp_register_style(
 			self::MODULE_PREFIX . 'style',
-			plugins_url( 'a8c-code-block.css', __FILE__ ),
+			plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
-			self::get_version( 'a8c-code-block.css' )
+			$style_asset_file['version']
+		);
+
+		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
+		wp_register_style(
+			self::MODULE_PREFIX . 'editor',
+			plugins_url( 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+			array(),
+			$editor_style_asset_file['version']
 		);
 
 		wp_register_script_module(
@@ -316,18 +318,5 @@ abstract class Code_Block {
 				25
 			);
 		}
-	}
-
-	/**
-	 * The the version for a given file.
-	 * This is helpful for block development to provide file modified time versions.
-	 *
-	 * @param string $path The file path relative to the plugin root.
-	 */
-	private static function get_version( string $path ): string {
-		if ( ! WP_DEBUG ) {
-			return self::VERSION;
-		}
-		return (string) filemtime( plugin_dir_path( __FILE__ ) . $path );
 	}
 }

@@ -35,6 +35,8 @@ module.exports = async () => {
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
 				'wpcom-blocks-code-block-definition':
 					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
+				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',
+				'wpcom-blocks-code-style': './src/features/wpcom-blocks/code/style.css',
 				'wpcom-blocks-event-countdown-editor':
 					'./src/features/wpcom-blocks/event-countdown/editor.js',
 				'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
