@@ -694,9 +694,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$version
 		);
 
-		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
-		$container_classes[]      = self::get_block_alignment_class( $attributes );
-		$container_classes_string = implode( ' ', $container_classes );
+		$container_classes_string = self::get_block_container_classes( $attributes );
 
 		$is_reload_after_success = isset( $_GET['contact-form-id'] )
 		&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
@@ -2576,6 +2574,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return addslashes( $value );
+	}
+
+	/**
+	 * Get the block's classes.
+	 * This gathers both the alignment classes and the layout classes,
+	 * which go on the outermost div.
+	 *
+	 * @param array $attributes Block attributes.
+	 * @return string The block's classes.
+	 */
+	public static function get_block_container_classes( $attributes = array() ) {
+		// using wp-block-jetpack-contact-form-container here
+		// confuses the layout support process, making it place the CSS classes on the container
+		// instead of the actual block.
+		$classes = array( 'jetpack-contact-form-container' );
+
+		$classes[] = self::get_block_alignment_class( $attributes );
+
+		return implode( ' ', $classes );
 	}
 
 	/**
