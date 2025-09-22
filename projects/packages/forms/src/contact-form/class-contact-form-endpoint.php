@@ -588,50 +588,53 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$response = Feedback::get( $item->ID );
+		$feedback_response = Feedback::get( $item->ID );
 		if ( ! $response ) {
 			return rest_ensure_response( $data );
 		}
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
-			$data['uid'] = $response->get_feedback_id();
+			$data['uid'] = $feedback_response->get_feedback_id();
 		}
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $response->get_author();
+			$data['author_name'] = $feedback_response->get_author();
 		}
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
-			$data['author_email'] = $response->get_author_email();
+			$data['author_email'] = $feedback_response->get_author_email();
 		}
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
-			$data['author_url'] = $response->get_author_url();
+			$data['author_url'] = $feedback_response->get_author_url();
 		}
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
-			$data['author_avatar'] = $response->get_author_avatar();
+			$data['author_avatar'] = $feedback_response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $response->has_consent() ? '1' : '';
+			$data['email_marketing_consent'] = $feedback_response->has_consent() ? '1' : '';
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
-			$data['ip'] = $response->get_ip_address();
+			$data['ip'] = $feedback_response->get_ip_address();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
-			$data['entry_title'] = $response->get_entry_title();
+			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
-			$data['entry_permalink'] = $response->get_entry_permalink();
+			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
-			$data['subject'] = $response->get_subject();
+			$data['subject'] = $feedback_response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
+			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
-			$data['has_file'] = $response->has_file();
+			$data['has_file'] = $feedback_response->has_file();
 		}
-		return rest_ensure_response( $data );
+
+		$response->set_data( $data );
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
