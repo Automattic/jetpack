@@ -24,4 +24,36 @@ export function initListeners( analytics ) {
 			pq: productDetails.quantity,
 		} );
 	} );
+
+	/**
+	 * Trigger cart remove event.
+	 */
+	function trigger_cart_remove() {
+		const cartItems = document.querySelectorAll( '.cart_item' );
+		[ ...cartItems ].forEach( function ( item ) {
+			const qtyInput = item.querySelector( 'input.qty' );
+			if ( qtyInput && qtyInput.value === '0' ) {
+				const productRemoveLink = item.querySelector( '.product-remove a' );
+				const productID = productRemoveLink ? productRemoveLink.dataset.product_id : null;
+				analytics.recordEvent( 'remove_from_cart', {
+					pi: productID,
+				} );
+			}
+		} );
+	}
+
+	/**
+	 * Listen for clicks on the "Update Cart" button to know if an item has been removed by
+	 * updating its quantity to zero
+	 */
+	document
+		.querySelector( 'button[name=update_cart]' )
+		.addEventListener( 'click', trigger_cart_remove );
+
+	// The duplicated listener is needed because updated_wc_div replaces all the DOM and then the initial listener stops working.
+	document.body.onupdated_wc_div = function () {
+		document
+			.querySelector( 'button[name=update_cart]' )
+			.addEventListener( 'click', trigger_cart_remove );
+	};
 }

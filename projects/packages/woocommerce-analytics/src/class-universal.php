@@ -36,7 +36,6 @@ class Universal {
 		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'capture_cart_quantity_update' ), 10, 4 );
 		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
-		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 
 		// Checkout.
 		// Send events after checkout template (shortcode).
@@ -376,40 +375,6 @@ class Universal {
 			);
 		}
 	}
-
-	/**
-	 * Listen for clicks on the "Update Cart" button to know if an item has been removed by
-	 * updating its quantity to zero
-	 */
-	public function remove_from_cart_via_quantity() {
-		wc_enqueue_js(
-			"
-			function trigger_cart_remove() {
-			    let cartItems = document.querySelectorAll( '.cart_item' );
-				[...cartItems].forEach( function( item ) {
-					let qtyInput = item.querySelector('input.qty');
-					if ( qtyInput && qtyInput.value === '0' ) {
-					    let productRemoveLink = item.querySelector('.product-remove a');
-						let productID = productRemoveLink ? productRemoveLink.dataset.product_id : null;
-						_wca.push( {
-							'_en': 'remove_from_cart',
-							'pi': productID
-						} );
-					}
-				} );
-			}
-
-	        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
-
-			// The duplicated listener is needed because updated_wc_div replaces all the DOM and then the initial listener stops working.
-			document.body.onupdated_wc_div = function () {
-		        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
-	        };
-
-			"
-		);
-	}
-
 	/**
 	 * Gets the inner blocks of a block.
 	 *
