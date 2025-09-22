@@ -2721,6 +2721,8 @@ EOT;
 			'stepTransition'         => 'fade-slide',
 			'mailpoet'               => '',
 			'emailNotifications'     => 'yes',
+			'disableGoBack'          => false,
+			'disableSummary'         => false,
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
