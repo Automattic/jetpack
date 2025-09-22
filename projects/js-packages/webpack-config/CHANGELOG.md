@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 3.7.10 - 2025-09-22
 ### Added
-- Webpack Config: Add watchOptions to shared config. [#45235]
+Add `watchOptions` to shared config. [#45235]
 
 ## 3.7.9 - 2025-09-19
 ### Changed

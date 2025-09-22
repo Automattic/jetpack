@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [6.5.1] - 2025-09-22
 ### Fixed
 - Fix lints. [#45242]
-- Forms: Fix image choice widths. [#45257]
+Fix image choice widths. [#45257]
 
 ## [6.5.0] - 2025-09-19
 ### Added
