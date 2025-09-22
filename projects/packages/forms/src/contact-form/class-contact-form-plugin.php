@@ -348,6 +348,13 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		wp_register_style(
+			'jetpack-contact-form',
+			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/jetpack-contact-form.css',
+			array(),
+			\JETPACK__VERSION
+		);
+
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {

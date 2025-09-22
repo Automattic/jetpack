@@ -42,8 +42,22 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'              => array(
+					'layout' => array(
+						'default'                => array(
+							'type'     => 'flex',
+							'flexWrap' => 'wrap',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => true,
+						'allowVerticalAlignment' => false,
+						'allowJustification'     => false,
+					),
+				),
+				'style_handles'         => array( 'jetpack-contact-form' ),
 			)
 		);
 

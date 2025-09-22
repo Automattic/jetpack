@@ -1,0 +1,20 @@
+// this styles are common to both editor and frontend
+// .jetpack-contact-form is the main wrapper that is set to exist in both places
+// while honoring the same markup structure.
+.jetpack-contact-form.is-layout-flex {
+
+	&.is-nowrap {
+		flex-wrap: nowrap;
+	}
+
+	&.is-horizontal {
+
+		.wp-block-jetpack-button {
+			align-self: flex-end;
+		}
+	}
+
+	&.is-vertical {
+		align-items: stretch;
+	}
+}

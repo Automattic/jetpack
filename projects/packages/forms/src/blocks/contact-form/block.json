@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/contact-form",
 	"title": "Form",
-	"description": "Create forms to collect data from site visitors and manage their responses.",
+	"description": "Create forms with layout support to collect data from site visitors and manage their responses.",
 	"keywords": [ "email", "feedback", "contact form" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack-forms",
@@ -19,8 +19,20 @@
 			"padding": true,
 			"margin": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"layout": {
+			"default": {
+				"type": "flex",
+				"flexWrap": "wrap"
+			},
+			"allowSwitching": false,
+			"allowEditing": true,
+			"allowOrientation": true,
+			"allowVerticalAlignment": false,
+			"allowJustification": false
+		}
 	},
 	"attributes": {},
-	"editorScript": "file:./editor.js"
+	"editorScript": "file:./editor.js",
+	"style": "file:../../../dist/contact-form/css/jetpack-contact-form.css"
 }

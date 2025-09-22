@@ -58,6 +58,17 @@ export const settings = {
 		},
 		align: [ 'wide', 'full' ],
 		listView: true,
+		layout: {
+			default: {
+				type: 'flex',
+				flexWrap: 'wrap',
+			},
+			allowSwitching: false,
+			allowEditing: true,
+			allowOrientation: true,
+			allowVerticalAlignment: false,
+			allowJustification: false,
+		},
 	},
 	attributes: defaultAttributes,
 	providesContext: {
