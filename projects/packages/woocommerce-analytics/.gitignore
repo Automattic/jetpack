@@ -1,2 +1,4 @@
-vendor/
+projects/packages/woocommerce-analytics/.gitignoreprojects/packages/woocommerce-analytics/.gitignorevendor/
 node_modules/
+build/
+.cache/
