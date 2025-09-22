@@ -1,5 +1,4 @@
 import { LanguageData } from './codemirror-language-data.ts';
-
 /**
  * Common utilities for working with the CodeMirror Language
  * and LanguageData libraries.
