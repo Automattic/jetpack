@@ -347,7 +347,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
-										className={ clsx( styles[ 'funnel-bar' ] ) }
+										className={ styles[ 'funnel-bar' ] }
 										style={ {
 											height: `${ barHeight }%`,
 											backgroundColor: barColor,
