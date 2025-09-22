@@ -1,3 +1,6 @@
+/*
+ * External dependencies
+ */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
@@ -27,6 +30,9 @@ import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+/*
+ * Internal dependencies
+ */
 import useFormsConfig from '../../hooks/use-forms-config';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
@@ -46,9 +52,10 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
-const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
-import './util/form-styles.js';
 import VariationPicker from './variation-picker';
+import './util/form-styles.js';
+
+const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
 
 // Transforms
 const FormTransitionState = {
@@ -58,7 +65,11 @@ const FormTransitionState = {
 	IS_FORM: 'is-form',
 };
 
-const validFields = childBlocks.filter( ( { settings } ) => {
+const validFields = childBlocks.filter( childBlock => {
+	const settings = childBlock.settings as typeof childBlock.settings & {
+		parent?: string | string[];
+	};
+
 	return (
 		! settings.parent ||
 		settings.parent === 'jetpack/contact-form' ||
@@ -270,7 +281,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	}, [] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
-	const formTransitionStateRef = useRef( false );
+	const formTransitionStateRef = useRef< string | null >( null );
 
 	useEffect( () => {
 		const hasMultistepBlock = containsMultistepBlock( currentInnerBlocks );
