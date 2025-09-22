@@ -63,11 +63,11 @@ class My_Account {
 				if ( isset( $core_endpoints['view-order'] ) && $core_endpoints['view-order'] === $key && is_numeric( $value ) ) {
 					$initiator = get_query_var( '_wca_initiator' );
 					if ( 'number' === $initiator ) {
-						$this->queue_event( 'my_account_order_number_click' );
+						$this->enqueue_event( 'my_account_order_number_click' );
 						continue;
 					}
 					if ( 'action' === $initiator ) {
-						$this->queue_event( 'my_account_order_action_click', array( 'action' => 'view' ) );
+						$this->enqueue_event( 'my_account_order_action_click', array( 'action' => 'view' ) );
 						continue;
 					}
 				}
@@ -79,12 +79,12 @@ class My_Account {
 						continue;
 					}
 
-					$this->queue_event( 'my_account_address_click', array( 'address' => $value ) );
+					$this->enqueue_event( 'my_account_address_click', array( 'address' => $value ) );
 					continue;
 				}
 
 				if ( isset( $core_endpoints['add-payment-method'] ) && $core_endpoints['add-payment-method'] === $key ) {
-					$this->queue_event( 'my_account_payment_add' );
+					$this->enqueue_event( 'my_account_payment_add' );
 					continue;
 				}
 
@@ -118,7 +118,7 @@ class My_Account {
 					$key = array_search( $key, $core_endpoints, true );
 				}
 
-				$this->queue_event( 'my_account_page_view', array( 'tab' => $key ) );
+				$this->enqueue_event( 'my_account_page_view', array( 'tab' => $key ) );
 			}
 		}
 	}

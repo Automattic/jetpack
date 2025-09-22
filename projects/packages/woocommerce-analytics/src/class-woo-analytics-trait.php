@@ -300,7 +300,7 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
-	 * Queue an event with optional product and custom properties.
+	 * Enqueue an event with optional product and custom properties.
 	 *
 	 * @param string       $event_name The name of the event to record.
 	 * @param array        $properties Optional array of (key => value) event properties.
@@ -308,7 +308,7 @@ trait Woo_Analytics_Trait {
 	 *
 	 * @return void
 	 */
-	public function queue_event( $event_name, $properties = array(), $product_id = null ) {
+	public function enqueue_event( $event_name, $properties = array(), $product_id = null ) {
 		// Only set product details if we have a product id.
 		if ( $product_id ) {
 			$product = wc_get_product( $product_id );

@@ -66,13 +66,13 @@ class Universal {
 		add_action( 'wp_footer', array( $this, 'capture_cart_view' ), 11 );
 
 		// Enqueue events to track.
-		add_action( 'wp_footer', array( $this, 'enqueue_events_to_track' ), 999 );
+		add_action( 'wp_footer', array( $this, 'enenqueue_events_to_track' ), 999 );
 	}
 
 	/**
 	 * Enqueue events to track
 	 */
-	public function enqueue_events_to_track() {
+	public function enenqueue_events_to_track() {
 		?>
 	<script type="text/javascript">
 		(function() {
@@ -270,7 +270,7 @@ class Universal {
 			}
 
 			$data['pq'] = $cart_item['quantity'];
-			$this->queue_event( 'product_checkout', $data, $product->get_id() );
+			$this->enqueue_event( 'product_checkout', $data, $product->get_id() );
 		}
 	}
 
@@ -501,7 +501,7 @@ class Universal {
 			$checkout_page_contains_checkout_block     = '1';
 			$checkout_page_contains_checkout_shortcode = '0';
 
-			$this->queue_event(
+			$this->enqueue_event(
 				'post_account_creation',
 				array(
 					'from_checkout' => $checkout_page_used,
@@ -518,7 +518,7 @@ class Universal {
 	public function capture_search_query() {
 		if ( is_search() ) {
 			global $wp_query;
-			$this->queue_event(
+			$this->enqueue_event(
 				'search',
 				array(
 					'search_query' => $wp_query->get( 's' ),
@@ -546,7 +546,7 @@ class Universal {
 			return;
 		}
 
-		$this->queue_event(
+		$this->enqueue_event(
 			'cart_view',
 			array_merge(
 				$this->get_cart_checkout_shared_data(),
@@ -564,7 +564,7 @@ class Universal {
 			return;
 		}
 
-		$this->queue_event(
+		$this->enqueue_event(
 			'product_view',
 			array(),
 			$product->get_id()
@@ -613,7 +613,7 @@ class Universal {
 		}
 
 		$delayed_account_creation = ucfirst( get_option( 'woocommerce_enable_delayed_account_creation', 'Yes' ) );
-		$this->queue_event(
+		$this->enqueue_event(
 			'order_confirmation_view',
 			array(
 				'coupon_used'                           => $coupon_used,
@@ -680,7 +680,7 @@ class Universal {
 			return;
 		}
 
-		$this->queue_event(
+		$this->enqueue_event(
 			'checkout_view',
 			array_merge(
 				$this->get_cart_checkout_shared_data(),
