@@ -303,9 +303,10 @@ const PieChartInternal = ( {
 										'data-testid': 'pie-segment',
 									};
 
+									const groupProps: SVGProps< SVGGElement > = {};
 									if ( withTooltips ) {
-										pathProps.onMouseMove = handleMouseMove;
-										pathProps.onMouseLeave = onMouseLeave;
+										groupProps.onMouseMove = handleMouseMove;
+										groupProps.onMouseLeave = onMouseLeave;
 									}
 
 									// Estimate text width more accurately for background sizing
@@ -316,7 +317,7 @@ const PieChartInternal = ( {
 									const backgroundHeight = fontSize + labelPadding * 2;
 
 									return (
-										<g key={ `arc-${ index }` }>
+										<g key={ `arc-${ index }` } { ...groupProps }>
 											<path { ...pathProps } />
 											{ showLabels && hasSpaceForLabel && (
 												<g>
