@@ -101,14 +101,18 @@ export class WorkerAdmin {
 	 * @return The worker URL or null if not found.
 	 */
 	private static getWorkerURL(): string | null {
-		const importMap = document.querySelector( '[type=importmap]' );
-		if ( ! importMap || 'string' !== typeof importMap.textContent ) {
+		const dataContainer = document.getElementById(
+			'wp-script-module-data-@a8cCodeBlock/block-edit-function'
+		);
+		if ( ! dataContainer || 'string' !== typeof dataContainer.textContent ) {
 			return null;
 		}
 
 		try {
-			const { imports } = JSON.parse( importMap.textContent );
-			return imports[ '@a8cCodeBlock/block-worker' ];
+			const { workerUrl, workerVersion } = JSON.parse( dataContainer.textContent );
+			const u = new URL( workerUrl );
+			u.searchParams.set( 'ver', workerVersion );
+			return u.href;
 		} catch {
 			return null;
 		}

@@ -63,9 +63,13 @@ abstract class Code_Block {
 
 	/** Set up the plugin. */
 	private static function init() {
-		wp_register_script(
-			self::MODULE_PREFIX . 'block-definition',
-			plugins_url( '../../../build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.js', __FILE__ ),
+		$block_definition_asset_file      = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
+		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
+
+		// The block definition must contain the script dependencies that the edit function script module requires.
+		// Append static dependency list here. Some duplicates may appear, that should be harmless.
+		$block_definition_dependencies = array_merge(
+			$block_definition_asset_file['dependencies'],
 			array(
 				'react',
 				'wp-block-editor',
@@ -75,34 +79,22 @@ abstract class Code_Block {
 				'wp-editor',
 				'wp-i18n',
 				'wp-keycodes',
-			),
-			self::get_version( '../../../build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.js' ),
+			)
+		);
+
+		wp_register_script(
+			self::MODULE_PREFIX . 'block-definition',
+			plugins_url( 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+			$block_definition_dependencies,
+			$block_definition_asset_file['version'],
 			array( 'in_footer' => true )
 		);
 
 		wp_register_script_module(
 			self::MODULE_PREFIX . 'block-edit-function',
-			plugins_url( '../../../build-module/wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js', __FILE__ ),
-			array(
-				// This module is used for a Worker.
-				// The module is not intended to actually be imported,
-				// but this is a convenient way to pass the module URL
-				// that is required to initialize the Worker.
-				//
-				// @TODO: Pass this as module data.
-				array(
-					'import' => 'dynamic',
-					'id'     => self::MODULE_PREFIX . 'block-worker',
-				),
-			),
-			self::get_version( '../../../build-module/wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js' )
-		);
-
-		wp_register_script_module(
-			self::MODULE_PREFIX . 'block-worker',
-			plugins_url( '../../../build-module/wpcom-blocks-code-worker/wpcom-blocks-code-worker.js', __FILE__ ),
-			array(),
-			self::get_version( '../../../build-module/wpcom-blocks-code-worker/wpcom-blocks-code-worker.js' )
+			plugins_url( 'build-module/wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['dependencies'],
+			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
 		wp_register_style(
@@ -121,14 +113,18 @@ abstract class Code_Block {
 
 		wp_register_script_module(
 			self::MODULE_PREFIX . 'block-front',
-			plugins_url( '../../../build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', __FILE__ ),
-			array(),
-			self::get_version( '../../../build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js' )
+			plugins_url( 'build-module/wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['dependencies'],
+			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-block-front/wpcom-blocks-code-block-front.js']['version']
 		);
+
+		$block_worker_url     = plugins_url( 'build-module/wpcom-blocks-code-worker/wpcom-blocks-code-worker.js', Jetpack_Mu_Wpcom::BASE_FILE );
+		$block_worker_version = $jetpack_wpcom_modules_asset_file['wpcom-blocks-code-worker/wpcom-blocks-code-worker.js']['version'];
 		add_filter(
-			'script_module_data_' . self::MODULE_PREFIX . 'block-front',
-			function ( array $data ): array {
-				$data['i18n.Copy'] = __( 'Copy', 'jetpack-mu-wpcom' );
+			'script_module_data_' . self::MODULE_PREFIX . 'block-edit-function',
+			function ( array $data ) use ( $block_worker_url, $block_worker_version ): array {
+				$data['workerUrl']     = $block_worker_url;
+				$data['workerVersion'] = $block_worker_version;
 				return $data;
 			}
 		);
