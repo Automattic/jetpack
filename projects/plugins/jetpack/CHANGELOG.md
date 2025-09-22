@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-a.7 - 2025-09-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Internal updates.
+
 ## 15.1-a.5 - 2025-09-19
 ### Enhancements
 - Forms: Add hidden field. [#45104]
