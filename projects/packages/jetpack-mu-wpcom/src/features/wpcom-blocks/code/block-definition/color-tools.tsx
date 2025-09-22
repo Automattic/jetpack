@@ -1,12 +1,13 @@
-import {
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Checked before used.
-	__experimentalUseMultipleOriginColorsAndGradients,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Checked before used.
-	__experimentalColorGradientSettingsDropdown as ExperimentalColorGradientSettingsDropdown,
-} from '@wordpress/block-editor';
+// @ts-expect-error: No types.
+import * as wpBlockEditor from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import * as React from 'react';
 import type { EditBlockProps } from '../common/block.ts';
+
+const {
+	__experimentalUseMultipleOriginColorsAndGradients,
+	__experimentalColorGradientSettingsDropdown: ExperimentalColorGradientSettingsDropdown,
+}: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
 /**
  * Color Tools component for rendering additional block inspector color controls.
