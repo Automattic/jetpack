@@ -40,21 +40,37 @@ export class Analytics {
 	 * Initialize the analytics.
 	 */
 	init = () => {
-		this.commonProps = {
-			...this.commonProps,
-			sessionId: this.sessionManager.sessionId,
-			landingPage: this.sessionManager.landingPage,
-		};
-
-		if ( this.sessionManager.isNewSession ) {
-			this.recordEvent( 'session_started' );
-		} else {
-			this.maybeRecordEngagementEvent();
+		if ( this.isInitialized ) {
+			return;
 		}
 
-		this.recordEvent( 'page_view' );
+		/*
+		 * Initialize the session manager and record the page_view event
+		 * only if the ClickHouse (ch) feature is enabled as these events are relevant exclusively when ClickHouse is active.
+		 */
+		if ( this.features.ch ) {
+			this.sessionManager.init();
+
+			// Add session ID and landing page to common properties.
+			this.commonProps = {
+				...this.commonProps,
+				sessionId: this.sessionManager.sessionId,
+				landingPage: this.sessionManager.landingPage,
+			};
+
+			// Record session started event if it's a new session.
+			if ( this.sessionManager.isNewSession && this.sessionManager.sessionId ) {
+				this.recordEvent( 'session_started' );
+			} else {
+				this.maybeRecordEngagementEvent();
+			}
+
+			this.recordEvent( 'page_view' );
+		}
+
 		this.processEventQueue();
 		this.initListeners();
+
 		this.isInitialized = true;
 	};
 
@@ -62,8 +78,6 @@ export class Analytics {
 	 * Initialize Listeners for pages.
 	 */
 	initListeners = () => {
-		this.listenToStoreAPICalls();
-
 		// Initialize Listeners for pages.
 		if ( this.pages.isAccountPage ) {
 			import( './listeners/account' ).then( ( { initListeners } ) => {
@@ -76,27 +90,6 @@ export class Analytics {
 				initListeners( this.recordEvent );
 			} );
 		}
-	};
-
-	/**
-	 * Listen to Store API calls to record engagement event.
-	 */
-	listenToStoreAPICalls = () => {
-		const originalFetch = window.fetch;
-		const self = this;
-
-		window.fetch = function ( url, options = {} ) {
-			const urlString = url.toString();
-			const method = options.method?.toLowerCase() || 'get';
-
-			const isPost = method === 'post';
-			const isStoreAPIPath = urlString.includes( '/wc/store/v1' );
-			if ( isPost && isStoreAPIPath ) {
-				self.maybeRecordEngagementEvent();
-			}
-
-			return originalFetch.apply( this, arguments );
-		};
 	};
 
 	/**
@@ -117,11 +110,13 @@ export class Analytics {
 	 */
 	recordEvent = ( event, properties = {} ) => {
 		if ( ! window._wca ) {
+			debug( 'Skipping event recording because _wca is not defined' );
 			return;
 		}
 
 		// Validate event name
 		if ( typeof event !== 'string' || ! EVENT_NAME_REGEX.test( event ) ) {
+			debug( 'Skipping event recording because event name is not valid' );
 			return;
 		}
 
@@ -132,21 +127,31 @@ export class Analytics {
 
 		if ( this.features.ch && CLICK_HOUSE_EVENTS.includes( event ) ) {
 			eventProperties.ch = 1;
+		} else {
+			delete eventProperties.ch;
 		}
 
-		eventProperties._en = `${ EVENT_PREFIX }${ event }`;
+		const eventName = `${ EVENT_PREFIX }${ event }`;
+		eventProperties._en = eventName;
 
-		debug( 'Record event "%s" called with props %o', eventProperties._en, eventProperties );
-
+		debug( 'Record event "%s" called with props %o', eventName, eventProperties );
 		window._wca.push( eventProperties );
 
+		// Post initialization, maybe record engagement event.
 		if ( this.isInitialized ) {
 			this.maybeRecordEngagementEvent();
 		}
 	};
 
+	/**
+	 * Record the session engagement event if session is not engaged and session ID is set.
+	 */
 	maybeRecordEngagementEvent = () => {
-		if ( this.sessionManager.isEngaged ) {
+		if ( ! this.features.ch ) {
+			return;
+		}
+
+		if ( ! this.sessionManager.sessionId || this.sessionManager.isEngaged ) {
 			return;
 		}
 

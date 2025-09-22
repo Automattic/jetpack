@@ -13,14 +13,20 @@ export default class SessionManager {
 		this.landingPage = null;
 		this.isEngaged = false;
 		this.isNewSession = false;
+		this.isInitialized = false;
 	}
 
 	/**
 	 * Initialize the session manager
 	 */
-	init() {
+	init = () => {
+		if ( this.isInitialized ) {
+			return;
+		}
+
 		this.loadOrCreateSession();
-	}
+		this.isInitialized = true;
+	};
 
 	/**
 	 * Load existing session or create new one
@@ -35,7 +41,6 @@ export default class SessionManager {
 			this.isEngaged = cookie.isEngaged || false;
 			this.isNewSession = false;
 		} else {
-			// Create new session
 			this.createNewSession();
 		}
 	}
@@ -44,18 +49,20 @@ export default class SessionManager {
 	 * Create a new session
 	 */
 	createNewSession() {
-		this.sessionId = this.generateRandomToken( 16 );
-		this.landingPage = JSON.stringify( window.wcAnalytics?.breadcrumbs || [] );
-		this.isEngaged = false;
 		this.isNewSession = true;
 
 		const sessionData = {
-			sessionId: this.sessionId,
-			landingPage: this.landingPage,
+			sessionId: this.generateRandomToken( 16 ),
+			landingPage: JSON.stringify( window.wcAnalytics?.breadcrumbs || [] ),
 			expires: this.getSessionExpirationTime(),
 		};
 
-		this.setSessionCookie( sessionData );
+		if ( this.setSessionCookie( sessionData ) ) {
+			// Only set session data if cookie was set successfully
+			this.sessionId = sessionData.sessionId;
+			this.landingPage = sessionData.landingPage;
+			this.isEngaged = false;
+		}
 	}
 
 	/**
@@ -94,14 +101,19 @@ export default class SessionManager {
 
 	/**
 	 * Set session cookie
-	 * Matches PHP implementation cookie setting
+	 *
 	 * @param {object} sessionData - Session data
+	 *
+	 * @return {boolean} Whether the cookie was set successfully
 	 */
 	setSessionCookie( sessionData ) {
 		const encoded = encodeURIComponent( JSON.stringify( sessionData ) );
 		const expires = sessionData.expires || this.getSessionExpirationTime();
 
 		document.cookie = `${ COOKIE_NAME }=${ encoded }; expires=${ expires }; path=/; secure; samesite=strict`;
+
+		const isCookieSet = this.getCookie( COOKIE_NAME ) === encoded;
+		return isCookieSet;
 	}
 
 	/**
