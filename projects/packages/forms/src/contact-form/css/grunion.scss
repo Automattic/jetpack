@@ -574,18 +574,22 @@
 	box-sizing: border-box;
 }
 
-.wp-block-jetpack-contact-form {
+.wp-block-jetpack-contact-form:not(.is-layout-flex) {
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	flex-direction: row;
 	flex-grow: 1;
 	gap: var(--wp--style--block-gap, 1.5rem);
-}
 
-.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button,.wp-block-button) {
-	flex: 0 0 100%;
-	box-sizing: border-box;
+	> *:not(.wp-block-jetpack-button,.wp-block-button) {
+		flex: 0 0 100%;
+		box-sizing: border-box;
+	}
+
+	.wp-block-jetpack-button {
+		align-self: flex-end;
+	}
 }
 
 :where(.wp-block-jetpack-contact-form .wp-block-separator) {
@@ -621,7 +625,6 @@
 .wp-block-jetpack-contact-form .wp-block-button,
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	min-height: var(--jetpack--contact-form--input-height, auto);
-	align-self: flex-end;
 
 	.wp-block-button__link {
 		min-height: var(--jetpack--contact-form--input-height, auto);
