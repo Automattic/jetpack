@@ -47,10 +47,10 @@ const defaultTheme: CompleteChartTheme = {
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#3858E9',
+		primaryColor: '#006DAB',
 		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#008A20',
-		negativeChangeColor: '#D63638',
+		positiveChangeColor: '#1F9828',
+		negativeChangeColor: '#FF8C8F',
 	},
 	lineChart: {
 		lineStyles: {
