@@ -1,11 +1,13 @@
 .wp-block-a8c-code {
+
 	/* A notice is used to warn of experimental status. */
 	.components-notice {
 		margin-top: -10px;
 
 		a {
-			&:not( :hover, :active, :focus ) {
-				color: var( --wp-admin-theme-color, #3858e9 );
+
+			&:not(:hover, :active, :focus) {
+				color: var(--wp-admin-theme-color, #3858e9);
 			}
 		}
 	}
@@ -28,7 +30,7 @@
 		font-family: inherit;
 
 		&::placeholder {
-			color: hsl( from currentcolor h s l / 0.6 );
+			color: hsl(from currentColor h s l / 0.6);
 		}
 	}
 }
@@ -38,6 +40,7 @@
 }
 
 .a8c\/code__language-select {
+
 	button,
 	.components-input-control__container {
 		background-color: transparent;
