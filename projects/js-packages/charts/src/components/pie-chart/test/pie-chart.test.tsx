@@ -2,7 +2,8 @@
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import PieChart from '../pie-chart';
 
@@ -221,6 +222,116 @@ describe( 'PieChart', () => {
 			// Legend should have the correct number of items (labels only, no values)
 			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 3 );
+		} );
+	} );
+
+	describe( 'Tooltip Functionality', () => {
+		const testData = [
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 70 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 30 },
+		];
+
+		test( 'does not show tooltip when withTooltips is false', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: false,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Should not find tooltip
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'shows tooltip on hover when withTooltips is true', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Wait for tooltip to appear
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+
+			const tooltip = screen.getByRole( 'tooltip' );
+			expect( tooltip ).toHaveTextContent( 'Windows: 80K' );
+		} );
+
+		test( 'hides tooltip on mouse leave', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Wait for tooltip to appear
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+
+			await user.unhover( segments[ 0 ] );
+
+			// Wait for tooltip to disappear
+			await waitFor( () => {
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
+		test( 'shows different tooltip content for different segments', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+
+			// Test first segment
+			await user.hover( segments[ 0 ] );
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Windows: 80K' );
+
+			await user.unhover( segments[ 0 ] );
+			await waitFor( () => {
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			} );
+
+			// Test second segment
+			await user.hover( segments[ 1 ] );
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'MacOS: 30K' );
+		} );
+
+		test( 'tooltip shows valueDisplay when available, falls back to value', async () => {
+			const user = userEvent.setup();
+			const dataWithoutValueDisplay = [ { label: 'Test', value: 42, percentage: 100 } ];
+
+			renderWithTheme( {
+				data: dataWithoutValueDisplay,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Test: 42' );
 		} );
 	} );
 } );
