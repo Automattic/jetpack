@@ -34,7 +34,6 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 
 	$packages = ( new Monorepo() )->get( 'packages' );
 
-
 	if ( strpos( $url, $packages ) !== false && strpos( $plugin, $packages ) === 0 ) {
 		$is_woocommerce_analytics = strpos( $plugin, 'class-woocommerce-analytics.php' ) !== false;
 
@@ -42,7 +41,6 @@ function jetpack_docker_plugins_url( $url, $path, $plugin ) {
 		$suffix1     = '/jetpack_vendor/automattic/' . ($is_woocommerce_analytics ? '' : 'jetpack-') . substr( $plugin, strlen( $packages ) );
 		$suffix2     = '/vendor/automattic/jetpack-' . substr( $plugin, strlen( $packages ) );
 		$real_plugin = realpath( $plugin );
-
 		if ( false !== $real_plugin ) {
 			foreach ( $wp_plugin_paths as $dir ) {
 				if ( realpath( $dir . $suffix1 ) === $real_plugin ) {
