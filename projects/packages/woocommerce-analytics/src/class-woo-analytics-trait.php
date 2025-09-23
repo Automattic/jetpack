@@ -272,7 +272,7 @@ trait Woo_Analytics_Trait {
 			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
 			'store_currency'                     => get_woocommerce_currency(),
 			'timezone'                           => wp_timezone_string(),
-			'is_guest'                           => $this->get_user_id() === null,
+			'is_guest'                           => ( $this->get_user_id() === null ) ? 1 : 0,
 			'order_value'                        => $this->get_cart_subtotal(),
 			'order_total'                        => $this->get_cart_total(),
 			'total_tax'                          => $this->get_cart_taxes(),

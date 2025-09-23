@@ -170,7 +170,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 				'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
 				'store_currency' => get_woocommerce_currency(),
 				'timezone'       => wp_timezone_string(),
-				'is_guest'       => $blog_user_id === null,
+				'is_guest'       => ( $blog_user_id === null ) ? 1 : 0,
 			),
 			$server_details
 		);
