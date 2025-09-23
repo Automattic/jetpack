@@ -29,6 +29,7 @@ class Dashboard_View_Switch {
 	 */
 	public function is_jetpack_forms_admin_page() {
 		_deprecated_function( __METHOD__, 'jetpack-6.6.0', 'Dashboard::is_jetpack_forms_admin_page' );
+
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
