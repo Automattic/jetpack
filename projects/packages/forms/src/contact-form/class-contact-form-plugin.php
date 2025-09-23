@@ -2760,7 +2760,7 @@ class Contact_Form_Plugin {
 	 * @param array  $data    Export data to generate CSV from.
 	 * @param string $post_id Optional. Post ID for filename generation.
 	 */
-	public function download_feedback_as_csv( $data, $post_id = '' ) {
+	public function download_feedback_as_csv( $data = null, $post_id = '' ) {
 		if ( empty( $data ) ) {
 			return;
 		}
