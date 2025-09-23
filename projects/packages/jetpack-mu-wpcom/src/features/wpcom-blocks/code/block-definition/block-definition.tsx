@@ -302,7 +302,7 @@ const Filename = ( props: Props ) => {
 
 	const placeholderExtension =
 		extensionToLang.find(
-			( [ , langaugeName ] ) => props.attributes.language === langaugeName
+			( [ , languageName ] ) => props.attributes.language === languageName
 		)?.[ 0 ] ?? 'txt';
 
 	if ( isSelected ) {
