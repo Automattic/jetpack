@@ -69,7 +69,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 		trailingNewlineCounterRef.current = 0;
 
 		// Reset the select all behavior when block selection changes.
-		selectAllEventHandlerRef.current?.clear();
+		selectAllEventHandlerRef.current.clear();
 	}, [ isSelected ] );
 
 	React.useEffect( () => {
