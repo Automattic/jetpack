@@ -14,7 +14,6 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -46,7 +45,6 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
-		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
@@ -95,61 +93,6 @@ class Dashboard {
 			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
 			'before'
 		);
-	}
-
-	/**
-	 * Register the dashboard admin submenu.
-	 */
-	public function add_admin_submenu() {
-		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
-			return;
-		}
-
-		if ( $this->switch->get_preferred_view() === Dashboard_View_Switch::CLASSIC_VIEW ) {
-			// We still need to register the jetpack forms page so it can be accessed manually.
-			// NOTE: adding submenu this (parent = '') way DOESN'T SHOW ANYWHERE,
-			// it's done just so the page URL doesn't break.
-			add_submenu_page(
-				'',
-				__( 'Form Responses', 'jetpack-forms' ),
-				_x( 'Form Responses', 'menu label for form responses', 'jetpack-forms' ),
-				'edit_pages',
-				'jetpack-forms',
-				array( $this, 'render_dashboard' )
-			);
-
-			return;
-		}
-
-		$is_wpcom = ( new Host() )->is_wpcom_simple();
-
-		// MODERN VIEW -- remove the old submenu and add the new one.
-		// Check if Polldaddy/Crowdsignal plugin is active
-		if ( ! $is_wpcom && ! is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
-			remove_menu_page( 'feedback' );
-
-			add_menu_page(
-				__( 'Form Responses', 'jetpack-forms' ),
-				_x( 'Feedback', 'post type name shown in menu', 'jetpack-forms' ),
-				'edit_pages',
-				'jetpack-forms',
-				array( $this, 'render_dashboard' ),
-				'dashicons-feedback',
-				25 // Places 'Feedback' under 'Comments' in the menu
-			);
-		} else {
-			remove_submenu_page( 'feedback', 'edit.php?post_type=feedback' );
-
-			add_submenu_page(
-				'feedback',
-				__( 'Form Responses', 'jetpack-forms' ),
-				_x( 'Form Responses', 'menu label for form responses', 'jetpack-forms' ),
-				'edit_pages',
-				'jetpack-forms',
-				array( $this, 'render_dashboard' ),
-				0 // as far top as we can go since responses are the default feedback page.
-			);
-		}
 	}
 
 	/**
