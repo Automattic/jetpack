@@ -1,12 +1,9 @@
 /**
- * Convert hex color to rgba with specified opacity
- * This is genuinely reusable across chart components
- * @param hex   - The hex color string (e.g., '#ff0000')
- * @param alpha - The opacity value between 0 and 1
- * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
+ * Validate hex color format
+ * @param hex - The hex color string to validate
  * @throws Error if hex string is malformed
  */
-export const hexToRgba = ( hex: string, alpha: number ): string => {
+const validateHexColor = ( hex: string ): void => {
 	// Validate hex format
 	if ( typeof hex !== 'string' ) {
 		throw new Error( 'Hex color must be a string' );
@@ -27,6 +24,18 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
 	if ( ! /^[0-9a-fA-F]{6}$/.test( hexDigits ) ) {
 		throw new Error( 'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed' );
 	}
+};
+
+/**
+ * Convert hex color to rgba with specified opacity
+ * This is genuinely reusable across chart components
+ * @param hex   - The hex color string (e.g., '#ff0000')
+ * @param alpha - The opacity value between 0 and 1
+ * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
+ * @throws Error if hex string is malformed
+ */
+export const hexToRgba = ( hex: string, alpha: number ): string => {
+	validateHexColor( hex );
 
 	// Validate alpha
 	if ( typeof alpha !== 'number' || isNaN( alpha ) ) {
@@ -43,8 +52,11 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
  * Convert hex color to HSL
  * @param hex - hex color string
  * @return HSL values as [h, s, l]
+ * @throws Error if hex string is malformed
  */
 export const hexToHsl = ( hex: string ): [ number, number, number ] => {
+	validateHexColor( hex );
+
 	const r = parseInt( hex.slice( 1, 3 ), 16 ) / 255;
 	const g = parseInt( hex.slice( 3, 5 ), 16 ) / 255;
 	const b = parseInt( hex.slice( 5, 7 ), 16 ) / 255;

@@ -321,6 +321,70 @@ describe( 'hexToHsl', () => {
 		} );
 	} );
 
+	describe( 'Input validation', () => {
+		describe( 'Invalid hex format', () => {
+			it( 'throws error for non-string input', () => {
+				expect( () => hexToHsl( 123 as unknown as string ) ).toThrow(
+					'Hex color must be a string'
+				);
+				expect( () => hexToHsl( null as unknown as string ) ).toThrow(
+					'Hex color must be a string'
+				);
+				expect( () => hexToHsl( undefined as unknown as string ) ).toThrow(
+					'Hex color must be a string'
+				);
+			} );
+
+			it( 'throws error for hex without # prefix', () => {
+				expect( () => hexToHsl( 'ff0000' ) ).toThrow( 'Hex color must start with #' );
+				expect( () => hexToHsl( '000000' ) ).toThrow( 'Hex color must start with #' );
+			} );
+
+			it( 'throws error for wrong length hex strings', () => {
+				expect( () => hexToHsl( '#ff' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToHsl( '#fff' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToHsl( '#ffff' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToHsl( '#fffff' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToHsl( '#ff00000' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+				expect( () => hexToHsl( '#' ) ).toThrow(
+					'Hex color must be 7 characters long (e.g., #ff0000)'
+				);
+			} );
+
+			it( 'throws error for invalid hex characters', () => {
+				expect( () => hexToHsl( '#gggggg' ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToHsl( '#ff00gg' ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToHsl( '#zz0000' ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToHsl( '#ff@000' ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+				expect( () => hexToHsl( '#ff 000' ) ).toThrow(
+					'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed'
+				);
+			} );
+
+			it( 'throws error for empty string', () => {
+				expect( () => hexToHsl( '' ) ).toThrow( 'Hex color must start with #' );
+			} );
+		} );
+	} );
+
 	describe( 'Edge cases and precision', () => {
 		it( 'handles colors with very low saturation', () => {
 			const result = hexToHsl( '#fefefe' );
