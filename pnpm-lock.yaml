@@ -3927,6 +3927,9 @@ importers:
 
   projects/packages/woocommerce-analytics:
     dependencies:
+      '@wordpress/api-fetch':
+        specifier: 7.31.0
+        version: 7.31.0
       debug:
         specifier: 4.4.3
         version: 4.4.3
