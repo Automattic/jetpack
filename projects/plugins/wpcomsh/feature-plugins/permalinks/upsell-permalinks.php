@@ -97,5 +97,3 @@ function wpcomsh_permalinks_upsell_page_on_atomic_sites() {
 	add_submenu_page( 'options-general.php', 'Permalinks', 'Permalinks', 'manage_options', 'options-permalink', 'wpcomsh_upsell_page_permalink' );
 	add_action( 'admin_print_styles-settings_page_options-permalink', 'wpcomsh_upsell_page_enqueue_styles' );
 }
-
-
