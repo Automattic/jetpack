@@ -269,7 +269,7 @@ trait Woo_Analytics_Trait {
 			'device'         => wp_is_mobile() ? 'mobile' : 'desktop',
 			'store_currency' => get_woocommerce_currency(),
 			'timezone'       => wp_timezone_string(),
-			'is_guest'       => ($this->get_user_id() === null) ? 1 : 0,
+			'is_guest'       => ( $this->get_user_id() === null ) ? 1 : 0,
 		);
 
 		/**
@@ -708,6 +708,6 @@ trait Woo_Analytics_Trait {
 		 *
 		 * @param bool $enabled Whether proxy tracking is enabled. Default false.
 		 */
-		return apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', true );
+		return apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false );
 	}
 }
