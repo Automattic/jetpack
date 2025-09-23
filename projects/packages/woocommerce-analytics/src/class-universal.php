@@ -66,39 +66,41 @@ class Universal {
 		add_action( 'wp_footer', array( $this, 'capture_cart_view' ), 11 );
 
 		// Enqueue events to track.
-		add_action( 'wp_footer', array( $this, 'enenqueue_events_to_track' ), 999 );
+		add_action( 'wp_footer', array( $this, 'inject_analytics_data' ), 999 );
 	}
 
 	/**
-	 * Enqueue events to track
+	 * Inject analytics data into the window object
 	 */
-	public function enenqueue_events_to_track() {
+	public function inject_analytics_data() {
+		$is_clickhouse_enabled = $this->is_clickhouse_enabled();
 		?>
-	<script type="text/javascript">
-		(function() {
-			window.wcAnalytics = window.wcAnalytics || {};
-			const wcAnalytics = window.wcAnalytics;
+		<script type="text/javascript">
+			(function() {
+				window.wcAnalytics = window.wcAnalytics || {};
+				const wcAnalytics = window.wcAnalytics;
 
-			// Set common properties for all events.
-			wcAnalytics.commonProps = <?php echo wp_json_encode( $this->get_common_properties() ); ?>;
+				// Set common properties for all events.
+				wcAnalytics.commonProps = <?php echo wp_json_encode( $this->get_common_properties() ); ?>;
 
-			// Set the event queue.
-			wcAnalytics.eventQueue = <?php echo wp_json_encode( WC_Analytics_Tracking::get_event_queue() ); ?>;
+				// Set the event queue.
+				wcAnalytics.eventQueue = <?php echo wp_json_encode( WC_Analytics_Tracking::get_event_queue() ); ?>;
 
-			// Features.
-			wcAnalytics.features = {
-				ch: <?php echo $this->is_clickhouse_enabled() ? 'true' : 'false'; ?>,
-			};
+				// Features.
+				wcAnalytics.features = {
+					ch: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
+					sessionTracking: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
+				};
 
-			wcAnalytics.breadcrumbs = <?php echo wp_json_encode( $this->get_breadcrumb_titles() ); ?>;
+				wcAnalytics.breadcrumbs = <?php echo wp_json_encode( $this->get_breadcrumb_titles() ); ?>;
 
-			// Page context flags.
-			wcAnalytics.pages = {
-				isAccountPage: <?php echo is_account_page() ? 'true' : 'false'; ?>,
-				isCart: <?php echo is_cart() ? 'true' : 'false'; ?>,
-			};
-		})();
-	</script>
+				// Page context flags.
+				wcAnalytics.pages = {
+					isAccountPage: <?php echo is_account_page() ? 'true' : 'false'; ?>,
+					isCart: <?php echo is_cart() ? 'true' : 'false'; ?>,
+				};
+			})();
+		</script>
 		<?php
 	}
 
