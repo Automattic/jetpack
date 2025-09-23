@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Forms: remove unused code Dashboard_View_Switch and move useful methods into Dashboard static methods
