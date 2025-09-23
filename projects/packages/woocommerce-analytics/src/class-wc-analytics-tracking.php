@@ -66,7 +66,6 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		// Record Tracks event.
 		$tracks_error  = null;
 		$tracks_result = self::record_tracks_event( $properties );
-
 		if ( is_wp_error( $tracks_result ) ) {
 			$tracks_error = $tracks_result;
 		}
