@@ -220,7 +220,7 @@ class Dashboard {
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
 			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
-			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $this->switch->get_forms_admin_url() ),
+			'dashboardURL'            => self::get_forms_admin_url(),
 			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 		);
 
@@ -246,5 +246,58 @@ class Dashboard {
 		);
 
 		return $posts->found_posts > 0;
+	}
+
+	/**
+	 * Returns url of forms admin page.
+	 *
+	 * @param string|null $tab Tab to open in the forms admin page.
+	 *
+	 * @return string
+	 */
+	public static function get_forms_admin_url( $tab = null ) {
+		$base_url = get_admin_url() . 'admin.php?page=jetpack-forms-admin';
+
+		return self::append_tab_to_url( $base_url, $tab );
+	}
+
+	/**
+	 * Appends the appropriate tab parameter to the URL based on the view type.
+	 *
+	 * @param string $url              Base URL to append to.
+	 * @param string $tab              Tab to open.
+	 *
+	 * @return string
+	 */
+	private static function append_tab_to_url( $url, $tab ) {
+		if ( ! $tab ) {
+			return $url;
+		}
+
+		$status_map = array(
+			'spam'  => 'spam',
+			'inbox' => 'inbox',
+			'trash' => 'trash',
+		);
+
+		if ( ! isset( $status_map[ $tab ] ) ) {
+			return $url;
+		}
+
+		return $url . '#/responses?status=' . $status_map[ $tab ];
+	}
+
+	/**
+	 * Returns true if the current screen is the Jetpack Forms admin page.
+	 *
+	 * @return boolean
+	 */
+	public static function is_jetpack_forms_admin_page() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return false;
+		}
+
+		$screen = get_current_screen();
+		return $screen && $screen->id === 'jetpack_page_jetpack-forms-admin';
 	}
 }
