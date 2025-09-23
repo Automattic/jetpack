@@ -84,12 +84,6 @@ export class Analytics {
 				initListeners( this.recordEvent );
 			} );
 		}
-
-		if ( this.pages.isCart ) {
-			import( './listeners/cart' ).then( ( { initListeners } ) => {
-				initListeners( this.recordEvent );
-			} );
-		}
 	};
 
 	/**
