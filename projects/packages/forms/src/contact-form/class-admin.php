@@ -124,8 +124,7 @@ class Admin {
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
 				<div class="feedback-export-modal__header">
-					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export your Form Responses', 'jetpack-forms' ); ?></h1>
-					<p class="feedback-export-modal__header-subtitle"><?php esc_html_e( 'Choose your favorite file format or export destination:', 'jetpack-forms' ); ?></p>
+					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export responses', 'jetpack-forms' ); ?></h1>
 				</div>
 				<div class="feedback-export-modal__content">
 					<?php $this->get_csv_export_section(); ?>
