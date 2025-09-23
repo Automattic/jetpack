@@ -43,22 +43,6 @@ class Dashboard {
 	const MENU_PRIORITY = 999;
 
 	/**
-	 * Dashboard_View_Switch instance
-	 *
-	 * @var Dashboard_View_Switch
-	 */
-	private $switch;
-
-	/**
-	 * Creates a new Dashboard instance.
-	 *
-	 * @param Dashboard_View_Switch|null $switch Dashboard_View_Switch instance to use.
-	 */
-	public function __construct( ?Dashboard_View_Switch $switch = null ) {
-		$this->switch = $switch ?? new Dashboard_View_Switch();
-	}
-
-	/**
 	 * Initialize the dashboard.
 	 */
 	public function init() {
@@ -71,15 +55,13 @@ class Dashboard {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === self::ADMIN_SLUG ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			remove_all_actions( 'admin_notices' );
 		}
-
-		$this->switch->init();
 	}
 
 	/**
 	 * Load JavaScript for the dashboard.
 	 */
 	public function load_admin_scripts() {
-		if ( ! $this->switch->is_modern_view() && ! $this->switch->is_jetpack_forms_admin_page() ) {
+		if ( ! self::is_jetpack_forms_admin_page() ) {
 			return;
 		}
 
@@ -183,13 +165,6 @@ class Dashboard {
 			array( $this, 'render_dashboard' ),
 			10
 		);
-	}
-
-	/**
-	 * Render the new dashboard.
-	 */
-	public function render_new_dashboard() {
-		$this->render_dashboard( array( 'renderMigrationPage' => false ) );
 	}
 
 	/**
