@@ -157,7 +157,8 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 	return [
 		createBlock( 'jetpack/label', {
 			...( existingLabel?.attributes || {} ),
-			label: config.label,
+			// Use new field label only if there wasn't label already
+			label: existingLabel?.attributes?.label || config.label,
 			placeholder: config.labelPlaceholder,
 		} ),
 		createBlock( 'jetpack/input', {
@@ -178,7 +179,8 @@ const createChoiceFieldInnerBlocks = ( blockName, existingInnerBlocks = [], attr
 
 	const label = createBlock( 'jetpack/label', {
 		...( existingLabel?.attributes || {} ),
-		label: config.label,
+		// Use new field label only if there wasn't label already
+		label: existingLabel?.attributes?.label || config.label,
 		placeholder: config.labelPlaceholder,
 	} );
 

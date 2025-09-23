@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: don't override field labels on transforms
