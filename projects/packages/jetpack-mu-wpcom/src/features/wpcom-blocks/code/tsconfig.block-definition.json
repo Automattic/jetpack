@@ -6,7 +6,7 @@
 		"paths": {
 			"@a8cCodeBlock/block-edit-function": [ "./block-edit-function/block-edit-function.tsx" ]
 		},
-		"types": [ "@@codemirrorLanguageData@@", "global", "grammars" ]
+		"types": [ "generated-codemirror-language-data", "global", "grammars" ]
 	},
 	"include": [ "block-definition" ],
 	"references": [
