@@ -29,18 +29,20 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		let maxHue = 0;
 
 		// Process all colors once and cache the results
-		for ( const color of colors ) {
-			if ( color.startsWith( '#' ) ) {
-				const hslColor = hexToHsl( color );
-				hues.push( hslColor[ 0 ] );
-				existingHslColors.push( hslColor );
-				minHue = Math.min( minHue, hslColor[ 0 ] );
-				maxHue = Math.max( maxHue, hslColor[ 0 ] );
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
+					const hslColor = hexToHsl( color );
+					hues.push( hslColor[ 0 ] );
+					existingHslColors.push( hslColor );
+					minHue = Math.min( minHue, hslColor[ 0 ] );
+					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				}
 			}
 		}
 
 		return {
-			colors,
+			colors: colors || [],
 			hues,
 			existingHslColors,
 			minHue,
