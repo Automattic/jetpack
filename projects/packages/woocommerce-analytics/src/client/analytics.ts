@@ -54,8 +54,8 @@ export class Analytics {
 			// Add session ID and landing page to common properties.
 			this.commonProps = {
 				...this.commonProps,
-				sessionId,
-				landingPage,
+				session_id: sessionId,
+				landing_page: landingPage,
 			};
 
 			if ( isNewSession ) {
