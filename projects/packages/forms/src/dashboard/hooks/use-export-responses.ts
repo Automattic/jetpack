@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -10,8 +11,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { config } from '..';
 import { store as dashboardStore } from '../store';
+
+type ExportData = {
+	selected: number[];
+	post: string;
+	search: string;
+	status: string;
+	before?: string;
+	after?: string;
+};
 
 type ExportHookReturn = {
 	showExportModal: boolean;
@@ -19,7 +28,7 @@ type ExportHookReturn = {
 	closeModal: () => void;
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
-	onExport: ( action: string, nonceName: string ) => Promise< Response >;
+	onExport: () => Promise< Response >;
 	selectedResponsesCount: number;
 	currentStatus: string;
 	exportLabel: string;
@@ -75,25 +84,26 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
-	const onExport = useCallback(
-		( action: string, nonceName: string ) => {
-			const data = new FormData();
-			data.append( 'action', action );
-			data.append( nonceName, config( 'exportNonce' ) );
-			selected.forEach( ( id: string ) => data.append( 'selected[]', id ) );
-			data.append( 'post', currentQuery.parent || 'all' );
-			data.append( 'search', currentQuery.search || '' );
-			data.append( 'status', currentQuery.status );
+	const onExport = useCallback( () => {
+		const exportData: ExportData = {
+			selected: selected.map( id => parseInt( id, 10 ) ),
+			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
+			search: currentQuery.search || '',
+			status: currentQuery.status || 'publish',
+		};
 
-			if ( currentQuery.before && currentQuery.after ) {
-				data.append( 'before', currentQuery.before );
-				data.append( 'after', currentQuery.after );
-			}
+		if ( currentQuery.before && currentQuery.after ) {
+			exportData.before = currentQuery.before;
+			exportData.after = currentQuery.after;
+		}
 
-			return fetch( window.ajaxurl, { method: 'POST', body: data } );
-		},
-		[ currentQuery, selected ]
-	);
+		return apiFetch( {
+			path: '/wp/v2/feedback/export',
+			method: 'POST',
+			data: exportData,
+			parse: false,
+		} );
+	}, [ currentQuery, selected ] );
 
 	useEffect( () => {
 		const url = new URL( window.location.href );

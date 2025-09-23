@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add REST API endpoint for exporting form responses, replacing legacy AJAX implementation

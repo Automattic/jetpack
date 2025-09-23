@@ -255,6 +255,43 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_forms_config' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/export',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'permission_callback' => array( $this, 'export_permissions_check' ),
+				'callback'            => array( $this, 'export_responses' ),
+				'args'                => array(
+					'selected' => array(
+						'type'    => 'array',
+						'items'   => array( 'type' => 'integer' ),
+						'default' => array(),
+					),
+					'post'     => array(
+						'type'    => 'string',
+						'default' => 'all',
+					),
+					'search'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'status'   => array(
+						'type'    => 'string',
+						'default' => 'publish',
+					),
+					'before'   => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+					'after'    => array(
+						'type'    => 'string',
+						'default' => '',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1069,5 +1106,107 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Checks if a given request has permissions to export responses.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return bool|WP_Error True if the request can export, error object otherwise.
+	 */
+	public function export_permissions_check( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( is_super_admin() ) {
+			return true;
+		}
+
+		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+			return new WP_Error(
+				'rest_user_not_member',
+				__( 'Sorry, you are not a member of this site.', 'jetpack-forms' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		if ( ! current_user_can( 'export' ) ) {
+			return new WP_Error(
+				'rest_user_cannot_export',
+				__( 'Sorry, you are not allowed to export form responses on this site.', 'jetpack-forms' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Export form responses to CSV.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response|WP_Error The response containing CSV data or error.
+	 */
+	public function export_responses( $request ) {
+		$selected = $request->get_param( 'selected' );
+		$post_id  = $request->get_param( 'post' );
+		$search   = $request->get_param( 'search' );
+		$status   = $request->get_param( 'status' );
+		$before   = $request->get_param( 'before' );
+		$after    = $request->get_param( 'after' );
+
+		$query_args = array(
+			'post_type'        => 'feedback',
+			'posts_per_page'   => -1,
+			'post_status'      => array( 'publish' ),
+			'order'            => 'ASC',
+			'suppress_filters' => false,
+		);
+
+		if ( $status && $status !== 'publish' ) {
+			$query_args['post_status'] = explode( ',', $status );
+		}
+
+		if ( $post_id && $post_id !== 'all' ) {
+			$query_args['post_parent'] = intval( $post_id );
+		}
+
+		if ( $search ) {
+			$query_args['s'] = $search;
+		}
+
+		if ( ! empty( $selected ) ) {
+			$query_args['post__in'] = array_map( 'intval', $selected );
+		}
+
+		if ( $before || $after ) {
+			$date_query = array();
+			if ( $before ) {
+				$date_query['before'] = $before;
+			}
+			if ( $after ) {
+				$date_query['after'] = $after;
+			}
+			$query_args['date_query'] = array( $date_query );
+		}
+
+		$feedback_posts = get_posts( $query_args );
+
+		if ( empty( $feedback_posts ) ) {
+			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+
+		$feedback_ids = array_map(
+			function ( $post ) {
+				return $post->ID;
+			},
+			$feedback_posts
+		);
+
+		$plugin      = Contact_Form_Plugin::init();
+		$export_data = $plugin->get_export_feedback_data( $feedback_ids );
+
+		if ( empty( $export_data ) ) {
+			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
+		}
+
+		$plugin->download_feedback_as_csv( $export_data, $post_id );
 	}
 }

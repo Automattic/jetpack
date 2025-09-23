@@ -211,9 +211,7 @@ class Contact_Form_Plugin {
 		add_filter( 'wp_privacy_personal_data_exporters', array( $this, 'register_personal_data_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( $this, 'register_personal_data_eraser' ) );
 
-		// Export to CSV feature
 		if ( is_admin() ) {
-			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
@@ -2758,21 +2756,20 @@ class Contact_Form_Plugin {
 
 	/**
 	 * Download exported data as CSV
+	 *
+	 * @param array  $data    Export data to generate CSV from.
+	 * @param string $post_id Optional. Post ID for filename generation.
 	 */
-	public function download_feedback_as_csv() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_feedback_entries_from_post function
-		$post_data = wp_unslash( $_POST );
-		$data      = $this->get_feedback_entries_from_post();
-
+	public function download_feedback_as_csv( $data, $post_id = '' ) {
 		if ( empty( $data ) ) {
 			return;
 		}
 
 		// Check if we want to download all the feedbacks or just a certain contact form
-		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+		if ( ! empty( $post_id ) && $post_id !== 'all' ) {
 			$filename = sprintf(
 				'%s - %s.csv',
-				Util::get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				Util::get_export_filename( get_the_title( (int) $post_id ) ),
 				gmdate( 'Y-m-d H:i' )
 			);
 		} else {
