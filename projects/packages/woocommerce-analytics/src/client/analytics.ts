@@ -124,7 +124,6 @@ export class Analytics {
 		if ( this.features.proxy ) {
 			// Add client specific properties to the event properties. We don't need to do this for direct pixel tracking since it's already done there.
 			this.addClientProperties( eventProperties );
-
 			this.apiClient.addEvent( event, eventProperties );
 		} else {
 			this.fireDirectPixel( event, eventProperties );
