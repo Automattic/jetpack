@@ -456,11 +456,9 @@ jobs:
           EXIT=0
           set -o pipefail
           for DIR in $( jq -r 'if .scripts.typecheck then input_filename | sub( "/package.json"; "" ) else empty end' projects/*/*/package.json projects/*/*/tests/e2e/package.json tools/*/package.json 2>/dev/null ); do
-            echo "::group::$DIR"
             if ! ( cd "$DIR" && pnpm run typecheck ) | sed -uE 's#^.+\([0-9,]+\): error #'"$DIR"'/&#'; then
               EXIT=1
             fi
-            echo "::endgroup::"
           done
           exit $EXIT
 
