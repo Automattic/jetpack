@@ -1,0 +1,33 @@
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/colors";
+
+.next-admin-media-editor-content__cropper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.next-admin-media-editor__tools-panel {
+	.next-admin-media-editor__tools-panel-button.next-admin-media-editor__tools-panel-button {
+		flex-grow: 1;
+		flex-basis: 0;
+		justify-content: center;
+	}
+
+	.next-admin-media-editor__tools-panel-row {
+		.next-admin-media-editor__tools-panel-heading {
+			margin-bottom: 0;
+		}
+	}
+}
+
+.next-admin-media-editor__tools-panel-row {
+	padding: variables.$grid-unit-20;
+
+	&:not( :last-child ) {
+		border-bottom: 1px solid colors.$gray-300;
+	}
+}

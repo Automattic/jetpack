@@ -1,0 +1,34 @@
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/breakpoints";
+
+.next-admin-media-editor-sidebar {
+	&__details {
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		overflow: auto;
+		height: 100%;
+	}
+
+	&__tabs-header {
+		padding-left: 0;
+		padding-right: variables.$grid-unit-10;
+	}
+
+	&__tabs-header-text {
+		margin-left: variables.$grid-unit-05;
+	}
+
+	.dataforms-layouts-panel__field-control.components-button.is-tertiary[aria-disabled="true"] {
+		background: transparent;
+		color: unset;
+	}
+
+	&__details {
+		padding: variables.$grid-unit-20;
+	}
+
+	@media ( max-width: breakpoints.$break-medium ) {
+		width: auto;
+	}
+}

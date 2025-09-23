@@ -1,0 +1,57 @@
+{
+	"name": "@automattic/jetpack-media-editor",
+	"version": "1.0.0",
+	"description": "Jetpack Media Editor Package - React components for media editing",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/media-editor/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Media Editor"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/media-editor"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"exports": {
+		".": "./index.ts"
+	},
+	"main": "./index.ts",
+	"types": "./index.ts",
+	"scripts": {
+		"build": "tsc",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
+	},
+	"dependencies": {
+		"@wordpress/components": "30.4.0",
+		"@wordpress/compose": "7.31.0",
+		"@wordpress/core-data": "6.35.0",
+		"@wordpress/data": "10.31.0",
+		"@wordpress/dataviews": "9.0.0",
+		"@wordpress/dom": "4.31.0",
+		"@wordpress/editor": "14.31.0",
+		"@wordpress/element": "6.31.0",
+		"@wordpress/fields": "0.23.0",
+		"@wordpress/i18n": "6.4.0",
+		"@wordpress/icons": "10.31.0",
+		"@wordpress/keycodes": "4.31.0",
+		"@wordpress/notices": "5.31.0",
+		"clsx": "2.1.1"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.23",
+		"@types/react-dom": "18.3.7",
+		"@wordpress/base-styles": "6.7.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
+		"typescript": "5.9.2"
+	},
+	"peerDependencies": {
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
+	}
+}
