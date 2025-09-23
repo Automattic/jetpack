@@ -59,7 +59,7 @@ export default class SessionManager {
 		this.isNewSession = true;
 
 		const sessionData = {
-			sessionId: this.generateRandomToken( 16 ),
+			sessionId: this.generateRandomUuid(),
 			landingPage: JSON.stringify( window.wcAnalytics?.breadcrumbs || [] ),
 			expires: this.getSessionExpirationTime(),
 		};
@@ -140,25 +140,44 @@ export default class SessionManager {
 	}
 
 	/**
-	 * Generate random token
+	 * Generate a random UUID v4 token
 	 *
-	 * @param randomBytesLength - Length of random bytes
 	 * @return string
 	 */
-	generateRandomToken( randomBytesLength: number ): string {
-		let randomBytes: number[] | Uint8Array = [];
-
-		if ( window.crypto && window.crypto.getRandomValues ) {
-			randomBytes = new Uint8Array( randomBytesLength );
-			window.crypto.getRandomValues( randomBytes );
-		} else {
-			randomBytes = [];
-			for ( let i = 0; i < randomBytesLength; ++i ) {
-				randomBytes[ i ] = Math.floor( Math.random() * 256 );
-			}
+	generateRandomUuid(): string {
+		// Use modern crypto.randomUUID() if available (most efficient)
+		if ( typeof crypto !== 'undefined' && crypto.randomUUID ) {
+			return crypto.randomUUID();
 		}
 
-		return btoa( String.fromCharCode( ...Array.from( randomBytes ) ) );
+		// Use crypto.getRandomValues for better security
+		if ( typeof crypto !== 'undefined' && crypto.getRandomValues ) {
+			const bytes = new Uint8Array( 16 );
+			crypto.getRandomValues( bytes );
+
+			// Set version (4) and variant bits according to RFC 4122
+			// Set version (4) and variant bits according to RFC 4122 without using bitwise operators
+			bytes[ 6 ] = Math.floor( bytes[ 6 ] / 16 ) * 16 + 4; // Version 4
+			bytes[ 8 ] = Math.floor( bytes[ 8 ] / 64 ) * 64 + 128; // Variant 10
+
+			// Convert to hex string with proper formatting
+			const hex = Array.from( bytes, b => b.toString( 16 ).padStart( 2, '0' ) ).join( '' );
+
+			return [
+				hex.slice( 0, 8 ),
+				hex.slice( 8, 12 ),
+				hex.slice( 12, 16 ),
+				hex.slice( 16, 20 ),
+				hex.slice( 20, 32 ),
+			].join( '-' );
+		}
+
+		// Fallback for older browsers (Math.random - less secure)
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, c => {
+			const r = Math.floor( Math.random() * 16 );
+			const v = c === 'x' ? r : ( r % 4 ) + 8;
+			return v.toString( 16 );
+		} );
 	}
 
 	/**
