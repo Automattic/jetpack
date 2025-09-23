@@ -6,7 +6,7 @@
 import { Analytics } from './analytics';
 import SessionManager from './session-manager';
 
-jQuery( document ).ready( () => {
+jQuery( () => {
 	if ( ! window.wcAnalytics ) {
 		return;
 	}

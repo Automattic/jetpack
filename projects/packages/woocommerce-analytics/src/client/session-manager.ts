@@ -2,12 +2,19 @@
  * Internal dependencies
  */
 import { COOKIE_NAME } from './constants';
+import type { SessionCookieData } from './types/shared';
 
 /**
  * Session Manager for WooCommerce Analytics
  *
  */
 export default class SessionManager {
+	public sessionId: string | null;
+	public landingPage: string | null;
+	public isEngaged: boolean;
+	public isNewSession: boolean;
+	public isInitialized: boolean;
+
 	constructor() {
 		this.sessionId = null;
 		this.landingPage = null;
@@ -69,15 +76,15 @@ export default class SessionManager {
 	 * Get session cookie data
 	 * Matches PHP implementation: get_session_cookie()
 	 *
-	 * @return {object|null} Session cookie data
+	 * @return SessionCookieData | null
 	 */
-	getSessionCookie() {
+	getSessionCookie(): SessionCookieData | null {
 		const rawCookie = this.getCookie( COOKIE_NAME );
 		if ( ! rawCookie ) {
 			return null;
 		}
 		try {
-			return JSON.parse( decodeURIComponent( rawCookie ) );
+			return JSON.parse( decodeURIComponent( rawCookie ) ) as SessionCookieData;
 		} catch ( _error ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Error parsing session cookie', _error );
@@ -87,14 +94,15 @@ export default class SessionManager {
 
 	/**
 	 * Get cookie value by name
-	 * @param {string} name - Cookie name
-	 * @return {string|null} Cookie value
+	 *
+	 * @param name - Cookie name
+	 * @return string | null
 	 */
-	getCookie( name ) {
+	getCookie( name: string ): string | null {
 		const value = `; ${ document.cookie }`;
 		const parts = value.split( `; ${ name }=` );
 		if ( parts.length === 2 ) {
-			return parts.pop().split( ';' ).shift();
+			return parts.pop()?.split( ';' ).shift() || null;
 		}
 		return null;
 	}
@@ -102,11 +110,10 @@ export default class SessionManager {
 	/**
 	 * Set session cookie
 	 *
-	 * @param {object} sessionData - Session data
-	 *
-	 * @return {boolean} Whether the cookie was set successfully
+	 * @param sessionData - Session data
+	 * @return boolean
 	 */
-	setSessionCookie( sessionData ) {
+	setSessionCookie( sessionData: SessionCookieData ): boolean {
 		const encoded = encodeURIComponent( JSON.stringify( sessionData ) );
 		const expires = sessionData.expires || this.getSessionExpirationTime();
 
@@ -120,9 +127,9 @@ export default class SessionManager {
 	 * Generate session expiration time
 	 * 30 minutes from now or at midnight UTC, whichever comes first
 	 *
-	 * @return {string} Session expiration time
+	 * @return string
 	 */
-	getSessionExpirationTime() {
+	getSessionExpirationTime(): string {
 		const thirtyMinutesFromNow = Date.now() + 30 * 60 * 1000;
 		const midnightUTC = new Date();
 		midnightUTC.setUTCDate( midnightUTC.getUTCDate() + 1 );
@@ -135,26 +142,28 @@ export default class SessionManager {
 	/**
 	 * Generate random token
 	 *
-	 * @param {number} randomBytesLength - Length of random bytes
-	 * @return {string} Random token
+	 * @param randomBytesLength - Length of random bytes
+	 * @return string
 	 */
-	generateRandomToken( randomBytesLength ) {
-		let randomBytes = [];
+	generateRandomToken( randomBytesLength: number ): string {
+		let randomBytes: number[] | Uint8Array = [];
 
 		if ( window.crypto && window.crypto.getRandomValues ) {
 			randomBytes = new Uint8Array( randomBytesLength );
 			window.crypto.getRandomValues( randomBytes );
 		} else {
+			randomBytes = [];
 			for ( let i = 0; i < randomBytesLength; ++i ) {
 				randomBytes[ i ] = Math.floor( Math.random() * 256 );
 			}
 		}
 
-		return btoa( String.fromCharCode.apply( String, randomBytes ) );
+		return btoa( String.fromCharCode( ...Array.from( randomBytes ) ) );
 	}
 
 	/**
 	 * Set engaged and update session cookie
+	 *
 	 */
 	setEngaged() {
 		if ( this.isEngaged ) {

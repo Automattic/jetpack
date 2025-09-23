@@ -5,7 +5,7 @@ module.exports = [
 	{
 		entry: {
 			// Main client-side analytics entry point
-			'woocommerce-analytics-client': './src/client/index.js',
+			'woocommerce-analytics-client': './src/client/index.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

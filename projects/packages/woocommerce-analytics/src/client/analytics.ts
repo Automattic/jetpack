@@ -7,26 +7,25 @@ import debugFactory from 'debug';
  */
 import { EVENT_NAME_REGEX, EVENT_PREFIX, CLICK_HOUSE_EVENTS } from './constants';
 import SessionManager from './session-manager';
+import type { AnalyticsConfig } from './types/shared';
 
 const debug = debugFactory( 'wc-analytics:analytics' );
 
 /**
  * Analytics class for WooCommerce Analytics.
- *
  */
 export class Analytics {
-	/**
-	 * Constructor for the Analytics class.
-	 *
-	 * @param {SessionManager} sessionManager          - The session manager.
-	 *
-	 * @param {object}         wcAnalytics             - The WooCommerce Analytics object.
-	 * @param {Array}          wcAnalytics.eventQueue  - The event queue.
-	 * @param {object}         wcAnalytics.commonProps - The common properties.
-	 * @param {object}         wcAnalytics.features    - The features.
-	 * @param {object}         wcAnalytics.pages       - The pages.
-	 */
-	constructor( sessionManager, { eventQueue = [], commonProps = {}, features = {}, pages = {} } ) {
+	private isInitialized: boolean;
+	private sessionManager: SessionManager;
+	private eventQueue: AnalyticsConfig[ 'eventQueue' ];
+	private commonProps: AnalyticsConfig[ 'commonProps' ];
+	private features: AnalyticsConfig[ 'features' ];
+	private pages: AnalyticsConfig[ 'pages' ];
+
+	constructor(
+		sessionManager: SessionManager,
+		{ eventQueue = [], commonProps = {}, features = {}, pages = {} }: AnalyticsConfig
+	) {
 		this.isInitialized = false;
 
 		this.sessionManager = sessionManager;
@@ -48,7 +47,7 @@ export class Analytics {
 		 * Initialize the session manager and record the page_view event
 		 * only if the ClickHouse (ch) feature is enabled as these events are relevant exclusively when ClickHouse is active.
 		 */
-		if ( this.features.ch ) {
+		if ( this.features.sessionTracking ) {
 			this.sessionManager.init();
 			const { sessionId, landingPage, isNewSession } = this.sessionManager;
 
@@ -77,8 +76,7 @@ export class Analytics {
 	/**
 	 * Initialize Listeners for pages.
 	 */
-	initListeners = () => {
-		// Initialize Listeners for pages.
+	initListeners = (): void => {
 		if ( this.pages.isAccountPage ) {
 			import( './listeners/account' ).then( ( { initListeners } ) => {
 				initListeners( this.recordEvent );
@@ -89,8 +87,7 @@ export class Analytics {
 	/**
 	 * Process the event queue.
 	 */
-	processEventQueue = () => {
-		// Record events from the queue.
+	processEventQueue = (): void => {
 		for ( const event of this.eventQueue ) {
 			this.recordEvent( event.eventName, event.props );
 		}
@@ -98,11 +95,10 @@ export class Analytics {
 
 	/**
 	 * Record an event.
-	 *
-	 * @param {string} event      - The event name.
-	 * @param {object} properties - The event properties.
+	 * @param event      - The name of the event.
+	 * @param properties - The properties of the event.
 	 */
-	recordEvent = ( event, properties = {} ) => {
+	recordEvent = ( event: string, properties: Record< string, unknown > = {} ): void => {
 		if ( ! window._wca ) {
 			debug( 'Skipping event recording because _wca is not defined' );
 			return;
@@ -140,8 +136,8 @@ export class Analytics {
 	/**
 	 * Record the session started event if it's a new session and session ID is set.
 	 */
-	maybeRecordSessionStartedEvent = () => {
-		if ( ! this.features.ch ) {
+	maybeRecordSessionStartedEvent = (): void => {
+		if ( ! this.features.sessionTracking ) {
 			return;
 		}
 
@@ -155,8 +151,8 @@ export class Analytics {
 	/**
 	 * Record the session engagement event if session is not engaged and session ID is set.
 	 */
-	maybeRecordEngagementEvent = () => {
-		if ( ! this.features.ch ) {
+	maybeRecordEngagementEvent = (): void => {
+		if ( ! this.features.sessionTracking ) {
 			return;
 		}
 
