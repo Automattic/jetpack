@@ -174,17 +174,13 @@ class Dashboard {
 	 * Register the NEW dashboard admin submenu Forms under Jetpack menu.
 	 */
 	public function add_new_admin_submenu() {
-		if ( ! $this->switch->is_jetpack_forms_admin_page_available() ) {
-			return;
-		}
-
 		Admin_Menu::add_menu(
 			/** "Jetpack Forms" and "Forms" are Product names, do not translate. */
 			'Jetpack Forms',
 			'Forms',
 			'edit_pages',
 			self::ADMIN_SLUG,
-			array( $this, 'render_new_dashboard' ),
+			array( $this, 'render_dashboard' ),
 			10
 		);
 	}
@@ -198,10 +194,8 @@ class Dashboard {
 
 	/**
 	 * Render the dashboard.
-	 *
-	 * @param array $extra_config Extra configuration to pass to the dashboard.
 	 */
-	public function render_dashboard( $extra_config = array() ) {
+	public function render_dashboard() {
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
@@ -219,14 +213,10 @@ class Dashboard {
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => $this->has_feedback(),
 			'hasAI'                   => $has_ai,
-			'renderMigrationPage'     => $this->switch->is_jetpack_forms_announcing_new_menu(),
 			'dashboardURL'            => self::get_forms_admin_url(),
 			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 		);
 
-		if ( ! empty( $extra_config ) ) {
-			$config = array_merge( $config, $extra_config );
-		}
 		?>
 		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
