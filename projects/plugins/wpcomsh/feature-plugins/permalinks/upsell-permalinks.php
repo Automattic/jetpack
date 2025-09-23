@@ -21,7 +21,7 @@ function wpcomsh_upsell_page_permalink() {
 	$title                = __( 'Unlock permalinks', 'wpcomsh' );
 	$description          = __( 'Upgrade your plan to create a custom URL structure for your permalinks and archives. Clear, informative URLs improve the aesthetics, usability, and forward-compatibility of your links.', 'wpcomsh' );
 	$support_link         = 'change-the-permalink-structure';
-	$checkout_redirect_to = "/wp-admin/options-general.php?page={$slug}";
+	$checkout_redirect_to = '/wp-admin/options-permalink.php';
 
 	// Prepare plan info (Business plan on wp.com).
 	$plan = null;
