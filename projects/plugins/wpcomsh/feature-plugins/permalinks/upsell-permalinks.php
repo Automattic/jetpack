@@ -85,7 +85,10 @@ function wpcomsh_upsell_page_enqueue_styles() {
  */
 function wpcomsh_permalinks_upsell_page_on_atomic_sites() {
 	// Only show the Permalinks upsell on Atomic sites that do not support the feature.
-	if ( ! ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) || ! function_exists( 'wpcom_site_has_feature' ) ) {
+	if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
+		return;
+	}
+	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
 		return;
 	}
 
