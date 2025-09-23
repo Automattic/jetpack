@@ -22,7 +22,7 @@ const ExportResponsesModal = ( {
 }: ExportResponsesModalProps ) => {
 	return (
 		<Modal
-			title={ __( 'Export your Form Responses', 'jetpack-forms' ) }
+			title={ __( 'Export responses', 'jetpack-forms' ) }
 			onRequestClose={ onRequestClose }
 			size="large"
 		>
