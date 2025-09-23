@@ -62,7 +62,7 @@ abstract class Code_Block {
 					function_exists( 'wp_should_load_block_assets_on_demand' )
 					&& ! wp_should_load_block_assets_on_demand()
 				) {
-						wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' ); // @phan-suppress-line PhanUndeclaredFunction, UnusedPluginSuppression
+						wp_enqueue_script_module( self::MODULE_PREFIX . 'block-front' ); // @phan-suppress-current-line PhanUndeclaredFunction, UnusedPluginSuppression
 				}
 			}
 		);
