@@ -52,4 +52,12 @@ export const legendArgTypes = {
 		description:
 			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
 	},
+	legendMargin: {
+		control: { type: 'text' as const },
+		table: { category: 'Legend' },
+		description:
+			'Margin around the legend container as CSS value (e.g. "10px", "1rem 2rem", "10px 20px 30px 40px")',
+	},
+	// Note: legendStyle is available programmatically but not exposed in Storybook controls
+	// as it requires a CSSProperties object which is complex to input via UI
 };
