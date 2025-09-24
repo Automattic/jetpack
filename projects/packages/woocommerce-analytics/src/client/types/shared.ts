@@ -3,10 +3,10 @@
  */
 
 export interface SessionCookieData {
-	sessionId: string;
-	landingPage: string;
+	session_id: string;
+	landing_page: string;
 	expires: string;
-	isEngaged?: boolean;
+	is_engaged?: boolean;
 }
 
 export interface AnalyticsConfig {

@@ -9,19 +9,12 @@ import type { SessionCookieData } from './types/shared';
  *
  */
 export default class SessionManager {
-	public sessionId: string | null;
-	public landingPage: string | null;
-	public isEngaged: boolean;
-	public isNewSession: boolean;
-	public isInitialized: boolean;
+	public sessionId: string | null = null;
+	public landingPage: string | null = null;
+	public isEngaged: boolean = false;
+	public isNewSession: boolean = false;
 
-	constructor() {
-		this.sessionId = null;
-		this.landingPage = null;
-		this.isEngaged = false;
-		this.isNewSession = false;
-		this.isInitialized = false;
-	}
+	private isInitialized: boolean = false;
 
 	/**
 	 * Initialize the session manager
@@ -41,11 +34,11 @@ export default class SessionManager {
 	loadOrCreateSession() {
 		const cookie = this.getSessionCookie();
 
-		if ( cookie && cookie.sessionId ) {
+		if ( cookie && cookie.session_id ) {
 			// Load existing session
-			this.sessionId = cookie.sessionId;
-			this.landingPage = cookie.landingPage || null;
-			this.isEngaged = cookie.isEngaged || false;
+			this.sessionId = cookie.session_id;
+			this.landingPage = cookie.landing_page || null;
+			this.isEngaged = cookie.is_engaged || false;
 			this.isNewSession = false;
 		} else {
 			this.createNewSession();
@@ -59,22 +52,21 @@ export default class SessionManager {
 		this.isNewSession = true;
 
 		const sessionData = {
-			sessionId: this.generateRandomUuid(),
-			landingPage: JSON.stringify( window.wcAnalytics?.breadcrumbs || [] ),
+			session_id: this.generateRandomUuid(),
+			landing_page: JSON.stringify( window.wcAnalytics?.breadcrumbs || [] ),
 			expires: this.getSessionExpirationTime(),
 		};
 
 		if ( this.setSessionCookie( sessionData ) ) {
 			// Only set session data if cookie was set successfully
-			this.sessionId = sessionData.sessionId;
-			this.landingPage = sessionData.landingPage;
+			this.sessionId = sessionData.session_id;
+			this.landingPage = sessionData.landing_page;
 			this.isEngaged = false;
 		}
 	}
 
 	/**
 	 * Get session cookie data
-	 * Matches PHP implementation: get_session_cookie()
 	 *
 	 * @return SessionCookieData | null
 	 */
@@ -193,8 +185,8 @@ export default class SessionManager {
 		}
 
 		const sessionData = this.getSessionCookie();
-		if ( sessionData && sessionData.sessionId ) {
-			sessionData.isEngaged = true;
+		if ( sessionData && sessionData.session_id ) {
+			sessionData.is_engaged = true;
 			this.setSessionCookie( sessionData );
 		}
 
