@@ -590,3 +590,313 @@ export const CustomShape: Story = {
 		},
 	},
 };
+
+// New Grid Layout Stories
+export const GridLayoutAuto: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return (
+			<div style={ { width: '500px', border: '1px solid #ddd', padding: '20px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Grid Layout - Auto Fit</h4>
+				<Legend { ...legendProps } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'North America', value: '35%', color: '#3858E9' },
+			{ label: 'Europe', value: '28%', color: '#80C8FF' },
+			{ label: 'Asia Pacific', value: '22%', color: '#44B556' },
+			{ label: 'Latin America', value: '10%', color: '#FFC107' },
+			{ label: 'Middle East & Africa', value: '5%', color: '#FF5722' },
+		],
+		layout: 'grid',
+		gridTemplate: 'auto',
+		shape: 'circle',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Grid layout with auto-fit columns that adapt based on content width.',
+			},
+		},
+	},
+};
+
+export const GridLayoutColumns: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return (
+			<div style={ { width: '600px', border: '1px solid #ddd', padding: '20px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Grid Layout - 3 Columns</h4>
+				<Legend { ...legendProps } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Q1 Sales', value: '12M', color: '#3858E9' },
+			{ label: 'Q2 Sales', value: '15M', color: '#80C8FF' },
+			{ label: 'Q3 Sales', value: '18M', color: '#44B556' },
+			{ label: 'Q4 Sales', value: '22M', color: '#FFC107' },
+			{ label: 'Annual Total', value: '67M', color: '#FF5722' },
+			{ label: 'Previous Year', value: '52M', color: '#9C27B0' },
+		],
+		layout: 'grid',
+		gridTemplate: 'columns',
+		gridColumns: 3,
+		shape: 'rect',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Grid layout with fixed 3-column structure, perfect for organized data display.',
+			},
+		},
+	},
+};
+
+export const GridLayoutCompact: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return (
+			<div style={ { width: '400px', border: '1px solid #ddd', padding: '20px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Grid Layout - Compact</h4>
+				<Legend { ...legendProps } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Chrome', value: '64%', color: '#4285F4' },
+			{ label: 'Safari', value: '18%', color: '#34A853' },
+			{ label: 'Edge', value: '9%', color: '#EA4335' },
+			{ label: 'Firefox', value: '6%', color: '#FBBC04' },
+			{ label: 'Other', value: '3%', color: '#9AA0A6' },
+		],
+		layout: 'grid',
+		gridTemplate: 'compact',
+		gridGap: '4px',
+		shape: 'circle',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Compact grid layout with minimal spacing, ideal for space-constrained designs.',
+			},
+		},
+	},
+};
+
+// Custom render functions defined outside components to avoid arrow functions in JSX
+const customRenderLegendItem = ( item, index, theme ) => (
+			<div
+				key={ index }
+				style={ {
+					display: 'flex',
+					alignItems: 'center',
+					padding: '8px 12px',
+					backgroundColor: theme.backgroundColor || '#f8f9fa',
+					border: `2px solid ${ item.color }`,
+					borderRadius: '8px',
+					marginBottom: '8px',
+				} }
+			>
+				<div
+					style={ {
+						width: '12px',
+						height: '12px',
+						backgroundColor: item.color,
+						borderRadius: '50%',
+						marginRight: '8px',
+					} }
+				/>
+				<span style={ { fontWeight: 'bold', color: theme.legendLabelStyles?.color || '#333' } }>
+					{ item.label }
+				</span>
+				{ item.value && (
+					<span style={ { marginLeft: 'auto', color: '#666' } }>{ item.value }</span>
+				) }
+			</div>
+		);
+
+		return (
+			<div style={ { width: '300px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Custom Legend Item Rendering</h4>
+				<Legend { ...legendProps } renderLegendItem={ customRenderLegendItem } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Primary', value: '45%', color: '#3858E9' },
+			{ label: 'Secondary', value: '30%', color: '#80C8FF' },
+			{ label: 'Tertiary', value: '25%', color: '#44B556' },
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Legend with custom item rendering that creates card-like legend items with borders and custom styling.',
+			},
+		},
+	},
+};
+
+export const CustomRenderEntireLegend: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+
+		const customRenderLegend = ( items, theme ) => (
+			<div
+				style={ {
+					display: 'grid',
+					gridTemplateColumns: 'repeat(2, 1fr)',
+					gap: '16px',
+					padding: '16px',
+					backgroundColor: theme.backgroundColor || '#f8f9fa',
+					border: '1px solid #e9ecef',
+					borderRadius: '8px',
+				} }
+			>
+				<div
+					style={ {
+						gridColumn: '1 / -1',
+						fontWeight: 'bold',
+						color: theme.legendLabelStyles?.color || '#333',
+					} }
+				>
+					Revenue by Category
+				</div>
+				{ items.map( ( item, index ) => (
+					<div key={ index } style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+						<div
+							style={ {
+								width: '16px',
+								height: '16px',
+								backgroundColor: item.color,
+								borderRadius: '3px',
+							} }
+						/>
+						<div style={ { flex: 1 } }>
+							<div
+								style={ {
+									fontSize: '14px',
+									fontWeight: 'medium',
+									color: theme.legendLabelStyles?.color || '#333',
+								} }
+							>
+								{ item.label }
+							</div>
+							<div style={ { fontSize: '12px', color: '#666' } }>{ item.value }</div>
+						</div>
+					</div>
+				) ) }
+			</div>
+		);
+
+		return (
+			<div style={ { width: '400px' } }>
+				<h4 style={ { marginBottom: '10px' } }>Custom Entire Legend Rendering</h4>
+				<Legend { ...legendProps } renderLegend={ customRenderLegend } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Product Sales', value: '$2.4M', color: '#3858E9' },
+			{ label: 'Services', value: '$1.8M', color: '#80C8FF' },
+			{ label: 'Subscriptions', value: '$950K', color: '#44B556' },
+			{ label: 'Partnerships', value: '$620K', color: '#FFC107' },
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Complete custom legend rendering with a grid layout, title, and custom styling that replaces the entire default legend structure.',
+			},
+		},
+	},
+};
+
+// Woo Analytics inspired grid layout
+export const WooAnalyticsStyle: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+
+		const wooStyleRenderLegendItem = ( item, index, theme ) => (
+			<div
+				key={ index }
+				style={ {
+					display: 'flex',
+					alignItems: 'center',
+					padding: '12px',
+					backgroundColor: '#fff',
+					border: '1px solid #e2e4e7',
+					borderRadius: '4px',
+					fontSize: '13px',
+				} }
+			>
+				<div
+					style={ {
+						width: '14px',
+						height: '14px',
+						backgroundColor: item.color,
+						borderRadius: '2px',
+						marginRight: '8px',
+						flexShrink: 0,
+					} }
+				/>
+				<div style={ { flex: 1, minWidth: 0 } }>
+					<div style={ { fontWeight: '500', color: '#1e1e1e', marginBottom: '2px' } }>
+						{ item.label }
+					</div>
+					{ item.value && (
+						<div style={ { color: '#757575', fontSize: '12px' } }>{ item.value }</div>
+					) }
+				</div>
+			</div>
+		);
+
+		return (
+			<div style={ { maxWidth: '600px' } }>
+				<h4 style={ { marginBottom: '16px', color: '#1e1e1e' } }>
+					WooCommerce Analytics Style Legend
+				</h4>
+				<Legend
+					{ ...legendProps }
+					layout="grid"
+					gridTemplate="columns"
+					gridColumns={ 3 }
+					gridGap="12px"
+					renderLegendItem={ wooStyleRenderLegendItem }
+				/>
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{ label: 'Product A', value: '$24,580', color: '#3858E9' },
+			{ label: 'Product B', value: '$18,420', color: '#7B90FF' },
+			{ label: 'Product C', value: '$15,920', color: '#66BDFF' },
+			{ label: 'Product D', value: '$12,350', color: '#873EFF' },
+			{ label: 'Product E', value: '$9,680', color: '#EB6594' },
+			{ label: 'Other Products', value: '$8,450', color: '#9AA0A6' },
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Legend styled to match WooCommerce Analytics patterns with grid layout, cards, and WooCommerce color palette. This demonstrates how to solve the original issue of creating custom legend layouts with proper theme synchronization.',
+			},
+		},
+	},
+};
