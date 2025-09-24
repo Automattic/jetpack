@@ -178,21 +178,12 @@ class Dashboard {
 	 * @return string
 	 */
 	private static function append_tab_to_url( $url, $tab ) {
-		if ( ! $tab ) {
+		$valid_tabs = array( 'spam', 'inbox', 'trash' );
+		if ( ! in_array( $tab, $valid_tabs, true ) ) {
 			return $url;
 		}
 
-		$status_map = array(
-			'spam'  => 'spam',
-			'inbox' => 'inbox',
-			'trash' => 'trash',
-		);
-
-		if ( ! isset( $status_map[ $tab ] ) ) {
-			return $url;
-		}
-
-		return $url . '#/responses?status=' . $status_map[ $tab ];
+		return $url . '#/responses?status=' . $tab;
 	}
 
 	/**
