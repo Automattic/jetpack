@@ -402,11 +402,6 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return $salt_data['salt'];
 		}
 
-		// Clean up expired/invalid salt data
-		if ( false !== $salt_data ) {
-			delete_option( self::DAILY_SALT_OPTION );
-		}
-
 		// Generate new salt for today
 		$new_salt = wp_generate_password( 32, false );
 
