@@ -91,14 +91,16 @@ export default function useExportResponses(): ExportHookReturn {
 
 	const onExport = useCallback( async (): Promise< ExportResponse > => {
 		const exportData: ExportData = {
-			selected: selected.map( id => parseInt( id, 10 ) ),
+			selected: selected.map( Number ),
 			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
 			search: currentQuery.search || '',
 			status: currentQuery.status || 'publish',
 		};
 
-		if ( currentQuery.before && currentQuery.after ) {
+		if ( currentQuery.before ) {
 			exportData.before = currentQuery.before;
+		}
+		if ( currentQuery.after ) {
 			exportData.after = currentQuery.after;
 		}
 
