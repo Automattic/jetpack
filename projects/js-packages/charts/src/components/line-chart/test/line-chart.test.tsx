@@ -188,6 +188,55 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
+	describe( 'X-Axis Ticks', () => {
+		test( 'renders only one tick.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-01' ), value: 20 },
+							{ date: new Date( '2024-01-01' ), value: 30 },
+							{ date: new Date( '2024-01-01' ), value: 40 },
+							{ date: new Date( '2024-01-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /Jan \d+/ );
+			expect( ticks ).toHaveLength( 1 );
+		} );
+
+		test( 'renders optimal number of ticks.', () => {
+			renderWithTheme( {
+				width: 400,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-02-02' ), value: 20 },
+							{ date: new Date( '2024-03-03' ), value: 30 },
+							{ date: new Date( '2024-04-04' ), value: 40 },
+							{ date: new Date( '2024-05-05' ), value: 50 },
+							{ date: new Date( '2024-06-06' ), value: 60 },
+							{ date: new Date( '2024-07-07' ), value: 70 },
+							{ date: new Date( '2024-08-08' ), value: 70 },
+							{ date: new Date( '2024-09-09' ), value: 70 },
+							{ date: new Date( '2024-10-10' ), value: 70 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct) \d+/ );
+			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
+		} );
+	} );
+
 	describe( 'Responsiveness', () => {
 		test( 'renders with custom dimensions', () => {
 			renderWithTheme( {
