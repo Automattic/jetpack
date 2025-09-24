@@ -22,13 +22,18 @@ type ExportData = {
 	after?: string;
 };
 
+type ExportResponse = {
+	download_url: string;
+	count: number;
+};
+
 type ExportHookReturn = {
 	showExportModal: boolean;
 	openModal: () => void;
 	closeModal: () => void;
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
-	onExport: () => Promise< Response >;
+	onExport: () => Promise< ExportResponse >;
 	selectedResponsesCount: number;
 	currentStatus: string;
 	exportLabel: string;
@@ -84,7 +89,7 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
-	const onExport = useCallback( async () => {
+	const onExport = useCallback( async (): Promise< ExportResponse > => {
 		const exportData: ExportData = {
 			selected: selected.map( id => parseInt( id, 10 ) ),
 			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
@@ -97,7 +102,7 @@ export default function useExportResponses(): ExportHookReturn {
 			exportData.after = currentQuery.after;
 		}
 
-		const response = await apiFetch( {
+		const response = await apiFetch< ExportResponse >( {
 			path: '/wp/v2/feedback/export',
 			method: 'POST',
 			data: exportData,
