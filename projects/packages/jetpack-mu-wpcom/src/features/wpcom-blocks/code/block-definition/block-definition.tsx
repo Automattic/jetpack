@@ -194,21 +194,8 @@ registerBlockType( blockJson, {
 	} ),
 
 	save: ( props: SaveBlockProps ) => {
-		const { language, code } = props.attributes;
-
-		return (
-			<pre className="cm-content">
-				<code
-					className={
-						language
-							? `language-${ language.toLowerCase().replaceAll( /[ \t\n\r\f]/g, '_' ) }`
-							: undefined
-					}
-				>
-					{ htmlEncode( code ) }
-				</code>
-			</pre>
-		);
+		const { code } = props.attributes;
+		return <CodeWrapper { ...props }>{ htmlEncode( code ) }</CodeWrapper>;
 	},
 } );
 
@@ -371,17 +358,20 @@ const DisplayLanguage = ( props: Props ) => {
 	return <span>{ attributes.language }</span>;
 };
 
-const Loading = ( props: EditBlockProps ) => {
+/**
+ * Loading Component for the Code Block.
+ *
+ * @param props - Component props.
+ * @return Loading state UI.
+ */
+function Loading( props: EditBlockProps ): React.JSX.Element {
 	let code = props.attributes.code;
 	if ( ! code ) {
 		code = __( 'Loading…', 'jetpack-mu-wpcom' );
 	}
-	if ( code.endsWith( '\n' ) ) {
-		code += '\n';
-	}
-
 	return (
 		<Chrome isLoading { ...props }>
+			<CodeWrapper { ...props }>{ code }</CodeWrapper>
 			<pre className="cm-content">{ code }</pre>
 			<Notice status="warning" isDismissible={ false }>
 				<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content may
@@ -389,7 +379,42 @@ const Loading = ( props: EditBlockProps ) => {
 			</Notice>
 		</Chrome>
 	);
-};
+}
+
+/**
+ * This function wraps the code content when it is not managed by CodeMirror.
+ *
+ * @param props            - Component props.
+ * @param props.attributes -- Block attributes.
+ * @param props.children   -- Component children, the contents of the block.
+ *
+ * @return UI.
+ */
+function CodeWrapper( {
+	attributes: { language },
+	children: code,
+}: {
+	children: string;
+	attributes: Pick< EditBlockProps[ 'attributes' ], 'language' >;
+} ): React.JSX.Element {
+	if ( code.endsWith( '\n' ) ) {
+		code += '\n';
+	}
+
+	return (
+		<pre className="cm-content">
+			<code
+				className={
+					language
+						? `language-${ language.toLowerCase().replaceAll( /[ \t\n\r\f]/g, '_' ) }`
+						: undefined
+				}
+			>
+				{ code }
+			</code>
+		</pre>
+	);
+}
 
 /**
  * Transforms attributes into CSS custom properties for inline style use.
