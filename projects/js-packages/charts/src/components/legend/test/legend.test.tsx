@@ -43,6 +43,40 @@ describe( 'BaseLegend', () => {
 		expect( legendItems ).toHaveLength( 0 );
 	} );
 
+	test( 'applies legendMargin to container', () => {
+		render(
+			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin="20px 30px" />
+		);
+		const legendContainer = screen.getByTestId( 'legend-horizontal' );
+		expect( legendContainer ).toHaveStyle( { margin: '20px 30px' } );
+	} );
+
+	test( 'applies legendStyle to container', () => {
+		const customStyles = { backgroundColor: 'rgb(240, 240, 240)', padding: '10px' };
+		render(
+			<BaseLegend items={ defaultItems } orientation="horizontal" legendStyle={ customStyles } />
+		);
+		const legendContainer = screen.getByTestId( 'legend-horizontal' );
+		expect( legendContainer ).toHaveStyle( customStyles );
+	} );
+
+	test( 'merges legendMargin and legendStyle correctly', () => {
+		const customStyles = { backgroundColor: 'rgb(240, 240, 240)', padding: '10px' };
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				legendMargin="20px"
+				legendStyle={ customStyles }
+			/>
+		);
+		const legendContainer = screen.getByTestId( 'legend-horizontal' );
+		expect( legendContainer ).toHaveStyle( {
+			margin: '20px',
+			...customStyles,
+		} );
+	} );
+
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
 			{ label: 'Item 1', color: '#ff0000', value: undefined },
