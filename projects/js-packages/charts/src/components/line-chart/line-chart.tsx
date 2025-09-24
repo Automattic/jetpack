@@ -396,30 +396,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 								return (
 									<g key={ seriesData?.label || index }>
-										{ withStartGlyphs && (
-											<LineChartGlyph
-												index={ index }
-												data={ seriesData }
-												color={ color }
-												renderGlyph={ glyph ?? renderGlyph }
-												accessors={ accessors }
-												glyphStyle={ glyphStyle }
-												position="start"
-											/>
-										) }
-
-										{ withEndGlyphs && (
-											<LineChartGlyph
-												index={ index }
-												data={ seriesData }
-												color={ color }
-												renderGlyph={ glyph ?? renderGlyph }
-												accessors={ accessors }
-												glyphStyle={ glyphStyle }
-												position="end"
-											/>
-										) }
-
 										{ withGradientFill && (
 											<LinearGradient
 												id={ `area-gradient-${ chartId }-${ index + 1 }` }
@@ -445,6 +421,30 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											curve={ getCurveType( curveType, smoothing ) }
 											lineProps={ lineProps }
 										/>
+
+										{ withStartGlyphs && (
+											<LineChartGlyph
+												index={ index }
+												data={ seriesData }
+												color={ color }
+												renderGlyph={ glyph ?? renderGlyph }
+												accessors={ accessors }
+												glyphStyle={ glyphStyle }
+												position="start"
+											/>
+										) }
+
+										{ withEndGlyphs && (
+											<LineChartGlyph
+												index={ index }
+												data={ seriesData }
+												color={ color }
+												renderGlyph={ glyph ?? renderGlyph }
+												accessors={ accessors }
+												glyphStyle={ glyphStyle }
+												position="end"
+											/>
+										) }
 									</g>
 								);
 							} ) }

@@ -284,7 +284,10 @@ const renderAlertGlyph = ( {
 				top={ y }
 				left={ x }
 				size={ size * size }
-				fill={ color }
+				fill="white"
+				stroke={ color }
+				strokeWidth={ 2 }
+				transform="rotate(90)"
 			/>
 		);
 	}
@@ -322,7 +325,7 @@ const AlertTemplate: StoryFn< typeof LineChart > = args => {
 		data: fullSeries.data.slice( 4, 9 ), // Middle portion of the data
 		options: {
 			stroke: 'var(--jp-red)',
-			strokeWidth: 3,
+			seriesLineStyle: { strokeWidth: 3 },
 		},
 	};
 
@@ -338,6 +341,7 @@ const AlertTemplate: StoryFn< typeof LineChart > = args => {
 			smoothing={ false }
 			data={ highlightData }
 			withStartGlyphs={ true }
+			withEndGlyphs={ true }
 			renderGlyph={ renderAlertGlyph }
 			glyphStyle={ {
 				radius: 8,
