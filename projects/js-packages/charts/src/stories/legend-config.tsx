@@ -58,6 +58,10 @@ export const legendArgTypes = {
 		description:
 			'Margin around the legend container. Can be a CSS string (e.g. "10px", "1rem 2rem") or object (e.g. {top: 10, right: 15, bottom: 10, left: 15})',
 	},
-	// Note: legendStyle is available programmatically but not exposed in Storybook controls
-	// as it requires a CSSProperties object which is complex to input via UI
+	legendStyle: {
+		control: { type: 'object' as const },
+		table: { category: 'Legend' },
+		description:
+			'Custom CSS styles for the legend container. Enter as object (e.g. {padding: "20px", backgroundColor: "#f0f0f0", border: "1px solid #ccc"})',
+	},
 };
