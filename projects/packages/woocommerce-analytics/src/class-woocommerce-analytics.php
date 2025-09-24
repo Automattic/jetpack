@@ -128,6 +128,7 @@ class Woocommerce_Analytics {
 	 * Register REST API routes.
 	 */
 	public static function register_rest_routes() {
+		require_once __DIR__ . '/API/class-wc-analytics-tracking-proxy.php';
 		$controller = new WC_Analytics_Tracking_Proxy();
 		$controller->register_routes();
 	}

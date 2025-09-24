@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix fatal error by including missing WC_Analytics_Tracking_Proxy class file before instantiation
