@@ -684,6 +684,11 @@ const getLanguage: GetLanguage = ( file: File ) => {
 		);
 	}
 
+	/*
+	 * The following line contains a non-null assertion (!).
+	 * `String.split()` can never return an empty array,
+	 * so `.at(-1)` (the last element) can never be undefined.
+	 */
 	const extension = file.name.split( '.' ).at( -1 )!.toLowerCase();
 	return getLanguage.extensionMap.get( extension );
 };
