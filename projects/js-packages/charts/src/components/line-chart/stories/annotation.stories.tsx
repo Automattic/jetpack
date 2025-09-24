@@ -315,22 +315,57 @@ const renderAlertLabelPopover = () => (
 
 const AlertTemplate: StoryFn< typeof LineChart > = args => {
 	// Use the first series data (New York)
-	const fullSeries = sampleData[ 0 ];
+	const fullSeries = {
+		...sampleData[ 0 ],
+		options: {
+			...sampleData[ 0 ].options,
+			gradient: {
+				fromOpacity: 0,
+				toOpacity: 0,
+			},
+		},
+	};
 
 	// Create a highlighted middle portion (roughly from May to September)
+	const highlightSeriesData = fullSeries.data.slice( 4, 9 ); // Middle portion of the data
+
+	// Calculate the min and max values to determine the gradient height
+	const allValues = fullSeries.data.map( d => d.value );
+	const highlightValues = highlightSeriesData.map( d => d.value );
+
+	const chartMin = Math.min( ...allValues );
+	const chartMax = Math.max( ...allValues );
+	const chartRange = chartMax - chartMin;
+
+	// Find the lowest point in the highlight series
+	const highlightMin = Math.min( ...highlightValues );
+
+	// Calculate the percentage from bottom of chart to the lowest highlight point
+	// This is where we want the gradient to stop
+	const gradientStopPercentage = ( ( highlightMin - chartMin ) / chartRange ) * 100;
+
+	// Since SVG gradients are top-to-bottom, we need to invert this
+	const gradientCutoff = 100 - gradientStopPercentage;
+
 	const highlightSeries = {
 		...fullSeries,
 		group: 'new-york-highlight',
 		label: 'Alert',
-		data: fullSeries.data.slice( 4, 9 ), // Middle portion of the data
+		data: highlightSeriesData,
 		options: {
 			stroke: 'var(--jp-red)',
 			seriesLineStyle: { strokeWidth: 3 },
+			gradient: {
+				from: 'var(--jp-red)',
+				to: 'var(--jp-red)',
+				stops: [
+					{ offset: '0%', color: 'var(--jp-red)', opacity: 0.5 },
+					{ offset: `${ gradientCutoff * 0.75 }%`, color: 'var(--jp-red)', opacity: 0 },
+					{ offset: '100%', color: 'var(--jp-red)', opacity: 0 },
+				],
+			},
 		},
 	};
-
-	// Combine both series
-	const highlightData = [ fullSeries, highlightSeries ];
 
 	// Find the peak in the highlighted series (July with value 27)
 	const peakDatum = fullSeries.data[ 6 ]; // July - peak temperature
@@ -339,7 +374,8 @@ const AlertTemplate: StoryFn< typeof LineChart > = args => {
 		<LineChart
 			{ ...args }
 			smoothing={ false }
-			data={ highlightData }
+			data={ [ fullSeries, highlightSeries ] }
+			withGradientFill={ true }
 			withStartGlyphs={ true }
 			withEndGlyphs={ true }
 			renderGlyph={ renderAlertGlyph }
