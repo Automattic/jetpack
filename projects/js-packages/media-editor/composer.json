@@ -1,0 +1,41 @@
+{
+    "name": "automattic/jetpack-media-editor",
+    "description": "Jetpack Media Editor Package.",
+    "license": "GPL-2.0-or-later",
+    "require": {},
+    "require-dev": {
+        "automattic/jetpack-changelogger": "@dev"
+    },
+    "scripts": {
+        "build-production": [
+            "pnpm run build"
+        ],
+        "build-development": [
+            "pnpm run build"
+        ],
+        "test-js": [
+            "pnpm run test"
+        ],
+        "test-coverage": [
+            "pnpm run test-coverage"
+        ]
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../packages/*",
+            "options": {
+                "monorepo": true
+            }
+        }
+    ],
+    "extra": {
+        "autotagger": true,
+        "npmjs-autopublish": false,
+        "mirror-repo": "Automattic/jetpack-media-editor",
+        "textdomain": "jetpack-media-editor",
+        "changelogger": {
+            "link-template": "https://github.com/Automattic/jetpack-media-editor/compare/${old}...${new}"
+        }
+    }
+}

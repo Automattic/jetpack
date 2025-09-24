@@ -1,0 +1,57 @@
+.jetpack-media-editor-plugin__panel {
+	padding-bottom: 0;
+
+	.jetpack-media-editor-plugin__notice {
+		margin-top: 0;
+	}
+}
+
+.jetpack-media-editor-plugin__content {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.jetpack-media-editor-plugin__source {
+	margin: 0;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #3c434a;
+}
+
+.jetpack-media-editor-plugin__editor {
+	border: 1px solid var( --jp-color-border-subtle, #dcdcde );
+	border-radius: 6px;
+	overflow: hidden;
+	background: #fff;
+	min-height: 260px;
+
+	.next-admin-site-editor__media-editor-layout {
+		height: 100%;
+	}
+}
+
+.jetpack-media-editor-plugin__actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 8px;
+}
+
+.jetpack-media-editor-plugin__panel--empty {
+	padding-bottom: 16px;
+}
+
+.jetpack-media-editor-plugin__modal {
+	width: 100vw;
+	max-width: 100vw;
+}
+
+.jetpack-media-editor-plugin__modal .components-modal__content {
+	padding: 0;
+	height: calc( 100vh - 120px );
+	max-height: calc( 100vh - 120px );
+	overflow-y: auto;
+}
+
+.jetpack-media-editor-plugin__modal-editor {
+	height: 100%;
+}
