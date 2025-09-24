@@ -78,6 +78,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			itemMargin = '0',
 			itemDirection = 'row',
 			legendLabelProps,
+			legendMargin,
+			legendStyle,
 			...legendItemProps
 		},
 		ref
@@ -116,6 +118,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
 							...theme.legendContainerStyles,
+							margin: legendMargin,
+							...legendStyle,
 						} }
 					>
 						{ labels.map( ( label, i ) => (
