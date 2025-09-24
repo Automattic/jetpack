@@ -651,13 +651,10 @@ export const transforms = {
 				const [ file ] = files;
 				const language = getLanguage( file )!;
 
-				// Grab the last segment of the file name. Try to handle different path separators.
-				const filename = file.name.split( /[\\/]/ ).at( -1 ) ?? '';
-
 				const block = createBlock< Attributes >( BLOCK_NAME, {
 					language,
 					languageConfidence: 'certain',
-					filename,
+					filename: file.name,
 				} );
 
 				const reader = new FileReader();
