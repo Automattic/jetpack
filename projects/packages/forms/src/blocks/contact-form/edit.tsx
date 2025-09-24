@@ -46,7 +46,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
-import { CORE_BLOCKS } from '../shared/util/constants';
+import { CORE_BLOCKS, isInputField } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -219,7 +219,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
 	const currentInnerBlocks = useSelect(
@@ -229,6 +229,26 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
+
+	// Helper function to identify input field blocks
+	const getInputFieldBlocks = useCallback( blocks => {
+		const inputFields = [];
+
+		const findInputFields = blockList => {
+			blockList.forEach( block => {
+				if ( isInputField( block.name ) ) {
+					inputFields.push( block );
+				}
+				// Recursively check inner blocks (for multistep forms)
+				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
+					findInputFields( block.innerBlocks );
+				}
+			} );
+		};
+
+		findInputFields( blocks );
+		return inputFields;
+	}, [] );
 
 	// Effect to handle block insertion and reordering
 	useEffect( () => {
@@ -267,6 +287,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		replaceInnerBlocks,
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
+
+	// Effect to automatically make single input fields required
+	useEffect( () => {
+		const inputFields = getInputFieldBlocks( currentInnerBlocks );
+
+		// Only proceed if there's exactly one input field
+		if ( inputFields.length === 1 ) {
+			const singleField = inputFields[ 0 ];
+
+			// Check if the field is not already required
+			if ( ! singleField.attributes?.required ) {
+				// Update the field to be required
+				updateBlockAttributes( singleField.clientId, { required: true } );
+			}
+		}
+	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
