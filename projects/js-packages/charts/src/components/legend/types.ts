@@ -24,6 +24,16 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
 	 */
 	textOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Margin around the legend container.
+	 * Should be a CSS margin value (e.g. '10px', '1rem 2rem', '10px 20px 30px 40px')
+	 */
+	legendMargin?: string;
+	/**
+	 * Custom CSS styles for the legend container.
+	 * These styles will be merged with and override default styles.
+	 */
+	legendStyle?: CSSProperties;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
