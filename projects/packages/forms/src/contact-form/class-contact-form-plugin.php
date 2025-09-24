@@ -214,6 +214,9 @@ class Contact_Form_Plugin {
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 		}
+
+		// Admin-post action for CSV export
+		add_action( 'admin_post_feedback_export', array( $this, 'admin_post_feedback_export' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
@@ -2752,6 +2755,38 @@ class Contact_Form_Plugin {
 		$feedbacks = get_posts( $args );
 
 		return $this->get_export_feedback_data( $feedbacks );
+	}
+
+	/**
+	 * Admin-post handler for CSV export
+	 */
+	public function admin_post_feedback_export() {
+		$feedback_ids_str = sanitize_text_field( wp_unslash( $_GET['feedback_ids'] ?? '' ) );
+		$post_id          = sanitize_text_field( wp_unslash( $_GET['post_id'] ?? '' ) );
+		$nonce            = sanitize_text_field( wp_unslash( $_GET['nonce'] ?? '' ) );
+
+		if ( empty( $feedback_ids_str ) || empty( $nonce ) ) {
+			wp_die( esc_html__( 'Invalid request parameters.', 'jetpack-forms' ), 400 );
+		}
+
+		$feedback_ids = explode( ',', $feedback_ids_str );
+		$feedback_ids = array_map( 'intval', $feedback_ids );
+
+		if ( ! wp_verify_nonce( $nonce, 'feedback_export_' . $feedback_ids_str ) ) {
+			wp_die( esc_html__( 'Security check failed.', 'jetpack-forms' ), 403 );
+		}
+
+		if ( ! current_user_can( 'export' ) ) {
+			wp_die( esc_html__( 'You do not have permission to export form responses.', 'jetpack-forms' ), 403 );
+		}
+
+		$export_data = $this->get_export_feedback_data( $feedback_ids );
+
+		if ( empty( $export_data ) ) {
+			wp_die( esc_html__( 'No responses found to export.', 'jetpack-forms' ), 404 );
+		}
+
+		$this->download_feedback_as_csv( $export_data, $post_id );
 	}
 
 	/**

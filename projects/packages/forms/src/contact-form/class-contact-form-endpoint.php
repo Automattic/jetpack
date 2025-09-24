@@ -1200,13 +1200,31 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$feedback_posts
 		);
 
-		$plugin      = Contact_Form_Plugin::init();
-		$export_data = $plugin->get_export_feedback_data( $feedback_ids );
-
-		if ( empty( $export_data ) ) {
+		if ( empty( $feedback_ids ) ) {
 			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
 		}
 
-		$plugin->download_feedback_as_csv( $export_data, $post_id );
+		$nonce = wp_create_nonce( 'feedback_export_' . implode( ',', $feedback_ids ) );
+
+		$download_url = add_query_arg(
+			array(
+				'action'       => 'feedback_export',
+				'feedback_ids' => implode( ',', $feedback_ids ),
+				'post_id'      => $post_id,
+				'search'       => $search,
+				'status'       => $status,
+				'before'       => $before,
+				'after'        => $after,
+				'nonce'        => $nonce,
+			),
+			admin_url( 'admin-post.php' )
+		);
+
+		return rest_ensure_response(
+			array(
+				'download_url' => $download_url,
+				'count'        => count( $feedback_ids ),
+			)
+		);
 	}
 }

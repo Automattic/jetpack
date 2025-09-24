@@ -84,7 +84,7 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
-	const onExport = useCallback( () => {
+	const onExport = useCallback( async () => {
 		const exportData: ExportData = {
 			selected: selected.map( id => parseInt( id, 10 ) ),
 			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
@@ -97,12 +97,18 @@ export default function useExportResponses(): ExportHookReturn {
 			exportData.after = currentQuery.after;
 		}
 
-		return apiFetch( {
+		const response = await apiFetch( {
 			path: '/wp/v2/feedback/export',
 			method: 'POST',
 			data: exportData,
-			parse: false,
 		} );
+
+		if ( response && response.download_url ) {
+			// Trigger download by navigating to the URL
+			window.location.href = response.download_url;
+			return response;
+		}
+		throw new Error( 'Invalid response: missing download URL' );
 	}, [ currentQuery, selected ] );
 
 	useEffect( () => {
