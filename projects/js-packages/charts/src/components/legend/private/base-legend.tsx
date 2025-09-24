@@ -118,7 +118,26 @@ export const BaseLegend: ForwardRefExoticComponent<
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
 							...theme.legendContainerStyles,
-							margin: legendMargin,
+							...( typeof legendMargin === 'string'
+								? { margin: legendMargin }
+								: legendMargin && {
+										marginTop:
+											typeof legendMargin.top === 'number'
+												? `${ legendMargin.top }px`
+												: legendMargin.top,
+										marginRight:
+											typeof legendMargin.right === 'number'
+												? `${ legendMargin.right }px`
+												: legendMargin.right,
+										marginBottom:
+											typeof legendMargin.bottom === 'number'
+												? `${ legendMargin.bottom }px`
+												: legendMargin.bottom,
+										marginLeft:
+											typeof legendMargin.left === 'number'
+												? `${ legendMargin.left }px`
+												: legendMargin.left,
+								  } ),
 							...legendStyle,
 						} }
 					>
