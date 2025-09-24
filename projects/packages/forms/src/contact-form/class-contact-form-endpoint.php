@@ -851,9 +851,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * Core logic for a single integration
 	 *
 	 * @param string $slug Integration slug.
+	 * @param bool   $is_not_initial_load Whether this is not the initial load (to avoid heavy operations).
+	 *
 	 * @return array Integration status data.
 	 */
-	private function get_integration( $slug ) {
+	private function get_integration( $slug, $is_not_initial_load = true ) {
 		$config = $this->get_supported_integrations()[ $slug ];
 		$type   = $config['type'] ?? null;
 
@@ -880,8 +882,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Override base shape based on integration type.
 		$status = $type === 'plugin'
-			? $this->get_plugin_status( $slug, $base )
-			: $this->get_service_status( $slug, $base );
+			? $this->get_plugin_status( $slug, $base, $is_not_initial_load )
+			: $this->get_service_status( $slug, $base, $is_not_initial_load );
 
 		return $status;
 	}
@@ -898,7 +900,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! isset( $integrations[ $slug ] ) ) {
 			return new \WP_Error( 'rest_integration_not_found', __( 'Integration not found.', 'jetpack-forms' ), array( 'status' => 404 ) );
 		}
-		return rest_ensure_response( $this->get_integration( $slug ) );
+		return rest_ensure_response( $this->get_integration( $slug, true ) );
 	}
 
 	/**
@@ -908,11 +910,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object.
 	 */
 	public function get_all_integrations_status( $request ) {
-		$version      = absint( $request->get_param( 'version' ) );
-		$integrations = array();
+		$version          = absint( $request->get_param( 'version' ) );
+		$is_not_init_load = $request->get_param( '_fields' ) !== 'sync';
+		$integrations     = array();
 
 		foreach ( $this->get_supported_integrations() as $slug => $config ) {
-			$status = $this->get_integration( $slug );
+			$status = $this->get_integration( $slug, $is_not_init_load );
 			if ( 1 === $version ) {
 				$integrations[ $slug ] = $status;
 			} else {
@@ -928,9 +931,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * @param string $slug   Service slug.
 	 * @param array  $status Base status shape to mutate and return.
+	 * @param bool   $is_not_initial_load Whether this is not the initial load (to avoid heavy operations).
+	 *
 	 * @return array Service status data.
 	 */
-	private function get_service_status( $slug, array $status ) {
+	private function get_service_status( $slug, array $status, $is_not_initial_load = true ) {
 		$config = $this->get_supported_integrations()[ $slug ];
 
 		// If a settings redirect slug/url is configured, convert to full URL
@@ -941,9 +946,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Override base shape for specific services.
 		switch ( $slug ) {
 			case 'google-drive':
-				$user_id               = get_current_user_id();
-				$jetpack_connected     = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
-				$status['isConnected'] = $jetpack_connected && Google_Drive::has_valid_connection();
+				if ( $is_not_initial_load ) {
+					$user_id = get_current_user_id();
+					// Determine if Google Drive setup is complete.
+					$jetpack_connected     = ( new Host() )->is_wpcom_simple() || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( $user_id );
+					$status['isConnected'] = $jetpack_connected && Google_Drive::has_valid_connection();
+				}
 				$status['settingsUrl'] = External_Connections::get_connect_url( $slug );
 				break;
 			case 'salesforce':
@@ -960,9 +968,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * @param string $plugin_slug Plugin slug.
 	 * @param array  $status      Base status shape to mutate and return.
+	 * @param bool   $is_not_init_load Whether this is not the initial load (to avoid heavy operations).
+	 *
 	 * @return array Plugin status data.
 	 */
-	private function get_plugin_status( $plugin_slug, array $status ) {
+	private function get_plugin_status( $plugin_slug, array $status, $is_not_init_load = true ) {
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
@@ -999,15 +1009,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				break;
 			case 'mailpoet':
 				$status['needsConnection'] = true;
-				// Determine if MailPoet setup is complete using the public API.
-				if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
-					$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
-					if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
-						$status['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
+				if ( $is_not_init_load ) {
+					// Determine if MailPoet setup is complete using the public API.
+					if ( class_exists( \MailPoet\API\API::class ) ) { // @phan-suppress-current-line PhanUndeclaredClassReference
+						$mailpoet_api = \MailPoet\API\API::MP( 'v1' ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+						if ( $mailpoet_api && method_exists( $mailpoet_api, 'isSetupComplete' ) ) {
+							$status['isConnected'] = (bool) $mailpoet_api->isSetupComplete();
+						}
 					}
+					// Add MailPoet lists to details
+					$status['details']['lists'] = MailPoet_Integration::get_all_lists();
 				}
-				// Add MailPoet lists to details
-				$status['details']['lists'] = MailPoet_Integration::get_all_lists();
+
 				break;
 		}
 
@@ -1040,10 +1053,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$has_ai = false;
-		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
-			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
-			$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
+		$is_not_init_load = $request->get_param( '_fields' ) !== 'sync';
+		$has_ai           = false;
+		if ( $is_not_init_load ) {
+			if ( class_exists( 'Jetpack_AI_Helper' ) ) {
+				$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
+				$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
+			}
 		}
 
 		$config = array(
@@ -1065,6 +1081,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
 			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
 		);
+
+		if ( $is_not_init_load ) {
+			unset( $config['hasAI'] );
+		}
 
 		return rest_ensure_response( $config );
 	}

@@ -84,10 +84,10 @@ class Dashboard {
 
 		// Preload Forms endpoints needed in dashboard context.
 		$preload_paths = array(
-			'/wp/v2/feedback/config',
-			'/wp/v2/feedback/config?_locale=user',
-			'/wp/v2/feedback/integrations?version=2',
-			'/wp/v2/feedback/integrations?version=2&_locale=user',
+			'/wp/v2/feedback/config?_fields=sync',
+			'/wp/v2/feedback/config?_fields=sync&_locale=user',
+			'/wp/v2/feedback/integrations?version=2&_fields=sync',
+			'/wp/v2/feedback/integrations?version=2&_fields=sync&_locale=user',
 		);
 		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 		wp_add_inline_script(
@@ -151,7 +151,8 @@ class Dashboard {
 		$posts = new \WP_Query(
 			array(
 				'post_type'   => 'feedback',
-				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+				'numberposts' => 1,
+				'fields'      => 'ids',
 			)
 		);
 

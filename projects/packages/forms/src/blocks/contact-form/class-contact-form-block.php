@@ -806,10 +806,10 @@ class Contact_Form_Block {
 	 * @return array Updated paths to preload.
 	 */
 	public static function preload_endpoints( $paths ) {
-		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
-		$paths[] = array( '/wp/v2/feedback/config?_locale=user', 'GET' );
-		$paths[] = array( '/wp/v2/feedback/integrations?version=2', 'GET' );
-		$paths[] = array( '/wp/v2/feedback/integrations?version=2&_locale=user', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/config?_fields=sync', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/config?_fields=sync&_locale=user', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/integrations?version=2&_fields=sync', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/integrations?version=2&_fields=sync&_locale=user', 'GET' );
 		return $paths;
 	}
 
