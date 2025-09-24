@@ -29,7 +29,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 *
 	 * @var string
 	 */
-	const DAILY_SALT_OPTION = 'wc_analytics_daily_salt';
+	const DAILY_SALT_OPTION = 'woocommerce_analytics_daily_salt';
 
 	/**
 	 * Allowed ClickHouse events.
