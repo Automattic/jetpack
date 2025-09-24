@@ -25,6 +25,40 @@
 		}
 	}
 
+	// Grid layout styles
+	&--grid {
+		display: grid;
+
+		&.legend--grid-template-auto {
+			grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+			gap: 12px;
+		}
+
+		&.legend--grid-template-columns {
+
+			/* Dynamic grid-template-columns set via inline style */
+			gap: 16px;
+		}
+
+		&.legend--grid-template-compact {
+			grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+			gap: 8px;
+		}
+
+		// Grid alignment support
+		&.legend--alignment-start {
+			justify-items: start;
+		}
+
+		&.legend--alignment-center {
+			justify-items: center;
+		}
+
+		&.legend--alignment-end {
+			justify-items: end;
+		}
+	}
+
 	// Position-based styles
 	&--position-top {
 		position: relative;
