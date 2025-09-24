@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Mobile editor: allow admin-ajax.php CORS requests for Android WebViews
