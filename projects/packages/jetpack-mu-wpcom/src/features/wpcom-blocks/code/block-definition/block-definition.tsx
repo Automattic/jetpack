@@ -212,11 +212,6 @@ registerBlockType( blockJson, {
 	},
 } );
 
-/*
- *
- * Color schemes are registered as block styles
- *
- */
 registerBlockStyle( BLOCK_NAME, {
 	name: 'no-highlight',
 	/* translators: Color scheme with no syntax highlighting. */
@@ -232,11 +227,6 @@ registerBlockStyle( BLOCK_NAME, {
 	/* translators: Solarized is the name of a color scheme, "dark" is the dark version of it. */
 	label: __( 'Solarized Dark', 'jetpack-mu-wpcom' ),
 } );
-/*
- *
- * /Color schemes
- *
- */
 
 type ChromeProps = {
 	isLoading?: boolean;
