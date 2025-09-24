@@ -488,7 +488,9 @@ function htmlEncode( content: string ): string {
 		.replaceAll( '&', '&#38;' )
 		.replaceAll( '<', '&lt;' )
 		.replaceAll( '>', '&gt;' )
-		.replaceAll( '[', '&#91;' );
+		.replaceAll( '[', '&#91;' )
+		.replaceAll( "'", '&#39;' )
+		.replaceAll( '"', '&#22;' );
 }
 
 const EditCodeMirror = React.lazy(
