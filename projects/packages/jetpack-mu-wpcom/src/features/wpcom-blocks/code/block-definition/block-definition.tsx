@@ -23,7 +23,6 @@ import {
 } from '../common/block.ts';
 import { ColorTools } from './color-tools.tsx';
 import { transforms } from './transforms.ts';
-import type { CSSProperties } from 'react';
 
 const {
 	InspectorControls,
@@ -236,7 +235,7 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 				'data-line-numbers-start-at': props.attributes.lineNumbersStartAt,
 				'data-max-line-number-char-size': maxLineNumberWidth,
 			} ),
-		style: colorsToStyle( props.attributes ),
+		style: blockStyle( props.attributes ),
 	} );
 
 	const wpElementButtonClass =
@@ -417,42 +416,39 @@ function CodeWrapper( {
 }
 
 /**
+ * Style properties used by the block wrapper.
+ */
+type BlockStyleProperties = {
+	/*
+	 * This transforms the `color{Suffix}` attributes into the expected
+	 * CSSProperties format with custom properties _and_ makes them required. This helps to
+	 * ensure that this implementation remains in sync with the block attributes
+	 * defined elsewhere.
+	 *
+	 * For example:
+	 * `{ colorComment?: string; }`
+	 * becomes
+	 * `{ '--colorComment': string | undefined; }`
+	 */
+	[ key in `--${ keyof Pick<
+		Attributes,
+		Extract< keyof Attributes, `color${ Capitalize< string > }` >
+	> }` ]-?: string | undefined;
+} & {
+	'--line-numbers-start-at'?: string;
+	'--line-number-gutter-width'?: string;
+	'--colorBackground'?: string;
+	'--colorText'?: string;
+};
+
+/**
  * Transforms attributes into CSS custom properties for inline style use.
  *
  * @param attributes - Block attributes.
  * @return CSS style object.
  */
-export function colorsToStyle( attributes: Attributes ): {
-	[ key in `--${ keyof Pick<
-		Attributes,
-		Extract< keyof Attributes, `color${ Capitalize< string > }` >
-	> }` ]-?: string | undefined;
-} {
-	const lineProperties: CSSProperties = {};
-	if ( attributes.showLineNumbers && attributes.tokenizedLines.length ) {
-		const maxLineNumberWidth =
-			Math.floor(
-				Math.log10( attributes.lineNumbersStartAt + ( attributes.tokenizedLines.length - 1 ) )
-			) + 1;
-		lineProperties[ '--line-numbers-start-at' ] = String( attributes.lineNumbersStartAt );
-		lineProperties[ '--line-number-gutter-width' ] = `${ maxLineNumberWidth }ch`;
-	}
-
-	const extraColorProperties: CSSProperties = {};
-	if ( attributes.backgroundColor ) {
-		extraColorProperties[
-			'--colorBackground'
-		] = `var( --wp--preset--color--${ attributes.backgroundColor } )`;
-	} else if ( attributes.style?.color?.background ) {
-		extraColorProperties[ '--colorBackground' ] = attributes.style.color.background;
-	}
-	if ( attributes.textColor ) {
-		extraColorProperties[ '--colorText' ] = `var( --wp--preset--color--${ attributes.textColor } )`;
-	} else if ( attributes.style?.color?.text ) {
-		extraColorProperties[ '--colorText' ] = attributes.style.color.text;
-	}
-
-	return {
+function blockStyle( attributes: Attributes ): BlockStyleProperties {
+	const properties: BlockStyleProperties = {
 		'--colorComment': attributes.colorComment,
 		'--colorKeyword': attributes.colorKeyword,
 		'--colorBoolean': attributes.colorBoolean,
@@ -464,9 +460,31 @@ export function colorsToStyle( attributes: Attributes ): {
 		'--colorTypeName': attributes.colorTypeName,
 		'--colorClassName': attributes.colorClassName,
 		'--colorInvalid': attributes.colorInvalid,
-		...lineProperties,
-		...extraColorProperties,
 	} satisfies React.CSSProperties;
+
+	if ( attributes.showLineNumbers && attributes.tokenizedLines.length ) {
+		const maxLineNumberWidth =
+			Math.floor(
+				Math.log10( attributes.lineNumbersStartAt + ( attributes.tokenizedLines.length - 1 ) )
+			) + 1;
+		properties[ '--line-numbers-start-at' ] = String( attributes.lineNumbersStartAt );
+		properties[ '--line-number-gutter-width' ] = `${ maxLineNumberWidth }ch`;
+	}
+
+	if ( attributes.backgroundColor ) {
+		properties[
+			'--colorBackground'
+		] = `var( --wp--preset--color--${ attributes.backgroundColor } )`;
+	} else if ( attributes.style?.color?.background ) {
+		properties[ '--colorBackground' ] = attributes.style.color.background;
+	}
+	if ( attributes.textColor ) {
+		properties[ '--colorText' ] = `var( --wp--preset--color--${ attributes.textColor } )`;
+	} else if ( attributes.style?.color?.text ) {
+		properties[ '--colorText' ] = attributes.style.color.text;
+	}
+
+	return properties;
 }
 
 /**
