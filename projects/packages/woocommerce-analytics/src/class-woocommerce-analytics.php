@@ -170,7 +170,7 @@ class Woocommerce_Analytics {
 		$mu_plugin_dest_file = WPMU_PLUGIN_DIR . '/woocommerce-analytics-proxy-speed-module.php';
 		$results             = copy( $mu_plugin_src_file, $mu_plugin_dest_file );
 
-		if ( is_wp_error( $results ) ) {
+		if ( ! $results ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
 				wc_get_logger()->error( 'Failed to copy the WooCommerce Analytics proxy speed module files.', array( 'source' => 'woocommerce-analytics' ) );
 			}
