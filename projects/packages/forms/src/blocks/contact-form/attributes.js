@@ -53,4 +53,8 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	emailNotifications: {
+		type: 'boolean',
+		default: true,
+	},
 };

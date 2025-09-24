@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -630,50 +629,53 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$response = Feedback::get( $item->ID );
+		$feedback_response = Feedback::get( $item->ID );
 		if ( ! $response ) {
 			return rest_ensure_response( $data );
 		}
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
-			$data['uid'] = $response->get_feedback_id();
+			$data['uid'] = $feedback_response->get_feedback_id();
 		}
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $response->get_author();
+			$data['author_name'] = $feedback_response->get_author();
 		}
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
-			$data['author_email'] = $response->get_author_email();
+			$data['author_email'] = $feedback_response->get_author_email();
 		}
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
-			$data['author_url'] = $response->get_author_url();
+			$data['author_url'] = $feedback_response->get_author_url();
 		}
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
-			$data['author_avatar'] = $response->get_author_avatar();
+			$data['author_avatar'] = $feedback_response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $response->has_consent() ? '1' : '';
+			$data['email_marketing_consent'] = $feedback_response->has_consent() ? '1' : '';
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
-			$data['ip'] = $response->get_ip_address();
+			$data['ip'] = $feedback_response->get_ip_address();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
-			$data['entry_title'] = $response->get_entry_title();
+			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
-			$data['entry_permalink'] = $response->get_entry_permalink();
+			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
-			$data['subject'] = $response->get_subject();
+			$data['subject'] = $feedback_response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
+			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
-			$data['has_file'] = $response->has_file();
+			$data['has_file'] = $feedback_response->has_file();
 		}
-		return rest_ensure_response( $data );
+
+		$response->set_data( $data );
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -1024,9 +1026,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {
 			case 'akismet':
-				$dashboard_view_switch                       = new Dashboard_View_Switch();
 				$status['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-				$status['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+				$status['details']['formSubmissionsSpamUrl'] = Forms_Dashboard::get_forms_admin_url( 'spam' );
 				$status['needsConnection']                   = true;
 				break;
 			case 'zero-bs-crm':
@@ -1081,7 +1082,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$switch = new Dashboard_View_Switch();
 		$has_ai = false;
 		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
 			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
@@ -1090,8 +1090,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
-			'formsResponsesUrl'       => $switch->get_forms_admin_url(),
-			'preferredView'           => $switch->get_preferred_view(),
+			'formsResponsesUrl'       => Forms_Dashboard::get_forms_admin_url(),
 			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 			// From config in class-dashboard.php.
 			'blogId'                  => get_current_blog_id(),
@@ -1101,8 +1100,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
 			'hasAI'                   => $has_ai,
 			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
-			'renderMigrationPage'     => $switch->is_jetpack_forms_announcing_new_menu(),
-			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $switch->get_forms_admin_url() ),
+			'dashboardURL'            => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
 			'canInstallPlugins'       => current_user_can( 'install_plugins' ),
 			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),

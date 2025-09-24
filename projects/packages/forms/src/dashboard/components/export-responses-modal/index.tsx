@@ -9,8 +9,6 @@ import { __ } from '@wordpress/i18n';
 import CSVExport from '../../inbox/export-responses/csv';
 import GoogleDriveExport from '../../inbox/export-responses/google-drive';
 
-import './style.scss';
-
 type ExportResponse = {
 	download_url: string;
 	count: number;
@@ -29,14 +27,11 @@ const ExportResponsesModal = ( {
 }: ExportResponsesModalProps ) => {
 	return (
 		<Modal
-			title={ __( 'Export your Form Responses', 'jetpack-forms' ) }
+			title={ __( 'Export responses', 'jetpack-forms' ) }
 			onRequestClose={ onRequestClose }
 			size="large"
 		>
 			<VStack spacing={ 8 }>
-				<p className="jp-forms__export-modal-header-subtitle">
-					{ __( 'Choose your favorite file format or export destination:', 'jetpack-forms' ) }
-				</p>
 				<CSVExport onExport={ onExport } />
 				<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
 			</VStack>

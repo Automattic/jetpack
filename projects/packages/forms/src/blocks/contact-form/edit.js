@@ -102,6 +102,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		formTitle,
 		variationName,
+		emailNotifications,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -686,8 +687,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Manage responses', 'jetpack-forms' ) }
-						className="jetpack-contact-form__manage-responses-panel"
+						title={ __( 'Responses storage', 'jetpack-forms' ) }
+						className="jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings
@@ -747,10 +748,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email connection', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
+							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
 							postAuthorEmail={ postAuthorEmail }
 							setAttributes={ setAttributes }

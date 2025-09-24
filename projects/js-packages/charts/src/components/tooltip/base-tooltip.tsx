@@ -17,6 +17,12 @@ type TooltipCommonProps = {
 	left: number;
 	style?: CSSProperties;
 	className?: string;
+	/**
+	 * Whether to render the tooltip container div. When false, only renders the content.
+	 * Useful when the tooltip is rendered inside a portal or custom container.
+	 * @default true
+	 */
+	renderContainer?: boolean;
 };
 
 type DefaultDataTooltip = {
@@ -46,10 +52,18 @@ export const BaseTooltip = ( {
 	component: Component = DefaultTooltipContent,
 	children,
 	className,
+	style,
+	renderContainer = true,
 }: BaseTooltipProps ) => {
+	const content = children || ( data && <Component data={ data } className={ className } /> );
+
+	if ( ! renderContainer ) {
+		return content;
+	}
+
 	return (
-		<div className={ styles.tooltip } style={ { top, left } } role="tooltip">
-			{ children || ( data && <Component data={ data } className={ className } /> ) }
+		<div className={ styles.tooltip } style={ { top, left, ...style } } role="tooltip">
+			{ content }
 		</div>
 	);
 };

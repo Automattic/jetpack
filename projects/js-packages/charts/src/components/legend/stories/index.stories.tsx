@@ -177,7 +177,7 @@ const WithLineChartData = () => {
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			/>
-			<Legend items={ legendItems } orientation="horizontal" />
+			<Legend items={ legendItems } orientation="horizontal" shape="line" />
 		</div>
 	);
 };
@@ -231,7 +231,7 @@ const StandaloneLegendWithChartIdComponent = () => {
 				withLegendGlyph={ false }
 			/>
 			{ /* Standalone legend that automatically gets data from chart context */ }
-			<Legend chartId="standalone-legend-chart" orientation="horizontal" />
+			<Legend chartId="standalone-legend-chart" orientation="horizontal" shape="line" />
 		</div>
 	);
 };
@@ -365,7 +365,7 @@ const DashboardWithCentralizedLegend = () => {
 					>
 						Revenue Trends
 					</h4>
-					<Legend chartId="dashboard-revenue" orientation="vertical" />
+					<Legend chartId="dashboard-revenue" orientation="vertical" shape="line" />
 				</div>
 
 				<div style={ { marginBottom: '20px' } }>
@@ -391,7 +391,7 @@ const DashboardWithCentralizedLegend = () => {
 					>
 						Device Distribution
 					</h4>
-					<Legend chartId="dashboard-devices" orientation="vertical" />
+					<Legend chartId="dashboard-devices" orientation="vertical" shape="circle" />
 				</div>
 			</aside>
 		</div>
@@ -551,7 +551,7 @@ This interactive story demonstrates all the text overflow and wrapping features 
 - **Text Overflow Modes**:
   - **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
   - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
-  
+
 - **Orientation**: Switch between horizontal and vertical layouts
 - **Max Width**: Adjust the maximum width constraint with the slider (50-300px)
 - **Position & Alignment**: Control legend placement

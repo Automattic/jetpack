@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Editor assets endpoint: allow all `jetpack/contact-info` inner blocks.

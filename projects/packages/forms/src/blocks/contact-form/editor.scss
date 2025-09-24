@@ -61,7 +61,7 @@
 			max-width: 100%;
 
 			&.wp-block-jetpack-button {
-				flex-basis: auto;
+				flex: 0 0 auto;
 				min-height: var(--jetpack--contact-form--input-height, auto);
 				align-self: flex-end;
 				line-height: 1;
@@ -1141,7 +1141,7 @@
 }
 
 /* Styles for form inspector panels */
-.jetpack-contact-form__manage-responses-panel,
+.jetpack-contact-form__responses-storage-panel,
 .jetpack-contact-form__integrations-panel {
 
 	.components-button.is-secondary {

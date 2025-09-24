@@ -21,8 +21,8 @@ export default function SliderInputEdit( props ) {
 	const onChangeMin = context[ 'jetpack/field-slider-onChangeMin' ];
 	const onChangeMax = context[ 'jetpack/field-slider-onChangeMax' ];
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
-	const minTextLabel = context[ 'jetpack/field-slider-minLabel' ];
-	const maxTextLabel = context[ 'jetpack/field-slider-maxLabel' ];
+	const minLabelFromContext = context[ 'jetpack/field-slider-minLabel' ];
+	const maxLabelFromContext = context[ 'jetpack/field-slider-maxLabel' ];
 	const onChangeMinLabel = context[ 'jetpack/field-slider-onChangeMinLabel' ];
 	const onChangeMaxLabel = context[ 'jetpack/field-slider-onChangeMaxLabel' ];
 
@@ -31,8 +31,10 @@ export default function SliderInputEdit( props ) {
 	const [ localMax, setLocalMax ] = useState( String( maxFromContext ) );
 	const [ minFocused, setMinFocused ] = useState( false );
 	const [ maxFocused, setMaxFocused ] = useState( false );
-	const [ localMinLabel, setLocalMinLabel ] = useState( String( minTextLabel ) );
-	const [ localMaxLabel, setLocalMaxLabel ] = useState( String( maxTextLabel ) );
+	const [ localMinLabel, setLocalMinLabel ] = useState( String( minLabelFromContext ) );
+	const [ localMaxLabel, setLocalMaxLabel ] = useState( String( maxLabelFromContext ) );
+	const [ minLabelFocused, setMinLabelFocused ] = useState( false );
+	const [ maxLabelFocused, setMaxLabelFocused ] = useState( false );
 
 	// Derived variables
 	const isMinValid = Number( localMin ) <= Number( localMax );
@@ -70,6 +72,16 @@ export default function SliderInputEdit( props ) {
 			setLocalMax( String( maxFromContext ) );
 		}
 	}, [ minFromContext, maxFromContext, minFocused, maxFocused ] );
+
+	// Sync label text fields when context labels change, unless focused locally
+	useEffect( () => {
+		if ( ! minLabelFocused ) {
+			setLocalMinLabel( String( minLabelFromContext ?? '' ) );
+		}
+		if ( ! maxLabelFocused ) {
+			setLocalMaxLabel( String( maxLabelFromContext ?? '' ) );
+		}
+	}, [ minLabelFromContext, maxLabelFromContext, minLabelFocused, maxLabelFocused ] );
 
 	return (
 		<div { ...blockProps }>
@@ -147,7 +159,9 @@ export default function SliderInputEdit( props ) {
 					value={ localMinLabel }
 					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
 					onChange={ e => setLocalMinLabel( e.target.value ) }
+					onFocus={ () => setMinLabelFocused( true ) }
 					onBlur={ () => {
+						setMinLabelFocused( false );
 						onChangeMinLabel?.( localMinLabel );
 					} }
 				/>
@@ -159,7 +173,9 @@ export default function SliderInputEdit( props ) {
 					value={ localMaxLabel }
 					placeholder={ __( 'Add label…', 'jetpack-forms' ) }
 					onChange={ e => setLocalMaxLabel( e.target.value ) }
+					onFocus={ () => setMaxLabelFocused( true ) }
 					onBlur={ () => {
+						setMaxLabelFocused( false );
 						onChangeMaxLabel?.( localMaxLabel );
 					} }
 				/>

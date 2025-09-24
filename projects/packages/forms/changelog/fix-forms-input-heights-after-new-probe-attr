@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: remove input element height CSS rule after fixing form-styles hook attribute

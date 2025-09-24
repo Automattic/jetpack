@@ -326,23 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.1-a.3 - 2025-09-15
-#### Enhancements
-- Forms: Add new block toggle to skip saving form submisions on WP Admin.
-- Forms: Add integrations permissions check.
-- Forms: Add preloaded config endpoint.
-- Forms: Improve supported integrations filter.
-- Forms: Phone field can now contain a country selector combobox.
-
-#### Improved compatibility
-- Forms: Add integrations feature flag.
-- Site Accelerator (Image CDN): Add support for images added via Breakdance blocks.
-
-#### Bug fixes
-- AI Assistant: Fix spacing on Forms block.
-- Forms: Fix MailPoet string warning.
-- Widget Visibility: Prevent PHP error under specific block conditions.
-
+### 15.1-a.7 - 2025-09-22
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

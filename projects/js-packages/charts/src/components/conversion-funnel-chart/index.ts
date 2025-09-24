@@ -6,4 +6,4 @@ export type {
 	StepRateRenderProps,
 	MainMetricRenderProps,
 	TooltipRenderProps,
-} from './conversion-funnel-chart';
+} from './types';
