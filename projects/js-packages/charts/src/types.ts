@@ -356,6 +356,24 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendTextOverflow?: 'ellipsis' | 'wrap';
 	/**
+	 * Margin around the legend container.
+	 * Can be a CSS margin string (e.g. '10px', '1rem 2rem', '10px 20px 30px 40px')
+	 * or an object with individual margin properties (e.g. {top: 10, right: 15, bottom: 10, left: 15})
+	 */
+	legendMargin?:
+		| string
+		| {
+				top?: number | string;
+				right?: number | string;
+				bottom?: number | string;
+				left?: number | string;
+		  };
+	/**
+	 * Custom CSS styles for the legend container.
+	 * These styles will be merged with and override default styles.
+	 */
+	legendStyle?: CSSProperties;
+	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
