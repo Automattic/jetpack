@@ -212,6 +212,11 @@ that needs to mimic the input element styles */
 	opacity: 0.6;
 }
 
+.contact-form :where(.grunion-label-required--asterisk) {
+	color: var(--jetpack--contact-form--error-color);
+	opacity: 1;
+}
+
 .contact-form-submission {
 	margin-bottom: 4em;
 	padding: 1.5em 1em;

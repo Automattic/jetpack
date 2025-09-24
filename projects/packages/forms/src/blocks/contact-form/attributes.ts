@@ -64,4 +64,12 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	requiredIndicator: {
+		type: 'string',
+		default: 'text',
+	},
+	requiredText: {
+		type: 'string',
+		default: __( '(required)', 'jetpack-forms' ),
+	},
 };

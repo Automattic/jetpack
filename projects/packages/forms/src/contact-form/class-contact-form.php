@@ -189,6 +189,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
+			'requiredIndicator'      => 'text',
+			'requiredText'           => __( '(required)', 'jetpack-forms' ),
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );

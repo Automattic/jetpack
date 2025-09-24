@@ -114,6 +114,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'type'                     => 'text',
 				'required'                 => false,
 				'requiredtext'             => null,
+				'requiredindicator'        => null,
+				'formrequiredtext'         => null,
 				'options'                  => array(),
 				'optionsdata'              => array(),
 				'id'                       => null,
@@ -190,6 +192,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		if ( $attributes['requiredtext'] === null ) {
 			$attributes['requiredtext'] = __( '(required)', 'jetpack-forms' );
+		}
+
+		// Apply form-level required indicator settings
+		if ( $form !== null ) {
+			$form_required_indicator = $form->get_attribute( 'requiredIndicator' );
+			$form_required_text      = $form->get_attribute( 'requiredText' );
+
+			if ( $form_required_indicator === 'asterisk' ) {
+				$attributes['requiredtext']      = '*';
+				$attributes['requiredindicator'] = 'asterisk'; // Store indicator type for CSS styling
+			} elseif ( $form_required_indicator === 'hidden' ) {
+				$attributes['requiredtext']      = ''; // Will be handled in render methods
+				$attributes['requiredindicator'] = 'hidden';
+			} elseif ( $form_required_indicator === 'text' && ! empty( $form_required_text ) ) {
+				$attributes['requiredtext']      = $form_required_text;
+				$attributes['requiredindicator'] = 'text';
+			}
 		}
 
 		// parse out comma-separated options list (for selects, radios, and checkbox-multiples)
@@ -807,13 +826,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
 		}
 
-		$type_class = $type ? ' ' . $type : '';
+		$type_class              = $type ? ' ' . $type : '';
+		$required_indicator_type = $this->get_attribute( 'requiredindicator' );
+		$required_class          = 'grunion-label-required';
+		if ( $required_indicator_type === 'asterisk' ) {
+			$required_class .= ' grunion-label-required--asterisk';
+		}
 		return "<label
 				for='" . esc_attr( $id ) . "' "
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && ! empty( $required_field_text ) ? '<span class="' . esc_attr( $required_class ) . '" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			"</label>\n";
 	}
 
@@ -848,11 +872,17 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
+		$required_indicator_type = $this->get_attribute( 'requiredindicator' );
+		$required_class          = 'grunion-label-required';
+		if ( $required_indicator_type === 'asterisk' ) {
+			$required_class .= ' grunion-label-required--asterisk';
+		}
+
 		return '<legend '
 				. $extra_attrs_string
 				. '>'
 				. '<span class="grunion-label-text">' . wp_kses_post( $legend ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
+				. ( $required ? '<span class="' . esc_attr( $required_class ) . '">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
 
@@ -1363,10 +1393,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label_class                  .= $this->option_classes ? ' ' . $this->option_classes : '';
 		$has_inner_block_option_styles = ! empty( $this->get_attribute( 'optionstyles' ) );
 
-		$field  = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
-		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$field                   = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
+		$field                  .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$required_indicator_type = $this->get_attribute( 'requiredindicator' );
+		$required_class          = 'grunion-label-required';
+		if ( $required_indicator_type === 'asterisk' ) {
+			$required_class .= ' grunion-label-required--asterisk';
+		}
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
-		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
+		$field .= wp_kses_post( $label ) . ( $required ? '<span class="' . esc_attr( $required_class ) . '" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		$field .= '</div>';
@@ -2309,7 +2344,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
 
-		$output_data = $this->get_form_variation_style_properties();
+		$output_data             = $this->get_form_variation_style_properties();
+		$required_indicator_type = $this->get_attribute( 'requiredindicator' );
+		$required_class          = 'grunion-label-required';
+		if ( $required_indicator_type === 'asterisk' ) {
+			$required_class .= ' grunion-label-required--asterisk';
+		}
 
 		return '
 			<div class="notched-label">
@@ -2321,7 +2361,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
 					>
 					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+					. ( $required && ! empty( $required_field_text ) ? '<span class="' . esc_attr( $required_class ) . '" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
 				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
@@ -2340,9 +2380,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_animated_label( $id, $label, $required, $required_field_text ) {
-		$classes  = 'animated-label__label';
-		$classes .= $this->is_error() ? ' form-error' : '';
-		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
+		$classes                 = 'animated-label__label';
+		$classes                .= $this->is_error() ? ' form-error' : '';
+		$classes                .= $this->label_classes ? ' ' . $this->label_classes : '';
+		$required_indicator_type = $this->get_attribute( 'requiredindicator' );
+		$required_class          = 'grunion-label-required';
+		if ( $required_indicator_type === 'asterisk' ) {
+			$required_class .= ' grunion-label-required--asterisk';
+		}
 
 		return '
 			<label
@@ -2351,7 +2396,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>
 				<span class="grunion-label-text">' . wp_kses_post( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && ! empty( $required_field_text ) ? '<span class="' . esc_attr( $required_class ) . '" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
@@ -2372,7 +2417,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
 			>'
 			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			. ( $required && ! empty( $required_field_text ) ? '<span>' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 

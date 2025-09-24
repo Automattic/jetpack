@@ -46,7 +46,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
-import { CORE_BLOCKS, isInputField } from '../shared/util/constants';
+import { CORE_BLOCKS, isInputField, REQUIRED_INDICATOR } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -116,6 +116,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		variationName,
 		emailNotifications,
 		disableGoBack,
+		requiredIndicator,
+		requiredText,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -819,6 +821,49 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
+					<PanelBody
+						title={ __( 'Required field indicators', 'jetpack-forms' ) }
+						initialOpen={ false }
+					>
+						<InspectorHint>
+							{ __( 'Customize how required field indicators are displayed:', 'jetpack-forms' ) }
+						</InspectorHint>
+						<SelectControl
+							label={ __( 'Required indicator', 'jetpack-forms' ) }
+							value={ requiredIndicator }
+							options={ [
+								{
+									label: __( 'Text (e.g., "(required)")', 'jetpack-forms' ),
+									value: REQUIRED_INDICATOR.TEXT,
+								},
+								{
+									label: __( 'Asterisk (*)', 'jetpack-forms' ),
+									value: REQUIRED_INDICATOR.ASTERISK,
+								},
+								{
+									label: __( 'Hidden (only show in validation errors)', 'jetpack-forms' ),
+									value: REQUIRED_INDICATOR.HIDDEN,
+								},
+							] }
+							onChange={ newIndicator => setAttributes( { requiredIndicator: newIndicator } ) }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+						{ requiredIndicator === REQUIRED_INDICATOR.TEXT && (
+							<TextControl
+								label={ __( 'Required text', 'jetpack-forms' ) }
+								value={ requiredText }
+								placeholder={ __( '(required)', 'jetpack-forms' ) }
+								onChange={ newText => setAttributes( { requiredText: newText } ) }
+								help={ __(
+									'This text will appear next to required field labels.',
+									'jetpack-forms'
+								) }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
+							/>
+						) }
+					</PanelBody>
 					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
@@ -856,6 +901,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					value={ {
 						'jetpack/form-steps': steps,
 						'jetpack/form-current-step': currentStepInfo,
+						'jetpack/form-required-indicator': requiredIndicator,
+						'jetpack/form-required-text': requiredText,
 					} }
 				>
 					<div { ...innerBlocksProps } />
