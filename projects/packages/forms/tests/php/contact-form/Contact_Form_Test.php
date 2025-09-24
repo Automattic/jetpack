@@ -2720,6 +2720,7 @@ EOT;
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
 			'mailpoet'               => '',
+			'emailNotifications'     => 'yes',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
@@ -3464,5 +3465,250 @@ EOT;
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 
 		Contact_Form::reset_errors();
+	}
+
+	/**
+	 * Test that email is sent when emailNotifications is 'yes' (default behavior)
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_enabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				$this->assertEquals( 'Contact Form', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications explicitly set to 'yes'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is "yes"' );
+	}
+
+	/**
+	 * Test that email is NOT sent when emailNotifications is 'no'
+	 */
+	public function test_process_submission_does_not_send_email_when_email_notifications_disabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when emailNotifications is "no"' );
+	}
+
+	/**
+	 * Test that emailNotifications does not affect spam email behavior
+	 */
+	public function test_process_submission_email_notifications_does_not_affect_spam_behavior() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Mark submission as spam
+		add_filter( 'jetpack_contact_form_is_spam', '__return_true', 11 );
+
+		// Track if wp_mail was called for spam
+		$spam_email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$spam_email_sent ) {
+				$spam_email_sent = true;
+				$this->assertStringContainsString( '***SPAM***', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no' but spam email enabled
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should still be sent regardless of emailNotifications setting
+		$this->assertFalse( $spam_email_sent, 'Spam email should NOT be sent by default even when emailNotifications is disabled' );
+
+		// Now enable spam email sending
+		add_filter( 'grunion_still_email_spam', '__return_true' );
+
+		$spam_email_sent = false;
+		$result          = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should be sent when grunion_still_email_spam filter is true
+		$this->assertTrue( $spam_email_sent, 'Spam email should be sent when grunion_still_email_spam filter is true, regardless of emailNotifications setting' );
+	}
+
+	/**
+	 * Test that emailNotifications defaults to 'yes' when not specified
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_not_specified() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form without specifying emailNotifications (should default to 'yes')
+		$form = new Contact_Form(
+			array(
+				'to'      => 'john@example.com',
+				'subject' => 'Contact Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is not specified (defaults to "yes")' );
+	}
+
+	/**
+	 * Test that email is not sent when grunion_should_send_email filter is false and emailNotifications is set to 'yes'
+	 */
+	public function test_process_submission_does_not_send_email_when_grunion_should_send_email_filter_is_false_and_emailNotifications_is_set_to_yes() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_false' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when grunion_should_send_email filter is false' );
+
+		remove_filter( 'grunion_should_send_email', '__return_false' );
+	}
+
+	/**
+	 * Test that email is sent when grunion_should_send_email filter is true and emailNotifications is set to 'no'
+	 */
+	public function test_process_submission_sends_email_when_grunion_should_send_email_filter_is_true_and_emailNotifications_is_set_to_no() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_true' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when grunion_should_send_email filter is true and emailNotifications is set to no' );
+
+		remove_filter( 'grunion_should_send_email', '__return_true' );
 	}
 }
