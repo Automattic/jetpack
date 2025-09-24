@@ -2,8 +2,8 @@
  * WordPress dependencies
  */
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { check, aspectRatio as aspectRatioIcon } from '@wordpress/icons';
 
 /**
@@ -22,6 +22,11 @@ interface AspectRatioGroupProps {
 
 /**
  *
+ * @param root0
+ * @param root0.aspectRatios
+ * @param root0.label
+ * @param root0.onClick
+ * @param root0.selectedAspectRatioSlug
  */
 function AspectRatioGroup( {
 	aspectRatios,
@@ -63,6 +68,12 @@ const EMPTY_ARRAY: AspectRatio[] | [] = [];
 
 /**
  *
+ * @param root0
+ * @param root0.onChange
+ * @param root0.aspectRatio
+ * @param root0.imageAspectRatios
+ * @param root0.defaultRatios
+ * @param root0.themeRatios
  */
 export default function AspectRatioDropdown( {
 	onChange,
@@ -98,13 +109,13 @@ export default function AspectRatioDropdown( {
 
 	useEffect( () => {
 		const name = findAspectRatioBySlug( aspectRatio?.slug, allRatios )?.name;
-		setAspectRatioName( name || __( 'Aspect Ratio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) );
+		setAspectRatioName( name || __( 'Aspect Ratio', 'jetpack-media-editor' ) );
 	}, [ aspectRatio?.slug, allRatios ] );
 
 	return (
 		<DropdownMenu
 			icon={ aspectRatioIcon }
-			label={ __( 'Aspect Ratio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+			label={ __( 'Aspect Ratio', 'jetpack-media-editor' ) }
 			popoverProps={ { placement: 'bottom-start' } }
 			text={ aspectRatioName }
 			toggleProps={ {
@@ -124,7 +135,7 @@ export default function AspectRatioDropdown( {
 					/>
 					{ themeRatios?.length > 0 && (
 						<AspectRatioGroup
-							label={ __( 'Theme', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Theme', 'jetpack-media-editor' ) }
 							onClick={ newAspectRatio => {
 								onChange( newAspectRatio );
 								onClose();
@@ -136,7 +147,7 @@ export default function AspectRatioDropdown( {
 					) }
 					{ landscapeRatios?.length > 0 && (
 						<AspectRatioGroup
-							label={ __( 'Landscape', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Landscape', 'jetpack-media-editor' ) }
 							onClick={ newAspectRatio => {
 								onChange( newAspectRatio );
 								onClose();
@@ -148,7 +159,7 @@ export default function AspectRatioDropdown( {
 					) }
 					{ portraitRatios?.length > 0 && (
 						<AspectRatioGroup
-							label={ __( 'Portrait', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Portrait', 'jetpack-media-editor' ) }
 							onClick={ newAspectRatio => {
 								onChange( newAspectRatio );
 								onClose();

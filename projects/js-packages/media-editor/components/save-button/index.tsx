@@ -10,25 +10,25 @@
 import { Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { store as noticesStore } from '@wordpress/notices';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 // TODO: Implement image cropping functionality
 // import { useImageCropper } from '@wordpress/image-cropper';
 
 /**
  * Internal dependencies
  */
-import { useSaveImage } from '../../hooks/use-save-image.ts';
 import { useResetEditedEntity } from '../../hooks/reset-edited-entity.ts';
+import { useSaveImage } from '../../hooks/use-save-image.ts';
 import { useMediaEditorState } from '../../provider/with-media-editor-state-provider.tsx';
 import { type MediaItemUpdatable } from '../../types.ts';
 
 /**
  * The save button component for the media editor.
  *
- * @param {object} props        The component props.
- * @param {number} props.postId The ID of the post to save.
+ * @param {object} props        - The component props.
+ * @param {number} props.postId - The ID of the post to save.
  * @return {JSX.Element} The save button component.
  *
  * @example
@@ -92,7 +92,7 @@ export default function MediaEditorSaveButton( { postId }: { postId: number } ) 
 			} );
 			return response;
 		} catch {
-			createErrorNotice( __( 'Could not save attachment.', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ), {
+			createErrorNotice( __( 'Could not save attachment.', 'jetpack-media-editor' ), {
 				id: 'attachment-save-error',
 				type: 'snackbar',
 			} );
@@ -107,7 +107,7 @@ export default function MediaEditorSaveButton( { postId }: { postId: number } ) 
 
 		if ( isEntityRecordDirty ) {
 			saveAttachment();
-			createSuccessNotice( __( 'Media saved', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ), {
+			createSuccessNotice( __( 'Media saved', 'jetpack-media-editor' ), {
 				id: 'attachements-save-success',
 				type: 'snackbar',
 			} );
@@ -131,7 +131,7 @@ export default function MediaEditorSaveButton( { postId }: { postId: number } ) 
 			disabled={ isButtonDisabled }
 			accessibleWhenDisabled
 		>
-			{ __( 'Save', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+			{ __( 'Save', 'jetpack-media-editor' ) }
 		</Button>
 	);
 }

@@ -156,7 +156,7 @@ export default function EditingToolsPanel() {
 	return (
 		<div className="next-admin-media-editor__tools-panel">
 			<ToolsPanel
-				label={ __( 'Crop area', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+				label={ __( 'Crop area', 'jetpack-media-editor' ) }
 				resetAll={ () => {
 					setZoom( resetState?.zoom ?? 1 );
 					setAspectRatio( resetState?.aspectRatio ?? 1 );
@@ -166,16 +166,20 @@ export default function EditingToolsPanel() {
 			>
 				<ToolsPanelItem
 					hasValue={ () => zoom !== resetState?.zoom }
-					label={ __( 'Zoom', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+					label={ __( 'Zoom', 'jetpack-media-editor' ) }
 					onDeselect={ () => setZoom( resetState?.zoom ?? 1 ) }
 					isShownByDefault
 					panelId={ 'crop-area' }
 				>
-					<ZoomRange label={ __( 'Zoom', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) } zoom={ zoom } onChange={ setZoom } />
+					<ZoomRange
+						label={ __( 'Zoom', 'jetpack-media-editor' ) }
+						zoom={ zoom }
+						onChange={ setZoom }
+					/>
 				</ToolsPanelItem>
 				<ToolsPanelItem
 					hasValue={ () => aspectRatio !== resetState?.aspectRatio }
-					label={ __( 'Aspect ratio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+					label={ __( 'Aspect ratio', 'jetpack-media-editor' ) }
 					onDeselect={ () => {
 						setAspectRatio( resetState?.aspectRatio ?? 1 );
 						setSelectedAspectRatio( imageAspectRatios[ 0 ] ?? null );
@@ -194,13 +198,13 @@ export default function EditingToolsPanel() {
 				</ToolsPanelItem>
 			</ToolsPanel>
 			<ToolsPanel
-				label={ __( 'Position', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+				label={ __( 'Position', 'jetpack-media-editor' ) }
 				resetAll={ resetPositionTools }
 				panelId={ 'position' }
 			>
 				<ToolsPanelItem
 					hasValue={ () => rotation !== resetState?.rotation }
-					label={ __( 'Rotate', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+					label={ __( 'Rotate', 'jetpack-media-editor' ) }
 					onDeselect={ () => {
 						setRotation( resetState?.rotation ?? 0 );
 						if ( 1 === zoom ) {
@@ -216,26 +220,26 @@ export default function EditingToolsPanel() {
 						size={ 11 }
 						className="next-admin-media-editor__tools-panel-heading"
 					>
-						{ __( 'Rotate', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+						{ __( 'Rotate', 'jetpack-media-editor' ) }
 					</Heading>
 					<Stack direction="row" justify="space-between" gap={ 2 }>
 						<Button
 							className="next-admin-media-editor__tools-panel-button"
 							variant="secondary"
 							icon={ rotateLeftIcon }
-							label={ __( 'Rotate 90° left', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Rotate 90° left', 'jetpack-media-editor' ) }
 							onClick={ () => handleSetRotation( rotation - 90 ) }
 						>
-							{ __( '90° left', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							{ __( '90° left', 'jetpack-media-editor' ) }
 						</Button>
 						<Button
 							className="next-admin-media-editor__tools-panel-button"
 							variant="secondary"
 							icon={ rotateRightIcon }
-							label={ __( 'Rotate 90° right', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Rotate 90° right', 'jetpack-media-editor' ) }
 							onClick={ () => handleSetRotation( rotation + 90 ) }
 						>
-							{ __( '90° right', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							{ __( '90° right', 'jetpack-media-editor' ) }
 						</Button>
 					</Stack>
 				</ToolsPanelItem>
@@ -244,7 +248,7 @@ export default function EditingToolsPanel() {
 						flip.horizontal !== resetState?.flip?.horizontal ||
 						flip.vertical !== resetState?.flip?.vertical
 					}
-					label={ __( 'Flip', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+					label={ __( 'Flip', 'jetpack-media-editor' ) }
 					onDeselect={ () =>
 						setFlip(
 							resetState?.flip ?? {
@@ -262,14 +266,14 @@ export default function EditingToolsPanel() {
 						size={ 11 }
 						className="next-admin-media-editor__tools-panel-heading"
 					>
-						{ __( 'Flip', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+						{ __( 'Flip', 'jetpack-media-editor' ) }
 					</Heading>
 					<Stack direction="row" justify="space-between" gap={ 2 }>
 						<Button
 							className="next-admin-media-editor__tools-panel-button"
 							variant="secondary"
 							icon={ flipHorizontalIcon }
-							label={ __( 'Flip horizontal', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Flip horizontal', 'jetpack-media-editor' ) }
 							onClick={ () =>
 								setFlip( {
 									vertical: flip.vertical,
@@ -277,13 +281,13 @@ export default function EditingToolsPanel() {
 								} )
 							}
 						>
-							{ __( 'Horizontal', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							{ __( 'Horizontal', 'jetpack-media-editor' ) }
 						</Button>
 						<Button
 							variant="secondary"
 							className="next-admin-media-editor__tools-panel-button"
 							icon={ flipVerticalIcon }
-							label={ __( 'Flip vertical', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							label={ __( 'Flip vertical', 'jetpack-media-editor' ) }
 							onClick={ () =>
 								setFlip( {
 									vertical: ! flip.vertical,
@@ -291,7 +295,7 @@ export default function EditingToolsPanel() {
 								} )
 							}
 						>
-							{ __( 'Vertical', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							{ __( 'Vertical', 'jetpack-media-editor' ) }
 						</Button>
 					</Stack>
 				</ToolsPanelItem>
@@ -308,7 +312,7 @@ export default function EditingToolsPanel() {
 					isDestructive
 					onClick={ handleReset }
 				>
-					{ __( 'Reset all', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+					{ __( 'Reset all', 'jetpack-media-editor' ) }
 				</Button>
 			</Stack>
 		</div>

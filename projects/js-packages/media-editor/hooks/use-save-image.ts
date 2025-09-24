@@ -3,10 +3,10 @@
  */
 import { useEntityRecord, store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
+import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 // TODO: Implement image cropping functionality
 // import { useImageCropper, normalizeRotation } from '@wordpress/image-cropper';
 // TODO: Replace with available alternative
@@ -19,6 +19,11 @@ import { useMediaEditorState } from '../provider/with-media-editor-state-provide
 
 /**
  *
+ * @param props
+ * @param props.url
+ * @param props.id
+ * @param props.onSaveImage
+ * @param props.onFinishEditing
  */
 export function useSaveImage( props?: {
 	url?: string;
@@ -131,7 +136,7 @@ export function useSaveImage( props?: {
 					id: response.id,
 					url: response.source_url,
 				} );
-				createSuccessNotice( __( 'Image edited and saved.', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ), {
+				createSuccessNotice( __( 'Image edited and saved.', 'jetpack-media-editor' ), {
 					type: 'snackbar',
 					id: 'image-editing-success-notice',
 				} );
@@ -141,7 +146,7 @@ export function useSaveImage( props?: {
 			createErrorNotice(
 				sprintf(
 					/* translators: %s: Error message. */
-					__( 'Could not edit image. %s', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+					__( 'Could not edit image. %s', 'jetpack-media-editor' ),
 					stripHTML( errorMessage )
 				),
 				{

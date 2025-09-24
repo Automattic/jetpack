@@ -14,6 +14,11 @@ import type { MediaItem } from '../../types';
 
 /**
  *
+ * @param root0
+ * @param root0.postType
+ * @param root0.postId
+ * @param root0.isPreview
+ * @param root0.children
  */
 export default function MediaEditor( {
 	postType = 'attachment',
@@ -33,7 +38,7 @@ export default function MediaEditor( {
 			<Notice status="error" isDismissible={ false }>
 				{ __(
 					"You attempted to edit an item that doesn't exist. Perhaps it was deleted?",
-					'no text domain is set in this in this project's eslint.config.mjs or composer.json'
+					'jetpack-media-editor'
 				) }
 			</Notice>
 		);

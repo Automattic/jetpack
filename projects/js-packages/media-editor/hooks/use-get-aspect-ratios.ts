@@ -29,7 +29,7 @@ export default function useGetAspectRatios() {
 		const showDefaultRatios = !! baseConfig?.settings?.dimensions?.defaultAspectRatios;
 		const imageAspectRatios: AspectRatio[] = [
 			{
-				name: __( 'Image Aspect Ratio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+				name: __( 'Image Aspect Ratio', 'jetpack-media-editor' ),
 				slug: 'image',
 				ratio: resetState?.aspectRatio ?? 1,
 			},

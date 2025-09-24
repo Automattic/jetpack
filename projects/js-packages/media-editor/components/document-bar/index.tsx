@@ -1,19 +1,20 @@
 /**
  * WordPress dependencies
  */
-import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { store as commandsStore } from '@wordpress/commands';
 import {
 	Button,
 	__experimentalText as Text,
 	__unstableMotion as motion,
- Icon } from '@wordpress/components';
+	Icon,
+} from '@wordpress/components';
+import { useReducedMotion } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
+import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
+import { useRef, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { displayShortcut } from '@wordpress/keycodes';
 // @ts-expect-error Commands package is not typed yet.
-import { store as commandsStore } from '@wordpress/commands';
-import { useRef, useEffect } from '@wordpress/element';
-import { useReducedMotion } from '@wordpress/compose';
-import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 
 /**
  * Internal dependencies
@@ -22,6 +23,9 @@ import './style.scss';
 
 /**
  *
+ * @param root0
+ * @param root0.icon
+ * @param root0.title
  */
 export default function DocumentBar( {
 	icon,
@@ -69,7 +73,7 @@ export default function DocumentBar( {
 				>
 					<Text size="body" as="h1">
 						<span className="next-admin-media-editor-document-bar__post-title">
-							{ title ? stripHTML( title ) : __( 'No title', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+							{ title ? stripHTML( title ) : __( 'No title', 'jetpack-media-editor' ) }
 						</span>
 					</Text>
 				</motion.div>

@@ -2,6 +2,9 @@
  * WordPress dependencies
  */
 import { privateApis as componentsPrivateApis } from '@wordpress/components';
+import { store as coreStore, useEntityId } from '@wordpress/core-data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { privateApis as editorPrivateApis } from '@wordpress/editor';
 import {
 	Platform,
 	useContext,
@@ -15,18 +18,15 @@ import { isRTL, __ } from '@wordpress/i18n';
 // TODO: Replace with available alternative
 // import { unlock } from '@wordpress/admin-toolkit';
 import { drawerLeft, drawerRight } from '@wordpress/icons';
-import { privateApis as editorPrivateApis } from '@wordpress/editor';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { store as coreStore, useEntityId } from '@wordpress/core-data';
 
 /**
  * Internal dependencies
  */
 import { useMediaEditorState } from '../../provider/with-media-editor-state-provider';
 import { getMediaTypeFromMimeType } from '../../utils';
-import type { MediaItemUpdatable } from '../../types';
 import MediaEditorSidebarDetails from './details';
 import MediaEditorSidebarEdit from './edit';
+import type { MediaItemUpdatable } from '../../types';
 import './style.scss';
 
 export const MEDIA_EDITOR_SIDEBAR = 'core/edit-media';
@@ -57,15 +57,19 @@ const interfaceStore = {
 
 /**
  *
+ * @param root0
+ * @param root0.mediaType
  */
 function SidebarHeader( { mediaType }: { mediaType: string } ) {
 	return (
 		<Tabs.TabList>
 			<Tabs.Tab tabId={ MEDIA_EDITOR_SIDEBAR_DETAILS_TAB }>
-				{ __( 'Details', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+				{ __( 'Details', 'jetpack-media-editor' ) }
 			</Tabs.Tab>
 			{ mediaType === 'image' && (
-				<Tabs.Tab tabId={ MEDIA_EDITOR_SIDEBAR_EDIT_TAB }>{ __( 'Edit', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }</Tabs.Tab>
+				<Tabs.Tab tabId={ MEDIA_EDITOR_SIDEBAR_EDIT_TAB }>
+					{ __( 'Edit', 'jetpack-media-editor' ) }
+				</Tabs.Tab>
 			) }
 		</Tabs.TabList>
 	);
@@ -73,6 +77,10 @@ function SidebarHeader( { mediaType }: { mediaType: string } ) {
 
 /**
  *
+ * @param root0
+ * @param root0.currentArea
+ * @param root0.isSidebarOpen
+ * @param root0.mediaType
  */
 function SidebarContent( {
 	currentArea,
@@ -101,8 +109,8 @@ function SidebarContent( {
 			}
 			headerClassName="next-admin-media-editor-sidebar__tabs-header"
 			/* translators: button label text should, if possible, be under 16 characters. */
-			title={ __( 'Media Editor', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
-			closeLabel={ __( 'Close Media Editor', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+			title={ __( 'Media Editor', 'jetpack-media-editor' ) }
+			closeLabel={ __( 'Close Media Editor', 'jetpack-media-editor' ) }
 			scope="core/edit-media"
 			identifier={ currentArea }
 			icon={ isRTL() ? drawerLeft : drawerRight }

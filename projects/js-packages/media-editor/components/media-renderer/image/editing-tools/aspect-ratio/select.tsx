@@ -14,6 +14,12 @@ const EMPTY_ARRAY: AspectRatio[] | [] = [];
 
 /**
  *
+ * @param root0
+ * @param root0.onChange
+ * @param root0.aspectRatio
+ * @param root0.imageAspectRatios
+ * @param root0.defaultRatios
+ * @param root0.themeRatios
  */
 export default function AspectRatioSelect( {
 	onChange,
@@ -48,7 +54,7 @@ export default function AspectRatioSelect( {
 
 	return (
 		<SelectControl
-			label={ __( 'Aspect ratio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) }
+			label={ __( 'Aspect ratio', 'jetpack-media-editor' ) }
 			value={ aspectRatio.slug }
 			options={ aspectRatioOptions }
 			onChange={ handleChange }

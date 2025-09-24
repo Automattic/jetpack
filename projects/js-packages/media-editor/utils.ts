@@ -25,7 +25,7 @@ export function getMediaTypeFromMimeType( mimeType: string ): MediaType {
 	if ( mimeType.startsWith( 'image/' ) ) {
 		return {
 			type: 'image',
-			label: __( 'Image', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+			label: __( 'Image', 'jetpack-media-editor' ),
 			icon: image,
 		};
 	}
@@ -33,7 +33,7 @@ export function getMediaTypeFromMimeType( mimeType: string ): MediaType {
 	if ( mimeType.startsWith( 'video/' ) ) {
 		return {
 			type: 'video',
-			label: __( 'Video', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+			label: __( 'Video', 'jetpack-media-editor' ),
 			icon: video,
 		};
 	}
@@ -41,14 +41,14 @@ export function getMediaTypeFromMimeType( mimeType: string ): MediaType {
 	if ( mimeType.startsWith( 'audio/' ) ) {
 		return {
 			type: 'audio',
-			label: __( 'Audio', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+			label: __( 'Audio', 'jetpack-media-editor' ),
 			icon: audio,
 		};
 	}
 
 	return {
 		type: 'application',
-		label: __( 'Application', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ),
+		label: __( 'Application', 'jetpack-media-editor' ),
 		icon: file,
 	};
 }

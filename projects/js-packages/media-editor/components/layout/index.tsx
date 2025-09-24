@@ -16,10 +16,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import MediaEditorCanvas from '../editor-canvas';
 import MediaEditorHeader from '../header';
 import MediaEditorNotices from '../notices';
 import MediaEditorSidebar from '../sidebar';
-import MediaEditorCanvas from '../editor-canvas';
 import './style.scss';
 
 // Unlock WordPress private APIs
@@ -41,6 +41,9 @@ const ComplementaryArea = {
 
 /**
  *
+ * @param root0
+ * @param root0.isPreview
+ * @param root0.editLink
  */
 export default function MediaEditorLayout( {
 	isPreview,
@@ -69,7 +72,7 @@ export default function MediaEditorLayout( {
 					content={ <MediaEditorCanvas /> }
 					secondarySidebar={ null }
 				/>
-				{ isPreview && <a { ...linkProps } aria-label={ __( 'Edit', 'no text domain is set in this in this project's eslint.config.mjs or composer.json' ) } /> }
+				{ isPreview && <a { ...linkProps } aria-label={ __( 'Edit', 'jetpack-media-editor' ) } /> }
 				<MediaEditorNotices />
 				<MediaEditorSidebar />
 			</div>
