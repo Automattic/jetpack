@@ -142,13 +142,6 @@ class Woocommerce_Analytics {
 				'enqueue'   => true,
 			)
 		);
-
-		// Make wcAnalytics available to the client script
-		wp_localize_script(
-			'woocommerce-analytics-client',
-			'wcAnalytics',
-			array()
-		);
 	}
 
 	/**
