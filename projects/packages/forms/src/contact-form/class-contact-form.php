@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
@@ -510,7 +510,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return;
 		}
 
-		$url = ( new Dashboard_View_Switch() )->get_forms_admin_url();
+		$url = Forms_Dashboard::get_forms_admin_url();
 
 		$admin_bar->add_menu(
 			array(
@@ -1984,7 +1984,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$dashboard_url           = '';
 		$footer_mark_as_spam_url = '';
 		if ( $feedback_status !== 'jp-temp-feedback' ) {
-			$dashboard_url           = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
+			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
 			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
 			$footer_mark_as_spam_url = sprintf(
 				'<a href="%1$s">%2$s</a>',

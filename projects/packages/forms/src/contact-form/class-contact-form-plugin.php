@@ -235,7 +235,7 @@ class Contact_Form_Plugin {
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				// when the legacy menu item is retired, we don't want to show the default post type listing
-				'show_ui'               => ! Jetpack_Forms::is_legacy_menu_item_retired(),
+				'show_ui'               => false,
 				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
@@ -1358,7 +1358,7 @@ class Contact_Form_Plugin {
 	public function admin_menu() {
 		$slug = 'feedback';
 
-		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
 			add_menu_page(
 				__( 'Feedback', 'jetpack-forms' ),
 				__( 'Feedback', 'jetpack-forms' ),
@@ -1385,12 +1385,11 @@ class Contact_Form_Plugin {
 			$slug
 		);
 
-		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
-			remove_submenu_page(
-				$slug,
-				'edit.php?post_type=feedback'
-			);
-		}
+		// remove the first default submenu item
+		remove_submenu_page(
+			$slug,
+			'edit.php?post_type=feedback'
+		);
 	}
 
 	/**

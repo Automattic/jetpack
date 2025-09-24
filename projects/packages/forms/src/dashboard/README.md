@@ -14,7 +14,7 @@ This is the React-app implementation for the new Jetpack Forms dashboard.
 ├── state/                          - App state.
 ├── index.js                        - App entrypoint.
 ├── class-dashboard.php             - Jetpack Forms WP Admin setup.
-└── class-dashboard-view-switch.php - Feedback view toggle implementation.
+└── class-dashboard-view-switch.php - Feedback view toggle implementation (deprecated, unused).
 ```
 
 *\**: All views get their own dedicated directory while reusable components go into `components/`.  

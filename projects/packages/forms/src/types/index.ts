@@ -214,8 +214,6 @@ export interface FormsConfigData {
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
 	canActivatePlugins?: boolean;
-	/** Whether to render the migration/announcement page instead of the main dashboard. */
-	renderMigrationPage?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
 	/** Whether AI Assist features are available for the site/user. */

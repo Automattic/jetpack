@@ -424,7 +424,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		// Required keys
 		$expected_keys = array(
 			'formsResponsesUrl',
-			'preferredView',
 			'isMailPoetEnabled',
 			'blogId',
 			'gdriveConnectSupportURL',
@@ -433,7 +432,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			'hasFeedback',
 			'hasAI',
 			'isIntegrationsEnabled',
-			'renderMigrationPage',
 			'dashboardURL',
 			'canInstallPlugins',
 			'canActivatePlugins',
