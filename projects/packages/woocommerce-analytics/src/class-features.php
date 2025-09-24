@@ -25,7 +25,7 @@ class Features {
 		 *
 		 * @param bool $enabled Whether proxy tracking is enabled. Default false.
 		 */
-		return apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', true );
+		return apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false );
 	}
 
 	/**
