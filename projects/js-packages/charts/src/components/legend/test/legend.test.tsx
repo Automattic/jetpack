@@ -60,6 +60,34 @@ describe( 'BaseLegend', () => {
 		expect( legendContainer ).toHaveStyle( customStyles );
 	} );
 
+	test( 'applies legendMargin object to container', () => {
+		const marginObject = { top: 10, right: 15, bottom: 10, left: 15 };
+		render(
+			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin={ marginObject } />
+		);
+		const legendContainer = screen.getByTestId( 'legend-horizontal' );
+		expect( legendContainer ).toHaveStyle( {
+			marginTop: '10px',
+			marginRight: '15px',
+			marginBottom: '10px',
+			marginLeft: '15px',
+		} );
+	} );
+
+	test( 'applies legendMargin object with mixed units', () => {
+		const marginObject = { top: '1rem', right: 20, bottom: '0.5em', left: 10 };
+		render(
+			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin={ marginObject } />
+		);
+		const legendContainer = screen.getByTestId( 'legend-horizontal' );
+		expect( legendContainer ).toHaveStyle( {
+			marginTop: '1rem',
+			marginRight: '20px',
+			marginBottom: '0.5em',
+			marginLeft: '10px',
+		} );
+	} );
+
 	test( 'merges legendMargin and legendStyle correctly', () => {
 		const customStyles = { backgroundColor: 'rgb(240, 240, 240)', padding: '10px' };
 		render(
