@@ -507,6 +507,15 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		remove_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
 	}
 
+	public function test_404_single_feedback_response() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/999999' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+		$this->assertEquals( 'Invalid post ID.', $data['message'] );
+	}
+
 	/**
 	 * Mock wp_mail_succeeded filter
 	 */
