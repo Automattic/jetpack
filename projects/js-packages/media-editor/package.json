@@ -25,6 +25,7 @@
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
+		"@wordpress/commands": "1.31.0",
 		"@wordpress/components": "30.4.0",
 		"@wordpress/compose": "7.31.0",
 		"@wordpress/core-data": "6.35.0",
@@ -38,6 +39,7 @@
 		"@wordpress/icons": "10.31.0",
 		"@wordpress/keycodes": "4.31.0",
 		"@wordpress/notices": "5.31.0",
+		"@wordpress/private-apis": "^1.8.1",
 		"clsx": "2.1.1"
 	},
 	"devDependencies": {

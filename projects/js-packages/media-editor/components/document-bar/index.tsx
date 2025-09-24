@@ -14,7 +14,6 @@ import { __unstableStripHTML as stripHTML } from '@wordpress/dom';
 import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { displayShortcut } from '@wordpress/keycodes';
-// @ts-expect-error Commands package is not typed yet.
 
 /**
  * Internal dependencies

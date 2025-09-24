@@ -51,6 +51,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
+		"@automattic/jetpack-media-editor": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-partner-coupon": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",

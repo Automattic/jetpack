@@ -1,16 +1,16 @@
 /**
  * WordPress dependencies
  */
-import { privateApis as editorPrivateApis } from '@wordpress/editor';
-// TODO: Replace with available alternative
+// TRY THIS
+// import { privateApis as editorPrivateApis } from '@wordpress/editor';
+// import { getUnlock } from '../../utils';
+// ORIGINAL
 // import { unlock } from '@wordpress/admin-toolkit';
 /**
  * External dependencies
  */
-// TODO: Implement routing
 // import { useLinkProps } from '@tanstack/react-router';
 import { __ } from '@wordpress/i18n';
-// TODO: Implement image cropping functionality
 // import { ImageCropperProvider } from '@wordpress/image-cropper';
 
 /**
@@ -23,7 +23,7 @@ import MediaEditorSidebar from '../sidebar';
 import './style.scss';
 
 // Unlock WordPress private APIs
-// TODO: Replace with available alternative
+// const unlock = getUnlock();
 // const { InterfaceSkeleton, ComplementaryArea } = unlock( editorPrivateApis );
 const InterfaceSkeleton = ( { header, sidebar, content, secondarySidebar }: any ) => {
 	return (
@@ -74,7 +74,7 @@ export default function MediaEditorLayout( {
 				/>
 				{ isPreview && <a { ...linkProps } aria-label={ __( 'Edit', 'jetpack-media-editor' ) } /> }
 				<MediaEditorNotices />
-				<MediaEditorSidebar />
+				{ ! isPreview && <MediaEditorSidebar /> }
 			</div>
 		</div>
 		// </ImageCropperProvider>

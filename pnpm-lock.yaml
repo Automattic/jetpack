@@ -1136,6 +1136,9 @@ importers:
 
   projects/js-packages/media-editor:
     dependencies:
+      '@wordpress/commands':
+        specifier: 1.31.0
+        version: 1.31.0(@types/react-dom@18.3.7(@types/react@18.3.23))(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/components':
         specifier: 30.4.0
         version: 30.4.0(@types/react@18.3.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1175,6 +1178,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.31.0
         version: 5.31.0(react@18.3.1)
+      '@wordpress/private-apis':
+        specifier: ^1.8.1
+        version: 1.31.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -4677,6 +4683,9 @@ importers:
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-media-editor':
+        specifier: workspace:*
+        version: link:../../js-packages/media-editor
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack

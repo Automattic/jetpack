@@ -1,10 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { privateApis as componentsPrivateApis } from '@wordpress/components';
 import { store as coreStore, useEntityId } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { privateApis as editorPrivateApis } from '@wordpress/editor';
 import {
 	Platform,
 	useContext,
@@ -15,8 +13,6 @@ import {
 	createContext,
 } from '@wordpress/element';
 import { isRTL, __ } from '@wordpress/i18n';
-// TODO: Replace with available alternative
-// import { unlock } from '@wordpress/admin-toolkit';
 import { drawerLeft, drawerRight } from '@wordpress/icons';
 
 /**
@@ -27,6 +23,7 @@ import { getMediaTypeFromMimeType } from '../../utils';
 import MediaEditorSidebarDetails from './details';
 import MediaEditorSidebarEdit from './edit';
 import type { MediaItemUpdatable } from '../../types';
+import type { ReactNode } from 'react';
 import './style.scss';
 
 export const MEDIA_EDITOR_SIDEBAR = 'core/edit-media';
@@ -36,24 +33,58 @@ const SIDEBAR_ACTIVE_BY_DEFAULT = Platform.select( {
 	web: true,
 } );
 
-// TODO: Replace with available alternative
-// const { Tabs } = unlock( componentsPrivateApis );
-// const { ComplementaryArea, interfaceStore } = unlock( editorPrivateApis );
-const TabsComponent = ( { children, selectedTabId, onSelect, selectOnMove, defaultTabId }: any ) =>
+const INTERFACE_STORE_KEY = 'core/interface';
+
+type InterfaceDispatch = {
+	enableComplementaryArea?: ( scope: string, area: string ) => void;
+};
+
+type InterfaceSelectors = {
+	getActiveComplementaryArea?: ( scope: string ) => string | null;
+};
+
+const TabsComponent = ( { children }: { children: ReactNode } ) =>
 	createElement( 'div', {}, children );
 const TabsContext = createContext( {} );
 const Tabs = {
-	TabList: ( { children }: any ) => createElement( 'div', {}, children ),
-	Tab: ( { children, tabId }: any ) => createElement( 'button', {}, children ),
+	TabList: ( { children }: { children: ReactNode } ) => createElement( 'div', {}, children ),
+	Tab: ( { children }: { children: ReactNode } ) => createElement( 'button', {}, children ),
 	Context: TabsContext,
-	TabPanel: ( { children, tabId, focusable }: any ) => createElement( 'div', {}, children ),
+	TabPanel: ( { children }: { children: ReactNode } ) => createElement( 'div', {}, children ),
 };
 Object.assign( TabsComponent, Tabs );
-const ComplementaryArea = ( { children, header, ...props }: any ) =>
+const ComplementaryArea = ( { children, header }: { children: ReactNode; header: ReactNode } ) =>
 	createElement( 'div', {}, header, children );
-const interfaceStore = {
-	getActiveComplementaryArea: () => null,
-} as any;
+
+/**
+ *
+ */
+function useInterfaceDispatch(): InterfaceDispatch {
+	try {
+		return useDispatch( INTERFACE_STORE_KEY as any ) as InterfaceDispatch;
+	} catch ( error ) {
+		// The interface store may not yet be available.
+		return {};
+	}
+}
+
+/**
+ *
+ */
+function useIsSidebarOpen(): boolean {
+	return useSelect( select => {
+		try {
+			const selectors = select( INTERFACE_STORE_KEY as any ) as InterfaceSelectors;
+			const getActiveComplementaryArea = selectors?.getActiveComplementaryArea;
+
+			return Boolean(
+				getActiveComplementaryArea && getActiveComplementaryArea( MEDIA_EDITOR_SIDEBAR )
+			);
+		} catch ( error ) {
+			return false;
+		}
+	}, [] );
+}
 
 /**
  *
@@ -63,14 +94,8 @@ const interfaceStore = {
 function SidebarHeader( { mediaType }: { mediaType: string } ) {
 	return (
 		<Tabs.TabList>
-			<Tabs.Tab tabId={ MEDIA_EDITOR_SIDEBAR_DETAILS_TAB }>
-				{ __( 'Details', 'jetpack-media-editor' ) }
-			</Tabs.Tab>
-			{ mediaType === 'image' && (
-				<Tabs.Tab tabId={ MEDIA_EDITOR_SIDEBAR_EDIT_TAB }>
-					{ __( 'Edit', 'jetpack-media-editor' ) }
-				</Tabs.Tab>
-			) }
+			<Tabs.Tab>{ __( 'Details', 'jetpack-media-editor' ) }</Tabs.Tab>
+			{ mediaType === 'image' && <Tabs.Tab>{ __( 'Edit', 'jetpack-media-editor' ) }</Tabs.Tab> }
 		</Tabs.TabList>
 	);
 }
@@ -79,50 +104,43 @@ function SidebarHeader( { mediaType }: { mediaType: string } ) {
  *
  * @param root0
  * @param root0.currentArea
- * @param root0.isSidebarOpen
  * @param root0.mediaType
+ * @param root0.isSidebarOpen
  */
 function SidebarContent( {
 	currentArea,
-	isSidebarOpen,
 	mediaType,
+	isSidebarOpen,
 }: {
 	currentArea: string;
-	isSidebarOpen: boolean;
 	mediaType: string;
+	isSidebarOpen: boolean;
 } ) {
 	const tabsContextValue = useContext( Tabs.Context );
-	const { enableComplementaryArea } = useDispatch( interfaceStore );
+	const { enableComplementaryArea } = useInterfaceDispatch();
+
 	useEffect( () => {
-		if ( isSidebarOpen ) {
+		if ( isSidebarOpen && enableComplementaryArea ) {
 			enableComplementaryArea( MEDIA_EDITOR_SIDEBAR, currentArea );
 		}
-	}, [ enableComplementaryArea, isSidebarOpen, currentArea, mediaType ] );
+	}, [ enableComplementaryArea, isSidebarOpen, currentArea ] );
 
 	return (
 		<ComplementaryArea
-			className="next-admin-media-editor-sidebar"
 			header={
 				<Tabs.Context.Provider value={ tabsContextValue }>
 					<SidebarHeader mediaType={ mediaType } />
 				</Tabs.Context.Provider>
 			}
-			headerClassName="next-admin-media-editor-sidebar__tabs-header"
 			/* translators: button label text should, if possible, be under 16 characters. */
-			title={ __( 'Media Editor', 'jetpack-media-editor' ) }
-			closeLabel={ __( 'Close Media Editor', 'jetpack-media-editor' ) }
-			scope="core/edit-media"
-			identifier={ currentArea }
-			icon={ isRTL() ? drawerLeft : drawerRight }
-			isActiveByDefault={ SIDEBAR_ACTIVE_BY_DEFAULT }
 		>
 			<Tabs.Context.Provider value={ tabsContextValue }>
 				<div className="next-admin-media-editor-sidebar__tabs-panel">
-					<Tabs.TabPanel tabId={ MEDIA_EDITOR_SIDEBAR_DETAILS_TAB } focusable={ false }>
+					<Tabs.TabPanel>
 						<MediaEditorSidebarDetails />
 					</Tabs.TabPanel>
 					{ mediaType === 'image' && (
-						<Tabs.TabPanel tabId={ MEDIA_EDITOR_SIDEBAR_EDIT_TAB } focusable={ false }>
+						<Tabs.TabPanel>
 							<MediaEditorSidebarEdit />
 						</Tabs.TabPanel>
 					) }
@@ -138,12 +156,22 @@ function SidebarContent( {
 export default function Sidebar() {
 	const postId = useEntityId( 'postType', 'attachment' );
 	const post = useSelect(
-		select =>
-			( select( coreStore ) as any ).getEditedEntityRecord( 'postType', 'attachment', postId ),
+		select => {
+			const coreSelectors = select( coreStore ) as {
+				getEditedEntityRecord: (
+					kind: string,
+					name: string,
+					recordId: number | string
+				) => MediaItemUpdatable | undefined;
+			};
+
+			return coreSelectors.getEditedEntityRecord( 'postType', 'attachment', postId );
+		},
 		[ postId ]
-	) as MediaItemUpdatable;
+	) as MediaItemUpdatable | undefined;
 	const { setIsImageEditorOpen, isImageEditorOpen } = useMediaEditorState();
 	const [ currentArea, setCurrentArea ] = useState( MEDIA_EDITOR_SIDEBAR_DETAILS_TAB );
+
 	useEffect( () => {
 		if ( isImageEditorOpen && currentArea !== MEDIA_EDITOR_SIDEBAR_EDIT_TAB ) {
 			setCurrentArea( MEDIA_EDITOR_SIDEBAR_EDIT_TAB );
@@ -152,23 +180,19 @@ export default function Sidebar() {
 			setCurrentArea( MEDIA_EDITOR_SIDEBAR_DETAILS_TAB );
 		}
 	}, [ isImageEditorOpen, currentArea ] );
-	const { enableComplementaryArea } = useDispatch( interfaceStore ) as any;
-	const { isSidebarOpen } = useSelect( select => {
-		const { getActiveComplementaryArea } = ( select( interfaceStore ) as any ) || {
-			getActiveComplementaryArea: () => null,
-		};
-		return {
-			isSidebarOpen: !! getActiveComplementaryArea( MEDIA_EDITOR_SIDEBAR ),
-		};
-	}, [] ) as any;
+
+	const { enableComplementaryArea } = useInterfaceDispatch();
+	const isSidebarOpen = useIsSidebarOpen();
 
 	const onTabSelect = useCallback(
 		( newSelectedTabId: string ) => {
-			if ( newSelectedTabId ) {
-				enableComplementaryArea( MEDIA_EDITOR_SIDEBAR, newSelectedTabId );
-				setCurrentArea( newSelectedTabId );
-				setIsImageEditorOpen( newSelectedTabId === MEDIA_EDITOR_SIDEBAR_EDIT_TAB );
+			if ( ! newSelectedTabId ) {
+				return;
 			}
+
+			enableComplementaryArea?.( MEDIA_EDITOR_SIDEBAR, newSelectedTabId );
+			setCurrentArea( newSelectedTabId );
+			setIsImageEditorOpen( newSelectedTabId === MEDIA_EDITOR_SIDEBAR_EDIT_TAB );
 		},
 		[ enableComplementaryArea, setIsImageEditorOpen ]
 	);
@@ -180,16 +204,11 @@ export default function Sidebar() {
 	const mediaType = getMediaTypeFromMimeType( post?.mime_type || '' );
 
 	return (
-		<TabsComponent
-			selectedTabId={ currentArea }
-			onSelect={ onTabSelect }
-			selectOnMove={ false }
-			defaultTabId={ MEDIA_EDITOR_SIDEBAR_DETAILS_TAB }
-		>
+		<TabsComponent>
 			<SidebarContent
 				currentArea={ currentArea }
-				isSidebarOpen={ isSidebarOpen }
 				mediaType={ mediaType?.type }
+				isSidebarOpen={ isSidebarOpen }
 			/>
 		</TabsComponent>
 	);

@@ -122,7 +122,11 @@ export function filterDeps( deps, projects, options = {} ) {
 		if ( options.dependencies ) {
 			// Keep dependencies: For everything in keep, add its dependencies.
 			for ( const p of keep.values() ) {
-				for ( const d of deps.get( p ).values() ) {
+				const projectDeps = deps.get( p );
+				if ( ! projectDeps ) {
+					continue;
+				}
+				for ( const d of projectDeps.values() ) {
 					keep.add( d );
 				}
 			}
@@ -132,6 +136,9 @@ export function filterDeps( deps, projects, options = {} ) {
 			// Keep dependents: For everything in deps (and not already kept), add it if any of its dependencies are in keep.
 			for ( const [ p, pd ] of deps.entries() ) {
 				if ( ! keep.has( p ) ) {
+					if ( ! pd ) {
+						continue;
+					}
 					for ( const d of pd ) {
 						if ( keep.has( d ) ) {
 							keep.add( p );
@@ -146,7 +153,8 @@ export function filterDeps( deps, projects, options = {} ) {
 	const ret = new Map();
 	for ( const [ p, pd ] of deps.entries() ) {
 		if ( keep.has( p ) ) {
-			ret.set( p, new Set( [ ...pd ].filter( d => keep.has( d ) ) ) );
+			const dependencies = pd ? [ ...pd ].filter( d => keep.has( d ) ) : [];
+			ret.set( p, new Set( dependencies ) );
 		}
 	}
 
