@@ -22,8 +22,9 @@ export type LineChartAnnotationProps = {
 
 export type CurveType = 'smooth' | 'linear' | 'monotone';
 
-export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
+export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > & {
 	glyphStyle?: SVGProps< SVGCircleElement >;
+	position?: 'start' | 'end';
 };
 
 export interface LineChartProps extends BaseChartProps< SeriesData[] > {
@@ -52,7 +53,7 @@ export type LineChartGlyphProps = {
 	data: SeriesData;
 	index: number;
 	color: string;
-	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
+	renderGlyph: < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => ReactNode;
 	accessors: {
 		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
 		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;

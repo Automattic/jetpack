@@ -40,6 +40,7 @@ const LineChartGlyph: FC< LineChartGlyphProps > = ( {
 		x,
 		y,
 		glyphStyle,
+		position,
 	} );
 };
 
