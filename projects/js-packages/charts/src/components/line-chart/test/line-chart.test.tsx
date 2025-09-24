@@ -304,6 +304,160 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
+	describe( 'End Glyphs', () => {
+		test( 'renders end glyphs when withEndGlyphs is true', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that end glyphs are rendered for each series
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 2 ); // One for each series
+		} );
+
+		test( 'does not render end glyphs when withEndGlyphs is false', () => {
+			renderWithTheme( {
+				withEndGlyphs: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that no end glyphs are rendered
+			expect( screen.queryByTestId( /end-glyph/i ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render end glyph when series has empty data', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Empty Series',
+						data: [],
+						options: {},
+					},
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Should only have one end glyph (from the non-empty series)
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'renders both start and end glyphs when both are enabled', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 35, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that both start and end glyphs are rendered for each series
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 2 );
+
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 2 );
+		} );
+
+		test( 'renders custom end glyph from theme', () => {
+			renderWithTheme(
+				{
+					withEndGlyphs: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 30, label: 'Jan 2' },
+							],
+						},
+					],
+				},
+				'custom'
+			);
+
+			// We are rendering one custom glyph from theme and the second dataset will be using default glyph.
+			const defaultGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( defaultGlyphs ).toHaveLength( 1 );
+
+			const customGlyphs = screen.getAllByTestId( /custom-glyph/i );
+			expect( customGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'renders end glyph at correct position for single data point', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// For a single data point, the end glyph should be rendered at that point
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 1 );
+		} );
+	} );
+
 	describe( 'Legend Glyphs', () => {
 		test( 'renders legend glyphs when withLegendGlyph is true', () => {
 			renderWithTheme( {
