@@ -18,13 +18,6 @@ export class ApiClient {
 	private eventQueue: ApiEvent[] = [];
 	private debounceTimer: number | null = null;
 	private isInitialized: boolean = false;
-
-	constructor() {
-		this.eventQueue = [];
-		this.debounceTimer = null;
-		this.isInitialized = false;
-	}
-
 	/**
 	 * Initialize the API client
 	 */
