@@ -171,6 +171,169 @@ describe( 'LineChart', () => {
 			renderWithTheme( { withGradientFill: false } );
 			expect( screen.queryByTestId( 'line-gradient' ) ).not.toBeInTheDocument();
 		} );
+
+		test( 'renders gradient with custom configuration', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#0000ff',
+								fromOpacity: 0.8,
+								toOpacity: 0.2,
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'renders gradient with position attributes', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#0000ff',
+								x1: '0%',
+								y1: '0%',
+								x2: '100%',
+								y2: '100%',
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered with position attributes
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient ).toHaveAttribute( 'x1', '0%' );
+			expect( gradient ).toHaveAttribute( 'y1', '0%' );
+			expect( gradient ).toHaveAttribute( 'x2', '100%' );
+			expect( gradient ).toHaveAttribute( 'y2', '100%' );
+		} );
+
+		test( 'renders multiple gradients for multiple series', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#ff0000',
+								fromOpacity: 0.5,
+								toOpacity: 0,
+							},
+						},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#0000ff',
+								to: '#0000ff',
+								fromOpacity: 0.7,
+								toOpacity: 0.1,
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that both gradients are rendered
+			const gradients = screen.getAllByTestId( 'line-gradient' );
+			expect( gradients ).toHaveLength( 2 );
+
+			// Verify both gradients are linearGradient elements
+			expect( gradients[ 0 ].tagName ).toBe( 'linearGradient' );
+			expect( gradients[ 1 ].tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'renders gradient with stops when provided', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#0000ff',
+								stops: [
+									{ offset: '0%', color: '#ff0000', opacity: 1 },
+									{ offset: '50%', color: '#00ff00', opacity: 0.5 },
+									{ offset: '100%', color: '#0000ff', opacity: 0 },
+								],
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered
+			// The actual stop elements are children of the gradient, but we can't easily test them
+			// without direct DOM access, so we just verify the gradient exists
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'applies gradient to area fill', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered and the chart is properly rendered
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+
+			// Verify that the chart container exists
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( chart ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Axis Configuration', () => {
