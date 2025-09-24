@@ -5,7 +5,12 @@ import clsx from 'clsx';
 import { type RefAttributes, type ForwardRefExoticComponent, forwardRef, useCallback } from 'react';
 import { useTextTruncation } from '../../../hooks';
 import { useGlobalChartsTheme } from '../../../providers';
-import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
+import {
+	valueOrIdentity,
+	valueOrIdentityString,
+	labelTransformFactory,
+	processLegendMargin,
+} from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
@@ -118,26 +123,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
 							...theme.legendContainerStyles,
-							...( typeof legendMargin === 'string'
-								? { margin: legendMargin }
-								: legendMargin && {
-										marginTop:
-											typeof legendMargin.top === 'number'
-												? `${ legendMargin.top }px`
-												: legendMargin.top,
-										marginRight:
-											typeof legendMargin.right === 'number'
-												? `${ legendMargin.right }px`
-												: legendMargin.right,
-										marginBottom:
-											typeof legendMargin.bottom === 'number'
-												? `${ legendMargin.bottom }px`
-												: legendMargin.bottom,
-										marginLeft:
-											typeof legendMargin.left === 'number'
-												? `${ legendMargin.left }px`
-												: legendMargin.left,
-								  } ),
+							...processLegendMargin( legendMargin ),
 							...legendStyle,
 						} }
 					>
