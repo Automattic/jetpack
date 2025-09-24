@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: improve the loading of the inital HTML when due to slow config and endpoints
