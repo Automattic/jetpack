@@ -359,8 +359,15 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return null;
 		}
 
-		$salt = self::get_daily_salt();
-		return substr( md5( $ip . $salt ), 0, 16 );
+		$salt       = self::get_daily_salt();
+		$url_parts  = wp_parse_url( home_url() );
+		$domain     = isset( $url_parts['host'] ) ? $url_parts['host'] : '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+
+		// Create hash from: daily_salt + domain + ip + user_agent
+		$hash_input = $salt . $domain . $ip . $user_agent;
+
+		return substr( md5( $hash_input ), 0, 16 );
 	}
 
 	/**
