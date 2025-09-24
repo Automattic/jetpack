@@ -677,7 +677,41 @@ interface GetLanguage {
 	( file: File ): string | undefined;
 	extensionMap?: Map< string, string >;
 }
-const getLanguage: GetLanguage = ( file: File ) => {
+const getLanguage: GetLanguage = ( file: File ): string | undefined => {
+	switch ( file.type ) {
+		case 'text/css':
+			return 'CSS';
+
+		case 'text/html':
+			return 'HTML';
+
+		case 'text/javascript':
+			return 'JavaScript';
+
+		case 'application/json':
+			return 'JSON';
+
+		case 'text/markdown':
+			return 'Markdown';
+
+		case 'application/sql':
+			return 'SQL';
+
+		case 'application/toml':
+			return 'TOML';
+
+		case 'application/wasm':
+			return 'WebAssembly';
+
+		case 'application/xhtml+xml':
+		case 'application/xml':
+		case 'text/xml':
+			return 'XML';
+
+		case 'application/yaml':
+			return 'YAML';
+	}
+
 	if ( ! getLanguage.extensionMap ) {
 		getLanguage.extensionMap = new Map(
 			extensionToLang as unknown as ReadonlyArray< [ string, string ] >
