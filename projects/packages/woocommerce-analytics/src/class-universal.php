@@ -73,8 +73,8 @@ class Universal {
 	 * Inject analytics data into the window object
 	 */
 	public function inject_analytics_data() {
-		$is_clickhouse_enabled     = $this->is_clickhouse_enabled();
-		$is_proxy_tracking_enabled = $this->is_proxy_tracking_enabled();
+		$is_clickhouse_enabled     = Features::is_clickhouse_enabled();
+		$is_proxy_tracking_enabled = Features::is_proxy_tracking_enabled();
 		// When proxy tracking is enabled, we don't need to send the common properties to the client.
 		$common_properties = $is_proxy_tracking_enabled ? array() : $this->get_common_properties();
 		?>
@@ -93,7 +93,7 @@ class Universal {
 				wcAnalytics.features = {
 					ch: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
 					sessionTracking: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
-					proxy: <?php echo $this->is_proxy_tracking_enabled() ? 'true' : 'false'; ?>,
+					proxy: <?php echo $is_proxy_tracking_enabled ? 'true' : 'false'; ?>,
 				};
 
 				wcAnalytics.breadcrumbs = <?php echo wp_json_encode( $this->get_breadcrumb_titles() ); ?>;
