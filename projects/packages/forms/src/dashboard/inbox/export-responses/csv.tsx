@@ -16,21 +16,7 @@ const CSVExport = ( { onExport } ) => {
 			screen: 'form-responses-inbox',
 		} );
 
-		onExport( 'feedback_export', 'feedback_export_nonce_csv' ).then( async response => {
-			const blob = await response.blob();
-
-			const a = document.createElement( 'a' );
-			a.href = window.URL.createObjectURL( blob );
-
-			const contentDispositionHeader = response.headers.get( 'Content-Disposition' ) ?? '';
-			a.download =
-				contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
-
-			document.body.appendChild( a );
-			a.click();
-			document.body.removeChild( a );
-			window.URL.revokeObjectURL( a.href );
-		} );
+		onExport();
 	}, [ onExport, tracks ] );
 
 	const buttonClasses = clsx( 'button', 'export-button', 'export-csv' );

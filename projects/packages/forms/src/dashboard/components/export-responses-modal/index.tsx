@@ -11,9 +11,14 @@ import GoogleDriveExport from '../../inbox/export-responses/google-drive';
 
 import './style.scss';
 
+type ExportResponse = {
+	download_url: string;
+	count: number;
+};
+
 type ExportResponsesModalProps = {
 	onRequestClose: () => void;
-	onExport: ( action: string, nonceName: string ) => Promise< Response >;
+	onExport: () => Promise< ExportResponse >;
 	autoConnectGdrive: boolean;
 };
 
