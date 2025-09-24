@@ -157,8 +157,10 @@ export default class SessionManager {
 
 			// Set version (4) and variant bits according to RFC 4122
 			// Set version (4) and variant bits according to RFC 4122 without using bitwise operators
-			bytes[ 6 ] = Math.floor( bytes[ 6 ] / 16 ) * 16 + 4; // Version 4
-			bytes[ 8 ] = Math.floor( bytes[ 8 ] / 64 ) * 64 + 128; // Variant 10
+			// eslint-disable-next-line no-bitwise
+			bytes[ 6 ] = ( bytes[ 6 ] & 0x0f ) | 0x40; // Version 4
+			// eslint-disable-next-line no-bitwise
+			bytes[ 8 ] = ( bytes[ 8 ] & 0x3f ) | 0x80; // Variant 10
 
 			// Convert to hex string with proper formatting
 			const hex = Array.from( bytes, b => b.toString( 16 ).padStart( 2, '0' ) ).join( '' );
