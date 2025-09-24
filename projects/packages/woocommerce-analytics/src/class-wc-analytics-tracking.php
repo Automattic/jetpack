@@ -303,26 +303,8 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * @return bool True if it should be sent to ClickHouse
 	 */
 	private static function should_send_to_clickhouse( $event ) {
-		return self::is_clickhouse_enabled() &&
+		return Features::is_clickhouse_enabled() &&
 			in_array( $event, self::ALLOWED_CH_EVENTS, true );
-	}
-
-	/**
-	 * Check if ClickHouse is enabled.
-	 *
-	 * @return bool
-	 */
-	private static function is_clickhouse_enabled() {
-		/**
-		 * Filter to enable/disable ClickHouse event tracking.
-		 *
-		 * @module woocommerce-analytics
-		 *
-		 * @since 0.5.0
-		 *
-		 * @param bool $enabled Whether ClickHouse event tracking is enabled.
-		 */
-		return apply_filters( 'woocommerce_analytics_clickhouse_enabled', false );
 	}
 
 	/**
