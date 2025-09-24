@@ -1204,11 +1204,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array(
 				'action'       => 'feedback_export',
 				'feedback_ids' => implode( ',', $feedback_ids ),
-				'post_id'      => $post_id,
-				'search'       => $search,
-				'status'       => $status,
-				'before'       => $before,
-				'after'        => $after,
 				'nonce'        => $nonce,
 			),
 			admin_url( 'admin-post.php' )
