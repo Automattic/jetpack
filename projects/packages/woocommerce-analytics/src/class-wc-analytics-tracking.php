@@ -367,7 +367,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		// Create hash from: daily_salt + domain + ip + user_agent
 		$hash_input = $salt . $domain . $ip . $user_agent;
 
-		return substr( md5( $hash_input ), 0, 16 );
+		return substr( hash( 'sha256', $hash_input ), 0, 16 );
 	}
 
 	/**
