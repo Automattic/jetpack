@@ -65,6 +65,26 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
+	 * Test that init method registers CORS-related hooks.
+	 */
+	public function test_init_registers_cors_hooks() {
+		remove_all_filters( 'allowed_http_origins' );
+		remove_all_actions( 'wp_loaded' );
+
+		Jetpack_Application_Password_Extras::init();
+
+		$this->assertNotFalse(
+			has_filter( 'allowed_http_origins', array( 'Jetpack_Application_Password_Extras', 'allow_ajax_cors_origins' ) ),
+			'CORS origins filter should be registered'
+		);
+
+		$this->assertNotFalse(
+			has_action( 'wp_loaded', array( 'Jetpack_Application_Password_Extras', 'add_ajax_preflight_headers' ) ),
+			'Preflight headers action should be registered'
+		);
+	}
+
+	/**
 	 * Test that non-matching requests preserve original false value.
 	 */
 	public function test_non_matching_request_preserves_original_false_value() {
