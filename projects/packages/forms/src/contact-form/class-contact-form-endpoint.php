@@ -1193,16 +1193,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
 		}
 
-		$feedback_ids = array_map(
-			function ( $post ) {
-				return $post->ID;
-			},
-			$feedback_posts
-		);
-
-		if ( empty( $feedback_ids ) ) {
-			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
-		}
+		$feedback_ids = wp_list_pluck( $feedback_posts, 'ID' );
 
 		$nonce = wp_create_nonce( 'feedback_export_' . implode( ',', $feedback_ids ) );
 
