@@ -184,7 +184,7 @@ class Woocommerce_Analytics {
 		/**
 		 * Clean up MU plugin.
 		 */
-		$file_path = WP_CONTENT_DIR . '/mu-plugins/woocommerce-analytics-proxy-speed-module.php';
+		$file_path = WPMU_PLUGIN_DIR . '/woocommerce-analytics-proxy-speed-module.php';
 
 		if ( file_exists( $file_path ) ) {
 			wp_delete_file( $file_path );
