@@ -1,3 +1,4 @@
+import { GlyphTriangle } from '@visx/glyph';
 import { ChartStoryArgs, temperatureData as sampleData } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
@@ -261,3 +262,109 @@ const CustomTemplate = createAnnotationTemplate( [
 ] );
 
 export const Custom: StoryObj< typeof LineChart > = CustomTemplate.bind( {} );
+
+const renderAlertGlyph = ( {
+	x,
+	y,
+	color,
+	size,
+	key,
+}: {
+	x: number;
+	y: number;
+	color: string;
+	size: number;
+	key?: string;
+} ) => {
+	// Only render diamonds for the Alert series (highlighted portion)
+	if ( key && key.includes( 'Alert' ) ) {
+		return (
+			<GlyphTriangle
+				key={ `triangle-${ x }-${ y }` }
+				top={ y }
+				left={ x }
+				size={ size * size }
+				fill={ color }
+			/>
+		);
+	}
+	// Return null for the full series to not show glyphs
+	return null;
+};
+
+const renderAlertLabelPopover = () => (
+	<div style={ { display: 'flex', flexDirection: 'column', gap: '0.5rem' } }>
+		<div
+			style={ {
+				margin: 0,
+				display: 'flex',
+				alignItems: 'center',
+				gap: '6px',
+				paddingBlock: '0.25rem ',
+			} }
+		>
+			<AlertIcon />
+			<strong>Alert</strong>
+		</div>
+		<p style={ { margin: 0 } }>Highest temperature (27°C) reached</p>
+	</div>
+);
+
+const AlertTemplate: StoryFn< typeof LineChart > = args => {
+	// Use the first series data (New York)
+	const fullSeries = sampleData[ 0 ];
+
+	// Create a highlighted middle portion (roughly from May to September)
+	const highlightSeries = {
+		...fullSeries,
+		group: 'new-york-highlight',
+		label: 'Alert',
+		data: fullSeries.data.slice( 4, 9 ), // Middle portion of the data
+		options: {
+			stroke: 'var(--jp-red)',
+			strokeWidth: 3,
+		},
+	};
+
+	// Combine both series
+	const highlightData = [ fullSeries, highlightSeries ];
+
+	// Find the peak in the highlighted series (July with value 27)
+	const peakDatum = fullSeries.data[ 6 ]; // July - peak temperature
+
+	return (
+		<LineChart
+			{ ...args }
+			smoothing={ false }
+			data={ highlightData }
+			withStartGlyphs={ true }
+			renderGlyph={ renderAlertGlyph }
+			glyphStyle={ {
+				radius: 8,
+			} }
+		>
+			<LineChart.AnnotationsOverlay>
+				<LineChart.Annotation
+					datum={ peakDatum }
+					title="Alert"
+					subjectType="circle"
+					styles={ {
+						circleSubject: {
+							radius: 0,
+						},
+						label: {
+							showAnchorLine: false,
+						},
+						connector: {
+							stroke: 'transparent',
+						},
+					} }
+					renderLabel={ AlertIcon }
+					renderLabelPopover={ renderAlertLabelPopover }
+				/>
+			</LineChart.AnnotationsOverlay>
+		</LineChart>
+	);
+};
+
+export const Alert: StoryObj< typeof LineChart > = AlertTemplate.bind( {} );
