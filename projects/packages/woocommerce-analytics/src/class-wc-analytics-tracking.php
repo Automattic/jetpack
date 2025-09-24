@@ -25,6 +25,13 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	const PREFIX = 'woocommerceanalytics_';
 
 	/**
+	 * Option name for storing daily salt data.
+	 *
+	 * @var string
+	 */
+	const DAILY_SALT_OPTION = 'wc_analytics_daily_salt';
+
+	/**
 	 * Allowed ClickHouse events.
 	 *
 	 * @var array
@@ -50,6 +57,20 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * @var array
 	 */
 	protected static $event_queue = array();
+
+	/**
+	 * Cached user IP address for the current request.
+	 *
+	 * @var string|null
+	 */
+	private static $cached_ip = null;
+
+	/**
+	 * Cached visitor ID for the current request.
+	 *
+	 * @var string|null
+	 */
+	private static $cached_visitor_id = null;
 
 	/**
 	 * Record an event in Tracks and ClickHouse (If enabled).
@@ -249,14 +270,29 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	}
 
 	/**
-	 * Get the visitor id from the cookie.
+	 * Get the visitor id from the cookie or IP address (if proxy tracking is enabled).
 	 *
 	 * @return string|null
 	 */
 	private static function get_visitor_id() {
-		if ( isset( $_COOKIE['tk_ai'] ) ) {
-			return sanitize_text_field( wp_unslash( $_COOKIE['tk_ai'] ) );
+		// Return cached result if available.
+		if ( null !== self::$cached_visitor_id ) {
+			return self::$cached_visitor_id;
 		}
+
+		// Prefer tk_ai cookie if present.
+		if ( ! empty( $_COOKIE['tk_ai'] ) ) {
+			self::$cached_visitor_id = sanitize_text_field( wp_unslash( $_COOKIE['tk_ai'] ) );
+			return self::$cached_visitor_id;
+		}
+
+		// Fallback to IP-based visitor ID if proxy tracking is enabled.
+		if ( Features::is_proxy_tracking_enabled() ) {
+			self::$cached_visitor_id = self::get_ip_based_visitor_id();
+			return self::$cached_visitor_id;
+		}
+
+		self::$cached_visitor_id = null;
 		return null;
 	}
 
@@ -295,6 +331,11 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * @return string The user's IP address. An empty string if no valid IP address is found.
 	 */
 	private static function get_user_ip_address() {
+		// Return cached IP if available
+		if ( null !== self::$cached_ip ) {
+			return self::$cached_ip;
+		}
+
 		$ip_headers = array(
 			'HTTP_CF_CONNECTING_IP', // Cloudflare specific header.
 			'HTTP_X_FORWARDED_FOR',
@@ -312,12 +353,70 @@ class WC_Analytics_Tracking extends WC_Tracks {
 						FILTER_VALIDATE_IP,
 						array( FILTER_FLAG_NO_RES_RANGE, FILTER_FLAG_IPV6 )
 					) ) {
-						return $ip_candidate;
+						// Cache the resolved IP
+						self::$cached_ip = $ip_candidate;
+						return self::$cached_ip;
 					}
 				}
 			}
 		}
 
-		return '';
+		// Cache empty result
+		self::$cached_ip = '';
+		return self::$cached_ip;
+	}
+
+	/**
+	 * Get IP-based visitor ID for proxy tracking mode.
+	 *
+	 * @return string|null
+	 */
+	private static function get_ip_based_visitor_id() {
+		$ip = self::get_user_ip_address();
+		if ( empty( $ip ) ) {
+			return null;
+		}
+
+		$salt = self::get_daily_salt();
+		return substr( md5( $ip . $salt ), 0, 16 );
+	}
+
+	/**
+	 * Get or generate daily salt for visitor ID hashing.
+	 * Creates a new salt value each day (UTC) for privacy protection.
+	 *
+	 * @return string The daily salt.
+	 */
+	private static function get_daily_salt() {
+		$today = gmdate( 'Y-m-d' ); // UTC date
+
+		$salt_data = get_option( self::DAILY_SALT_OPTION );
+
+		// Check if salt exists and is still valid for today
+		if (
+			is_array( $salt_data )
+			&& isset( $salt_data['date'] )
+			&& isset( $salt_data['salt'] )
+			&& $salt_data['date'] === $today
+		) {
+			return $salt_data['salt'];
+		}
+
+		// Clean up expired/invalid salt data
+		if ( false !== $salt_data ) {
+			delete_option( self::DAILY_SALT_OPTION );
+		}
+
+		// Generate new salt for today
+		$new_salt = wp_generate_password( 32, false );
+
+		// Store salt with date (no expiration time needed)
+		$salt_data = array(
+			'date' => $today,
+			'salt' => $new_salt,
+		);
+
+		update_option( self::DAILY_SALT_OPTION, $salt_data );
+		return $new_salt;
 	}
 }
