@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: change how phone field interactivity API is initialized with more atomic registration of the elements

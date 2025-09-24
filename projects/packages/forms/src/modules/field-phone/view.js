@@ -215,17 +215,20 @@ const { actions } = store( NAMESPACE, {
 		},
 	},
 	callbacks: {
-		initializePhoneField() {
+		registerPhoneInput() {
 			const element = getElement().ref;
 			const context = getContext();
-			// store refs for quick access later and less intensive dom scouting
-			phoneInputRefs[ context.fieldId ] = element.querySelector( 'input[type="tel"]' );
-			searchInputRefs[ context.fieldId ] = element.parentElement.querySelector(
-				'.jetpack-combobox-search'
-			);
-			optionsListRefs[ context.fieldId ] = element.parentElement.querySelector(
-				'.jetpack-combobox-options'
-			);
+			phoneInputRefs[ context.fieldId ] = element;
+		},
+		registerPhoneComboboxSearchInput() {
+			const element = getElement().ref;
+			const context = getContext();
+			searchInputRefs[ context.fieldId ] = element;
+		},
+		registerPhoneComboboxOptionsList() {
+			const element = getElement().ref;
+			const context = getContext();
+			optionsListRefs[ context.fieldId ] = element;
 		},
 		initializePhoneFieldCustomComboBox() {
 			const context = getContext();
