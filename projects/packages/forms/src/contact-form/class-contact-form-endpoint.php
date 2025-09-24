@@ -911,7 +911,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	public function get_all_integrations_status( $request ) {
 		$version          = absint( $request->get_param( 'version' ) );
-		$is_not_init_load = ! is_admin(); // Avoid heavy operations on initial load (admin load).
+		$is_not_init_load = $request->get_param( '_fields' ) !== 'sync';
 		$integrations     = array();
 
 		foreach ( $this->get_supported_integrations() as $slug => $config ) {
@@ -1053,9 +1053,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_not_init_load = ! is_admin();
-
-		$has_ai = false;
+		$is_not_init_load = $request->get_param( '_fields' ) !== 'sync';
+		$has_ai           = false;
 		if ( $is_not_init_load ) {
 			if ( class_exists( 'Jetpack_AI_Helper' ) ) {
 				$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
