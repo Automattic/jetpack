@@ -1,0 +1,102 @@
+.jetpack-agenttic-sidebar {
+	background-color: #101010;
+	color: #f5f5f5;
+	min-height: 100%;
+	max-height: 100vh;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: -8px 0 24px rgba(0, 0, 0, 0.35);
+	overflow: hidden !important;
+	overflow-y: auto !important;
+	-ms-overflow-style: none !important;
+	scrollbar-width: none !important;
+
+	&::-webkit-scrollbar {
+		display: none !important;
+	}
+	
+
+	.interface-complementary-area-header,
+	.components-panel__header {
+		background-color: transparent;
+		color: inherit;
+	}
+
+	.interface-complementary-area-header__title {
+		color: inherit;
+	}
+
+	.components-button.is-tertiary,
+	.components-button.is-secondary {
+		color: inherit;
+	}
+
+	a {
+		color: #9bc9ff;
+	}
+
+	.components-notice {
+		background: rgba(255, 255, 255, 0.08);
+		border-color: transparent;
+		color: inherit;
+	}
+}
+
+.jetpack-agenttic-sidebar__panel {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	background: none;
+}
+
+.jetpack-agenttic-sidebar__content {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	gap: 24px;
+	overflow: hidden;
+	background: none;
+
+	> .components-notice {
+		background: rgba(255, 255, 255, 0.05);
+		border-radius: 16px;
+		padding: 24px;
+		color: inherit;
+	}
+}
+
+.jetpack-agenttic-sidebar__chat {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto !important;
+	background: none;
+	padding: 0;
+	-ms-overflow-style: none !important;
+	scrollbar-width: none !important;
+	overscroll-behavior: contain;
+
+	&::-webkit-scrollbar {
+		display: none !important;
+	}
+
+	.agenttic-ui {
+		flex: 1 1 auto;
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+	}
+
+	.agenttic-ui__viewport {
+		flex: 1 1 auto;
+		overflow-y: auto !important;
+		-ms-overflow-style: none !important;
+		scrollbar-width: none !important;
+
+		&::-webkit-scrollbar {
+			display: none !important;
+		}
+	}
+}
