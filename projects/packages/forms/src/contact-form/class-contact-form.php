@@ -188,6 +188,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
+			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -872,6 +873,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	private static function render_noscript_success_message( $is_reload_nonce_valid, $feedback_id, $form ) {
 		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
 		$contact_form_id = sanitize_text_field( wp_unslash( $_GET['contact-form-id'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$disable_go_back = $form->get_attribute( 'disableGoBack' );
 
 		$message = '';
 
@@ -885,8 +887,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		</style>';
 
-		$message         .= '<div class="contact-form-submission">';
-		$success_message  = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$message .= '<div class="contact-form-submission">';
+
+		if ( ! $disable_go_back ) {
+			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		}
+
 		$success_message .= '<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) . "</h4>\n\n";
 
 		// Don't show the feedback details unless the nonce matches
@@ -966,10 +972,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$classes .= ' submission-success';
 		}
 
-		$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$disable_go_back = $form->get_attribute( 'disableGoBack' );
+		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
 
-		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
-		$html .= '<p class="go-back-message"><a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
+		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
+
+		if ( ! $disable_go_back ) {
+			$html .= '<p class="go-back-message">';
+			$html .= '<a class="link" role="button" tabindex="0" data-wp-on--click="actions.goBack" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a>';
+			$html .= '</p>';
+		}
+
 		$html .=
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
@@ -992,7 +1006,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			$html .= wp_kses( $raw_message, $allowed_html );
-		} else {
+		} elseif ( ! $disable_summary ) {
 			$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
 				<div>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
@@ -1037,6 +1051,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	public static function success_message( $feedback_id, $form ) {
+		$message         = '';
+		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
 
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$raw_message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
@@ -1055,7 +1071,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 			);
 			$message      = wp_kses( $raw_message, $allowed_html );
-		} else {
+		} elseif ( ! $disable_summary ) {
 			$compiled_form = self::get_compiled_form( $feedback_id );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
 		}
