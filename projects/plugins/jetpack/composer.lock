@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f590cab68fe2a77eb9f1722d538540fa",
+    "content-hash": "53df5340c3847af563963cfd1e8c3072",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -421,23 +421,23 @@
         },
         {
             "name": "automattic/jetpack-backup-helper-script-manager",
-            "version": "v0.3.7",
+            "version": "v0.3.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-backup-helper-script-manager.git",
-                "reference": "02ce3954fed40f964d6bcff7ad2aae2e85cd78f9"
+                "reference": "f7572e475ba95007335d5d3acc8d599e02bf7684"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-backup-helper-script-manager/zipball/02ce3954fed40f964d6bcff7ad2aae2e85cd78f9",
-                "reference": "02ce3954fed40f964d6bcff7ad2aae2e85cd78f9",
+                "url": "https://api.github.com/repos/Automattic/jetpack-backup-helper-script-manager/zipball/f7572e475ba95007335d5d3acc8d599e02bf7684",
+                "reference": "f7572e475ba95007335d5d3acc8d599e02bf7684",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^6.0.5",
+                "automattic/jetpack-changelogger": "^6.0.6",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "^1.0.3",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -467,9 +467,9 @@
             ],
             "description": "Install / delete helper script for backup and transport server. Not visible to site owners.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-backup-helper-script-manager/tree/v0.3.7"
+                "source": "https://github.com/Automattic/jetpack-backup-helper-script-manager/tree/v0.3.8"
             },
-            "time": "2025-04-28T15:12:50+00:00"
+            "time": "2025-09-08T17:51:40+00:00"
         },
         {
             "name": "automattic/jetpack-blaze",
@@ -1344,16 +1344,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v6.2.0",
+            "version": "v6.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "cbabf05222084b8c669a6976874d7ff9e96c6df7"
+                "reference": "e0e18f9352fc0a4d41685ad26fb55e183790ea4c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/cbabf05222084b8c669a6976874d7ff9e96c6df7",
-                "reference": "cbabf05222084b8c669a6976874d7ff9e96c6df7",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/e0e18f9352fc0a4d41685ad26fb55e183790ea4c",
+                "reference": "e0e18f9352fc0a4d41685ad26fb55e183790ea4c",
                 "shasum": ""
             },
             "require": {
@@ -1405,9 +1405,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.2.0"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.2.1"
             },
-            "time": "2025-09-03T13:32:46+00:00"
+            "time": "2025-09-25T19:29:00+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
@@ -1950,23 +1950,23 @@
         },
         {
             "name": "automattic/jetpack-password-checker",
-            "version": "v0.4.8",
+            "version": "v0.4.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-password-checker.git",
-                "reference": "53c5d39afffd8fdf8001c24e7efc2b2b7760359a"
+                "reference": "af749008ece4d0e566e407dacda69fa28fe3557f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-password-checker/zipball/53c5d39afffd8fdf8001c24e7efc2b2b7760359a",
-                "reference": "53c5d39afffd8fdf8001c24e7efc2b2b7760359a",
+                "url": "https://api.github.com/repos/Automattic/jetpack-password-checker/zipball/af749008ece4d0e566e407dacda69fa28fe3557f",
+                "reference": "af749008ece4d0e566e407dacda69fa28fe3557f",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^6.0.5",
+                "automattic/jetpack-changelogger": "^6.0.7",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "^1.0.3",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1997,9 +1997,9 @@
             ],
             "description": "Password Checker.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-password-checker/tree/v0.4.8"
+                "source": "https://github.com/Automattic/jetpack-password-checker/tree/v0.4.9"
             },
-            "time": "2025-04-28T15:12:49+00:00"
+            "time": "2025-09-15T14:36:45+00:00"
         },
         {
             "name": "automattic/jetpack-paypal-payments",
