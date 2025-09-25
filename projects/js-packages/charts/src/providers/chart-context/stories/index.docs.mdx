@@ -23,11 +23,11 @@ The Global Charts Context system consists of three main parts:
 
 	function App() {
 		return (
-			<GlobalChartsProvider theme={jetpackTheme}>
+			<GlobalChartsProvider theme={ jetpackTheme }>
 				<div className="dashboard">
-					<LineChart data={salesData} />
-					<BarChart data={conversionData} />
-					{/* All charts share the same theme and color coordination */}
+					<LineChart data={ salesData } />
+					<BarChart data={ conversionData } />
+					{ /* All charts share the same theme and color coordination */ }
 				</div>
 			</GlobalChartsProvider>
 		);
@@ -44,13 +44,13 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 	language="tsx"
 	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-function MyApp() {
-	return (
-		<GlobalChartsProvider>
-			{/* Your chart components */}
-		</GlobalChartsProvider>
-	);
-}` }
+	function MyApp() {
+		return (
+			<GlobalChartsProvider>
+				{ /* Your chart components */ }
+			</GlobalChartsProvider>
+		);
+	}` }
 />
 
 ### Basic Provider Props
@@ -64,15 +64,15 @@ function MyApp() {
 	language="tsx"
 	code={ `import { GlobalChartsProvider, jetpackTheme, wooTheme } from '@automattic/charts';
 
-// Using Jetpack theme
-<GlobalChartsProvider theme={jetpackTheme}>
-	{/* Charts will use Jetpack colors and styling */}
-</GlobalChartsProvider>
+	// Using Jetpack theme
+	<GlobalChartsProvider theme={ jetpackTheme }>
+		{ /* Charts will use Jetpack colors and styling */ }
+	</GlobalChartsProvider>
 
-// Using WooCommerce theme
-<GlobalChartsProvider theme={wooTheme}>
-	{/* Charts will use WooCommerce colors and styling */}
-</GlobalChartsProvider>` }
+	// Using WooCommerce theme
+	<GlobalChartsProvider theme={ wooTheme }>
+		{ /* Charts will use WooCommerce colors and styling */ }
+	</GlobalChartsProvider>` }
 />
 
 ## Color Coordination
@@ -81,27 +81,25 @@ function MyApp() {
 
 One of the key features of the Global Charts Context is **stable color assignment for groups**. When data points have a `group` property, the same group will always receive the same color across all charts, even when data changes:
 
-<Canvas of={ ChartContextStories.Default } />
-
-**Try toggling the countries on/off** - notice how each country maintains its assigned color regardless of which other countries are visible. This creates a consistent visual experience across multiple charts and data updates.
+**Try toggling the countries on/off in the Default story** - notice how each country maintains its assigned color regardless of which other countries are visible. This creates a consistent visual experience across multiple charts and data updates.
 
 <Source
 	language="tsx"
 	code={ `// Data with group assignments
-const data = [
-	{
-		label: 'United States Sales',
-		group: 'united-states', // This group will always get the same color
-		data: [/* time series data */],
-		options: {}
-	},
-	{
-		label: 'Great Britain Sales',
-		group: 'great-britain', // Different group, different stable color
-		data: [/* time series data */],
-		options: {}
-	}
-];` }
+	const data = [
+		{
+			label: 'United States Sales',
+			group: 'united-states', // This group will always get the same color
+			data: [ /* time series data */ ],
+			options: {}
+		},
+		{
+			label: 'Great Britain Sales',
+			group: 'great-britain', // Different group, different stable color
+			data: [ /* time series data */ ],
+			options: {}
+		}
+	];` }
 />
 
 ### Color Override Behavior
@@ -113,19 +111,19 @@ The context respects explicit color overrides while maintaining group stability 
 <Source
 	language="tsx"
 	code={ `// Some elements have color overrides, others use global coordination
-const dataWithOverrides = [
-	{
-		label: 'Priority Metric',
-		group: 'priority',
-		options: { stroke: '#e74c3c' }, // Red override - always red
-		data: [/* data */]
-	},
-	{
-		label: 'Standard Metric',
-		group: 'standard', // Uses coordinated theme color
-		data: [/* data */]
-	}
-];` }
+	const dataWithOverrides = [
+		{
+			label: 'Priority Metric',
+			group: 'priority',
+			options: { stroke: '#e74c3c' }, // Red override - always red
+			data: [ /* data */ ]
+		},
+		{
+			label: 'Standard Metric',
+			group: 'standard', // Uses coordinated theme color
+			data: [ /* data */ ]
+		}
+	];` }
 />
 
 ## Theme System
@@ -136,43 +134,43 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 
 <Source
 	language="tsx"
-	code={ `const customTheme = {
-	// Core colors used for data visualization
-	colors: ['#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F'],
+	code={ `const customTheme: ChartTheme = {
+		// Core colors used for data visualization
+		colors: [ '#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F' ],
 
-	// Chart background and labels
-	backgroundColor: '#FFFFFF',
-	labelBackgroundColor: 'transparent',
-	labelTextColor: '#FFFFFF',
+		// Chart background and labels
+		backgroundColor: '#FFFFFF',
+		labelBackgroundColor: 'transparent',
+		labelTextColor: '#FFFFFF',
 
-	// Grid and axis styling
-	gridStyles: {
-		stroke: '#DCDCDE',
-		strokeWidth: 1,
-	},
-	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
+		// Grid and axis styling
+		gridStyles: {
+			stroke: '#DCDCDE',
+			strokeWidth: 1,
+		},
+		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 
-	// Legend appearance
-	legendLabelStyles: {
-		color: 'var(--jp-gray-80, #2c3338)',
-	},
+		// Legend appearance
+		legendLabelStyles: {
+			color: 'var(--jp-gray-80, #2c3338)',
+		},
 
-	// Chart-specific theming
-	leaderboardChart: {
-		primaryColor: '#006DAB',
-		secondaryColor: '#98C8DF',
-		deltaColors: ['#FF8C8F', '#757575', '#1F9828'], // [negative, neutral, positive]
-	},
+		// Chart-specific theming
+		leaderboardChart: {
+			primaryColor: '#006DAB',
+			secondaryColor: '#98C8DF',
+			deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
+		},
 
-	conversionFunnelChart: {
-		primaryColor: '#006DAB',
-		backgroundColor: '#F3F4F6',
-	}
-};
+		conversionFunnelChart: {
+			primaryColor: '#006DAB',
+			backgroundColor: '#F3F4F6',
+		}
+	};
 
-<GlobalChartsProvider theme={customTheme}>
-	{/* All charts inherit these styles */}
-</GlobalChartsProvider>` }
+	<GlobalChartsProvider theme={ customTheme }>
+		{ /* All charts inherit these styles */ }
+	</GlobalChartsProvider>` }
 />
 
 ### Theme Inheritance and Merging
@@ -182,13 +180,13 @@ Themes are merged with the default theme, so you only need to specify the proper
 <Source
 	language="tsx"
 	code={ `// Only customize colors - everything else uses defaults
-const brandColors = {
-	colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
-};
+	const brandColors = {
+		colors: [ '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7' ]
+	};
 
-<GlobalChartsProvider theme={brandColors}>
-	{/* Charts use custom colors but default grid, legends, etc. */}
-</GlobalChartsProvider>` }
+	<GlobalChartsProvider theme={ brandColors }>
+		{ /* Charts use custom colors but default grid, legends, etc. */ }
+	</GlobalChartsProvider>` }
 />
 
 ## Chart Registration
@@ -204,35 +202,15 @@ Charts automatically register themselves with the Global Charts Context when mou
 <Source
 	language="tsx"
 	code={ `// Charts automatically register with a unique ID
-<LineChart
-	data={data}
-	chartId="sales-trends" // Optional: provide explicit ID
-/>
+	<LineChart
+		data={ data }
+		chartId="sales-trends" // Optional: provide explicit ID
+	/>
 
-// The context tracks:
-// - Legend items from this chart
-// - Chart type ('line-chart')
-// - Any additional metadata` }
-/>
-
-### Chart Coordination
-
-Multiple charts can coordinate their display through the shared context:
-
-<Source
-	language="tsx"
-	code={ `function Dashboard() {
-	return (
-		<GlobalChartsProvider>
-			<div className="chart-grid">
-				{/* All these charts share colors and coordinate styling */}
-				<LineChart data={salesTrends} />
-				<BarChart data={categoryBreakdown} />
-				<PieChart data={sourceDistribution} />
-			</div>
-		</GlobalChartsProvider>
-	);
-}` }
+	// The context tracks:
+	// - Legend items from this chart
+	// - Chart type ('line-chart')
+	// - Any additional metadata` }
 />
 
 ## Context Hooks
@@ -245,29 +223,29 @@ Access the full context for advanced chart functionality:
 	language="tsx"
 	code={ `import { useGlobalChartsContext } from '@automattic/charts';
 
-function CustomChart() {
-	const {
-		theme,
-		getElementStyles,
-		registerChart,
-		unregisterChart,
-		getChartData
-	} = useGlobalChartsContext();
+	function CustomChart() {
+		const {
+			theme,
+			getElementStyles,
+			registerChart,
+			unregisterChart,
+			getChartData
+		} = useGlobalChartsContext();
 
-	// Get consistent styling for chart elements
-	const elementStyles = getElementStyles({
-		data: myDataPoint,
-		index: 0,
-		overrideColor: undefined,
-		legendShape: 'line'
-	});
+		// Get consistent styling for chart elements
+		const elementStyles = getElementStyles( {
+			data: myDataPoint,
+			index: 0,
+			overrideColor: undefined,
+			legendShape: 'line'
+		} );
 
-	return (
-		<div style={{ color: elementStyles.color }}>
-			{/* Custom chart implementation */}
-		</div>
-	);
-}` }
+		return (
+			<div style={ { color: elementStyles.color } }>
+				{ /* Custom chart implementation */ }
+			</div>
+		);
+	}` }
 />
 
 ### useGlobalChartsTheme
@@ -278,18 +256,18 @@ Access just the theme when you only need styling information:
 	language="tsx"
 	code={ `import { useGlobalChartsTheme } from '@automattic/charts';
 
-function ThemeAwareComponent() {
-	const theme = useGlobalChartsTheme();
+	function ThemeAwareComponent() {
+		const theme = useGlobalChartsTheme();
 
-	return (
-		<div style={{
-			backgroundColor: theme.backgroundColor,
-			color: theme.legendLabelStyles?.color
-		}}>
-			Styled using global chart theme
-		</div>
-	);
-}` }
+		return (
+			<div style={ {
+				backgroundColor: theme.backgroundColor,
+				color: theme.legendLabelStyles?.color
+			} }>
+				Styled using global chart theme
+			</div>
+		);
+	}` }
 />
 
 ### useChartRegistration
@@ -300,21 +278,21 @@ Register custom charts with the global context:
 	language="tsx"
 	code={ `import { useChartRegistration } from '@automattic/charts';
 
-function CustomChart({ data, chartId }) {
-	// Register this chart with the global context
-	useChartRegistration({
-		chartId: chartId || 'custom-chart',
-		legendItems: data.map(item => ({
-			label: item.label,
-			color: item.color
-		})),
-		chartType: 'custom-chart',
-		isDataValid: data.length > 0,
-		metadata: { customProperty: 'value' }
-	});
+	function CustomChart( { data, chartId } ) {
+		// Register this chart with the global context
+		useChartRegistration( {
+			chartId: chartId || 'custom-chart',
+			legendItems: data.map( item => ( {
+				label: item.label,
+				color: item.color
+			} ) ),
+			chartType: 'custom-chart',
+			isDataValid: data.length > 0,
+			metadata: { customProperty: 'value' }
+		} );
 
-	return <div>{/* Chart implementation */}</div>;
-}` }
+		return <div>{ /* Chart implementation */ }</div>;
+	}` }
 />
 
 ## Performance Considerations
@@ -341,25 +319,25 @@ Use the context's `getElementStyles` function to get consistent styling for cust
 
 <Source
 	language="tsx"
-	code={ `function CustomChartElement({ dataPoint, index }) {
-	const { getElementStyles } = useGlobalChartsContext();
+	code={ `function CustomChartElement( { dataPoint, index } ) {
+		const { getElementStyles } = useGlobalChartsContext();
 
-	const styles = getElementStyles({
-		data: dataPoint,
-		index,
-		overrideColor: dataPoint.highlight ? '#FF0000' : undefined,
-		legendShape: 'circle'
-	});
+		const styles = getElementStyles( {
+			data: dataPoint,
+			index,
+			overrideColor: dataPoint.highlight ? '#FF0000' : undefined,
+			legendShape: 'circle'
+		} );
 
-	return (
-		<circle
-			fill={styles.color}
-			stroke={styles.lineStyles.stroke}
-			strokeWidth={styles.lineStyles.strokeWidth}
-			r="5"
-		/>
-	);
-}` }
+		return (
+			<circle
+				fill={ styles.color }
+				stroke={ styles.lineStyles.stroke }
+				strokeWidth={ styles.lineStyles.strokeWidth }
+				r="5"
+			/>
+		);
+	}` }
 />
 
 ### Multi-Chart Coordination
@@ -368,20 +346,20 @@ Create dashboards where multiple charts coordinate their display:
 
 <Source
 	language="tsx"
-	code={ `function CoordinatedDashboard({ selectedCountries }) {
-	const filteredData = data.filter(item =>
-		selectedCountries.includes(item.group)
-	);
+	code={ `function CoordinatedDashboard( { selectedCountries } ) {
+		const filteredData = data.filter( item =>
+			selectedCountries.includes( item.group )
+		);
 
-	return (
-		<GlobalChartsProvider theme={wooTheme}>
-			{/* All charts automatically coordinate colors for the same groups */}
-			<LineChart data={filteredData.map(transformToTimeSeries)} />
-			<BarChart data={filteredData.map(transformToCategories)} />
-			<PieChart data={filteredData.map(transformToPercentages)} />
-		</GlobalChartsProvider>
-	);
-}` }
+		return (
+			<GlobalChartsProvider theme={ wooTheme }>
+				{ /* All charts automatically coordinate colors for the same groups */ }
+				<LineChart data={ filteredData.map( transformToTimeSeries ) } />
+				<BarChart data={ filteredData.map( transformToCategories ) } />
+				<PieChart data={ filteredData.map( transformToPercentages ) } />
+			</GlobalChartsProvider>
+		);
+	}` }
 />
 
 ## Migration from Individual Chart Themes
@@ -391,17 +369,17 @@ If you're migrating from individual chart theming to the Global Charts Context:
 <Source
 	language="tsx"
 	code={ `// Old approach - each chart has its own theme
-<LineChart
-	data={data}
-	theme={myTheme}
-	colors={['#FF0000', '#00FF00']}
-/>
+	<LineChart
+		data={ data }
+		theme={ myTheme }
+		colors={ [ '#FF0000', '#00FF00' ] }
+	/>
 
-// New approach - shared theme via context
-<GlobalChartsProvider theme={myTheme}>
-	<LineChart data={data} />
-	{/* Colors and theme are automatically inherited */}
-</GlobalChartsProvider>` }
+	// New approach - shared theme via context
+	<GlobalChartsProvider theme={ myTheme }>
+		<LineChart data={ data } />
+		{ /* Colors and theme are automatically inherited */ }
+	</GlobalChartsProvider>` }
 />
 
 ## API Reference
@@ -515,10 +493,10 @@ The context includes error handling for common issues:
 <Source
 	language="tsx"
 	code={ `// This will throw a helpful error
-function ChartWithoutProvider() {
-	const context = useGlobalChartsContext(); // Error: must be used within GlobalChartsProvider
-	return <div>Chart content</div>;
-}` }
+	function ChartWithoutProvider() {
+		const context = useGlobalChartsContext(); // Error: must be used within GlobalChartsProvider
+		return <div>Chart content</div>;
+	}` }
 />
 
 Understanding and leveraging the Global Charts Context enables you to create cohesive, performant chart experiences that maintain visual consistency and provide excellent user experiences across your entire application.
