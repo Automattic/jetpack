@@ -1161,6 +1161,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'post_status'      => array( 'publish' ),
 			'order'            => 'ASC',
 			'suppress_filters' => false,
+			'fields'           => 'ids',
 		);
 
 		if ( $status && $status !== 'publish' ) {
@@ -1190,13 +1191,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$query_args['date_query'] = array( $date_query );
 		}
 
-		$feedback_posts = get_posts( $query_args );
+		$feedback_ids = get_posts( $query_args );
 
-		if ( empty( $feedback_posts ) ) {
+		if ( empty( $feedback_ids ) ) {
 			return new WP_Error( 'no_responses', __( 'No responses found', 'jetpack-forms' ), array( 'status' => 404 ) );
 		}
-
-		$feedback_ids = wp_list_pluck( $feedback_posts, 'ID' );
 
 		$nonce = wp_create_nonce( 'feedback_export_' . implode( ',', $feedback_ids ) );
 
