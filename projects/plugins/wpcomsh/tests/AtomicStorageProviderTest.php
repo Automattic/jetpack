@@ -179,6 +179,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_no_existing_tokens() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
+		// Set master_user directly in database since get_user_tokens calls Jetpack_Options::get_option
+		update_option( 'master_user', $user_id );
+
 		$token_data = wp_json_encode(
 			array(
 				'user_email' => 'test@example.com',
@@ -186,11 +189,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set the token data in persistent storage
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
-
-		$result = $this->provider->get( 'user_tokens' );
+		// Call get_user_tokens directly
+		$result = $this->provider->get_user_tokens( $token_data );
 
 		$expected = array( $user_id => 'token.secret.' . $user_id );
 		$this->assertSame( $expected, $result );
@@ -202,6 +202,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_existing_matching() {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
+
+		// Set master_user directly in database
+		update_option( 'master_user', $user_id );
 
 		// Set existing tokens with other users
 		$existing_tokens = array(
@@ -217,11 +220,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set the token data in persistent storage
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
-
-		$result = $this->provider->get( 'user_tokens' );
+		// Call get_user_tokens directly
+		$result = $this->provider->get_user_tokens( $token_data );
 
 		// Should return merged array with both tokens
 		$expected = array(
@@ -238,6 +238,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
 
+		// Set master_user directly in database
+		update_option( 'master_user', $user_id );
+
 		// Set existing tokens with mismatched master user token
 		$existing_tokens = array(
 			$user_id       => 'old.token.' . $user_id,
@@ -252,11 +255,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
-		// Set the token data in persistent storage
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
-		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
-
-		$result = $this->provider->get( 'user_tokens' );
+		// Call get_user_tokens directly
+		$result = $this->provider->get_user_tokens( $token_data );
 
 		// Should return only the new master user token (others cleared due to mismatch)
 		$expected = array( $user_id => 'new.secret.' . $user_id );
