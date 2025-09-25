@@ -3421,7 +3421,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-analytics",
-                "reference": "8e87c0b41c8ba12be818cfb1080c439ec85bf9ae"
+                "reference": "f0adac19af79dfc88d03cf7cf32d5c0d350a8382"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -3469,7 +3469,7 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "pnpm run build"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
                     "pnpm run build"
