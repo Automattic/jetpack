@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 14.4
+Stable tag: 15.0
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.8
@@ -326,51 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0 - 2025-09-04
-#### Enhancements
-- Add LaTeX block (Beta) to render mathematical formula.
-- Blocks: Update JavaScript to be non-render blocking.
-- Carousel: Fix crashes on large galleries and reduce server requests by preloading only adjacent images instead of all at once.
-- Disallow inserting Simple Payments block via inserter.
-- Enable Settings > Sharing WP Admin page and ensure all relevant links point to this page.
-- Forms: Add MailPoet integration.
-- Forms: Add new Time field.
-- Forms: Add `has_field_type` method to Feedback.
-- Forms: Defer JavaScript loading for more responsive page loading.
-- Forms: Improve the checkbox style.
-- Forms: Preserve HTML IDs when processing feedback.
-- Forms: Save feedback entries in a new format.
-- Forms: Show trash action alongside view action in inbox.
-- Related Posts block: Update placeholder text for the site editor, and update the demo date.
-- Remove CRM installation nudge for Complete plan users
-- Shortcodes: Update embed reversal code to only run when content is inserted in the admin.
-- Site Accelerator: Ignore images from openlibrary.org.
-- Sitemaps: Add filter to allow suspending object cache addition during generation.
-- Social: Add font option for Social Image Generator.
-- Subscription block: Defer JavaScript loading.
-
-#### Improved compatibility
-- Open Graph Meta tags: Add new filter allowing one to define a custom site representative image.
-
+### 15.0.1 - 2025-09-25
 #### Bug fixes
-- Carousel: Improve image size processing to return higher quality images in additional situations.
-- Crowdsignal: Improve escaping.
-- Forms: Fix default checkboxes styles, and allow for "browser" styles as a choice.
-- Forms: Fix error wrapper when placing button inside a group block.
-- Forms: Fix phone validation for responses.
-- Forms: Improve checkbox validation for older checkboxes.
-- Forms: Show the form variation picker if you only have the submit button.
-- Image CDN: Prevent errors attempting to filter null.
-- Improve escaping for recurring payment buttons.
-- Infinite Scroll: Prevent PHP warnings in various edge cases.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- Prevent PHP fatals when handling unexpected data types.
-- Search: Ensure images are loaded efficiently when on https sites.
-- SEO settings: Update the default Open Graph image tag to match the one in use on the site.
-- Shortcodes: Improve embed detection.
-- Sitemaps: Fix PHP warning during generation if there are no posts or pages on the website.
-- Social: Allow default image to be cleared.
-- Social: Fix image generator token reset on save resulting in font not being saved.
+- Forms: prevent a conflict between the phone field and WordPress 6.7.
 
 --------
 
