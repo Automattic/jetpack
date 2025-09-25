@@ -2769,7 +2769,7 @@ class Contact_Form_Plugin {
 		}
 
 		$feedback_ids = explode( ',', $feedback_ids_str );
-		$feedback_ids = array_map( 'intval', $feedback_ids );
+		$feedback_ids = array_values( array_filter( array_map( 'intval', $feedback_ids ) ) );
 
 		if ( ! wp_verify_nonce( $nonce, 'feedback_export_' . $feedback_ids_str ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'jetpack-forms' ), 403 );
