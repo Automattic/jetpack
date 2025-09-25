@@ -28,13 +28,13 @@ const createAnnotationTemplate =
 					{ ...( annotationArgs?.[ 0 ] || {} ) }
 				/>
 				<LineChart.Annotation
-					datum={ sampleData[ 1 ].data[ sampleData[ 1 ].data.length - 10 ] }
+					datum={ sampleData[ 1 ].data[ 1 ] }
 					title="Another notable event"
 					subtitle="This is another notable event"
 					{ ...( annotationArgs?.[ 1 ] || {} ) }
 				/>
 				<LineChart.Annotation
-					datum={ sampleData[ 2 ].data[ sampleData[ 2 ].data.length - 51 ] }
+					datum={ sampleData[ 2 ].data[ 7 ] }
 					title="Concerning event"
 					subtitle="This is a concerning event"
 					{ ...( annotationArgs?.[ 2 ] || {} ) }

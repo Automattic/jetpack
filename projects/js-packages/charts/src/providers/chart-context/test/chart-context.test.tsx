@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
+import { wooTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -410,7 +411,7 @@ describe( 'ChartContext', () => {
 			expect( color3 ).toBe( mockTheme.colors[ 2 ] );
 		} );
 
-		it( 'wraps around theme colors when index exceeds theme color array', () => {
+		it( 'generates new colors when index exceeds theme color array', () => {
 			let contextValue: GlobalChartsContextValue;
 
 			const TestComponent = () => {
@@ -424,18 +425,84 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			// mockTheme has 3 colors, so index 3 should wrap to index 0
+			// mockTheme has 3 colors, so index 3 should generate a new color
+			const paletteColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 0,
+			} ).color;
+			const generatedColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 3,
+			} ).color;
+
+			// Generated color should be different from palette colors
+			expect( generatedColor ).not.toBe( paletteColor );
+			expect( generatedColor ).not.toBe( mockTheme.colors[ 0 ] );
+			expect( generatedColor ).not.toBe( mockTheme.colors[ 1 ] );
+			expect( generatedColor ).not.toBe( mockTheme.colors[ 2 ] );
+
+			// Generated color should be in HSL format
+			expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+		} );
+
+		it( 'generates consistent colors for same index beyond palette', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Generated colors should be consistent for the same index
+			const color1 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+			const color2 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+
+			expect( color1 ).toBe( color2 );
+		} );
+
+		it( 'generates different colors for different indices beyond palette', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Different indices should generate different colors
 			const color1 = contextValue.getElementStyles( {
 				data: createMockDataWithGroup( undefined ),
 				index: 3,
 			} ).color;
 			const color2 = contextValue.getElementStyles( {
 				data: createMockDataWithGroup( undefined ),
-				index: 0,
+				index: 4,
+			} ).color;
+			const color3 = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
 			} ).color;
 
-			expect( color1 ).toBe( color2 );
-			expect( color1 ).toBe( mockTheme.colors[ 0 ] );
+			expect( color1 ).not.toBe( color2 );
+			expect( color2 ).not.toBe( color3 );
+			expect( color1 ).not.toBe( color3 );
 		} );
 
 		it( 'maintains color stability when same group accessed multiple times', () => {
@@ -622,6 +689,118 @@ describe( 'ChartContext', () => {
 			expect( usColor3 ).not.toBe( gbColor3 );
 			expect( gbColor3 ).not.toBe( jpColor3 );
 			expect( usColor3 ).not.toBe( jpColor3 );
+		} );
+	} );
+
+	describe( 'Color cache performance', () => {
+		it( 'maintains stable colors when theme remains unchanged', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Get initial generated color
+			const initialColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+
+			// Re-render with same theme
+			rerender(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Color should remain the same
+			const afterRerenderColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+
+			expect( afterRerenderColor ).toBe( initialColor );
+		} );
+
+		it( 'updates colors when theme changes', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const newTheme: typeof mockTheme = {
+				colors: [ '#000000', '#111111', '#222222' ],
+			} as typeof mockTheme;
+
+			const { rerender } = render(
+				<GlobalChartsProvider theme={ mockTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Get initial generated color
+			const initialColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+
+			// Re-render with different theme
+			rerender(
+				<GlobalChartsProvider theme={ newTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Color should change due to different theme
+			const afterThemeChangeColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( undefined ),
+				index: 5,
+			} ).color;
+
+			expect( afterThemeChangeColor ).not.toBe( initialColor );
+		} );
+
+		it( 'generates colors with Woo theme characteristics', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider theme={ wooTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Generate colors beyond the palette
+			const generatedColors = [];
+			for ( let i = 5; i < 8; i++ ) {
+				const color = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( undefined ),
+					index: i,
+				} ).color;
+				generatedColors.push( color );
+			}
+
+			// All generated colors should be in HSL format
+			generatedColors.forEach( color => {
+				expect( color ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+			} );
+
+			// All generated colors should be different
+			const uniqueColors = new Set( generatedColors );
+			expect( uniqueColors.size ).toBe( generatedColors.length );
 		} );
 	} );
 

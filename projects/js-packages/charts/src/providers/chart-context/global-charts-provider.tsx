@@ -1,5 +1,6 @@
 import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { getItemShapeStyles, getSeriesLineStyles, mergeThemes } from '../../utils';
+import { getItemShapeStyles, getSeriesLineStyles, mergeThemes, hexToHsl } from '../../utils';
+import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -18,6 +19,36 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
+
+	// Cache expensive color computations that only change when theme colors change
+	const colorCache: ColorCache = useMemo( () => {
+		const { colors } = providerTheme;
+		const hues: number[] = [];
+		const existingHslColors: Array< [ number, number, number ] > = [];
+		let minHue = 360;
+		let maxHue = 0;
+
+		// Process all colors once and cache the results
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
+					const hslColor = hexToHsl( color );
+					hues.push( hslColor[ 0 ] );
+					existingHslColors.push( hslColor );
+					minHue = Math.min( minHue, hslColor[ 0 ] );
+					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				}
+			}
+		}
+
+		return {
+			colors: colors || [],
+			hues,
+			existingHslColors,
+			minHue,
+			maxHue,
+		};
+	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()
@@ -63,26 +94,25 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				return overrideColor;
 			}
 
-			const { colors } = providerTheme;
-
 			// If group provided, maintain a stable assignment
 			if ( group ) {
 				const existing = groupToColorMap.get( group );
+
 				if ( existing ) {
 					return existing;
 				}
-				// Assign next color from palette in a deterministic cycling manner
 
 				const assignedCount = groupToColorMap.size;
-				const color = colors.length > 0 ? colors[ assignedCount % colors.length ] : '#000000';
+				const color =
+					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
 				groupToColorMap.set( group, color );
+
 				return color;
 			}
 
-			// Fallback: index-based color cycling
-			return colors.length > 0 ? colors[ ( index || 0 ) % colors.length ] : '#000000';
+			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
 		},
-		[ providerTheme, groupToColorMap ]
+		[ colorCache, groupToColorMap ]
 	);
 
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
