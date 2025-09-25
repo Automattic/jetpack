@@ -59,6 +59,31 @@ const icon = (
 	</svg>
 );
 
+const emptyLanguageOption = {
+	name: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
+	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
+	key: '',
+	value: '',
+};
+const languageOptions: {
+	readonly name: string;
+	readonly key: string;
+
+	readonly label: string;
+	readonly value: string;
+}[] = [ emptyLanguageOption ];
+{
+	const langNames = new Set< string >();
+	extensionToLang.forEach( ( [ , lang ] ) => {
+		langNames.add( lang );
+	} );
+	const sortedLangNames = Array.of( ...langNames );
+	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
+	sortedLangNames.forEach( lang =>
+		languageOptions.push( { name: lang, label: lang, key: lang, value: lang } )
+	);
+}
+
 registerBlockType( blockJson, {
 	icon,
 	example: exampleBlock,
@@ -82,20 +107,6 @@ registerBlockType( blockJson, {
 		> }` > )
 	)( ( props: EditBlockProps ) => {
 		const { setAttributes, attributes } = props;
-
-		const languageOptions = React.useMemo<
-			ReadonlyArray< { readonly label: string; readonly value: string } >
-		>( () => {
-			const langOptions = langNames.map( lang => ( {
-				label: lang,
-				value: lang,
-			} ) );
-			langOptions.unshift( {
-				label: __( 'Plain text', 'jetpack-mu-wpcom' ),
-				value: '',
-			} );
-			return langOptions;
-		}, [] );
 
 		return (
 			<>
@@ -310,21 +321,6 @@ const Filename = ( props: Props ) => {
 const DisplayLanguage = ( props: Props ) => {
 	const { attributes, setAttributes } = props;
 
-	const emptyOption = React.useRef( { name: __( 'Plain text', 'jetpack-mu-wpcom' ), key: '' } );
-	const options = React.useMemo( () => {
-		const langNames = new Set< string >();
-		extensionToLang.forEach( ( [ , lang ] ) => {
-			langNames.add( lang );
-		} );
-		const sortedLangNames = Array.of( ...langNames ).map( lang => ( {
-			name: lang,
-			key: lang,
-		} ) );
-		sortedLangNames.sort( ( a, b ) => a.name.localeCompare( b.name ) );
-		const langs = [ emptyOption.current, ...sortedLangNames ];
-		return langs;
-	}, [] );
-
 	if ( props.isSelected ) {
 		return (
 			<CustomSelectControl
@@ -336,10 +332,12 @@ const DisplayLanguage = ( props: Props ) => {
 						? {
 								name: attributes.language,
 								key: attributes.language,
+								label: attributes.language,
+								value: attributes.language,
 						  }
-						: emptyOption.current
+						: emptyLanguageOption
 				}
-				options={ options }
+				options={ languageOptions }
 				onChange={ ( {
 					selectedItem: { key: newLanguage },
 				}: {
