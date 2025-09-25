@@ -608,24 +608,6 @@ trait Woo_Analytics_Trait {
 	}
 
 	/**
-	 * Check if ClickHouse is enabled.
-	 *
-	 * @return bool
-	 */
-	private function is_clickhouse_enabled() {
-		/**
-		 * Filter to enable/disable ClickHouse event tracking.
-		 *
-		 * @module woocommerce-analytics
-		 *
-		 * @since 0.5.0
-		 *
-		 * @param bool $enabled Whether ClickHouse event tracking is enabled.
-		 */
-		return apply_filters( 'woocommerce_analytics_clickhouse_enabled', false );
-	}
-
-	/**
 	 * Retrieves the breadcrumb trail as an array of page titles.
 	 *
 	 * This function attempts to generate a hierarchical breadcrumb trail for the current page or post.
@@ -693,21 +675,5 @@ trait Woo_Analytics_Trait {
 		}
 
 		return array_merge( array( $shop_page_title ), $titles );
-	}
-
-	/**
-	 * Check if proxy tracking is enabled
-	 *
-	 * @return bool
-	 */
-	private function is_proxy_tracking_enabled() {
-		/**
-		 * Filter to enable/disable experimental proxy tracking for WooCommerce Analytics
-		 *
-		 * @since 0.9.0
-		 *
-		 * @param bool $enabled Whether proxy tracking is enabled. Default false.
-		 */
-		return apply_filters( 'woocommerce_analytics_experimental_proxy_tracking_enabled', false );
 	}
 }
