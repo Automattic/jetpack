@@ -644,12 +644,12 @@ export const transforms = {
 				if ( file.size > 10 * 1_024 ) {
 					return false;
 				}
-				const language = getLanguage( file );
+				const language = getLanguageFromFile( file );
 				return typeof language !== 'undefined';
 			},
 			transform: ( files: [ File, ...unknown[] ] ) => {
 				const [ file ] = files;
-				const language = getLanguage( file )!;
+				const language = getLanguageFromFile( file )!;
 
 				const block = createBlock< Attributes >( BLOCK_NAME, {
 					language,
@@ -673,11 +673,11 @@ export const transforms = {
 	],
 };
 
-interface GetLanguage {
+interface GetLanguageFromFile {
 	( file: File ): string | undefined;
 	extensionMap?: Map< string, string >;
 }
-const getLanguage: GetLanguage = ( file: File ): string | undefined => {
+const getLanguageFromFile: GetLanguageFromFile = ( file: File ): string | undefined => {
 	switch ( file.type ) {
 		case 'text/css':
 			return 'CSS';
@@ -712,8 +712,8 @@ const getLanguage: GetLanguage = ( file: File ): string | undefined => {
 			return 'YAML';
 	}
 
-	if ( ! getLanguage.extensionMap ) {
-		getLanguage.extensionMap = new Map(
+	if ( ! getLanguageFromFile.extensionMap ) {
+		getLanguageFromFile.extensionMap = new Map(
 			extensionToLang as unknown as ReadonlyArray< [ string, string ] >
 		);
 	}
@@ -724,5 +724,5 @@ const getLanguage: GetLanguage = ( file: File ): string | undefined => {
 	 * so `.at(-1)` (the last element) can never be undefined.
 	 */
 	const extension = file.name.split( '.' ).at( -1 )!.toLowerCase();
-	return getLanguage.extensionMap.get( extension );
+	return getLanguageFromFile.extensionMap.get( extension );
 };
