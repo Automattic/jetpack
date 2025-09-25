@@ -326,9 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0.1 - 2025-09-25
+### 15.0.2 - 2025-09-25
 #### Bug fixes
-- Forms: prevent a conflict between the phone field and WordPress 6.7.
+- Resolved conflict with WordPress 6.7.3
 
 --------
 
