@@ -770,11 +770,12 @@ class Contact_Form_Block {
 			'../../../dist/blocks/editor.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
+				'dependencies' => array( 'jetpack-blocks-editor' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
 				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'   => null,
+				'css_path'     => null,
 			)
 		);
 
