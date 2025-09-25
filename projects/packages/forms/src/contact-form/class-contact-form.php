@@ -189,7 +189,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
-			'disableSummary'         => $attributes['disableSummary'] ?? false,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -975,7 +974,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
 		$disable_go_back = $form->get_attribute( 'disableGoBack' );
-		$disable_summary = $form->get_attribute( 'disableSummary' );
+		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
 
 		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
 
@@ -1053,7 +1052,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	public static function success_message( $feedback_id, $form ) {
 		$message         = '';
-		$disable_summary = $form->get_attribute( 'disableSummary' );
+		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
 
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$raw_message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );

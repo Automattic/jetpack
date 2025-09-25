@@ -64,8 +64,4 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
-	disableSummary: {
-		type: 'boolean',
-		default: false,
-	},
 };
