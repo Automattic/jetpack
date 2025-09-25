@@ -1287,7 +1287,9 @@ function zeroBSCRM_migration_tax_rate_precision_fix() {
 	$column_type = zeraBSCRM_migration_get_column_data_type( $ZBSCRM_t['tax'], 'zbsc_rate' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	if ( $column_type && strpos( $column_type, 'decimal(20,10)' ) === false ) {
 		// Table name is constructed internally and considered safe.
-		$wpdb->query( "ALTER TABLE `{$ZBSCRM_t['tax']}` MODIFY zbsc_rate DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Table name is constructed internally and escaped with backticks.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpdb->query( 'ALTER TABLE `' . esc_sql( $ZBSCRM_t['tax'] ) . '` MODIFY zbsc_rate DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000' );
 	}
 
 	zeroBSCRM_migrations_markComplete( 'tax_rate_precision_fix', array( 'updated' => 1 ) );
