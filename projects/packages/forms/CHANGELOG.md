@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.1] - 2025-09-25
+### Added
+- Forms: add extra layer of cache busting for interactivity API files (view.js) with hash suffix [#45138]
+- Forms: add searchable country selector dropdown (combobox) [#45120]
+- Forms: try and fix deploy cache issue by adding a manual suffix for cache busting [#45137]
+
+### Changed
+- Forms: move all international phone code and UI back into legacy telephone field, keep backwards compat [#45061]
+
 ## [6.2.0] - 2025-09-03
 ### Changed
 - Use sentence case in integrations panel CTAs. [#45054]
@@ -1521,6 +1530,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.2.1]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/automattic/jetpack-forms/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/automattic/jetpack-forms/compare/v6.0.0...v6.1.0
 [6.0.0]: https://github.com/automattic/jetpack-forms/compare/v5.5.0...v6.0.0
