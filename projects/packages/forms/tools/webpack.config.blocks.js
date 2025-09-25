@@ -79,6 +79,9 @@ const sharedWebpackConfig = {
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 };
 
 module.exports = [

@@ -222,7 +222,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			)
 		);
 
-		$term = md5( wp_rand() );
+		$term = md5( (string) wp_rand() );
 		if ( 'post_format' === $taxonomy ) {
 			// Special case in Core.
 			$term = 'Standard';

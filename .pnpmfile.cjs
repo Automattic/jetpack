@@ -20,6 +20,7 @@ const wpPkgs = {
 		'uuid',
 		'@wordpress/date',
 		'@wordpress/hooks',
+		'react-colorful',
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
@@ -51,7 +52,10 @@ async function fixDeps( pkg ) {
 
 	// Currently v3 of @automattic/components has some issues:
 	// https://github.com/Automattic/wp-calypso/pull/103385
-	if ( pkg.name.startsWith( '@automattic/calypso-products' ) ) {
+	if (
+		pkg.name.startsWith( '@automattic/calypso-products' ) ||
+		pkg.name.startsWith( '@automattic/launchpad' )
+	) {
 		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
 	}
 
@@ -97,10 +101,6 @@ async function fixDeps( pkg ) {
 
 		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
 		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
-
-		// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
-		// https://github.com/WordPress/gutenberg/issues/60975
-		pkg.optionalDependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Missing dep or peer dep.
@@ -208,12 +208,6 @@ async function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
-	}
-
-	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
-	// https://github.com/WordPress/gutenberg/issues/60975
-	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
-		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,

@@ -1,13 +1,15 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { GlobalChartsProvider } from '../../../providers/chart-context';
+import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
+import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
-import { useChartLegendData } from '../use-chart-legend-data';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
-const meta: Meta< typeof Legend > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Composites/Legend',
 	component: Legend,
 	parameters: {
@@ -74,10 +76,14 @@ The Legend component provides a flexible way to display chart legends either as 
 			},
 		},
 	},
+	decorators: [ simpleChartDecorator ],
+	argTypes: {
+		...themeArgTypes,
+	},
 };
 
 export default meta;
-type Story = StoryObj< typeof Legend >;
+type Story = StoryObj< StoryArgs >;
 
 // Mock data for different chart types
 const lineChartData: SeriesData[] = [
@@ -125,6 +131,11 @@ const pieChartData: DataPointPercentage[] = [
 
 // Basic standalone legends
 export const Horizontal: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return <Legend { ...legendProps } />;
+	},
 	args: {
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
@@ -135,6 +146,11 @@ export const Horizontal: Story = {
 };
 
 export const Vertical: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, ...legendProps } = args;
+		return <Legend { ...legendProps } />;
+	},
 	args: {
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
@@ -147,7 +163,7 @@ export const Vertical: Story = {
 
 // Story showing use with LineChart data
 const WithLineChartData = () => {
-	const legendItems = useChartLegendData( lineChartData, {
+	const legendItems = useChartLegendItems( lineChartData, {
 		showValues: false,
 	} );
 
@@ -161,17 +177,13 @@ const WithLineChartData = () => {
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			/>
-			<Legend items={ legendItems } orientation="horizontal" />
+			<Legend items={ legendItems } orientation="horizontal" shape="line" />
 		</div>
 	);
 };
 
 export const WithLineChart: Story = {
-	render: () => (
-		<GlobalChartsProvider>
-			<WithLineChartData />
-		</GlobalChartsProvider>
-	),
+	render: () => <WithLineChartData />,
 	parameters: {
 		docs: {
 			description: {
@@ -183,7 +195,7 @@ export const WithLineChart: Story = {
 
 // Story showing use with BarChart data
 const WithBarChartData = () => {
-	const legendItems = useChartLegendData( barChartData );
+	const legendItems = useChartLegendItems( barChartData );
 
 	return (
 		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
@@ -194,11 +206,7 @@ const WithBarChartData = () => {
 };
 
 export const WithBarChart: Story = {
-	render: () => (
-		<GlobalChartsProvider>
-			<WithBarChartData />
-		</GlobalChartsProvider>
-	),
+	render: () => <WithBarChartData />,
 	parameters: {
 		docs: {
 			description: {
@@ -211,22 +219,20 @@ export const WithBarChart: Story = {
 // Story showing standalone legend using chartId to automatically get data from context
 const StandaloneLegendWithChartIdComponent = () => {
 	return (
-		<GlobalChartsProvider>
-			<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
-				{ /* Chart with legend hidden but still registering data */ }
-				<LineChart
-					chartId="standalone-legend-chart"
-					data={ lineChartData }
-					showLegend={ false }
-					width={ 400 }
-					height={ 200 }
-					withGradientFill={ false }
-					withLegendGlyph={ false }
-				/>
-				{ /* Standalone legend that automatically gets data from chart context */ }
-				<Legend chartId="standalone-legend-chart" orientation="horizontal" />
-			</div>
-		</GlobalChartsProvider>
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+			{ /* Chart with legend hidden but still registering data */ }
+			<LineChart
+				chartId="standalone-legend-chart"
+				data={ lineChartData }
+				showLegend={ false }
+				width={ 400 }
+				height={ 200 }
+				withGradientFill={ false }
+				withLegendGlyph={ false }
+			/>
+			{ /* Standalone legend that automatically gets data from chart context */ }
+			<Legend chartId="standalone-legend-chart" orientation="horizontal" shape="line" />
+		</div>
 	);
 };
 
@@ -235,20 +241,18 @@ export const StandaloneLegendWithChartId: Story = {
 	parameters: {
 		docs: {
 			source: {
-				code: `<GlobalChartsProvider>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-    {/* Chart with legend hidden but still registering data */}
-    <LineChart
-      chartId="standalone-legend-chart"
-      data={lineChartData}
-      showLegend={false}
-      width={400}
-      height={200}
-    />
-    {/* Standalone legend that automatically gets data from chart context */}
-    <Legend chartId="standalone-legend-chart" orientation="horizontal" />
-  </div>
-</GlobalChartsProvider>`,
+				code: `<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+  {/* Chart with legend hidden but still registering data */}
+  <LineChart
+    chartId="standalone-legend-chart"
+    data={lineChartData}
+    showLegend={false}
+    width={400}
+    height={200}
+  />
+  {/* Standalone legend that automatically gets data from chart context */}
+  <Legend chartId="standalone-legend-chart" orientation="horizontal" />
+</div>`,
 			},
 			description: {
 				story: `
@@ -303,96 +307,94 @@ This example demonstrates the power of the Legend component's context integratio
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
-		<GlobalChartsProvider>
-			<div
-				style={ {
-					display: 'grid',
-					gridTemplateColumns: '1fr 300px',
-					gap: '20px',
-					padding: '20px',
-					backgroundColor: '#f5f5f5',
-					borderRadius: '8px',
-				} }
-			>
-				{ /* Main content area with charts */ }
-				<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: '1fr 300px',
+				gap: '20px',
+				padding: '20px',
+				backgroundColor: '#f5f5f5',
+				borderRadius: '8px',
+			} }
+		>
+			{ /* Main content area with charts */ }
+			<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+				<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+					<h3 style={ { margin: '0 0 20px 0' } }>Revenue Trends</h3>
+					<LineChart
+						chartId="dashboard-revenue"
+						data={ lineChartData }
+						showLegend={ false }
+						width={ 600 }
+						height={ 200 }
+						withGradientFill={ false }
+						withLegendGlyph={ false }
+					/>
+				</div>
+
+				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
 					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-						<h3 style={ { margin: '0 0 20px 0' } }>Revenue Trends</h3>
-						<LineChart
-							chartId="dashboard-revenue"
-							data={ lineChartData }
+						<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
+						<BarChart
+							chartId="dashboard-sales"
+							data={ barChartData }
 							showLegend={ false }
-							width={ 600 }
+							width={ 280 }
 							height={ 200 }
-							withGradientFill={ false }
-							withLegendGlyph={ false }
 						/>
 					</div>
 
-					<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
-						<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-							<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
-							<BarChart
-								chartId="dashboard-sales"
-								data={ barChartData }
-								showLegend={ false }
-								width={ 280 }
-								height={ 200 }
-							/>
-						</div>
-
-						<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-							<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-							<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
-						</div>
+					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+						<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
+						<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
 					</div>
 				</div>
-
-				{ /* Centralized legend panel */ }
-				<aside style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
-					<h3 style={ { margin: '0 0 20px 0' } }>Legend</h3>
-
-					<div style={ { marginBottom: '20px' } }>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Revenue Trends
-						</h4>
-						<Legend chartId="dashboard-revenue" orientation="vertical" />
-					</div>
-
-					<div style={ { marginBottom: '20px' } }>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Sales by Quarter
-						</h4>
-						<Legend chartId="dashboard-sales" orientation="vertical" />
-					</div>
-
-					<div>
-						<h4
-							style={ {
-								margin: '0 0 10px 0',
-								fontSize: '14px',
-								color: '#666',
-							} }
-						>
-							Device Distribution
-						</h4>
-						<Legend chartId="dashboard-devices" orientation="vertical" />
-					</div>
-				</aside>
 			</div>
-		</GlobalChartsProvider>
+
+			{ /* Centralized legend panel */ }
+			<aside style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+				<h3 style={ { margin: '0 0 20px 0' } }>Legend</h3>
+
+				<div style={ { marginBottom: '20px' } }>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Revenue Trends
+					</h4>
+					<Legend chartId="dashboard-revenue" orientation="vertical" shape="line" />
+				</div>
+
+				<div style={ { marginBottom: '20px' } }>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Sales by Quarter
+					</h4>
+					<Legend chartId="dashboard-sales" orientation="vertical" />
+				</div>
+
+				<div>
+					<h4
+						style={ {
+							margin: '0 0 10px 0',
+							fontSize: '14px',
+							color: '#666',
+						} }
+					>
+						Device Distribution
+					</h4>
+					<Legend chartId="dashboard-devices" orientation="vertical" shape="circle" />
+				</div>
+			</aside>
+		</div>
 	);
 };
 
@@ -457,6 +459,114 @@ export const AlignmentOptions: Story = {
 		docs: {
 			description: {
 				story: 'Legend with custom alignment options.',
+			},
+		},
+	},
+};
+
+// Comprehensive story showing all text overflow and wrapping features
+export const TextOverflow: Story = {
+	render: args => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { themeName, maxWidth, ...restProps } = args;
+		const containerStyle =
+			args.orientation === 'horizontal'
+				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
+				: { width: '350px', border: '1px solid #ddd', padding: '20px' };
+
+		const titleText = maxWidth
+			? `Legend with ${
+					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
+			  } (maxWidth: ${ maxWidth })`
+			: 'Legend without maxWidth constraint';
+
+		return (
+			<div style={ containerStyle }>
+				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
+				<Legend { ...restProps } maxWidth={ maxWidth } />
+			</div>
+		);
+	},
+	args: {
+		items: [
+			{
+				label: 'Very Long Legend Item Label That Demonstrates Text Overflow Behavior',
+				value: '25%',
+				color: '#3858E9',
+			},
+			{
+				label: 'Another Extremely Long Label for Testing Different Display Options',
+				value: '35%',
+				color: '#80C8FF',
+			},
+			{ label: 'Short Label', value: '15%', color: '#44B556' },
+			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
+		],
+		orientation: 'horizontal',
+		maxWidth: 150,
+		textOverflow: 'wrap',
+		position: 'bottom',
+		alignment: 'center',
+	},
+	argTypes: {
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'horizontal', 'vertical' ],
+			description: 'Legend orientation',
+		},
+		maxWidth: {
+			control: { type: 'range', min: 0, max: 300, step: 10 },
+			description: 'Maximum width for legend items (pixels). Set to 0 to disable.',
+			table: {
+				type: { summary: 'number | string | undefined' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
+		textOverflow: {
+			control: { type: 'radio' },
+			options: [ 'wrap', 'ellipsis' ],
+			description: 'Text overflow behavior when maxWidth is set',
+		},
+		position: {
+			control: { type: 'radio' },
+			options: [ 'top', 'bottom' ],
+			description: 'Vertical position of the legend',
+		},
+		alignment: {
+			control: { type: 'radio' },
+			options: [ 'start', 'center', 'end' ],
+			description: 'Horizontal alignment of the legend',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `
+## Text Overflow and Wrapping
+
+This interactive story demonstrates all the text overflow and wrapping features of the Legend component.
+
+### Features
+
+- **Text Overflow Modes**:
+  - **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
+  - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
+
+- **Orientation**: Switch between horizontal and vertical layouts
+- **Max Width**: Adjust the maximum width constraint with the slider (50-300px)
+- **Position & Alignment**: Control legend placement
+
+### Use Cases
+
+- **Widgets/Dashboards**: Use ellipsis mode with small maxWidth values
+- **Full Displays**: Use wrap mode with larger maxWidth values
+- **Mobile**: Use vertical orientation with appropriate maxWidth
+
+### Accessibility
+When using ellipsis mode, truncated text automatically includes a \`title\` attribute for screen readers and displays a native tooltip on hover showing the complete text.
+
+Try different combinations using the controls above to see how the legend adapts to various constraints!
+`,
 			},
 		},
 	},

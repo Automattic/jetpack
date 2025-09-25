@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Add product sync checksum support and include trash/auto-draft post statuses in queries

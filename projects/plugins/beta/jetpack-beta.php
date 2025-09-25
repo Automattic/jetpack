@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 4.1.4
+ * Version: 4.1.5
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * Update URI: https://jetpack.com/download-jetpack-beta/
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '4.1.4' );
+define( 'JPBETA_VERSION', '4.1.5' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
@@ -124,6 +124,5 @@ add_action( 'init', array( Automattic\JetpackBeta\Hooks::class, 'instance' ) );
 add_action( 'muplugins_loaded', array( Automattic\JetpackBeta\Hooks::class, 'is_network_enabled' ) );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 	WP_CLI::add_command( 'jetpack-beta', Automattic\JetpackBeta\CliCommand::class );
 }

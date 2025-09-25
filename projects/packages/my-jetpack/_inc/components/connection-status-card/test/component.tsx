@@ -294,7 +294,7 @@ describe( 'ConnectionStatusCard', () => {
 					possibleAccountErrors: {
 						mismatch: {
 							type: 'mismatch',
-							message: 'Your WordPress.com email also used by another user account.',
+							message: 'Your WordPress.com email is also used by another user account.',
 							details: {
 								site_email: 'local@example.com',
 								wpcom_email: 'email@example.com',

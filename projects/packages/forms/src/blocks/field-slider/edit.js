@@ -225,6 +225,8 @@ export default function SliderFieldEdit( props ) {
 					'jetpack/field-slider-onChangeDefault': onChangeDefault,
 					'jetpack/field-slider-onChangeMin': onChangeMin,
 					'jetpack/field-slider-onChangeMax': onChangeMax,
+					'jetpack/field-slider-minLabel': minLabel,
+					'jetpack/field-slider-maxLabel': maxLabel,
 					'jetpack/field-slider-onChangeMinLabel': onChangeMinLabel,
 					'jetpack/field-slider-onChangeMaxLabel': onChangeMaxLabel,
 				} }

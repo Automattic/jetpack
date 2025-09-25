@@ -171,6 +171,8 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'isActive', $data['akismet'] );
 		$this->assertArrayHasKey( 'isConnected', $data['akismet'] );
 		$this->assertArrayHasKey( 'needsConnection', $data['akismet'] );
+		$this->assertArrayHasKey( 'title', $data['akismet'] );
+		$this->assertArrayHasKey( 'subtitle', $data['akismet'] );
 
 		// Verify structure of google-drive
 		$this->assertArrayHasKey( 'type', $data['google-drive'] );
@@ -219,6 +221,8 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertArrayHasKey( 'details', $integration );
 			$this->assertArrayHasKey( 'needsConnection', $integration );
 			$this->assertArrayHasKey( 'marketingUrl', $integration );
+			$this->assertArrayHasKey( 'title', $integration );
+			$this->assertArrayHasKey( 'subtitle', $integration );
 
 			// Verify expected data types
 			$this->assertIsString( $integration['id'] );
@@ -233,6 +237,8 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			$this->assertTrue( $integration['version'] === null || is_string( $integration['version'] ) );
 			$this->assertIsArray( $integration['details'] );
 			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
+			$this->assertTrue( $integration['title'] === '' || is_string( $integration['title'] ) );
+			$this->assertTrue( $integration['subtitle'] === '' || is_string( $integration['subtitle'] ) );
 		}
 	}
 
@@ -264,6 +270,8 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'version', $data );
 		$this->assertArrayHasKey( 'details', $data );
 		$this->assertArrayHasKey( 'needsConnection', $data );
+		$this->assertArrayHasKey( 'title', $data );
+		$this->assertArrayHasKey( 'subtitle', $data );
 	}
 
 	/**
@@ -404,6 +412,57 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/config returns expected structure for authorized user.
+	 */
+	public function test_get_forms_config_returns_200_and_keys() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/config' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+
+		// Required keys
+		$expected_keys = array(
+			'formsResponsesUrl',
+			'isMailPoetEnabled',
+			'blogId',
+			'gdriveConnectSupportURL',
+			'pluginAssetsURL',
+			'siteURL',
+			'hasFeedback',
+			'hasAI',
+			'isIntegrationsEnabled',
+			'dashboardURL',
+			'canInstallPlugins',
+			'canActivatePlugins',
+			'exportNonce',
+			'newFormNonce',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $data );
+		}
+
+		// Basic type checks for a few fields
+		$this->assertIsBool( $data['isMailPoetEnabled'] );
+		$this->assertIsInt( $data['blogId'] );
+		$this->assertIsBool( $data['canInstallPlugins'] );
+		$this->assertIsBool( $data['canActivatePlugins'] );
+		$this->assertIsString( $data['exportNonce'] );
+		$this->assertIsString( $data['newFormNonce'] );
+	}
+
+	/**
+	 * Test GET feedback/config unauthorized access.
+	 */
+	public function test_get_forms_config_returns_401_for_unauthorized() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/config' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test resend email functionality
 	 */
 	public function test_resend_email() {
@@ -446,6 +505,15 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		$this->send_email_called = false; // Reset the flag
 		remove_filter( 'wp_mail', array( $this, 'mock_wp_mail_succeeded' ) );
+	}
+
+	public function test_404_single_feedback_response() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/999999' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+		$this->assertEquals( 'Invalid post ID.', $data['message'] );
 	}
 
 	/**

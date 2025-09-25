@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.0] - 2025-09-18
+### Added
+- Cornerstone Pages: Add filter to allow the full list of pages to be changed. [#44907]
+
+### Changed
+- Critical CSS: Updated UI to indicate when generated CSS is too much. [#44885]
+- Do not force CRM installation for Complete plan users [#45026]
+- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels) [#44953]
+- Updated PNG import location after refactors in My Jetpack. [#44801]
+- Update package dependencies.
+
+### Fixed
+- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list. [#45101]
+- E2E tests: improved connection flow [#44995]
+- General: Fix translation warning when activating Boost. [#45070]
+- Image CDN: Add support for images added via Breakdance blocks. [#45059]
+- Image CDN: gracefully handle an attempt to filter null. [#44874]
+- Page Cache: Fix fatal error when updating a page on multisite. [#45084]
+
 ## [4.3.1] - 2025-08-25
 ### Changed
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
@@ -32,7 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
 - Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
 - LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
-- My Jetpack: Fixing footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
 - My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
 - My Jetpack: Restoring plan purchase link. [#44535]
 - Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
@@ -804,6 +823,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
 [4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
 [4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1

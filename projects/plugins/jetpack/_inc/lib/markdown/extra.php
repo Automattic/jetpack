@@ -3010,7 +3010,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				$footnote = preg_replace_callback('{F\x1Afn:(.*?)\x1A:}',
 					array(&$this, '_appendFootnotes_callback'), $footnote);
 
-				$attr = str_replace("%%", ++$num, $attr);
+				$attr = str_replace("%%", (string) ++$num, $attr);
 				$note_id = $this->encodeAttribute($note_id);
 
 				# Prepare backlink, multiple backlinks if multiple references

@@ -1,15 +1,14 @@
 import {
+	ChartStoryArgs,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
-} from '../../../stories/sample-data';
+} from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
@@ -35,6 +34,13 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
+export const ManySeries: StoryObj< typeof LineChart > = Template.bind( {} );
+ManySeries.args = {
+	...lineChartStoryArgs,
+	data: sampleData,
+	showLegend: true,
+};
+
 export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithLegend.args = {
 	...lineChartStoryArgs,
@@ -43,7 +49,7 @@ WithLegend.args = {
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomLegendPositioning.args = {
-	data: sampleData,
+	...lineChartStoryArgs,
 	showLegend: true,
 	height: 400,
 	legendAlignment: 'start',
@@ -63,16 +69,22 @@ CustomLegendPositioning.parameters = {
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: () => (
+	render: args => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
-				data={ webTrafficData }
+				data={ args.data || webTrafficData }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			>
-				<LineChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+				<LineChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
 			</LineChart>
 		</div>
 	),
@@ -88,17 +100,17 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 };
 
 // Add after existing stories
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 	withTooltips: true,
 };
 
@@ -113,7 +125,7 @@ FixedDimensions.parameters = {
 // Story with gradient filled line chart
 export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GradientFilled.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	margin: undefined,
 	data: webTrafficData,
 	withGradientFill: true,
@@ -202,13 +214,13 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 
 export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
 WithoutSmoothing.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	smoothing: false,
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
 WithPointerEvents.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	// eslint-disable-next-line no-alert
 	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
 };
@@ -313,7 +325,7 @@ const DASHED_LINE_OFFSET = 100;
 
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	data: [
 		{
 			...webTrafficData[ 0 ],

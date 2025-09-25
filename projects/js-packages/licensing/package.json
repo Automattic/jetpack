@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-licensing",
-	"version": "1.2.3",
+	"version": "1.2.8",
 	"private": true,
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
@@ -30,11 +30,11 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/api-fetch": "7.28.0",
-		"@wordpress/components": "30.1.0",
-		"@wordpress/element": "6.28.0",
-		"@wordpress/i18n": "6.1.0",
-		"@wordpress/icons": "10.28.0",
+		"@wordpress/api-fetch": "7.31.0",
+		"@wordpress/components": "30.4.0",
+		"@wordpress/element": "6.31.0",
+		"@wordpress/i18n": "6.4.0",
+		"@wordpress/icons": "10.31.0",
 		"clsx": "2.1.1",
 		"prop-types": "15.8.1"
 	},
@@ -53,6 +53,6 @@
 		"jest-environment-jsdom": "30.0.4",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"typescript": "5.8.3"
+		"typescript": "5.9.2"
 	}
 }

@@ -42,7 +42,7 @@ function flickr_embed_to_shortcode( $content ) {
 
 /**
  * Transforms embed to shortcode on save when the photo param is used.
- * If embed content can not be transformed to a valid shortcode,
+ * If embed content cannot be transformed to a valid shortcode,
  * the embed content itself is returned.
  *
  * @param string $content Embed output.
@@ -68,7 +68,7 @@ function jetpack_flickr_photo_to_shortcode( $content ) {
 
 /**
  * Transforms embed to shortcode on save when the video param is used.
- * If embed content can not be transformed to a valid shortcode,
+ * If embed content cannot be transformed to a valid shortcode,
  * the embed content itself is returned.
  *
  * @param string $content Embed output.

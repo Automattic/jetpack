@@ -1,6 +1,6 @@
 {
 	"name": "social-logos",
-	"version": "3.2.9",
+	"version": "3.2.10",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
 	"bugs": {
@@ -43,7 +43,7 @@
 		"svgicons2svgfont": "^15.0.0",
 		"svgo": "^3.3.2",
 		"svgstore": "^3.0.1",
-		"typescript": "5.8.3",
+		"typescript": "5.9.2",
 		"wawoff2": "^2.0.1",
 		"xml2js": "^0.6.2"
 	},

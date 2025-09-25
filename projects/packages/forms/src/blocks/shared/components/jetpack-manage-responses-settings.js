@@ -1,20 +1,27 @@
-import { Button } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
-import InspectorHint from './inspector-hint';
 
-const JetpackManageResponsesSettings = () => {
+const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
+	const { saveResponses = true } = attributes;
+
 	return (
 		<>
-			<InspectorHint>
-				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack-forms' ) }
-			</InspectorHint>
-			<Button variant="secondary" href={ FULL_RESPONSES_PATH } __next40pxDefaultSize={ true }>
-				{ __( 'View form responses', 'jetpack-forms' ) }
-				<span className="screen-reader-text">
-					{ __( '(opens in a new tab)', 'jetpack-forms' ) }
-				</span>
-			</Button>
+			<ToggleControl
+				label={ __( 'Save responses', 'jetpack-forms' ) }
+				help={ __(
+					'Keep responses saved, or set up email/integration to avoid losing them.',
+					'jetpack-forms'
+				) }
+				checked={ saveResponses }
+				onChange={ value => setAttributes( { saveResponses: value } ) }
+				__nextHasNoMarginBottom={ true }
+			/>
+			{ saveResponses && (
+				<Button variant="secondary" href={ FULL_RESPONSES_PATH } __next40pxDefaultSize={ true }>
+					{ __( 'View form responses', 'jetpack-forms' ) }
+				</Button>
+			) }
 		</>
 	);
 };

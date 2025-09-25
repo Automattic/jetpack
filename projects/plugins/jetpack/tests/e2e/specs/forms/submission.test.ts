@@ -1,3 +1,4 @@
+import { Response } from '@playwright/test';
 import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.afterEach( async ( { requestUtils } ) => {
@@ -28,6 +29,22 @@ test.afterEach( async ( { requestUtils } ) => {
 	);
 } );
 
+/**
+ * Checks whether the given response is a form submission response.
+ *
+ * @param response - The response to check.
+ * @return Whether the response is a form submission response.
+ */
+function isFormSubmissionResponse( response: Response ) {
+	const url = new URL( response.url() );
+
+	return (
+		url.pathname.includes( '/wp-admin/admin-ajax.php' ) &&
+		response.request().method() === 'POST' &&
+		url.searchParams.get( 'action' ) === 'grunion-contact-form'
+	);
+}
+
 test.describe( 'Forms: Submission', () => {
 	test( 'Submits a simple contact form', async ( { admin, editor } ) => {
 		const formTitle = 'E2E Test Form';
@@ -50,7 +67,10 @@ test.describe( 'Forms: Submission', () => {
 			await form.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
 			await form.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
 			await form.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			// Wait for the form submission to complete.
+			const submissionPromise = previewPage.waitForResponse( isFormSubmissionResponse );
 			await form.getByRole( 'button', { name: 'Contact Us' } ).click();
+			await submissionPromise;
 
 			await expect(
 				previewPage.getByRole( 'heading', { name: 'Your message has been sent' } )
@@ -127,7 +147,10 @@ test.describe( 'Forms: Submission', () => {
 			await formToSubmit.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			// Wait for the form submission to complete.
+			const submissionPromise = previewPage.waitForResponse( isFormSubmissionResponse );
 			await formToSubmit.getByRole( 'button', { name: 'Contact Us' } ).click();
+			await submissionPromise;
 
 			// Check the correct form was submitted.
 			const submittedFormWrapper = previewPage.locator( `#${ formId }` );

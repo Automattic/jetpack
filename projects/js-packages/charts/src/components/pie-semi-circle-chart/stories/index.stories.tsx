@@ -1,16 +1,17 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { sharedDecorator } from '../../../stories/decorator-config';
-import { legendArgTypes } from '../../../stories/legend-config';
-import { partialOsUsageData as data } from '../../../stories/sample-data';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	partialOsUsageData as data,
+	themeArgTypes,
+} from '../../../stories';
 import { PieSemiCircleChart } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieSemiCircleChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
@@ -18,8 +19,11 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
+		...legendArgTypes,
 		width: {
 			control: {
 				type: 'range',
@@ -36,28 +40,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
-		...legendArgTypes,
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -99,7 +81,7 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: () => (
+	render: args => (
 		<div
 			style={ {
 				display: 'grid',
@@ -112,31 +94,39 @@ export const WithCompositionLegend: Story = {
 				<h3>Traditional Props-based Legend</h3>
 				<PieSemiCircleChart
 					width={ 400 }
-					data={ data }
+					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
 					showLegend={ true }
-					legendPosition="bottom"
-					legendOrientation="horizontal"
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendMaxWidth={ args.legendMaxWidth }
+					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
 				/>
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
 				<PieSemiCircleChart
 					width={ 400 }
-					data={ data }
+					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
 				>
 					<PieSemiCircleChart.Legend
-						position="bottom"
-						orientation="horizontal"
-						alignment="center"
+						position={ args.legendPosition || 'bottom' }
+						orientation={ args.legendOrientation || 'horizontal' }
+						alignment={ args.legendAlignment || 'center' }
+						maxWidth={ args.legendMaxWidth }
+						textOverflow={ args.legendTextOverflow || 'wrap' }
 					/>
 				</PieSemiCircleChart>
 			</div>
 		</div>
 	),
+	args: {
+		data,
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -192,7 +182,7 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args, resize: 'both' };
+const responsiveArgs = { ...Default.args, resize: 'both' as const };
 delete responsiveArgs.width;
 export const Responsiveness: Story = {
 	args: responsiveArgs,
@@ -256,7 +246,7 @@ export const ErrorStates: Story = {
 };
 
 export const CompositionAPI: Story = {
-	render: () => (
+	render: args => (
 		<div style={ { padding: '2rem' } }>
 			<h2>PieSemiCircleChart Composition API</h2>
 			<p>Demonstrates the flexible composition API with SVG and HTML compound components.</p>
@@ -273,7 +263,7 @@ export const CompositionAPI: Story = {
 					<h3>With Custom SVG Elements</h3>
 					<PieSemiCircleChart
 						width={ 400 }
-						data={ data }
+						data={ args.data }
 						label="OS Usage"
 						note="Q4 2023"
 						withTooltips={ true }
@@ -310,7 +300,12 @@ export const CompositionAPI: Story = {
 
 				<div>
 					<h3>With Custom Legend and HTML Content</h3>
-					<PieSemiCircleChart width={ 400 } data={ data } label="Performance" note="Latest Results">
+					<PieSemiCircleChart
+						width={ 400 }
+						data={ args.data }
+						label="Performance"
+						note="Latest Results"
+					>
 						<PieSemiCircleChart.HTML>
 							<div
 								style={ {
@@ -359,7 +354,12 @@ export const CompositionAPI: Story = {
 				<p style={ { fontSize: '14px', color: '#666', marginBottom: '1rem' } }>
 					For backward compatibility, Group components are still supported directly:
 				</p>
-				<PieSemiCircleChart width={ 400 } data={ data } label="Legacy Mode" note="Still works!">
+				<PieSemiCircleChart
+					width={ 400 }
+					data={ args.data }
+					label="Legacy Mode"
+					note="Still works!"
+				>
 					<Group>
 						<Text x={ 0 } y={ -70 } textAnchor="middle" fontSize={ 12 } fill="#999">
 							Direct Group usage
@@ -370,6 +370,9 @@ export const CompositionAPI: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		data,
+	},
 	parameters: {
 		layout: 'fullscreen',
 		docs: {
@@ -401,7 +404,7 @@ The \`PieSemiCircleChart\` now supports a comprehensive composition API that all
       <Text x={0} y={-50} textAnchor="middle">Custom SVG Text</Text>
     </Group>
   </PieSemiCircleChart.SVG>
-  
+
   <PieSemiCircleChart.HTML>
     <div style={{ textAlign: 'center', marginTop: '1rem' }}>
       <PieSemiCircleChart.Legend orientation="horizontal" />

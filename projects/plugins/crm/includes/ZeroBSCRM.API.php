@@ -356,7 +356,7 @@ if ( ! function_exists( 'hash_equals' ) ) {
 		if ( strlen( $str1 ) != strlen( $str2 ) ) {
 			return false;
 		} else {
-			$res = $str1 ^ $str2;
+			$res = (string) ( $str1 ^ $str2 );
 			$ret = 0;
 			for ( $i = strlen( $res ) - 1; $i >= 0; $i-- ) {
 				$ret |= ord( $res[ $i ] );

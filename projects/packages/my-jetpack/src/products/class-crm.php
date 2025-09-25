@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the CRM product
  */

@@ -9,6 +9,10 @@ require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Main Comments class
  *

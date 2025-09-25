@@ -86,7 +86,7 @@ function wpsc_admin_bar_delete_cache_ajax() {
 		if ( defined( 'WPSCDELETEERROR' ) ) {
 			return json_decode( constant( 'WPSCDELETEERROR' ) );
 		} else {
-			return json_decode( false );
+			return false;
 		}
 	}
 }

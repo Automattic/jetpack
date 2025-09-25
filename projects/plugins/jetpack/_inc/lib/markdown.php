@@ -7,6 +7,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'MarkdownExtra_Parser' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/markdown/extra.php';
 }

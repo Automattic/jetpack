@@ -1,49 +1,48 @@
 import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartTheme } from '../../../hooks';
-import { GlobalChartsProvider } from '../../../providers/chart-context/global-charts-provider';
-import { CHART_THEME_MAP, themeArgTypes } from '../../../stories/theme-config';
+import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
+import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
 import type { DataPointDate } from '../../../types';
-import type { Meta, StoryFn, StoryObj } from '@storybook/react';
+import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
-// Add the customStorybook theme to the central theme map for glyph stories
+// Add the glyph theme to the theme map for glyph stories only
 const GLYPH_THEME_MAP = {
 	...CHART_THEME_MAP,
 	glyph: glyphTheme,
 };
 
+// Custom decorator for glyph stories that includes the glyph theme
+const glyphChartDecorator: Decorator = ( Story, { args } ) => {
+	const themeName = ( args as unknown as StoryArgs ).themeName;
+	const theme = GLYPH_THEME_MAP[ themeName || 'default' ];
+
+	return (
+		<GlobalChartsProvider theme={ theme }>
+			<div
+				style={ {
+					resize: 'both',
+					overflow: 'auto',
+					padding: '2rem',
+					width: '800px',
+					maxWidth: '1200px',
+					border: '1px dashed #ccc',
+					display: 'inline-block',
+				} }
+			>
+				<Story />
+			</div>
+		</GlobalChartsProvider>
+	);
+};
+
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart/Glyphs',
-	decorators: [
-		( Story, { args }: { args: StoryArgs } ) => {
-			const theme = GLYPH_THEME_MAP[ args.themeName || 'default' ];
-
-			return (
-				<GlobalChartsProvider theme={ theme }>
-					<div
-						style={ {
-							resize: 'both',
-							overflow: 'auto',
-							padding: '2rem',
-							width: '800px',
-							maxWidth: '1200px',
-							border: '1px dashed #ccc',
-							display: 'inline-block',
-						} }
-					>
-						<Story />
-					</div>
-				</GlobalChartsProvider>
-			);
-		},
-	],
+	decorators: [ glyphChartDecorator ],
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		themeName: {
@@ -118,7 +117,7 @@ CustomSvg.args = {
 };
 
 const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 
 	return (
 		<div>

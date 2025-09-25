@@ -13,6 +13,10 @@ use Automattic\Jetpack\Sync\Modules;
 use WP_Error;
 use WP_User_Query;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle Table Checksums for the User Meta table.
  */

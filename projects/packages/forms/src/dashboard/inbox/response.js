@@ -36,6 +36,10 @@ const isFileUploadField = value => {
 	return value && typeof value === 'object' && 'files' in value;
 };
 
+const isImageSelectField = value => {
+	return value?.type === 'image-select';
+};
+
 const isLikelyPhoneNumber = value => {
 	// Only operate on strings to avoid coercing numbers (e.g., 2024) into strings that could match
 	if ( typeof value !== 'string' ) {
@@ -205,6 +209,46 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
 
 	const renderFieldValue = value => {
+		if ( isImageSelectField( value ) ) {
+			return (
+				<div className="image-select-field">
+					{ ( value.choices?.length ?? 0 ) === 0 && '-' }
+					{ ( value.choices?.length ?? 0 ) > 0 && (
+						<>
+							<div className="image-select-field-choices">
+								{ value.choices
+									.map( choice => {
+										let transformedValue = choice.selected;
+
+										if ( choice.label != null && choice.label !== '' ) {
+											transformedValue += ' - ' + choice.label;
+										}
+
+										return transformedValue;
+									} )
+									.join( ', ' ) }
+							</div>
+							<div className="image-select-field-images">
+								{ value.choices.map( choice => {
+									return (
+										<img
+											key={ choice.selected }
+											className="image-select-field-image"
+											src={
+												choice.image.src ||
+												'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
+											}
+											alt={ choice.selected }
+										/>
+									);
+								} ) }
+							</div>
+						</>
+					) }
+				</div>
+			);
+		}
+
 		if ( isFileUploadField( value ) ) {
 			return (
 				<div className="file-field">

@@ -63,12 +63,15 @@ export const submitForm = async ( formHash: string ) => {
 			},
 		} );
 
+		const result = await response.json();
+
 		if ( ! response.ok ) {
 			debug( 'Form submission failed', response );
-			return { success: false, error: config?.error_types?.network_error };
+			// If we have a specific error from the server, use it; otherwise fall back to network error
+			return result && result.data && result.data.error
+				? { success: false, error: result.data.error }
+				: { success: false, error: config?.error_types?.network_error };
 		}
-
-		const result = await response.json();
 
 		return result;
 	} catch ( error ) {

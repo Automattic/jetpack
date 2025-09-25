@@ -40,8 +40,8 @@ const CreativeMailDashboardCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Creative Mail', 'jetpack-forms' ) }
-			description={ __( 'Manage email contacts and campaigns', 'jetpack-forms' ) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <CreativeMailIcon /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -50,7 +50,7 @@ const CreativeMailDashboardCard = ( {
 		>
 			<div>
 				<p className="integration-card__description">
-					{ __( "You're all setup for email marketing with Creative Mail.", 'jetpack-forms' ) }
+					{ __( "You're all set up for email marketing with Creative Mail.", 'jetpack-forms' ) }
 				</p>
 				<Button
 					variant="link"

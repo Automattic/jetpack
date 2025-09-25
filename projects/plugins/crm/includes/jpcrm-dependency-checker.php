@@ -44,18 +44,17 @@ class JPCRM_DependencyChecker {
 		$this->dal_ver     = $zbs->dal_version ?? '';
 	}
 
-  /**
-   * 
-   * Checks if a feature's dependency requirements are met
-   * 
-   * @param		str $feature_name		public-facing feature name
-   * @param		arr $core_reqs			array with core req_core_ver and req_DAL_ver
-   * @param		arr $plugin_reqs		array of required plugins (each with a slug and req_ver)
-   * @param		bool $is_silent			determine whether to show notices to the end user or not
-   * 
-   * @return	bool
-   * 
-   */
+	/**
+	 *
+	 * Checks if a feature's dependency requirements are met
+	 *
+	 * @param string $feature_name - public-facing feature name.
+	 * @param array  $core_reqs - array with core req_core_ver and req_DAL_ver.
+	 * @param array  $plugin_reqs - array of required plugins (each with a slug and req_ver).
+	 * @param bool   $is_silent - determine whether to show notices to the end user or not.
+	 *
+	 * @return bool
+	 */
   public function check_all_reqs( $feature_name='', $core_reqs=array() , $plugin_reqs=array(), $is_silent=false ) {
     $meets_core_reqs = $this->check_core_reqs($feature_name, $core_reqs, $is_silent);
     $meets_plug_reqs = $this->check_plugin_reqs($feature_name, $plugin_reqs, $is_silent);
@@ -67,18 +66,16 @@ class JPCRM_DependencyChecker {
     return false;
   }
 
-  /**
-   * 
-   * Checks if feature meets core dependency requirements
-   * If it doesn't, it will trigger an admin notice
-   * 
-   * @param		str $feature_name		public-facing feature name
-   * @param		arr $core_reqs			details required for feature (req_core_ver and req_DAL_ver)
-   * @param		bool $is_silent			determine whether to show notices to the end user or not
-   * 
-   * @return	bool
-   * 
-   */
+	/**
+	 * Checks if feature meets core dependency requirements
+	 * If it doesn't, it will trigger an admin notice
+	 *
+	 * @param string $feature_name - public-facing feature name.
+	 * @param array  $args - details required for feature (req_core_ver and req_DAL_ver).
+	 * @param bool   $is_silent - determine whether to show notices to the end user or not.
+	 *
+	 * @return bool
+	 */
   public function check_core_reqs( $feature_name='', $args=array(), $is_silent=false ) {
     $req_core_ver = !empty( $args['req_core_ver'] ) ? $args['req_core_ver'] : 1e6; //high version number
     $is_good_core_ver = version_compare( $this->core_ver, $req_core_ver, '>=' );
@@ -121,15 +118,13 @@ class JPCRM_DependencyChecker {
     return false;
   }
 
-  /**
-   * 
-   * Checks if a plugin is installed
-   * 
-   * @param		str $slug		plugin slug
-   * 
-   * @return	bool
-   * 
-   */
+	/**
+	 * Checks if a plugin is installed
+	 *
+	 * @param string $slug - plugin slug.
+	 *
+	 * @return bool
+	 */
   private function is_plugin_installed( $slug='' ){
     if ( array_key_exists( $slug, $this->all_plugins ) ) {
       return true;
@@ -137,15 +132,13 @@ class JPCRM_DependencyChecker {
     return false;
   }
 
-  /**
-   * Gets plugin version
-   * 
-   * @param		str $slug		plugin slug
-   * 
-   * @return	str					plugin version
-   * @return	bool false	if slug is not found
-   * 
-   */
+	/**
+	 * Gets plugin version
+	 *
+	 * @param string $slug - plugin slug.
+	 *
+	 * @return string|bool plugin version or false if slug is not found
+	 */
   private function get_plugin_version( $slug='' ) {
     if ( $this->is_plugin_installed( $slug ) ) {
       return $this->all_plugins[$slug]['Version'];
@@ -153,18 +146,17 @@ class JPCRM_DependencyChecker {
     return false;
   }
 
-  /**
-   * 
-   * Checks if feature's plugin dependency requirements are met
-   * If it doesn't, it will trigger an admin notice
-   * 
-   * @param		arr $plugins		array of required plugins (each with an array of name, slug, and req_ver)
-   * @param		bool $is_silent			determine whether to show notices to the end user or not
-   * @param		str $error_msg	custom failure message (optional)
-   * 
-   * @return	bool
-   * 
-   */
+	/**
+	 * Checks if feature's plugin dependency requirements are met
+	 * If it doesn't, it will trigger an admin notice
+	 *
+	 * @param string $feature_name - name of feature.
+	 * @param array  $plugins - array of required plugins (each with an array of name, slug, and req_ver).
+	 * @param bool   $is_silent - determine whether to show notices to the end user or not.
+	 * @param string $error_msg - custom failure message (optional).
+	 *
+	 * @return bool
+	 */
   public function check_plugin_reqs( $feature_name='', $plugins=array(), $is_silent=false, $error_msg='' ) {
     $everything_is_fine = true;
     $feature_name = !empty( $feature_name ) ? $feature_name : __( 'CRM feature', 'zero-bs-crm' );
@@ -229,13 +221,11 @@ class JPCRM_DependencyChecker {
     return $everything_is_fine;
   }
 
-  /**
-   * 
-   * Show error message if feature's dependency requirements are not met
-   * 
-   * @param		str $error_msg
-   * 
-   */
+	/**
+	 * Show error message if feature's dependency requirements are not met
+	 *
+	 * @param string $error_msg Error message.
+	 */
   private function show_dependency_error( $error_msg ) {
     if ( zeroBSCRM_isAdminPage() ) {
       ?>

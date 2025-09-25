@@ -42,7 +42,7 @@ function shortcode_handler_bandcamp( $atts ) {
 			'theme'       => null,     // may be theme identifier string ("light"|"dark" so far).
 			'package'     => null,     // integer package id.
 			't'           => null,     // integer track number.
-			'tracks'      => null,     // comma separated list of allowed tracks.
+			'tracks'      => null,     // comma-separated list of allowed tracks.
 			'esig'        => null,      // hex, no '#' prefix.
 		),
 		$atts,

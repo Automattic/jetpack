@@ -5,6 +5,10 @@
  * @package jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Return an array of supported verification services.
  * Add new services to this function.

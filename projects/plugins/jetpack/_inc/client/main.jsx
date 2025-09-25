@@ -161,7 +161,7 @@ class Main extends Component {
 		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
-		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
+		// beforeunload cannot handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view

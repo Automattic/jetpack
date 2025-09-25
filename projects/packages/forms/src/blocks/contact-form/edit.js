@@ -1,5 +1,4 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
@@ -24,9 +23,10 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback } from '@wordpress/element';
+import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import useFormsConfig from '../../hooks/use-forms-config';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -44,9 +44,10 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import IntegrationControls from './components/jetpack-integration-controls';
-import VariationPicker from './variation-picker';
+import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
+const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
 import './util/form-styles.js';
+import VariationPicker from './variation-picker';
 
 // Transforms
 const FormTransitionState = {
@@ -89,6 +90,9 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
+	// Initialize default form block settings as needed.
+	useFormBlockDefaults( { attributes, setAttributes } );
+
 	const {
 		to,
 		subject,
@@ -98,7 +102,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouRedirect,
 		formTitle,
 		variationName,
+		emailNotifications,
 	} = attributes;
+	const formsConfig = useFormsConfig();
+	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	const steps = useFormSteps( clientId );
@@ -114,48 +121,41 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		block => block.name === 'jetpack/button'
 	);
 
-	const {
-		postTitle,
-		canUserInstallPlugins,
-		hasAnyInnerBlocks,
-		postAuthorEmail,
-		selectedBlockClientId,
-		onlySubmitBlock,
-	} = useSelect(
-		select => {
-			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-				select( blockEditorStore );
-			const { getEditedPostAttribute } = select( editorStore );
-			const selectedBlockId = getSelectedBlockClientId();
-			const selectedBlock = getBlock( selectedBlockId );
-			let selectedStepBlockId = selectedBlockId;
+	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
+		useSelect(
+			select => {
+				const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+					select( blockEditorStore );
+				const { getEditedPostAttribute } = select( editorStore );
+				const selectedBlockId = getSelectedBlockClientId();
+				const selectedBlock = getBlock( selectedBlockId );
+				let selectedStepBlockId = selectedBlockId;
 
-			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
-				selectedStepBlockId = getBlockParentsByBlockName(
-					selectedBlockId,
-					'jetpack/form-step'
-				)[ 0 ];
-			}
+				if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+					selectedStepBlockId = getBlockParentsByBlockName(
+						selectedBlockId,
+						'jetpack/form-step'
+					)[ 0 ];
+				}
 
-			const { getUser, canUser } = select( coreStore );
-			const innerBlocksData = getBlocks( clientId );
+				const { getUser } = select( coreStore );
+				const innerBlocksData = getBlocks( clientId );
 
-			const title = getEditedPostAttribute( 'title' );
-			const authorId = getEditedPostAttribute( 'author' );
-			const authorEmail = authorId && getUser( authorId )?.email;
+				const title = getEditedPostAttribute( 'title' );
+				const authorId = getEditedPostAttribute( 'author' );
+				const authorEmail = authorId && getUser( authorId )?.email;
 
-			return {
-				postTitle: title,
-				canUserInstallPlugins: canUser( 'create', 'plugins' ),
-				hasAnyInnerBlocks: innerBlocksData.length > 0,
-				postAuthorEmail: authorEmail,
-				selectedBlockClientId: selectedStepBlockId,
-				onlySubmitBlock:
-					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
-			};
-		},
-		[ clientId ]
-	);
+				return {
+					postTitle: title,
+					hasAnyInnerBlocks: innerBlocksData.length > 0,
+					postAuthorEmail: authorEmail,
+					selectedBlockClientId: selectedStepBlockId,
+					onlySubmitBlock:
+						innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
+				};
+			},
+			[ clientId ]
+		);
 
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
@@ -687,11 +687,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Manage responses', 'jetpack-forms' ) }
-						className="jetpack-contact-form__manage-responses-panel"
+						title={ __( 'Responses storage', 'jetpack-forms' ) }
+						className="jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
 					>
-						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
+						<JetpackManageResponsesSettings
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+						/>
 					</PanelBody>
 					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
 						<InspectorHint>
@@ -745,18 +748,20 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email connection', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
+							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
 							postAuthorEmail={ postAuthorEmail }
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-
-					{ ! isSimpleSite() && canUserInstallPlugins && (
-						<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+					{ showFormIntegrations && (
+						<Suspense fallback={ <div /> }>
+							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
+						</Suspense>
 					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>

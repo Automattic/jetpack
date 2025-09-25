@@ -137,15 +137,12 @@ class JPCRM_GiveWP {
 	}
 
 	/**
-	 *
 	 * Adds or updates a donor contact
 	 *
-	 * @param int   $givewp_donation_id donation ID
-	 * @param array $payment_data       donor/donation info
+	 * @param int   $givewp_donation_id donation ID.
+	 * @param array $payment_data       donor/donation info.
 	 *
-	 * @return int  $contact_id if successful
-	 * @return bool if unsuccessful
-	 *
+	 * @return int|false  $contact_id if successful, false otherwise
 	 */
 	private function add_update_donor( $givewp_donation_id, $payment_data ) {
 
@@ -295,14 +292,11 @@ class JPCRM_GiveWP {
 	}
 
 	/**
-	 *
 	 * Gets a transaction by its GiveWP donation ID
 	 *
-	 * @param int $givewp_donation_id the GiveWP donation ID
+	 * @param int $givewp_donation_id the GiveWP donation ID.
 	 *
-	 * @return int    $contact_id if successful
-	 * @return bool   if unsuccessful
-	 *
+	 * @return int|false    $contact_id if successful, false otherwise
 	 */
 	public function get_transaction_id_from_give_id( $givewp_donation_id ) {
 		global $zbs;

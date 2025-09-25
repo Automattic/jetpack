@@ -24,7 +24,6 @@ if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
 }
 
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
@@ -1039,7 +1038,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				// Kick off a full sync.
 				if ( Actions::do_full_sync( $modules, 'jetpack_cli' ) ) {
 					if ( $modules ) {
-						/* translators: %s is a comma separated list of Jetpack modules */
+						/* translators: %s is a comma-separated list of Jetpack modules */
 						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: %s', 'jetpack' ), implode( ', ', array_keys( $modules ) ) ) );
 					} else {
 						WP_CLI::log( __( 'Initialized a new full sync', 'jetpack' ) );
@@ -1050,7 +1049,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					Settings::update_settings( $original_settings );
 
 					if ( $modules ) {
-						/* translators: %s is a comma separated list of Jetpack modules */
+						/* translators: %s is a comma-separated list of Jetpack modules */
 						WP_CLI::error( sprintf( __( 'Could not start a new full sync with modules: %s', 'jetpack' ), implode( ', ', $modules ) ) );
 					} else {
 						WP_CLI::error( __( 'Could not start a new full sync', 'jetpack' ) );
@@ -1193,7 +1192,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error(
 				new WP_Error(
 					'site_in_safe_mode',
-					esc_html__( 'Can not cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+					esc_html__( 'Cannot cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 				)
 			);
 		}

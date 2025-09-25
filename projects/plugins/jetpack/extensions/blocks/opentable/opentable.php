@@ -156,7 +156,7 @@ function get_type_attribute( $attributes ) {
  * Get the block theme attribute
  *
  * OpenTable has a confusing mix of themes and types for the widget. A type
- * can have a theme, but the button style can not have a theme. The other two
+ * can have a theme, but the button style cannot have a theme. The other two
  * types (multi and standard) can have one of the three themes.
  *
  * We have combined these into a `style` attribute as really there are 4 styles

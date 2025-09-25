@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2025-09-22
+### Fixed
+- Fix lints. [#45242]
+
+## [1.4.0] - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45229]
+
+## [1.3.1] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [1.3.0] - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [1.2.6] - 2025-09-01
+### Fixed
+- Social: Allow default image to be cleared. [#44994]
+
 ## [1.2.5] - 2025-08-25
 ### Changed
 - Update dependencies. [#44934]
@@ -1161,7 +1183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.16.0] - 2023-02-15
 ### Changed
-- Refactored media picker into seperate componetn [#28773]
+- Refactor media picker into separate components. [#28773]
 - Update to React 18. [#28710]
 
 ## [0.15.2] - 2023-02-08
@@ -1351,6 +1373,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[1.4.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.6...v1.3.0
+[1.2.6]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.5...v1.2.6
 [1.2.5]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v1.2.2...v1.2.3

@@ -40,6 +40,140 @@ class Contact_Form_Test extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Test that form submissions are stored in database when saveResponses is 'yes' (default)
+	 */
+	public function test_process_submission_stores_feedback_when_save_responses_yes() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			)
+		);
+
+		// Create form with saveResponses explicitly set to 'yes'
+		$form = new Contact_Form(
+			array(
+				'saveResponses' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should be successful
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Check that a new feedback post was created
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created when saveResponses is yes' );
+
+		// Verify the feedback post was created with correct type
+		$feedback_id = end( $final_posts )->ID;
+		$submission  = get_post( $feedback_id );
+		$this->assertEquals( 'feedback', $submission->post_type, 'Post type should be feedback' );
+
+		// Verify the form attribute is correctly set
+		$this->assertEquals( 'yes', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to yes' );
+	}
+
+	/**
+	 * Test that form submissions are stored with 'jp-temp-feedback' status when saveResponses is 'no'
+	 */
+	public function test_process_submission_does_not_store_feedback_when_save_responses_no() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'Jane Doe',
+				'email'   => 'jane@example.com',
+				'message' => 'Test message for no save',
+			)
+		);
+
+		// Create form with saveResponses set to 'no'
+		$form = new Contact_Form(
+			array(
+				'saveResponses' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should still be successful (email should still be sent)
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful even when not saving responses' );
+
+		// Check that a new feedback post was created
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created when saveResponses is no' );
+
+		// Get the newly created post
+		$new_post = end( $final_posts );
+		$this->assertInstanceOf( 'stdClass', $new_post, 'The new post should be a stdClass instance' );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback' );
+		$this->assertEquals( 'jp-temp-feedback', $new_post->post_status, 'The new post should have jp-temp-feedback status when saveResponses is no' );
+
+		// Verify the form attribute is correctly set
+		$this->assertEquals( 'no', $form->get_attribute( 'saveResponses' ), 'Form should have saveResponses set to no' );
+	}
+
+	/**
+	 * Test that form submissions are stored in database when saveResponses is not specified (defaults to 'yes')
+	 */
+	public function test_process_submission_stores_feedback_when_save_responses_default() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'    => 'Default User',
+				'email'   => 'default@example.com',
+				'message' => 'Test message for default behavior',
+			)
+		);
+
+		// Create form without specifying saveResponses (should default to 'yes')
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Get initial post count
+		$initial_posts = Posts::init()->posts;
+		$initial_count = count( $initial_posts );
+
+		// Process the submission
+		$result = $form->process_submission();
+
+		// Processing should be successful
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful' );
+
+		// Check that a new feedback post was created (default behavior)
+		$final_posts = Posts::init()->posts;
+		$final_count = count( $final_posts );
+		$this->assertEquals( $initial_count + 1, $final_count, 'A new feedback post should be created by default' );
+
+		// Verify the feedback post was created with correct type
+		$feedback_id = end( $final_posts )->ID;
+		$submission  = get_post( $feedback_id );
+		$this->assertEquals( 'feedback', $submission->post_type, 'Post type should be feedback' );
+
+		// Verify the form attribute defaults to 'yes'
+		$this->assertEquals( 'yes', $form->get_attribute( 'saveResponses' ), 'Form should default saveResponses to yes' );
+	}
+
+	/**
 	 * Test the esc_shortcode_val method with various input types
 	 */
 	public function test_esc_shortcode_val() {
@@ -421,7 +555,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$response    = Feedback::get( $feedback_id );
 
 		// Default metadata should be saved.
-		$this->assertEquals( "I\'m sorry, but the party\'s over", $response->get_subject(), 'The stored subject didn\'t match the given' );
+		$this->assertEquals( "I'm sorry, but the party's over", $response->get_subject(), 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -1192,10 +1326,31 @@ class Contact_Form_Test extends BaseTestCase {
 			'default'             => 'foo',
 			'placeholder'         => 'PLACEHOLDTHIS!',
 			'id'                  => 'funID',
+			'searchplaceholder'   => 'Search…',
 		);
 
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
-		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
+	}
+
+	/**
+	 * Test for telephone field_renders with showcountryselector false
+	 */
+	public function test_make_sure_telephone_field_renders_as_expected_with_showcountryselector() {
+		$attributes = array(
+			'label'               => 'fun',
+			'type'                => 'telephone',
+			'fieldwrapperclasses' => 'wp-block-jetpack-field-telephone',
+			'class'               => 'lalala',
+			'default'             => '', // phone field doesn't expect a default value
+			'placeholder'         => 'PLACEHOLDTHIS!',
+			'id'                  => 'funID',
+			'showcountryselector' => true,
+			'searchplaceholder'   => 'Search…',
+		);
+
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'tel' ) );
+		$this->assertValidPhoneField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
 	/**
@@ -1663,6 +1818,56 @@ class Contact_Form_Test extends BaseTestCase {
 				'input class attribute doesn\'t match'
 			);
 		}
+	}
+
+	/**
+	 * Tests whether a field is valid.
+	 *
+	 * @param string $html The html string.
+	 * @param array  $attributes An associative array containing the field's attributes.
+	 */
+	public function assertValidPhoneField( $html, $attributes ) {
+
+		if ( ! isset( $attributes['showcountryselector'] ) || ! $attributes['showcountryselector'] ) {
+			return $this->assertValidField( $html, $attributes );
+		}
+
+		$wrapper_div = $this->getCommonDiv( $html );
+		$this->assertFieldClasses( $wrapper_div, $attributes );
+		$this->assertFieldLabel( $wrapper_div, $attributes );
+
+		// Get label.
+		$label = $this->getFirstElement( $wrapper_div, 'label' );
+
+		// Inputs. (0 is the comboxbox search input, 1 is the visible input and 2 is the hidden, actual, input)
+		$visible_input = $this->getFirstElement( $wrapper_div, 'input', 1 );
+		$input         = $this->getFirstElement( $wrapper_div, 'input', 2 );
+
+		// Label matches for matches input ID.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'id' ),
+			'label for does not equal input ID!'
+		);
+
+		// Label matches for matches input name.
+		$this->assertEquals(
+			$label->getAttribute( 'for' ),
+			$visible_input->getAttribute( 'name' ),
+			'label for doesn\'t match the input name'
+		);
+
+		$this->assertEquals( $visible_input->getAttribute( 'placeholder' ), $attributes['placeholder'], 'Placeholder doesn\'t match' );
+		$this->assertEquals( $visible_input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
+
+		$this->assertEquals( 'hidden', $input->getAttribute( 'type' ), 'Type doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'value' ), $attributes['default'], 'value and default doesn\'t match' );
+
+		$this->assertEquals(
+			'jetpack-field__input-element',
+			$visible_input->getAttribute( 'class' ),
+			'input class attribute doesn\'t match'
+		);
 	}
 
 	/**
@@ -2515,6 +2720,7 @@ EOT;
 			), // Hidden fields to include in the form.
 			'stepTransition'         => 'fade-slide',
 			'mailpoet'               => '',
+			'emailNotifications'     => 'yes',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                        = $attributes;
@@ -2522,6 +2728,7 @@ EOT;
 		$expected_attributes['block_template']      = '';
 		$expected_attributes['block_template_part'] = '';
 		$expected_attributes['id']                  = 'widget-string';
+		$expected_attributes['saveResponses']       = 'yes';
 
 		$form = new Contact_Form(
 			$attributes,
@@ -3258,5 +3465,250 @@ EOT;
 		$this->assertFalse( $form->has_errors(), 'Form should not have errors after validation.' );
 
 		Contact_Form::reset_errors();
+	}
+
+	/**
+	 * Test that email is sent when emailNotifications is 'yes' (default behavior)
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_enabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				$this->assertEquals( 'Contact Form', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications explicitly set to 'yes'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is "yes"' );
+	}
+
+	/**
+	 * Test that email is NOT sent when emailNotifications is 'no'
+	 */
+	public function test_process_submission_does_not_send_email_when_email_notifications_disabled() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no'
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when emailNotifications is "no"' );
+	}
+
+	/**
+	 * Test that emailNotifications does not affect spam email behavior
+	 */
+	public function test_process_submission_email_notifications_does_not_affect_spam_behavior() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Mark submission as spam
+		add_filter( 'jetpack_contact_form_is_spam', '__return_true', 11 );
+
+		// Track if wp_mail was called for spam
+		$spam_email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$spam_email_sent ) {
+				$spam_email_sent = true;
+				$this->assertStringContainsString( '***SPAM***', $args['subject'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form with emailNotifications set to 'no' but spam email enabled
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should still be sent regardless of emailNotifications setting
+		$this->assertFalse( $spam_email_sent, 'Spam email should NOT be sent by default even when emailNotifications is disabled' );
+
+		// Now enable spam email sending
+		add_filter( 'grunion_still_email_spam', '__return_true' );
+
+		$spam_email_sent = false;
+		$result          = $form->process_submission();
+		$this->assertNotNull( $result );
+		// Spam email should be sent when grunion_still_email_spam filter is true
+		$this->assertTrue( $spam_email_sent, 'Spam email should be sent when grunion_still_email_spam filter is true, regardless of emailNotifications setting' );
+	}
+
+	/**
+	 * Test that emailNotifications defaults to 'yes' when not specified
+	 */
+	public function test_process_submission_sends_email_when_email_notifications_not_specified() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		// Initialize a form without specifying emailNotifications (should default to 'yes')
+		$form = new Contact_Form(
+			array(
+				'to'      => 'john@example.com',
+				'subject' => 'Contact Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when emailNotifications is not specified (defaults to "yes")' );
+	}
+
+	/**
+	 * Test that email is not sent when grunion_should_send_email filter is false and emailNotifications is set to 'yes'
+	 */
+	public function test_process_submission_does_not_send_email_when_grunion_should_send_email_filter_is_false_and_emailNotifications_is_set_to_yes() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_false' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'yes',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertFalse( $email_sent, 'Email should NOT be sent when grunion_should_send_email filter is false' );
+
+		remove_filter( 'grunion_should_send_email', '__return_false' );
+	}
+
+	/**
+	 * Test that email is sent when grunion_should_send_email filter is true and emailNotifications is set to 'no'
+	 */
+	public function test_process_submission_sends_email_when_grunion_should_send_email_filter_is_true_and_emailNotifications_is_set_to_no() {
+		// Fill field values
+		$this->add_field_values(
+			array(
+				'name'  => 'John Doe',
+				'email' => 'john@example.com',
+			)
+		);
+
+		add_filter( 'grunion_should_send_email', '__return_true' );
+
+		// Track if wp_mail was called
+		$email_sent = false;
+		add_filter(
+			'wp_mail',
+			function ( $args ) use ( &$email_sent ) {
+				$email_sent = true;
+				$this->assertContains( 'john <john@example.com>', $args['to'] );
+				return $args;
+			}
+		);
+
+		$form = new Contact_Form(
+			array(
+				'to'                 => 'john@example.com',
+				'subject'            => 'Contact Form',
+				'emailNotifications' => 'no',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]"
+		);
+
+		$result = $form->process_submission();
+		$this->assertNotNull( $result );
+		$this->assertTrue( $email_sent, 'Email should be sent when grunion_should_send_email filter is true and emailNotifications is set to no' );
+
+		remove_filter( 'grunion_should_send_email', '__return_true' );
 	}
 }

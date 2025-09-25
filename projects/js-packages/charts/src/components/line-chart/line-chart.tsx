@@ -1,46 +1,42 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
+import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-} from '../../providers/chart-context';
-import { attachSubComponents } from '../../utils/create-composition';
-import { getSeriesLineStyles } from '../../utils/get-styles';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { DefaultGlyph } from '../shared/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
-import LineChartAnnotation from './line-chart-annotation';
-import LineChartAnnotationsOverlay from './line-chart-annotations-overlay';
+	useGlobalChartsTheme,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { DefaultGlyph } from '../private/default-glyph';
+import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './line-chart.module.scss';
-import type { BaseChartProps, DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import { LineChartAnnotation, LineChartAnnotationsOverlay } from './private';
+import type { CurveType, RenderLineStartGlyphProps, LineChartProps, TooltipDatum } from './types';
+import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, Ref, SVGProps } from 'react';
 
-type CurveType = 'smooth' | 'linear' | 'monotone';
-
-const X_TICK_WIDTH = 100;
-
-export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
-	glyphStyle?: SVGProps< SVGCircleElement >;
-};
+const X_TICK_WIDTH = 60;
 
 const defaultRenderGlyph = < Datum extends object >(
 	props: RenderLineStartGlyphProps< Datum >
@@ -116,27 +112,6 @@ const getCurveType = ( type?: CurveType, smoothing?: boolean ) => {
 	}
 };
 
-interface LineChartProps extends BaseChartProps< SeriesData[] > {
-	withGradientFill: boolean;
-	smoothing?: boolean;
-	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
-	withStartGlyphs?: boolean;
-	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
-	glyphStyle?: SVGProps< SVGCircleElement >;
-	withLegendGlyph?: boolean;
-	withTooltipCrosshairs?: {
-		showVertical?: boolean;
-		showHorizontal?: boolean;
-	};
-	children?: ReactNode;
-}
-
-type TooltipDatum = {
-	key: string;
-	value: number;
-};
-
 const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
 	const { tooltipData } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -170,6 +145,45 @@ const formatDateTick = ( timestamp: number ) => {
 		month: 'short',
 		day: 'numeric',
 	} );
+};
+
+const guessOptimalNumTicks = (
+	data: ReturnType< typeof useChartDataTransform >,
+	chartWidth: number
+) => {
+	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
+	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
+	const xScale = scaleTime( { domain: [ minX, maxX ] } );
+
+	// Calculate upper bound of tick numbers based on data points and chart width
+	const upperBound = Math.min( data[ 0 ]?.data.length, Math.ceil( chartWidth / X_TICK_WIDTH ) );
+	let secondBestGuess = 1; // a tick number that's no greater than upperBound
+
+	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
+		const ticks = xScale.ticks( numTicks ).map( d => formatDateTick( d.getTime() ) );
+
+		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
+		if ( ticks.length > upperBound ) {
+			continue;
+		}
+
+		secondBestGuess = Math.max( secondBestGuess, ticks.length );
+
+		const uniqueTicks = Array.from( new Set( ticks ) );
+		if ( uniqueTicks.length === 1 ) {
+			// All ticks are the same, so skip further processing
+			return 1;
+		}
+
+		const hasDuplicate = uniqueTicks.length < ticks.length;
+		if ( hasDuplicate ) {
+			continue;
+		}
+
+		return ticks.length;
+	}
+
+	return secondBestGuess;
 };
 
 const validateData = ( data: SeriesData[] ) => {
@@ -237,6 +251,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			legendOrientation = 'horizontal',
 			legendAlignment = 'center',
 			legendPosition = 'bottom',
+			legendMaxWidth,
+			legendTextOverflow = 'wrap',
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
 			legendShape = 'line',
@@ -255,7 +271,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
-		const providerTheme = useGlobalChartTheme();
+		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -276,7 +292,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { resolveGroupColor } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -289,12 +305,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const xNumTicks = Math.min( dataSorted[ 0 ]?.data.length, Math.ceil( width / X_TICK_WIDTH ) );
 			return {
 				axis: {
 					x: {
 						orientation: 'bottom' as const,
-						numTicks: xNumTicks,
+						numTicks: guessOptimalNumTicks( dataSorted, width ),
 						tickFormat: formatDateTick,
 						...options?.axis?.x,
 					},
@@ -325,23 +340,20 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						series.label === props.key || series.data.includes( props.datum as DataPointDate )
 				);
 
-				// Resolve group color for tooltip glyph
 				const seriesData = dataSorted[ seriesIndex ];
-				const resolvedColor = seriesData
-					? resolveGroupColor( {
-							group: seriesData.group,
-							index: seriesIndex,
-							overrideColor: seriesData.options?.stroke,
-					  } )
-					: props.color;
 
-				const propsWithResolvedColor = { ...props, color: resolvedColor };
-				const themeGlyph = providerTheme.glyphs?.[ seriesIndex ];
+				const { color, glyph: themeGlyph } = getElementStyles( {
+					data: seriesData,
+					index: seriesIndex,
+				} );
+
+				const propsWithResolvedColor = { ...props, color };
+
 				return themeGlyph
 					? themeGlyph( propsWithResolvedColor )
 					: renderGlyph( propsWithResolvedColor );
 			};
-		}, [ dataSorted, providerTheme.glyphs, renderGlyph, resolveGroupColor ] );
+		}, [ dataSorted, renderGlyph, getElementStyles ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
@@ -359,7 +371,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		// Create legend items using the reusable hook
-		const legendItems = useChartLegendData( dataSorted, legendOptions, legendShape );
+		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
 		// Memoize metadata to prevent unnecessary re-registration
 		const chartMetadata = useMemo(
@@ -446,15 +458,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.y } />
 
 							{ dataSorted.map( ( seriesData, index ) => {
-								const stroke = resolveGroupColor( {
-									group: seriesData.group,
+								const { color, lineStyles, glyph } = getElementStyles( {
+									data: seriesData,
 									index,
-									overrideColor: seriesData.options?.stroke,
 								} );
-								const lineStyles = getSeriesLineStyles( seriesData, index, providerTheme );
 
 								const lineProps = {
-									stroke,
+									stroke: color,
 									...lineStyles,
 								};
 
@@ -464,8 +474,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											<StartGlyph
 												index={ index }
 												data={ seriesData }
-												color={ stroke }
-												renderGlyph={ providerTheme.glyphs?.[ index ] ?? renderGlyph }
+												color={ color }
+												renderGlyph={ glyph ?? renderGlyph }
 												accessors={ accessors }
 												glyphStyle={ glyphStyle }
 											/>
@@ -474,7 +484,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 										{ withGradientFill && (
 											<LinearGradient
 												id={ `area-gradient-${ chartId }-${ index + 1 }` }
-												from={ stroke }
+												from={ color }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
 												to={ providerTheme.backgroundColor }
@@ -533,6 +543,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							orientation={ legendOrientation }
 							alignment={ legendAlignment }
 							position={ legendPosition }
+							maxWidth={ legendMaxWidth }
+							textOverflow={ legendTextOverflow }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }

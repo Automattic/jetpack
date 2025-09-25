@@ -1108,7 +1108,7 @@ class WPCOM_JSON_API {
 	 * Counts the number of comments on a site, including certain comment types.
 	 *
 	 * @param int $post_id Post ID.
-	 * @return array Array of counts, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
+	 * @return object The number of counts keyed by status, matching the output of https://developer.wordpress.org/reference/functions/get_comment_count/.
 	 */
 	public function wp_count_comments( $post_id ) {
 		global $wpdb;

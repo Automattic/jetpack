@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Integrate calls to add and remove the proxy speed module in Jetpack plugin initialization and deactivation processes

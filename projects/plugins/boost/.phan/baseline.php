@@ -28,7 +28,6 @@ return [
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredFunctionInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -48,7 +47,7 @@ return [
         'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
-        'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
+        'compatibility/page-optimize.php' => ['PhanUndeclaredFunction'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],

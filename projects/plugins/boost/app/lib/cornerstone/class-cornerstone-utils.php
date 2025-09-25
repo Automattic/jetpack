@@ -16,7 +16,7 @@ class Cornerstone_Utils {
 		 * Filters the list of cornerstone pages. This list includes the predefined and custom pages.
 		 * If you want to change the list of custom pages, use `jetpack_boost_cornerstone_pages_list` instead.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.4.0-beta1
 		 *
 		 * @param string[] $urls The absolute URLs of all the cornerstone pages.
 		 */

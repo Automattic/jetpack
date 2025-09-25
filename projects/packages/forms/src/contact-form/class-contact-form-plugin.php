@@ -235,7 +235,7 @@ class Contact_Form_Plugin {
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				// when the legacy menu item is retired, we don't want to show the default post type listing
-				'show_ui'               => ! Jetpack_Forms::is_legacy_menu_item_retired(),
+				'show_ui'               => false,
 				'show_in_menu'          => false,
 				'show_in_admin_bar'     => false,
 				'public'                => false,
@@ -274,6 +274,22 @@ class Contact_Form_Plugin {
 				'show_in_admin_all_list' => false,
 				// translators: The spam count.
 				'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack-forms' ),
+				'protected'              => true,
+				'_builtin'               => false,
+			)
+		);
+
+		// Add "jp-temp-feedback" as a post status for temporary storage when saveResponses is 'no'.
+		// We want these responses skip the inbox but we still need to keep them in the database so that
+		// filters and integrations continue to work.
+		register_post_status(
+			'jp-temp-feedback',
+			array(
+				'label'                  => 'Temporary Feedback Status',
+				'public'                 => false,
+				'internal'               => true,
+				'exclude_from_search'    => true,
+				'show_in_admin_all_list' => false,
 				'protected'              => true,
 				'_builtin'               => false,
 			)
@@ -507,9 +523,17 @@ class Contact_Form_Plugin {
 					continue;
 				}
 
-				// This input is exclusively used by the new phone field (not telephone).
+				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
+
+					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
+						unset( $atts['default'] );
+					}
+
+					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
+						unset( $atts['default'] );
+					}
 
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input jetpack-field__input-element';
@@ -958,9 +982,9 @@ class Contact_Form_Plugin {
 				<?php if ( $is_dots_style ) : ?>
 					<?php for ( $i = 0; $i < $max_steps; $i++ ) : ?>
 						<?php $step_context = array( 'stepIndex' => $i ); ?>
-						<div class="jetpack-form-progress-indicator-step" 
-							data-wp-class--is-active="state.isStepActive" 
-							data-wp-class--is-completed="state.isStepCompleted" 
+						<div class="jetpack-form-progress-indicator-step"
+							data-wp-class--is-active="state.isStepActive"
+							data-wp-class--is-completed="state.isStepCompleted"
 							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
 							<div class="jetpack-form-progress-indicator-line"></div>
 							<div class="jetpack-form-progress-indicator-dot">
@@ -976,7 +1000,7 @@ class Contact_Form_Plugin {
 						</div>
 					<?php endfor; ?>
 				<?php endif; ?>
-				<div class="jetpack-form-progress-indicator-progress" 
+				<div class="jetpack-form-progress-indicator-progress"
 					data-wp-style--width="<?php echo esc_attr( $progress_state ); ?>"></div>
 			</div>
 		</div>
@@ -1107,21 +1131,9 @@ class Contact_Form_Plugin {
 	 * @return string HTML for the contact form field.
 	 */
 	public static function gutenblock_render_field_telephone( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'telephone', $block );
-		return Contact_Form::parse_contact_field( $atts, $content, $block );
-	}
-
-	/**
-	 * Render the phone field.
-	 *
-	 * @param array    $atts - the block attributes.
-	 * @param string   $content - html content.
-	 * @param WP_Block $block - the block instance object.
-	 *
-	 * @return string HTML for the contact form field.
-	 */
-	public static function gutenblock_render_field_phone( $atts, $content, $block ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'phone', $block );
+		// conversion telephone to phone
+		$type = empty( $atts['showCountrySelector'] ) ? 'telephone' : 'phone';
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, $type, $block );
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
 	}
 
@@ -1277,6 +1289,20 @@ class Contact_Form_Plugin {
 
 		return $content;
 	}
+	/**
+	 * Render the hidden field.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	public static function gutenblock_render_field_hidden( $atts, $content ) {
+		// Convert block attributes to shortcode attributes.
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'hidden' );
+		// Parse the contact field.
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
 
 	/**
 	 * Render the number field.
@@ -1332,7 +1358,7 @@ class Contact_Form_Plugin {
 	public function admin_menu() {
 		$slug = 'feedback';
 
-		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) || ! Jetpack_Forms::is_legacy_menu_item_retired() ) {
+		if ( is_plugin_active( 'polldaddy/polldaddy.php' ) ) {
 			add_menu_page(
 				__( 'Feedback', 'jetpack-forms' ),
 				__( 'Feedback', 'jetpack-forms' ),
@@ -1359,12 +1385,11 @@ class Contact_Form_Plugin {
 			$slug
 		);
 
-		if ( Jetpack_Forms::is_legacy_menu_item_retired() ) {
-			remove_submenu_page(
-				$slug,
-				'edit.php?post_type=feedback'
-			);
-		}
+		// remove the first default submenu item
+		remove_submenu_page(
+			$slug,
+			'edit.php?post_type=feedback'
+		);
 	}
 
 	/**
@@ -1491,6 +1516,8 @@ class Contact_Form_Plugin {
 			// Process the form
 			return $form->process_submission();
 		}
+		/** This action is documented already in this file. */
+		do_action( 'jetpack_forms_log', 'submission_missing_jwt' );
 
 		if ( $is_widget ) {
 			// It's a form embedded in a text widget
@@ -1665,29 +1692,58 @@ class Contact_Form_Plugin {
 	 */
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
+		$accepts_json      = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( ! $submission_result ) {
-			header( 'HTTP/1.1 500 Server Error', 500, true );
+			/**
+			 * Action when we want to log a jetpack_forms event.
+			 *
+			 * @since 6.3.0
+			 *
+			 * @param string $log_message The log message.
+			 */
+			do_action( 'jetpack_forms_log', 'submission_failed' );
+			$accepts_json && wp_send_json_error(
+				array(
+					'error' => __( 'An error occurred. Please try again later.', 'jetpack-forms' ),
+				),
+				500
+			);
+
+			// Non-JSON request, output the error message directly.
+			header( 'HTTP/1.1 500 Server Error', true, 500 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
+			die();
+
 		} elseif ( is_wp_error( $submission_result ) ) {
-			header( 'HTTP/1.1 400 Bad Request', 403, true );
+			do_action( 'jetpack_forms_log', $submission_result->get_error_message() );
+			$accepts_json && wp_send_json_error(
+				array(
+					'error' => $submission_result->get_error_message(),
+				),
+				400
+			);
+
+			// Non-JSON request, output the error message directly.
+			header( 'HTTP/1.1 400 Bad Request', true, 403 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
-		} else {
-			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
-				$submission_result,
-				array(
-					'br'         => array(),
-					'blockquote' => array( 'class' => array() ),
-					'p'          => array(),
-				)
-			);
+			die();
 		}
 
-		die( 0 );
+		// Success case.
+		echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
+			$submission_result,
+			array(
+				'br'         => array(),
+				'blockquote' => array( 'class' => array() ),
+				'p'          => array(),
+			)
+		);
+		die();
 	}
 
 	/**
@@ -3157,7 +3213,7 @@ class Contact_Form_Plugin {
 	 * @param string $print_r_output The array string to be reverted. Needs to being with 'Array'.
 	 * @param bool   $parse_html Whether to run html_entity_decode on each line.
 	 *                           As strings are stored right now, they are all escaped, so '=>' are '&gt;'.
-	 * @return array|string Array when succesfully reconstructed, string otherwise. Output will always be esc_html'd.
+	 * @return array|string Array when successfully reconstructed, string otherwise. Output will always be esc_html'd.
 	 */
 	public static function reverse_that_print( $print_r_output, $parse_html = false ) {
 		$lines = explode( "\n", trim( $print_r_output ) );
@@ -3365,7 +3421,7 @@ class Contact_Form_Plugin {
 	 * This method is hooked to 'current_screen' and checks if the current screen
 	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.0.0
 	 */
 	public function redirect_edit_feedback_to_jetpack_forms() {
 		// Only proceed if we have a valid screen object

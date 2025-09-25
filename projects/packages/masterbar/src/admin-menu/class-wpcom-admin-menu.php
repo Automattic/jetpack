@@ -165,24 +165,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack-masterbar' );
-
-		if ( ! $this->is_api_request ) {
-			$menu_title .= sprintf(
-				'<img class="sidebar-unified__sparkline" width="80" height="20" src="%1$s" alt="%2$s">',
-				esc_url( site_url( 'wp-includes/charts/admin-bar-hours-scale-2x.php?masterbar=1&s=' . get_current_blog_id() ) ),
-				esc_attr__( 'Hourly views', 'jetpack-masterbar' )
-			);
-		}
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
-	}
-
-	/**
 	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
 	 *
 	 * @return array

@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\JWT;
 use Automattic\Jetpack\Sync\Settings;
 use Jetpack_Tracks_Event;
@@ -16,6 +16,10 @@ use PHPMailer\PHPMailer\PHPMailer;
 use WP_Block;
 use WP_Error;
 use WP_Post;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Class for the contact-form shortcode.
@@ -182,9 +186,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'salesforceData'         => null,
 			'hiddenFields'           => null,
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
+			'saveResponses'          => 'yes',
+			'emailNotifications'     => 'yes',
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
+
+		// Transform boolean saveResponses to string for backend compatibility
+		if ( isset( $attributes['saveResponses'] ) && is_bool( $attributes['saveResponses'] ) ) {
+			$attributes['saveResponses'] = $attributes['saveResponses'] ? 'yes' : 'no';
+		}
+
+		// Transform boolean emailNotifications to string for backend compatibility
+		if ( isset( $attributes['emailNotifications'] ) && is_bool( $attributes['emailNotifications'] ) ) {
+			$attributes['emailNotifications'] = $attributes['emailNotifications'] ? 'yes' : 'no';
+		}
 
 		// We only enable the contact-field shortcode temporarily while processing the contact-form shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = true;
@@ -494,7 +510,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return;
 		}
 
-		$url = ( new Dashboard_View_Switch() )->get_forms_admin_url();
+		$url = Forms_Dashboard::get_forms_admin_url();
 
 		$admin_bar->add_menu(
 			array(
@@ -558,6 +574,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_enqueue_script( 'accessible-form' );
 		}
 
+		$version = \JETPACK__VERSION;
+
+		// Extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . 'dist/modules/form/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+
+		if ( $asset && isset( $asset['version'] ) ) {
+			$version = $asset['version'];
+		}
+
 		$config = array(
 			'error_types'    => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
@@ -572,7 +598,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'jp-forms-view',
 			plugins_url( 'dist/modules/form/view.js', dirname( __DIR__ ) ),
 			array( '@wordpress/interactivity' ),
-			\JETPACK__VERSION
+			$version
 		);
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
@@ -608,12 +634,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Initial data used to render the success message when the page is reloaded after a successful submission
 		// Don't show the feedback details unless the nonce matches
 		$submission_data = null;
+
 		if ( $is_reload_after_success && $is_reload_nonce_valid ) {
 			$response = Feedback::get( (int) $_GET['contact-form-sent'] );
+
 			if ( $response ) {
 				$submission_data = $response->get_compiled_fields( 'web', 'label|value' );
 			}
 		}
+
 		$formatted_submission_data = $submission_data ? self::format_submission_data( $submission_data ) : array();
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 		$has_custom_redirect       = $form->has_custom_redirect();
@@ -892,8 +921,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		foreach ( $data as $field_data ) {
 			$formatted_submission_data[] = array(
-				'label' => self::maybe_add_colon_to_label( $field_data['label'] ),
-				'value' => self::maybe_transform_value( $field_data['value'] ),
+				'label'  => self::maybe_add_colon_to_label( $field_data['label'] ),
+				'value'  => self::maybe_transform_value( $field_data['value'] ),
+				'images' => self::get_images( $field_data['value'] ),
 			);
 		}
 
@@ -931,9 +961,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function render_ajax_success_wrapper( $form, $submission_success = false, $formatted_submission_data = array() ) {
 		$classes = 'contact-form-submission contact-form-ajax-submission';
+
 		if ( $submission_success ) {
 			$classes .= ' submission-success';
 		}
+
 		$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
 
 		$html  = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
@@ -965,6 +997,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				<div>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
 					<div class="field-value" data-wp-text="context.submission.value"></div>
+					<div class="field-images" data-wp-bind--hidden="!context.submission.images">
+						<template data-wp-each--image="context.submission.images">
+							<img class="field-image" data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image"/>
+						</template>
+					</div>
 				</div>
 			</template>';
 
@@ -973,7 +1010,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$html .= '<div data-wp-each-child>
 					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
 					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
-				</div>';
+					<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+
+				if ( ! empty( $submission['images'] ) ) {
+					foreach ( $submission['images'] as $image ) {
+						$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image" ' . ( empty( $image ) ? 'hidden' : '' ) . ' />';
+					}
+				} else {
+					$html .= '<template data-wp-each--image="context.submission.images"></template>';
+				}
+
+				$html .= '</div></div>';
 			}
 		}
 
@@ -1463,6 +1510,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			case 'time':
 				$str = __( 'Time', 'jetpack-forms' );
 				break;
+			case 'image-select':
+				$str = __( 'Select an image', 'jetpack-forms' );
+				break;
 			default:
 				$str = null;
 		}
@@ -1654,8 +1704,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Initialize all these "standard" fields to null
 		$comment_author_email = $response->get_author_email();
 		$comment_author       = $response->get_author();
-		$comment_author_url   = $response->get_author_url();
-		$comment_content      = $response->get_comment_content();
 
 		$contact_form_subject = $response->get_subject();
 
@@ -1780,11 +1828,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$all_values['email_marketing_consent'] = $email_marketing_consent;
 
-		// Build feedback reference
-		$feedback_time  = $response->get_time();
-		$feedback_title = $response->get_title();
-		$feedback_id    = $response->get_feedback_id();
-
 		$entry_values = $response->get_entry_values();
 
 		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
@@ -1809,6 +1852,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$feedback_status = 'trash';
 		} elseif ( $is_spam ) {
 			$feedback_status = 'spam';
+		} elseif ( 'no' === $this->get_attribute( 'saveResponses' ) ) {
+			$feedback_status = 'jp-temp-feedback';
 		} else {
 			$feedback_status = 'publish';
 		}
@@ -1855,20 +1900,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$comment_author_ip = null;
 		}
 
-		$comment_ip_text = $comment_author_ip ? "IP: {$comment_author_ip}\n" : null;
-
-		$post_id = wp_insert_post(
-			array(
-				'post_date'    => addslashes( $feedback_time ),
-				'post_type'    => 'feedback',
-				'post_status'  => addslashes( $feedback_status ),
-				'post_parent'  => $this->current_post ? (int) self::get_post_property( $this->current_post, 'ID' ) : 0,
-				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\n{$comment_ip_text}JSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
-				'post_name'    => $feedback_id,
-			)
-		);
+		$post_id       = 0;
+		$feedback_post = $response->save();
+		if ( $feedback_post instanceof WP_Post ) {
+			$post_id = $feedback_post->ID;
+		}
 
 		// once insert has finished we don't need this filter any more
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
@@ -1944,16 +1980,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Get the status of the feedback
 		$status = $is_spam ? 'spam' : 'inbox';
 
-		// Build the dashboard URL with the status and the feedback's post id
-		$dashboard_url = ( new Dashboard_View_Switch() )->get_forms_admin_url( $status, true ) . '&r=' . $post_id;
-
-		$mark_as_spam_url = $dashboard_url . '&mark_as_spam';
-
-		$footer_mark_as_spam_url = sprintf(
-			'<a href="%1$s">%2$s</a>',
-			esc_url( $mark_as_spam_url ),
-			__( 'Mark as spam', 'jetpack-forms' )
-		);
+		// Build the dashboard URL with the status and the feedback's post id if we have a post id
+		$dashboard_url           = '';
+		$footer_mark_as_spam_url = '';
+		if ( $feedback_status !== 'jp-temp-feedback' ) {
+			$dashboard_url           = Forms_Dashboard::get_forms_admin_url( $status ) . '&r=' . $post_id;
+			$mark_as_spam_url        = $dashboard_url . '&mark_as_spam';
+			$footer_mark_as_spam_url = sprintf(
+				'<a href="%1$s">%2$s</a>',
+				esc_url( $mark_as_spam_url ),
+				__( 'Mark as spam', 'jetpack-forms' )
+			);
+		}
 
 		$footer = implode(
 			'',
@@ -1968,37 +2006,43 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 */
 			apply_filters(
 				'jetpack_forms_response_email_footer',
-				array(
-					'<span style="font-size: 12px">',
-					$footer_time . '<br />',
-					$footer_ip ? $footer_ip . '<br />' : null,
-					$footer_url . '<br /><br />',
-					$footer_mark_as_spam_url . '<br />',
-					$sent_by_text,
-					'</span>',
+				array_filter(
+					array(
+						'<span style="font-size: 12px">',
+						$footer_time . '<br />',
+						$footer_ip ? $footer_ip . '<br />' : null,
+						$footer_url . '<br /><br />',
+						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
+						$sent_by_text,
+						'</span>',
+					)
 				)
 			)
 		);
 
-		$actions = sprintf(
-			'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
-				<tr>
-					<td class="pad" align="center">
-						<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
-							<!--[if mso]>
-							<i style="mso-text-raise: 30pt;">&nbsp;</i>
-							<![endif]-->
-							<span>%2$s</span>
-							<!--[if mso]>
-							<i>&nbsp;</i>
-							<![endif]-->
-						</a>
-					</td>
-				</tr>
-			</table>',
-			esc_url( $dashboard_url ),
-			__( 'View in dashboard', 'jetpack-forms' )
-		);
+		// Build the actions url if we have a dashboard url
+		$actions = '';
+		if ( $dashboard_url ) {
+			$actions = sprintf(
+				'<table class="button_block" border="0" cellpadding="0" cellspacing="0" role="presentation">
+					<tr>
+						<td class="pad" align="center">
+							<a rel="noopener" target="_blank" href="%1$s" data-tracks-link-desc="">
+								<!--[if mso]>
+								<i style="mso-text-raise: 30pt;">&nbsp;</i>
+								<![endif]-->
+								<span>%2$s</span>
+								<!--[if mso]>
+								<i>&nbsp;</i>
+								<![endif]-->
+							</a>
+						</td>
+					</tr>
+				</table>',
+				esc_url( $dashboard_url ),
+				__( 'View in dashboard', 'jetpack-forms' )
+			);
+		}
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -2036,19 +2080,43 @@ class Contact_Form extends Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
+		// schedule deletes of old temp feedbacks
+		if ( ! wp_next_scheduled( 'grunion_scheduled_delete_temp' ) ) {
+			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete_temp' );
+		}
+
+		/**
+		 * Filter to choose whether an email should be sent after each successful contact form submission.
+		 * This filter takes precedence over the emailNotifications attribute.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 2.6.0
+		 *
+		 * @param bool|null $should_send Should an email be sent after a form submission.
+		 *                              - true: Send email regardless of emailNotifications setting
+		 *                              - false: Don't send email regardless of emailNotifications setting
+		 *                              - null: Use emailNotifications attribute to determine (default behavior)
+		 * @param int $post_id Post ID.
+		 */
+		$should_send_email = apply_filters( 'grunion_should_send_email', null, $post_id );
+
+		// Determine if email should be sent based on filter precedence
+		$send_email = false;
+		if ( $should_send_email === true ) {
+			// Filter explicitly says to send email
+			$send_email = true;
+		} elseif ( $should_send_email === false ) {
+			// Filter explicitly says not to send email
+			$send_email = false;
+		} else {
+			// Filter is null (default), use emailNotifications attribute
+			$send_email = ( $this->get_attribute( 'emailNotifications' ) !== 'no' );
+		}
+
 		if (
 			$is_spam !== true &&
-			/**
-			 * Filter to choose whether an email should be sent after each successful contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 2.6.0
-			 *
-			 * @param bool true Should an email be sent after a form submission. Default to true.
-			 * @param int $post_id Post ID.
-			 */
-			true === apply_filters( 'grunion_should_send_email', true, $post_id )
+			$send_email
 		) {
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		} elseif (
@@ -2095,8 +2163,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$accepts_json = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
 
 		if ( $this->is_response_without_reload_enabled && $accepts_json ) {
-			$data     = array();
-			$response = Feedback::get( $post_id );
+			$data = array();
 			if ( $response instanceof Feedback ) {
 				$data = $response->get_compiled_fields( 'ajax', 'label|value' );
 			}
@@ -2466,6 +2533,24 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return mixed The transformed value.
 	 */
 	private static function maybe_transform_value( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
+			return implode(
+				', ',
+				array_map(
+					function ( $choice ) {
+						$value = $choice['perceived'];
+
+						if ( $choice['showLabels'] && ! empty( $choice['label'] ) ) {
+							$value .= ' - ' . $choice['label'];
+						}
+
+						return $value;
+					},
+					$value['choices']
+				)
+			);
+		}
+
 		// For file upload fields, we want to show the file name and size
 		if ( is_array( $value ) && isset( $value['name'] ) && isset( $value['size'] ) ) {
 			$file_name = $value['name'];
@@ -2474,6 +2559,25 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Helper method to get the images from an image select field.
+	 *
+	 * @param array $value The value to get the images from.
+	 * @return array The images.
+	 */
+	private static function get_images( $value ) {
+		if ( is_array( $value ) && isset( $value['type'] ) && $value['type'] === 'image-select' ) {
+			return array_map(
+				function ( $choice ) {
+					return $choice['image']['src'] ?? '';
+				},
+				$value['choices']
+			);
+		}
+
+		return null;
 	}
 
 	/**

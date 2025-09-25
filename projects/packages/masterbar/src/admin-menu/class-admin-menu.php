@@ -20,7 +20,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		$this->add_stats_menu();
 		$this->add_upgrades_menu();
 		$this->add_posts_menu();
 		$this->add_media_menu();
@@ -31,7 +30,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
-		$this->add_options_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -101,14 +99,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_mailboxes_menu() {
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', 4.64424 );
-	}
-
-	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), __( 'Stats', 'jetpack-masterbar' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
 	}
 
 	/**
@@ -315,42 +305,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		$submenus_to_update = array();
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'sharing' );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
-			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
-		) {
-			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
-		}
-
-		$this->update_submenus( 'options-general.php', $submenus_to_update );
-
-		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
-		if ( get_current_user_id() < 269750000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
-		}
 	}
 
 	/**

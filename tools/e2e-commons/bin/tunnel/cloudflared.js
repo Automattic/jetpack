@@ -29,7 +29,7 @@ export default class CloudflaredProvider extends TunnelManager {
 				const output = data.toString();
 				console.log( output );
 
-				const urlMatch = output.match( /https:\/\/.*\.trycloudflare\.com/ );
+				const urlMatch = output.match( /https:\/\/(?!api\.)[a-z0-9-]+\.trycloudflare\.com/ );
 				if ( urlMatch && ! resolved ) {
 					tunnelUrl = urlMatch[ 0 ];
 					console.log( `Cloudflare tunnel started: ${ tunnelUrl }` );

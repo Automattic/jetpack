@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#44206]
 
 ### Fixed
-- My Jetpack: Fix footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
 - My Jetpack: Restore plan purchase link. [#44535]
 - Update JITMs to remove jQuery dependency. [#43783]
 

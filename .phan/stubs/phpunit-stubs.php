@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.6
+ * Stubs automatically generated from PHPUnit 12.3.12
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10062,7 +10062,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
     {
     }
-    public function __sleep(): array
+    public function __serialize(): array
     {
     }
     /**
@@ -11053,7 +11053,7 @@ final readonly class ChildProcessResultProcessor
  */
 interface IsolatedTestRunner
 {
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void;
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -11062,7 +11062,7 @@ interface IsolatedTestRunner
  */
 final class IsolatedTestRunnerRegistry
 {
-    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
     public static function set(\PHPUnit\Framework\IsolatedTestRunner $runner): void
@@ -11084,7 +11084,7 @@ final class SeparateProcessTestRunner implements \PHPUnit\Framework\IsolatedTest
      * @throws \PHPUnit\Event\NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
 }
@@ -19170,6 +19170,9 @@ final class HookMethods
     public function hookMethods(string $className): array
     {
     }
+    public function isHookMethod(\ReflectionMethod $method): bool
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -19208,6 +19211,9 @@ final readonly class Requirements
      * @return list<string>
      */
     public function requirementsNotSatisfiedFor(string $className, string $methodName): array
+    {
+    }
+    public function requiresXdebug(string $className, string $methodName): bool
     {
     }
 }
@@ -19398,7 +19404,7 @@ final class CodeCoverage
     {
     }
     /**
-     * @phpstan-assert-if-true !null $this->instance
+     * @phpstan-assert-if-true !null $this->codeCoverage
      */
     public function isActive(): bool
     {
@@ -19438,10 +19444,10 @@ final class ErrorHandler
     /**
      * @throws \PHPUnit\Event\Code\NoTestCaseObjectOnCallStackException
      */
-    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): false
     {
     }
-    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
     {
     }
     public function registerDeprecationHandler(): void
@@ -27844,9 +27850,6 @@ final readonly class Test
     public static function isTestMethod(\ReflectionMethod $method): bool
     {
     }
-    public static function isHookMethod(\ReflectionMethod $method): bool
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -27970,7 +27973,7 @@ final readonly class Job
      * @param list<non-empty-string> $arguments
      * @param ?non-empty-string      $input
      */
-    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false)
+    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false, bool $requiresXdebug = false)
     {
     }
     /**
@@ -28024,6 +28027,9 @@ final readonly class Job
     {
     }
     public function redirectErrors(): bool
+    {
+    }
+    public function requiresXdebug(): bool
     {
     }
 }
@@ -28153,7 +28159,10 @@ final class Parser
 }
 final class AmbiguousOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $candiates
+     */
+    public function __construct(string $option, array $candiates)
     {
     }
 }
@@ -28174,7 +28183,10 @@ final class RequiredOptionArgumentMissingException extends \RuntimeException imp
 }
 final class UnknownOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $similarOptions
+     */
+    public function __construct(string $option, array $similarOptions)
     {
     }
 }
@@ -28189,6 +28201,9 @@ namespace SebastianBergmann\CodeCoverage;
 final class CodeCoverage
 {
     public function __construct(\SebastianBergmann\CodeCoverage\Driver\Driver $driver, \SebastianBergmann\CodeCoverage\Filter $filter)
+    {
+    }
+    public function __serialize(): array
     {
     }
     /**
@@ -29184,6 +29199,9 @@ namespace SebastianBergmann\CodeCoverage\Report;
 final class Clover
 {
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29193,6 +29211,8 @@ final class Clover
 final class Cobertura
 {
     /**
+     * @param null|non-empty-string $target
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
@@ -29205,6 +29225,9 @@ final readonly class Crap4j
     {
     }
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29222,6 +29245,11 @@ final class OpenClover
 }
 final class PHP
 {
+    /**
+     * @param null|non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
     }
@@ -30979,6 +31007,14 @@ final class Filesystem
     public static function createDirectory(string $directory): void
     {
     }
+    /**
+     * @param non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
+    public static function write(string $target, string $buffer): void
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
@@ -30995,6 +31031,20 @@ final readonly class Percentage
     {
     }
     public function asFixedWidthString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Xml
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\XmlException
+     *
+     * @see https://bugs.php.net/bug.php?id=79191
+     */
+    public static function asString(\DOMDocument $document): string
     {
     }
 }

@@ -760,8 +760,8 @@ if (
 			);
 
 			// Replace survey.fm links.
-			$content = preg_replace(
-				'!(?:\n|\A)https?://(.*).survey.fm/(.*)(/.*)?(?:\n|\Z)!i',
+			$content = jetpack_preg_replace_outside_tags(
+				'!(?:\n|\A)https?:\/\/([^"\'.]+)\.survey\.fm\/([^"\'\/\s]+)(?:\/.*)?(?:\n|\Z)!i',
 				'[crowdsignal type="iframe" survey="true" height="auto" domain="$1" id="$2"]',
 				$content
 			);

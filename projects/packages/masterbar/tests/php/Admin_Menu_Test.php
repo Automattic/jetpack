@@ -104,7 +104,7 @@ class Admin_Menu_Test extends TestCase {
 
 		static::$admin_menu->reregister_menu_items();
 
-		$this->assertCount( 18, $menu, 'Admin menu should not have unexpected top menu items.' );
+		$this->assertCount( 17, $menu, 'Admin menu should not have unexpected top menu items.' );
 
 		$this->assertEquals( static::$submenu_data[''], $submenu[''], 'Submenu items without parent should stay the same.' );
 	}
@@ -117,23 +117,6 @@ class Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'users.php' ) );
 		static::$admin_menu->set_preferred_view( 'options-general.php', 'unknown' );
 		$this->assertSame( 'default', static::$admin_menu->get_preferred_view( 'options-general.php' ) );
-	}
-
-	/**
-	 * Tests add_stats_menu
-	 */
-	public function test_add_stats_menu() {
-		global $menu;
-
-		static::$admin_menu->add_stats_menu();
-		// Ignore position keys, since the key used for the Stats menu contains a pseudorandom number
-		// that we shouldn't hardcode. The only thing that matters is that the menu should be in the
-		// 3rd position regardless of the key.
-		// @see https://core.trac.wordpress.org/ticket/40927
-		ksort( $menu );
-		$menu_items = array_values( $menu );
-
-		$this->assertSame( 'https://wordpress.com/stats/day/' . static::$domain, $menu_items[1][2] );
 	}
 
 	/**
@@ -300,17 +283,6 @@ class Admin_Menu_Test extends TestCase {
 
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
-	}
-
-	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		$this->assertSame( 'https://wordpress.com/settings/general/' . static::$domain, $submenu['options-general.php'][0][2] );
 	}
 
 	/**

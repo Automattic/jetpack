@@ -67,7 +67,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-subscribers-dashboard",
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"textdomain": "jetpack-subscribers-dashboard",
 		"version-constants": {

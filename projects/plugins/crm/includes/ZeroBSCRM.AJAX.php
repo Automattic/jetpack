@@ -1391,7 +1391,7 @@ function zbs_lead_form_capture() {
 			// Log above notes as meta vals... e.g. user has completed form 1, 2, and 5
 
 			// TO LATER DO:
-			// COMBINE THE FOLLOWING RETRIEVES... no need to have seperate input gathering...
+			// COMBINE THE FOLLOWING RETRIEVES... no need to have separate input gathering...
 
 			switch ( $zbs_form_style ) {
 
@@ -5440,7 +5440,7 @@ function zbs_invoice_send_test_invoice() {
 	$attachments = array();
 
 	/*
-	WH did unbeknownst, seperately //invoice attachments (actually called invoices but these now can be things like toggl timesheet reports(?) or T&Cs....
+	WH did unbeknownst, separately //invoice attachments (actually called invoices but these now can be things like toggl timesheet reports(?) or T&Cs....
 	$zbsCustomerInvoices = get_post_meta($zbs_invID, 'zbs_customer_invoices', true);
 	foreach($zbsCustomerInvoices as $invoice){
 		$attachments[] = $invoice['file'];

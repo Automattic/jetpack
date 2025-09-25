@@ -9,7 +9,6 @@ import { RouterProvider } from 'react-router/dom';
  * Internal dependencies
  */
 import About from './about';
-import AdminMigratePage from './admin-migrate-page';
 import Layout from './components/layout';
 import Inbox from './inbox';
 import Integrations from './integrations';
@@ -26,16 +25,6 @@ window.addEventListener( 'load', () => {
 	settings = JSON.parse( decodeURIComponent( container.dataset.config ) );
 	delete container.dataset.config;
 
-	if ( config( 'renderMigrationPage' ) ) {
-		const root = createRoot( container );
-		root.render(
-			<ThemeProvider>
-				<AdminMigratePage />
-			</ThemeProvider>
-		);
-		return;
-	}
-
 	const router = createHashRouter( [
 		{
 			path: '/',
@@ -49,14 +38,10 @@ window.addEventListener( 'load', () => {
 					path: 'responses',
 					element: <Inbox />,
 				},
-				...( config( 'enableIntegrationsTab' )
-					? [
-							{
-								path: 'integrations',
-								element: <Integrations />,
-							},
-					  ]
-					: [] ),
+				{
+					path: 'integrations',
+					element: <Integrations />,
+				},
 				{
 					path: 'about',
 					element: <About />,

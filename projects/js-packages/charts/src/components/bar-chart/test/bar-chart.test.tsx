@@ -4,7 +4,7 @@
 
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ThemeProvider } from '../../../providers/theme';
+import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
 
 describe( 'BarChart', () => {
@@ -26,9 +26,9 @@ describe( 'BarChart', () => {
 
 	const renderWithTheme = ( props = {} ) => {
 		return render(
-			<ThemeProvider>
+			<GlobalChartsProvider>
 				<BarChart { ...defaultProps } { ...props } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	};
 
@@ -162,16 +162,16 @@ describe( 'BarChart', () => {
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
-				<ThemeProvider>
+				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="y" />
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 
 			rerender(
-				<ThemeProvider>
+				<GlobalChartsProvider>
 					<BarChart { ...defaultProps } gridVisibility="xy" />
-				</ThemeProvider>
+				</GlobalChartsProvider>
 			);
 			expect( screen.getByRole( 'grid', { name: /bar chart/i } ) ).toBeInTheDocument();
 		} );

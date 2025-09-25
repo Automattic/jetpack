@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 4.0.2
+ * Version: 4.0.3
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || die( 0 );
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
-define( 'VAULTPRESS__VERSION', '4.0.2' );
+define( 'VAULTPRESS__VERSION', '4.0.3' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -620,7 +620,7 @@ class VaultPress {
 			$this->update_option( 'connection_error_code', 'error_localhost' );
 			$this->update_option(
 				'connection_error_message',
-				esc_html__( 'Hostnames such as localhost or 127.0.0.1 can not be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
+				esc_html__( 'Hostnames such as localhost or 127.0.0.1 cannot be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
 			);
 			$this->error_notice();
 			return array( 'ui' => ob_get_clean(), 'dashboard_link' => false );
@@ -2547,9 +2547,9 @@ JS;
 			if ( !isset( $_GET['re'] ) )
 				die( $response );
 			else if ( '1' === $_GET['re'] )
-				die( base64_encode( $response ) );
+				die( base64_encode( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			else if ( '2' === $_GET['re'] )
-				die( str_rot13( $response ) );
+				die( str_rot13( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_str_rot13
 			else
 				die( $response );
 		}

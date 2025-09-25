@@ -17,7 +17,6 @@ return [
     // PhanTypeVoidArgument : 5 occurrences
     // PhanTypeVoidAssignment : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
-    // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
     // PhanContextNotObject : 1 occurrence
@@ -29,7 +28,6 @@ return [
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
-    // PhanUndeclaredFunctionInCallable : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -40,17 +38,13 @@ return [
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
         'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
-        'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
+        'feature-plugins/managed-plugins.php' => ['PhanUndeclaredClassMethod'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredConstant', 'PhanUndeclaredStaticMethod'],
         'functions.php' => ['PhanUndeclaredClassStaticProperty'],
         'imports/playground/class-sql-importer.php' => ['PhanUndeclaredConstant'],
-        'private-site/access-denied-coming-soon-template.php' => ['PhanTypeSuspiciousEcho'],
-        'private-site/access-denied-preview-login-template.php' => ['PhanTypeSuspiciousEcho'],
-        'private-site/access-denied-private-site-template.php' => ['PhanTypeSuspiciousEcho'],
         'safeguard/utils.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],
         'tests/AnyoneCanRegisterNoticeTest.php' => ['PhanTypeMismatchArgument', 'PhanTypeVoidArgument', 'PhanTypeVoidAssignment'],
-        'tests/BlogTokenResilienceTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/FrontendNoticesTest.php' => ['PhanUndeclaredStaticMethod'],
         'tests/PlanNoticesTest.php' => ['PhanDeprecatedProperty', 'PhanPluginUseReturnValueInternalKnown', 'PhanUndeclaredStaticMethod'],
         'tests/WpcomFeaturesTest.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredStaticMethod'],

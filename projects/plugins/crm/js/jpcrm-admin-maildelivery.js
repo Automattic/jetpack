@@ -733,7 +733,7 @@ function zeroBSCRMJS_validateSettings() {
 									);
 								}
 
-								// remove loading + play routine for now (no seperate ajax tests here)
+								// remove loading + play routine for now (no separate ajax tests here)
 								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html(
 									window.zeroBSCRMJS_globViewLang( 'settingsValidateSMTPProbing' )
 								);

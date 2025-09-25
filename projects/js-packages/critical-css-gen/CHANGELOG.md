@@ -5,9 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.19] - 2025-09-17
+### Changed
+- Update package dependencies. [#45097]
+- Update package dependencies. [#45200]
+
 ## [1.0.18] - 2025-08-21
 ### Added
-- Added typecheck script to ensure that the TS files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ### Changed
 - Update dependencies. [#44736]
@@ -119,6 +124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#38429]
 
+[1.0.19]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.18...v1.0.19
 [1.0.18]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.17...v1.0.18
 [1.0.17]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.16...v1.0.17
 [1.0.16]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.15...v1.0.16

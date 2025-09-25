@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: error wrapper, make it possible to place the button inside a group block

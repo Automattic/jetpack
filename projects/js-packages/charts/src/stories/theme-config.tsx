@@ -1,4 +1,4 @@
-import { defaultTheme, jetpackTheme, wooTheme } from '../providers/theme/themes';
+import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**
@@ -22,11 +22,14 @@ export const customTheme: ChartTheme = {
 		stroke: '#ffe3e3',
 		strokeWidth: 2,
 	},
+	leaderboardChart: {
+		primaryColor: '#073B3A',
+		secondaryColor: '#0B6E4F',
+	},
 } as ChartTheme;
 
 /**
  * Centralized theme map for all chart stories
- * Note: customStorybook theme is added by line chart stories
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,

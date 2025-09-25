@@ -55,13 +55,28 @@
 		}
 
 		.wp-block {
-			flex: 0 0 100%;
+			flex: 1 1 100%;
 			margin-top: 0;
 			margin-bottom: 0;
 			max-width: 100%;
 
 			&.wp-block-jetpack-button {
-				flex-basis: auto;
+				flex: 0 0 auto;
+				min-height: var(--jetpack--contact-form--input-height, auto);
+				align-self: flex-end;
+				line-height: 1;
+
+				.wp-block-button__link {
+					min-height: var(--jetpack--contact-form--input-height, auto);
+				}
+			}
+
+			&.wp-block-group-is-layout-flex:not(.is-vertical) {
+				// when the button is on a row stack, we expect it to fill the width of the
+				// button block container (which is filling the provided column width)
+				.wp-block.wp-block-jetpack-button .wp-block-button__link {
+					width: 100%;
+				}
 			}
 
 			&.jetpack-field__width-25,
@@ -314,7 +329,7 @@
 		word-break: normal;
 		color: unset;
 		opacity: 0.6;
-		font-size: 85%;
+		font-size: 72%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;
 	}
@@ -776,7 +791,8 @@
 
 	.is-style-outlined & {
 
-		.block-editor-block-list__block:not([contenteditable]):focus::after {
+		// This hides the focus outline, so we exclude the non-outlined blocks.
+		.block-editor-block-list__block:not([contenteditable]):not(.is-non-outlined-block):not(.is-non-outlined-block *):focus::after {
 			top: -10px;
 			left: -10px;
 			bottom: -10px;
@@ -868,8 +884,12 @@
 			}
 
 			&.is-non-animated-label .notched-label__label {
-				position: static;
-				transform: unset;
+				position: static !important;
+				transform: unset !important;
+
+				.jetpack-field-label__input {
+					font-size: inherit !important;
+				}
 			}
 
 			&.is-selected,
@@ -955,7 +975,7 @@
 			.jetpack-field__input,
 			.jetpack-field__textarea,
 			.jetpack-field-dropdown__toggle {
-				padding-top: 1.4em;
+				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
@@ -1121,7 +1141,7 @@
 }
 
 /* Styles for form inspector panels */
-.jetpack-contact-form__manage-responses-panel,
+.jetpack-contact-form__responses-storage-panel,
 .jetpack-contact-form__integrations-panel {
 
 	.components-button.is-secondary {

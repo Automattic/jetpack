@@ -48,8 +48,8 @@ const SalesforceDashboardCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Salesforce', 'jetpack-forms' ) }
-			description={ __( 'Send form contacts to Salesforce', 'jetpack-forms' ) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <SalesforceIcon width={ 32 } height={ 32 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -67,7 +67,7 @@ const SalesforceDashboardCard = ( {
 					onClick={ handleCreateSalesforceForm }
 					className="jp-forms__create-form-button--large-green"
 				>
-					{ __( 'Create Salesforce Lead Form', 'jetpack-forms' ) }
+					{ __( 'Create Salesforce lead form', 'jetpack-forms' ) }
 				</Button>
 			</div>
 		</IntegrationCard>

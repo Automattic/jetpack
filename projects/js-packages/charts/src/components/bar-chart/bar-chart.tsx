@@ -3,28 +3,29 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { useZeroValueDisplay } from '../shared/use-zero-value-display';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+	GlobalChartsContext,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions } from './use-bar-chart-options';
+import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, ComponentType } from 'react';
 
@@ -81,6 +82,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -102,7 +105,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted );
+	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -123,24 +126,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
-
-	const getColor = useCallback(
-		( seriesData: SeriesData, index: number ) =>
-			resolveGroupColor( {
-				group: seriesData.group,
-				index,
-				overrideColor: seriesData.options?.stroke,
-			} ),
-		[ resolveGroupColor ]
-	);
+	const { getElementStyles } = useGlobalChartsContext();
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, chartId ]
+				: getElementStyles( { data: dataSorted[ index ], index } ).color,
+		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -338,12 +331,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						<>
 							<defs data-testid="bar-chart-patterns">
 								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getColor( seriesData, index ) )
+									renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
 								) }
 							</defs>
 							<style>
 								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle( index, getColor( seriesData, index ) )
+									createPatternBorderStyle(
+										index,
+										getElementStyles( { data: seriesData, index } ).color
+									)
 								) }
 							</style>
 						</>
@@ -387,6 +383,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
 						className={ styles[ 'bar-chart__legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }

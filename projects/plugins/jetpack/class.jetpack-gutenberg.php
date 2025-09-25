@@ -328,6 +328,11 @@ class Jetpack_Gutenberg {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
+		// Avoid errors if option data is not as expected.
+		if ( ! is_array( $exclusions ) ) {
+			$exclusions = array();
+		}
+
 		return array_diff( $allowed_extensions, $exclusions );
 	}
 
@@ -624,7 +629,7 @@ class Jetpack_Gutenberg {
 				// The Map block is dependent on wp-element, and it doesn't appear to to be possible to load
 				// this dynamically into the customizer iframe currently.
 				if ( 'map' === $type ) {
-					echo '<div>' . esc_html_e( 'No map preview available. Publish and refresh to see this widget.', 'jetpack' ) . '</div>';
+					echo '<div>' . esc_html__( 'No map preview available. Publish and refresh to see this widget.', 'jetpack' ) . '</div>';
 					echo '<script>';
 					echo 'Array.from(document.getElementsByClassName(\'wp-block-jetpack-map\')).forEach(function(element){element.style.display = \'none\';})';
 					echo '</script>';

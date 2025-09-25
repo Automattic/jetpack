@@ -178,7 +178,7 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 			return {
 				code: ERROR_MODERATION,
 				message: __(
-					'This request has been flagged by our moderation system. Please try to rephrase it and try again.',
+					'Our service provider OpenAI could not process your prompt due to a moderation system. Please try to rephrase it changing potentially problematic words and try again.',
 					'jetpack-ai-client'
 				),
 				severity: 'info',

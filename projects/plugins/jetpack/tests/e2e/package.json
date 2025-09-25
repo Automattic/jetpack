@@ -26,12 +26,12 @@
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.51.1",
+		"@playwright/test": "1.55.0",
 		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.9.2",
 		"config": "3.3.12",
-		"typescript": "5.8.3"
+		"typescript": "5.9.2"
 	},
 	"ci": {
 		"pluginSlug": "jetpack",

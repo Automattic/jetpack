@@ -1,3 +1,7 @@
 .jetpack-forms-integrations-modal .components-modal__header-heading {
 	font-weight: 400;
 }
+
+.jp-forms__integrations-body > div:last-of-type {
+	border-bottom: none;
+}

@@ -16,12 +16,12 @@ import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../.
 
 interface MailPoetCardProps extends SingleIntegrationCardProps {
 	mailpoet: {
-		enabledForForm: boolean;
+		enabledForForm?: boolean;
 		listId?: string | null;
 		listName?: string | null;
 	};
 	setAttributes: ( attrs: {
-		mailpoet: { enabledForForm: boolean; listId?: string | null; listName?: string | null };
+		mailpoet: { enabledForForm?: boolean; listId?: string | null; listName?: string | null };
 	} ) => void;
 }
 
@@ -102,7 +102,7 @@ const MailPoetCard = ( {
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: ( mailpoetActiveWithKey && mailpoet?.enabledForForm ) ?? false,
+		headerToggleValue: !! mailpoet?.enabledForForm,
 		isHeaderToggleEnabled: mailpoetActiveWithKey,
 		onHeaderToggleChange: ( value: boolean ) =>
 			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),
@@ -125,11 +125,8 @@ const MailPoetCard = ( {
 	};
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet email marketing', 'jetpack-forms' ) }
-			description={ __(
-				'Send newsletters and marketing emails directly from your site.',
-				'jetpack-forms'
-			) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <MailPoetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.3';
 	const BASE_FILE       = __FILE__;
 
 	/**
@@ -27,10 +27,12 @@ class External_Connections {
 	 * Each service has the following keys:
 	 * - service: The service identifier.
 	 * - title: The title of the service.
+	 * - signup_link: The URL to the service's signup page.
 	 * - description: The description of the service.
 	 * - support_link: An array with the following keys:
 	 *     - jetpack: The URL handler registered in jetpack.com/redirect/.
 	 *     - wpcom: The URL of the support page for the service on WordPress.com.
+	 * - script: An optional script handle to enqueue.
 	 *
 	 * @example
 	 * ```php
@@ -39,6 +41,7 @@ class External_Connections {
 	 *         array(
 	 *             'service'      => 'facebook',
 	 *             'title'        => 'Facebook',
+	 *             'signup_link'  => 'https://facebook.com/signup?ref=jetpack',
 	 *             'description'  => 'Connect your site to your Facebook account',
 	 *             'support_link' => array(
 	 *                 'jetpack' => 'facebook-connection',
@@ -261,7 +264,12 @@ class External_Connections {
 					'isConnected'  => $connection_data['is_connected'],
 					'profileImage' => $connection_data['profile_image'],
 					'supportLink'  => $support_link,
+					'signupLink'   => $service['signup_link'] ?? '',
 				);
+
+				if ( isset( $service['script'] ) ) {
+					Assets::enqueue_script( $service['script'] );
+				}
 			}
 
 			wp_add_inline_script(

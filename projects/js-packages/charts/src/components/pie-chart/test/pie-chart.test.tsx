@@ -2,8 +2,9 @@
  * @jest-environment jsdom
  */
 
-import { render, screen } from '@testing-library/react';
-import { ThemeProvider } from '../../../providers/theme';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
 import PieChart from '../pie-chart';
 
 describe( 'PieChart', () => {
@@ -17,9 +18,9 @@ describe( 'PieChart', () => {
 
 	const renderWithTheme = ( props = {} ) => {
 		return render(
-			<ThemeProvider>
+			<GlobalChartsProvider>
 				<PieChart { ...defaultProps } { ...props } />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	};
 
@@ -110,6 +111,227 @@ describe( 'PieChart', () => {
 			// Verify chart content is still rendered
 			const chartLabels = screen.getAllByText( /^[AB]$/ );
 			expect( chartLabels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+	} );
+
+	describe( 'Label Visibility', () => {
+		test( 'shows labels by default', () => {
+			renderWithTheme();
+			// Labels should be visible by default
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		test( 'hides labels when showLabels is false', () => {
+			renderWithTheme( { showLabels: false } );
+
+			// When showLabels is false, the chart should not display the data labels
+			// We filter out measurement elements by checking that text is not inside measurement element
+			const labelElements = screen.queryAllByText( ( content, element ) => {
+				// Check if this text element is not the measurement element
+				return (
+					( content === 'A' || content === 'B' ) &&
+					element?.id !== '__react_svg_text_measurement_id'
+				);
+			} );
+
+			// Labels should not be present in the rendered output (excluding measurement text)
+			expect( labelElements ).toHaveLength( 0 );
+		} );
+
+		test( 'shows labels when showLabels is explicitly true', () => {
+			renderWithTheme( { showLabels: true } );
+			// Labels should be visible
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThanOrEqual( 2 );
+		} );
+
+		test( 'shows labels for backward compatibility when prop not specified', () => {
+			// Render without showLabels prop to test backward compatibility
+			render(
+				<GlobalChartsProvider>
+					<PieChart size={ 500 } data={ defaultProps.data } />
+				</GlobalChartsProvider>
+			);
+
+			// Should find label text using Testing Library queries
+			const labels = screen.getAllByText( /^[AB]$/ );
+			expect( labels.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'Legend Value Display', () => {
+		const testData = [
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 60 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 23 },
+			{ label: 'Linux', value: 22000, valueDisplay: '22K', percentage: 17 },
+		];
+
+		test( 'shows percentage values by default when showLegend and showValues are enabled', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				// legendValueDisplay defaults to 'percentage'
+			} );
+
+			// Should display percentage values (using formatPercentage which shows "60%", "23%", "17%")
+			expect( screen.getByText( '60%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '23%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '17%' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows raw values when legendValueDisplay is set to "value"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendValueDisplay: 'value',
+			} );
+
+			// Should display raw numeric values
+			expect( screen.getByText( '80000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '30000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '22000' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows formatted values when legendValueDisplay is set to "valueDisplay"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendValueDisplay: 'valueDisplay',
+			} );
+
+			// Should display formatted values (valueDisplay field)
+			expect( screen.getByText( '80K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '30K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '22K' ) ).toBeInTheDocument();
+		} );
+
+		test( 'shows no values when legendValueDisplay is set to "none"', () => {
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				showLabels: false, // Disable pie slice labels to avoid confusion
+				legendValueDisplay: 'none',
+			} );
+
+			// Should not display any values in legend
+			expect( screen.queryByText( '60%' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( '80000' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( '80K' ) ).not.toBeInTheDocument();
+
+			// Legend should have the correct number of items (labels only, no values)
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 3 );
+		} );
+	} );
+
+	describe( 'Tooltip Functionality', () => {
+		const testData = [
+			{ label: 'Windows', value: 80000, valueDisplay: '80K', percentage: 70 },
+			{ label: 'MacOS', value: 30000, valueDisplay: '30K', percentage: 30 },
+		];
+
+		test( 'does not show tooltip when withTooltips is false', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: false,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Should not find tooltip
+			expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'shows tooltip on hover when withTooltips is true', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Wait for tooltip to appear
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+
+			const tooltip = screen.getByRole( 'tooltip' );
+			expect( tooltip ).toHaveTextContent( 'Windows: 80K' );
+		} );
+
+		test( 'hides tooltip on mouse leave', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			// Wait for tooltip to appear
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+
+			await user.unhover( segments[ 0 ] );
+
+			// Wait for tooltip to disappear
+			await waitFor( () => {
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
+		test( 'shows different tooltip content for different segments', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: testData,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+
+			// Test first segment
+			await user.hover( segments[ 0 ] );
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Windows: 80K' );
+
+			await user.unhover( segments[ 0 ] );
+			await waitFor( () => {
+				expect( screen.queryByRole( 'tooltip' ) ).not.toBeInTheDocument();
+			} );
+
+			// Test second segment
+			await user.hover( segments[ 1 ] );
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'MacOS: 30K' );
+		} );
+
+		test( 'tooltip shows valueDisplay when available, falls back to value', async () => {
+			const user = userEvent.setup();
+			const dataWithoutValueDisplay = [ { label: 'Test', value: 42, percentage: 100 } ];
+
+			renderWithTheme( {
+				data: dataWithoutValueDisplay,
+				withTooltips: true,
+			} );
+
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			await user.hover( segments[ 0 ] );
+
+			await waitFor( () => {
+				expect( screen.getByRole( 'tooltip' ) ).toBeInTheDocument();
+			} );
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Test: 42' );
 		} );
 	} );
 } );

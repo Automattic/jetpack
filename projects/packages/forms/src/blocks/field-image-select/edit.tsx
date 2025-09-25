@@ -20,24 +20,22 @@ import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import './style.scss';
+import './editor.scss';
 /**
  * Types
  */
 import type { Block, BlockEditorStoreSelect } from '../../types';
 
 export default function ImageSelectFieldEdit( props ) {
-	const { attributes, clientId, isSelected, setAttributes, name } = props;
+	const { attributes, clientId, setAttributes, name } = props;
 	const { id, required, width } = attributes;
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { isInnerBlockSelected, optionsBlock } = useSelect(
+	const { optionsBlock } = useSelect(
 		select => {
-			const { hasSelectedInnerBlock, getBlock } = select(
-				blockEditorStore
-			) as BlockEditorStoreSelect;
+			const { getBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
 
 			return {
-				isInnerBlockSelected: hasSelectedInnerBlock( clientId, true ),
 				optionsBlock: getBlock( clientId )?.innerBlocks.find(
 					( block: Block ) => block.name === 'jetpack/fieldset-image-options'
 				),
@@ -52,9 +50,9 @@ export default function ImageSelectFieldEdit( props ) {
 	const { addOption } = useAddImageOption( optionsBlock?.clientId );
 
 	const blockProps = useBlockProps( {
-		className: clsx( 'jetpack-field jetpack-field-image-select', {
-			'is-selected': isSelected || isInnerBlockSelected,
-		} ),
+		className: clsx(
+			'jetpack-field jetpack-field-image-select is-non-animated-label is-non-outlined-block'
+		),
 		style: blockStyle,
 	} );
 
@@ -91,7 +89,9 @@ export default function ImageSelectFieldEdit( props ) {
 
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ addOption }>{ __( 'Add', 'jetpack-forms' ) }</ToolbarButton>
+					<ToolbarButton onClick={ addOption }>
+						{ __( 'Add choice', 'jetpack-forms' ) }
+					</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 
@@ -147,18 +147,6 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Randomize', 'jetpack-forms' ) }
 								checked={ attributes?.randomizeOptions }
 								onChange={ ( value: boolean ) => setAttributes( { randomizeOptions: value } ) }
-							/>
-						),
-					},
-					{
-						index: 5,
-						element: (
-							<ToggleControl
-								__nextHasNoMarginBottom
-								key="show-other-option"
-								label={ __( '"Other" option', 'jetpack-forms' ) }
-								checked={ attributes?.showOtherOption }
-								onChange={ ( value: boolean ) => setAttributes( { showOtherOption: value } ) }
 							/>
 						),
 					},

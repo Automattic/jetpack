@@ -2941,13 +2941,13 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Returns an status against a company
-     *
-     * @param int id company ID
-     *
-     * @return str company status string
-     */
+	/**
+	 * Returns an status against a company
+	 *
+	 * @param int $id company ID.
+	 *
+	 * @return string company status string
+	 */
     public function getCompanyStatus($id=-1){
 
         global $zbs;

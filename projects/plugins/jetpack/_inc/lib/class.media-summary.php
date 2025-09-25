@@ -271,7 +271,7 @@ class Jetpack_Media_Summary {
 					++$return['count']['image'];
 				}
 
-				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {  // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- We established the image offset exists with '! empty( $extract['has']['image']' earlier.
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}

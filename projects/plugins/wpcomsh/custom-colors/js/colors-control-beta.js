@@ -78,7 +78,7 @@
 
 			$( '.action-button-wrap' ).insertBefore( ct.topLabel );
 
-			// Only show 'undo' button when a color change has occured
+			// Only show 'undo' button when a color change has occurred
 			// Helps clear confusion between revert and undo
 			ct.grid.on( 'color-change', function () {
 				$( '.action-button-wrap' ).addClass( 'undo' );

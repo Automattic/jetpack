@@ -17,21 +17,7 @@ const settings = {
 	description: __( 'A list of image options for an image select field.', 'jetpack-forms' ),
 	icon,
 	parent: [ 'jetpack/field-image-select' ],
-	attributes: {
-		type: {
-			type: 'string',
-			default: 'radio',
-		},
-	},
 	allowedBlocks: [ 'jetpack/input-image-option' ],
-	providesContext: {
-		'jetpack/field-image-options-type': 'type',
-	},
-	usesContext: [
-		'jetpack/field-image-select-is-supersized',
-		'jetpack/field-image-select-is-multiple',
-		'jetpack/field-share-attributes',
-	],
 	edit,
 	save,
 };

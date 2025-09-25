@@ -588,6 +588,8 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 			$this->users_locale[ get_current_blog_id() ][ $user->ID ] = $user->data->locale;
 			unset( $user->data->locale );
 		}
+		unset( $user->data->is_connected );
+
 		$this->users[ get_current_blog_id() ][ $user->ID ] = $user;
 	}
 

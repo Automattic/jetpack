@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Wrap upgrade nudge with span due to an ongoing Gutenberg issue

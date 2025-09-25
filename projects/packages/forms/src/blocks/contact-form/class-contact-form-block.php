@@ -12,7 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Request;
@@ -49,6 +49,8 @@ class Contact_Form_Block {
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
 		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
+
+		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -58,9 +60,6 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
-		// Features under development.
-		$features['image-select-field'] = apply_filters( 'forms_alpha', false );
-
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
@@ -227,78 +226,78 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/input-rating',
-				array(
-					'supports' => array(
-						'color'      => array(
-							'text'       => true,
-							'background' => false,
-						),
-						'typography' => array(
-							'fontSize' => true,
-						),
+		Blocks::jetpack_register_block(
+			'jetpack/phone-input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
 					),
-				)
-			);
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradients'  => false,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-share-attributes',
+					'jetpack/field-prefix-options',
+					'jetpack/field-prefix-default',
+					'jetpack/field-prefix-onChange',
+					'jetpack/field-phone-country-toggle',
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/input-range',
-				array(
-					'supports' => array(
-						'color'      => array(
-							'text'       => true,
-							'background' => false,
-						),
-						'typography' => array(
-							'fontSize'                     => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-						),
+		Blocks::jetpack_register_block(
+			'jetpack/input-rating',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
 					),
-				)
-			);
+					'typography' => array(
+						'fontSize' => true,
+					),
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/phone-input',
-				array(
-					'supports'     => array(
-						'__experimentalBorder' => array(
-							'color'  => true,
-							'radius' => true,
-							'style'  => true,
-							'width'  => true,
-						),
-						'color'                => array(
-							'text'       => true,
-							'background' => true,
-							'gradients'  => false,
-						),
-						'typography'           => array(
-							'fontSize'                     => true,
-							'lineHeight'                   => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-						),
+		Blocks::jetpack_register_block(
+			'jetpack/input-range',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
 					),
-					'uses_context' => array(
-						'jetpack/field-share-attributes',
-						'jetpack/field-prefix-options',
-						'jetpack/field-prefix-default',
-						'jetpack/field-prefix-onChange',
+					'typography' => array(
+						'fontSize'                     => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
 					),
-				)
-			);
-		}
+				),
+			)
+		);
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
@@ -342,7 +341,29 @@ class Contact_Form_Block {
 			'jetpack/field-telephone',
 			array(
 				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
-				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'attributes'       => array(
+					'showCountrySelector' => array(
+						'type' => 'boolean',
+					),
+					'default'             => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
+					'searchPlaceholder'   => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
+				),
+				'supports'         => array(
+					'interactivity' => true,
+				),
+				'provides_context' => array(
+					'jetpack/field-share-attributes'     => 'shareAttributes',
+					'jetpack/field-required'             => 'required',
+					'jetpack/field-prefix-default'       => 'default',
+					'jetpack/field-phone-country-toggle' => 'showCountrySelector',
+					'jetpack/field-phone-search-placeholder' => 'searchPlaceholder',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -427,53 +448,37 @@ class Contact_Form_Block {
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/field-hidden',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_hidden' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-rating',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-slider',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
+
 		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-rating',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
-					'provides_context' => array(
-						'jetpack/field-required' => 'required',
-					),
-				)
-			);
-			Blocks::jetpack_register_block(
-				'jetpack/field-slider',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
-					'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				)
-			);
 			Blocks::jetpack_register_block(
 				'jetpack/field-time',
 				array(
 					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
 					'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				)
-			);
-
-			Blocks::jetpack_register_block(
-				'jetpack/field-phone',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_phone' ),
-					'attributes'       => array(
-						'showCountrySelector' => array(
-							'type'    => 'boolean',
-							'default' => true,
-						),
-						'default'             => array(
-							'type'    => 'string',
-							'default' => '',
-							'role'    => 'content',
-						),
-					),
-					'supports'         => array(
-						'interactivity' => true,
-					),
-					'provides_context' => array(
-						'jetpack/field-required'       => 'required',
-						'jetpack/field-prefix-default' => 'default',
-					),
 				)
 			);
 		}
@@ -533,8 +538,7 @@ class Contact_Form_Block {
 			'jetpack/form-step-container'
 		);
 
-		// Block under development.
-		if ( apply_filters( 'forms_alpha', false ) ) {
+		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(
 				'jetpack/field-image-select',
 				array(
@@ -775,11 +779,9 @@ class Contact_Form_Block {
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
+		$form_responses_url      = Forms_Dashboard::get_forms_admin_url();
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
-		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
@@ -789,12 +791,23 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'preferredView'        => $preferred_view,
 				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
 			),
 		);
 
 		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
+	}
+
+	/**
+	 * Add REST API endpoints to the block editor preload list.
+	 *
+	 * @param array $paths Existing paths to preload.
+	 * @return array Updated paths to preload.
+	 */
+	public static function preload_endpoints( $paths ) {
+		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/integrations?version=2', 'GET' );
+		return $paths;
 	}
 
 	/**

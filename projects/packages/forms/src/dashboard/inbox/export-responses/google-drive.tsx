@@ -14,9 +14,10 @@ import clsx from 'clsx';
  */
 import { config } from '../..';
 import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integration-status';
-import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
+import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
+	const [ isExporting, setIsExporting ] = useState( false );
 	const { integration, refreshStatus } = useIntegrationStatus( 'google-drive' );
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
@@ -24,13 +25,16 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	const [ isTogglingConnection, setIsTogglingConnection ] = useState( false );
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
-		redirectUri:
-			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
+		redirectUri: PARTIAL_RESPONSES_PATH + '&connect-gdrive=true',
 	} );
 
 	const needsUserConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const exportToGoogleDrive = useCallback( () => {
+		if ( isExporting ) {
+			return;
+		}
+		setIsExporting( true );
 		tracks.recordEvent( 'jetpack_forms_export_click', {
 			destination: 'google-drive',
 			screen: 'form-responses-inbox',
@@ -40,8 +44,11 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			.then( ( response: Response ) => response.json() )
 			.then( ( { data } ) => {
 				window.open( data.sheet_link, '_blank' );
+			} )
+			.finally( () => {
+				setIsExporting( false );
 			} );
-	}, [ tracks, onExport ] );
+	}, [ tracks, onExport, isExporting ] );
 
 	const handleConnectClick = useCallback( () => {
 		if ( ! integration?.settingsUrl ) return;
@@ -113,6 +120,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 									className={ buttonClasses }
 									variant="primary"
 									onClick={ exportToGoogleDrive }
+									isBusy={ isExporting }
 								>
 									{ __( 'Export', 'jetpack-forms' ) }
 								</Button>

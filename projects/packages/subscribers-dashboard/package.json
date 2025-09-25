@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-subscribers-dashboard",
-	"version": "0.2.4",
+	"version": "0.4.1",
 	"private": true,
 	"description": "WP Admin page to manage subscribers",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/subscribers-dashboard/#readme",
@@ -36,11 +36,11 @@
 	},
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
-		"@wordpress/data": "10.28.0",
-		"@wordpress/dataviews": "5.0.0",
-		"@wordpress/element": "6.28.0",
-		"@wordpress/i18n": "6.1.0",
-		"@wordpress/url": "4.28.0"
+		"@wordpress/data": "10.31.0",
+		"@wordpress/dataviews": "9.0.0",
+		"@wordpress/element": "6.31.0",
+		"@wordpress/i18n": "6.4.0",
+		"@wordpress/url": "4.31.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
@@ -56,8 +56,8 @@
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"typescript": "5.8.3",
-		"webpack": "5.94.0",
+		"typescript": "5.9.2",
+		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	}
 }

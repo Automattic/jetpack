@@ -5,16 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.27.1] - 2025-09-22
+### Changed
+- Update dependencies. [#45179]
+
+## [5.27.0] - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+## [5.26.3] - 2025-09-15
+### Changed
+- Update dependencies. [#45130]
+
+## [5.26.2] - 2025-09-09
+### Changed
+- Update dependencies. [#45113]
+
+## [5.26.1] - 2025-09-08
+### Changed
+- Update dependencies. [#45050]
+
+## [5.26.0] - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [5.25.2] - 2025-09-03
+### Fixed
+- Prevent PHP error when using WP-CLI. [#45045]
+
+## [5.25.1] - 2025-09-02
+### Changed
+- Update dependencies. [#45044]
+
+## [5.25.0] - 2025-09-01
+### Added
+- Add product interstitials state management. [#44772]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+
 ## [5.24.0] - 2025-08-25
 ### Changed
-- Start using the improved PricingTable component for product interstitials. [#44801]
+- Use PricingTable component for product interstitials. [#44801]
 
 ### Fixed
 - Resolve `PhanImpossibleCondition` violations. [#44869]
 
 ## [5.23.2] - 2025-08-21
 ### Changed
-- Lift the TS types up from product tabs for reusability. [#44857]
+- Lift the TypeScript types up from product tabs for reusability. [#44857]
 
 ## [5.23.1] - 2025-08-18
 ### Changed
@@ -56,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update dependencies. [#44463]
 
 ### Fixed
-- Fix footer alignment for diconnected accounts. [#44468]
+- Fix footer alignment for disconnected accounts. [#44468]
 
 ## [5.20.1] - 2025-07-24
 ### Removed
@@ -2315,6 +2356,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.0...5.27.1
+[5.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.3...5.27.0
+[5.26.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.2...5.26.3
+[5.26.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.1...5.26.2
+[5.26.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.0...5.26.1
+[5.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.2...5.26.0
+[5.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.1...5.25.2
+[5.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.0...5.25.1
+[5.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.24.0...5.25.0
 [5.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.2...5.24.0
 [5.23.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.1...5.23.2
 [5.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.0...5.23.1

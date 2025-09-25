@@ -3,6 +3,7 @@
 import requestExternalAccess from '@automattic/request-external-access';
 import domReady from '@wordpress/dom-ready';
 import { useState } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { createRoot } from 'react-dom/client';
 
@@ -85,27 +86,38 @@ function ExternalConnection( { service } ) {
 			  );
 	}
 
+	const ExtraSettings = applyFilters( 'jetpack.externalConnections.extraSettings', null, service );
+
 	return (
 		<>
-			{ isConnected && accountName && (
-				<>
-					{ __( 'Connected as:', 'jetpack-external-connections' ) }
-					{ profileImage ? (
-						<img src={ profileImage } alt="" />
-					) : (
-						<span className="dashicons dashicons-admin-users"></span>
-					) }
-					<strong>{ accountName } </strong>
-				</>
-			) }
-			<button
-				className="button-secondary"
-				type="button"
-				onClick={ toggleConnection }
-				disabled={ isTogglingConnection }
-			>
-				{ buttonText }
-			</button>
+			<div className="jetpack-external-connection-settings">
+				{ isConnected && accountName && (
+					<>
+						{ __( 'Connected as:', 'jetpack-external-connections' ) }
+						{ profileImage && <img src={ profileImage } alt="" /> }
+						<strong>{ accountName } </strong>
+					</>
+				) }
+				{ ! isConnected && config.signupLink && (
+					<a
+						className={ `button-secondary ${ isTogglingConnection ? 'disabled' : '' }` }
+						href={ config.signupLink }
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						{ __( 'Sign up', 'jetpack-external-connections' ) }
+					</a>
+				) }
+				<button
+					className="button-secondary"
+					type="button"
+					onClick={ toggleConnection }
+					disabled={ isTogglingConnection }
+				>
+					{ buttonText }
+				</button>
+			</div>
+			{ ExtraSettings && <ExtraSettings isConnected={ isConnected } /> }
 		</>
 	);
 }

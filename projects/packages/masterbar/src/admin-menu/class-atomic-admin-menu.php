@@ -38,7 +38,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
-				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Not worth bringing in a stub just for a callback in a remove_action call.
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
@@ -245,28 +244,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack-masterbar' );
-		if (
-			! $this->is_api_request &&
-			( new Modules() )->is_active( 'stats' ) &&
-			function_exists( 'stats_get_image_chart_src' )
-		) {
-			$img_src = esc_attr(
-				stats_get_image_chart_src( 'admin-bar-hours-scale-2x', array( 'masterbar' => '' ) )
-			);
-			$alt     = esc_attr__( 'Hourly views', 'jetpack-masterbar' );
-
-			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
-		}
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
-	}
-
-	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
@@ -300,19 +277,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
-		}
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		parent::add_options_menu();
-
-		// Hide Settings > Performance when the interface is set to wp-admin.
-		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
-		if ( $this->use_wp_admin_interface() ) {
-			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 		}
 	}
 

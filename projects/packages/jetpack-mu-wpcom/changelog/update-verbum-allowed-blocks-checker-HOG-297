@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Verbum Comments: optimize block filtering performance using Block_Scanner for fast pre-filtering when all blocks are allowed.

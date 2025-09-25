@@ -239,17 +239,50 @@ Override theme colors by providing color values in data:
 
 />
 
-### Theme Integration
+### Label Colors and Styling
 
-Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `ThemeProvider`:
+<Canvas of={ PieChartStories.CustomLabelColors } />
+
+The Pie Chart supports customizable label colors through the theme system:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-    <ThemeProvider theme={ jetpackTheme }>
+const customTheme = {
+	...defaultTheme,
+	labelTextColor: '#FFFFFF', // White text for labels
+	labelBackgroundColor: 'rgba(0, 0, 0, 0.8)', // Enable dark background (transparent by default)
+};
+
+<GlobalChartsProvider theme={ customTheme }>
+	<PieChart data={ data } />
+</GlobalChartsProvider>` }
+/>
+
+**Label Color Properties:**
+
+- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `#FFFFFF` (white) to match original behavior.
+- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `transparent` (no background). When set to any color value, creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
+
+**Best Practices:**
+- Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
+- Consider semi-transparent backgrounds (`rgba()`) to maintain visual connection to segment colors
+- Test with different segment colors to ensure labels remain visible
+- Use `labelBackgroundColor` when segment colors are too varied or bright for consistent text visibility
+- Consider accessibility guidelines when choosing color combinations
+
+### Theme Integration
+
+Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `GlobalChartsProvider`:
+
+<Source
+	language="jsx"
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+
+    <GlobalChartsProvider theme={ jetpackTheme }>
     	<PieChart data={ data } />
-    </ThemeProvider>` }
+    </GlobalChartsProvider>` }
 
 />
 
@@ -281,6 +314,15 @@ Main component for rendering pie and donut charts.
 | `maxWidth`                  | `number`                        | -              | Maximum width for responsive charts                                               |
 | `aspectRatio`               | `number`                        | `1`            | Aspect ratio for responsive charts                                                |
 | `resizeDebounceTime`        | `number`                        | `100`          | Debounce time for resize events (ms)                                              |
+
+### Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Prop                        | Type                            | Default        | Description                                                                       |
+| --------------------------- | ------------------------------- | -------------- | --------------------------------------------------------------------------------- |
+| `labelTextColor`            | `string`                        | `'#FFFFFF'`    | Color of text displayed on pie chart segments                                    |
+| `labelBackgroundColor`      | `string`                        | `'transparent'` | Background color for labels. Set to any color value to enable label backgrounds |
 
 ### Compound Components
 

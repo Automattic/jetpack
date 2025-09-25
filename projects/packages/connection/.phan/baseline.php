@@ -14,10 +14,9 @@ return [
     // PhanTypeMismatchReturn : 15+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchDefault : 4 occurrences
-    // PhanTypeMismatchArgumentInternal : 3 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
@@ -36,7 +35,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'legacy/class-jetpack-options.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal'],
-        'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal'],
+        'legacy/class-jetpack-signature.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'legacy/class-jetpack-tracks-client.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyProbablyReal'],
         'legacy/class-jetpack-xmlrpc-server.php' => ['PhanAccessMethodInternal', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
@@ -49,7 +48,7 @@ return [
         'src/class-rest-connector.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-secrets.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/class-server-sandbox.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'src/class-tokens.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-tokens.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-tracking.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypePossiblyInvalidDimOffset'],
         'src/sso/class-sso.php' => ['PhanTypeMismatchArgument'],
         'src/sso/class-user-admin.php' => ['PhanPluginUnreachableCode', 'PhanTypeMismatchArgument'],
@@ -61,7 +60,6 @@ return [
         'tests/php/REST_Authentication_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/Server_Sandbox_Test.php' => ['PhanTypeArraySuspiciousNullable'],
-        'tests/php/SignatureTest.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/TokensTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

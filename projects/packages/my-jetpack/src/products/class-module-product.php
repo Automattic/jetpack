@@ -11,6 +11,10 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Jetpack;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Module products
  *

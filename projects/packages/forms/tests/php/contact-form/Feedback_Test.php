@@ -866,7 +866,7 @@ class Feedback_Test extends BaseTestCase {
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' required='1'/]"
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='explicit' required='1'/]"
 		);
 
 		$response         = Feedback::from_submission( $_post_data, $form );
@@ -874,6 +874,70 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response   = Feedback::get( $feedback_post_id );
 		$this->assertFalse( $response->has_consent(), 'Has consent should match the form submission' );
 		$this->assertFalse( $saved_response->has_consent(), 'Has consent should match the saved form submission' );
+	}
+
+	public function test_implicit_consent_submits_yes() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission with implicit consent field
+		// Since implicit consent renders as hidden input with value="Yes",
+		// a real form submission would always post "Yes"
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => 'Yes', // This is what the hidden input would submit
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='implicit' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Implicit consent should be granted when "Yes" is posted
+		$this->assertTrue( $response->has_consent(), 'Implicit consent should be granted' );
+		$this->assertTrue( $saved_response->has_consent(), 'Saved implicit consent should be granted' );
+
+		// Check that the field value is 'Yes'
+		$this->assertEquals( 'Yes', $response->get_field_value_by_label( 'Consent' ), 'Implicit consent field value should be Yes' );
+		$this->assertEquals( 'Yes', $saved_response->get_field_value_by_label( 'Consent' ), 'Saved implicit consent field value should be Yes' );
+	}
+
+	public function test_explicit_consent_respects_posted_value() {
+		$form_id = Utility::get_form_id();
+
+		// Create a form submission with explicit consent field, posting empty value
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@example.com',
+				'consent' => '', // Empty value should result in no consent for explicit consent
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Consent' type='consent' consenttype='explicit' required='1'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// With explicit consent, should respect the posted value
+		$this->assertFalse( $response->has_consent(), 'Explicit consent should not be granted when empty value is posted' );
+		$this->assertFalse( $saved_response->has_consent(), 'Saved explicit consent should not be granted when empty value is posted' );
 	}
 
 	public function test_compute_entry_ID_legacy() {
@@ -1115,6 +1179,64 @@ class Feedback_Test extends BaseTestCase {
 			$response_all_values['entry_permalink'],
 			'Entry permalink should contain the page number'
 		);
+	}
+
+	public function test_get_all_values_with_image_select() {
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+
+		// Create a form submission with two selected image choices
+		$_post_data = Utility::get_post_request(
+			array(
+				'images' => array(
+					'{"perceived":"B","selected":"B","label":"Test choice","showLabels":true,"image":{"id":null,"src":"https://www.example.com/test-choice.png"}}',
+					'{"perceived":"C","selected":"C","label":"Another test choice","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/another-test-choice.png"}}',
+				),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
+		);
+
+		$expected_images = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'B',
+					'label'      => 'Test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://www.example.com/test-choice.png',
+					),
+				),
+				array(
+					'perceived'  => 'C',
+					'selected'   => 'C',
+					'label'      => 'Another test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => 12346,
+						'src' => 'https://www.example.com/another-test-choice.png',
+					),
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		Utility::destroy_post_context( $current_post );
+
+		$this->assertEquals( $expected_images, $response->get_all_values( 'submit' )['1_Images'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_images, $saved_response->get_all_values( 'submit' )['1_Images'], 'Saved response all values should match the expected values' );
 	}
 
 	public function test_get_all_values_with_file_upload() {
@@ -1538,6 +1660,50 @@ class Feedback_Test extends BaseTestCase {
 		$compiled_fields = $response->get_compiled_fields( 'default', $format );
 
 		$this->assertEquals( $expected, $compiled_fields, $message );
+	}
+
+	public function test_get_compiled_fields_hidden_field() {
+		// Test data
+		$test_email = 'john.smith@example.com';
+		$form_id    = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'hidden' => 'hidden_value',
+				'email'  => $test_email,
+			),
+			'g' . $form_id
+		);
+
+		// Test that get_compiled_fields returns the correct structure for a default form
+		$form     = new Contact_Form( array(), '[contact-field label="Hidden" type="hidden" default="hidden_value"][contact-field label="Email" type="email" ]' );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Test the specified format
+		$web     = $response->get_compiled_fields( 'web' );
+		$ajax    = $response->get_compiled_fields( 'ajax' );
+		$default = $response->get_compiled_fields( 'default' );
+
+		$empty = array(
+			'2_Email' => array(
+				'label' => 'Email',
+				'value' => 'john.smith@example.com',
+			),
+		);
+
+		$default_expected = array_merge(
+			array(
+				'1_Hidden' => array(
+					'label' => 'Hidden',
+					'value' => 'hidden_value',
+				),
+			),
+			$empty
+		);
+
+		$this->assertEquals( $empty, $web );
+		$this->assertEquals( $empty, $ajax );
+		$this->assertEquals( $default_expected, $default );
 	}
 
 	/**
@@ -2085,7 +2251,7 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
 
-	public function test_edgecase_feedback_v2() {
+	public function test_edgecase_feedback_v2_missing_field_value() {
 		// Post data with missing field value.
 		$post_id = wp_insert_post(
 			array(
@@ -2099,6 +2265,74 @@ class Feedback_Test extends BaseTestCase {
 
 		$response = Feedback::get( $post_id );
 		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
+	public function test_fix_malformed_json() {
+		$test_cases_data = array(
+			array(
+				'key' => 'va"lu"e',
+			),
+			array(
+				'key' => 'va"lu"e',
+			),
+			array(
+				'key'  => array( 'hello', 'there ' ),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key'  => array( 'hello', 'there ' ),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key'  => array(),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+				'key5' => '',
+				'key6' => 0,
+				'key7' => null,
+				'key8' => false,
+				'key9' => true,
+			),
+			array(
+				'key'  => array(),
+				'key1' => array( 'h "ell"o', "th'er'e " ),
+			),
+			array(
+				'key1' => array( 'simplevalue' => 'si "mplev " alue' ),
+				'key2' => array( 'simplevalue' => 'simpl" eval ": ue' ),
+			),
+			array(
+				'key1' => array(
+					1,
+					'asdasd',
+					" asd'sad",
+				),
+				'key2' => array(
+					'key2.1' => array( 'h "ell"o', "th'er'e " ),
+					'key2.2' => array( 'h "ell"o', "th'er'e ", "hell'o", 123, null, true, false, array( 'how " dy' ), array( 'key' => 'va"lu"e' ) ),
+				),
+			),
+		);
+		foreach ( $test_cases_data as $case ) {
+			$this->assertEquals( wp_json_encode( $case ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case ) ) ) );
+		}
+	}
+
+	public function test_edgecase_feedback_v2_missing_field_value_bad_json() {
+		// Post data with missing field value.
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => Feedback::POST_TYPE,
+				'post_title'     => 'Edgecase Feedback',
+				'post_content'   => '{"subject":"[WR8DAR] "Contact" us!","entry_title":"Contact us!","entry_page":1,"fields":[{"key":"1_key label","label":"key label","value":["Nov 25", "2pm "Save Our Stories" with Sandy Simmelink"],"type":"checkbox-multiple","meta":[],"form_field_id":"g124-keylabel"},{"key":"2_Awesome","label":"Awesome","type":"email","meta":[],"form_field_id":"g124-awesome"}]}',
+				'post_status'    => 'publish',
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+		$this->assertSame( '[WR8DAR] "Contact" us!', $response->get_subject() );
+		$this->assertSame( 'Nov 25, 2pm "Save Our Stories" with Sandy Simmelink', $response->get_field_value_by_label( 'key label' ) );
 	}
 
 	/**
@@ -2165,5 +2399,117 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertTrue( str_contains( get_post( $feedback_post_id )->post_content, '\\n' ) ); // Double escaped PHP_EOL
 		$this->assertEquals( $expected_content, $response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the form submission when new lines are present' );
 		$this->assertEquals( $expected_content, $saved_response->get_field_value_by_label( 'Message' ), 'Field value should match the original content for the saved response when new lines are present' );
+	}
+
+	public function test_escape_legacy_special_characters_handeling() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
+	}
+
+	public function test_escape_legacy_special_characters_handeling_strip_new_lines() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			),
+			null,
+			null,
+			null,
+			null,
+			null,
+			null,
+			'publish',
+			true // strip new lines.
+		);
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertStringNotContainsString( "\nJSON_DATA", get_post( $post_id )->post_content );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
+	}
+
+	public function test_bad_feedback_data_does_not_produce_warnings() {
+		$post_id  = wp_insert_post(
+			array(
+				'post_type'    => Feedback::POST_TYPE,
+				'post_title'   => 'Bad Feedback',
+				'post_content' => 'junk data',
+				'post_status'  => 'publish',
+			)
+		);
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
+	public function test_bad_feedback_data_does_not_produce_warnings_bad_data() {
+		$post_id  = wp_insert_post(
+			array(
+				'post_type'    => Feedback::POST_TYPE,
+				'post_title'   => 'Bad Feedback JSON_DATA Bad Feedback',
+				'post_content' => 'junk data',
+				'post_status'  => 'publish',
+			)
+		);
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+	}
+
+	public function test_escape_legacy_v2_special_characters_handeling() {
+		$post_id = Utility::create_legacy_feedback_v2(
+			array(
+				'Special こんにちは世界' => 'こんにちは世界',
+				'Message'         => '🙈',
+			)
+		);
+
+		$post_object = get_post( $post_id );
+		$this->assertTrue( str_contains( $post_object->post_content, 'ud83dude48' ) ); // ud83dude48 => 🙈 withouth the /
+
+		$response = Feedback::get( $post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'Special こんにちは世界' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'Message' ), 'Message field value should match' );
+	}
+
+	public function test_special_characters_handling() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'special' => 'こんにちは世界',
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Special' type='text' required='1'/]"
+			. "[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'Special' ), 'Special field value should match' );
+		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'Message' ), 'Message field value should match' );
+
+		$this->assertEquals( 'こんにちは世界', $saved_response->get_field_value_by_label( 'Special' ), 'Special field value should match saved value' );
+		$this->assertEquals( '🙈', $saved_response->get_field_value_by_label( 'Message' ), 'Message field value should match saved value' );
 	}
 }

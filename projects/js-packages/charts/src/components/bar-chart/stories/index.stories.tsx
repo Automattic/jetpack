@@ -1,60 +1,35 @@
-import { legendArgTypes } from '../../../stories/legend-config';
-import { medalCountsData, largeValuesData, trafficData } from '../../../stories/sample-data';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	medalCountsData,
+	largeValuesData,
+	trafficData,
+	themeArgTypes,
+} from '../../../stories';
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof BarChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [
-		Story => (
-			<div
-				style={ {
-					resize: 'both',
-					overflow: 'auto',
-					padding: '2rem',
-					width: '800px',
-					maxWidth: '1200px',
-					border: '1px dashed #ccc',
-					display: 'inline-block',
-				} }
-			>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 	argTypes: {
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 	},
-} satisfies Meta< typeof BarChart >;
+} satisfies Meta< StoryArgs >;
 
 export default meta;
 
-type Story = StoryObj< typeof BarChart >;
+type Story = StoryObj< StoryArgs >;
 
 // Default story with multiple series
 export const Default: Story = {
@@ -233,16 +208,22 @@ export const WithLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: () => (
+	render: args => (
 		<div style={ { width: '800px' } }>
 			<BarChart
-				data={ [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
 				maxWidth={ 1200 }
 				aspectRatio={ 0.5 }
 			>
-				<BarChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+				<BarChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
 			</BarChart>
 		</div>
 	),

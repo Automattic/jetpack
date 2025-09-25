@@ -118,7 +118,7 @@ class zeroBS__Metabox_Tags extends zeroBS__Metabox {
                                 */
                             if (is_array($tagSuggestions) && count($tagSuggestions) > 0){ ?>
                         <div id="zbs-tags-suggestions-wrap">
-                            <div class="ui horizontal divider zbs-tags-suggestions-title"><?php esc_html_e('Suggested Tags','zero-bs-crm').':'; ?></div>
+						<div class="ui horizontal divider zbs-tags-suggestions-title"><?php esc_html_e( 'Suggested Tags', 'zero-bs-crm' ); ?></div>
                             <div id="zbs-tags-suggestions">
                                 <?php 
 

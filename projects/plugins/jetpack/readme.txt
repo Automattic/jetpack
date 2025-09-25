@@ -326,21 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.0-a.7 - 2025-08-25
-#### Enhancements
-- Add LaTeX Block to render mathematical formula.
-- Disallow inserting Simple Payments block via inserter.
-- Forms: Add MailPoet integration.
-- Forms: Preserve HTML IDs when processing feedback.
-- Forms: Save feedback entries in a new format.
-- Forms: Show trash action alongside view action in inbox.
-
-#### Bug fixes
-- Carousel: Improve image size processing to return higher quality images in additional situations.
-- Image CDN: Prevent errors when attempting to filter null.
-- Search: Ensure images are loaded efficiently when on https sites.
-- SEO settings: Update the default Open Graph image tag to match the one in use on the site.
-
+### 15.1-a.7 - 2025-09-22
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

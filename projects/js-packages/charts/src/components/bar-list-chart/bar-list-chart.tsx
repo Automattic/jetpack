@@ -3,9 +3,9 @@ import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
 import { useContext, useMemo } from 'react';
-import { GlobalChartsContext, GlobalChartsProvider } from '../../providers/chart-context';
+import { GlobalChartsContext, GlobalChartsProvider } from '../../providers';
 import { BarChart } from '../bar-chart';
-import { withResponsive } from '../shared/with-responsive';
+import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
 import type { ScaleOptions } from '../../types';
 import type { BarChartProps } from '../bar-chart/bar-chart';
@@ -13,7 +13,7 @@ import type { AxisRendererProps, AxisScale } from '@visx/axis';
 import type { AnyD3Scale } from '@visx/scale';
 import type { ComponentType, FC } from 'react';
 
-interface BarListChartProps
+export interface BarListChartProps
 	extends Exclude< BarChartProps, 'orientation' | 'size' | 'gridVisibility' > {
 	options?: {
 		/**
@@ -55,7 +55,7 @@ interface BarListChartProps
 	};
 }
 
-interface RenderLabelProps {
+export interface RenderLabelProps {
 	textProps: TextProps;
 	x: number;
 	y: number;
@@ -63,7 +63,7 @@ interface RenderLabelProps {
 	formatter: ( value: string ) => string;
 }
 
-interface RenderValueProps {
+export interface RenderValueProps {
 	textProps: TextProps;
 	x: number;
 	y: number;

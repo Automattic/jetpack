@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
@@ -559,7 +563,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		/*
 		 * Get parameters to update the module.
-		 * We can not simply use $request->get_params() because when we registered this route,
+		 * We cannot simply use $request->get_params() because when we registered this route,
 		 * we are adding the entire output of Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list()
 		 * to the current request object's params. We are interested in body of the actual request.
 		 * This may be JSON:
@@ -752,7 +756,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					// If we got one of Protect keys, consider it done.
-					if ( preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
+					if ( is_string( $result ) && preg_match( '/[a-z0-9]{40,}/i', $result ) ) {
 						$response[ $option ] = $result;
 						$updated             = true;
 					}
@@ -1629,7 +1633,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			unset( $copy_services[ $last ] );
 			$message = esc_html(
 				sprintf(
-					/* translators: %1$s is a comma separated list of services, and %2$s is a single service name like Google, Bing, Pinterest, etc. */
+					/* translators: %1$s is a comma-separated list of services, and %2$s is a single service name like Google, Bing, Pinterest, etc. */
 					__( 'Your site is verified with %1$s and %2$s.', 'jetpack' ),
 					implode( ', ', $copy_services ),
 					$last_service

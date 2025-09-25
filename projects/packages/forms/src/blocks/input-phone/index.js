@@ -7,8 +7,8 @@ import save from './save';
 const name = 'phone-input';
 const settings = {
 	apiVersion: 3,
-	title: __( 'International Phone Input', 'jetpack-forms' ),
-	description: __( 'A compound input for international phone numbers.', 'jetpack-forms' ),
+	title: __( 'Phone input', 'jetpack-forms' ),
+	description: __( 'Phone number input.', 'jetpack-forms' ),
 	category: 'contact-form',
 	icon: {
 		src: renderMaterialIcon(
@@ -22,6 +22,7 @@ const settings = {
 		'jetpack/field-prefix-default',
 		'jetpack/field-prefix-onChange',
 		'jetpack/field-phone-country-toggle',
+		'jetpack/field-phone-search-placeholder',
 	],
 	supports: {
 		reusable: false,

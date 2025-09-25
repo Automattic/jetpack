@@ -9,7 +9,6 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanAccessMethodInternal : 1 occurrence
     // PhanTypeMismatchReturn : 1 occurrence
     // PhanUndeclaredMethodInCallable : 1 occurrence
@@ -18,8 +17,6 @@ return [
     'file_suppressions' => [
         'app/Monitor.php' => ['PhanUndeclaredMethodInCallable'],
         'app/Options/Monitor_Status.php' => ['PhanTypeMismatchReturn'],
-        'app/Options/Observer_Settings.php' => ['PhanTypeMismatchArgumentInternal'],
-        'app/REST_API/Endpoints/Send_Request.php' => ['PhanTypeMismatchArgumentInternal'],
         'functions.php' => ['PhanAccessMethodInternal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

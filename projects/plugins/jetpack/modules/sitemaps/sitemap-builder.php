@@ -164,7 +164,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
+						'Jetpack cannot load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
 						'jetpack'
 					),
 					true

@@ -231,7 +231,7 @@ function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = fal
 			'postcode'    => array( 'str', 'postcode' ),
 
 		);
-		// } Tags dealt with seperately.
+		// } Tags dealt with separately.
 
 		foreach ( $possibleFilters as $key => $filter ) {
 

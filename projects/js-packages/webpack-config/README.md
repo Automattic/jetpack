@@ -25,6 +25,9 @@ module.exports = {
 	resolve: {
 		...jetpackWebpackConfig.resolve,
 	},
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 	node: false,
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins(),
@@ -131,6 +134,12 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 
 * For `extensions`, we add `.jsx`, `.ts`, and `.tsx` to Webpack's defaults.
 * If `npm_config_jetpack_webpack_config_resolve_conditions` is set in the environment (e.g. by setting `jetpack-webpack-config-resolve-conditions` in `.npmrc`), [`conditionNames`](https://webpack.js.org/configuration/resolve/#resolveconditionnames) will be set to add the values (comma-separated) to Webpack's defaults.
+
+#### `watchOptions`
+
+`watchOptions` is an object suitable for spreading some defaults into Webpack's `watchOptions` setting. It sets the following:
+
+* `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
 
 #### Plugins
 

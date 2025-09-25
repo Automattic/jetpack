@@ -3,8 +3,9 @@
  * Provides reusable, high-quality datasets across all chart components
  */
 
+import type { FunnelStep } from '../../components/conversion-funnel-chart';
 import type { LeaderboardEntry } from '../../components/leaderboard-chart';
-import type { SeriesData, DataPointPercentage, FunnelStep } from '../../types';
+import type { DataPointPercentage, SeriesData } from '../../types';
 
 /**
  * Olympic medals data for top countries (1896-2020)
@@ -208,6 +209,82 @@ export const temperatureData: SeriesData[] = [
 			{ date: new Date( '2024-10-01' ), value: 18 },
 			{ date: new Date( '2024-11-01' ), value: 12 },
 			{ date: new Date( '2024-12-01' ), value: 9 },
+		],
+		options: {},
+	},
+	{
+		group: 'sydney',
+		label: 'Sydney',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 24 },
+			{ date: new Date( '2024-02-01' ), value: 24 },
+			{ date: new Date( '2024-03-01' ), value: 22 },
+			{ date: new Date( '2024-04-01' ), value: 19 },
+			{ date: new Date( '2024-05-01' ), value: 16 },
+			{ date: new Date( '2024-06-01' ), value: 13 },
+			{ date: new Date( '2024-07-01' ), value: 12 },
+			{ date: new Date( '2024-08-01' ), value: 14 },
+			{ date: new Date( '2024-09-01' ), value: 17 },
+			{ date: new Date( '2024-10-01' ), value: 20 },
+			{ date: new Date( '2024-11-01' ), value: 22 },
+			{ date: new Date( '2024-12-01' ), value: 24 },
+		],
+		options: {},
+	},
+	{
+		group: 'moscow',
+		label: 'Moscow',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: -8 },
+			{ date: new Date( '2024-02-01' ), value: -6 },
+			{ date: new Date( '2024-03-01' ), value: 0 },
+			{ date: new Date( '2024-04-01' ), value: 8 },
+			{ date: new Date( '2024-05-01' ), value: 16 },
+			{ date: new Date( '2024-06-01' ), value: 20 },
+			{ date: new Date( '2024-07-01' ), value: 23 },
+			{ date: new Date( '2024-08-01' ), value: 21 },
+			{ date: new Date( '2024-09-01' ), value: 15 },
+			{ date: new Date( '2024-10-01' ), value: 8 },
+			{ date: new Date( '2024-11-01' ), value: 2 },
+			{ date: new Date( '2024-12-01' ), value: -4 },
+		],
+		options: {},
+	},
+	{
+		group: 'cairo',
+		label: 'Cairo',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 15 },
+			{ date: new Date( '2024-02-01' ), value: 17 },
+			{ date: new Date( '2024-03-01' ), value: 21 },
+			{ date: new Date( '2024-04-01' ), value: 26 },
+			{ date: new Date( '2024-05-01' ), value: 30 },
+			{ date: new Date( '2024-06-01' ), value: 33 },
+			{ date: new Date( '2024-07-01' ), value: 35 },
+			{ date: new Date( '2024-08-01' ), value: 34 },
+			{ date: new Date( '2024-09-01' ), value: 31 },
+			{ date: new Date( '2024-10-01' ), value: 27 },
+			{ date: new Date( '2024-11-01' ), value: 22 },
+			{ date: new Date( '2024-12-01' ), value: 17 },
+		],
+		options: {},
+	},
+	{
+		group: 'vancouver',
+		label: 'Vancouver',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 4 },
+			{ date: new Date( '2024-02-01' ), value: 6 },
+			{ date: new Date( '2024-03-01' ), value: 8 },
+			{ date: new Date( '2024-04-01' ), value: 11 },
+			{ date: new Date( '2024-05-01' ), value: 15 },
+			{ date: new Date( '2024-06-01' ), value: 18 },
+			{ date: new Date( '2024-07-01' ), value: 21 },
+			{ date: new Date( '2024-08-01' ), value: 22 },
+			{ date: new Date( '2024-09-01' ), value: 18 },
+			{ date: new Date( '2024-10-01' ), value: 13 },
+			{ date: new Date( '2024-11-01' ), value: 8 },
+			{ date: new Date( '2024-12-01' ), value: 5 },
 		],
 		options: {},
 	},

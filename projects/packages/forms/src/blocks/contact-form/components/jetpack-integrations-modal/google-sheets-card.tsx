@@ -67,8 +67,8 @@ const GoogleSheetsCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Google Sheets', 'jetpack-forms' ) }
-			description={ __( 'Export form responses to Google Sheets.', 'jetpack-forms' ) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <GoogleSheetsIcon className="google-sheets-icon" /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -114,7 +114,7 @@ const GoogleSheetsCard = ( {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ __( 'View Form Responses', 'jetpack-forms' ) }
+							{ __( 'View form responses', 'jetpack-forms' ) }
 						</Button>
 						<span>|</span>
 						<Button

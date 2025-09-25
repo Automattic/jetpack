@@ -27,7 +27,6 @@ export default {
 	},
 	jetpackCRM: {
 		type: 'boolean',
-		default: true,
 	},
 	formTitle: {
 		type: 'string',
@@ -41,15 +40,21 @@ export default {
 		type: 'object',
 		default: {
 			organizationId: '',
-			sendToSalesforce: false,
 		},
 	},
 	mailpoet: {
 		type: 'object',
 		default: {
-			enabledForForm: false,
 			listId: null,
 			listName: null,
 		},
+	},
+	saveResponses: {
+		type: 'boolean',
+		default: true,
+	},
+	emailNotifications: {
+		type: 'boolean',
+		default: true,
 	},
 };

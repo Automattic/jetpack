@@ -77,6 +77,11 @@ class PayPal_Payment_Buttons {
 				'script_loader_tag',
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					if ( 'paypal-payment-buttons-block-head' === $handle ) {
+						// Add namespace to avoid conflicts with other PayPal SDK versions
+						if ( ! str_contains( $tag, 'data-namespace' ) ) {
+							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
+						}
+						// Add partner attribution ID
 						if ( ! str_contains( $tag, 'data-paypal-partner-attribution-id' ) ) {
 							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
 						}
@@ -92,7 +97,7 @@ class PayPal_Payment_Buttons {
 			$button_html  = '<div id="' . $container_id . '"></div>';
 
 			$inline_script = sprintf(
-				'paypal.HostedButtons({
+				'(window.paypal_payment_buttons || window.paypal).HostedButtons({
 					hostedButtonId: "%s",
 				}).render("#%s");',
 				esc_js( $hosted_button_id ),
@@ -114,11 +119,13 @@ class PayPal_Payment_Buttons {
 
 			$button_html = sprintf(
 				'<style>.pp-%1$s{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+<div>
 <form action="%2$s" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
   <input class="pp-%1$s" type="submit" value="%3$s" />
   <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
   <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
-</form>',
+</form>
+</div>',
 				$payment_id,
 				$action_url,
 				$button_text_escaped

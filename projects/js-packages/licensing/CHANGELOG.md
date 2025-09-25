@@ -5,13 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.8 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.7 - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## 1.2.6 - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.5 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 1.2.4 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
 ## 1.2.3 - 2025-08-25
 ### Changed
 - Update dependencies. [#44934]
 
 ## 1.2.2 - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## 1.2.1 - 2025-08-14
 ### Changed

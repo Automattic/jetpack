@@ -19,7 +19,7 @@
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.28.0"
+		"@wordpress/api-fetch": "7.31.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -28,7 +28,7 @@
 		"@babel/plugin-syntax-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
 		"@babel/runtime": "7.27.6",
-		"@playwright/test": "1.51.1",
+		"@playwright/test": "1.55.0",
 		"@storybook/addon-a11y": "9.0.15",
 		"@storybook/addon-docs": "9.0.15",
 		"@storybook/addon-webpack5-compiler-babel": "^3.0.3",
@@ -37,13 +37,13 @@
 		"@storybook/test-runner": "0.23.0",
 		"@testing-library/dom": "10.4.0",
 		"@types/react": "18.3.23",
-		"@wordpress/base-styles": "6.4.0",
-		"@wordpress/block-editor": "15.1.0",
-		"@wordpress/block-library": "9.28.0",
-		"@wordpress/components": "30.1.0",
-		"@wordpress/element": "6.28.0",
-		"@wordpress/format-library": "5.28.0",
-		"@wordpress/postcss-plugins-preset": "5.28.0",
+		"@wordpress/base-styles": "6.7.0",
+		"@wordpress/block-editor": "15.4.0",
+		"@wordpress/block-library": "9.31.0",
+		"@wordpress/components": "30.4.0",
+		"@wordpress/element": "6.31.0",
+		"@wordpress/format-library": "5.31.0",
+		"@wordpress/postcss-plugins-preset": "5.31.0",
 		"allure-playwright": "2.9.2",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -51,8 +51,8 @@
 		"esbuild-loader": "4.3.0",
 		"jest": "30.0.4",
 		"mime-types": "2.1.35",
-		"postcss": "8.4.47",
-		"postcss-loader": "8.1.1",
+		"postcss": "8.5.6",
+		"postcss-loader": "8.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"remark-gfm": "4.0.0",
@@ -62,8 +62,8 @@
 		"storybook": "9.0.15",
 		"style-loader": "2.0.0",
 		"ts-dedent": "2.2.0",
-		"typescript": "5.8.3",
-		"webpack": "5.94.0",
+		"typescript": "5.9.2",
+		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	}
 }

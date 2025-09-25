@@ -49,7 +49,7 @@ export default function Feedback( {
 
 	const { request, requestingState } = useAiSuggestions( {
 		askQuestionOptions: {
-			postId,
+			postId: Number( postId ),
 		},
 		onSuggestion: handleSuggestion,
 		onDone: handleDone,

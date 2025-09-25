@@ -1,4 +1,7 @@
-import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
+import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
+import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
@@ -10,6 +13,16 @@ type ValueOf< T > = T[ keyof T ];
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
 export type OrientationType = ValueOf< typeof Orientation >;
+
+export type AnnotationStyles = {
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
+	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
+};
 
 export type DataPoint = {
 	label: string;
@@ -32,6 +45,48 @@ export type DataPointDate = {
 	dateString?: string;
 	value: number | null;
 	label?: string;
+};
+
+export type LeaderboardEntry = {
+	/**
+	 * Unique internal key (e.g., 'key-direct')
+	 */
+	id: string;
+
+	/**
+	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
+	 */
+	label: string | JSX.Element;
+
+	/**
+	 * Value of the entry
+	 */
+	currentValue: number;
+
+	/**
+	 * Value of the entry in the previous period
+	 */
+	previousValue: number;
+
+	/**
+	 * Width of current bar, as % of the current value
+	 */
+	currentShare: number;
+
+	/**
+	 * Width of previous bar, as % of the current value
+	 */
+	previousShare: number;
+
+	/**
+	 * Delta of the entry
+	 */
+	delta: number;
+
+	/**
+	 * Optional color for the entry's image/icon
+	 */
+	imageColor?: string;
 };
 
 export type SeriesDataOptions = {
@@ -82,13 +137,15 @@ export type DataPointPercentage = {
 };
 
 /**
- * Theme configuration for chart components
+ * Base theme configuration for chart components with optional properties
  */
 export type ChartTheme = {
 	/** Background color for chart components */
 	backgroundColor: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
+	/** Text color for labels */
+	labelTextColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
@@ -106,7 +163,7 @@ export type ChartTheme = {
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
-	legendShapeStyles?: ( CSSProperties & LineStyles )[];
+	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */
@@ -142,6 +199,18 @@ export type ChartTheme = {
 	};
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
+	};
+};
+
+/**
+ * Theme configuration with all properties guaranteed to be defined.
+ * Useful for merged themes where defaults are provided for all optional properties.
+ */
+export type CompleteChartTheme = Required< ChartTheme > & {
+	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
+	conversionFunnelChart: Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >;
+	lineChart: {
+		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
 };
 
@@ -188,11 +257,11 @@ export type ScaleOptions = {
 /**
  * Base properties shared across all chart components
  */
-export type BaseChartProps< T = DataPoint | DataPointDate > = {
+export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
 	/**
 	 * Array of data points to display in the chart
 	 */
-	data: T extends DataPoint | DataPointDate ? T[] : T;
+	data: T extends DataPoint | DataPointDate | LeaderboardEntry ? T[] : T;
 	/**
 	 * Optional unique identifier for the chart (auto-generated if not provided)
 	 */
@@ -263,6 +332,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 * Legend alignment within its position
 	 */
 	legendAlignment?: 'start' | 'center' | 'end';
+	/**
+	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
+	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
+	 */
+	legendMaxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds legendMaxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	legendTextOverflow?: 'ellipsis' | 'wrap';
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
@@ -339,5 +419,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-// ConversionFunnelChart types
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

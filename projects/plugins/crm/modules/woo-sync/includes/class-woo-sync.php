@@ -240,10 +240,10 @@ class Woo_Sync {
 	/**
 	 * Retrieve default mapped order status for a given object type
 	 *
-	 * @param int $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
-	 * @param str $order_status Woo order status.
+	 * @param int    $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
+	 * @param string $order_status Woo order status.
 	 *
-	 * @return str|bool Status string to use for object
+	 * @return string|bool Status string to use for object
 	 */
 	public function get_default_status_for_order_obj( $obj_type_id, $order_status ) {
 		global $zbs;

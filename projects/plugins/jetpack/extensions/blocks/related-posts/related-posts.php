@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use WP_Block;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable

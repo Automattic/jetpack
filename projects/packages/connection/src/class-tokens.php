@@ -549,7 +549,7 @@ class Tokens {
 		if ( function_exists( 'wp_generate_password' ) ) {
 			$nonce = wp_generate_password( 10, false );
 		} else {
-			$nonce = substr( sha1( wp_rand( 0, 1000000 ) ), 0, 10 );
+			$nonce = substr( sha1( (string) wp_rand( 0, 1000000 ) ), 0, 10 );
 		}
 
 		$normalized_request_string = implode(

@@ -1,5 +1,5 @@
 import deepmerge from 'deepmerge';
-import type { ChartTheme } from '../types';
+import type { ChartTheme, CompleteChartTheme } from '../types';
 
 /**
  * Merges chart themes with proper precedence.
@@ -9,6 +9,14 @@ import type { ChartTheme } from '../types';
  * @param overrideTheme - Theme to override base with (takes precedence)
  * @return Merged theme with overrideTheme values taking precedence
  */
+export function mergeThemes(
+	baseTheme: CompleteChartTheme,
+	overrideTheme: Partial< ChartTheme >
+): CompleteChartTheme;
+export function mergeThemes(
+	baseTheme: ChartTheme,
+	overrideTheme: Partial< ChartTheme >
+): ChartTheme;
 export function mergeThemes(
 	baseTheme: ChartTheme,
 	overrideTheme: Partial< ChartTheme >

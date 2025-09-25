@@ -1,170 +1,22 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
 import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
 	ecommerceFunnelData,
 	lowConversionFunnelData,
 	highConversionFunnelData,
-} from '../../../stories/sample-data';
-import { ConversionFunnelChart } from '../conversion-funnel-chart';
+	themeArgTypes,
+} from '../../../stories';
+import ConversionFunnelChart from '../conversion-funnel-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof ConversionFunnelChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Conversion Funnel Chart',
 	component: ConversionFunnelChart,
 	parameters: {
 		layout: 'centered',
-		docs: {
-			description: {
-				component: `
-A focused conversion funnel chart component for visualizing step-by-step conversion rates with a prominent main metric display and change indicators.
-
-## Features
-
-- 📊 Clear funnel visualization with proportional bar heights and light backgrounds
-- 📈 Main conversion rate highlighting with positive/negative change indicators
-- 🎨 Dynamic color theming - bar backgrounds automatically adapt to primary color
-- 📱 Mobile-friendly responsive design with flexible layouts
-- 🎯 TypeScript support with full type definitions
-- ♿ Accessible design with semantic markup
-- 🧪 Comprehensive test coverage
-
-## Usage
-
-### Basic Usage
-
-\`\`\`typescript
-import { ConversionFunnelChart } from '@automattic/charts';
-
-const funnelData = [
-  { id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
-  { id: 'cart', label: 'Cart', rate: 71.1, count: 7110 },
-  { id: 'checkout', label: 'Checkout', rate: 52.5, count: 5250 },
-  { id: 'purchase', label: 'Purchase', rate: 10.3, count: 1030 },
-];
-
-function MyComponent() {
-  return (
-    <ConversionFunnelChart 
-      mainRate={10.3}
-      changeIndicator="+2%"
-      steps={funnelData} 
-    />
-  );
-}
-\`\`\`
-
-### With Header and Metrics
-
-\`\`\`typescript
-import { ConversionFunnelChart } from '@automattic/charts';
-
-function FullDashboard() {
-  return (
-    <div>
-      <header>
-        <h2>Store conversion rate</h2>
-        <div className="metrics">
-          <span className="main-rate">10.3%</span>
-          <span className="change positive">+2%</span>
-        </div>
-      </header>
-      <ConversionFunnelChart 
-        mainRate={10.3}
-        changeIndicator="+2%"
-        steps={funnelData} 
-      />
-    </div>
-  );
-}
-\`\`\`
-
-### E-commerce Conversion Funnel
-
-\`\`\`typescript
-const ecommerceFunnel = [
-  { id: 'sessions', label: 'Sessions', rate: 100 },
-  { id: 'product_views', label: 'Product Views', rate: 45.2 },
-  { id: 'cart', label: 'Add to Cart', rate: 28.8 },
-  { id: 'checkout', label: 'Checkout', rate: 18.1 },
-  { id: 'purchase', label: 'Purchase', rate: 12.3 },
-];
-
-<ConversionFunnelChart 
-  mainRate={12.3}
-  changeIndicator="+3.2%"
-  steps={ecommerceFunnel} 
-/>
-\`\`\`
-
-### SaaS Signup Funnel
-
-\`\`\`typescript
-const saasFunnel = [
-  { id: 'visitors', label: 'Visitors', rate: 100 },
-  { id: 'trial', label: 'Trial Signup', rate: 12.5 },
-  { id: 'activation', label: 'Activated', rate: 8.2 },
-  { id: 'subscription', label: 'Paid Plan', rate: 3.1 },
-];
-
-<ConversionFunnelChart 
-  mainRate={3.1}
-  changeIndicator="-0.4%"
-  steps={saasFunnel} 
-/>
-\`\`\`
-
-## FunnelStep Interface
-
-\`\`\`typescript
-interface FunnelStep {
-  id: string;           // Unique identifier
-  label: string;        // Display name for the step
-  rate: number;         // Conversion rate as percentage (0-100)
-  count?: number;       // Optional absolute count
-}
-\`\`\`
-
-## Styling
-
-The component uses CSS Modules and CSS custom properties for theming:
-
-\`\`\`css
-.myCustomChart {
-  --primary-color: #3858e9;
-  --background-color: #f3f4f6;
-  --light-background-color: rgba(56, 88, 233, 0.08);
-  --change-color: #008a20;
-}
-\`\`\`
-
-The component automatically creates a light background version of the primary color for the bar containers using 8% opacity.
-
-## Accessibility
-
-The component includes:
-- Semantic HTML structure with proper headings
-- Color contrast ratios meeting WCAG guidelines
-- Screen reader compatible text and labels
-- Keyboard navigation support
-
-## Examples
-
-### Marketing Funnel Analysis
-
-Track user journey from awareness to conversion:
-- Sessions → Lead Capture → Qualification → Sales
-
-### Product Onboarding
-
-Monitor user activation through key steps:
-- Signup → Profile Setup → First Action → Active User
-
-### Content Engagement
-
-Measure content consumption funnel:
-- Page Views → Scroll Depth → CTA Clicks → Conversions
-				`,
-			},
-		},
 	},
 	tags: [ 'autodocs' ],
 	argTypes: {
@@ -210,18 +62,14 @@ Measure content consumption funnel:
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		...sharedChartArgTypes,
+		...themeArgTypes,
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '600px', padding: '20px' } }>
-				<Story />
-			</div>
-		),
-	],
+	decorators: [ chartDecorator ],
 };
 
 export default meta;
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
@@ -275,39 +123,139 @@ export const EmptyData: Story = {
 	},
 };
 
-// Themed stories
-export const JetpackTheme: Story = {
+export const CustomRenderProps: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ jetpackTheme }>
-				<div style={ { width: '600px', padding: '20px' } }>
-					<Story />
+		renderMainMetric: ( { mainRate, changeIndicator, className } ) => (
+			<div
+				className={ className }
+				style={ {
+					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+					borderRadius: '12px',
+					padding: '24px',
+					marginBottom: '32px',
+					color: 'white',
+					textAlign: 'center',
+				} }
+			>
+				<h3
+					style={ {
+						margin: '0 0 12px 0',
+						fontSize: '14px',
+						fontWeight: '500',
+						opacity: 0.9,
+						textTransform: 'uppercase',
+						letterSpacing: '0.5px',
+					} }
+				>
+					Overall Conversion Rate
+				</h3>
+				<div
+					style={ { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' } }
+				>
+					<span
+						style={ {
+							fontSize: '42px',
+							fontWeight: 'bold',
+							fontFamily: 'Inter, sans-serif',
+							lineHeight: 1,
+						} }
+					>
+						{ mainRate.toFixed( 1 ) }%
+					</span>
+					{ changeIndicator && (
+						<span
+							style={ {
+								fontSize: '16px',
+								fontWeight: '600',
+								fontFamily: 'Inter, sans-serif',
+								backgroundColor: changeIndicator.startsWith( '+' )
+									? 'rgba(16, 185, 129, 0.2)'
+									: 'rgba(239, 68, 68, 0.2)',
+								color: changeIndicator.startsWith( '+' ) ? '#10b981' : '#ef4444',
+								padding: '6px 12px',
+								borderRadius: '8px',
+								border: `1px solid ${ changeIndicator.startsWith( '+' ) ? '#10b981' : '#ef4444' }`,
+							} }
+						>
+							{ changeIndicator }
+						</span>
+					) }
 				</div>
-			</ThemeProvider>
+				<p
+					style={ {
+						margin: '12px 0 0 0',
+						fontSize: '12px',
+						opacity: 0.8,
+						fontFamily: 'Inter, sans-serif',
+					} }
+				>
+					Last 30 days vs previous period
+				</p>
+			</div>
 		),
-	],
+		renderTooltip: ( { step } ) => (
+			<div
+				style={ {
+					background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+					borderRadius: '12px',
+					padding: '16px 20px',
+					color: 'white',
+					fontFamily: 'Inter, sans-serif',
+					boxShadow: '0 8px 32px rgba(118, 75, 162, 0.3)',
+					border: 'none',
+					minWidth: '200px',
+				} }
+			>
+				<div
+					style={ {
+						fontSize: '11px',
+						fontWeight: '500',
+						opacity: 0.8,
+						textTransform: 'uppercase',
+						letterSpacing: '0.5px',
+						margin: '0 0 8px 0',
+					} }
+				>
+					{ step.label }
+				</div>
+				<div
+					style={ {
+						fontSize: '18px',
+						fontWeight: 'bold',
+						margin: '0',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+					} }
+				>
+					{ step.rate.toFixed( 1 ) }%
+					{ step.count && (
+						<span
+							style={ {
+								fontSize: '14px',
+								fontWeight: '400',
+								opacity: 0.9,
+							} }
+						>
+							• { step.count.toLocaleString() } items
+						</span>
+					) }
+				</div>
+			</div>
+		),
+	},
+	decorators: [ Story => <Story /> ],
 };
 
-export const WooCommerceTheme: Story = {
+export const WithoutTooltips: Story = {
 	args: {
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,
-		loading: false,
+		renderMainMetric: () => null,
+		renderTooltip: () => null,
 	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<div style={ { width: '600px', padding: '20px' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
 };

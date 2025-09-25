@@ -508,7 +508,7 @@ class Hooks {
 	}
 
 	/**
-	 * Builds and sends an email about succesfull plugin autoupdate.
+	 * Builds and sends an email about successful plugin autoupdate.
 	 *
 	 * @param array    $plugins - List of plugins that were updated.
 	 * @param string[] $log     - Upgrade message from core's plugin upgrader.

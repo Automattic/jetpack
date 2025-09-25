@@ -272,7 +272,7 @@ export const deleteAction = {
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		// If there is at least one succesful update, invalidate the cache for filters.
+		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
 		}

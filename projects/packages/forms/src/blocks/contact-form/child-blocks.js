@@ -10,11 +10,11 @@ import JetpackConsentField from '../field-consent/';
 import JetpackDateField from '../field-date';
 import JetpackEmailField from '../field-email';
 import JetpackFieldFile from '../field-file';
+import JetpackHiddenField from '../field-hidden';
 import JetpackImageSelectField from '../field-image-select';
 import JetpackMultipleChoiceField from '../field-multiple-choice';
 import JetpackNameField from '../field-name';
 import JetpackNumberField from '../field-number';
-import JetpackPhoneField from '../field-phone';
 import JetpackRatingField from '../field-rating';
 import JetpackDropdownField from '../field-select';
 import JetpackSingleChoiceField from '../field-single-choice';
@@ -49,25 +49,28 @@ export const childBlocks = [
 	JetpackConsentField,
 	JetpackDateField,
 	JetpackDropdownField,
+	JetpackHiddenField,
 	JetpackEmailField,
 	JetpackMultipleChoiceField,
 	JetpackNameField,
 	JetpackNumberField,
+	JetpackPhoneInput,
 	JetpackSingleChoiceField,
 	JetpackTextField,
 	JetpackUrlField,
 	JetpackTelephoneField,
 	JetpackTextareaField,
 	JetpackFieldFile,
+	JetpackRatingField,
+	JetpackRatingInput,
+	JetpackFieldSlider,
+	JetpackSliderInput,
 	...( getJetpackBlocksVariation() === 'beta'
 		? [
-				JetpackRatingField,
-				JetpackRatingInput,
-				JetpackFieldSlider,
-				JetpackSliderInput,
 				JetpackTimeField,
-				JetpackPhoneField,
-				JetpackPhoneInput,
+				JetpackImageSelectField,
+				JetpackImageOptionsFieldset,
+				JetpackImageOptionInput,
 		  ]
 		: [] ),
 
@@ -84,8 +87,5 @@ export const childBlocks = [
 				JetpackStepNavigation,
 				JetpackProgressIndicator,
 		  ]
-		: [] ),
-	...( hasFeatureFlag( 'image-select-field' )
-		? [ JetpackImageSelectField, JetpackImageOptionsFieldset, JetpackImageOptionInput ]
 		: [] ),
 ];

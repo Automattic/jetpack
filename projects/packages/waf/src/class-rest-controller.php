@@ -79,7 +79,7 @@ class REST_Controller {
 		return rest_ensure_response(
 			array(
 				'success' => true,
-				'message' => __( 'Rules updated succesfully', 'jetpack-waf' ),
+				'message' => __( 'Rules updated successfully', 'jetpack-waf' ),
 			)
 		);
 	}

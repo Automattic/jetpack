@@ -35,7 +35,7 @@ export function Retry( { shareItem }: RetryProps ) {
 
 	const connectionStillExists = connections.some( connectionMatchesShareItem( shareItem ) );
 
-	const { doPublicize } = useSharePost( postId );
+	const { doPublicize } = useSharePost( Number( postId ) );
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 
 	const [ isRetrying, setIsRetrying ] = useState( false );

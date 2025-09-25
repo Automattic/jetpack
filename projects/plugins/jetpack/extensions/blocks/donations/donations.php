@@ -14,6 +14,10 @@ use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable

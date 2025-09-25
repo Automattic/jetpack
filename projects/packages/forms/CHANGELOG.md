@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.5.1] - 2025-09-22
+### Fixed
+- Fix lints. [#45242]
+Fix image choice widths. [#45257]
+
+## [6.5.0] - 2025-09-19
+### Added
+- Add extra layer of cache busting for interactivity API files (view.js) with hash suffix. [#45138]
+- Add filter to enable integrations. [#45201]
+- Add hidden field. [#45104]
+- Allow custom search placeholder for phone field. [#45197]
+
+### Changed
+- Add scheduled deletion for submissions that skip the submission's inbox and are stored as temporary feedback. [#45178]
+- Fix phone field whitespace lint. [#45194]
+- Return integration titles from endpoint. [#45151]
+- Track on .com how often forms get submitted without a JWT token. [#45221]
+- Update Image Select Field to beta. [#45168]
+- Use new rating block on Feedback variation and pattern. [#45215]
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+### Fixed
+- Add cache busting on new version for interactivity API script file on top level context. [#45167]
+- Address some wee issues on field error stylings. [#45187]
+- Fix outline and animated styles for Image Select field. [#45189]
+- Fix slider min/max editing. [#45219]
+- Fix slider value position. [#45218]
+- Improve button alignment when field width allows wrapping the submit button. [#45188]
+- Remove input element height CSS rule after fixing form-styles hook attribute. [#45202]
+- Restrict button flex setup after last changes to improve overall layout. [#45233]
+
+## [6.4.0] - 2025-09-15
+### Added
+- Add new block toggle to skip saving form submisions on WP Admin. [#45072]
+- Add searchable country selector dropdown (combobox). [#45120]
+
+### Changed
+- Add integrations feature flag. [#45037]
+- Add integrations permissions check. [#45063]
+- Add preloaded config endpoint. [#45091]
+- Fix URL validation consistency between frontend and backend to prevent malformed URLs from passing validation. [#45093]
+- Improve supported integrations filter. [#45123]
+- Image Select field: Show option label on selected options. [#45122]
+- Image Select field: Update data processing and UI. [#45080] [#45142]
+- Update package dependencies. [#45127] [#45128]
+
+### Fixed
+- Address caching issue by adding a manual cache-busting suffix. [#45137]
+- Ensure slashes are not errantly stripped. [#45153]
+- Fix a warning and bad handling when JSON_DATA is not preceded by a new line. [#45110]
+- Fix MailPoet string warning. [#45114]
+
+## [6.3.0] - 2025-09-08
+### Added
+- Add hidden input block. [#44079]
+- Make rating and slider fields available to self-hosted users. [#45094]
+- Store the feedback in the new format. [#45047]
+- Track form submission failures. [#45090]
+
+### Changed
+- Improve performance by splitting editor code into two chunks. [#45065]
+- Move all international phone code and UI back into legacy telephone field. [#45061]
+- Remove legacy menu item by defaulting the filter to true. [#44043]
+- Render implicit consent as hidden field instead of a DOM-hidden checkbox. [#45078]
+- Set button state to busy and ignore further clicks when exporting to Google Drive. [#45074]
+- Show custom messages for empty inbox/spam/trash folders. [#45013]
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [6.2.0] - 2025-09-03
+### Changed
+- Use sentence case in integrations panel CTAs. [#45054]
+
+## [6.1.0] - 2025-09-02
+### Added
+- Release rating and slider fields on WP.com (not Jetpack yet). [#44998]
+
+### Changed
+- Tooling: Generate i18n function variants programmatically. [#45020]
+
+### Fixed
+- Switch to v3 and fix v2 encoding. [#44927]
+
+## [6.0.0] - 2025-09-01
+### Added
+- Add default values when border radius style is missing. [#44978]
+- Add input styles to image select field. [#45009]
+- Add slider field typography controls. [#44967]
+- Add styles for image select field on front end. [#44923]
+
+### Changed
+- Consolidate slider front end and editor styles. [#44947]
+- Deprecate legacy feedback page and add redirect to new `jetpack-forms-admin` dashboard. [#44961]
+- Improve checkbox validation for older checkboxes. [#44931]
+- Improve slider range touch area. [#44985]
+- Improve the showing of the error div to display correctly across themes. [#44939]
+- Manage Google Drive connection in dashboard. [#44956]
+- Send JSON with built-in WordPress functions. [#45002]
+
+### Fixed
+- Ensure slider default obeys step. [#44919]
+- Fix dataview footer width and reset page on status change. [#45021]
+- Fix default styles for image select field. [#44969]
+- Fix fatal when checking for classic forms dashboard. [#44935]
+- Fix file field test. [#44959]
+- Fix form response line breaks. [#44966]
+- Fix Google export on Simple sites. [#44960]
+- Fix range slider mobile input. [#45010]
+- Fix slider theme CSS conflicts. [#45024]
+- Fix text wrapping in the slider tooltip. [#44988]
+
 ## [5.5.0] - 2025-08-25
 ### Added
 - Add optional country selector to Phone field. [#44635]
@@ -1099,7 +1211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#34411] [#34427]
 
 ### Fixed
-- Fixed PHP warnings that occured when processing malformed data. [#34386]
+- Fixed PHP warnings that occurred when processing malformed data. [#34386]
 - Added focus state to radio buttons and checkboxes. [#34408]
 - Fixed styling issues for Outlined and Animated styles. [#34272]
 - Made Contact Form error fixing accessible. [#34173]
@@ -1479,6 +1591,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.5.1]: https://github.com/automattic/jetpack-forms/compare/v6.5.0...v6.5.1
+[6.5.0]: https://github.com/automattic/jetpack-forms/compare/v6.4.0...v6.5.0
+[6.4.0]: https://github.com/automattic/jetpack-forms/compare/v6.3.0...v6.4.0
+[6.3.0]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.3.0
+[6.2.0]: https://github.com/automattic/jetpack-forms/compare/v6.1.0...v6.2.0
+[6.1.0]: https://github.com/automattic/jetpack-forms/compare/v6.0.0...v6.1.0
+[6.0.0]: https://github.com/automattic/jetpack-forms/compare/v5.5.0...v6.0.0
 [5.5.0]: https://github.com/automattic/jetpack-forms/compare/v5.4.0...v5.5.0
 [5.4.0]: https://github.com/automattic/jetpack-forms/compare/v5.3.0...v5.4.0
 [5.3.0]: https://github.com/automattic/jetpack-forms/compare/v5.2.0...v5.3.0

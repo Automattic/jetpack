@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.10] - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## [0.26.9] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.26.8] - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## [0.26.7] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.26.6] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
 ## [0.26.5] - 2025-08-25
 ### Changed
 - Update dependencies. [#44934]
@@ -680,6 +700,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.26.10]: https://github.com/automattic/jetpack-blaze/compare/v0.26.9...v0.26.10
+[0.26.9]: https://github.com/automattic/jetpack-blaze/compare/v0.26.8...v0.26.9
+[0.26.8]: https://github.com/automattic/jetpack-blaze/compare/v0.26.7...v0.26.8
+[0.26.7]: https://github.com/automattic/jetpack-blaze/compare/v0.26.6...v0.26.7
+[0.26.6]: https://github.com/automattic/jetpack-blaze/compare/v0.26.5...v0.26.6
 [0.26.5]: https://github.com/automattic/jetpack-blaze/compare/v0.26.4...v0.26.5
 [0.26.4]: https://github.com/automattic/jetpack-blaze/compare/v0.26.3...v0.26.4
 [0.26.3]: https://github.com/automattic/jetpack-blaze/compare/v0.26.2...v0.26.3

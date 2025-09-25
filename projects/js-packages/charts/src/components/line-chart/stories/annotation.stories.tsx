@@ -1,12 +1,10 @@
-import { temperatureData as sampleData } from '../../../stories/sample-data';
+import { ChartStoryArgs, temperatureData as sampleData } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
-import type { LineChartAnnotationProps } from '../line-chart-annotation';
+import type { LineChartAnnotationProps } from '../types';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
@@ -30,13 +28,13 @@ const createAnnotationTemplate =
 					{ ...( annotationArgs?.[ 0 ] || {} ) }
 				/>
 				<LineChart.Annotation
-					datum={ sampleData[ 1 ].data[ sampleData[ 1 ].data.length - 10 ] }
+					datum={ sampleData[ 1 ].data[ 1 ] }
 					title="Another notable event"
 					subtitle="This is another notable event"
 					{ ...( annotationArgs?.[ 1 ] || {} ) }
 				/>
 				<LineChart.Annotation
-					datum={ sampleData[ 2 ].data[ sampleData[ 2 ].data.length - 51 ] }
+					datum={ sampleData[ 2 ].data[ 7 ] }
 					title="Concerning event"
 					subtitle="This is a concerning event"
 					{ ...( annotationArgs?.[ 2 ] || {} ) }

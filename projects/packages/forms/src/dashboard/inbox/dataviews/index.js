@@ -21,6 +21,7 @@ import { useSearchParams } from 'react-router';
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import useInboxData from '../../hooks/use-inbox-data';
+import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
@@ -35,7 +36,6 @@ import {
 import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
-const EMPTY_OBJECT = {};
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item.id.toString();
 
@@ -56,6 +56,35 @@ const formatFieldValue = fieldValue => {
 	return fieldValue;
 };
 
+const updateSidebarWidth = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( wrapper ) {
+		const left = wrapper.getBoundingClientRect().left;
+		wrapper.style.setProperty( '--forms-admin-sidebar-width', `${ left }px` );
+	}
+};
+
+const setupSidebarWidthObserver = () => {
+	const wrapper = document.querySelector( '.dataviews-wrapper' );
+
+	if ( ! wrapper ) {
+		return () => {};
+	}
+
+	updateSidebarWidth();
+
+	const resizeObserver = new ResizeObserver( () => {
+		requestAnimationFrame( updateSidebarWidth );
+	} );
+
+	resizeObserver.observe( wrapper );
+
+	return () => {
+		resizeObserver.disconnect();
+	};
+};
+
 /**
  * The DataViews implementation.
  *
@@ -65,7 +94,6 @@ export default function InboxView() {
 	const [ view, setView ] = useView();
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
-	const [ queryArgs, setQueryArgs ] = useState( EMPTY_OBJECT );
 
 	const dateSettings = getDateSettings();
 	const containerRef = useResizeObserver(
@@ -76,6 +104,10 @@ export default function InboxView() {
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const selectedResponses = searchParams.get( 'r' );
+
+	useEffect( () => {
+		return setupSidebarWidthObserver();
+	}, [] );
 
 	const {
 		setCurrentQuery,
@@ -113,12 +145,6 @@ export default function InboxView() {
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-		// We also need to keep the args in local state and update it inside `useEffect`
-		// to run after the component mounts. This is because the `status` filter is retrieved
-		// from URL and can be changed through the parent components (Tabs), and if we'd used
-		// `useMemo` it would run during rendering and would update the component while also
-		// rendering different ones.
-		setQueryArgs( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
 	const data = useMemo(
 		() =>
@@ -277,6 +303,10 @@ export default function InboxView() {
 		return _actions;
 	}, [ isMobile, onChangeSelection, selection ] );
 
+	const resetPage = useCallback( () => {
+		view.page = 1;
+	}, [ view ] );
+
 	return (
 		<HStack
 			spacing={ 0 }
@@ -298,7 +328,8 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle currentQuery={ queryArgs } /> }
+					header={ <InboxStatusToggle onChange={ resetPage } /> }
+					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
 			<SingleResponse

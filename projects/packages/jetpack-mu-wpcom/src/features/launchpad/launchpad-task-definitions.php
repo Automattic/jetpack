@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( (string) $latest_draft_id ) );
 				}
 
 				return admin_url( 'post-new.php' );
@@ -390,8 +390,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 
@@ -658,8 +659,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Enable post sharing', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 		'front_page_updated'              => array(
@@ -2613,8 +2615,8 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * Mark the WooCommerce setup task as complete the setup task list is in
  * the completed list or in the hidden list.
  *
- * @param string $old_value The old value of the option.
- * @param string $value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @param array $value The new value of the option.
  *
  * @return void
  */
@@ -2946,4 +2948,13 @@ function wpcom_launchpad_has_added_subscribe_block() {
 	}
 
 	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
+}
+
+/**
+ * Will return true if the user can set up social connections.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_jetpack_social_available() {
+	return ! ( new Automattic\Jetpack\Status() )->is_private_site();
 }

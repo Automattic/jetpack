@@ -76,7 +76,7 @@ const useActivatePlugins = ( productSlugs: string | string[] ) => {
 			},
 		},
 		errorMessage: sprintf(
-			// translators: %s is the Jetpack product name or comma seperated list of multiple Jetpack product names.
+			// translators: %s is the Jetpack product name or comma-separated list of multiple Jetpack product names.
 			__( 'There was a problem activating %s.', 'jetpack-my-jetpack' ),
 			products?.map( product => product?.name ).join( ', ' )
 		),

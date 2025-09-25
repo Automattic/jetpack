@@ -2278,7 +2278,7 @@ function jpcrm_html_modules() {
 
 			}
 
-			echo zeroBSCRM_html_msg( 0, $msgHTML );
+			zeroBSCRM_html_msg( 0, $msgHTML ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		} else {
 
@@ -2288,7 +2288,7 @@ function jpcrm_html_modules() {
 				$errmsg .= '<br />' . __( 'Installer Error:', 'zero-bs-crm' ) . ' ' . $module_messages['error_msg'];
 			}
 
-			echo zeroBSCRM_html_msg( -1, $errmsg );
+			zeroBSCRM_html_msg( -1, $errmsg );
 
 		}
 

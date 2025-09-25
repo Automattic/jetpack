@@ -19,7 +19,7 @@ import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-uti
 import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -100,6 +100,22 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
+	// Handle tiered pricing like trunk does - check for tiers.upgraded first
+	const productPricing = useMemo( () => {
+		return detail?.pricingForUi?.tiers?.upgraded
+			? {
+					...detail.pricingForUi.tiers.upgraded,
+					// Calculate monthly prices from annual if needed
+					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
+					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
+			  }
+			: detail?.pricingForUi;
+	}, [ detail?.pricingForUi ] );
+
+	const bundlePricing = useMemo( () => {
+		return bundleDetail?.pricingForUi;
+	}, [ bundleDetail?.pricingForUi ] );
+
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
 	}, [ recordEvent, slug ] );
@@ -129,12 +145,20 @@ export default function PricingInterstitial( { slug } ) {
 
 	const trackProductOrBundleClick = useCallback(
 		options => {
-			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const {
+				customSlug = null,
+				isFreePlan = false,
+				ctaText = null,
+				tier = null,
+				hasDiscount = false,
+			} = options || {};
 			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
 				cta_text: ctaText,
+				tier_selected: tier,
+				has_discount: hasDiscount,
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent, config?.bundle ]
@@ -144,13 +168,31 @@ export default function PricingInterstitial( { slug } ) {
 		( { checkout, product, tier } ) => {
 			if ( product?.isBundle ) {
 				// Get straight to the checkout page for bundles.
-				checkout?.();
+				try {
+					checkout?.();
+				} catch ( error ) {
+					recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+						product_slug: slug,
+						error_type: 'checkout_failed',
+						tier_attempted: 'bundle',
+						error_message: error?.message || 'Bundle checkout failed',
+					} );
+					throw error; // Re-throw to preserve existing behavior
+				}
 				return;
 			}
 
 			activate(
 				{ productId: slug },
 				{
+					onError: error => {
+						recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+							product_slug: slug,
+							error_type: 'plugin_activation_failed',
+							tier_attempted: tier || 'unknown',
+							error_message: error?.message || 'Unknown activation error',
+						} );
+					},
 					onSettled: activatedProduct => {
 						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
 
@@ -173,15 +215,25 @@ export default function PricingInterstitial( { slug } ) {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( postRegisterRedirectUri => {
-								if ( postRegisterRedirectUri ) {
-									// Redirect to the product's admin page
-									window.location.href = postRegisterRedirectUri;
-								} else {
-									// Fall back to the My Jetpack overview page.
-									return navigateToMyJetpackOverviewPage();
-								}
-							} );
+							handleRegisterSite()
+								.then( postRegisterRedirectUri => {
+									if ( postRegisterRedirectUri ) {
+										// Redirect to the product's admin page
+										window.location.href = postRegisterRedirectUri;
+									} else {
+										// Fall back to the My Jetpack overview page.
+										return navigateToMyJetpackOverviewPage();
+									}
+								} )
+								.catch( error => {
+									recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+										product_slug: slug,
+										error_type: 'site_registration_failed',
+										tier_attempted: tier || 'unknown',
+										error_message: error?.message || 'Site registration failed',
+									} );
+									throw error; // Re-throw to preserve existing behavior
+								} );
 
 							return;
 						}
@@ -195,17 +247,44 @@ export default function PricingInterstitial( { slug } ) {
 						}
 
 						// Redirect to the checkout page.
-						checkout?.( null, postCheckoutUrl );
+						try {
+							checkout?.( null, postCheckoutUrl );
+						} catch ( error ) {
+							recordEvent( 'jetpack_myjetpack_interstitial_loading_error', {
+								product_slug: slug,
+								error_type: 'checkout_failed',
+								tier_attempted: tier || 'unknown',
+								error_message: error?.message || 'Checkout failed',
+							} );
+							throw error; // Re-throw to preserve existing behavior
+						}
 					},
 				}
 			);
 		},
-		[ myJetpackCheckoutUri, slug, activate, handleRegisterSite, navigateToMyJetpackOverviewPage ]
+		[
+			myJetpackCheckoutUri,
+			slug,
+			activate,
+			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
+			recordEvent,
+		]
 	);
 
 	const handleGetProduct = useCallback( () => {
 		setLoadingButton( 'paid' );
-		trackProductOrBundleClick( { ctaText: config?.tiers?.paid?.cta } );
+
+		// Calculate discount for paid tier
+		const paidHasDiscount =
+			productPricing?.discountPricePerMonth &&
+			productPricing.discountPricePerMonth < productPricing.fullPricePerMonth;
+
+		trackProductOrBundleClick( {
+			ctaText: config?.tiers?.paid?.cta,
+			tier: 'paid',
+			hasDiscount: paidHasDiscount || false,
+		} );
 		clickHandler( { checkout: paidCheckoutRun, product: detail, tier: 'paid' } );
 	}, [
 		trackProductOrBundleClick,
@@ -213,18 +292,34 @@ export default function PricingInterstitial( { slug } ) {
 		paidCheckoutRun,
 		detail,
 		config?.tiers?.paid?.cta,
+		productPricing,
 	] );
 
 	const handleGetBundle = useCallback( () => {
 		if ( config?.bundle ) {
 			setLoadingButton( 'bundle' );
+
+			// Calculate discount for bundle
+			const bundleHasDiscount =
+				bundlePricing?.discountPricePerMonth &&
+				bundlePricing.discountPricePerMonth < bundlePricing.fullPricePerMonth;
+
 			trackProductOrBundleClick( {
 				customSlug: config.bundle,
 				ctaText: config?.tiers?.bundle?.cta,
+				tier: 'bundle',
+				hasDiscount: bundleHasDiscount || false,
 			} );
 			clickHandler( { checkout: bundleCheckoutRun, product: bundleDetail, tier: 'bundle' } );
 		}
-	}, [ trackProductOrBundleClick, clickHandler, bundleCheckoutRun, bundleDetail, config ] );
+	}, [
+		trackProductOrBundleClick,
+		clickHandler,
+		bundleCheckoutRun,
+		bundleDetail,
+		config,
+		bundlePricing,
+	] );
 
 	const { update: updateInterstitialsState } = useInterstitialsState();
 
@@ -233,7 +328,12 @@ export default function PricingInterstitial( { slug } ) {
 			return;
 		}
 		setLoadingButton( 'free' );
-		trackProductOrBundleClick( { isFreePlan: true, ctaText: config.tiers.free.cta } );
+		trackProductOrBundleClick( {
+			isFreePlan: true,
+			ctaText: config.tiers.free.cta,
+			tier: 'free',
+			hasDiscount: false, // Free tier never has discount
+		} );
 
 		// Products like Search have wpcomFreeProductSlug, so they need checkout even for free
 		const hasPurchasableFree = !! detail?.pricingForUi?.wpcomFreeProductSlug;
@@ -257,21 +357,25 @@ export default function PricingInterstitial( { slug } ) {
 		slug,
 	] );
 
+	const handleLicenseActivationClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_interstitial_license_link_click', {
+			product_slug: slug,
+		} );
+	}, [ recordEvent, slug ] );
+
+	const handleGoBack = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_interstitial_go_back', {
+			product_slug: slug,
+		} );
+
+		// Call the original go back functionality
+		onClickGoBack();
+	}, [ recordEvent, slug, onClickGoBack ] );
+
 	// If no config exists, fallback to old ProductInterstitial
 	if ( ! config ) {
 		return <ProductInterstitial slug={ slug } installsPlugin={ true } />;
 	}
-
-	// Handle tiered pricing like trunk does - check for tiers.upgraded first
-	const productPricing = detail?.pricingForUi?.tiers?.upgraded
-		? {
-				...detail.pricingForUi.tiers.upgraded,
-				// Calculate monthly prices from annual if needed
-				fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
-				discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-		  }
-		: detail?.pricingForUi;
-	const bundlePricing = bundleDetail?.pricingForUi;
 
 	// Get currency code with USD fallback
 	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
@@ -288,7 +392,7 @@ export default function PricingInterstitial( { slug } ) {
 				horizontalGap={ 2 }
 			>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
-					<GoBackLink onClick={ onClickGoBack } />
+					<GoBackLink onClick={ handleGoBack } />
 					<Text variant="body-small">
 						{ createInterpolateElement(
 							__(
@@ -301,6 +405,7 @@ export default function PricingInterstitial( { slug } ) {
 										className={ styles[ 'product-interstitial__license-activation-link' ] }
 										href={ getMyJetpackUrl( '#/add-license' ) }
 										variant="link"
+										onClick={ handleLicenseActivationClick }
 									/>
 								),
 							}

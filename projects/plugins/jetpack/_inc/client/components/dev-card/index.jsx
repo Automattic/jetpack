@@ -77,7 +77,7 @@ export class DevCard extends Component {
 									checked={ ! this.props.canViewStats }
 									onChange={ this.onPermissionsChange }
 								/>
-								Can not view stats
+								Cannot view stats
 							</label>
 						</li>
 					</ul>

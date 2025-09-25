@@ -547,11 +547,16 @@ class Brute_Force_Protection {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			--$transient;
+			if ( is_int( $transient ) ) {
+				--$transient;
+			}
 
-			if ( ! $transient || $transient < 1 ) {
+			if ( ! is_int( $transient ) || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-				setcookie( 'jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				// This is a cop out for the tests on some PHP versions
+				if ( ! headers_sent() ) {
+					setcookie( 'jpp_math_pass', '0', time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				}
 			} else {
 				$this->set_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ), $transient, DAY_IN_SECONDS );
 			}

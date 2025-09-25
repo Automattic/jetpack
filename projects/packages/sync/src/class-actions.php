@@ -726,7 +726,7 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
-					sleep( $delay );
+					sleep( (int) $delay );
 				}
 			}
 
