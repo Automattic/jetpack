@@ -58,5 +58,27 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		public static function delete_option( $option_name ) {
 			return delete_option( $option_name );
 		}
+
+		/**
+		 * Get raw option (bypass external storage).
+		 *
+		 * @param string $option_name Option name.
+		 * @param mixed  $default     Default value.
+		 * @return mixed Option value.
+		 */
+		public static function get_raw_option( $option_name, $default = false ) {
+			return get_option( $option_name, $default );
+		}
+
+		/**
+		 * Update raw option (bypass external storage).
+		 *
+		 * @param string $option_name Option name.
+		 * @param mixed  $value       Option value.
+		 * @return bool True if the option was updated, false otherwise.
+		 */
+		public static function update_raw_option( $option_name, $value ) {
+			return update_option( $option_name, $value );
+		}
 	}
 }
