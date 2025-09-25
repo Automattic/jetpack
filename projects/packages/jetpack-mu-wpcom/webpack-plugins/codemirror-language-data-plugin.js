@@ -109,26 +109,24 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 		};
 
 		// Patch the filesystem methods
-		const originalReadFileSync = fs.readFileSync;
-		const originalStatSync = fs.statSync;
-		const originalReadFile = fs.readFile;
-		const originalStat = fs.stat;
+		const originalReadFileSync = fs.readFileSync.bind( fs );
+		const originalStatSync = fs.statSync.bind( fs );
+		const originalReadFile = fs.readFile.bind( fs );
+		const originalStat = fs.stat.bind( fs );
 
-		// readFileSync
 		fs.readFileSync = function ( filename, options ) {
 			if ( filename === filePath ) {
 				return virtualData.contents;
 			}
-			return originalReadFileSync.call( this, filename, options );
-		}.bind( this );
+			return originalReadFileSync( filename, options );
+		};
 
-		// statSync
 		fs.statSync = function ( filename, options ) {
 			if ( filename === filePath ) {
 				return virtualData.stats;
 			}
-			return originalStatSync.call( this, filename, options );
-		}.bind( this );
+			return originalStatSync( filename, options );
+		};
 
 		fs.readFile = function ( filename, options, callback ) {
 			if ( typeof options === 'function' ) {
@@ -139,17 +137,16 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 				callback( null, virtualData.contents );
 				return;
 			}
-			return originalReadFile.call( this, filename, options, callback );
-		}.bind( this );
+			return originalReadFile( filename, options, callback );
+		};
 
-		// stat (async)
 		fs.stat = function ( filename, callback ) {
 			if ( filename === filePath ) {
 				callback( null, virtualData.stats );
 				return;
 			}
-			return originalStat.call( this, filename, callback );
-		}.bind( this );
+			return originalStat( filename, callback );
+		};
 	}
 }
 
