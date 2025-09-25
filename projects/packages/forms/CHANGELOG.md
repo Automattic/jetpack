@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.2] - 2025-09-25
+### Fixed
+- Resolved conflict with WordPress 6.7.3
+
 ## [6.2.1] - 2025-09-25
 ### Added
 - Forms: add extra layer of cache busting for interactivity API files (view.js) with hash suffix [#45138]
@@ -1530,6 +1534,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.2.2]: https://github.com/automattic/jetpack-forms/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/automattic/jetpack-forms/compare/v6.1.0...v6.2.0
 [6.1.0]: https://github.com/automattic/jetpack-forms/compare/v6.0.0...v6.1.0
