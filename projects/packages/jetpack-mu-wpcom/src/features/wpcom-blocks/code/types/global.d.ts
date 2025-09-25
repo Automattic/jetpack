@@ -110,7 +110,7 @@ declare global {
 					/** Block attributes. */
 					attributes: object,
 					/** Nested blocks. */
-					innerBlocks?: Array
+					innerBlocks?: Array<unknown>
 				) => React.JSX.Element | null;
 			};
 			components: {
