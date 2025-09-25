@@ -8,6 +8,11 @@
  * and makes it available as a virtual module without writing files to disk.
  */
 
+/**
+ * @import * as webpack from 'webpack'
+ */
+
+const crypto = require( 'crypto' );
 const path = require( 'path' );
 
 class CodeMirrorLanguageDataPlugin {
@@ -20,7 +25,7 @@ class CodeMirrorLanguageDataPlugin {
 	/**
 	 * Plugin apply method.
 	 *
-	 * @param {import('webpack').Compiler} compiler -- The Webpack compiler instance.
+	 * @param {webpack.Compiler} compiler -- The Webpack compiler instance.
 	 */
 	apply( compiler ) {
 		// Create virtual file path
@@ -71,13 +76,31 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 	}
 
 	/**
+	 * Generate a stable inode based on the virtual file path.
+	 *
+	 * @param {string} filePath - The virtual file path.
+	 * @return {number} A stable inode number.
+	 */
+	generateStableInode( filePath ) {
+		// Create a hash and read the first 4 bytes as a 32-bit integer
+		const buf = crypto
+			.createHash( 'sha1' )
+			.update( filePath + this.constructor.virtualModuleName )
+			.digest();
+
+		// Read first 4 bytes as unsigned 32-bit integer
+		return buf.readUInt32BE( 0 );
+	}
+
+	/**
 	 * Write the file.
 	 *
-	 * @param {import('webpack').InputFileSystem} fs       - Virtual file system.
-	 * @param {string}                            filePath - Path.
-	 * @param {string}                            contents - File contents.
+	 * @param {webpack.InputFileSystem} fs       - Virtual file system.
+	 * @param {string}                  filePath - Path.
+	 * @param {string}                  contents - File contents.
 	 */
 	writeVirtualFile( fs, filePath, contents ) {
+		/** @type {Extract<ReturnType<NonNullable<webpack.InputFileSystem['statSync']>>,{}>} */
 		const stats = {
 			isFile: () => true,
 			isDirectory: () => false,
@@ -86,13 +109,13 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 			isSymbolicLink: () => false,
 			isFIFO: () => false,
 			isSocket: () => false,
-			dev: 8675309,
+			dev: 2003_05_27,
 			nlink: 1,
 			uid: 501,
 			gid: 20,
 			rdev: 0,
 			blksize: 4096,
-			ino: Math.random(),
+			ino: this.generateStableInode( filePath ),
 			mode: 33188,
 			size: contents ? contents.length : 0,
 			blocks: Math.floor( contents ? contents.length / 4096 : 0 ),
@@ -100,12 +123,6 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 			mtime: new Date(),
 			ctime: new Date(),
 			birthtime: new Date(),
-		};
-
-		// Store the file content
-		const virtualData = {
-			contents,
-			stats,
 		};
 
 		// Patch the filesystem methods
@@ -116,14 +133,14 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 
 		fs.readFileSync = function ( filename, options ) {
 			if ( filename === filePath ) {
-				return virtualData.contents;
+				return contents;
 			}
 			return originalReadFileSync( filename, options );
 		};
 
 		fs.statSync = function ( filename, options ) {
 			if ( filename === filePath ) {
-				return virtualData.stats;
+				return stats;
 			}
 			return originalStatSync( filename, options );
 		};
@@ -134,7 +151,7 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 				options = undefined;
 			}
 			if ( filename === filePath ) {
-				callback( null, virtualData.contents );
+				callback( null, contents );
 				return;
 			}
 			return originalReadFile( filename, options, callback );
@@ -142,7 +159,7 @@ export const langNames = ${ JSON.stringify( sortedLangNames ) };`;
 
 		fs.stat = function ( filename, callback ) {
 			if ( filename === filePath ) {
-				callback( null, virtualData.stats );
+				callback( null, stats );
 				return;
 			}
 			return originalStat( filename, callback );
