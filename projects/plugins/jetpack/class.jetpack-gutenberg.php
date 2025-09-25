@@ -728,6 +728,43 @@ class Jetpack_Gutenberg {
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
+		$initial_state = self::get_initial_state();
+
+		if ( $initial_state['blocks_variation'] === 'beta' && $initial_state['jetpack']['is_current_user_connected'] ) {
+			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+		}
+
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Editor_Initial_State',
+			self::get_initial_state()
+		);
+
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
+
+		// Register and enqueue the Jetpack Chrome AI token script
+		wp_register_script(
+			'jetpack-chrome-ai-token',
+			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
+			array(),
+			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
+			true
+		);
+		wp_enqueue_script( 'jetpack-chrome-ai-token' );
+	}
+
+	/**
+	 * Generate the initial state data for the block editor.
+	 *
+	 * @since 14.0
+	 *
+	 * @return array The initial state data
+	 */
+	public static function get_initial_state() {
+		$status           = new Status();
+		$blocks_variation = self::blocks_variation();
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
 			$user_data                 = array(
@@ -743,9 +780,6 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
-		if ( $blocks_variation === 'beta' && $is_current_user_connected ) {
-			wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), Constants::get_constant( 'JETPACK__VERSION' ) );
-		}
 		// AI Assistant
 		$ai_assistant_state = array(
 			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
@@ -763,8 +797,9 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
-		$jetpack_plan  = Jetpack_Plan::get();
-		$initial_state = array(
+		$jetpack_plan = Jetpack_Plan::get();
+
+		return array(
 			'available_blocks' => self::get_availability(),
 			'blocks_variation' => $blocks_variation,
 			'modules'          => $modules,
@@ -815,25 +850,6 @@ class Jetpack_Gutenberg {
 			'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
-
-		wp_localize_script(
-			'jetpack-blocks-editor',
-			'Jetpack_Editor_Initial_State',
-			$initial_state
-		);
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
-
-		// Register and enqueue the Jetpack Chrome AI token script
-		wp_register_script(
-			'jetpack-chrome-ai-token',
-			'https://widgets.wp.com/jetpack-chrome-ai/v1/3p-token.js',
-			array(),
-			gmdate( 'Ymd' ) . floor( (int) gmdate( 'G' ) / 12 ), // Cache buster: changes twice daily (morning/afternoon) in case we need to rotate the tokens
-			true
-		);
-		wp_enqueue_script( 'jetpack-chrome-ai-token' );
 	}
 
 	/**

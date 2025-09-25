@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add REST API endpoint and fallback mechanism for Jetpack editor data when window data is unavailable. Enables Jetpack blocks in various editor contexts.

@@ -51,6 +51,27 @@ class WPCOM_REST_API_V2_Endpoint_Gutenberg_Available_Extensions extends WP_REST_
 				'schema' => array( $this, 'get_item_schema' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/editor-initial-state',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_editor_initial_state' ),
+					'permission_callback' => array( $this, 'get_items_permission_check' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Get editor initial state data - uses the same method as enqueue_block_editor_assets
+	 *
+	 * @return array Editor initial state data
+	 */
+	public function get_editor_initial_state() {
+		return Jetpack_Gutenberg::get_initial_state();
 	}
 
 	/**

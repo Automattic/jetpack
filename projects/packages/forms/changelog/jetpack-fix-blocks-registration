@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add fallback mechanism for Jetpack block registration when editor data is unavailable. Enables blocks to work in various editor contexts.

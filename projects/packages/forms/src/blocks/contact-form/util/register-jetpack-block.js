@@ -3,6 +3,7 @@ import {
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
 	getJetpackData,
+	fetchJetpackData,
 } from '@automattic/jetpack-shared-extension-utils';
 import { registerBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
@@ -17,8 +18,21 @@ import { addFilter } from '@wordpress/hooks';
  * @return {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
-	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 	const jetpackData = getJetpackData();
+
+	if ( ! jetpackData ) {
+		fetchJetpackData()
+			.then( () => {
+				registerJetpackBlock( name, settings, childBlocks, prefix );
+			} )
+			.catch( () => {
+				// Silently fail - block registration will be skipped
+			} );
+
+		return false;
+	}
+
+	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 	const isBeta = jetpackData?.blocks_variation === 'beta';
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add fetchJetpackData function for async data fetching when window data unavailable. Fixes Jetpack blocks not appearing in various editor contexts.
