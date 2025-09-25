@@ -19,6 +19,7 @@ const ExportResponsesButton = () => {
 		userCanExport,
 		onExport,
 		autoConnectGdrive,
+		isExporting,
 		exportLabel,
 	} = useExportResponses();
 
@@ -43,6 +44,7 @@ const ExportResponsesButton = () => {
 					onRequestClose={ closeModal }
 					onExport={ onExport }
 					autoConnectGdrive={ autoConnectGdrive }
+					isExporting={ isExporting }
 				/>
 			) }
 		</>

@@ -35,6 +35,7 @@ type ExportHookReturn = {
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
 	onExport: () => Promise< ExportResponse >;
+	isExporting: boolean;
 	selectedResponsesCount: number;
 	currentStatus: string;
 	exportLabel: string;
@@ -69,6 +70,12 @@ export default function useExportResponses(): ExportHookReturn {
 		statusLabel = __( 'Export trash', 'jetpack-forms' );
 	}
 
+	const delayIsExportingFalse = () => {
+		setTimeout( () => {
+			setIsExporting( false );
+		}, 1000 ); // Delay it for 1 second to avoid flickering
+	};
+
 	const exportLabel =
 		selectedResponsesCount > 0 ? `${ statusLabel } (${ selectedResponsesCount })` : statusLabel;
 
@@ -91,7 +98,10 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
+	const [ isExporting, setIsExporting ] = useState( false );
+
 	const onExport = useCallback( async (): Promise< ExportResponse > => {
+		setIsExporting( true );
 		const exportData: ExportData = {
 			selected: selected.map( Number ),
 			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
@@ -116,15 +126,17 @@ export default function useExportResponses(): ExportHookReturn {
 			if ( response && response.download_url ) {
 				// Trigger download by navigating to the URL
 				window.location.href = response.download_url;
+				delayIsExportingFalse();
 				return response;
 			}
-
+			delayIsExportingFalse();
 			return { download_url: '', count: 0 };
 		} catch {
 			closeModal();
 			createErrorNotice( __( 'No responses found to export!', 'jetpack-forms' ), {
 				type: 'snackbar',
 			} );
+			setIsExporting( false );
 		}
 	}, [ currentQuery, selected, closeModal, createErrorNotice ] );
 
@@ -148,6 +160,7 @@ export default function useExportResponses(): ExportHookReturn {
 		autoConnectGdrive,
 		userCanExport,
 		onExport,
+		isExporting,
 		selectedResponsesCount,
 		currentStatus,
 		exportLabel,
