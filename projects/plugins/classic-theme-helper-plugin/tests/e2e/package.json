@@ -21,7 +21,7 @@
 		"@playwright/test": "1.55.0",
 		"@types/node": "^20.4.2",
 		"_jetpack-e2e-commons": "workspace:*",
-		"allure-playwright": "2.9.2",
+		"allure-playwright": "2.15.1",
 		"config": "3.3.12",
 		"typescript": "5.9.2"
 	},
