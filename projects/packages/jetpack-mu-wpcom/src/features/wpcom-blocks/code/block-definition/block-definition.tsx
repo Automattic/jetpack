@@ -169,7 +169,7 @@ registerBlockType( blockJson, {
 								);
 
 								setAttributes( {
-									lineNumbersStartAt: Number( nextLineNumbersStartAt ),
+									lineNumbersStartAt: nextLineNumbersStartAt,
 								} );
 							} }
 							min={ LINE_NUMBER_START_MIN }
