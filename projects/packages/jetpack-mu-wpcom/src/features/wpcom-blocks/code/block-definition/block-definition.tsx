@@ -508,7 +508,7 @@ function htmlEncode( content: string ): string {
 		.replaceAll( '>', '&gt;' )
 		.replaceAll( '[', '&#91;' )
 		.replaceAll( "'", '&#39;' )
-		.replaceAll( '"', '&#22;' );
+		.replaceAll( '"', '&#34;' );
 }
 
 const EditCodeMirror = React.lazy(
