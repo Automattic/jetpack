@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Added form-level required indicator settings, made single-input forms required by default, and hide indicators in single-input forms.
