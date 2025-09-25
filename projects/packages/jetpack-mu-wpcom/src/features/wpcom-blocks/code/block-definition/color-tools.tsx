@@ -32,7 +32,7 @@ export function ColorTools( props: EditBlockProps ): React.JSX.Element | null {
 		colorVariableDefinition,
 	} = attributes;
 
-	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- This is a hook and must be called unconditionall.
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- This is a hook and must be called unconditionally.
 	const settings = React.useMemo(
 		() => [
 			{
