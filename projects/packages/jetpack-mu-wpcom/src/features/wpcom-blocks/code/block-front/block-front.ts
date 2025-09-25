@@ -20,7 +20,7 @@ function initBlock() {
 	}
 }
 
-if ( ! document.body.classList.contains( 'wp-admin' ) ) {
+if ( navigator.clipboard && ! document.body.classList.contains( 'wp-admin' ) ) {
 	initBlock();
 
 	const mutObserver = new MutationObserver( () => {
