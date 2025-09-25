@@ -1,4 +1,5 @@
 import { LegendOrdinal } from '@visx/legend';
+import type { LegendMargin } from './types/legend-margin';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
@@ -26,17 +27,9 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	textOverflow?: 'ellipsis' | 'wrap';
 	/**
 	 * Margin around the legend container.
-	 * Can be a CSS margin string (e.g. '10px', '1rem 2rem', '10px 20px 30px 40px')
-	 * or an object with individual margin properties (e.g. {top: 10, right: 15, bottom: 10, left: 15})
+	 * @see LegendMargin for type details
 	 */
-	legendMargin?:
-		| string
-		| {
-				top?: number | string;
-				right?: number | string;
-				bottom?: number | string;
-				left?: number | string;
-		  };
+	legendMargin?: LegendMargin;
 	/**
 	 * Custom CSS styles for the legend container.
 	 * These styles will be merged with and override default styles.

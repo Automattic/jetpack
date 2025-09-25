@@ -1,13 +1,5 @@
+import type { LegendMargin } from '../types/legend-margin';
 import type { CSSProperties } from 'react';
-
-type LegendMarginObject = {
-	top?: number | string;
-	right?: number | string;
-	bottom?: number | string;
-	left?: number | string;
-};
-
-type LegendMargin = string | LegendMarginObject;
 
 /**
  * Processes legend margin prop into CSS properties
@@ -16,7 +8,7 @@ type LegendMargin = string | LegendMarginObject;
  * @return CSS properties object for margin
  */
 export function processLegendMargin( legendMargin?: LegendMargin ): CSSProperties {
-	if ( legendMargin === undefined || legendMargin === null ) {
+	if ( legendMargin === undefined ) {
 		return {};
 	}
 
