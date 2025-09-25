@@ -129,7 +129,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test blog token validation with mismatched existing token.
 	 */
 	public function test_blog_token_mismatch() {
-		$this->expectOutputString( 'Jetpack blog token mismatch detected. Clearing blog token.' );
+		$this->expectOutputString( 'Jetpack blog token mismatch detected. Clearing blog token.' . PHP_EOL );
 
 		Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'external.token.123' );
 
@@ -140,7 +140,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertSame( 'external.token.123', $result );
 
 		// Old token should be cleared from database
-		$options = get_option( 'jetpack_private_options' );
+		$options = get_option( 'jetpack_private_options', array() );
 		$this->assertArrayNotHasKey( 'blog_token', $options );
 	}
 
@@ -178,7 +178,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	public function test_get_user_tokens_no_existing_tokens() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
-		update_option( 'master_user', $user_id );
 
 		$token_data = wp_json_encode(
 			array(
@@ -189,6 +188,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Set the token data in persistent storage
 		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
+		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
 
 		$result = $this->provider->get( 'user_tokens' );
 
@@ -202,7 +202,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_existing_matching() {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
-		update_option( 'master_user', $user_id );
 
 		// Set existing tokens with other users
 		$existing_tokens = array(
@@ -220,6 +219,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Set the token data in persistent storage
 		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
+		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
 
 		$result = $this->provider->get( 'user_tokens' );
 
@@ -237,7 +237,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_existing_mismatch() {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
-		update_option( 'master_user', $user_id );
 
 		// Set existing tokens with mismatched master user token
 		$existing_tokens = array(
@@ -255,6 +254,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		// Set the token data in persistent storage
 		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN', $token_data );
+		Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'test@example.com' );
 
 		$result = $this->provider->get( 'user_tokens' );
 
