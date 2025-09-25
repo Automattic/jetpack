@@ -802,6 +802,14 @@ class Jetpack_Gutenberg {
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
+				'agenttic'         => array(
+					'agent_id'  => apply_filters( 'jetpack_agenttic_agent_id', 'big-sky' ),
+					'agent_key' => apply_filters( 'jetpack_agenttic_agent_key', 'big-sky' ),
+					'agent_url' => apply_filters(
+						'jetpack_agenttic_agent_url',
+						'https://public-api.wordpress.com/wpcom/v2/ai/agent'
+					),
+				),
 			'screenBase'       => $screen_base,
 			/**
 			 * Add your own feature flags to the block editor.
