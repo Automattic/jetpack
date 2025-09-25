@@ -10,16 +10,4 @@ declare module '@@codemirrorLanguageData@@' {
 	 *     ]
 	 */
 	export const extensionToLang: ReadonlyArray< [ extension: string, langName: string ] >;
-
-	/**
-	 * Alphabetically ordered array of language names.
-	 *
-	 * @example
-	 *     [
-	 *       "Elm",
-	 *       "Erlang",
-	 *       // …
-	 *     ]
-	 */
-	export const langNames: ReadonlyArray< string >;
 }

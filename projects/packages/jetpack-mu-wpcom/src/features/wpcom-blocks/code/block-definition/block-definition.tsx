@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
-import { extensionToLang, langNames } from '@@codemirrorLanguageData@@';
+import { extensionToLang } from '@@codemirrorLanguageData@@';
 // @ts-expect-error No types.
 import * as wpBlockEditor from '@wordpress/block-editor';
 // @ts-expect-error No types.
@@ -310,11 +310,22 @@ const Filename = ( props: Props ) => {
 const DisplayLanguage = ( props: Props ) => {
 	const { attributes, setAttributes } = props;
 
+	const emptyOption = React.useRef( { name: __( 'Plain text', 'jetpack-mu-wpcom' ), key: '' } );
+	const options = React.useMemo( () => {
+		const langNames = new Set< string >();
+		extensionToLang.forEach( ( [ , lang ] ) => {
+			langNames.add( lang );
+		} );
+		const sortedLangNames = Array.of( ...langNames ).map( lang => ( {
+			name: lang,
+			key: lang,
+		} ) );
+		sortedLangNames.sort( ( a, b ) => a.name.localeCompare( b.name ) );
+		const langs = [ emptyOption.current, ...sortedLangNames ];
+		return langs;
+	}, [] );
+
 	if ( props.isSelected ) {
-		const emptyOption = {
-			name: __( 'Plain text', 'jetpack-mu-wpcom' ),
-			key: '',
-		};
 		return (
 			<CustomSelectControl
 				className="a8c/code__language-select"
@@ -326,15 +337,9 @@ const DisplayLanguage = ( props: Props ) => {
 								name: attributes.language,
 								key: attributes.language,
 						  }
-						: emptyOption
+						: emptyOption.current
 				}
-				options={ [
-					emptyOption,
-					...langNames.map( lang => ( {
-						name: lang,
-						key: lang,
-					} ) ),
-				] }
+				options={ options }
 				onChange={ ( {
 					selectedItem: { key: newLanguage },
 				}: {
