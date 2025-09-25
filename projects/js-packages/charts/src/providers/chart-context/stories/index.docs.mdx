@@ -18,20 +18,20 @@ The Global Charts Context system consists of three main parts:
 3. **Context hooks** - Utilities for accessing theme and registration functionality
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { GlobalChartsProvider, LineChart, BarChart, jetpackTheme } from '@automattic/charts';
 
-function App() {
-	return (
-		<GlobalChartsProvider theme={jetpackTheme}>
-			<div className="dashboard">
-				<LineChart data={salesData} />
-				<BarChart data={conversionData} />
-				{/* All charts share the same theme and color coordination */}
-			</div>
-		</GlobalChartsProvider>
-	);
-}` }
+	function App() {
+		return (
+			<GlobalChartsProvider theme={jetpackTheme}>
+				<div className="dashboard">
+					<LineChart data={salesData} />
+					<BarChart data={conversionData} />
+					{/* All charts share the same theme and color coordination */}
+				</div>
+			</GlobalChartsProvider>
+		);
+	}` }
 />
 
 ## Basic Usage
@@ -41,7 +41,7 @@ function App() {
 Wrap your application or chart components with `GlobalChartsProvider` to enable theme sharing and color coordination:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
 function MyApp() {
@@ -61,7 +61,7 @@ function MyApp() {
 ### Using with Predefined Themes
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { GlobalChartsProvider, jetpackTheme, wooTheme } from '@automattic/charts';
 
 // Using Jetpack theme
@@ -86,7 +86,7 @@ One of the key features of the Global Charts Context is **stable color assignmen
 **Try toggling the countries on/off** - notice how each country maintains its assigned color regardless of which other countries are visible. This creates a consistent visual experience across multiple charts and data updates.
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Data with group assignments
 const data = [
 	{
@@ -111,7 +111,7 @@ The context respects explicit color overrides while maintaining group stability 
 <Canvas of={ ChartContextStories.WithColorOverrides } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Some elements have color overrides, others use global coordination
 const dataWithOverrides = [
 	{
@@ -135,7 +135,7 @@ const dataWithOverrides = [
 The Global Charts Context uses a comprehensive theme system that controls all visual aspects of charts:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `const customTheme = {
 	// Core colors used for data visualization
 	colors: ['#98C8DF', '#006DAB', '#A6DC80', '#1F9828', '#FF8C8F'],
@@ -180,7 +180,7 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 Themes are merged with the default theme, so you only need to specify the properties you want to customize:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Only customize colors - everything else uses defaults
 const brandColors = {
 	colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7']
@@ -202,7 +202,7 @@ Charts automatically register themselves with the Global Charts Context when mou
 - **Metadata sharing** - Charts can share contextual information
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Charts automatically register with a unique ID
 <LineChart
 	data={data}
@@ -220,7 +220,7 @@ Charts automatically register themselves with the Global Charts Context when mou
 Multiple charts can coordinate their display through the shared context:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `function Dashboard() {
 	return (
 		<GlobalChartsProvider>
@@ -242,7 +242,7 @@ Multiple charts can coordinate their display through the shared context:
 Access the full context for advanced chart functionality:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { useGlobalChartsContext } from '@automattic/charts';
 
 function CustomChart() {
@@ -275,7 +275,7 @@ function CustomChart() {
 Access just the theme when you only need styling information:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { useGlobalChartsTheme } from '@automattic/charts';
 
 function ThemeAwareComponent() {
@@ -297,7 +297,7 @@ function ThemeAwareComponent() {
 Register custom charts with the global context:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { useChartRegistration } from '@automattic/charts';
 
 function CustomChart({ data, chartId }) {
@@ -340,7 +340,7 @@ The Global Charts Context implements intelligent color caching to optimize perfo
 Use the context's `getElementStyles` function to get consistent styling for custom chart elements:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `function CustomChartElement({ dataPoint, index }) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -367,7 +367,7 @@ Use the context's `getElementStyles` function to get consistent styling for cust
 Create dashboards where multiple charts coordinate their display:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `function CoordinatedDashboard({ selectedCountries }) {
 	const filteredData = data.filter(item =>
 		selectedCountries.includes(item.group)
@@ -389,7 +389,7 @@ Create dashboards where multiple charts coordinate their display:
 If you're migrating from individual chart theming to the Global Charts Context:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// Old approach - each chart has its own theme
 <LineChart
 	data={data}
@@ -513,7 +513,7 @@ For older browsers, ensure your build process includes appropriate polyfills for
 The context includes error handling for common issues:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `// This will throw a helpful error
 function ChartWithoutProvider() {
 	const context = useGlobalChartsContext(); // Error: must be used within GlobalChartsProvider
