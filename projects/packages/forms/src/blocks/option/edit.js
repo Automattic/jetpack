@@ -1,6 +1,7 @@
 import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { ALLOWED_FORMATS, REQUIRED_INDICATOR } from '../shared/util/constants';
 import useEnter from './use-enter';
@@ -90,7 +91,9 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 						<RichText
 							ref={ useEnterRequiredRef }
 							allowedFormats={ ALLOWED_FORMATS }
-							className="required"
+							className={ clsx( 'required', {
+								'required--asterisk': formRequiredIndicator === REQUIRED_INDICATOR.ASTERISK,
+							} ) }
 							onChange={ value => setAttributes( { requiredText: value } ) }
 							tagName="span"
 							value={

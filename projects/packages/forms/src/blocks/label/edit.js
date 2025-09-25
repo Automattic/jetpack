@@ -158,7 +158,9 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 				{ required && formRequiredIndicator !== REQUIRED_INDICATOR.HIDDEN && (
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
-						className="required"
+						className={ clsx( 'required', {
+							'required--asterisk': formRequiredIndicator === REQUIRED_INDICATOR.ASTERISK,
+						} ) }
 						onChange={ value => setAttributes( { requiredText: value } ) }
 						tagName="span"
 						value={
