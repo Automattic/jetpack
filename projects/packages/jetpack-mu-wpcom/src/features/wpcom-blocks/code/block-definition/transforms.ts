@@ -187,8 +187,10 @@ export const transforms = {
 /**
  * Transform an external langauge name into a language name recognized by the block.
  *
- * This is designed to be permissive and recognize langauges from other blocks or from code fences.
- * @param languageCandidate - The input language name.
+ * The language recognition is permissive and recognizes langauges from other blocks' attributes
+ * or from code fences.
+ *
+ * @param languageCandidate - The input language to match.
  * @return The block language name, or undefined if no match.
  */
 function externalLanguageToBlockLanguage( languageCandidate: string | undefined ): string | void {
