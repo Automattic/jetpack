@@ -19,10 +19,9 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	/**
 	 * Replace the code placeholder.
 	 *
-	 * This method does not perform any safety checking on the provided HTML.
-	 *
 	 * @param array $tokenized_code_data The tokenized code data.
-	 * @return null|array{0: string, 1: string}
+	 * @return null|array{0: string, 1: string} Null on failure, or array with original code string
+	 *                                          and the tokenized HTML markup.
 	 */
 	public function get_updated_html_with_replaced_content( array $tokenized_code_data ): ?array {
 		// Find the location for insertion.
@@ -61,25 +60,46 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		foreach ( $tokenized_code_data as $line ) {
 			$replacement_code_html[] = '<div class="cm-line">';
 			foreach ( $line as $chunk ) {
+				if (
+					! is_array( $chunk ) ||
+					! isset( $chunk[0] ) ||
+					! is_string( $chunk[0] ) ||
+					( isset( $chunk[1] ) && ! is_string( $chunk[1] ) )
+				) {
+					return null;
+				}
+
 				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 				$code = base64_decode( $chunk[0], true );
 				if ( false === $code ) {
-					continue;
+					return null;
 				}
-				$class = $chunk[1] ?? null;
 
-				if ( ! $class ) {
-					$replacement_code_html[] = esc_html( $code );
+				$class_name = $chunk[1] ?? null;
+
+				/*
+				 * Do not rely on `esc_html`, it would mishandle character references
+				 * that appear to be encoded already. HTML like `&amp;` would be
+				 * ignored, resulting in `&` rendering in the browser instead of the
+				 * desired HTML `&amp;` which must be encoded as `&amp;amp;`.
+				 *
+				 * Below, the `double_encode` argument is set to `true` to ensure
+				 * prevent this issue and ensure correct encoding.
+				 */
+				$html_encoded_code = _wp_specialchars(
+					wp_check_invalid_utf8( $code ),
+					ENT_NOQUOTES,
+					false,
+					true
+				);
+
+				if ( ! $class_name ) {
+					$replacement_code_html[] = $html_encoded_code;
 				} else {
 					$replacement_code_html[] = sprintf(
 						'<span class="%s">%s</span>',
-						esc_attr( $class ),
-						_wp_specialchars(
-							$code,
-							ENT_NOQUOTES,
-							false,
-							true // Double-encode, yes. Do not attempt to normalize this text.
-						)
+						esc_attr( $class_name ),
+						$html_encoded_code
 					);
 				}
 			}
