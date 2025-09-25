@@ -36,6 +36,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'invoice_language_fixes', // Store invoice statuses and mappings consistently
 	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	'tax_rate_precision_fix', // increase tax rate precision from 2 to 10 decimal places
+	'ensure_notifications_table', // Ensure notifications table exists
 	);
 
 global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1291,6 +1292,65 @@ function zeroBSCRM_migration_tax_rate_precision_fix() {
 	}
 
 	zeroBSCRM_migrations_markComplete( 'tax_rate_precision_fix', array( 'updated' => 1 ) );
+}
+
+/**
+ * Ensure the notifications table exists
+ *
+ * This migration ensures the notifications table is created using the dedicated
+ * table creation function in ZeroBSCRM.Database.php
+ */
+function zeroBSCRM_migration_ensure_notifications_table() {
+	global $wpdb;
+
+	// Include the Database file if needed
+	if ( ! function_exists( 'jpcrm_create_notifications_table' ) ) {
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Database.php';
+	}
+
+	// Check if table exists first
+	$table_name = $wpdb->prefix . 'zbs_notifications';
+
+	// phpcs:disable
+	$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) === $table_name;
+	// phpcs:enable 
+
+	if ( ! $table_exists ) {
+		// Table doesn't exist, create just the notifications table
+		$result = jpcrm_create_notifications_table();
+
+		if ( $result ) {
+			zeroBSCRM_migrations_markComplete(
+				'ensure_notifications_table',
+				array(
+					'updated' => 1,
+					'note'    => 'Successfully created notifications table',
+				)
+			);
+			return true;
+		} else {
+			// Log error if table creation failed
+			zeroBSCRM_migrations_markComplete(
+				'ensure_notifications_table',
+				array(
+					'updated' => 0,
+					'note'    => 'Failed to create notifications table',
+					'error'   => true,
+				)
+			);
+			return false;
+		}
+	}
+
+	// Table already exists
+	zeroBSCRM_migrations_markComplete(
+		'ensure_notifications_table',
+		array(
+			'updated' => 0,
+			'note'    => 'Notifications table already exists',
+		)
+	);
+	return true;
 }
 
 /* ======================================================
