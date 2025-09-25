@@ -302,11 +302,9 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 			if ( ! singleField.attributes?.required ) {
 				// Update the field to be required
 				updateBlockAttributes( singleField.clientId, { required: true } );
-				// Also update the form-level required indicator
-				updateBlockAttributes( clientId, { requiredIndicator: 'hidden' } );
 			}
 		}
-	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes, clientId ] );
+	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
