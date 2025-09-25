@@ -2,7 +2,7 @@ import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/b
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
-import { ALLOWED_FORMATS, REQUIRED_INDICATOR } from '../shared/util/constants';
+import { ALLOWED_FORMATS } from '../shared/util/constants';
 import useEnter from './use-enter';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
@@ -21,8 +21,6 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 		'jetpack/field-options-type': type = 'checkbox',
 		'jetpack/field-required': required,
 		'jetpack/field-share-attributes': isSynced,
-		'jetpack/form-required-indicator': formRequiredIndicator,
-		'jetpack/form-required-text': formRequiredText,
 	} = context;
 	const { hideInput, label, isStandalone, requiredText, placeholder } = attributes;
 
@@ -86,18 +84,14 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 						onChange={ newLabel => setAttributes( { label: newLabel } ) }
 						onRemove={ onRemove }
 					/>
-					{ required && formRequiredIndicator !== REQUIRED_INDICATOR.HIDDEN && (
+					{ required && (
 						<RichText
 							ref={ useEnterRequiredRef }
 							allowedFormats={ ALLOWED_FORMATS }
 							className="required"
 							onChange={ value => setAttributes( { requiredText: value } ) }
 							tagName="span"
-							value={
-								formRequiredIndicator === REQUIRED_INDICATOR.ASTERISK
-									? '*'
-									: requiredText || formRequiredText || __( '(required)', 'jetpack-forms' )
-							}
+							value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 							withoutInteractiveFormatting
 						/>
 					) }

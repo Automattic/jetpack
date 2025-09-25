@@ -94,9 +94,3 @@ export const FORM_STYLE = {
 	DEFAULT: 'default',
 	OUTLINED: 'outlined',
 };
-
-export const REQUIRED_INDICATOR = {
-	TEXT: 'text',
-	ASTERISK: 'asterisk',
-	HIDDEN: 'hidden',
-};

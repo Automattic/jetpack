@@ -64,8 +64,6 @@ const settings = {
 		'jetpack/field-options-type',
 		'jetpack/field-required',
 		'jetpack/field-share-attributes',
-		'jetpack/form-required-indicator',
-		'jetpack/form-required-text',
 	],
 	edit,
 	save,

@@ -5,12 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
-import {
-	ALLOWED_FORMATS,
-	DATE_FORMATS,
-	FORM_STYLE,
-	REQUIRED_INDICATOR,
-} from '../shared/util/constants.js';
+import { ALLOWED_FORMATS, DATE_FORMATS, FORM_STYLE } from '../shared/util/constants.js';
 import getBlockStyle from '../shared/util/get-block-style.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
@@ -88,8 +83,6 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		'jetpack/field-required': required,
 		'jetpack/field-date-format': dateFormat,
 		'jetpack/field-share-attributes': isSynced,
-		'jetpack/form-required-indicator': formRequiredIndicator,
-		'jetpack/form-required-text': formRequiredText,
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
@@ -155,17 +148,13 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
-				{ required && formRequiredIndicator !== REQUIRED_INDICATOR.HIDDEN && (
+				{ required && (
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
 						className="required"
 						onChange={ value => setAttributes( { requiredText: value } ) }
 						tagName="span"
-						value={
-							formRequiredIndicator === REQUIRED_INDICATOR.ASTERISK
-								? '*'
-								: requiredText || formRequiredText || __( '(required)', 'jetpack-forms' )
-						}
+						value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 						withoutInteractiveFormatting
 					/>
 				) }
