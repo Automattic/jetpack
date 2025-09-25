@@ -34,6 +34,7 @@ type ExportHookReturn = {
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
 	onExport: () => Promise< ExportResponse >;
+	isExporting: boolean;
 	selectedResponsesCount: number;
 	currentStatus: string;
 	exportLabel: string;
@@ -89,7 +90,10 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
+	const [ isExporting, setIsExporting ] = useState( false );
+
 	const onExport = useCallback( async (): Promise< ExportResponse > => {
+		setIsExporting( true );
 		const exportData: ExportData = {
 			selected: selected.map( Number ),
 			post: currentQuery.parent ? String( currentQuery.parent ) : 'all',
@@ -104,18 +108,22 @@ export default function useExportResponses(): ExportHookReturn {
 			exportData.after = currentQuery.after;
 		}
 
-		const response = await apiFetch< ExportResponse >( {
-			path: '/wp/v2/feedback/export',
-			method: 'POST',
-			data: exportData,
-		} );
+		try {
+			const response = await apiFetch< ExportResponse >( {
+				path: '/wp/v2/feedback/export',
+				method: 'POST',
+				data: exportData,
+			} );
 
-		if ( response && response.download_url ) {
-			// Trigger download by navigating to the URL
-			window.location.href = response.download_url;
-			return response;
+			if ( response && response.download_url ) {
+				// Trigger download by navigating to the URL
+				window.location.href = response.download_url;
+				return response;
+			}
+			throw new Error( 'Invalid response: missing download URL' );
+		} finally {
+			setIsExporting( false );
 		}
-		throw new Error( 'Invalid response: missing download URL' );
 	}, [ currentQuery, selected ] );
 
 	useEffect( () => {
@@ -138,6 +146,7 @@ export default function useExportResponses(): ExportHookReturn {
 		autoConnectGdrive,
 		userCanExport,
 		onExport,
+		isExporting,
 		selectedResponsesCount,
 		currentStatus,
 		exportLabel,

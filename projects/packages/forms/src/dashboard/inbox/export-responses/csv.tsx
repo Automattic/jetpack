@@ -7,7 +7,12 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 
-const CSVExport = ( { onExport } ) => {
+type CSVExportProps = {
+	onExport: () => void;
+	isExporting?: boolean;
+};
+
+const CSVExport = ( { onExport, isExporting = false }: CSVExportProps ) => {
 	const { tracks } = useAnalytics();
 
 	const downloadCSV = useCallback( () => {
@@ -47,7 +52,13 @@ const CSVExport = ( { onExport } ) => {
 					{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
-					<Button variant="primary" className={ buttonClasses } onClick={ downloadCSV }>
+					<Button
+						variant="primary"
+						className={ buttonClasses }
+						onClick={ downloadCSV }
+						isBusy={ isExporting }
+						disabled={ isExporting }
+					>
 						{ __( 'Download', 'jetpack-forms' ) }
 					</Button>
 				</div>

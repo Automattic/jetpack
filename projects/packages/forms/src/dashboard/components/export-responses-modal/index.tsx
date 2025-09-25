@@ -18,12 +18,14 @@ type ExportResponsesModalProps = {
 	onRequestClose: () => void;
 	onExport: () => Promise< ExportResponse >;
 	autoConnectGdrive: boolean;
+	isExporting?: boolean;
 };
 
 const ExportResponsesModal = ( {
 	onRequestClose,
 	onExport,
 	autoConnectGdrive,
+	isExporting,
 }: ExportResponsesModalProps ) => {
 	return (
 		<Modal
@@ -32,7 +34,7 @@ const ExportResponsesModal = ( {
 			size="large"
 		>
 			<VStack spacing={ 8 }>
-				<CSVExport onExport={ onExport } />
+				<CSVExport onExport={ onExport } isExporting={ Boolean( isExporting ) } />
 				<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
 			</VStack>
 		</Modal>
