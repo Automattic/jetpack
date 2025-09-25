@@ -75,6 +75,10 @@ Fix image choice widths. [#45257]
 - Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
 - Update package dependencies. [#45027] [#45097]
 
+## [6.2.2] - 2025-09-25
+### Fixed
+- Resolved conflict with WordPress 6.7.3
+
 ## [6.2.1] - 2025-09-25
 ### Added
 - Forms: add extra layer of cache busting for interactivity API files (view.js) with hash suffix [#45138]
@@ -1600,6 +1604,7 @@ Fix image choice widths. [#45257]
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.2.2]: https://github.com/automattic/jetpack-forms/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.2.1
 [6.5.1]: https://github.com/automattic/jetpack-forms/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/automattic/jetpack-forms/compare/v6.4.0...v6.5.0
