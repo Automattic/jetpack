@@ -3421,7 +3421,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-analytics",
-                "reference": "f0adac19af79dfc88d03cf7cf32d5c0d350a8382"
+                "reference": "e8c0c8ae538b469c59a7a8853458fc19d25c53f6"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -3446,7 +3446,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "textdomain": "woocommerce-analytics",
                 "version-constants": {
