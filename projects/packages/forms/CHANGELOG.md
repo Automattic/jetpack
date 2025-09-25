@@ -75,6 +75,15 @@ Fix image choice widths. [#45257]
 - Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
 - Update package dependencies. [#45027] [#45097]
 
+## [6.2.1] - 2025-09-25
+### Added
+- Forms: add extra layer of cache busting for interactivity API files (view.js) with hash suffix [#45138]
+- Forms: add searchable country selector dropdown (combobox) [#45120]
+- Forms: try and fix deploy cache issue by adding a manual suffix for cache busting [#45137]
+
+### Changed
+- Forms: move all international phone code and UI back into legacy telephone field, keep backwards compat [#45061]
+
 ## [6.2.0] - 2025-09-03
 ### Changed
 - Use sentence case in integrations panel CTAs. [#45054]
@@ -1591,6 +1600,7 @@ Fix image choice widths. [#45257]
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.2.1]: https://github.com/automattic/jetpack-forms/compare/v6.2.0...v6.2.1
 [6.5.1]: https://github.com/automattic/jetpack-forms/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/automattic/jetpack-forms/compare/v6.4.0...v6.5.0
 [6.4.0]: https://github.com/automattic/jetpack-forms/compare/v6.3.0...v6.4.0
