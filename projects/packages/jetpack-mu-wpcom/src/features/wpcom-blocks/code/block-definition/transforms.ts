@@ -41,113 +41,12 @@ export const transforms = {
 				content: string | { text: string };
 			} ) => {
 				const content = typeof _content === 'string' ? _content : _content.text;
+				// This same RegExp matched to enter this transform. It must not be null here.
 				const [ , langCandidate ] = CODE_FENCE_REGEXP.exec( content )!;
+				// This RegExp capture group 1 was part of the match and must be defined here (it could be empty string).
+				const language = externalLanguageToBlockLanguage( langCandidate );
 
-				let language;
-				switch ( langCandidate?.toLowerCase() ) {
-					case 'c':
-						language = 'C';
-						break;
-
-					case 'c++':
-					case 'cpp':
-						language = 'C++';
-						break;
-
-					case 'css':
-						language = 'CSS';
-						break;
-
-					case 'diff':
-					case 'udiff':
-					case 'patch':
-						language = 'diff';
-						break;
-
-					case 'dockerfile':
-					case 'containerfile':
-						language = 'Dockerfile';
-						break;
-
-					case 'javascript':
-					case 'js':
-					case 'node':
-						language = 'JavaScript';
-						break;
-
-					case 'jsx':
-						language = 'JSX';
-						break;
-
-					case 'json':
-					case 'json5':
-					case 'jsonc':
-						language = 'JSON';
-						break;
-
-					case 'hs':
-					case 'haskell':
-						language = 'Haskell';
-						break;
-
-					case 'typescript':
-					case 'ts':
-						language = 'TypeScript';
-						break;
-
-					case 'tsx':
-						language = 'TSX';
-						break;
-
-					case 'php':
-						language = 'PHP';
-						break;
-
-					case 'py':
-					case 'python':
-					case 'python2':
-					case 'python3':
-						language = 'Python';
-						break;
-
-					case 'html':
-					case 'xhtml':
-						language = 'HTML';
-						break;
-
-					case 'rust':
-					case 'rs':
-						language = 'Rust';
-						break;
-
-					case 'sql':
-						language = 'SQL';
-						break;
-
-					case 'toml':
-						language = 'TOML';
-						break;
-
-					case 'webassembly':
-					case 'wasm':
-					case 'wast':
-						language = 'WebAssembly';
-						break;
-
-					case 'xml':
-					case 'rss':
-					case 'xsd':
-					case 'wsdl':
-						language = 'XML';
-						break;
-
-					case 'yaml':
-					case 'yml':
-						language = 'YAML';
-						break;
-				}
-
-				if ( ! language ) {
+				if ( typeof language === 'undefined' ) {
 					return createBlock< Attributes >( BLOCK_NAME );
 				}
 
@@ -194,275 +93,10 @@ export const transforms = {
 					blockAttributes.showLineNumbers = false;
 				}
 
-				switch ( attributes.language ) {
-					case 'apl':
-						blockAttributes.language = 'APL';
-						break;
-					case 'c':
-						blockAttributes.language = 'C';
-						break;
-					case 'clj':
-					case 'clojure':
-						blockAttributes.language = 'Clojure';
-						break;
-					case 'cmake':
-						blockAttributes.language = 'CMake';
-						break;
-					case 'cobol':
-						blockAttributes.language = 'Cobol';
-						break;
-					case 'cypher':
-						blockAttributes.language = 'Cypher';
-						break;
-					case 'cql':
-						blockAttributes.language = 'Cypher';
-						break;
-					case 'coffee':
-						blockAttributes.language = 'CoffeeScript';
-						break;
-					case 'cpp':
-						blockAttributes.language = 'C++';
-						break;
-					case 'csharp':
-					case 'c#':
-					case 'cs':
-						blockAttributes.language = 'C#';
-						break;
-					case 'css':
-						blockAttributes.language = 'CSS';
-						break;
-					case 'd':
-						blockAttributes.language = 'D';
-						break;
-					case 'dart':
-						blockAttributes.language = 'Dart';
-						break;
-					case 'diff':
-						blockAttributes.language = 'diff';
-						break;
-					case 'docker':
-					case 'dockerfile':
-						blockAttributes.language = 'Dockerfile';
-						break;
-					case 'elm':
-						blockAttributes.language = 'Elm';
-						break;
-					case 'erlang':
-					case 'erl':
-						blockAttributes.language = 'Erlang';
-						break;
-					case 'fsharp':
-					case 'f#':
-					case 'fs':
-						blockAttributes.language = 'F#';
-						break;
-					case 'gherkin':
-						blockAttributes.language = 'Gherkin';
-						break;
-					case 'go':
-						blockAttributes.language = 'Go';
-						break;
-					case 'groovy':
-						blockAttributes.language = 'Groovy';
-						break;
-					case 'haskell':
-					case 'hs':
-						blockAttributes.language = 'Haskell';
-						break;
-					case 'html':
-						blockAttributes.language = 'HTML';
-						break;
-					case 'http':
-						blockAttributes.language = 'HTTP';
-						break;
-					case 'ini':
-					case 'properties':
-						blockAttributes.language = 'Properties files';
-						break;
-					case 'java':
-						blockAttributes.language = 'Java';
-						break;
-					case 'javascript':
-					case 'js':
-						blockAttributes.language = 'JavaScript';
-						break;
-					case 'jinja-html':
-						blockAttributes.language = 'Jinja2';
-						break;
-					case 'json':
-					case 'json5':
-					case 'jsonc':
-						blockAttributes.language = 'JSON';
-						break;
-					case 'jsx':
-						blockAttributes.language = 'JSX';
-						break;
-					case 'julia':
-						blockAttributes.language = 'Julia';
-						break;
-					case 'kotlin':
-						blockAttributes.language = 'Kotlin';
-						break;
-					case 'latex':
-						blockAttributes.language = 'LaTeX';
-						break;
-					case 'less':
-						blockAttributes.language = 'LESS';
-						break;
-					case 'liquid':
-						blockAttributes.language = 'Liquid';
-						break;
-					case 'lisp':
-						blockAttributes.language = 'Common Lisp';
-						break;
-					case 'lua':
-						blockAttributes.language = 'Lua';
-						break;
-					case 'markdown':
-					case 'md':
-						blockAttributes.language = 'Markdown';
-						break;
-					case 'nginx':
-						blockAttributes.language = 'Nginx';
-						break;
-					case 'objective-c':
-					case 'objc':
-						blockAttributes.language = 'Objective-C';
-						break;
-					case 'objective-cpp':
-						blockAttributes.language = 'Objective-C++';
-						break;
-					case 'ocaml':
-						blockAttributes.language = 'OCaml';
-						break;
-					case 'pascal':
-						blockAttributes.language = 'Pascal';
-						break;
-					case 'perl':
-						blockAttributes.language = 'Perl';
-						break;
-					case 'php':
-						blockAttributes.language = 'PHP';
-						break;
-					case 'plaintext':
-						blockAttributes.language = '';
-						break;
-					case 'powershell':
-					case 'ps':
-					case 'ps1':
-						blockAttributes.language = 'PowerShell';
-						break;
-					case 'proto':
-						blockAttributes.language = 'ProtoBuf';
-						break;
-					case 'pug':
-						blockAttributes.language = 'Pug';
-						break;
-					case 'puppet':
-						blockAttributes.language = 'Puppet';
-						break;
-					case 'python':
-					case 'py':
-						blockAttributes.language = 'Python';
-						break;
-					case 'r':
-						blockAttributes.language = 'R';
-						break;
-					case 'ruby':
-					case 'rb':
-						blockAttributes.language = 'Ruby';
-						break;
-					case 'rust':
-					case 'rs':
-						blockAttributes.language = 'Rust';
-						break;
-					case 'sass':
-						blockAttributes.language = 'Sass';
-						break;
-					case 'scala':
-						blockAttributes.language = 'Scala';
-						break;
-					case 'scheme':
-						blockAttributes.language = 'Scheme';
-						break;
-					case 'scss':
-						blockAttributes.language = 'SCSS';
-						break;
-					case 'bash':
-					case 'sh':
-					case 'shell':
-					case 'shellscript':
-					case 'zsh':
-						blockAttributes.language = 'Shell';
-						break;
-					case 'smalltalk':
-						blockAttributes.language = 'Smalltalk';
-						break;
-					case 'sparql':
-						blockAttributes.language = 'SPARQL';
-						break;
-					case 'sql':
-						blockAttributes.language = 'SQL';
-						break;
-					case 'stylus':
-					case 'styl':
-						blockAttributes.language = 'Stylus';
-						break;
-					case 'swift':
-						blockAttributes.language = 'Swift';
-						break;
-					case 'system-verilog':
-						blockAttributes.language = 'SystemVerilog';
-						break;
-					case 'tcl':
-						blockAttributes.language = 'Tcl';
-						break;
-					case 'tex':
-						blockAttributes.language = 'Textile';
-						break;
-					case 'toml':
-						blockAttributes.language = 'TOML';
-						break;
-					case 'tsx':
-						blockAttributes.language = 'TSX';
-						break;
-					case 'turtle':
-						blockAttributes.language = 'Turtle';
-						break;
-					case 'typescript':
-					case 'ts':
-						blockAttributes.language = 'TypeScript';
-						break;
-					case 'vb':
-						blockAttributes.language = 'VB.NET';
-						break;
-					case 'verilog':
-						blockAttributes.language = 'Verilog';
-						break;
-					case 'vhdl':
-						blockAttributes.language = 'VHDL';
-						break;
-					case 'vue':
-						blockAttributes.language = 'Vue';
-						break;
-					case 'wasm':
-						blockAttributes.language = 'WebAssembly';
-						break;
-					case 'wolfram':
-						blockAttributes.language = 'Mathematica';
-						break;
-					case 'xml':
-						blockAttributes.language = 'XML';
-						break;
-					case 'yaml':
-						blockAttributes.language = 'YAML';
-						break;
-					case 'yml':
-						blockAttributes.language = 'YAML';
-						break;
-				}
+				const detectedLanguage = externalLanguageToBlockLanguage( attributes.language );
 
-				if ( blockAttributes.language ) {
+				if ( typeof detectedLanguage === 'string' ) {
+					blockAttributes.language = detectedLanguage;
 					blockAttributes.languageConfidence = 'certain';
 				}
 
@@ -485,142 +119,19 @@ export const transforms = {
 					code: content,
 				};
 
-				switch ( attributes.language ) {
-					// 'ActionScript'
-					case 'as3':
-						break;
-					// 'Arduino'
-					case 'arduino':
-						break;
-					// 'BASH / Shell'
-					case 'bash':
-						blockAttributes.language = 'Shell';
-						break;
-					// 'ColdFusion'
-					case 'coldfusion':
-						// XML???
-						break;
-					// 'Clojure'
-					case 'clojure':
-						blockAttributes.language = 'Clojure';
-						break;
-					// 'C / C++'
-					case 'cpp':
-						blockAttributes.language = 'C++';
-						break;
-					// 'C#'
-					case 'csharp':
-						blockAttributes.language = 'C#';
-						break;
-					// 'CSS'
-					case 'css':
-						blockAttributes.language = 'CSS';
-						break;
-					// 'Delphi / Pascal'
-					case 'delphi':
-						break;
-					// 'diff / patch'
-					case 'diff':
-						blockAttributes.language = 'diff';
-						break;
-					// 'Erlang'
-					case 'erlang':
-						blockAttributes.language = 'Erlang';
-						break;
-					// 'F#'
-					case 'fsharp':
-						blockAttributes.language = 'F#';
-						break;
-					// 'Go'
-					case 'go':
-						blockAttributes.language = 'Go';
-						break;
-					// 'Groovy'
-					case 'groovy':
-						blockAttributes.language = 'Groovy';
-						break;
-					// 'Haskell'
-					case 'haskell':
-						blockAttributes.language = 'Haskell';
-						break;
-					// 'Java'
-					case 'java':
-						blockAttributes.language = 'Java';
-						break;
-					// 'JavaFX'
-					case 'javafx':
-						break;
-					// 'JavaScript'
-					case 'jscript':
-						blockAttributes.language = 'JavaScript';
-						break;
-					// 'LaTeX'
-					case 'latex':
-						blockAttributes.language = 'LaTeX';
-						break;
-					// 'MATLAB'
-					case 'matlabkey':
-						break;
-					// 'Objective-C'
-					case 'objc':
-						blockAttributes.language = 'Objective-C';
-						break;
-					// 'Perl'
-					case 'perl':
-						blockAttributes.language = 'Perl';
-						break;
-					// 'PHP'
-					case 'php':
-						blockAttributes.language = 'PHP';
-						break;
-					// 'Plain Text'
-					case 'plain':
-						blockAttributes.language = '';
-						break;
-					// 'PowerShell'
-					case 'powershell':
-						blockAttributes.language = 'PowerShell';
-						break;
-					// 'Python'
-					case 'python':
-						blockAttributes.language = 'Python';
-						break;
-					// 'R'
-					case 'r':
-						blockAttributes.language = 'R';
-						break;
-					// 'Ruby / Ruby on Rails'
-					case 'ruby':
-						blockAttributes.language = 'Ruby';
-						break;
-					// 'Scala'
-					case 'scala':
-						blockAttributes.language = 'Scala';
-						break;
-					// 'Swift'
-					case 'swift':
-						blockAttributes.language = 'Swift';
-						break;
-					// 'SQL'
-					case 'sql':
-						blockAttributes.language = 'SQL';
-						break;
-					// 'Visual Basic'
-					case 'vb':
-						blockAttributes.language = 'VB.NET';
-						break;
-					// 'HTML / XHTML / XML / XSLT'
-					case 'xml':
-						// Should we default to HTML?
-						blockAttributes.language = 'HTML';
-						break;
-					// 'YAML'
-					case 'yaml':
-						blockAttributes.language = 'YAML';
-						break;
-				}
+				/*
+				 * This block uses 'xml' for all of the following languages:
+				 * HTML / XHTML / XML / XSLT
+				 *
+				 * Add special handling to use 'HTML'.
+				 */
+				const detectedLanguage =
+					attributes.language === 'xml'
+						? 'HTML'
+						: externalLanguageToBlockLanguage( attributes.language );
 
-				if ( blockAttributes.language ) {
+				if ( typeof detectedLanguage === 'string' ) {
+					blockAttributes.language = detectedLanguage;
 					blockAttributes.languageConfidence = 'certain';
 				}
 
@@ -672,6 +183,296 @@ export const transforms = {
 		},
 	],
 };
+
+/**
+ * Transform an external langauge name into a language name recognized by the block.
+ *
+ * This is designed to be permissive and recognize langauges from other blocks or from code fences.
+ * @param languageCandidate - The input language name.
+ * @return The block language name, or undefined if no match.
+ */
+function externalLanguageToBlockLanguage( languageCandidate: string | undefined ): string | void {
+	if ( ! languageCandidate ) {
+		return;
+	}
+	switch ( languageCandidate.toLowerCase() ) {
+		case 'plain':
+		case 'plaintext':
+			return '';
+
+		case 'apl':
+			return 'APL';
+
+		case 'c':
+			return 'C';
+
+		case 'csharp':
+		case 'c#':
+		case 'cs':
+			return 'C#';
+
+		case 'c++':
+		case 'cpp':
+			return 'C++';
+
+		case 'clj':
+		case 'clojure':
+			return 'Clojure';
+
+		case 'cmake':
+			return 'CMake';
+
+		case 'cobol':
+			return 'Cobol';
+
+		case 'coffee':
+			return 'CoffeeScript';
+
+		case 'lisp':
+			return 'Common Lisp';
+
+		case 'css':
+			return 'CSS';
+
+		case 'cypher':
+		case 'cql':
+			return 'Cypher';
+
+		case 'd':
+			return 'D';
+
+		case 'dart':
+			return 'Dart';
+
+		case 'diff':
+		case 'patch':
+		case 'udiff':
+			return 'diff';
+
+		case 'containerfile':
+		case 'docker':
+		case 'dockerfile':
+			return 'Dockerfile';
+
+		case 'elm':
+			return 'Elm';
+
+		case 'erlang':
+		case 'erl':
+			return 'Erlang';
+
+		case 'f#':
+		case 'fs':
+		case 'fsharp':
+			return 'F#';
+
+		case 'gherkin':
+			return 'Gherkin';
+
+		case 'go':
+			return 'Go';
+
+		case 'groovy':
+			return 'Groovy';
+
+		case 'haskell':
+		case 'hs':
+			return 'Haskell';
+
+		case 'html':
+		case 'xhtml':
+			return 'HTML';
+
+		case 'http':
+			return 'HTTP';
+
+		case 'java':
+			return 'Java';
+
+		case 'javascript':
+		case 'js':
+		case 'jscript':
+		case 'node':
+			return 'JavaScript';
+
+		case 'jsx':
+			return 'JSX';
+
+		case 'json':
+		case 'json5':
+		case 'jsonc':
+			return 'JSON';
+
+		case 'jinja-html':
+			return 'Jinja2';
+
+		case 'julia':
+			return 'Julia';
+
+		case 'kotlin':
+			return 'Kotlin';
+
+		case 'latex':
+			return 'LaTeX';
+
+		case 'less':
+			return 'LESS';
+
+		case 'liquid':
+			return 'Liquid';
+
+		case 'lua':
+			return 'Lua';
+
+		case 'markdown':
+		case 'md':
+			return 'Markdown';
+
+		case 'wolfram':
+			return 'Mathematica';
+
+		case 'nginx':
+			return 'Nginx';
+
+		case 'objective-c':
+		case 'objc':
+			return 'Objective-C';
+
+		case 'objective-cpp':
+			return 'Objective-C++';
+
+		case 'ocaml':
+			return 'OCaml';
+
+		case 'pascal':
+			return 'Pascal';
+
+		case 'perl':
+			return 'Perl';
+
+		case 'php':
+			return 'PHP';
+
+		case 'powershell':
+		case 'ps':
+		case 'ps1':
+			return 'PowerShell';
+
+		case 'ini':
+		case 'properties':
+			return 'Properties files';
+
+		case 'proto':
+			return 'ProtoBuf';
+
+		case 'pug':
+			return 'Pug';
+
+		case 'puppet':
+			return 'Puppet';
+
+		case 'py':
+		case 'python':
+		case 'python2':
+		case 'python3':
+			return 'Python';
+
+		case 'r':
+			return 'R';
+
+		case 'ruby':
+		case 'rb':
+			return 'Ruby';
+
+		case 'rust':
+		case 'rs':
+			return 'Rust';
+
+		case 'sass':
+			return 'Sass';
+
+		case 'scala':
+			return 'Scala';
+
+		case 'scheme':
+			return 'Scheme';
+
+		case 'scss':
+			return 'SCSS';
+
+		case 'bash':
+		case 'sh':
+		case 'shell':
+		case 'shellscript':
+		case 'zsh':
+			return 'Shell';
+
+		case 'smalltalk':
+			return 'Smalltalk';
+
+		case 'sparql':
+			return 'SPARQL';
+
+		case 'sql':
+			return 'SQL';
+
+		case 'stylus':
+		case 'styl':
+			return 'Stylus';
+
+		case 'swift':
+			return 'Swift';
+
+		case 'system-verilog':
+			return 'SystemVerilog';
+
+		case 'tcl':
+			return 'Tcl';
+
+		case 'tex':
+			return 'Textile';
+
+		case 'toml':
+			return 'TOML';
+
+		case 'tsx':
+			return 'TSX';
+
+		case 'turtle':
+			return 'Turtle';
+
+		case 'ts':
+		case 'typescript':
+			return 'TypeScript';
+
+		case 'vb':
+			return 'VB.NET';
+
+		case 'verilog':
+			return 'Verilog';
+
+		case 'vhdl':
+			return 'VHDL';
+
+		case 'vue':
+			return 'Vue';
+
+		case 'wasm':
+		case 'wast':
+		case 'webassembly':
+			return 'WebAssembly';
+
+		case 'rss':
+		case 'wsdl':
+		case 'xml':
+		case 'xsd':
+			return 'XML';
+
+		case 'yaml':
+		case 'yml':
+			return 'YAML';
+	}
+}
 
 interface GetLanguageFromFile {
 	( file: File ): string | undefined;
