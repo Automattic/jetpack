@@ -463,6 +463,50 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/config unauthorized access.
+	 */
+	public function test_get_forms_export_returns_401_for_unauthorized() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test GET feedback/config unauthorized access.
+	 */
+	public function test_get_forms_export_returns_404_for_authorized_but_empty() {
+		$request  = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	/**
+	 * Filter to mock feedback posts returned by get_posts.
+	 */
+	public function get_posts_return_feedback( $results, $query ) {
+		if ( strpos( $query, "wp_posts.post_type = 'feedback'" ) !== false ) {
+			$results = array(
+				(object) array( 'ID' => 123 ),
+			);
+		}
+		return $results;
+	}
+
+	/**
+	 * Test GET feedback/config unauthorized access.
+	 */
+	public function test_get_forms_export_returns_200_for_authorized() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
+		$request->set_param( 'selected', array( 123 ) );
+
+		add_filter( 'wordbless_wpdb_query_results', array( $this, 'get_posts_return_feedback' ), 10, 2 );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wordbless_wpdb_query_results', array( $this, 'get_posts_return_feedback' ), 10 );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
 	 * Test resend email functionality
 	 */
 	public function test_resend_email() {
