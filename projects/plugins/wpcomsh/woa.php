@@ -208,6 +208,40 @@ function wpcomsh_woa_post_clone_set_staging_environment_type( $args, $assoc_args
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_set_staging_environment_type', 10, 2 );
 
 /**
+ * Clear performance profiler data.
+ *
+ * @param array $args       Arguments.
+ * @param array $assoc_args Associated arguments.
+ */
+function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_args ) {
+	$clear_performance_profiler_data = WP_CLI\Utils\get_flag_value( $assoc_args, 'clear-performance-profiler-data', false );
+	if ( ! $clear_performance_profiler_data ) {
+		return;
+	}
+
+	WP_CLI::runcommand(
+		'option delete wpcom_performance_report_url',
+		array(
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+
+	$query   = "DELETE FROM wp_postmeta WHERE meta_key = '_wpcom_performance_report_url';";
+	$command = sprintf( 'db query "%s"', $query );
+	WP_CLI::runcommand(
+		$command,
+		array(
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+
+	WP_CLI::success( 'Performance profiler data cleared' );
+}
+add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_clear_performance_profiler_data', 10, 2 );
+
+/**
  * Install marketplace software after a site transfer.
  *
  * @param array $args       Arguments.
