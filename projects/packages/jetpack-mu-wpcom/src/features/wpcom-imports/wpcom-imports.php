@@ -21,10 +21,12 @@ function wpcom_imports_register_imports() {
 	$squarespace_description = __( 'Import <strong>posts, comments, images and tags</strong> from a Squarespace export file.', 'jetpack-mu-wpcom' );
 	$medium_description      = __( 'Import <strong>posts</strong> from a Medium export file.', 'jetpack-mu-wpcom' );
 	$wix_description         = __( 'Import <strong>posts, pages, and media</strong> from your Wix.com site.', 'jetpack-mu-wpcom' );
+	$substack_description    = __( 'Import <strong>content and subscribers</strong> from your Substack site.', 'jetpack-mu-wpcom' );
 
 	register_importer( 'wpcom-squarespace', __( 'Squarespace', 'jetpack-mu-wpcom' ), $squarespace_description, $page );
 	register_importer( 'wpcom-medium', __( 'Medium', 'jetpack-mu-wpcom' ), $medium_description, $page );
 	register_importer( 'wpcom-wix', __( 'Wix', 'jetpack-mu-wpcom' ), $wix_description, $page );
+	register_importer( 'wpcom-substack', __( 'Substack', 'jetpack-mu-wpcom' ), $substack_description, $page );
 }
 
 add_action( 'admin_init', 'wpcom_imports_register_imports' );
@@ -80,6 +82,24 @@ add_action(
 		$site_id = get_wpcom_blog_id();
 		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
 		wp_redirect( 'https://wordpress.com/setup/site-migration/site-migration-identify?platform=wix&action=skip_platform_identification&hide_importer_link=true&siteSlug=' . $domain . '&siteId=' . $site_id );
+		exit();
+	}
+);
+
+/**
+ * Redirect to Calypso Stepper Substack importer.
+ */
+add_action(
+	'load-importer-wpcom-substack',
+	/**
+	 * Redirect to the Substack importer in the Calypso Stepper.
+	 *
+	 * @return never-return
+	 */
+	function () {
+		$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+		wp_redirect( 'https://wordpress.com/setup/site-setup/importerSubstack?ref=wp-admin-importers-list-direct-importer&siteSlug=' . $domain );
 		exit();
 	}
 );
