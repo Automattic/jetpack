@@ -5,9 +5,10 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
@@ -48,6 +49,7 @@ export default function useExportResponses(): ExportHookReturn {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
 	const { selectedResponsesCount, currentStatus } = useSelect(
 		select => ( {
@@ -104,19 +106,25 @@ export default function useExportResponses(): ExportHookReturn {
 			exportData.after = currentQuery.after;
 		}
 
-		const response = await apiFetch< ExportResponse >( {
-			path: '/wp/v2/feedback/export',
-			method: 'POST',
-			data: exportData,
-		} );
+		try {
+			const response = await apiFetch( {
+				path: '/wp/v2/feedback/export',
+				method: 'POST',
+				data: exportData,
+			} );
 
-		if ( response && response.download_url ) {
-			// Trigger download by navigating to the URL
-			window.location.href = response.download_url;
-			return response;
+			if ( response && response.download_url ) {
+				// Trigger download by navigating to the URL
+				window.location.href = response.download_url;
+				return response;
+			}
+		} catch {
+			closeModal();
+			createErrorNotice( __( 'No responses found to export!', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
 		}
-		throw new Error( 'Invalid response: missing download URL' );
-	}, [ currentQuery, selected ] );
+	}, [ currentQuery, selected, closeModal, createErrorNotice ] );
 
 	useEffect( () => {
 		const url = new URL( window.location.href );
