@@ -107,17 +107,19 @@ export default function useExportResponses(): ExportHookReturn {
 		}
 
 		try {
-			const response = await apiFetch( {
+			const response = ( await apiFetch( {
 				path: '/wp/v2/feedback/export',
 				method: 'POST',
 				data: exportData,
-			} );
+			} ) ) as ExportResponse;
 
 			if ( response && response.download_url ) {
 				// Trigger download by navigating to the URL
 				window.location.href = response.download_url;
 				return response;
 			}
+
+			return { download_url: '', count: 0 };
 		} catch {
 			closeModal();
 			createErrorNotice( __( 'No responses found to export!', 'jetpack-forms' ), {
