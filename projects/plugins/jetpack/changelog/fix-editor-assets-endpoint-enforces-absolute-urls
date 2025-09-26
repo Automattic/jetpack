@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Editor assets endpoint: enforce absolute URLs to mitigate failed requests from client origins.
