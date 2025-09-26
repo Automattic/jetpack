@@ -416,10 +416,6 @@ interface ElementStyles {
 
 ## Accessibility
 
-### Theme Accessibility
-
-The Global Charts Context supports accessibility through consistent theming, though individual chart accessibility features are implemented at the component level rather than coordinated by the context:
-
 ### Theme Color Considerations
 
 When creating custom themes, ensure:
@@ -428,21 +424,64 @@ When creating custom themes, ensure:
 - **Color-blind friendly** palettes that don't rely solely on color for information
 - **High contrast mode** compatibility with system preferences
 
-### Chart Component Accessibility
+### Automatic Color Generation
 
-Individual chart components provide their own accessibility features:
+When your data has more series than colors defined in your theme, the Global Charts Context automatically generates additional colors using a sophisticated algorithm:
 
-- **ARIA attributes** - Charts include `role="grid"`, `aria-label`, and proper `tabIndex`
-- **Keyboard navigation** - Arrow keys for data point navigation, Escape to exit, Tab handling
-- **Focus management** - Proper focus indicators and restoration
-- **Screen reader support** - Tooltips include `role="tooltip"`, `aria-live`, and `aria-atomic` attributes
+#### Golden Ratio Distribution
 
-### Accessibility Best Practices
+The system uses the **golden ratio (φ ≈ 0.618)** to generate mathematically pleasing color distributions:
 
-- Test your custom themes with color contrast analyzers
-- Verify charts are navigable with keyboard-only interaction
-- Ensure tooltips and labels provide sufficient context for screen readers
-- Consider providing alternative data representations for complex visualizations
+- **Hue spacing** - New hues are distributed using `(index × φ × 360°) % 360°` for optimal visual separation
+- **Hue range constraint** - Generated colors stay within an expanded range (130%) of your theme's existing colors
+- **Wrap-around handling** - Intelligently handles cases where theme colors span across the 0° hue boundary
+
+#### Accessibility-First Generation
+
+All generated colors maintain WCAG AA compliance:
+
+- **Base lightness: 35%** - Ensures 4.5:1 contrast ratio against white backgrounds
+- **Lightness variations** - Creates 4 levels (35%, 43%, 51%, 59%) for variety while maintaining accessibility
+- **Saturation variations** - Uses 3 levels (60%, 75%, 90%) for visual distinction
+
+#### Perceptual Distance Optimization
+
+The algorithm ensures visual distinction between colors:
+
+- **Minimum distance threshold** - Maintains 25+ units of perceptual distance between colors
+- **Smart retry logic** - Up to 50 attempts per color to find sufficiently different options
+- **Distance calculation** - Uses weighted HSL distance optimized for chart readability
+
+#### Practical Example
+
+<Source
+	language="tsx"
+	code={ `// Theme with 3 colors
+	const limitedTheme = {
+		colors: [ '#006DAB', '#1F9828', '#FF8C8F' ]
+	};
+
+	// Data with 8 series - 5 additional colors will be auto-generated
+	const dataWithManySeries = [
+		{ label: 'Series 1', group: 'A' }, // Uses #006DAB
+		{ label: 'Series 2', group: 'B' }, // Uses #1F9828
+		{ label: 'Series 3', group: 'C' }, // Uses #FF8C8F
+		{ label: 'Series 4', group: 'D' }, // Auto-generated: ~hsl(193, 75%, 43%)
+		{ label: 'Series 5', group: 'E' }, // Auto-generated: ~hsl(76, 60%, 51%)
+		{ label: 'Series 6', group: 'F' }, // Auto-generated: ~hsl(318, 90%, 35%)
+		{ label: 'Series 7', group: 'G' }, // Auto-generated: ~hsl(201, 75%, 59%)
+		{ label: 'Series 8', group: 'H' }, // Auto-generated: ~hsl(84, 60%, 35%)
+	];
+
+	// All colors remain consistent across charts and re-renders
+	<GlobalChartsProvider theme={ limitedTheme }>
+		<LineChart data={ dataWithManySeries } />
+		<BarChart data={ dataWithManySeries } />
+	</GlobalChartsProvider>` }
+/>
+
+This ensures that even with limited theme colors, your charts maintain visual harmony, accessibility compliance, and consistent color assignments across your entire application.
+
 
 ## Browser Compatibility
 
