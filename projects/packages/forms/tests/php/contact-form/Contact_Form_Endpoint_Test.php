@@ -463,7 +463,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
-	 * Test GET feedback/config unauthorized access.
+	 * Test GET feedback/export unauthorized access.
 	 */
 	public function test_get_forms_export_returns_401_for_unauthorized() {
 		wp_set_current_user( 0 );
@@ -473,7 +473,30 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
-	 * Test GET feedback/config unauthorized access.
+	 * Test GET feedback/export unauthorized access.
+	 */
+	public function test_get_forms_export_returns_401_for_user_without_export_permission() {
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_author',
+				'user_pass'  => '123',
+				'role'       => 'author',
+			)
+		);
+
+		wp_set_current_user( $user_id );
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
+		$request->set_param( 'selected', array( 123 ) );
+
+		add_filter( 'wordbless_wpdb_query_results', array( $this, 'get_posts_return_feedback' ), 10, 2 );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wordbless_wpdb_query_results', array( $this, 'get_posts_return_feedback' ), 10 );
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Test GET feedback/export empty authorized access.
 	 */
 	public function test_get_forms_export_returns_404_for_authorized_but_empty() {
 		$request  = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
@@ -494,7 +517,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
-	 * Test GET feedback/config unauthorized access.
+	 * Test GET feedback/export authorized access.
 	 */
 	public function test_get_forms_export_returns_200_for_authorized() {
 		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/export' );
