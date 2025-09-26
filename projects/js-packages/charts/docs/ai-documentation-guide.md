@@ -170,23 +170,7 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 9. Browser Compatibility
-
-Include any browser-specific considerations:
-
-```mdx
-## Browser Compatibility
-
-### [Browser Name] Considerations
-
-Any browser-specific behaviors or workarounds.
-
-### [API/Feature] Support
-
-Information about feature support and fallbacks.
-```
-
-### 10. API Reference
+### 9. API Reference
 
 Comprehensive prop documentation:
 
@@ -223,7 +207,7 @@ type TypeName = {
 
 ````
 
-### 11. Migration
+### 10. Migration
 ```mdx
 ## Migration from [Legacy/Previous API]
 If applicable, provide migration examples:
