@@ -66,12 +66,17 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
+		requiredIndicator: {
+			type: 'string',
+			default: 'text',
+		},
 	},
 	usesContext: [
 		'jetpack/form-class-name',
 		'jetpack/field-required',
 		'jetpack/field-date-format',
 		'jetpack/field-share-attributes',
+		'jetpack/field-required-indicator',
 	],
 	edit,
 	save,

@@ -8,6 +8,10 @@ export default {
 			type: 'boolean',
 			default: false,
 		},
+		requiredIndicator: {
+			type: 'string',
+			default: 'text',
+		},
 		width: {
 			type: 'number',
 			default: 100,
@@ -20,6 +24,7 @@ export default {
 	category: 'contact-form',
 	providesContext: {
 		'jetpack/field-required': 'required',
+		'jetpack/field-required-indicator': 'requiredIndicator',
 		'jetpack/field-share-attributes': 'shareFieldAttributes',
 	},
 	save: () => null,

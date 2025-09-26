@@ -83,6 +83,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		'jetpack/field-required': required,
 		'jetpack/field-date-format': dateFormat,
 		'jetpack/field-share-attributes': isSynced,
+		'jetpack/field-required-indicator': requiredIndicator,
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
@@ -148,7 +149,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
-				{ required && (
+				{ required && requiredIndicator !== 'hidden' && (
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
 						className="required"
