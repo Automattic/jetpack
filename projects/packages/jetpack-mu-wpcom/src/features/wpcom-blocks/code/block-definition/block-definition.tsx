@@ -374,7 +374,6 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
 	return (
 		<Chrome isLoading { ...props }>
 			<CodeWrapper { ...props }>{ code }</CodeWrapper>
-			<pre className="cm-content">{ code }</pre>
 			<Notice status="warning" isDismissible={ false }>
 				<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content may
 				break.
