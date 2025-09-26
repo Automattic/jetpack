@@ -1268,7 +1268,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 		}
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, $required_indicator );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
 			$field .= "<div class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
