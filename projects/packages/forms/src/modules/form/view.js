@@ -65,6 +65,10 @@ const registerField = (
 ) => {
 	const context = getContext();
 
+	if ( ! context.fields ) {
+		context.fields = {};
+	}
+
 	if ( ! context.fields[ fieldId ] ) {
 		context.fields[ fieldId ] = {
 			id: fieldId,
