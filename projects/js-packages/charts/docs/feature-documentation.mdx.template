@@ -179,16 +179,6 @@ Controls [what this affects]:
 - [Focus behavior and visual indicators]
 - [Focus trapping or restoration if applicable]
 
-## Browser Compatibility
-
-### [Browser] Considerations
-
-[Any browser-specific behaviors, workarounds, or limitations].
-
-### [API/Feature] Support
-
-[Information about modern web API usage, polyfills, or fallback behavior].
-
 ## API Reference
 
 ### [Component].[FeatureComponent]
