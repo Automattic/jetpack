@@ -362,26 +362,6 @@ Create dashboards where multiple charts coordinate their display:
 	}` }
 />
 
-## Migration from Individual Chart Themes
-
-If you're migrating from individual chart theming to the Global Charts Context:
-
-<Source
-	language="tsx"
-	code={ `// Old approach - each chart has its own theme
-	<LineChart
-		data={ data }
-		theme={ myTheme }
-		colors={ [ '#FF0000', '#00FF00' ] }
-	/>
-
-	// New approach - shared theme via context
-	<GlobalChartsProvider theme={ myTheme }>
-		<LineChart data={ data } />
-		{ /* Colors and theme are automatically inherited */ }
-	</GlobalChartsProvider>` }
-/>
-
 ## API Reference
 
 ### GlobalChartsProvider
@@ -436,21 +416,33 @@ interface ElementStyles {
 
 ## Accessibility
 
-### Context and Screen Readers
-
-The Global Charts Context ensures consistent accessibility across all charts:
-
-- **Coordinated ARIA labels** - All charts use consistent labeling schemes
-- **Color accessibility** - Theme colors are designed to meet WCAG contrast requirements
-- **Focus coordination** - Focus management works consistently across multiple charts
-
 ### Theme Accessibility
+
+The Global Charts Context supports accessibility through consistent theming, though individual chart accessibility features are implemented at the component level rather than coordinated by the context:
+
+### Theme Color Considerations
 
 When creating custom themes, ensure:
 
-- **Sufficient contrast** between background and foreground colors
+- **Sufficient contrast** between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
 - **Color-blind friendly** palettes that don't rely solely on color for information
 - **High contrast mode** compatibility with system preferences
+
+### Chart Component Accessibility
+
+Individual chart components provide their own accessibility features:
+
+- **ARIA attributes** - Charts include `role="grid"`, `aria-label`, and proper `tabIndex`
+- **Keyboard navigation** - Arrow keys for data point navigation, Escape to exit, Tab handling
+- **Focus management** - Proper focus indicators and restoration
+- **Screen reader support** - Tooltips include `role="tooltip"`, `aria-live`, and `aria-atomic` attributes
+
+### Accessibility Best Practices
+
+- Test your custom themes with color contrast analyzers
+- Verify charts are navigable with keyboard-only interaction
+- Ensure tooltips and labels provide sufficient context for screen readers
+- Consider providing alternative data representations for complex visualizations
 
 ## Browser Compatibility
 
