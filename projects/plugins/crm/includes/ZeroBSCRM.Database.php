@@ -474,7 +474,7 @@ function zeroBSCRM_createTables(){
   `zbs_team` int(11) DEFAULT NULL,
   `zbs_owner` int(11) NOT NULL,
   `zbsc_tax_name` VARCHAR(100) NULL,
-  `zbsc_rate` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `zbsc_rate` DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000,
   `zbsc_created` INT(14) NOT NULL,
   `zbsc_lastupdated` INT(14) NOT NULL,
   PRIMARY KEY (`ID`))

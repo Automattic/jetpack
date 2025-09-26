@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { __ } from '@wordpress/i18n';
 
 export default {
@@ -56,5 +59,9 @@ export default {
 	emailNotifications: {
 		type: 'boolean',
 		default: true,
+	},
+	disableGoBack: {
+		type: 'boolean',
+		default: false,
 	},
 };
