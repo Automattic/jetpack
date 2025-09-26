@@ -38,4 +38,5 @@ class WPCOMSH_Blog_Token_Resilience {
 
 // Keep for backward compatibility but with lower priority
 // The new External Storage Handler runs earlier and will handle most cases
-add_filter( 'jetpack_options', array( 'WPCOMSH_Blog_Token_Resilience', 'filter_get_option' ), 15, 2 );
+// DISABLED: Removing deprecated class - External Storage Handler should handle all cases now
+// add_filter( 'jetpack_options', array( 'WPCOMSH_Blog_Token_Resilience', 'filter_get_option' ), 15, 2 );

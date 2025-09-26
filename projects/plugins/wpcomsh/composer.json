@@ -34,7 +34,6 @@
 			"imports",
 			"jetpack-require-connection-owner",
 			"jetpack-token-error-header",
-			"jetpack-token-resilience",
 			"lib",
 			"mailpoet",
 			"notices",
