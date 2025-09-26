@@ -93,7 +93,7 @@
 		"@babel/plugin-transform-react-jsx": "7.27.1",
 		"@babel/preset-react": "7.27.1",
 		"@babel/runtime": "7.27.6",
-		"@playwright/test": "1.55.0",
+		"@playwright/test": "1.55.1",
 		"@tsconfig/strictest": "2.0.5",
 		"@types/node": "^20.4.2",
 		"@types/react": "^18.2.28",
