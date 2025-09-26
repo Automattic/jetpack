@@ -76,7 +76,6 @@ const settings = {
 		'jetpack/field-required',
 		'jetpack/field-date-format',
 		'jetpack/field-share-attributes',
-		'jetpack/field-required-indicator',
 	],
 	edit,
 	save,
