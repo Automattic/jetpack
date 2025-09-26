@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Stop loading deprecated WPCOMSH_Blog_Token_Resilience class
