@@ -18,6 +18,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useApplyBlockEdits from '../hooks/use-apply-block-edits';
+import { createToolProvider, createContextProvider } from '../utils/agent-helpers';
 import './style.scss';
 
 const SIDEBAR_IDENTIFIER = 'agenttic/sidebar';
@@ -33,35 +35,37 @@ interface AgentticConfig {
 	agent_url?: string;
 }
 
-declare global {
-	interface Window {
-		Jetpack_Editor_Initial_State?: {
-			screenBase?: string;
-			agenttic?: AgentticConfig;
-		};
-	}
-}
-
-interface SelectionState {
-	isImageSelected: boolean;
-	postId?: number;
-	isSidebarActive: boolean;
-}
-
 interface AgentticChatProps {
 	agentId: string;
 	agentUrl: string;
 	postId?: number;
 }
 
+/**
+ * Generate a UUID v4
+ */
+const generateUUID = (): string => {
+	// Using crypto.randomUUID if available (modern browsers)
+	if ( typeof crypto !== 'undefined' && crypto.randomUUID ) {
+		return crypto.randomUUID();
+	}
+
+	// Fallback to manual UUID v4 generation
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
+		const r = ( Math.random() * 16 ) | 0;
+		const v = c === 'x' ? r : ( r & 0x3 ) | 0x8;
+		return v.toString( 16 );
+	} );
+};
+
 const buildWelcomeMessage = (): UIMessage => ( {
-	id: `agenttic-welcome-${ Date.now() }`,
+	id: generateUUID(),
 	role: 'agent',
 	content: [
 		{
 			type: 'text',
 			text: __(
-				'Howdy! What image do you want to create today? Include a few details so I can generate exactly what you have in mind.',
+				'Hi! I can help you edit blocks in your post, create images, or answer questions. How can I assist you today?',
 				'jetpack'
 			),
 		},
@@ -73,6 +77,9 @@ const buildWelcomeMessage = (): UIMessage => ( {
 } );
 
 const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
+	// Get block editing functionality
+	const { applyBlockEdits } = useApplyBlockEdits();
+
 	const authProvider = useMemo(
 		() =>
 			createJetpackAuthProvider( ( error: JetpackApiError ) => {
@@ -91,13 +98,17 @@ const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
 		[]
 	);
 
-	const fallbackSessionRef = useRef( `agenttic-${ Date.now() }` );
+	const fallbackSessionRef = useRef( generateUUID() );
 	const sessionId = useMemo( () => {
 		if ( postId ) {
-			return `post-${ postId }-image`;
+			return `post-${ postId }-block-editor`;
 		}
 		return fallbackSessionRef.current;
 	}, [ postId ] );
+
+	// Create tool and context providers using the helper functions
+	const toolProvider = useMemo( () => createToolProvider( applyBlockEdits ), [ applyBlockEdits ] );
+	const contextProvider = useMemo( () => createContextProvider(), [] );
 
 	const {
 		messages,
@@ -115,6 +126,8 @@ const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
 		sessionId,
 		authProvider,
 		enableStreaming: true,
+		toolProvider,
+		contextProvider,
 	} );
 
 	const hasSeededGreeting = useRef( false );
@@ -144,16 +157,16 @@ const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
 			messageRenderer={ messageRenderer }
 			onStop={ abortCurrentRequest }
 			variant="embedded"
-			placeholder={ __( 'Describe the image you want to create…', 'jetpack' ) }
+			placeholder={ __( 'Type a message…', 'jetpack' ) }
 		/>
 	);
 };
 
 const AgentticSidebar = () => {
-	const isPostEditor = window?.Jetpack_Editor_Initial_State?.screenBase === 'post';
+	const isPostEditor = ( window as any )?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
-	const { isImageSelected, postId, isSidebarActive } = useSelect< SelectionState >( select => {
-		const blockEditor = select( blockEditorStore );
+	const { isImageSelected, postId, isSidebarActive } = useSelect( select => {
+		const blockEditor = select( blockEditorStore ) as any;
 		const selectedBlock = blockEditor?.getSelectedBlock?.();
 		const editPost = select( 'core/edit-post' ) as {
 			getActiveGeneralSidebarName?: () => string | undefined;
@@ -213,13 +226,15 @@ const AgentticSidebar = () => {
 		};
 	}, [ isSidebarActive ] );
 
-	const shouldRender = isPostEditor && isImageSelected;
+	// Always render the sidebar in post editor (remove the block selection requirement)
+	const shouldRender = isPostEditor;
 
 	if ( ! shouldRender ) {
 		return null;
 	}
 
-	const config = window?.Jetpack_Editor_Initial_State?.agenttic ?? {};
+	const config = ( ( window as any )?.Jetpack_Editor_Initial_State?.agenttic ??
+		{} ) as AgentticConfig;
 	const agentId = config.agent_id ?? config.agent_key ?? DEFAULT_AGENT_ID;
 	const agentUrl = config.agent_url ?? DEFAULT_AGENT_URL;
 	const hasAgentConfig = Boolean( agentUrl );
@@ -227,7 +242,7 @@ const AgentticSidebar = () => {
 	return (
 		<PluginSidebar
 			name={ SIDEBAR_IDENTIFIER }
-			title={ __( 'Generate or Edit Image', 'jetpack' ) }
+			title={ __( 'Block Editor Assistant', 'jetpack' ) }
 			icon={
 				<svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" role="img">
 					<title>{ __( 'Jetpack AI Spark', 'jetpack' ) }</title>
@@ -238,13 +253,12 @@ const AgentticSidebar = () => {
 				</svg>
 			}
 			className="jetpack-agenttic-sidebar"
-			panelClassName="jetpack-agenttic-sidebar__panel"
 		>
 			<div className="jetpack-agenttic-sidebar__content">
 				{ ! hasAgentConfig && (
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
-							'Image generation is not available on this site right now. Check your Jetpack connection and try again.',
+							'Block editing assistant is not available on this site right now. Check your Jetpack connection and try again.',
 							'jetpack'
 						) }
 					</Notice>
@@ -252,7 +266,11 @@ const AgentticSidebar = () => {
 
 				{ hasAgentConfig && (
 					<div className="jetpack-agenttic-sidebar__chat">
-						<AgentticChat agentId={ agentId } agentUrl={ agentUrl } postId={ postId } />
+						<AgentticChat
+							agentId={ agentId }
+							agentUrl={ agentUrl }
+							postId={ typeof postId === 'number' ? postId : undefined }
+						/>
 					</div>
 				) }
 			</div>
