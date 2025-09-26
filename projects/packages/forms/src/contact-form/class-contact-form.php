@@ -887,7 +887,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		</style>';
 
-		$message .= '<div class="contact-form-submission">';
+		$message        .= '<div class="contact-form-submission">';
+		$success_message = '';
 
 		if ( ! $disable_go_back ) {
 			$success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
