@@ -286,18 +286,6 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
-	 */
-	public function test_add_tools_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-
-		$this->assertSame( 'https://wordpress.com/import/' . static::$domain, $submenu['tools.php'][2][2] );
-		$this->assertSame( 'https://wordpress.com/export/' . static::$domain, $submenu['tools.php'][3][2] );
-	}
-
-	/**
 	 * Check if the hidden menus are at the end of the submenu.
 	 */
 	public function test_if_the_hidden_menus_are_at_the_end_of_submenu() {

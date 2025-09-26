@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Disable the Calypso quick switcher on import.php

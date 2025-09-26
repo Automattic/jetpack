@@ -43,6 +43,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$this->add_feedback_menu();
 		$this->add_cpt_menus();
 		$this->add_wp_admin_menu();
+		$this->add_tools_menu();
 
 		ksort( $GLOBALS['menu'] );
 	}
