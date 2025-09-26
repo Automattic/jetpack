@@ -22,10 +22,9 @@ import useApplyBlockEdits from '../hooks/use-apply-block-edits';
 import { createToolProvider, createContextProvider } from '../utils/agent-helpers';
 import './style.scss';
 
-const SIDEBAR_IDENTIFIER = 'agenttic/sidebar';
-const SIDEBAR_DOM_ID = SIDEBAR_IDENTIFIER.replace( '/', ':' );
+const SIDEBAR_IDENTIFIER = 'jetpack-agenttic/block-editor-assistant';
+const SIDEBAR_DOM_ID = SIDEBAR_IDENTIFIER.replace( /\//g, '-' );
 const SIDEBAR_WIDTH = '600px';
-const IMAGE_BLOCK_NAME = 'core/image';
 const DEFAULT_AGENT_ID = 'big-sky';
 const DEFAULT_AGENT_URL = 'https://public-api.wordpress.com/wpcom/v2/ai/agent';
 
@@ -38,7 +37,6 @@ interface AgentticConfig {
 interface AgentticChatProps {
 	agentId: string;
 	agentUrl: string;
-	postId?: number;
 }
 
 /**
@@ -76,7 +74,7 @@ const buildWelcomeMessage = (): UIMessage => ( {
 	icon: 'assistant',
 } );
 
-const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
+const AgentticChat = ( { agentId, agentUrl }: AgentticChatProps ) => {
 	// Get block editing functionality
 	const { applyBlockEdits } = useApplyBlockEdits();
 
@@ -98,13 +96,7 @@ const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
 		[]
 	);
 
-	const fallbackSessionRef = useRef( generateUUID() );
-	const sessionId = useMemo( () => {
-		if ( postId ) {
-			return `post-${ postId }-block-editor`;
-		}
-		return fallbackSessionRef.current;
-	}, [ postId ] );
+	const sessionId = useMemo( () => generateUUID(), [] );
 
 	// Create tool and context providers using the helper functions
 	const toolProvider = useMemo( () => createToolProvider( applyBlockEdits ), [ applyBlockEdits ] );
@@ -165,29 +157,32 @@ const AgentticChat = ( { agentId, agentUrl, postId }: AgentticChatProps ) => {
 const AgentticSidebar = () => {
 	const isPostEditor = ( window as any )?.Jetpack_Editor_Initial_State?.screenBase === 'post';
 
-	const { isImageSelected, postId, isSidebarActive } = useSelect( select => {
-		const blockEditor = select( blockEditorStore ) as any;
-		const selectedBlock = blockEditor?.getSelectedBlock?.();
+	console.log( '[Agenttic] Sidebar mounting, isPostEditor:', isPostEditor );
+	console.log( '[Agenttic] Window state:', ( window as any )?.Jetpack_Editor_Initial_State );
+
+	const { isSidebarActive } = useSelect( select => {
 		const editPost = select( 'core/edit-post' ) as {
 			getActiveGeneralSidebarName?: () => string | undefined;
 		};
 
 		return {
-			isImageSelected: selectedBlock?.name === IMAGE_BLOCK_NAME,
-			postId: select( editorStore )?.getCurrentPostId?.(),
 			isSidebarActive: editPost?.getActiveGeneralSidebarName?.() === SIDEBAR_IDENTIFIER,
 		};
 	}, [] );
 
 	const { openGeneralSidebar } = useDispatch( editPostStore );
 
+	// Auto-open the sidebar when in post editor
 	useEffect( () => {
-		if ( ! isPostEditor || ! isImageSelected || typeof openGeneralSidebar !== 'function' ) {
+		if ( ! isPostEditor || typeof openGeneralSidebar !== 'function' ) {
 			return;
 		}
 
-		openGeneralSidebar( SIDEBAR_IDENTIFIER );
-	}, [ isImageSelected, isPostEditor, openGeneralSidebar ] );
+		// Open the sidebar if not already active
+		if ( ! isSidebarActive ) {
+			openGeneralSidebar( SIDEBAR_IDENTIFIER );
+		}
+	}, [ isPostEditor, openGeneralSidebar, isSidebarActive ] );
 
 	useEffect( () => {
 		if ( ! isSidebarActive || typeof document === 'undefined' ) {
@@ -226,12 +221,17 @@ const AgentticSidebar = () => {
 		};
 	}, [ isSidebarActive ] );
 
-	// Always render the sidebar in post editor (remove the block selection requirement)
-	const shouldRender = isPostEditor;
+	// For debugging - temporarily always render
+	const shouldRender = true; // was: isPostEditor;
+
+	console.log( '[Agenttic] Should render:', shouldRender );
 
 	if ( ! shouldRender ) {
+		console.log( '[Agenttic] Not rendering sidebar - shouldRender is false' );
 		return null;
 	}
+
+	console.log( '[Agenttic] Rendering sidebar...' );
 
 	const config = ( ( window as any )?.Jetpack_Editor_Initial_State?.agenttic ??
 		{} ) as AgentticConfig;
@@ -266,11 +266,7 @@ const AgentticSidebar = () => {
 
 				{ hasAgentConfig && (
 					<div className="jetpack-agenttic-sidebar__chat">
-						<AgentticChat
-							agentId={ agentId }
-							agentUrl={ agentUrl }
-							postId={ typeof postId === 'number' ? postId : undefined }
-						/>
+						<AgentticChat agentId={ agentId } agentUrl={ agentUrl } />
 					</div>
 				) }
 			</div>
