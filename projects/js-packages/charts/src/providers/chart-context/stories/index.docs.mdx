@@ -17,23 +17,6 @@ The Global Charts Context system consists of three main parts:
 2. **GlobalChartsContext** - The underlying React context that manages shared state
 3. **Context hooks** - Utilities for accessing theme and registration functionality
 
-<Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, BarChart, jetpackTheme } from '@automattic/charts';
-
-	function App() {
-		return (
-			<GlobalChartsProvider theme={ jetpackTheme }>
-				<div className="dashboard">
-					<LineChart data={ salesData } />
-					<BarChart data={ conversionData } />
-					{ /* All charts share the same theme and color coordination */ }
-				</div>
-			</GlobalChartsProvider>
-		);
-	}` }
-/>
-
 ## Basic Usage
 
 ### Setting Up the Provider
@@ -42,12 +25,16 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, LineChart, BarChart } from '@automattic/charts';
 
-	function MyApp() {
+	function App() {
 		return (
 			<GlobalChartsProvider>
-				{ /* Your chart components */ }
+				<div className="dashboard">
+					<LineChart data={ salesData } />
+					<BarChart data={ conversionData } />
+					{ /* All charts share the same theme and color coordination */ }
+				</div>
 			</GlobalChartsProvider>
 		);
 	}` }
@@ -79,7 +66,7 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 
 ### Stable Colors for Groups
 
-One of the key features of the Global Charts Context is **stable color assignment for groups**. When data points have a `group` property, the same group will always receive the same color across all charts, even when data changes:
+One of the key features of the Global Charts Context is **stable color assignment for groups**. When data series have a `group` property, the same group will always receive the same color across all charts, even when data changes:
 
 **Try toggling the countries on/off in the Default story** - notice how each country maintains its assigned color regardless of which other countries are visible. This creates a consistent visual experience across multiple charts and data updates.
 
@@ -319,13 +306,13 @@ Use the context's `getElementStyles` function to get consistent styling for cust
 
 <Source
 	language="tsx"
-	code={ `function CustomChartElement( { dataPoint, index } ) {
+	code={ `function CustomChartElement( { seriesData, index, isHighlighted } ) {
 		const { getElementStyles } = useGlobalChartsContext();
 
 		const styles = getElementStyles( {
-			data: dataPoint,
+			data: seriesData,
 			index,
-			overrideColor: dataPoint.highlight ? '#FF0000' : undefined,
+			overrideColor: isHighlighted ? '#FF0000' : undefined,
 			legendShape: 'circle'
 		} );
 
@@ -381,10 +368,10 @@ When charts register with a `chartId`, their legend data becomes available to st
 					<aside className="legend-panel">
 						<h3>Revenue Trends</h3>
 						<Legend chartId="revenue-trends" orientation="vertical" shape="line" />
-						
+
 						<h3>Sales by Quarter</h3>
 						<Legend chartId="sales-quarters" orientation="vertical" />
-						
+
 						<h3>Device Distribution</h3>
 						<Legend chartId="device-distribution" orientation="vertical" shape="circle" />
 					</aside>
@@ -394,32 +381,8 @@ When charts register with a `chartId`, their legend data becomes available to st
 	}` }
 />
 
-#### Color Coordination Across Charts
-
-Charts also coordinate colors for consistent group representation across your entire dashboard:
-
-<Source
-	language="tsx"
-	code={ `function CoordinatedDashboard( { selectedCountries } ) {
-		const filteredData = data.filter( item =>
-			selectedCountries.includes( item.group )
-		);
-
-		return (
-			<GlobalChartsProvider theme={ wooTheme }>
-				{ /* All charts automatically coordinate colors for the same groups */ }
-				<LineChart data={ filteredData.map( transformToTimeSeries ) } />
-				<BarChart data={ filteredData.map( transformToCategories ) } />
-				<PieChart data={ filteredData.map( transformToPercentages ) } />
-			</GlobalChartsProvider>
-		);
-	}` }
-/>
-
 **Key Benefits:**
 - **Flexible Layouts** - Create complex dashboard designs with legends positioned anywhere
-- **Consistent Styling** - All legends share the same visual style and behavior
-- **Space Efficiency** - Charts use full width while legends are easily accessible
 - **Automatic Updates** - Legend data updates automatically when chart data changes
 - **No Prop Drilling** - No need to pass legend data through component hierarchies
 
