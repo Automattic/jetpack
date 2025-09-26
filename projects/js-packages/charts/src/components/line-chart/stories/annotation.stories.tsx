@@ -276,7 +276,7 @@ const renderAlertGlyph = ( {
 	size: number;
 	key?: string;
 } ) => {
-	// Only render diamonds for the Alert series (highlighted portion)
+	// Only render triangles for the Alert series (highlighted portion)
 	if ( key && key.includes( 'Alert' ) ) {
 		return (
 			<GlyphTriangle
