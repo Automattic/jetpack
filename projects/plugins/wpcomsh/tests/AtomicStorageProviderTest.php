@@ -179,8 +179,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_no_existing_tokens() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
-		// Set master_user directly in database since get_user_tokens calls Jetpack_Options::get_option
-		update_option( 'master_user', $user_id );
+		// Set master_user in jetpack_options since it's in the 'compact' group
+		update_option( 'jetpack_options', array( 'master_user' => $user_id ) );
 
 		$token_data = wp_json_encode(
 			array(

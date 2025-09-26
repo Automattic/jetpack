@@ -22,6 +22,19 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		 * @return mixed Option value.
 		 */
 		public static function get_option( $option_name, $default = false ) { // phpcs:ignore Universal.NamingConventions.NoReservedKeywordParameterNames.defaultFound
+			// Handle grouped options based on their actual storage location
+			if ( in_array( $option_name, array( 'master_user', 'id' ), true ) ) {
+				// These are in the 'compact' group -> jetpack_options
+				$compact_options = get_option( 'jetpack_options', array() );
+				return isset( $compact_options[ $option_name ] ) ? $compact_options[ $option_name ] : $default;
+			}
+
+			if ( in_array( $option_name, array( 'user_tokens', 'blog_token' ), true ) ) {
+				// These are in the 'private' group -> jetpack_private_options
+				$private_options = get_option( 'jetpack_private_options', array() );
+				return isset( $private_options[ $option_name ] ) ? $private_options[ $option_name ] : $default;
+			}
+
 			return apply_filters( 'jetpack_options', get_option( $option_name, $default ), $option_name );
 		}
 
