@@ -208,12 +208,24 @@ When proxy tracking is enabled:
 - Events are sent to a local WordPress REST API endpoint to improve event delivery reliability
 - Server-side event validation and processing
 
-### Performance Considerations
+#### API Endpoint
 
-- Event batching to reduce HTTP requests
-- Debounced event processing
-- Lazy loading of analytics scripts
-- Minimal impact on page load times
+- **URL**: `/wp-json/woocommerce-analytics/v1/track`
+- **Method**: POST
+- **Permission**: No authentication required
+- **Content-Type**: `application/json`
+
+#### Performance Optimizations
+
+**Client-Side Batching Logic:**
+
+- Events queued until batch size (10 events) or debounce delay (1s) reached
+- Immediate flush on page unload (`beforeunload`, `pagehide` events)
+- Failed events automatically re-queued for retry
+
+**Server-Side Optimizations:**
+
+The package includes an optional MU plugin (`woocommerce-analytics-proxy-speed-module.php`) that significantly improves proxy performance by only loading WooCommerce, WooCommerce Analytics, and Jetpack for proxy requests
 
 ### Debugging
 
