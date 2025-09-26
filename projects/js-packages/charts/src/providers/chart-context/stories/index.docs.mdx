@@ -342,7 +342,61 @@ Use the context's `getElementStyles` function to get consistent styling for cust
 
 ### Multi-Chart Coordination
 
-Create dashboards where multiple charts coordinate their display:
+The chart registration system enables powerful coordination between charts and standalone legends, allowing for flexible dashboard layouts with centralized legend areas.
+
+#### Chart Registration for Standalone Legends
+
+When charts register with a `chartId`, their legend data becomes available to standalone Legend components anywhere in your application:
+
+<Source
+	language="tsx"
+	code={ `function DashboardWithCentralizedLegends() {
+		return (
+			<GlobalChartsProvider theme={ wooTheme }>
+				<div className="dashboard-layout">
+					{ /* Charts with hidden legends but registered data */ }
+					<div className="charts-grid">
+						<LineChart
+							chartId="revenue-trends"
+							data={ revenueData }
+							showLegend={ false }
+							width={ 600 }
+							height={ 200 }
+						/>
+						<BarChart
+							chartId="sales-quarters"
+							data={ salesData }
+							showLegend={ false }
+							width={ 300 }
+							height={ 200 }
+						/>
+						<PieChart
+							chartId="device-distribution"
+							data={ deviceData }
+							showLegend={ false }
+						/>
+					</div>
+
+					{ /* Centralized legend panel retrieves data automatically */ }
+					<aside className="legend-panel">
+						<h3>Revenue Trends</h3>
+						<Legend chartId="revenue-trends" orientation="vertical" shape="line" />
+						
+						<h3>Sales by Quarter</h3>
+						<Legend chartId="sales-quarters" orientation="vertical" />
+						
+						<h3>Device Distribution</h3>
+						<Legend chartId="device-distribution" orientation="vertical" shape="circle" />
+					</aside>
+				</div>
+			</GlobalChartsProvider>
+		);
+	}` }
+/>
+
+#### Color Coordination Across Charts
+
+Charts also coordinate colors for consistent group representation across your entire dashboard:
 
 <Source
 	language="tsx"
@@ -361,6 +415,13 @@ Create dashboards where multiple charts coordinate their display:
 		);
 	}` }
 />
+
+**Key Benefits:**
+- **Flexible Layouts** - Create complex dashboard designs with legends positioned anywhere
+- **Consistent Styling** - All legends share the same visual style and behavior
+- **Space Efficiency** - Charts use full width while legends are easily accessible
+- **Automatic Updates** - Legend data updates automatically when chart data changes
+- **No Prop Drilling** - No need to pass legend data through component hierarchies
 
 ## API Reference
 
@@ -418,11 +479,7 @@ interface ElementStyles {
 
 ### Theme Color Considerations
 
-When creating custom themes, ensure:
-
-- **Sufficient contrast** between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
-- **Color-blind friendly** palettes that don't rely solely on color for information
-- **High contrast mode** compatibility with system preferences
+When creating custom themes, ensure sufficient contrast between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
 
 ### Automatic Color Generation
 
@@ -432,7 +489,7 @@ When your data has more series than colors defined in your theme, the Global Cha
 
 The system uses the **golden ratio (φ ≈ 0.618)** to generate mathematically pleasing color distributions:
 
-- **Hue spacing** - New hues are distributed using `(index × φ × 360°) % 360°` for optimal visual separation
+- **Hue spacing** - New hues are distributed for optimal visual separation
 - **Hue range constraint** - Generated colors stay within an expanded range (130%) of your theme's existing colors
 - **Wrap-around handling** - Intelligently handles cases where theme colors span across the 0° hue boundary
 
@@ -519,7 +576,7 @@ For older browsers, ensure your build process includes appropriate polyfills for
 
 ### Error Boundaries
 
-The context includes error handling for common issues:
+The context includes error handling for invalid usage, for example, accessing the context outside of a `GlobalChartsProvider`:
 
 <Source
 	language="tsx"
@@ -529,5 +586,3 @@ The context includes error handling for common issues:
 		return <div>Chart content</div>;
 	}` }
 />
-
-Understanding and leveraging the Global Charts Context enables you to create cohesive, performant chart experiences that maintain visual consistency and provide excellent user experiences across your entire application.
