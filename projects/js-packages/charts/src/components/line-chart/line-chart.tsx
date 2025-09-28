@@ -404,12 +404,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												{ ...seriesData.options?.gradient }
 												data-testid="line-gradient"
 											>
-												{ seriesData.options?.gradient?.stops?.map( stop => (
+												{ seriesData.options?.gradient?.stops?.map( ( stop, stopIndex ) => (
 													<stop
-														key={ `${ stop.offset }-${ stop.color }` }
+														key={ `${ stop.offset }-${ stop.color || color }` }
 														offset={ stop.offset }
-														stopColor={ stop.color }
+														stopColor={ stop.color || color }
 														stopOpacity={ stop.opacity ?? 1 }
+														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
 													/>
 												) ) }
 											</LinearGradient>

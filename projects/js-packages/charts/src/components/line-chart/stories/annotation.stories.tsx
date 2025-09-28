@@ -356,12 +356,10 @@ const AlertTemplate: StoryFn< typeof LineChart > = args => {
 			stroke: 'var(--jp-red)',
 			seriesLineStyle: { strokeWidth: 3 },
 			gradient: {
-				from: 'var(--jp-red)',
-				to: 'var(--jp-red)',
 				stops: [
-					{ offset: '0%', color: 'var(--jp-red)', opacity: 0.5 },
-					{ offset: `${ gradientCutoff * 0.75 }%`, color: 'var(--jp-red)', opacity: 0 },
-					{ offset: '100%', color: 'var(--jp-red)', opacity: 0 },
+					{ offset: '0%', opacity: 0.5 },
+					{ offset: `${ gradientCutoff * 0.75 }%`, opacity: 0 },
+					{ offset: '100%', opacity: 0 },
 				],
 			},
 		},

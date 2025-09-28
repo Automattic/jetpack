@@ -240,7 +240,11 @@ Comparison styling can be set in your theme configuration:
 
 ### Gradient Fill
 
-Add visual depth with gradient fills under line series:
+Add visual depth with gradient fills under line series. The gradient system supports both simple fills and complex multi-stop gradients for sophisticated visual effects.
+
+#### Basic Gradient Fill
+
+Enable gradient fills for all series with the `withGradientFill` prop:
 
 <Canvas of={ LineChartStories.GradientFilled } />
 
@@ -251,6 +255,97 @@ Add visual depth with gradient fills under line series:
 		withGradientFill={true}
 	/>` }
 />
+
+#### Custom Gradient Colors
+
+Customize gradient colors per series using the `gradient` option in series data:
+
+<Canvas of={ LineChartStories.GradientCustomColors } />
+
+<Source
+	language="jsx"
+	code={ `const data = [
+		{
+			label: 'Revenue',
+			data: chartData,
+			options: {
+				gradient: {
+					from: '#4CAF50',
+					to: '#81C784',
+					fromOpacity: 0.8,
+					toOpacity: 0.1,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: expenseData,
+			options: {
+				gradient: {
+					from: '#F44336',
+					to: '#EF5350',
+					fromOpacity: 0.6,
+					toOpacity: 0.0,
+				},
+			},
+		},
+	];
+
+	<LineChart
+		data={data}
+		withGradientFill={true}
+	/>` }
+/>
+
+#### Gradient with sections
+
+Create gradients that fade to transparent at specific points using stops, useful for highlighting data ranges. When no color is specified, the gradient uses the line color automatically:
+
+<Canvas of={ LineChartStories.GradientTransparent } />
+
+<Source
+	language="jsx"
+	code={ `const data = [
+		{
+			label: 'Temperature',
+			data: temperatureData,
+			options: {
+				gradient: {
+					stops: [
+						{ offset: '0%', opacity: 0.7 }, // Uses line color
+						{ offset: '20%', opacity: 0 },  // Fades to transparent
+						{ offset: '100%', opacity: 0 },
+					],
+				},
+			},
+		},
+	];
+
+	<LineChart
+		data={data}
+		withGradientFill={true}
+	/>` }
+/>
+
+#### Gradient Options
+
+The `gradient` option in series data supports the following properties:
+
+- **`from`**: Start color (hex, rgb, CSS variable)
+- **`to`**: End color (used when no stops are defined)
+- **`fromOpacity`**: Start opacity (0-1, default: 0.4)
+- **`toOpacity`**: End opacity (0-1, default: 0.1)
+- **`stops`**: Array of gradient stops for complex gradients
+
+#### Gradient Stop Properties
+
+Each stop in the `stops` array accepts:
+
+- **`offset`**: Position along gradient (percentage string, e.g., '25%')
+- **`color`**: Color at this stop (hex, rgb, CSS variable) - defaults to line color if omitted
+- **`opacity`**: Opacity at this stop (0-1, default: 1)
+
+**Note**: When using `stops`, the `from`, `to`, `fromOpacity`, and `toOpacity` properties are ignored.
 
 ### Glyphs and Markers
 
@@ -582,10 +677,15 @@ type SeriesData = {
 	data: DataPointDate[];
 	options?: {
 		gradient?: {
-			from: string;
-			to: string;
+			from?: string;
+			to?: string;
 			fromOpacity?: number;
 			toOpacity?: number;
+			stops?: Array<{
+				offset: string;
+				color?: string;
+				opacity?: number;
+			}>;
 		};
 		stroke?: string;
 		seriesLineStyle?: LineStyles;
@@ -594,6 +694,24 @@ type SeriesData = {
 	};
 };
 ```
+
+#### Gradient Options
+
+The `gradient` option in `SeriesData.options` accepts the following configuration:
+
+**Basic Gradient (Two-Color):**
+- `from`: Start color (hex, rgb, CSS variable) - defaults to series color
+- `to`: End color (hex, rgb, CSS variable) - defaults to transparent background
+- `fromOpacity`: Start opacity (0-1, default: 0.4)
+- `toOpacity`: End opacity (0-1, default: 0.1)
+
+**Advanced Gradient (Multi-Stop):**
+- `stops`: Array of gradient stops for complex gradients
+  - `offset`: Position along gradient (percentage string, e.g., '25%')
+  - `color`: Color at this stop (hex, rgb, CSS variable) - defaults to line color if omitted
+  - `opacity`: Opacity at this stop (0-1, default: 1)
+
+**Note**: When using `stops`, the `from`, `to`, `fromOpacity`, and `toOpacity` properties are ignored.
 
 ### DataPointDate Type
 

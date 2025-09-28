@@ -200,6 +200,54 @@ describe( 'LineChart', () => {
 			expect( gradient.tagName ).toBe( 'linearGradient' );
 		} );
 
+		test( 'renders gradient stops with line color when no color specified', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								stops: [
+									{ offset: '0%', opacity: 0.8 }, // No color specified
+									{ offset: '50%', color: '#ff0000', opacity: 0.5 },
+									{ offset: '100%', opacity: 0 }, // No color specified
+								],
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered with stops
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+
+			// Check that individual stops are rendered with proper test IDs
+			// Format: line-gradient-stop-{chartId}-{seriesIndex}-{stopIndex}
+			const firstStop = screen.getByTestId( /line-gradient-stop-.*-0-0/ );
+			const secondStop = screen.getByTestId( /line-gradient-stop-.*-0-1/ );
+			const thirdStop = screen.getByTestId( /line-gradient-stop-.*-0-2/ );
+
+			// First stop should use the line color (no color specified)
+			expect( firstStop ).toHaveAttribute( 'stop-opacity', '0.8' );
+			expect( firstStop ).toHaveAttribute( 'offset', '0%' );
+
+			// Middle stop should use the specified color
+			expect( secondStop ).toHaveAttribute( 'stop-color', '#ff0000' );
+			expect( secondStop ).toHaveAttribute( 'stop-opacity', '0.5' );
+			expect( secondStop ).toHaveAttribute( 'offset', '50%' );
+
+			// Last stop should use the line color and have opacity 0
+			expect( thirdStop ).toHaveAttribute( 'stop-opacity', '0' );
+			expect( thirdStop ).toHaveAttribute( 'offset', '100%' );
+		} );
+
 		test( 'renders gradient with position attributes', () => {
 			renderWithTheme( {
 				withGradientFill: true,

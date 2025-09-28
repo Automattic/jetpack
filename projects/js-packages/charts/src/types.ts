@@ -91,7 +91,7 @@ export type LeaderboardEntry = {
 
 export type GradientStop = {
 	offset: string;
-	color: string;
+	color?: string;
 	opacity?: number;
 };
 
