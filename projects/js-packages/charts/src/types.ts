@@ -89,8 +89,20 @@ export type LeaderboardEntry = {
 	imageColor?: string;
 };
 
+export type GradientStop = {
+	offset: string;
+	color?: string;
+	opacity?: number;
+};
+
 export type SeriesDataOptions = {
-	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	gradient?: {
+		from: string;
+		to: string;
+		fromOpacity?: number;
+		toOpacity?: number;
+		stops?: GradientStop[];
+	};
 	stroke?: string;
 	seriesLineStyle?: LineStyles;
 	legendShapeStyle?: CSSProperties;

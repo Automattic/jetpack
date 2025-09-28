@@ -1,3 +1,4 @@
+import { GlyphTriangle } from '@visx/glyph';
 import { ChartStoryArgs, temperatureData as sampleData } from '../../../stories';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
@@ -261,3 +262,147 @@ const CustomTemplate = createAnnotationTemplate( [
 ] );
 
 export const Custom: StoryObj< typeof LineChart > = CustomTemplate.bind( {} );
+
+const renderAlertGlyph = ( {
+	x,
+	y,
+	color,
+	size,
+	key,
+}: {
+	x: number;
+	y: number;
+	color: string;
+	size: number;
+	key?: string;
+} ) => {
+	// Only render triangles for the Alert series (highlighted portion)
+	if ( key && key.includes( 'Alert' ) ) {
+		return (
+			<GlyphTriangle
+				key={ `triangle-${ x }-${ y }` }
+				top={ y }
+				left={ x }
+				size={ size * size }
+				fill="white"
+				stroke={ color }
+				strokeWidth={ 2 }
+				transform="rotate(90)"
+			/>
+		);
+	}
+	// Return null for the full series to not show glyphs
+	return null;
+};
+
+const renderAlertLabelPopover = () => (
+	<div style={ { display: 'flex', flexDirection: 'column', gap: '0.5rem' } }>
+		<div
+			style={ {
+				margin: 0,
+				display: 'flex',
+				alignItems: 'center',
+				gap: '6px',
+				paddingBlock: '0.25rem ',
+			} }
+		>
+			<AlertIcon />
+			<strong>Alert</strong>
+		</div>
+		<p style={ { margin: 0 } }>Highest temperature (27°C) reached</p>
+	</div>
+);
+
+const AlertTemplate: StoryFn< typeof LineChart > = args => {
+	// Use the first series data (New York)
+	const fullSeries = {
+		...sampleData[ 0 ],
+		options: {
+			...sampleData[ 0 ].options,
+			gradient: {
+				fromOpacity: 0,
+				toOpacity: 0,
+			},
+		},
+	};
+
+	// Create a highlighted middle portion (roughly from May to September)
+	const highlightSeriesData = fullSeries.data.slice( 4, 9 ); // Middle portion of the data
+
+	// Calculate the min and max values to determine the gradient height
+	const allValues = fullSeries.data.map( d => d.value );
+	const highlightValues = highlightSeriesData.map( d => d.value );
+
+	const chartMin = Math.min( ...allValues );
+	const chartMax = Math.max( ...allValues );
+	const chartRange = chartMax - chartMin;
+
+	// Find the lowest point in the highlight series
+	const highlightMin = Math.min( ...highlightValues );
+
+	// Calculate the percentage from bottom of chart to the lowest highlight point
+	// This is where we want the gradient to stop
+	const gradientStopPercentage = ( ( highlightMin - chartMin ) / chartRange ) * 100;
+
+	// Since SVG gradients are top-to-bottom, we need to invert this
+	const gradientCutoff = 100 - gradientStopPercentage;
+
+	const highlightSeries = {
+		...fullSeries,
+		group: 'new-york-highlight',
+		label: 'Alert',
+		data: highlightSeriesData,
+		options: {
+			stroke: 'var(--jp-red)',
+			seriesLineStyle: { strokeWidth: 3 },
+			gradient: {
+				stops: [
+					{ offset: '0%', opacity: 0.5 },
+					{ offset: `${ gradientCutoff * 0.75 }%`, opacity: 0 },
+					{ offset: '100%', opacity: 0 },
+				],
+			},
+		},
+	};
+
+	// Find the peak in the highlighted series (July with value 27)
+	const peakDatum = fullSeries.data[ 6 ]; // July - peak temperature
+
+	return (
+		<LineChart
+			{ ...args }
+			smoothing={ false }
+			data={ [ fullSeries, highlightSeries ] }
+			withGradientFill={ true }
+			withStartGlyphs={ true }
+			withEndGlyphs={ true }
+			renderGlyph={ renderAlertGlyph }
+			glyphStyle={ {
+				radius: 8,
+			} }
+		>
+			<LineChart.AnnotationsOverlay>
+				<LineChart.Annotation
+					datum={ peakDatum }
+					title="Alert"
+					subjectType="circle"
+					styles={ {
+						circleSubject: {
+							radius: 0,
+						},
+						label: {
+							showAnchorLine: false,
+						},
+						connector: {
+							stroke: 'transparent',
+						},
+					} }
+					renderLabel={ AlertIcon }
+					renderLabelPopover={ renderAlertLabelPopover }
+				/>
+			</LineChart.AnnotationsOverlay>
+		</LineChart>
+	);
+};
+
+export const Alert: StoryObj< typeof LineChart > = AlertTemplate.bind( {} );

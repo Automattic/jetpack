@@ -171,6 +171,184 @@ describe( 'LineChart', () => {
 			renderWithTheme( { withGradientFill: false } );
 			expect( screen.queryByTestId( 'line-gradient' ) ).not.toBeInTheDocument();
 		} );
+
+		test( 'renders gradient with custom configuration', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#0000ff',
+								fromOpacity: 0.8,
+								toOpacity: 0.2,
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'renders gradient stops with line color when no color specified', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								stops: [
+									{ offset: '0%', opacity: 0.8 }, // No color specified
+									{ offset: '50%', color: '#ff0000', opacity: 0.5 },
+									{ offset: '100%', opacity: 0 }, // No color specified
+								],
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered with stops
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+
+			// Check that individual stops are rendered with proper test IDs
+			// Format: line-gradient-stop-{chartId}-{seriesIndex}-{stopIndex}
+			const firstStop = screen.getByTestId( /line-gradient-stop-.*-0-0/ );
+			const secondStop = screen.getByTestId( /line-gradient-stop-.*-0-1/ );
+			const thirdStop = screen.getByTestId( /line-gradient-stop-.*-0-2/ );
+
+			// First stop should use the line color (no color specified)
+			expect( firstStop ).toHaveAttribute( 'stop-opacity', '0.8' );
+			expect( firstStop ).toHaveAttribute( 'offset', '0%' );
+
+			// Middle stop should use the specified color
+			expect( secondStop ).toHaveAttribute( 'stop-color', '#ff0000' );
+			expect( secondStop ).toHaveAttribute( 'stop-opacity', '0.5' );
+			expect( secondStop ).toHaveAttribute( 'offset', '50%' );
+
+			// Last stop should use the line color and have opacity 0
+			expect( thirdStop ).toHaveAttribute( 'stop-opacity', '0' );
+			expect( thirdStop ).toHaveAttribute( 'offset', '100%' );
+		} );
+
+		test( 'renders multiple gradients for multiple series', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#ff0000',
+								fromOpacity: 0.5,
+								toOpacity: 0,
+							},
+						},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#0000ff',
+								to: '#0000ff',
+								fromOpacity: 0.7,
+								toOpacity: 0.1,
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that both gradients are rendered
+			const gradients = screen.getAllByTestId( 'line-gradient' );
+			expect( gradients ).toHaveLength( 2 );
+
+			// Verify both gradients are linearGradient elements
+			expect( gradients[ 0 ].tagName ).toBe( 'linearGradient' );
+			expect( gradients[ 1 ].tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'renders gradient with stops when provided', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {
+							gradient: {
+								from: '#ff0000',
+								to: '#0000ff',
+								stops: [
+									{ offset: '0%', color: '#ff0000', opacity: 1 },
+									{ offset: '50%', color: '#00ff00', opacity: 0.5 },
+									{ offset: '100%', color: '#0000ff', opacity: 0 },
+								],
+							},
+						},
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered
+			// The actual stop elements are children of the gradient, but we can't easily test them
+			// without direct DOM access, so we just verify the gradient exists
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+			expect( gradient.tagName ).toBe( 'linearGradient' );
+		} );
+
+		test( 'applies gradient to area fill', () => {
+			renderWithTheme( {
+				withGradientFill: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+					},
+				],
+			} );
+
+			// Check that the gradient is rendered and the chart is properly rendered
+			const gradient = screen.getByTestId( 'line-gradient' );
+			expect( gradient ).toBeInTheDocument();
+
+			// Verify that the chart container exists
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( chart ).toBeInTheDocument();
+		} );
 	} );
 
 	describe( 'Axis Configuration', () => {
@@ -350,6 +528,160 @@ describe( 'LineChart', () => {
 
 			const customGlyphs = screen.getAllByTestId( /custom-glyph/i );
 			expect( customGlyphs ).toHaveLength( 1 );
+		} );
+	} );
+
+	describe( 'End Glyphs', () => {
+		test( 'renders end glyphs when withEndGlyphs is true', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that end glyphs are rendered for each series
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 2 ); // One for each series
+		} );
+
+		test( 'does not render end glyphs when withEndGlyphs is false', () => {
+			renderWithTheme( {
+				withEndGlyphs: false,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that no end glyphs are rendered
+			expect( screen.queryByTestId( /end-glyph/i ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'does not render end glyph when series has empty data', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Empty Series',
+						data: [],
+						options: {},
+					},
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Should only have one end glyph (from the non-empty series)
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'renders both start and end glyphs when both are enabled', () => {
+			renderWithTheme( {
+				withStartGlyphs: true,
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 30, label: 'Jan 3' },
+						],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+							{ date: new Date( '2024-01-03' ), value: 35, label: 'Jan 3' },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			// Check that both start and end glyphs are rendered for each series
+			const startGlyphs = screen.getAllByTestId( /start-glyph/i );
+			expect( startGlyphs ).toHaveLength( 2 );
+
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 2 );
+		} );
+
+		test( 'renders custom end glyph from theme', () => {
+			renderWithTheme(
+				{
+					withEndGlyphs: true,
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' },
+								{ date: new Date( '2024-01-02' ), value: 30, label: 'Jan 2' },
+							],
+						},
+					],
+				},
+				'custom'
+			);
+
+			// We are rendering one custom glyph from theme and the second dataset will be using default glyph.
+			const defaultGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( defaultGlyphs ).toHaveLength( 1 );
+
+			const customGlyphs = screen.getAllByTestId( /custom-glyph/i );
+			expect( customGlyphs ).toHaveLength( 1 );
+		} );
+
+		test( 'renders end glyph at correct position for single data point', () => {
+			renderWithTheme( {
+				withEndGlyphs: true,
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// For a single data point, the end glyph should be rendered at that point
+			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
+			expect( endGlyphs ).toHaveLength( 1 );
 		} );
 	} );
 

@@ -27,63 +27,24 @@ import { SingleChartContext, type SingleChartRef } from '../private/single-chart
 import { withResponsive } from '../private/with-responsive';
 import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './line-chart.module.scss';
-import { LineChartAnnotation, LineChartAnnotationsOverlay } from './private';
-import type { CurveType, RenderLineStartGlyphProps, LineChartProps, TooltipDatum } from './types';
+import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
+import type { CurveType, RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
 import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { FC, ReactNode, Ref, SVGProps } from 'react';
+import type { FC, Ref } from 'react';
 
 const X_TICK_WIDTH = 60;
 
-const defaultRenderGlyph = < Datum extends object >(
-	props: RenderLineStartGlyphProps< Datum >
-) => {
+const defaultRenderGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	return <DefaultGlyph { ...props } key={ props.key } />;
 };
 
 const toNumber = ( val?: number | string | null ): number | undefined => {
 	const num = typeof val === 'number' ? val : parseFloat( val );
 	return isNaN( num ) ? undefined : num;
-};
-
-const StartGlyph: FC< {
-	data: SeriesData;
-	index: number;
-	color: string;
-	renderGlyph: < Datum extends object >( props: RenderLineStartGlyphProps< Datum > ) => ReactNode;
-	accessors: {
-		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
-		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
-	};
-	glyphStyle?: SVGProps< SVGCircleElement >;
-} > = ( { data, index, color, glyphStyle, renderGlyph, accessors } ) => {
-	const { xScale, yScale } = useContext( DataContext ) || {};
-	if ( ! xScale || ! yScale ) return null;
-
-	if ( data.data.length === 0 ) return null;
-
-	const firstPoint = data.data[ 0 ];
-
-	const x = xScale( accessors.xAccessor( firstPoint ) );
-	const y = yScale( accessors.yAccessor( firstPoint ) );
-
-	if ( typeof x !== 'number' || typeof y !== 'number' ) return null;
-
-	const size = Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 );
-
-	return renderGlyph( {
-		key: `start-glyph-${ data.label }`,
-		index,
-		datum: firstPoint,
-		color,
-		size,
-		x,
-		y,
-		glyphStyle,
-	} );
 };
 
 /**
@@ -262,6 +223,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			curveType,
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
+			withEndGlyphs = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -380,9 +342,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				smoothing,
 				curveType,
 				withStartGlyphs,
+				withEndGlyphs,
 				withLegendGlyph,
 			} ),
-			[ withGradientFill, smoothing, curveType, withStartGlyphs, withLegendGlyph ]
+			[ withGradientFill, smoothing, curveType, withStartGlyphs, withEndGlyphs, withLegendGlyph ]
 		);
 
 		// Register chart with context only if data is valid
@@ -470,17 +433,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 								return (
 									<g key={ seriesData?.label || index }>
-										{ withStartGlyphs && (
-											<StartGlyph
-												index={ index }
-												data={ seriesData }
-												color={ color }
-												renderGlyph={ glyph ?? renderGlyph }
-												accessors={ accessors }
-												glyphStyle={ glyphStyle }
-											/>
-										) }
-
 										{ withGradientFill && (
 											<LinearGradient
 												id={ `area-gradient-${ chartId }-${ index + 1 }` }
@@ -490,7 +442,17 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 												to={ providerTheme.backgroundColor }
 												{ ...seriesData.options?.gradient }
 												data-testid="line-gradient"
-											/>
+											>
+												{ seriesData.options?.gradient?.stops?.map( ( stop, stopIndex ) => (
+													<stop
+														key={ `${ stop.offset }-${ stop.color || color }` }
+														offset={ stop.offset }
+														stopColor={ stop.color || color }
+														stopOpacity={ stop.opacity ?? 1 }
+														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+													/>
+												) ) }
+											</LinearGradient>
 										) }
 										<AreaSeries
 											key={ seriesData?.label }
@@ -506,6 +468,30 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											curve={ getCurveType( curveType, smoothing ) }
 											lineProps={ lineProps }
 										/>
+
+										{ withStartGlyphs && (
+											<LineChartGlyph
+												index={ index }
+												data={ seriesData }
+												color={ color }
+												renderGlyph={ glyph ?? renderGlyph }
+												accessors={ accessors }
+												glyphStyle={ glyphStyle }
+												position="start"
+											/>
+										) }
+
+										{ withEndGlyphs && (
+											<LineChartGlyph
+												index={ index }
+												data={ seriesData }
+												color={ color }
+												renderGlyph={ glyph ?? renderGlyph }
+												accessors={ accessors }
+												glyphStyle={ glyphStyle }
+												position="end"
+											/>
+										) }
 									</g>
 								);
 							} ) }

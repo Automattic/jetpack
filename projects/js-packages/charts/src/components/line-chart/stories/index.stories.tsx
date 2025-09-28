@@ -134,6 +134,82 @@ GradientFilled.args = {
 	},
 };
 
+// Story with custom gradient colors per series
+export const GradientCustomColors: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientCustomColors.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Revenue',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 45000 },
+				{ date: new Date( '2024-02-01' ), value: 52000 },
+				{ date: new Date( '2024-03-01' ), value: 48000 },
+				{ date: new Date( '2024-04-01' ), value: 61000 },
+				{ date: new Date( '2024-05-01' ), value: 68000 },
+				{ date: new Date( '2024-06-01' ), value: 72000 },
+			],
+			options: {
+				gradient: {
+					fromOpacity: 0.8,
+					toOpacity: 0,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 28000 },
+				{ date: new Date( '2024-02-01' ), value: 31000 },
+				{ date: new Date( '2024-03-01' ), value: 29000 },
+				{ date: new Date( '2024-04-01' ), value: 33000 },
+				{ date: new Date( '2024-05-01' ), value: 35000 },
+				{ date: new Date( '2024-06-01' ), value: 38000 },
+			],
+			options: {
+				gradient: {
+					from: 'var(--jp-red)',
+					to: 'var(--jp-red)',
+					fromOpacity: 0.6,
+					toOpacity: 0,
+				},
+			},
+		},
+	],
+	withGradientFill: true,
+};
+
+// Story with transparent gradient sections
+export const GradientTransparent: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientTransparent.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Temperature (°C)',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 15 },
+				{ date: new Date( '2024-02-01' ), value: 18 },
+				{ date: new Date( '2024-03-01' ), value: 22 },
+				{ date: new Date( '2024-04-01' ), value: 26 },
+				{ date: new Date( '2024-05-01' ), value: 30 },
+				{ date: new Date( '2024-06-01' ), value: 28 },
+			],
+			options: {
+				gradient: {
+					stops: [
+						{ offset: '0%', opacity: 0.7 },
+						{ offset: '20%', opacity: 0 },
+						{ offset: '100%', opacity: 0 },
+					],
+				},
+			},
+		},
+	],
+	withGradientFill: true,
+};
+
 export const ErrorStates: StoryObj< typeof LineChart > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
