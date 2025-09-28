@@ -179,45 +179,6 @@ Controls [what this affects]:
 - [Focus behavior and visual indicators]
 - [Focus trapping or restoration if applicable]
 
-## API Reference
-
-### [Component].[FeatureComponent]
-
-[Description of the container/wrapper component].
-
-**Props:**
-
-- `children`: [Description of expected children]
-
-### [Component].[SubComponent]
-
-[Description of the main feature component].
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `[requiredProp]` | `[Type]` | - | **Required.** [Description] |
-| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description] |
-| `[anotherProp]` | `[ComplexType]` | - | [Description] |
-
-### [TypeName] Type
-
-```typescript
-type [TypeName] = {
-	[property]: [Type];
-	[optionalProperty]?: [Type];
-};
-```
-
-### [AnotherTypeName] Type
-
-```typescript
-type [AnotherTypeName] = {
-	[property]: [Type];
-};
-```
-
 ## Migration from [Legacy API]
 
 [If applicable, provide migration examples]:
