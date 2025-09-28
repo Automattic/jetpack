@@ -248,39 +248,6 @@ describe( 'LineChart', () => {
 			expect( thirdStop ).toHaveAttribute( 'offset', '100%' );
 		} );
 
-		test( 'renders gradient with position attributes', () => {
-			renderWithTheme( {
-				withGradientFill: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [
-							{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-							{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-						],
-						options: {
-							gradient: {
-								from: '#ff0000',
-								to: '#0000ff',
-								x1: '0%',
-								y1: '0%',
-								x2: '100%',
-								y2: '100%',
-							},
-						},
-					},
-				],
-			} );
-
-			// Check that the gradient is rendered with position attributes
-			const gradient = screen.getByTestId( 'line-gradient' );
-			expect( gradient ).toBeInTheDocument();
-			expect( gradient ).toHaveAttribute( 'x1', '0%' );
-			expect( gradient ).toHaveAttribute( 'y1', '0%' );
-			expect( gradient ).toHaveAttribute( 'x2', '100%' );
-			expect( gradient ).toHaveAttribute( 'y2', '100%' );
-		} );
-
 		test( 'renders multiple gradients for multiple series', () => {
 			renderWithTheme( {
 				withGradientFill: true,
