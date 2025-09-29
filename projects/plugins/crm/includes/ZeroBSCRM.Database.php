@@ -921,6 +921,11 @@ function zeroBSCRM_db_runDelta($sql=''){
   
     global $wpdb,$zbsDB_lastError,$zbsDB_creationErrors;
   
+	// Ensure dbDelta is available (can be missing outside of admin load order)
+	if ( ! function_exists( 'dbDelta' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	}
+
     // enact
     dbDelta($sql);
 
