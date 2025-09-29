@@ -24,6 +24,7 @@ class Consent_Manager {
 	 */
 	public static function has_analytics_consent() {
 		if ( ! function_exists( 'wp_has_consent' ) ) {
+			// If WP Consent API is not available, default to true for backward compatibility
 			return true;
 		}
 
