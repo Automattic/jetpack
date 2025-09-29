@@ -101,9 +101,6 @@ function _jpcrm_manually_load_plugin() {
 	$zbs = zeroBSCRM::instance();
 
 	$zbs->install();
-	if ( function_exists( 'zeroBSCRM_notifyme_createDBtable' ) ) {
-		zeroBSCRM_notifyme_createDBtable();
-	}
 }
 
 tests_add_filter( 'muplugins_loaded', '_jpcrm_manually_load_plugin' );
