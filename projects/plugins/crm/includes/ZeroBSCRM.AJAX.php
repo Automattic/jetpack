@@ -1069,7 +1069,7 @@ function ZeroBSCRM_accept_quote() {
 
 		// validate that this has been posted by the contact associated with the quote, allow admin/staff to accept on behalf of the contact
 		global $zbs;
-		// reviewed and improved the layout.
+		// Check if user has admin privileges or quote permissions; otherwise, verify contact ownership for access control.
 		$can = zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes();
 		if ( ! $can ) {
 			// Require login
