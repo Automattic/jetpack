@@ -39,6 +39,7 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@automattic/request-external-access": "1.0.1",
 		"@automattic/ui": "1.0.2",
 		"@gravatar-com/hovercards": "0.10.8",

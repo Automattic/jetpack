@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { store as coreStore } from '@wordpress/core-data';
@@ -60,14 +61,14 @@ const EmptySpamButton = (): JSX.Element => {
 					deleted === 1
 						? __( 'Response deleted permanently.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: %d: The number of responses. */
+								/* translators: %s: The number of responses. */
 								_n(
-									'%d response deleted permanently.',
-									'%d responses deleted permanently.',
+									'%s response deleted permanently.',
+									'%s responses deleted permanently.',
 									deleted,
 									'jetpack-forms'
 								),
-								deleted
+								formatNumber( deleted )
 						  );
 				createSuccessNotice( successMessage, { type: 'snackbar', id: 'empty-spam' } );
 			} )
@@ -124,14 +125,14 @@ const EmptySpamButton = (): JSX.Element => {
 				<p>
 					{ selectedResponsesCount > 0
 						? sprintf(
-								// translators: %d: the number of responses in spam
+								// translators: %s: the number of responses in spam
 								_n(
-									'%d response in spam will be deleted forever. This action cannot be undone.',
-									'All %d responses in spam will be deleted forever. This action cannot be undone.',
+									'%s response in spam will be deleted forever. This action cannot be undone.',
+									'All %s responses in spam will be deleted forever. This action cannot be undone.',
 									totalItemsSpam || 0,
 									'jetpack-forms'
 								),
-								totalItemsSpam
+								formatNumber( totalItemsSpam )
 						  )
 						: __(
 								'All responses in spam will be deleted forever. This action cannot be undone.',
