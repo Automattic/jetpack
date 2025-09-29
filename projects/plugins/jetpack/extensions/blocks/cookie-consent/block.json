@@ -38,9 +38,9 @@
 			"type": "object",
 			"default": {
 				"color": {
-					"text": "var(--wp--preset--color--contrast)",
-					"background": "var(--wp--preset--color--tertiary)",
-					"link": "var(--wp--preset--color--contrast)"
+					"text": "var(--wp--preset--color--contrast, #000000)",
+					"background": "var(--wp--preset--color--tertiary, #f0f0f0)",
+					"link": "var(--wp--preset--color--contrast, #000000)"
 				},
 				"spacing": {
 					"padding": {

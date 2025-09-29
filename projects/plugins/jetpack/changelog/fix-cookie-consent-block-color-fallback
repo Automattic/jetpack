@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Cookie Consent Block: ensure we always have a default set of colors to style the block when theme colors are not available.
