@@ -214,6 +214,8 @@ add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_set_staging_enviro
  * @param array $assoc_args Associated arguments.
  */
 function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_args ) {
+	global $wpdb;
+
 	$clear_performance_profiler_data = WP_CLI\Utils\get_flag_value( $assoc_args, 'clear-performance-profiler-data', false );
 	if ( ! $clear_performance_profiler_data ) {
 		return;
@@ -229,7 +231,7 @@ function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_a
 		);
 	}
 
-	$query   = "DELETE FROM wp_postmeta WHERE meta_key = '_wpcom_performance_report_url'";
+	$query   = "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_wpcom_performance_report_url'";
 	$command = sprintf( 'db query "%s"', $query );
 	WP_CLI::runcommand(
 		$command,
