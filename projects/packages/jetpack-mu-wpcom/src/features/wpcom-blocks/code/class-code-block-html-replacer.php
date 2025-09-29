@@ -78,20 +78,12 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 				$class_name = $chunk[1] ?? null;
 
 				/*
-				 * Do not rely on `esc_html`, it would mishandle character references
+				 * Do not rely on `esc_html`. It would mishandle character references
 				 * that appear to be encoded already. HTML like `&amp;` would be
 				 * ignored, resulting in `&` rendering in the browser instead of the
-				 * desired HTML `&amp;` which must be encoded as `&amp;amp;`.
-				 *
-				 * Below, the `double_encode` argument is set to `true` to ensure
-				 * prevent this issue and ensure correct encoding.
+				 * desired `&amp;` which must be HTML encoded as `&amp;amp;`.
 				 */
-				$html_encoded_code = _wp_specialchars(
-					wp_check_invalid_utf8( $code ),
-					ENT_NOQUOTES,
-					false,
-					true
-				);
+				$html_encoded_code = htmlspecialchars( $code, ENT_NOQUOTES | ENT_SUBSTITUTE );
 
 				if ( ! $class_name ) {
 					$replacement_code_html[] = $html_encoded_code;
