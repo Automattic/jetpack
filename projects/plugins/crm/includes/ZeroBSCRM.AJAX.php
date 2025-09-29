@@ -1069,15 +1069,20 @@ function ZeroBSCRM_accept_quote() {
 
 		// validate that this has been posted by the contact associated with the quote, allow admin/staff to accept on behalf of the contact
 		global $zbs;
-		// Allow admins or CRM users with quote permissions to accept on behalf of the contact
-		if (
-			! ( zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes() )
-			&& (
-				! $uinfo->ID
-				|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			)
-		) {
-			wp_send_json_error( array( 'access' => 1 ), 403 );
+		// reviewed and improved the layout.
+		$can = zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes();
+		if ( ! $can ) {
+			// Require login
+			if ( empty( $uinfo ) || empty( $uinfo->ID ) ) {
+				wp_send_json_error( array( 'access' => 1 ), 403 );
+			}
+			// Resolve IDs safely
+			$customer_id      = (int) zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
+			$quote_contact_id = (int) $zbs->DAL->quotes->getQuoteContactID( $quoteID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Both IDs must exist and match
+			if ( $customer_id <= 0 || $quote_contact_id <= 0 || $customer_id !== $quote_contact_id ) {
+				wp_send_json_error( array( 'access' => 1 ), 403 );
+			}
 		}
 	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		wp_send_json_error( array( 'hash' => 1 ), 403 );
