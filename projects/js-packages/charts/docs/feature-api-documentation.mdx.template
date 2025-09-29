@@ -1,8 +1,4 @@
-import { Meta } from '@storybook/addon-docs/blocks';
-
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API" />
-
-# [Feature Name] API Reference
+# API Reference
 
 ## [Component].[FeatureComponent]
 

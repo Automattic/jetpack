@@ -170,46 +170,38 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 9. API Reference
+### 9. API Reference (Separate Document)
 
-Comprehensive prop documentation:
+The API reference should be created as a separate MDX document using the `feature-api-documentation.mdx.template`. This document will appear as a separate entry in Storybook below the main 'Docs' entry.
 
-````mdx
-## API Reference
+```mdx
+import { Meta } from '@storybook/addon-docs/blocks';
 
-### [Component].[SubComponent]
+<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API Reference" />
 
-Description of the component.
+# [Feature Name] API Reference
 
-**Props:**
-
-- `children`: Description
-
-### [Component].[MainComponent]
-
-Description of main component.
-
-**Props:**
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `requiredProp` | `Type` | - | **Required.** Description |
-| `optionalProp` | `Type \| Other` | `default` | Description |
-
-### [TypeName] Type
-
-```typescript
-type TypeName = {
-	property: Type;
-	optional?: Type;
-};
+[Use the feature-api-documentation.mdx.template structure]
 ```
-````
 
-````
+The separate API reference should include:
+
+- Complete component documentation with prop tables
+- TypeScript type definitions
+- Comprehensive parameter descriptions
+- Required vs optional prop distinctions
+
+This separation allows users to:
+
+- Quickly access examples and usage patterns in the main docs
+- Reference detailed API information when needed
+- Navigate Storybook more efficiently with focused documentation
 
 ### 10. Migration
+
 ```mdx
 ## Migration from [Legacy/Previous API]
+
 If applicable, provide migration examples:
 
 <Source language="jsx" code={`
@@ -219,7 +211,7 @@ If applicable, provide migration examples:
 // New API
 [new-example]
 `} />
-````
+```
 
 ## Content Guidelines
 
@@ -260,6 +252,7 @@ If applicable, provide migration examples:
 ### File Naming
 
 - Main docs: `[feature-name].docs.mdx`
+- API reference: `[feature-name].api.mdx`
 - Stories: `[feature-name].stories.tsx`
 
 ### Directory Structure
@@ -267,6 +260,7 @@ If applicable, provide migration examples:
 ```
 src/components/[chart-type]/stories/
 ├── [feature-name].docs.mdx
+├── [feature-name].api.mdx
 ├── [feature-name].stories.tsx
 ```
 
@@ -278,28 +272,33 @@ src/components/[chart-type]/stories/
 
 ## Quality Checklist
 
-Before considering documentation complete, verify:
+Before considering documentation complete, verify both main docs and API reference:
 
 ### Completeness
 
-- [ ] All props documented with types and descriptions
-- [ ] Visual examples for all major variations
-- [ ] Code examples are complete and runnable
-- [ ] Accessibility considerations covered
-- [ ] Browser compatibility notes included
+- [ ] Main docs: All usage patterns and examples documented
+- [ ] API docs: All props documented with types and descriptions
+- [ ] Visual examples for all major variations in main docs
+- [ ] Code examples are complete and runnable in main docs
+- [ ] Accessibility considerations covered in main docs
+- [ ] Browser compatibility notes included where relevant
+- [ ] Both documents created using appropriate templates
 
 ### Accuracy
 
 - [ ] Code examples match actual implementation
-- [ ] Type definitions are current
+- [ ] API reference type definitions are current and accurate
 - [ ] Examples use current API patterns
+- [ ] Prop names and types match between documents
+- [ ] Cross-references between docs are accurate
 
 ### Usability
 
-- [ ] Progressive complexity (simple → advanced)
-- [ ] Clear section headings and navigation
-- [ ] Practical use case examples
+- [ ] Main docs: Progressive complexity (simple → advanced)
+- [ ] Clear section headings and navigation in both documents
+- [ ] Practical use case examples in main docs
 - [ ] Migration guidance where applicable
+- [ ] API reference is easily discoverable from main docs
 
 ### Standards Compliance
 
@@ -307,18 +306,36 @@ Before considering documentation complete, verify:
 - [ ] Uses established styling conventions
 - [ ] Integrates with chart theming system
 - [ ] Maintains accessibility standards
+- [ ] Proper Storybook organization with separate API reference entry
 
-## Using the Feature Documentation Template
+## Using the Documentation Templates
 
-AI agents should use the provided `feature-documentation.mdx.template` as a starting point for any new chart feature documentation:
+AI agents should use both provided templates when creating comprehensive chart feature documentation:
 
-1. **Copy the template**: Start with `feature-documentation.mdx.template`
+### Main Feature Documentation
+
+1. **Copy the main template**: Start with `feature-documentation.mdx.template`
 2. **Replace all bracketed placeholders**: Fill in `[Component]`, `[FeatureName]`, `[feature-name]`, etc. with actual values
 3. **Follow the structure**: Keep all sections but adapt content to your specific feature
 4. **Remove irrelevant sections**: If your feature doesn't have certain capabilities (e.g., no interactive features), remove those sections
 5. **Add feature-specific sections**: Include additional sections if your feature has unique aspects not covered in the template
 
-The template includes all the standard sections, proper MDX formatting, and placeholder text to guide content creation.
+### API Reference Documentation
+
+1. **Copy the API template**: Start with `feature-api-documentation.mdx.template`
+2. **Replace all bracketed placeholders**: Fill in component and type names
+3. **Complete all prop tables**: Ensure comprehensive coverage of all component props
+4. **Include TypeScript definitions**: Document all custom types used by the feature
+5. **Use consistent naming**: Match prop names and types exactly as implemented
+
+### Template Integration
+
+- The main documentation focuses on usage patterns, examples, and best practices
+- The API reference provides comprehensive technical details and prop specifications
+- Both documents should cross-reference each other where appropriate
+- Maintain consistent terminology and naming between both documents
+
+Both templates include proper MDX formatting and placeholder text to guide content creation.
 
 ## Example Analysis
 
