@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Forms: Added form-level required indicator settings, made single-input forms required by default, and hide indicators in single-input forms.
+Forms: Added required indicator settings, made forms with a sinble input required by default.
