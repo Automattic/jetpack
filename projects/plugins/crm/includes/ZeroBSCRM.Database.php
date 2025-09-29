@@ -1054,7 +1054,7 @@ function jpcrm_create_notifications_table() {
     `zbsnotify_reference_id` INT(32) NOT NULL,
     `zbsnotify_created_at` INT(18) NOT NULL,
     PRIMARY KEY (`id`))
-    " . $storageEngineLine . '   
+    " . $storageEngineLine . '
     DEFAULT CHARACTER SET = ' . $characterSet . "
     COLLATE = " . $collation . ";";
     // phpcs:enable
@@ -1062,7 +1062,7 @@ function jpcrm_create_notifications_table() {
 	// Run the query
 	zeroBSCRM_db_runDelta( $sql );
 
-	// Check if table was created successfully
+	// Check if table was created successfully - the table name is set as a global variable so OK to put directly in the SQL
 	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$table_name = $ZBSCRM_t['notifications'];
 	// phpcs:disable
