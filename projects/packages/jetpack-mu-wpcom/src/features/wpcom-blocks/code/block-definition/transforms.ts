@@ -151,8 +151,8 @@ export const transforms = {
 				}
 				const [ file ] = files;
 
-				// Bail on files larger than 10KB
-				if ( file.size > 10 * 1_024 ) {
+				// Bail on files larger than 1MB
+				if ( file.size > 1_024 ** 2 ) {
 					return false;
 				}
 				const language = getLanguageFromFile( file );
