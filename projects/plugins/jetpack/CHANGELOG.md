@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-a.9 - 2025-09-29
+### Enhancements
+- Forms: Add setting to enable or disable email notifications for form submissions. [#45230]
+- Forms: Rename 'Manage responses' forms sidebar block panel to 'Responses storage'. [#45228]
+
+### Bug fixes
+- Forms: Don't override field labels on transforms. [#45281]
+- Forms: Fixes the missing rest attributes. [#45274]
+- Resolve conflict with WordPress 6.7.3. [#45320]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Editor assets endpoint: Allow all `jetpack/contact-info` inner blocks. [#45252]
+- Integrate calls to add and remove the proxy speed module in Jetpack plugin initialization and deactivation processes. [#45243]
+- Update package dependencies. [#45298] [#45299]
+- Wrap upgrade nudge with span due to an ongoing Gutenberg issue where link clicks are not captured unless wrapped. [#45288]
+
 ## 15.1-a.7 - 2025-09-22
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Internal updates.

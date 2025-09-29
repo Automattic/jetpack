@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Wrap upgrade nudge with span due to an ongoing Gutenberg issue where link clicks are not captured unless wrapped 

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Forms: add withSyncEvent fallback for pre 6.8 compatibility

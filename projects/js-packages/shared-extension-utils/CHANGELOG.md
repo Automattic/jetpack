@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.19] - 2025-09-29
+### Changed
+- Wrap upgrade nudge with span due to an ongoing Gutenberg issue. [#45288]
+
 ## [1.3.18] - 2025-09-22
 ### Changed
 - Update dependencies. [#44940]
@@ -775,6 +779,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.3.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.18...1.3.19
 [1.3.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.17...1.3.18
 [1.3.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.16...1.3.17
 [1.3.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.15...1.3.16
