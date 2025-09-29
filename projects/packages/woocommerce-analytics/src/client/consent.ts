@@ -31,18 +31,18 @@ export class ConsentManager {
 	}
 
 	/**
-	 * Check if user has consent for statistics tracking
+	 * Check if user has consent for analytics/statistics tracking
 	 *
 	 * @return The consent status
 	 */
-	hasStatisticsConsent(): boolean {
+	hasAnalyticsConsent(): boolean {
 		if ( ! this.isWpConsentApiAvailable() ) {
 			debug( 'WP Consent API not available, defaulting to true for backward compatibility' );
 			return true;
 		}
 
 		const hasConsent = window.wp_has_consent!( WP_CONSENT_API_STATISTICS_TYPE );
-		debug( 'Statistics consent status:', hasConsent );
+		debug( 'Analytics consent status:', hasConsent );
 		return hasConsent;
 	}
 

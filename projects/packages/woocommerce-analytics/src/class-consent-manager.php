@@ -18,22 +18,12 @@ class Consent_Manager {
 	const WP_CONSENT_API_STATISTICS_TYPE = 'statistics';
 
 	/**
-	 * Check if WP Consent API is available
+	 * Check if user has consent for analytics tracking
 	 *
 	 * @return bool
 	 */
-	public static function is_wp_consent_api_available() {
-		return function_exists( 'wp_has_consent' );
-	}
-
-	/**
-	 * Check if user has consent for statistics tracking
-	 *
-	 * @return bool
-	 */
-	public static function has_statistics_consent() {
-		// If WP Consent API is not available, default to true for backward compatibility
-		if ( ! self::is_wp_consent_api_available() ) {
+	public static function has_analytics_consent() {
+		if ( ! function_exists( 'wp_has_consent' ) ) {
 			return true;
 		}
 

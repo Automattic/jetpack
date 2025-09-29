@@ -13,7 +13,7 @@ jQuery( () => {
 	}
 
 	// Check for consent before initializing analytics
-	if ( consentManager.hasStatisticsConsent() ) {
+	if ( consentManager.hasAnalyticsConsent() ) {
 		initializeAnalytics();
 		return;
 	}

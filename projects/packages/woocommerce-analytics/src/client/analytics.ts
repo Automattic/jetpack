@@ -115,7 +115,7 @@ export class Analytics {
 	 */
 	recordEvent = ( event: string, properties: Record< string, unknown > = {} ): void => {
 		// Check consent before recording any event
-		if ( ! consentManager.hasStatisticsConsent() ) {
+		if ( ! consentManager.hasAnalyticsConsent() ) {
 			debug( 'Skipping event recording due to lack of statistics consent: %s', event );
 			return;
 		}

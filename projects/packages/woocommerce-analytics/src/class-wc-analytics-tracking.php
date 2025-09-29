@@ -82,7 +82,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 */
 	public static function record_event( $event_name, $event_properties = array() ) {
 		// Check consent before recording any event
-		if ( ! Consent_Manager::has_statistics_consent() ) {
+		if ( ! Consent_Manager::has_analytics_consent() ) {
 			return true; // Skip recording.
 		}
 
