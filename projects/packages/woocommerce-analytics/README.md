@@ -71,60 +71,7 @@ add_filter( 'woocommerce_analytics_experimental_proxy_tracking_enabled', '__retu
 
 The package integrates with [WP Consent API](https://wordpress.org/plugins/wp-consent-api/) to ensure GDPR and privacy regulation compliance. Tracking only occurs when users have granted consent for statistics collection.
 
-#### How It Works
-
-**Client-Side Consent Checking:**
-
-- Analytics initialization is blocked until `wp_has_consent('statistics')` returns `true`
-- Dynamic consent change handling automatically starts/stops tracking when consent is granted/withdrawn
-- Session data is automatically cleared when consent is withdrawn
-
-**Server-Side Consent Checking:**
-
-- All server-side event recording checks consent before processing
-- REST API proxy endpoint respects consent status
-- Events are silently skipped when consent is not granted (no errors thrown)
-
-#### Backward Compatibility
-
-When WP Consent API is not available, the package defaults to allowing all tracking to maintain backward compatibility with existing installations.
-
-#### Integration Example
-
-```php
-// The package automatically detects and integrates with WP Consent API
-// No additional configuration required
-
-// To check consent status programmatically:
-use Automattic\Woocommerce_Analytics\Consent_Manager;
-
-if ( Consent_Manager::has_statistics_consent() ) {
-    // Tracking is allowed
-}
-```
-
-#### Client-Side Implementation
-
-```javascript
-// Client-side consent checking is automatic
-// Analytics will only initialize when consent is granted
-
-// For custom integrations, use the consent manager:
-import { consentManager } from './consent';
-
-if ( consentManager.hasStatisticsConsent() ) {
-	// Proceed with analytics
-}
-
-// Listen for consent changes:
-consentManager.addConsentChangeListener( hasConsent => {
-	if ( hasConsent ) {
-		// Consent granted - start tracking
-	} else {
-		// Consent withdrawn - stop tracking
-	}
-} );
-```
+When WP Consent API is not available, the package defaults to allowing all tracking to maintain backward compatibility.
 
 ## Tracked Events
 
