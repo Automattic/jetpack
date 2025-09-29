@@ -229,7 +229,7 @@ function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_a
 		);
 	}
 
-	$query   = "DELETE FROM wp_postmeta WHERE meta_key = '_wpcom_performance_report_url';";
+	$query   = "DELETE FROM wp_postmeta WHERE meta_key = '_wpcom_performance_report_url'";
 	$command = sprintf( 'db query "%s"', $query );
 	WP_CLI::runcommand(
 		$command,
