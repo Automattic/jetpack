@@ -96,6 +96,8 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`options`**: Advanced axis and scale configuration
 - **`children`**: Child components (e.g., annotations)
 
+For detailed prop information, type definitions, gradient configuration options, and complete annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs).
+
 ## Curve Types
 
 ### Linear Curves
@@ -520,7 +522,7 @@ Control chart layout with precise margin settings:
 
 ## Annotations
 
-Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) guide:
+Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) guide. For detailed annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs):
 
 <Source
 	language="jsx"
@@ -622,138 +624,6 @@ Full functionality in all modern browsers supporting:
 - Graceful degradation for older browsers
 - Touch-friendly interactions on mobile devices
 
-## API Reference
-
-### LineChart
-
-Main chart component with responsive behavior by default.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
-| `width` | `number?` | responsive | Chart width in pixels |
-| `height` | `number?` | responsive | Chart height in pixels |
-| `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
-| `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
-| `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
-| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
-| `showLegend` | `boolean` | `false` | Display chart legend |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
-| `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
-| `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
-| `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
-| `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
-| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
-| `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
-| `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
-| `children` | `ReactNode?` | - | Child components (e.g., annotations) |
-
-### LineChart.AnnotationsOverlay
-
-Container component for chart annotations. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete details.
-
-**Props:**
-
-- `children`: Annotation components
-
-### LineChart.Annotation
-
-Individual annotation component. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete API reference.
-
-### SeriesData Type
-
-```typescript
-type SeriesData = {
-	label: string;
-	data: DataPointDate[];
-	options?: {
-		gradient?: {
-			from?: string;
-			to?: string;
-			fromOpacity?: number;
-			toOpacity?: number;
-			stops?: Array<{
-				offset: string;
-				color?: string;
-				opacity?: number;
-			}>;
-		};
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-		type?: 'comparison'; // Semantic type for automatic theme styling
-	};
-};
-```
-
-#### Gradient Options
-
-The `gradient` option in `SeriesData.options` accepts the following configuration:
-
-**Basic Gradient (Two-Color):**
-- `from`: Start color (hex, rgb, CSS variable) - defaults to series color
-- `to`: End color (hex, rgb, CSS variable) - defaults to transparent background
-- `fromOpacity`: Start opacity (0-1, default: 0.4)
-- `toOpacity`: End opacity (0-1, default: 0.1)
-
-**Advanced Gradient (Multi-Stop):**
-- `stops`: Array of gradient stops for complex gradients
-  - `offset`: Position along gradient (percentage string, e.g., '25%')
-  - `color`: Color at this stop (hex, rgb, CSS variable) - defaults to line color if omitted
-  - `opacity`: Opacity at this stop (0-1, default: 1)
-
-**Note**: When using `stops`, the `from`, `to`, `fromOpacity`, and `toOpacity` properties are ignored.
-
-### DataPointDate Type
-
-```typescript
-type DataPointDate = {
-	date?: Date;
-	dateString?: string; // Multiple formats supported
-	value: number | null;
-	label?: string;
-};
-```
-
-### ChartOptions Type
-
-```typescript
-type ChartOptions = {
-	yScale?: {
-		type?: 'linear' | 'log';
-		zero?: boolean;
-		domain?: [number, number];
-		nice?: boolean;
-	};
-	xScale?: {
-		type?: 'time' | 'linear';
-		domain?: [Date, Date] | [number, number];
-	};
-	axis?: {
-		x?: {
-			orientation?: 'top' | 'bottom';
-			numTicks?: number;
-			tickFormat?: (value: any) => string;
-		};
-		y?: {
-			orientation?: 'left' | 'right';
-			numTicks?: number;
-			tickFormat?: (value: number) => string;
-		};
-	};
-};
-```
-
-
 ## Performance Considerations
 
 ### Built-in Optimizations
@@ -786,3 +656,7 @@ Line Charts integrate seamlessly with the chart theming system:
 - **Jetpack**: Jetpack brand colors and styling
 - **Woo**: WooCommerce brand colors and styling
 - **Custom**: Define your own theme object
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs).
