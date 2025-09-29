@@ -181,13 +181,11 @@ abstract class Code_Block {
 	 * @param string $content The block content.
 	 */
 	public static function render_block( array $attributes, string $content ): string {
-		if ( ! isset( $attributes['tokenizedLines'] ) ) {
+		if ( ! is_array( $attributes['tokenizedLines'] ?? null ) ) {
 			return $content;
 		}
 
-		$replacement_code_data = $attributes['tokenizedLines'];
-
-		list($code_string, $replaced_content) = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $replacement_code_data );
+		list($code_string, $replaced_content) = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'] );
 
 		if ( null === $replaced_content ) {
 			return $content;
