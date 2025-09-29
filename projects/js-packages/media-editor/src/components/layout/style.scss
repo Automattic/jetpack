@@ -1,0 +1,119 @@
+
+$header-height: 60px;
+
+.next-admin-site-editor__media-editor-layout {
+	background-color: var( --wpds-color-bg-surface-neutral-strong );
+
+	.next-admin-site-editor__hyperlink {
+		pointer-events: all;
+		cursor: default;
+	}
+
+	.next-admin-media-editor__toolbar {
+		background: #6c757d;
+		position: relative;
+		z-index: 1;
+		justify-content: center;
+		align-items: center;
+	}
+
+	// Create an exception for the Edit Details tab in the sidebar.
+	// See corresponding styles in the Editor package:
+	// https://github.com/WordPress/gutenberg/blob/trunk/packages/interface/src/components/pinned-items/style.scss.
+	.interface-pinned-items .components-button {
+		&[aria-controls="core:edit-media/details"] {
+			display: flex;
+		}
+	}
+}
+
+/*
+	Media Editor Header styles are taken from the Editor Header styles in Gutenberg's `@wordpress/editor` package.
+	packages/editor/src/components/header/style.scss
+*/
+.next-admin-media-details__header-container {
+	align-items: center;
+	background: var( --wpds-color-bg-surface-neutral-strong );
+	display: grid;
+	grid-auto-flow: row;
+	grid-template:
+		auto / $header-height minmax( min-content, 2fr ) 2.5fr minmax(
+			min-content,
+			2fr
+		)
+		$header-height;
+	height: $header-height;
+	justify-content: space-between;
+	max-width: 100vw;
+	gap: 16px;
+
+	.next-admin-media-details__header-container-toolbar {
+		grid-column: 2 / 3;
+		align-items: center;
+		display: flex;
+		min-width: 0;
+	}
+
+	/*
+		Original Document Bar styles can be found in Gutenberg's `@wordpress/editor` package.
+		packages/editor/src/components/document-bar/style.scss
+	*/
+	.next-admin-media-details__header-container-center {
+		grid-column: 3 / 4;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		// Clip the box while leaving room for focus rings.
+		clip-path: inset( -2px );
+
+		// Flex items will, by default, refuse to shrink below a minimum
+		// intrinsic width. In order to shrink this flexbox item, and
+		// subsequently truncate child text, we set an explicit min-width.
+		// See https://dev.w3.org/csswg/css-flexbox/#min-size-auto
+		min-width: 0;
+
+		// At less than mobile the header’s `gap` is zero so margins are added to create a smaller
+		// gap around the center’s contents.
+		@media (max-width: #{768px - 1}) {
+			> :first-child {
+				margin-inline-start: 8px;
+			}
+
+			> :last-child {
+				margin-inline-end: 8px;
+			}
+		}
+	}
+
+	.next-admin-media-details__header-container-actions {
+		grid-column: 4 / -1;
+		padding-right: 16px;
+		align-items: center;
+		display: inline-flex;
+		flex-wrap: nowrap;
+		gap: 16px;
+		justify-self: end;
+
+		// Ensure the button to open the sidebar is visible always,
+		// including on mobile.
+		// Replicates the styles in the interface package:
+		// https://github.com/WordPress/gutenberg/blob/1fe9d904bb85d429084f53dcfdeb74ecea995613/packages/interface/src/components/pinned-items/style.scss#L10-L15.
+		[aria-controls="media-settings"] {
+			display: flex;
+		}
+	}
+}
+
+.next-admin-media-details__content-container {
+	padding: 16px;
+	height: 100%;
+	max-height: 100%;
+	box-sizing: border-box;
+	color: var(
+		--wpds-color-fg-content-neutral
+	); // Ensure icons use correct color.
+
+	&--cropper {
+		padding: 0;
+	}
+}

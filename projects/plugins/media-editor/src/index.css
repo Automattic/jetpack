@@ -1,0 +1,15 @@
+/* Media Editor Styles */
+#media-editor-root {
+	padding: 20px;
+	background: #fff;
+	min-height: 500px;
+}
+
+#media-editor-root .wrap {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+#media-editor-root h1 {
+	margin-bottom: 20px;
+}

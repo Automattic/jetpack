@@ -1,0 +1,142 @@
+/**
+ * AI Image Editing Styles
+ *
+ * Styles for AI processing indicators, badges, and enhanced image display
+ */
+
+.next-admin-media-editor-content__image-container {
+	position: relative;
+	display: inline-block;
+}
+
+.next-admin-media-editor-content__image--ai-edited {
+	border: 2px solid #2271b1;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(34, 113, 177, 0.15);
+}
+
+.next-admin-media-editor-content__ai-badge {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	background: linear-gradient(135deg, #2271b1, #135e96);
+	color: white;
+	padding: 4px 8px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+	backdrop-filter: blur(4px);
+
+	span {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+}
+
+.next-admin-media-editor-content__ai-processing {
+	position: relative;
+	display: inline-block;
+}
+
+.next-admin-media-editor-content__image--processing {
+	filter: blur(1px);
+	transition: all 0.3s ease;
+}
+
+.next-admin-media-editor-content__ai-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(2px);
+	border-radius: 4px;
+}
+
+.next-admin-media-editor-content__ai-spinner {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 20px;
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+	span {
+		color: #2271b1;
+		font-weight: 600;
+		font-size: 14px;
+	}
+
+	&::before {
+		content: '';
+		width: 32px;
+		height: 32px;
+		border: 3px solid #e3e4e7;
+		border-top: 3px solid #2271b1;
+		border-radius: 50%;
+		animation: ai-spin 1s linear infinite;
+	}
+}
+
+@keyframes ai-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+	.next-admin-media-editor-content__ai-badge {
+		top: 4px;
+		right: 4px;
+		padding: 2px 6px;
+		font-size: 11px;
+	}
+
+	.next-admin-media-editor-content__ai-spinner {
+		padding: 16px;
+
+		span {
+			font-size: 13px;
+		}
+
+		&::before {
+			width: 28px;
+			height: 28px;
+			border-width: 2px;
+		}
+	}
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+	.next-admin-media-editor-content__image--ai-edited {
+		border-color: #000000;
+		border-width: 3px;
+	}
+
+	.next-admin-media-editor-content__ai-badge {
+		background: #000000;
+		border: 2px solid #ffffff;
+	}
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+	.next-admin-media-editor-content__image--processing {
+		filter: none;
+		transition: none;
+	}
+
+	.next-admin-media-editor-content__ai-spinner::before {
+		animation: none;
+		border-top-color: #2271b1;
+	}
+}

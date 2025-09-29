@@ -1,0 +1,49 @@
+
+.next-admin-media-editor-content__cropper {
+	position: relative;
+	display: flex;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.next-admin-media-editor__tools-panel {
+	.next-admin-media-editor__tools-panel-button.next-admin-media-editor__tools-panel-button {
+		flex-grow: 1;
+		flex-basis: 0;
+		justify-content: center;
+	}
+
+	.next-admin-media-editor__tools-panel-row {
+		.next-admin-media-editor__tools-panel-heading {
+			margin-bottom: 0;
+		}
+	}
+}
+
+.next-admin-media-editor__tools-panel-row {
+	padding: 16px;
+
+	&:not( :last-child ) {
+		border-bottom: 1px solid #6c757d;
+	}
+}
+
+.next-admin-media-editor__zoom-dropdown-popover .components-popover__content {
+	min-width: 200px;
+	overflow: visible !important; // Range control tooltip overflows the popover.
+}
+
+.next-admin-media-editor__toolbar-button[aria-expanded="true"] {
+	background-color: #6c757d;
+	color: #6c757d;
+}
+
+.next-admin-media-editor__toolbar {
+	.next-admin-media-editor__aspect-ratio-dropdown-button,
+	.next-admin-media-editor__zoom-dropdown-button {
+		// This matches the IconButton height.
+		height: 40px;
+	}
+}

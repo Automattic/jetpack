@@ -1,0 +1,60 @@
+{
+	"name": "automattic/media-editor",
+	"description": "Advanced media editing capabilities with AI-powered features",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"version": "0.1.0",
+	"authors": [
+		{
+			"name": "Automattic, Inc.",
+			"email": "support@jetpack.com"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"require": {
+		"ext-json": "*",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"autoload": {
+		"classmap": [
+			"src/php/"
+		]
+	},
+	"config": {
+		"sort-packages": true,
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"wp-plugin-slug": "media-editor"
+	}
+}

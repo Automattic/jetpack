@@ -1,0 +1,14 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "./index.ts", "./components", "./hooks", "./provider", "./types.ts", "./utils.ts" ],
+	"compilerOptions": {
+		"sourceMap": false,
+		"outDir": "./build/",
+		"target": "es2022",
+		"rootDir": "./",
+		"moduleResolution": "bundler",
+		"module": "esnext",
+		"noEmit": false,
+		"declaration": true
+	}
+}

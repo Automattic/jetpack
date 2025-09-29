@@ -1,0 +1,377 @@
+/**
+ * Styles for Agenttic Chat in Media Editor
+ *
+ * Custom styling to integrate agenttic chat with WordPress admin theme
+ */
+
+// Main wrapper positioning - force to lower right
+.agenttic-media-editor-chat {
+	// Override agenttic default styles to match WordPress admin
+	--color-primary: #2271b1; // WordPress admin blue
+	--color-primary-hover: #135e96;
+	--color-background: #ffffff;
+	--color-foreground: #1e1e1e;
+	--color-border: #c3c4c7;
+	--color-error: #d63638;
+	--color-success: #00a32a;
+	--color-warning: #dba617;
+
+	// WordPress admin font family
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+	// Force position in lower right corner
+	position: fixed !important;
+	bottom: 20px !important;
+	right: 20px !important;
+	left: auto !important;
+	top: auto !important;
+	z-index: 999999 !important;
+	width: auto !important;
+	height: auto !important;
+
+	// Override all child positioning
+	> * {
+		position: relative !important;
+		left: auto !important;
+		right: auto !important;
+		bottom: auto !important;
+		top: auto !important;
+	}
+
+	// Responsive positioning
+	@media ( max-width: 768px ) {
+		bottom: 10px !important;
+		right: 10px !important;
+		width: auto !important;
+		max-width: calc(100vw - 20px) !important;
+	}
+
+	@media ( max-width: 480px ) {
+		bottom: 10px !important;
+		right: 10px !important;
+		width: auto !important;
+		max-height: 70vh !important;
+	}
+}
+
+.agenttic-media-editor-floating-chat {
+	// Control the chat window size
+	max-width: 400px !important;
+	width: 100% !important;
+
+	// Hide all scrollbars in the entire chat component
+	* {
+		scrollbar-width: none !important;
+		-ms-overflow-style: none !important;
+
+		&::-webkit-scrollbar {
+			display: none !important;
+			width: 0 !important;
+			height: 0 !important;
+			background: transparent !important;
+		}
+	}
+
+	// Override any Agenttic default positioning
+	.agenttic {
+		position: relative !important;
+		bottom: auto !important;
+		right: auto !important;
+		left: auto !important;
+		top: auto !important;
+	}
+
+	// Custom styling for the floating chat trigger button
+	.agenttic [data-slot="chat-trigger"],
+	[data-slot="chat-trigger"] {
+		position: fixed !important;
+		bottom: 20px !important;
+		right: 20px !important;
+		left: auto !important;
+		top: auto !important;
+		background: var( --color-primary );
+		border: 2px solid var( --color-border );
+		box-shadow: 0 2px 8px rgba( 0, 0, 0, 0.15 );
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 56px;
+		height: 56px;
+		border-radius: 50%;
+		z-index: 999999 !important;
+		// WordPress admin style transition
+		transition: all 0.2s ease;
+
+		&:hover {
+			background: var( --color-primary-hover );
+			transform: scale( 1.05 );
+		}
+	}
+
+	.agenttic [data-slot="chat-container"],
+	[data-slot="chat-container"] {
+		position: fixed !important;
+		bottom: 80px !important; // Above the trigger button
+		right: 20px !important;
+		left: auto !important;
+		top: auto !important;
+		width: 400px !important;
+		max-width: calc(100vw - 40px) !important;
+		max-height: 500px !important;
+		border: 1px solid var( --color-border );
+		border-radius: 6px; // WordPress admin border radius
+		box-shadow: 0 4px 16px rgba( 0, 0, 0, 0.15 );
+		background: var( --color-background );
+		// Fix extra padding
+		padding: 0 !important;
+		margin: 0 !important;
+		z-index: 999998 !important;
+
+		// WordPress admin style backdrop
+		backdrop-filter: blur( 8px );
+	}
+
+	.agenttic [data-slot="chat-header"] {
+		background: var( --color-primary );
+		color: white;
+		border-bottom: 1px solid var( --color-border );
+		padding: 12px 16px;
+
+		h3 {
+			color: white;
+			margin: 0;
+			font-size: 14px;
+			font-weight: 600;
+		}
+	}
+
+	.agenttic [data-slot="chat-messages"] {
+		// Fix extra padding in messages area
+		padding: 12px !important;
+
+		// Hide scrollbar but keep scroll functionality
+		scrollbar-width: none !important; // Firefox
+		-ms-overflow-style: none !important; // Internet Explorer 10+
+
+		&::-webkit-scrollbar {
+			display: none !important; // WebKit browsers (Chrome, Safari, Edge)
+			width: 0 !important;
+			background: transparent !important;
+		}
+
+		// Also target any nested scrollable elements
+		* {
+			scrollbar-width: none !important;
+			-ms-overflow-style: none !important;
+
+			&::-webkit-scrollbar {
+				display: none !important;
+				width: 0 !important;
+				background: transparent !important;
+			}
+		}
+
+		// Customize message styles
+		.message {
+			&.user {
+				.message-content {
+					background: var( --color-primary );
+					color: white;
+				}
+			}
+
+			&.agent {
+				.message-content {
+					background: #f6f7f7;
+					color: var( --color-foreground );
+					border: 1px solid var( --color-border );
+				}
+			}
+		}
+	}
+
+	.agenttic [data-slot="chat-input"] {
+		border-top: 1px solid var( --color-border );
+		background: var( --color-background );
+		position: relative !important;
+		padding: 8px !important;
+
+		// Fix text overlapping in input area
+		> div {
+			display: flex !important;
+			align-items: flex-end !important;
+			gap: 8px !important;
+		}
+
+		textarea {
+			border: 1px solid var( --color-border );
+			border-radius: 4px;
+			font-family: inherit;
+			padding: 8px 12px !important;
+			line-height: 1.4 !important;
+			min-height: 40px !important;
+			resize: vertical !important;
+
+			&:focus {
+				border-color: var( --color-primary );
+				box-shadow: 0 0 0 1px var( --color-primary );
+				outline: none !important;
+			}
+
+			// Prevent placeholder text from overlapping
+			&::placeholder {
+				opacity: 0.6;
+				line-height: inherit;
+			}
+		}
+
+		button {
+			background: var( --color-primary );
+			color: white;
+			border: none;
+			border-radius: 4px;
+
+			&:hover {
+				background: var( --color-primary-hover );
+			}
+
+			&:disabled {
+				background: #c3c4c7;
+				cursor: not-allowed;
+			}
+		}
+	}
+
+	.agenttic [data-slot="chat-suggestions"] {
+		background: var( --color-background );
+		border-top: 1px solid var( --color-border );
+
+		.suggestion {
+			border: 1px solid var( --color-border );
+			background: var( --color-background );
+			color: var( --color-foreground );
+
+			&:hover {
+				background: #f6f7f7;
+				border-color: var( --color-primary );
+			}
+		}
+	}
+}
+
+// Empty state styling
+.agenttic-media-editor-empty-state {
+	text-align: center;
+	padding: 32px 24px;
+	color: var( --color-foreground );
+
+	.empty-icon {
+		font-size: 48px;
+		margin-bottom: 16px;
+	}
+
+	h3 {
+		margin: 0 0 12px 0;
+		font-size: 18px;
+		font-weight: 600;
+		color: var( --color-foreground );
+	}
+
+	p {
+		margin: 0 0 16px 0;
+		color: #646970;
+		line-height: 1.5;
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		text-align: left;
+		display: inline-block;
+
+		li {
+			padding: 4px 0;
+			color: #646970;
+
+			&::before {
+				content: "•";
+				color: var( --color-primary );
+				margin-right: 8px;
+			}
+		}
+	}
+}
+
+// Message actions styling
+.agenttic [data-slot="message-actions"] {
+	.action-button {
+		border: 1px solid var( --color-border );
+		background: var( --color-background );
+		color: var( --color-foreground );
+		border-radius: 4px;
+		padding: 4px 8px;
+		font-size: 12px;
+
+		&:hover {
+			background: #f6f7f7;
+			border-color: var( --color-primary );
+		}
+
+		&:active {
+			background: var( --color-primary );
+			color: white;
+		}
+	}
+}
+
+// Error and notice styling
+.agenttic [data-slot="chat-notice"] {
+	&.error {
+		background: #fcf0f1;
+		border-color: var( --color-error );
+		color: var( --color-error );
+	}
+
+	&.warning {
+		background: #fcf8e3;
+		border-color: var( --color-warning );
+		color: #8a6914;
+	}
+
+	&.success {
+		background: #edfaef;
+		border-color: var( --color-success );
+		color: var( --color-success );
+	}
+}
+
+// Responsive adjustments for WordPress admin mobile
+@media ( max-width: 782px ) {
+	.agenttic-media-editor-chat {
+		left: 10px !important;
+		max-width: calc(
+			100vw - 60px
+		) !important; // Account for WordPress mobile menu
+	}
+}
+
+// High contrast mode support
+@media ( prefers-contrast: high ) {
+	.agenttic-media-editor-chat {
+		--color-border: #000000;
+		--color-primary: #0000ff;
+	}
+}
+
+// Reduced motion support
+@media ( prefers-reduced-motion: reduce ) {
+	.agenttic-media-editor-floating-chat .agenttic [data-slot="chat-trigger"] {
+		transition: none;
+
+		&:hover {
+			transform: none;
+		}
+	}
+}

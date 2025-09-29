@@ -1,0 +1,44 @@
+{
+	"name": "media-editor-plugin",
+	"version": "0.1.0",
+	"description": "WordPress plugin wrapper for Media Editor",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/plugins/media-editor/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Media Editor"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/media-editor"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/media-editor": "workspace:*"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "6.31.0",
+		"concurrently": "^7.6.0",
+		"sass-embedded": "1.83.2",
+		"sass-loader": "16.0.5",
+		"webpack": "^5.90.1",
+		"webpack-cli": "^5.1.4"
+	},
+	"peerDependencies": {
+		"react": "^18.3.0",
+		"react-dom": "^18.3.0"
+	}
+}
