@@ -13,7 +13,7 @@ namespace Automattic\Woocommerce_Analytics;
 class Consent_Manager {
 
 	/**
-	 * Consent type that we check for analytics tracking
+	 * WP Consent API's consent type we check for analytics tracking
 	 */
 	const WP_CONSENT_API_STATISTICS_TYPE = 'statistics';
 

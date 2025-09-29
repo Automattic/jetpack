@@ -7,13 +7,6 @@ const debug = debugFactory( 'wc-analytics:consent' );
 
 const WP_CONSENT_API_STATISTICS_TYPE = 'statistics' as const;
 
-declare global {
-	interface Window {
-		wp_has_consent?: ( type: string ) => boolean;
-		wp_listen_for_consent_change?: ( callback: ( type: string, value: boolean ) => void ) => void;
-	}
-}
-
 /**
  * Consent utility functions for WP Consent API integration
  */
@@ -54,18 +47,6 @@ export class ConsentManager {
 	addConsentChangeListener( callback: ( hasConsent: boolean ) => void ): void {
 		this.consentListeners.push( callback );
 		this.initializeConsentListener();
-	}
-
-	/**
-	 * Remove a consent change listener
-	 *
-	 * @param callback - The callback to remove
-	 */
-	removeConsentChangeListener( callback: ( hasConsent: boolean ) => void ): void {
-		const index = this.consentListeners.indexOf( callback );
-		if ( index > -1 ) {
-			this.consentListeners.splice( index, 1 );
-		}
 	}
 
 	/**

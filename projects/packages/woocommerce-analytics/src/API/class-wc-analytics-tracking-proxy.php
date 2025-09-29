@@ -60,7 +60,7 @@ class WC_Analytics_Tracking_Proxy extends \WC_REST_Controller {
 			return new \WP_REST_Response(
 				array(
 					'success' => true,
-					'message' => 'Events skipped due to lack of statistics consent',
+					'message' => 'Events skipped due to lack of analytics consent',
 					'results' => array(),
 				),
 				200
