@@ -326,7 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.1-a.7 - 2025-09-22
+### 15.1-a.9 - 2025-09-29
+#### Enhancements
+- Forms: Add setting to enable or disable email notifications for form submissions.
+- Forms: Rename 'Manage responses' forms sidebar block panel to 'Responses storage'.
+
+#### Bug fixes
+- Forms: Don't override field labels on transforms.
+- Forms: Fixes the missing rest attributes.
+- Resolve conflict with WordPress 6.7.3.
+
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

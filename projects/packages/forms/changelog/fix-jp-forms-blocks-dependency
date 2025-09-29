@@ -1,3 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Add missing jetpack-blocks-editor dependency to jp-forms-blocks script to fix block registration timing issues.

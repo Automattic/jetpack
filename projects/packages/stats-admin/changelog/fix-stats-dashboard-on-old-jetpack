@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix dashboard.wordpress.com breaking non-odyssey stats on older versions of Jetpack.
