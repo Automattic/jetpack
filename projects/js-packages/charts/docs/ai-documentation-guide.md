@@ -53,7 +53,44 @@ The [Component] component supports [feature description], providing [benefits]:
 />
 ```
 
-### 4. Basic Usage Section
+### 4. API Reference Section (Link)
+
+Immediately after the overview, include a link to the separate API reference document:
+
+```mdx
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
+```
+
+#### Creating the Separate API Reference Document
+
+The API reference should be created as a separate MDX document using the `feature-api-documentation.mdx.template`. This document will appear as a separate entry in Storybook below the main 'Docs' entry.
+
+```mdx
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API Reference" />
+
+# [Feature Name] API Reference
+
+[Use the feature-api-documentation.mdx.template structure]
+```
+
+The separate API reference should include:
+
+- Complete component documentation with prop tables
+- TypeScript type definitions
+- Comprehensive parameter descriptions
+- Required vs optional prop distinctions
+
+This separation allows users to:
+
+- Quickly access examples and usage patterns in the main docs
+- Reference detailed API information when needed
+- Navigate Storybook more efficiently with focused documentation
+
+### 5. Basic Usage Section
 
 ```mdx
 ## Basic Usage
@@ -73,11 +110,10 @@ Description of simplest implementation:
 
 ### Optional Props
 
-- **`optionalProp`**: Description and default behavior
-- **`anotherOptional`**: Description
+For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
 ```
 
-### 5. Feature Variations
+### 6. Feature Variations
 
 Document all major variations with:
 
@@ -104,7 +140,7 @@ Description and use case:
 <Source language="jsx" code={ `example-code` } />
 ```
 
-### 6. Styling and Customization
+### 7. Styling and Customization
 
 ```mdx
 ## Styling and Customization
@@ -133,7 +169,7 @@ Controls [what this category affects]:
 Explanation of how feature integrates with chart themes.
 ```
 
-### 7. Advanced Features
+### 8. Advanced Features
 
 Document complex functionality:
 
@@ -149,7 +185,7 @@ Explanation of complex functionality with examples.
 More advanced usage patterns.
 ```
 
-### 8. Accessibility Section
+### 9. Accessibility Section
 
 Always include accessibility information:
 
@@ -169,33 +205,6 @@ Always include accessibility information:
 
 - Focus behavior and visual indicators
 ```
-
-### 9. API Reference (Separate Document)
-
-The API reference should be created as a separate MDX document using the `feature-api-documentation.mdx.template`. This document will appear as a separate entry in Storybook below the main 'Docs' entry.
-
-```mdx
-import { Meta } from '@storybook/addon-docs/blocks';
-
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API Reference" />
-
-# [Feature Name] API Reference
-
-[Use the feature-api-documentation.mdx.template structure]
-```
-
-The separate API reference should include:
-
-- Complete component documentation with prop tables
-- TypeScript type definitions
-- Comprehensive parameter descriptions
-- Required vs optional prop distinctions
-
-This separation allows users to:
-
-- Quickly access examples and usage patterns in the main docs
-- Reference detailed API information when needed
-- Navigate Storybook more efficiently with focused documentation
 
 ### 10. Migration
 
