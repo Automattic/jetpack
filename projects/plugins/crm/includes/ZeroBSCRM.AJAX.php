@@ -1044,11 +1044,6 @@ add_action( 'wp_ajax_nopriv_zbs_quotes_accept_quote', 'ZeroBSCRM_accept_quote' )
 add_action( 'wp_ajax_zbs_quotes_accept_quote', 'ZeroBSCRM_accept_quote' );
 
 function ZeroBSCRM_accept_quote() {
-	// We probably want to see all errors:
-	ini_set( 'display_errors', 1 );
-	ini_set( 'display_startup_errors', 1 );
-	error_reporting( E_ALL );
-
 	// } Check nonce
 	check_ajax_referer( 'zbscrmquo-nonce', 'sec' );
 
@@ -1072,10 +1067,15 @@ function ZeroBSCRM_accept_quote() {
 	if ( empty( $quoteHash ) ) {
 		$uinfo = wp_get_current_user();
 
-		// validate that this has been posted by the contact associated with the quote
+		// validate that this has been posted by the contact associated with the quote, allow admin/staff to accept on behalf of the contact
 		global $zbs;
-		if ( ! $uinfo->ID
-			|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Allow admins or CRM users with quote permissions to accept on behalf of the contact
+		if (
+			! ( zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes() )
+			&& (
+				! $uinfo->ID
+				|| zeroBS_getCustomerIDWithEmail( $uinfo->user_email ) !== $zbs->DAL->quotes->getQuoteContactID( $quoteID ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			)
 		) {
 			wp_send_json_error( array( 'access' => 1 ), 403 );
 		}
