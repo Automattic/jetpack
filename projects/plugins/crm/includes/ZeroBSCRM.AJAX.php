@@ -1073,7 +1073,7 @@ function ZeroBSCRM_accept_quote() {
 		$can = zeroBSCRM_isZBSAdminOrAdmin() || zeroBSCRM_permsQuotes();
 		if ( ! $can ) {
 			// Require login
-			if ( empty( $uinfo ) || empty( $uinfo->ID ) ) {
+			if ( ! is_user_logged_in() ) {
 				wp_send_json_error( array( 'access' => 1 ), 403 );
 			}
 			// Resolve IDs safely
