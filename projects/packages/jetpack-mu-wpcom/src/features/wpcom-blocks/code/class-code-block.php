@@ -187,8 +187,7 @@ abstract class Code_Block {
 
 		$replacement_code_data = $attributes['tokenizedLines'];
 
-		$replacer                             = Code_Block_HTML_Replacer::create_fragment( $content );
-		list($code_string, $replaced_content) = $replacer->get_updated_html_with_replaced_content( $replacement_code_data );
+		list($code_string, $replaced_content) = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $replacement_code_data );
 
 		if ( null === $replaced_content ) {
 			return $content;

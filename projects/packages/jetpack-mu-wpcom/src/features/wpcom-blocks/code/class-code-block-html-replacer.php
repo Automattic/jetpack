@@ -17,41 +17,48 @@ use WP_HTML_Text_Replacement;
  */
 class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	/**
-	 * Replace the code placeholder.
+	 * Replace the code block content with the tokenize HTML.
 	 *
-	 * @param array $tokenized_code_data The tokenized code data.
+	 * This extracts the original code text and provides the updated HTML string
+	 * with the tokenized HTML inserted. The HTML structure and replacement
+	 * contents are checked to ensure safety.
+	 *
+	 * @param string $html The tokenized code data.
+	 * @param array  $tokenized_code_data The tokenized code data.
 	 * @return null|array{0: string, 1: string} Null on failure, or array with original code string
 	 *                                          and the tokenized HTML markup.
 	 */
-	public function get_updated_html_with_replaced_content( array $tokenized_code_data ): ?array {
+	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data ): ?array {
+		$processor = self::create_fragment( $html );
+
 		// Find the location for insertion.
-		if ( ! $this->next_tag( 'CODE' ) ) {
+		if ( ! $processor->next_tag( 'CODE' ) ) {
 			return null;
 		}
-		$this->set_bookmark( 'code_block_html_replace_start' );
+		$processor->set_bookmark( 'code_block_html_replace_start' );
 
 		// The code should be 1 HTML CODE element containing the text.
 		// <code>### text ###</code>.
 		if (
-			! $this->next_token() ||
-			$this->get_token_type() !== '#text'
+			! $processor->next_token() ||
+			$processor->get_token_type() !== '#text'
 		) {
 			return null;
 		}
-		$code_string = $this->get_modifiable_text();
+		$code_string = $processor->get_modifiable_text();
 		if (
-			! $this->next_token() ||
-			$this->get_tag() !== 'CODE' ||
-			! $this->is_tag_closer()
+			! $processor->next_token() ||
+			$processor->get_tag() !== 'CODE' ||
+			! $processor->is_tag_closer()
 		) {
 			return null;
 		}
-		$this->set_bookmark( 'code_block_html_replace_end' );
+		$processor->set_bookmark( 'code_block_html_replace_end' );
 
 		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
 		if ( ! isset(
-			$this->bookmarks['_code_block_html_replace_start'],
-			$this->bookmarks['_code_block_html_replace_end']
+			$processor->bookmarks['_code_block_html_replace_start'],
+			$processor->bookmarks['_code_block_html_replace_end']
 		) ) {
 			return null;
 		}
@@ -99,17 +106,17 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		}
 
 		// We'll start at the end of the CODE opener.
-		$bm_start = $this->bookmarks['_code_block_html_replace_start'];
-		$bm_end   = $this->bookmarks['_code_block_html_replace_end'];
+		$bm_start = $processor->bookmarks['_code_block_html_replace_start'];
+		$bm_end   = $processor->bookmarks['_code_block_html_replace_end'];
 		$start    = $bm_start->start + $bm_start->length;
 		$length   = $bm_end->start - $start;
 
-		$this->lexical_updates[] = new WP_HTML_Text_Replacement(
+		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$start,
 			$length,
 			implode( '', $replacement_code_html )
 		);
 
-		return array( $code_string, $this->get_updated_html() );
+		return array( $code_string, $processor->get_updated_html() );
 	}
 }
