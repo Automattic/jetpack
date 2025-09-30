@@ -102,7 +102,13 @@ export default function PhoneFieldEdit( props ) {
 		__experimentalCaptureToolbars: true,
 	} );
 
-	useSyncRequiredIndicator( clientId, requiredIndicator );
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
 
 	// Handler is provided as context from edit as index.js can't pass it as a prop.
 	const onChangeDefaultCountry = useCallback(

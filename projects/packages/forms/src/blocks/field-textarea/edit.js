@@ -37,7 +37,13 @@ export default function TextareaFieldEdit( props ) {
 		templateLock: 'all',
 	} );
 
-	useSyncRequiredIndicator( clientId, requiredIndicator );
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
 
 	return (
 		<>

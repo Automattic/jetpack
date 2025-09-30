@@ -1,19 +1,31 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { useSyncedAttributes } from './use-synced-attributes';
 
 /**
- * Synchronize the nested `jetpack/label` block's `requiredIndicator` attribute
- * with its parent field block.
+ * Syncs `requiredIndicator` verticall between parent field and nested label,
+ * and also horizontally across form fields if isSynced is true.
  *
- * Ensures that toggling "Show required text" at the field level updates the
- * inner label block immediately, keeping editor UI and saved attributes in sync.
- *
- * @param {string}  clientId          - The parent field block client ID.
- * @param {boolean} requiredIndicator - Whether to display the required indicator text.
+ * @param {object}   opts               - Options.
+ * @param {string}   opts.clientId      - Parent field block client ID.
+ * @param {string}   opts.blockName     - Sync group key (e.g., 'jetpack/field-sync' or per-type name).
+ * @param {boolean}  opts.isSynced      - Whether field attributes are shared (`shareFieldAttributes`).
+ * @param {object}   opts.attributes    - Field attributes object.
+ * @param {Function} opts.setAttributes - Field setAttributes function.
  * @return {void}
  */
-export const useSyncRequiredIndicator = ( clientId, requiredIndicator ) => {
+export const useSyncRequiredIndicator = ( {
+	clientId,
+	blockName,
+	isSynced,
+	attributes,
+	setAttributes,
+} ) => {
+	// Syncs horizontally across form fields if isSynced is true.
+	useSyncedAttributes( blockName, isSynced, [ 'requiredIndicator' ], attributes, setAttributes );
+
+	// Synces verticall between label and parent.
 	const labelClientId = useSelect(
 		select => {
 			const { getBlock } = select( blockEditorStore );
@@ -31,8 +43,8 @@ export const useSyncRequiredIndicator = ( clientId, requiredIndicator ) => {
 
 	useEffect( () => {
 		if ( labelClientId ) {
-			updateBlockAttributes( labelClientId, { requiredIndicator } );
+			updateBlockAttributes( labelClientId, { requiredIndicator: attributes?.requiredIndicator } );
 		}
-	}, [ labelClientId, requiredIndicator, updateBlockAttributes ] );
+	}, [ labelClientId, attributes?.requiredIndicator, updateBlockAttributes ] );
 };
 export default useSyncRequiredIndicator;

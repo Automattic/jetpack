@@ -40,7 +40,13 @@ const JetpackField = props => {
 		];
 	}, [ label, required, requiredText, requiredIndicator, type ] );
 
-	useSyncRequiredIndicator( clientId, requiredIndicator );
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
