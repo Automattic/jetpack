@@ -65,6 +65,14 @@ class Jetpack_Monetize_Checkout {
 		add_action( 'init', array( $this, 'ensure_checkout_page_exists' ) );
 	}
 
+	public function get_page_monetize_checkout_link() {
+		$this->ensure_checkout_page_exists();
+
+		$page = $this->find_checkout_page();
+
+		return get_page_link( $page );
+	}
+
 	/**
 	 * Check if subscriptions module is active
 	 *
@@ -74,10 +82,8 @@ class Jetpack_Monetize_Checkout {
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return false;
 		}
-
 		return Jetpack::is_module_active( 'subscriptions' );
 	}
-
 	/**
 	 * Find existing checkout page by meta key
 	 *
@@ -103,7 +109,7 @@ class Jetpack_Monetize_Checkout {
 	 * @return string
 	 */
 	private function generate_unique_slug() {
-		$slug = self::BASE_SLUG;
+		$slug    = self::BASE_SLUG;
 		$counter = 0;
 
 		// Check if base slug is available
@@ -113,7 +119,7 @@ class Jetpack_Monetize_Checkout {
 
 		// Try numbered variants
 		do {
-			$counter++;
+			++$counter;
 			$slug = self::BASE_SLUG . '-' . $counter;
 		} while ( $this->slug_exists( $slug ) );
 
