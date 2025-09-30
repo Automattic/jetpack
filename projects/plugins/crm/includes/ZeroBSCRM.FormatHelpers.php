@@ -9,6 +9,8 @@
  * Date: 01/11/16
  */
 
+// phpcs:disable
+
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 
