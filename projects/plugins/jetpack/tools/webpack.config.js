@@ -166,7 +166,7 @@ module.exports = [
 			} ),
 		},
 	},
-	// Build static.jsx (which produces pre-rendered HTML).
+	// Build generator.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,
 		entry: { static: path.join( __dirname, '../_inc/client', 'generator.jsx' ) },
