@@ -5,6 +5,7 @@
  * @package Jetpack
  */
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use WpOrg\Requests\Requests;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
@@ -449,5 +450,187 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 */
 	public function enqueue_complex_test_script() {
 		wp_enqueue_script( 'jetpack-complex-test-script' );
+	}
+
+	/**
+	 * Test the make_url_absolute method converts URLs correctly.
+	 *
+	 * @param string $input_url The input URL.
+	 * @param string $expected_url The expected URL after conversion.
+	 * @dataProvider url_conversion_data_provider
+	 */
+	#[DataProvider( 'url_conversion_data_provider' )]
+	public function test_make_url_absolute( $input_url, $expected_url ) {
+		// Use the public method directly
+		$result = $this->instance->make_url_absolute( $input_url );
+		$this->assertSame( $expected_url, $result );
+	}
+
+	/**
+	 * Data provider for URL conversion tests.
+	 *
+	 * @return array Test data.
+	 */
+	public static function url_conversion_data_provider() {
+		$site_url = site_url();
+		return array(
+			'relative URL starting with /'        => array( '/wp-admin/script.js', $site_url . '/wp-admin/script.js' ),
+			'relative URL with wp-includes'       => array( '/wp-includes/js/jquery.js', $site_url . '/wp-includes/js/jquery.js' ),
+			'protocol-relative URL'               => array( '//example.com/script.js', '//example.com/script.js' ),
+			'absolute URL with http'              => array( 'http://example.com/script.js', 'http://example.com/script.js' ),
+			'absolute URL with https'             => array( 'https://example.com/script.js', 'https://example.com/script.js' ),
+			'empty string'                        => array( '', '' ),
+			'relative path without leading slash' => array( 'script.js', 'script.js' ),
+			'URL with query parameters'           => array( '/wp-admin/script.js?ver=1.0', $site_url . '/wp-admin/script.js?ver=1.0' ),
+			'URL with hash'                       => array( '/wp-admin/page#section', $site_url . '/wp-admin/page#section' ),
+		);
+	}
+
+	/**
+	 * Test that URL conversion filters are applied during asset generation.
+	 */
+	public function test_url_conversion_filters_are_applied() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Track filter application
+		$filters_applied = array(
+			'script' => false,
+			'style'  => false,
+		);
+
+		// Add tracking filters at priority 5 (before our filter at 10)
+		add_filter(
+			'script_loader_src',
+			function ( $src ) use ( &$filters_applied ) {
+				$filters_applied['script'] = true;
+				return $src;
+			},
+			5,
+			2
+		);
+
+		add_filter(
+			'style_loader_src',
+			function ( $src ) use ( &$filters_applied ) {
+				$filters_applied['style'] = true;
+				return $src;
+			},
+			5,
+			2
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		$this->assertTrue( $filters_applied['script'], 'Script filter was not applied' );
+		$this->assertTrue( $filters_applied['style'], 'Style filter was not applied' );
+
+		// Clean up
+		remove_all_filters( 'script_loader_src', 5 );
+		remove_all_filters( 'style_loader_src', 5 );
+	}
+
+	/**
+	 * Test that relative URLs in assets are converted to absolute URLs.
+	 */
+	public function test_relative_urls_are_converted_to_absolute() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Register assets with relative URLs
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'jetpack-relative-test', '/wp-content/plugins/test/script.js', array(), '1.0', true );
+				wp_register_style( 'jetpack-relative-style', '/wp-content/plugins/test/style.css', array(), '1.0' );
+
+				wp_enqueue_script( 'jetpack-relative-test' );
+				wp_enqueue_style( 'jetpack-relative-style' );
+			}
+		);
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Check that relative URLs have been converted to absolute
+		$site_url = site_url();
+		$this->assertStringContainsString( $site_url . '/wp-content/plugins/test/script.js', $data['scripts'] );
+		$this->assertStringContainsString( $site_url . '/wp-content/plugins/test/style.css', $data['styles'] );
+
+		// Ensure no relative URLs remain in src/href attributes
+		$this->assertDoesNotMatchRegularExpression( '/src=[\'"]\//', $data['scripts'], 'Found relative URL in script src' );
+		$this->assertDoesNotMatchRegularExpression( '/href=[\'"]\//', $data['styles'], 'Found relative URL in style href' );
+	}
+
+	/**
+	 * Test that core WordPress assets with relative URLs are converted to absolute.
+	 */
+	public function test_core_assets_urls_are_absolute() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$site_url = site_url();
+
+		// Check that any wp-includes or wp-admin paths are absolute (either local or CDN)
+		if ( strpos( $data['scripts'], 'wp-includes' ) !== false || strpos( $data['scripts'], 'wp-admin' ) !== false ) {
+			// Verify URLs are absolute (not relative)
+			preg_match_all( '/(?:src|href)=[\'"]([^\'"]+)[\'"]/', $data['scripts'], $script_urls );
+			foreach ( $script_urls[1] as $url ) {
+				if ( strpos( $url, 'wp-includes' ) !== false || strpos( $url, 'wp-admin' ) !== false ) {
+					// URL should be absolute - either starts with site URL, http://, https://, or // (protocol-relative)
+					$is_absolute = (
+						strpos( $url, $site_url ) === 0 ||
+						strpos( $url, 'http://' ) === 0 ||
+						strpos( $url, 'https://' ) === 0 ||
+						strpos( $url, '//' ) === 0
+					);
+					$this->assertTrue( $is_absolute, "Core script URL should be absolute, got: {$url}" );
+
+					// Ensure it's not a relative URL (starting with / but not //)
+					if ( strpos( $url, '/' ) === 0 ) {
+						$this->assertStringStartsWith( '//', $url, "URL starting with / should be protocol-relative (//), got: {$url}" );
+					}
+				}
+			}
+		}
+
+		if ( strpos( $data['styles'], 'wp-includes' ) !== false || strpos( $data['styles'], 'wp-admin' ) !== false ) {
+			// Verify URLs are absolute (not relative)
+			preg_match_all( '/(?:src|href)=[\'"]([^\'"]+)[\'"]/', $data['styles'], $style_urls );
+			foreach ( $style_urls[1] as $url ) {
+				if ( strpos( $url, 'wp-includes' ) !== false || strpos( $url, 'wp-admin' ) !== false ) {
+					// URL should be absolute - either starts with site URL, http://, https://, or // (protocol-relative)
+					$is_absolute = (
+						strpos( $url, $site_url ) === 0 ||
+						strpos( $url, 'http://' ) === 0 ||
+						strpos( $url, 'https://' ) === 0 ||
+						strpos( $url, '//' ) === 0
+					);
+					$this->assertTrue( $is_absolute, "Core style URL should be absolute, got: {$url}" );
+
+					// Ensure it's not a relative URL (starting with / but not //)
+					if ( strpos( $url, '/' ) === 0 ) {
+						$this->assertStringStartsWith( '//', $url, "URL starting with / should be protocol-relative (//), got: {$url}" );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Test that URL conversion filters are removed after processing.
+	 */
+	public function test_url_conversion_filters_are_removed_after_processing() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		// Check that our filters are not present after the request
+		$this->assertFalse( has_filter( 'script_loader_src', array( $this->instance, 'make_url_absolute' ) ), 'Script filter should be removed after processing' );
+		$this->assertFalse( has_filter( 'style_loader_src', array( $this->instance, 'make_url_absolute' ) ), 'Style filter should be removed after processing' );
 	}
 }
