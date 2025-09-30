@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-a.11 - 2025-09-30
+### Enhancements
+- Forms: Use localized number format for number of responses shown. [#45326]
+
+### Improved compatibility
+- Cookie Consent Block: Ensure we always have a default set of colors to style the block when theme colors are not available. [#45287]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Editor assets endpoint: Enforce absolute URLs to mitigate failed requests from client origins. [#45319]
+- Widgets: Prevent PHP warnings. [#45327]
+
 ## 15.1-a.9 - 2025-09-29
 ### Enhancements
 - Forms: Add setting to enable or disable email notifications for form submissions. [#45230]
@@ -9,7 +20,7 @@
 
 ### Bug fixes
 - Forms: Don't override field labels on transforms. [#45281]
-- Forms: Fixes the missing rest attributes. [#45274]
+- Forms: Fix missing REST attributes. [#45274]
 - Resolve conflict with WordPress 6.7.3. [#45320]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
@@ -37,7 +48,7 @@
 - Forms: Fix slider value position. [#45218]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- On Dotcom Simple site, show all sharing settings even when the site is using a block theme, so that the sharing buttons filter can be disabled. [#45176]
+- Show all sharing settings on WordPress.com Simple sites even when using a block theme so that the sharing buttons filter can be disabled. [#45176]
 - Subscriptions: Always link to WP Admin in Newsletter widget. [#45180]
 - Update package dependencies. [#45173] [#45200] [#45229]
 - Widgets: Prevent PHP warnings when handling malformed data. [#45185]
