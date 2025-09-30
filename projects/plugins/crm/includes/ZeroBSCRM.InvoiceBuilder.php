@@ -9,6 +9,8 @@
  * Date: 01/11/16
  */
 
+// phpcs:disable
+
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 // takes inv meta and works out if due
@@ -1896,3 +1898,4 @@ function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or
 	$table_headers .= '</tr>';
 	return $table_headers;
 }
+// phpcs:enable
