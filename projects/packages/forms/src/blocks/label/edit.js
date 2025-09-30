@@ -154,7 +154,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					withoutInteractiveFormatting
 				/>
 				{ suffix && <span className="jetpack-field-label__suffix">{ suffix }</span> }
-				{ required && requiredIndicator !== 'hidden' && (
+				{ required && requiredIndicator && (
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
 						className="required"

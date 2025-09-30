@@ -9,8 +9,8 @@ export default {
 			default: false,
 		},
 		requiredIndicator: {
-			type: 'string',
-			default: 'text',
+			type: 'boolean',
+			default: true,
 		},
 		width: {
 			type: 'number',

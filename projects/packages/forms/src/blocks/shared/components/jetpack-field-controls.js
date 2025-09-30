@@ -3,7 +3,7 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, RadioControl, TextControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { isValidElement, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from './jetpack-field-width';
@@ -76,19 +76,16 @@ const JetpackFieldControls = ( {
 			__nextHasNoMarginBottom={ true }
 		/>,
 		required && (
-			<RadioControl
+			<ToggleControl
 				key="requiredIndicator"
-				label={ __( 'Required indicator', 'jetpack-forms' ) }
-				selected={ attributes.requiredIndicator || 'text' }
-				options={ [
-					{ value: 'text', label: __( 'Text', 'jetpack-forms' ) },
-					{ value: 'hidden', label: __( 'Hidden', 'jetpack-forms' ) },
-				] }
+				label={ __( 'Show required text', 'jetpack-forms' ) }
+				checked={ !! attributes.requiredIndicator }
 				onChange={ value => setAttributes( { requiredIndicator: value } ) }
 				help={ __(
-					'Choose how to display the required indicator for this field.',
+					'Toggle whether to display the required indicator text for this field.',
 					'jetpack-forms'
 				) }
+				__nextHasNoMarginBottom={ true }
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,

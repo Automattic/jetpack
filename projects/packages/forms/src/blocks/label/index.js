@@ -67,8 +67,8 @@ const settings = {
 			default: '',
 		},
 		requiredIndicator: {
-			type: 'string',
-			default: 'text',
+			type: 'boolean',
+			default: true,
 		},
 	},
 	usesContext: [
