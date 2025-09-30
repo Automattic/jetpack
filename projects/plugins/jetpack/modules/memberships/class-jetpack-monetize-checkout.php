@@ -64,6 +64,34 @@ class Jetpack_Monetize_Checkout {
 
 		// Check and create page on init
 		add_action( 'init', array( $this, 'ensure_checkout_page_exists' ) );
+		add_action( 'init', array( $this, 'maybe_set_checkout_content' ) );
+	}
+
+	public function maybe_set_checkout_content() {
+		$current_page_id = get_queried_object_id();
+		$checkout_page   = $this->find_checkout_page();
+		print_r( array( $current_page_id ) );
+		if ( $current_page_id != null && $current_page_id === $checkout_page->ID ) {
+			// Disable search engines from indexing the checkout page
+			add_filter( 'wp_head', array( $this, 'empty_content' ), 1, PHP_INT_MAX );
+			add_filter( 'wp_footer', array( $this, 'empty_content' ), 1, PHP_INT_MAX );
+			add_filter( 'the_content', array( $this, 'return_checkout_content' ), 1, PHP_INT_MAX );
+		}
+	}
+
+	/**
+	 * Returns empty content for header/footer
+	 */
+	public function empty_content( $content ) {
+		return '';
+	}
+
+	/**
+	 * Returns custom content for the checkout page
+	 */
+	public function return_checkout_content( $content ) {
+		// This is where we should retrieve the data from subscribe.wordpress.com
+		return 'Some content from subscribe.wordpress.com';
 	}
 
 	/**
