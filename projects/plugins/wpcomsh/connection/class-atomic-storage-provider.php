@@ -47,13 +47,13 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 			switch ( $option_name ) {
 				case 'blog_token':
-					return $this->get_blog_token( $persistent_data->JETPACK_BLOG_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return empty( $persistent_data->JETPACK_BLOG_TOKEN ) ? false : $persistent_data->JETPACK_BLOG_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'id':
 					return intval( $persistent_data->JETPACK_BLOG_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'master_user':
-					return $this->get_master_user_id( $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return $this->get_master_user_id( $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'user_tokens':
 					return $this->get_user_tokens( $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -72,40 +72,27 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
-		 * Get the blog token with validation against database.
+		 * Get the master user id from token.
 		 *
-		 * @param string $external_blog_token The blog token from external storage.
-		 * @return string|false The validated blog token or false if invalid.
-		 */
-		private function get_blog_token( $external_blog_token ) {
-			if ( empty( $external_blog_token ) ) {
-				return false;
-			}
-
-			// Get existing blog token from jetpack_private_options (bypass external storage to avoid circular dependency)
-			$private_options     = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-			$existing_blog_token = isset( $private_options['blog_token'] ) ? $private_options['blog_token'] : null;
-
-			// Validate against existing token (this may clear the database token on mismatch)
-			if ( ! empty( $existing_blog_token ) ) {
-				$this->validate_blog_token( $external_blog_token, $existing_blog_token );
-			}
-			// Always return the external token
-			return $external_blog_token;
-		}
-
-		/**
-		 * Get the master user id by email.
-		 *
-		 * @param string $email The email of the master user.
+		 * @param string $email_token The email token JSON string.
 		 * @return int|bool The master user id or false if not found.
 		 */
-		public function get_master_user_id( $email ) {
-			if ( empty( $email ) || ! is_email( $email ) ) {
+		public function get_master_user_id( $email_token ) {
+			// Extract email from token
+			if ( empty( $email_token ) ) {
 				return false;
 			}
 
-			$user = get_user_by( 'email', $email );
+			$token = json_decode( $email_token );
+			if ( JSON_ERROR_NONE !== json_last_error() || ! $token || empty( $token->user_email ) ) {
+				return false;
+			}
+
+			if ( ! is_email( $token->user_email ) ) {
+				return false;
+			}
+
+			$user = get_user_by( 'email', $token->user_email );
 			if ( ! $user instanceof \WP_User ) {
 				return false;
 			}
@@ -113,12 +100,12 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
-		 * Validates user tokens and cleans up on mismatch.
+		 * Validates user tokens and removes conflicting token for the specific user.
 		 *
 		 * @param string $normalized_token The normalized token from external storage (token_key.secret.user_id).
 		 * @param array  $existing_tokens The existing tokens from the database.
 		 * @param int    $user_id The user ID to validate tokens for.
-		 * @return array The cleaned tokens array (empty if mismatch detected).
+		 * @return array The tokens array with conflicting user token removed.
 		 */
 		private function validate_user_tokens( $normalized_token, $existing_tokens, $user_id ) {
 			// Check if there's an existing token for this user
@@ -132,55 +119,12 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				return $existing_tokens;
 			}
 
-			// Token mismatch - clear all user tokens
-			return $this->clear_tokens( 'user_tokens', $user_id );
-		}
+			// Token mismatch - remove only this user's conflicting token
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "Removing conflicting token for user {$user_id}" );
+			unset( $existing_tokens[ $user_id ] );
 
-		/**
-		 * Validates blog token and clears it on mismatch.
-		 *
-		 * @param string $external_token The token from external storage.
-		 * @param string $existing_token The existing token from database.
-		 * @return string|null The token if valid, null if mismatch detected.
-		 */
-		private function validate_blog_token( $external_token, $existing_token ) {
-			if ( hash_equals( $external_token, $existing_token ) ) {
-				return $external_token;
-			}
-
-			// Token mismatch - clear blog token and log
-			$this->clear_tokens( 'blog_token' );
-			return null;
-		}
-
-		/**
-		 * Clears tokens from the database and logs the mismatch.
-		 *
-		 * @param string $token_type The type of token ('user_tokens' or 'blog_token').
-		 * @param int    $user_id Optional user ID for logging purposes (for user tokens).
-		 * @return array|null Empty array for user tokens, null for blog token.
-		 */
-		private function clear_tokens( $token_type, $user_id = null ) {
-			if ( 'user_tokens' === $token_type ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "Jetpack token mismatch for user {$user_id}. Clearing all user tokens." );
-			} else {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'Jetpack blog token mismatch detected. Clearing blog token.' );
-			}
-
-			// Clear the specified token(s) from jetpack_private_options
-			$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-
-			if ( 'user_tokens' === $token_type ) {
-				$private_options['user_tokens'] = array();
-			} else {
-				unset( $private_options['blog_token'] );
-			}
-			\Jetpack_Options::update_raw_option( 'jetpack_private_options', $private_options );
-
-			// Return empty array for user tokens, null for blog token
-			return 'user_tokens' === $token_type ? array() : null;
+			return $existing_tokens;
 		}
 
 		/**
@@ -208,12 +152,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			}
 
 			$user_id = (int) $user->ID;
-
-			// Verify this is the master user
-			$master_user = (int) \Jetpack_Options::get_option( 'master_user' );
-			if ( ! $master_user || $master_user !== $user_id ) {
-				return false;
-			}
 
 			// Create normalized token (format: token_key.secret.user_id)
 			// The secret from external storage should be token_key.secret (2 parts)

@@ -65,25 +65,39 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with valid email.
+	 * Test get_master_user_id with valid token.
 	 */
 	public function test_get_master_user_id_valid() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
-		$result = $this->provider->get_master_user_id( 'test@example.com' );
+		$token_data = wp_json_encode(
+			array(
+				'user_email' => 'test@example.com',
+				'secret'     => 'token.secret',
+			)
+		);
+
+		$result = $this->provider->get_master_user_id( $token_data );
 		$this->assertSame( $user_id, $result );
 	}
 
 	/**
-	 * Test get_master_user_id with invalid email.
+	 * Test get_master_user_id with invalid user email in token.
 	 */
 	public function test_get_master_user_id_invalid() {
-		$result = $this->provider->get_master_user_id( 'nonexistent@example.com' );
+		$token_data = wp_json_encode(
+			array(
+				'user_email' => 'nonexistent@example.com',
+				'secret'     => 'token.secret',
+			)
+		);
+
+		$result = $this->provider->get_master_user_id( $token_data );
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Test get_master_user_id with empty email.
+	 * Test get_master_user_id with empty token.
 	 */
 	public function test_get_master_user_id_empty() {
 		$result = $this->provider->get_master_user_id( '' );
@@ -91,10 +105,25 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with invalid email format.
+	 * Test get_master_user_id with invalid token format.
 	 */
 	public function test_get_master_user_id_invalid_format() {
-		$result = $this->provider->get_master_user_id( 'not-an-email' );
+		$result = $this->provider->get_master_user_id( 'not-valid-json' );
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test get_master_user_id with invalid email format in token.
+	 */
+	public function test_get_master_user_id_invalid_email_format() {
+		$token_data = wp_json_encode(
+			array(
+				'user_email' => 'not-an-email',
+				'secret'     => 'token.secret',
+			)
+		);
+
+		$result = $this->provider->get_master_user_id( $token_data );
 		$this->assertFalse( $result );
 	}
 
@@ -109,39 +138,13 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test blog token validation with matching existing token.
+	 * Test blog token returns external token directly.
 	 */
-	public function test_blog_token_matching() {
+	public function test_blog_token_returns_external() {
 		Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'external.token.123' );
-
-		// Set existing token in database
-		update_option( 'jetpack_private_options', array( 'blog_token' => 'external.token.123' ) );
 
 		$result = $this->provider->get( 'blog_token' );
 		$this->assertSame( 'external.token.123', $result );
-
-		// Token should still exist in database
-		$options = get_option( 'jetpack_private_options' );
-		$this->assertSame( 'external.token.123', $options['blog_token'] );
-	}
-
-	/**
-	 * Test blog token validation with mismatched existing token.
-	 */
-	public function test_blog_token_mismatch() {
-		$this->expectOutputString( 'Jetpack blog token mismatch detected. Clearing blog token.' . PHP_EOL );
-
-		Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'external.token.123' );
-
-		// Set different existing token in database
-		update_option( 'jetpack_private_options', array( 'blog_token' => 'old.token.456' ) );
-
-		$result = $this->provider->get( 'blog_token' );
-		$this->assertSame( 'external.token.123', $result );
-
-		// Old token should be cleared from database
-		$options = get_option( 'jetpack_private_options', array() );
-		$this->assertArrayNotHasKey( 'blog_token', $options );
 	}
 
 	/**
@@ -178,9 +181,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	public function test_get_user_tokens_no_existing_tokens() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
-
-		// Set master_user in jetpack_options since it's in the 'compact' group
-		update_option( 'jetpack_options', array( 'master_user' => $user_id ) );
 
 		$token_data = wp_json_encode(
 			array(
@@ -238,9 +238,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
 
-		// Set master_user directly in database
-		update_option( 'master_user', $user_id );
-
 		// Set existing tokens with mismatched master user token
 		$existing_tokens = array(
 			$user_id       => 'old.token.' . $user_id,
@@ -258,12 +255,11 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// Call get_user_tokens directly
 		$result = $this->provider->get_user_tokens( $token_data );
 
-		// Should return only the new master user token (others cleared due to mismatch)
-		$expected = array( $user_id => 'new.secret.' . $user_id );
+		// Should return tokens with the new master user token and other user's token preserved
+		$expected = array(
+			$user_id       => 'new.secret.' . $user_id,
+			$other_user_id => 'other.token.' . $other_user_id,
+		);
 		$this->assertSame( $expected, $result );
-
-		// Database should be cleared
-		$options = get_option( 'jetpack_private_options' );
-		$this->assertSame( array(), $options['user_tokens'] );
 	}
 }
