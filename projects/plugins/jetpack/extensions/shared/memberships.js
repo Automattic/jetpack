@@ -6,7 +6,7 @@ let premiumContentJWTTokenForCookie = '';
  * @listens window#message
  */
 export function handleIframeResult( eventFromIframe ) {
-	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
+	if ( eventFromIframe.data ) {
 		let data = eventFromIframe.data;
 		if ( typeof data === 'string' ) {
 			try {

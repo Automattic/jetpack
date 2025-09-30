@@ -567,7 +567,7 @@ class Jetpack_Memberships {
 				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
 				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
 			),
-			'https://subscribe.wordpress.com/memberships/'
+			Jetpack_Monetize_Checkout::init()->get_page_monetize_checkout_link()
 		);
 	}
 
