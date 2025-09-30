@@ -5,7 +5,7 @@
  * Sort Order: 23
  * First Introduced: 14.0
  * Requires Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Monetization
  * Additional Search Queries: checkout, monetize, membership, payment
  * Requires Dependencies: subscriptions
@@ -46,6 +46,7 @@ class Jetpack_Monetize_Checkout {
 	 * @return Jetpack_Monetize_Checkout
 	 */
 	public static function init() {
+
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -65,6 +66,11 @@ class Jetpack_Monetize_Checkout {
 		add_action( 'init', array( $this, 'ensure_checkout_page_exists' ) );
 	}
 
+	/**
+	 * Get the URL of the monetize checkout page
+	 *
+	 * @return string
+	 */
 	public function get_page_monetize_checkout_link() {
 		$this->ensure_checkout_page_exists();
 
@@ -134,6 +140,8 @@ class Jetpack_Monetize_Checkout {
 	 */
 	private function slug_exists( $slug ) {
 		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM $wpdb->posts WHERE post_name = %s AND post_status != 'trash'",

@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
+require_once __DIR__ . '/class-jetpack-monetize-checkout.php';
 
 /**
  * Class Jetpack_Memberships
