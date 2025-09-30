@@ -89,8 +89,20 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 				 * that appear to be encoded already. HTML like `&amp;` would be
 				 * ignored, resulting in `&` rendering in the browser instead of the
 				 * desired `&amp;` which must be HTML encoded as `&amp;amp;`.
+				 *
+				 * - ENT_NOQUOTES: Quote characters do not require encoding in HTML text nodes.
+				 * - ENT_SUBSTITUTE: Replace invalid code unit sequences with a Unicode
+				 *                   substitution character. This is unexpected, but safe.
+				 * - 'UTF-8' The base64 encoding from JavaScript is UTF-8.
+				 * - true: Force HTML character references to be used for `&`, `<`, `>`
+				 *         in the input string.
 				 */
-				$html_encoded_code = htmlspecialchars( $code, ENT_NOQUOTES | ENT_SUBSTITUTE );
+				$html_encoded_code = htmlspecialchars(
+					$code,
+					ENT_NOQUOTES | ENT_SUBSTITUTE,
+					'UTF-8',
+					true
+				);
 
 				if ( ! $class_name ) {
 					$replacement_code_html[] = $html_encoded_code;
