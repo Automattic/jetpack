@@ -79,6 +79,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			itemDirection = 'row',
 			legendLabelProps,
 			legendItemClassName,
+			render,
 			...legendItemProps
 		},
 		ref
@@ -96,7 +97,9 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ items ]
 		);
 
-		return (
+		return render ? (
+			render( items )
+		) : (
 			<LegendOrdinal
 				scale={ legendScale }
 				labelFormat={ labelFormat }
