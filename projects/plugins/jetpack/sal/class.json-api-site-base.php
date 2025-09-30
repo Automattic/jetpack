@@ -1737,9 +1737,9 @@ abstract class SAL_Site {
 	/**
 	 * Detect whether the Garden site is provisioned.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public function garden_is_provisioned() {
-		return false;
+		return null;
 	}
 }
