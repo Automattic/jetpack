@@ -244,6 +244,8 @@ function jpcrm_render_statement_html( $statement_data ) {
 
 /**
  * AJAX handler for downloading statement
+ *
+ * @return never Function exits via wp_die/exit and never returns.
  */
 function jpcrm_ajax_download_statement() {
 
@@ -381,7 +383,7 @@ function jpcrm_get_statement_data( $contact_id ) {
 			}
 
 			$statement_items[] = array(
-				'date'      => isset( $invoice['date_date'] ) ? $invoice['date_date'] : '',
+				'date'      => $invoice['date_date'] ?? '',
 				'reference' => isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ? $invoice['id_override'] : $invoice['id'],
 				'due_date'  => isset( $invoice['due_date'] ) && $invoice['due_date'] > 0 ? $invoice['due_date_date'] : __( 'No due date', 'zero-bs-crm' ),
 				'amount'    => $total,
@@ -499,7 +501,7 @@ function jpcrm_render_company_statement_tab_content( $company_id = -1, $company 
 						<a href="<?php echo esc_url( admin_url( 'admin-ajax.php?action=zbs_download_company_statement&cid=' . $company_id . '&sec=' . wp_create_nonce( 'zbs-download-company-statement' ) ) ); ?>" class="ui button" target="_blank">
 							<i class="download icon"></i> <?php esc_html_e( 'Download PDF', 'zero-bs-crm' ); ?>
 						</a>
-						<button class="ui button primary" onclick="zbsSendCompanyStatement(<?php echo esc_js( $company_id ); ?>, '<?php echo esc_js( $company_email ); ?>')">
+						<button class="ui button primary" onclick="zbsSendCompanyStatement(<?php echo (int) $company_id; ?>, '<?php echo esc_js( $company_email ); ?>')">
 							<i class="mail icon"></i> <?php esc_html_e( 'Email Statement', 'zero-bs-crm' ); ?>
 						</button>
 					</div>
@@ -597,8 +599,7 @@ function jpcrm_render_company_statement_html( $statement_data ) {
 	if ( ! empty( $statement_data['company']['address'] ) ) {
 		$html .= '<p>' . wp_kses_post( implode( '<br>', $statement_data['company']['address'] ) ) . '</p>';
 	}
-	$html .= '</div>';
-	$html .= '</div>';
+	$html .= '</div></div>';
 	$html .= '<div class="column">';
 	$html .= '<div class="ui segment">';
 	if ( ! empty( $statement_data['business']['name'] ) ) {
@@ -608,9 +609,7 @@ function jpcrm_render_company_statement_html( $statement_data ) {
 		$html .= '<p>' . wp_kses_post( implode( '<br>', $statement_data['business']['address'] ) ) . '</p>';
 	}
 	$html .= '<p><strong>' . esc_html__( 'Statement Date', 'zero-bs-crm' ) . ':</strong> ' . esc_html( $statement_data['statement_date'] ) . '</p>';
-	$html .= '</div>';
-	$html .= '</div>';
-	$html .= '</div>';
+	$html .= '</div></div></div>';
 
 	// Statement table.
 	if ( ! empty( $statement_data['items'] ) ) {
@@ -646,9 +645,7 @@ function jpcrm_render_company_statement_html( $statement_data ) {
 		$html .= '<div class="ui grid">';
 		$html .= '<div class="sixteen wide column right aligned">';
 		$html .= '<h3 class="ui header">' . esc_html__( 'BALANCE DUE', 'zero-bs-crm' ) . ': ' . zeroBSCRM_formatCurrency( $statement_data['total_balance_due'] ) . '</h3>';
-		$html .= '</div>';
-		$html .= '</div>';
-		$html .= '</div>';
+		$html .= '</div></div></div>';
 	}
 
 	return $html;
@@ -656,6 +653,8 @@ function jpcrm_render_company_statement_html( $statement_data ) {
 
 /**
  * AJAX handler for downloading company statement
+ *
+ * @return never
  */
 function jpcrm_ajax_download_company_statement() {
 
@@ -793,7 +792,7 @@ function jpcrm_get_company_statement_data( $company_id ) {
 			}
 
 			$statement_items[] = array(
-				'date'      => isset( $invoice['date_date'] ) ? $invoice['date_date'] : '',
+				'date'      => $invoice['date_date'] ?? '',
 				'reference' => isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ? $invoice['id_override'] : $invoice['id'],
 				'due_date'  => isset( $invoice['due_date'] ) && $invoice['due_date'] > 0 ? $invoice['due_date_date'] : __( 'No due date', 'zero-bs-crm' ),
 				'amount'    => $total,

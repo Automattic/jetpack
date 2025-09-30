@@ -5363,7 +5363,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 			array(
 				'type'           => 'email',
 				'shortdesc'      => __( 'Statement Sent', 'zero-bs-crm' ),
-				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), $email ),
+				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), (string) $email ),
 				'meta_assoc_src' => 'statement',
 			)
 		);
@@ -5486,7 +5486,7 @@ function zeroBSCRM_AJAX_sendCompanyStatement() {
 			array(
 				'type'           => 'email',
 				'shortdesc'      => __( 'Statement Sent', 'zero-bs-crm' ),
-				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), $email ),
+				'longdesc'       => sprintf( __( 'Invoice statement sent to: %s', 'zero-bs-crm' ), (string) $email ),
 				'meta_assoc_src' => 'statement',
 			)
 		);
