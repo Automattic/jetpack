@@ -5368,7 +5368,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 			)
 		);
 
-		$r['success'] = __( 'Sent', 'zero-bs-crm' );
+		$r['success'] = ( string ) __( 'Sent', 'zero-bs-crm' );
 		wp_send_json( $r );
 }
 
@@ -5392,7 +5392,7 @@ function zeroBSCRM_AJAX_sendCompanyStatement() {
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 
-		$r['error'] = __( 'Not a valid email', 'zero-bs-crm' );
+		$r['error'] = ( string ) __( 'Not a valid email', 'zero-bs-crm' );
 		wp_send_json_error( $r );
 
 	} else {
@@ -5413,7 +5413,7 @@ function zeroBSCRM_AJAX_sendCompanyStatement() {
 
 	// check worked
 	if ( ! file_exists( $statementPDFfilepath ) ) {
-		$r['error'] = __( 'Could not generate statement PDF', 'zero-bs-crm' );
+		$r['error'] = ( string ) __( 'Could not generate statement PDF', 'zero-bs-crm' );
 		wp_send_json_error( $r );
 	}
 
@@ -5491,7 +5491,7 @@ function zeroBSCRM_AJAX_sendCompanyStatement() {
 			)
 		);
 
-	$r['success'] = __( 'Sent', 'zero-bs-crm' );
+	$r['success'] = ( string ) __( 'Sent', 'zero-bs-crm' );
 	wp_send_json_success( $r );
 }
 
