@@ -26,9 +26,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// Reset mock data
-		Atomic_Persistent_Data::$data = array();
-
 		// Create provider instance
 		$this->provider = new Atomic_Storage_Provider();
 
@@ -173,9 +170,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_existing_matching() {
 		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
-
-		// Set master_user directly in database
-		update_option( 'master_user', $user_id );
 
 		// Set existing tokens with other users
 		$existing_tokens = array(

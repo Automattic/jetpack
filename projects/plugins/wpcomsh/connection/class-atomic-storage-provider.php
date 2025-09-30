@@ -53,10 +53,12 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 					return intval( $persistent_data->JETPACK_BLOG_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'master_user':
-					return $this->get_master_user_id( $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$token = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return $token ? $this->get_master_user_id( $token ) : false;
 
 				case 'user_tokens':
-					return $this->get_user_tokens( $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$token = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return $token ? $this->get_user_tokens( $token ) : false;
 			}
 
 			return null;
