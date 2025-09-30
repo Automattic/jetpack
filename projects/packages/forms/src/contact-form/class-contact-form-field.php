@@ -2320,7 +2320,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
@@ -2356,7 +2356,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
@@ -2383,7 +2383,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
@@ -2410,7 +2410,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text for a field marked as required.
 	 * @param array  $extra_attrs - extra attributes to be passed to render functions.
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
@@ -2692,7 +2692,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class              Additional CSS classes.
 	 * @param bool   $required           Whether field is required.
 	 * @param string $required_field_text Required label text.
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 * @return string HTML markup.
 	 */
 	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = 'text' ) {
@@ -2826,7 +2826,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text The required field text.
 	 * @param string $placeholder The field placeholder.
 	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
-	 * @param string $required_indicator - how to display the required indicator (text or hidden).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML for the slider field.
 	 */
