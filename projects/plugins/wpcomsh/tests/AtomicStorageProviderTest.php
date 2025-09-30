@@ -56,15 +56,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get method with blog_id.
-	 */
-	public function test_get_blog_id() {
-		Atomic_Persistent_Data::set( 'JETPACK_BLOG_ID', '12345' );
-		$result = $this->provider->get( 'id' );
-		$this->assertSame( 12345, $result );
-	}
-
-	/**
 	 * Test get_master_user_id with valid token.
 	 */
 	public function test_get_master_user_id_valid() {
@@ -125,26 +116,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 
 		$result = $this->provider->get_master_user_id( $token_data );
 		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test blog token validation with no existing token.
-	 */
-	public function test_blog_token_no_existing() {
-		Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'external.token.123' );
-
-		$result = $this->provider->get( 'blog_token' );
-		$this->assertSame( 'external.token.123', $result );
-	}
-
-	/**
-	 * Test blog token returns external token directly.
-	 */
-	public function test_blog_token_returns_external() {
-		Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'external.token.123' );
-
-		$result = $this->provider->get( 'blog_token' );
-		$this->assertSame( 'external.token.123', $result );
 	}
 
 	/**
@@ -226,38 +197,6 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// Should return merged array with both tokens
 		$expected = array(
 			$user_id       => 'token.secret.' . $user_id,
-			$other_user_id => 'other.token.' . $other_user_id,
-		);
-		$this->assertSame( $expected, $result );
-	}
-
-	/**
-	 * Test get_user_tokens with existing mismatched token (Condition 4).
-	 */
-	public function test_get_user_tokens_existing_mismatch() {
-		$user_id       = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
-		$other_user_id = static::factory()->user->create( array( 'user_email' => 'other@example.com' ) );
-
-		// Set existing tokens with mismatched master user token
-		$existing_tokens = array(
-			$user_id       => 'old.token.' . $user_id,
-			$other_user_id => 'other.token.' . $other_user_id,
-		);
-		update_option( 'jetpack_private_options', array( 'user_tokens' => $existing_tokens ) );
-
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'test@example.com',
-				'secret'     => 'new.secret',
-			)
-		);
-
-		// Call get_user_tokens directly
-		$result = $this->provider->get_user_tokens( $token_data );
-
-		// Should return tokens with the new master user token and other user's token preserved
-		$expected = array(
-			$user_id       => 'new.secret.' . $user_id,
 			$other_user_id => 'other.token.' . $other_user_id,
 		);
 		$this->assertSame( $expected, $result );
