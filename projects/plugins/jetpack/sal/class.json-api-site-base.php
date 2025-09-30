@@ -1733,4 +1733,13 @@ abstract class SAL_Site {
 	public function garden_partner() {
 		return null;
 	}
+
+	/**
+	 * Detect whether the Garden site is provisioned.
+	 *
+	 * @return bool|null
+	 */
+	public function garden_is_provisioned() {
+		return null;
+	}
 }

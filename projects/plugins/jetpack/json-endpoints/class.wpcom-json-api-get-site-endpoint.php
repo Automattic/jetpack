@@ -98,6 +98,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden'                   => '(bool) If the site is a Garden site.',
 		'garden_name'                 => '(string) The name of the Garden site.',
 		'garden_partner'              => '(string) The partner of the Garden site.',
+		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 	);
 
 	/**
@@ -253,6 +254,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden',
 		'garden_name',
 		'garden_partner',
+		'garden_is_provisioned',
 	);
 
 	/**
@@ -647,6 +649,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'garden_partner':
 				$response[ $key ] = $this->site->garden_partner();
+				break;
+			case 'garden_is_provisioned':
+				$response[ $key ] = $this->site->garden_is_provisioned();
 				break;
 		}
 
