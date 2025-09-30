@@ -4,7 +4,6 @@ import {
 	useInnerBlocksProps,
 	BlockContextProvider,
 	BlockControls,
-	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -13,7 +12,6 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -22,6 +20,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
 import { countries } from './country-list';
 import { getTranslatedCountryName } from './country-names-translated';
 
@@ -103,27 +102,7 @@ export default function PhoneFieldEdit( props ) {
 		__experimentalCaptureToolbars: true,
 	} );
 
-	// Keep the inner label block's requiredIndicator in sync when it changes
-	const labelClientId = useSelect(
-		select => {
-			const { getBlock } = select( blockEditorStore );
-			const parentBlock = getBlock( clientId );
-			if ( ! parentBlock ) {
-				return undefined;
-			}
-			const labelBlock = parentBlock.innerBlocks.find( block => block.name === 'jetpack/label' );
-			return labelBlock?.clientId;
-		},
-		[ clientId ]
-	);
-
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
-
-	useEffect( () => {
-		if ( labelClientId ) {
-			updateBlockAttributes( labelClientId, { requiredIndicator } );
-		}
-	}, [ labelClientId, requiredIndicator, updateBlockAttributes ] );
+	useSyncRequiredIndicator( clientId, requiredIndicator );
 
 	// Handler is provided as context from edit as index.js can't pass it as a prop.
 	const onChangeDefaultCountry = useCallback(

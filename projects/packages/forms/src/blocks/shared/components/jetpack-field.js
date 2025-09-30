@@ -1,15 +1,11 @@
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	store as blockEditorStore,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { useMemo, useEffect } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import useFieldSelected from '../hooks/use-field-selected';
 import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles';
+import useSyncRequiredIndicator from '../hooks/use-sync-required-indicator';
 import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import JetpackFieldControls from './jetpack-field-controls';
 
@@ -44,26 +40,7 @@ const JetpackField = props => {
 		];
 	}, [ label, required, requiredText, requiredIndicator, type ] );
 
-	const labelClientId = useSelect(
-		select => {
-			const { getBlock } = select( blockEditorStore );
-			const parentBlock = getBlock( clientId );
-			if ( ! parentBlock ) {
-				return undefined;
-			}
-			const labelBlock = parentBlock.innerBlocks.find( block => block.name === 'jetpack/label' );
-			return labelBlock?.clientId;
-		},
-		[ clientId ]
-	);
-
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
-
-	useEffect( () => {
-		if ( labelClientId ) {
-			updateBlockAttributes( labelClientId, { requiredIndicator } );
-		}
-	}, [ labelClientId, requiredIndicator, updateBlockAttributes ] );
+	useSyncRequiredIndicator( clientId, requiredIndicator );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
 		template,
