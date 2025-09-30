@@ -222,15 +222,24 @@ function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_a
 	}
 
 	if ( get_option( 'wpcom_performance_report_url' ) ) {
-		WP_CLI::runcommand(
+		WP_CLI::log( 'Deleting performance profiler option' );
+		$result = WP_CLI::runcommand(
 			'option delete wpcom_performance_report_url',
 			array(
 				'launch'     => false,
 				'exit_error' => false,
+				'return'     => 'all',
 			)
 		);
+
+		if ( 0 === $result->return_code ) {
+			WP_CLI::success( 'Performance profiler option deleted' );
+		} else {
+			WP_CLI::warning( 'Failed to delete performance profiler option: ' . $result->stderr );
+		}
 	}
 
+	WP_CLI::log( 'Deleting performance profiler postmeta (if they exist)' );
 	$query   = "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_wpcom_performance_report_url'";
 	$command = sprintf( 'db query "%s"', $query );
 	WP_CLI::runcommand(
@@ -240,8 +249,6 @@ function wpcomsh_woa_post_clone_clear_performance_profiler_data( $args, $assoc_a
 			'exit_error' => false,
 		)
 	);
-
-	WP_CLI::success( 'Performance profiler data cleared' );
 }
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_clear_performance_profiler_data', 10, 2 );
 
