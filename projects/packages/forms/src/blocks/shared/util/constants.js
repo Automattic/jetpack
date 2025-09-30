@@ -53,41 +53,6 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
-// Input field block types that can be auto-required when they're the only field in a form
-// These are blocks that collect user input and have a 'required' attribute
-//
-// To add a new input field type:
-// 1. Add the block name (with 'jetpack/' prefix) to this array
-// 2. Ensure the field block has a 'required' attribute in its settings
-// 3. The field should be a user input field (not structural like labels or buttons)
-//
-// See: projects/packages/forms/src/blocks/contact-form/child-blocks.js for available field blocks
-export const INPUT_FIELD_TYPES = [
-	'jetpack/field-text',
-	'jetpack/field-name',
-	'jetpack/field-email',
-	'jetpack/field-url',
-	'jetpack/field-telephone',
-	'jetpack/field-textarea',
-	'jetpack/field-number',
-	'jetpack/field-date',
-	'jetpack/field-time',
-	'jetpack/field-select',
-	'jetpack/field-checkbox',
-	'jetpack/field-radio',
-	'jetpack/field-checkbox-multiple',
-	'jetpack/field-consent',
-	'jetpack/field-file',
-	'jetpack/field-rating',
-	'jetpack/field-slider',
-];
-
-// Cached Set for O(1) lookup performance
-const INPUT_FIELD_TYPES_SET = new Set( INPUT_FIELD_TYPES );
-
-// Helper function to check if a block is an input field
-export const isInputField = blockName => INPUT_FIELD_TYPES_SET.has( blockName );
-
 export const FORM_STYLE = {
 	ANIMATED: 'animated',
 	BELOW: 'below',

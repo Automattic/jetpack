@@ -46,7 +46,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
-import { CORE_BLOCKS, isInputField } from '../shared/util/constants';
+import { CORE_BLOCKS } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
@@ -100,6 +100,18 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 );
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
+
+// Determine if a block has a required attribute. Exclude hidden fields.
+const isInputWithRequiredField = ( fullName?: string ): boolean => {
+	if ( ! fullName || ! fullName.startsWith( 'jetpack/' ) ) return false;
+	const baseName = fullName.slice( 'jetpack/'.length );
+	const field = childBlocks.find( block => block.name === baseName );
+	// @ts-expect-error: childBlocks are defined in JS without explicit types.
+	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
+	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
+	const isHidden = field?.name === 'field-hidden';
+	return hasRequired && ! isHidden;
+};
 
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
 	// Initialize default form block settings as needed.
@@ -236,7 +248,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 		const findInputFields = blockList => {
 			blockList.forEach( block => {
-				if ( isInputField( block.name ) ) {
+				if ( isInputWithRequiredField( block.name ) ) {
 					inputFields.push( block );
 				}
 				// Recursively check inner blocks (for multistep forms)
