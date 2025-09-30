@@ -9,7 +9,6 @@ export { default as AgentticChatProvider } from './provider';
 export { default as MediaEditorContextProvider } from './context';
 export { default as FloatingChat } from './floating-chat';
 export { default as ImageEditingTools } from './tools';
-export { default as MessageActions } from './message-actions';
 export { default as AuthProvider } from './auth';
 
 // Import agenttic-ui styles
