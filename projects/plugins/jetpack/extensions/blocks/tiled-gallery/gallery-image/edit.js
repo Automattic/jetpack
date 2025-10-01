@@ -42,8 +42,14 @@ class GalleryImageEdit extends Component {
 
 			// Only add event listeners if image is not complete
 			if ( ! isComplete ) {
-				this.img.current.addEventListener( 'load', this.onImageLoadComplete );
-				this.img.current.addEventListener( 'error', this.onImageLoadComplete );
+				this.img.current.addEventListener( 'load', this.onImageLoadComplete, {
+					once: true,
+					passive: true,
+				} );
+				this.img.current.addEventListener( 'error', this.onImageLoadComplete, {
+					once: true,
+					passive: true,
+				} );
 			}
 		}
 	};
