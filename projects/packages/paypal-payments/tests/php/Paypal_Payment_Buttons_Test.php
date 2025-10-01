@@ -140,23 +140,24 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that fragments are preserved when sanitizing URLs.
+	 * Test that fragments are stripped when sanitizing URLs.
+	 * PayPal SDK URLs don't use fragments, so they are not preserved.
 	 */
-	public function test_fragments_are_preserved() {
+	public function test_fragments_are_stripped() {
 		// Valid PayPal URL with fragment
 		$valid_url = 'https://www.paypal.com/sdk/js#section';
 		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
 
 		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'section', $result_parsed['fragment'] );
+		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
 
-		// Invalid URL with fragment - should preserve fragment but replace host
+		// Invalid URL with fragment - should strip fragment and replace host
 		$invalid_url = 'https://evil.com/script.js#anchor';
 		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( 'anchor', $result_parsed['fragment'] );
+		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
 	}
 
 	/**
@@ -172,9 +173,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertEquals( 'https', $result_parsed['scheme'] );
 		$this->assertEquals( '/sdk/js', $result_parsed['path'] );
 		$this->assertEquals( 'client-id=test&currency=USD', $result_parsed['query'] );
-		$this->assertEquals( 'init', $result_parsed['fragment'] );
+		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
 
-		// Invalid URL with all components - should preserve everything except host and scheme
+		// Invalid URL with all components - should preserve path and query but strip fragment and port
 		$invalid_url = 'http://evil.com:8080/malicious/path?bad=params#fragment';
 		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
 
@@ -183,8 +184,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertEquals( 'https', $result_parsed['scheme'], 'Scheme should be forced to https' );
 		$this->assertEquals( '/malicious/path', $result_parsed['path'], 'Path should be preserved' );
 		$this->assertEquals( 'bad=params', $result_parsed['query'], 'Query should be preserved' );
-		$this->assertEquals( 'fragment', $result_parsed['fragment'], 'Fragment should be preserved' );
-		$this->assertSame( '8080', $result_parsed['port'], 'Port should be preserved' );
+		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
+		$this->assertArrayNotHasKey( 'port', $result_parsed, 'Port should be stripped' );
 	}
 
 	/**

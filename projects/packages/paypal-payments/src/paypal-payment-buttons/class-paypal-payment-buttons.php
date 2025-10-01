@@ -74,24 +74,15 @@ class PayPal_Payment_Buttons {
 		$parsed_url['scheme'] = 'https';
 
 		// Rebuild the URL
-		$sanitized_url = '';
-		if ( isset( $parsed_url['scheme'] ) ) {
-			$sanitized_url .= $parsed_url['scheme'] . '://';
-		}
+		$sanitized_url = 'https://';
 		if ( isset( $parsed_url['host'] ) ) {
 			$sanitized_url .= $parsed_url['host'];
-		}
-		if ( isset( $parsed_url['port'] ) ) {
-			$sanitized_url .= ':' . $parsed_url['port'];
 		}
 		if ( isset( $parsed_url['path'] ) ) {
 			$sanitized_url .= $parsed_url['path'];
 		}
 		if ( isset( $parsed_url['query'] ) ) {
 			$sanitized_url .= '?' . $parsed_url['query'];
-		}
-		if ( isset( $parsed_url['fragment'] ) ) {
-			$sanitized_url .= '#' . $parsed_url['fragment'];
 		}
 
 		return $sanitized_url;
