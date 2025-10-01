@@ -18,6 +18,7 @@ export const options = {
 			},
 		],
 	},
+	tlsCipherSuites: [ 'TLS_AES_256_GCM_SHA384' ],
 };
 
 /**
