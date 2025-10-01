@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Improve PayPal SDK host validation for PayPal Payment Buttons
