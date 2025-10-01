@@ -57,45 +57,35 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that invalid URLs have their hosts replaced with www.paypal.com.
+	 * Test that invalid URLs are rejected and return false.
 	 *
 	 * @dataProvider invalid_urls_provider
 	 *
-	 * @param string $url                The URL to test.
-	 * @param bool   $should_be_replaced Whether the URL should be sanitized or return false.
+	 * @param string $url The URL to test.
 	 */
 	#[DataProvider( 'invalid_urls_provider' )]
-	public function test_invalid_urls_are_sanitized( $url, $should_be_replaced ) {
+	public function test_invalid_urls_are_rejected( $url ) {
 		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
-
-		if ( ! $should_be_replaced ) {
-			$this->assertFalse( $result, "URL should return false: $url" );
-		} else {
-			$this->assertNotFalse( $result, "URL should be sanitized: $url" );
-
-			$result_parsed = wp_parse_url( $result );
-			$this->assertEquals( 'www.paypal.com', $result_parsed['host'], "Host should be replaced with www.paypal.com for: $url" );
-			$this->assertEquals( 'https', $result_parsed['scheme'], "Scheme should be https for: $url" );
-		}
+		$this->assertFalse( $result, "URL should return false: $url" );
 	}
 
 	/**
 	 * Data provider for invalid URLs.
 	 *
-	 * @return array Array of [url, should_be_replaced].
+	 * @return array
 	 */
 	public static function invalid_urls_provider() {
 		return array(
-			'empty string'              => array( '', false ),
-			'attacker domain'           => array( 'https://attacker.example/x.js', true ),
-			'attacker with paypal name' => array( 'https://paypal.com.evil.com/script.js', true ),
-			'subdomain injection'       => array( 'https://evilpaypal.com/script.js', true ),
-			'javascript protocol'       => array( 'javascript:alert(1)', false ),
-			'data protocol'             => array( 'data:text/html,<script>alert(1)</script>', false ),
-			'no host'                   => array( '/script.js', false ),
-			'malformed url'             => array( 'not-a-url', false ),
-			'paypal typo domain'        => array( 'https://paypai.com/script.js', true ),
-			'different TLD'             => array( 'https://paypal.co/script.js', true ),
+			'empty string'              => array( '' ),
+			'attacker domain'           => array( 'https://attacker.example/x.js' ),
+			'attacker with paypal name' => array( 'https://paypal.com.evil.com/script.js' ),
+			'subdomain injection'       => array( 'https://evilpaypal.com/script.js' ),
+			'javascript protocol'       => array( 'javascript:alert(1)' ),
+			'data protocol'             => array( 'data:text/html,<script>alert(1)</script>' ),
+			'no host'                   => array( '/script.js' ),
+			'malformed url'             => array( 'not-a-url' ),
+			'paypal typo domain'        => array( 'https://paypai.com/script.js' ),
+			'different TLD'             => array( 'https://paypal.co/script.js' ),
 		);
 	}
 
@@ -109,14 +99,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertEquals( '/sdk/js/some/deep/path.js', $result_parsed['path'] );
-
-		// Invalid URL with path - should preserve path but replace host
-		$invalid_url = 'https://evil.com/malicious/script.js';
-		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( '/malicious/script.js', $result_parsed['path'] );
 	}
 
 	/**
@@ -129,14 +111,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertEquals( 'client-id=test&currency=USD&locale=en_US', $result_parsed['query'] );
-
-		// Invalid URL with query params - should preserve query but replace host
-		$invalid_url = 'https://evil.com/script.js?param1=value1&param2=value2';
-		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( 'param1=value1&param2=value2', $result_parsed['query'] );
 	}
 
 	/**
@@ -150,21 +124,13 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
-
-		// Invalid URL with fragment - should strip fragment and replace host
-		$invalid_url = 'https://evil.com/script.js#anchor';
-		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
 	}
 
 	/**
 	 * Test that all URL components work together.
 	 */
 	public function test_all_url_components_together() {
-		// Valid PayPal URL with all components
+		// Valid PayPal URL with all components (fragment and port are stripped)
 		$valid_url = 'https://www.paypal.com:443/sdk/js?client-id=test&currency=USD#init';
 		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
 
@@ -174,18 +140,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertEquals( '/sdk/js', $result_parsed['path'] );
 		$this->assertEquals( 'client-id=test&currency=USD', $result_parsed['query'] );
 		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
-
-		// Invalid URL with all components - should preserve path and query but strip fragment and port
-		$invalid_url = 'http://evil.com:8080/malicious/path?bad=params#fragment';
-		$result      = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_url );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Host should be replaced' );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'Scheme should be forced to https' );
-		$this->assertEquals( '/malicious/path', $result_parsed['path'], 'Path should be preserved' );
-		$this->assertEquals( 'bad=params', $result_parsed['query'], 'Query should be preserved' );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
-		$this->assertArrayNotHasKey( 'port', $result_parsed, 'Port should be stripped' );
 	}
 
 	/**
@@ -198,13 +152,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertEquals( 'https', $result_parsed['scheme'], 'HTTP should be upgraded to HTTPS' );
-
-		// Invalid URL with http should also get https
-		$invalid_http = 'http://evil.com/script.js';
-		$result       = PayPal_Payment_Buttons::sanitize_paypal_script_url( $invalid_http );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'HTTP should be upgraded to HTTPS even for invalid hosts' );
 	}
 
 	/**
@@ -214,13 +161,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$malicious_url = 'https://attacker.example/malicious.js';
 		$result        = PayPal_Payment_Buttons::sanitize_paypal_script_url( $malicious_url );
 
-		$this->assertNotFalse( $result );
-
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Malicious host should be replaced with www.paypal.com' );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'Scheme should be https' );
-
-		// The path from the malicious URL should be preserved
-		$this->assertEquals( '/malicious.js', $result_parsed['path'] );
+		$this->assertFalse( $result, 'Malicious URL should be rejected' );
 	}
 }

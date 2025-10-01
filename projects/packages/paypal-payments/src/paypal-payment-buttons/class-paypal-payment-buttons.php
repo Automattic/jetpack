@@ -32,10 +32,9 @@ class PayPal_Payment_Buttons {
 
 	/**
 	 * Validates and sanitizes a script URL to ensure it's from an allowed PayPal domain.
-	 * If the host is not from paypal.com or sandbox.paypal.com, it will be replaced with www.paypal.com.
 	 *
 	 * @param string $url The URL to validate and sanitize.
-	 * @return string|false The sanitized URL with a valid PayPal host, or false if URL cannot be parsed.
+	 * @return string|false The sanitized URL, or false if URL is not from an allowed PayPal domain.
 	 */
 	public static function sanitize_paypal_script_url( $url ) {
 		if ( empty( $url ) ) {
@@ -43,41 +42,27 @@ class PayPal_Payment_Buttons {
 		}
 
 		$parsed_url = wp_parse_url( $url );
-		if ( ! $parsed_url ) {
-			return false;
-		}
-
-		// If there's no host, return false
-		if ( empty( $parsed_url['host'] ) ) {
+		if ( ! $parsed_url || empty( $parsed_url['host'] ) ) {
 			return false;
 		}
 
 		$host = strtolower( $parsed_url['host'] );
 
-		// Only allow paypal.com and sandbox.paypal.com domains
-		$allowed_domains = array( 'paypal.com', 'sandbox.paypal.com' );
-		$is_valid        = false;
+		// Only allow specific PayPal domains
+		$allowed_hosts = array(
+			'www.paypal.com',
+			'paypal.com',
+			'www.sandbox.paypal.com',
+			'sandbox.paypal.com',
+		);
 
-		foreach ( $allowed_domains as $allowed_domain ) {
-			if ( $host === $allowed_domain || str_ends_with( $host, '.' . $allowed_domain ) ) {
-				$is_valid = true;
-				break;
-			}
+		if ( ! in_array( $host, $allowed_hosts, true ) ) {
+			return false;
 		}
 
-		// If the host is not valid, replace it with www.paypal.com
-		if ( ! $is_valid ) {
-			$parsed_url['host'] = 'www.paypal.com';
-		}
+		// Rebuild the URL with HTTPS
+		$sanitized_url = 'https://' . $host;
 
-		// Ensure we're using https
-		$parsed_url['scheme'] = 'https';
-
-		// Rebuild the URL
-		$sanitized_url = 'https://';
-		if ( isset( $parsed_url['host'] ) ) {
-			$sanitized_url .= $parsed_url['host'];
-		}
 		if ( isset( $parsed_url['path'] ) ) {
 			$sanitized_url .= $parsed_url['path'];
 		}
