@@ -28,6 +28,8 @@ export default function () {
 		group( `Frontend tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
 			// Homepage.
 			let res = http.get( site.url );
+			console.log( res.tls_version, res.tls_cipher_suite );
+
 			check( res, {
 				'homepage status was 200': r => r.status == 200,
 			} );
