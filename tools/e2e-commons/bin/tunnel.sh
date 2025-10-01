@@ -101,10 +101,49 @@ function health_check() {
 	return 1
 }
 
+function try_start_tunnel() {
+	local tunnel_command="$1"
+	shift
+
+	log "Closing potentially running tunnel..."
+	down
+
+	log "Opening new tunnel..."
+	debug_log "Executing: $tunnel_command on $*"
+	local tunnel_output tunnel_exit_code
+	# Temporarily disable exit on error to capture the exit code
+	set +e
+	tunnel_output=$($tunnel_command on "$@" 2>&1)
+	tunnel_exit_code=$?
+	set -e
+	echo "$tunnel_output"
+
+	# Check exit code first - fail immediately if non-zero
+	if [ $tunnel_exit_code -ne 0 ]; then
+		log "Tunnel start command failed with exit code $tunnel_exit_code"
+		return 1
+	fi
+
+	# Extract tunnel URL from the "Tunnel URL: " line
+	local tunnel_url
+	tunnel_url=$(echo "$tunnel_output" | grep "^.*Tunnel URL: " | sed 's/.*Tunnel URL: //' | head -1)
+
+	if [[ -n "$tunnel_url" ]]; then
+		if health_check "$tunnel_url"; then
+			log "Tunnel setup successful"
+			return 0
+		fi
+	else
+		log "Warning: Could not extract tunnel URL from output for health check"
+	fi
+
+	return 1
+}
+
 function up() {
 	local retry_count=0
 	local max_retries=1
-	
+
 	while [ $retry_count -le $max_retries ]; do
 		if [ $retry_count -gt 0 ]; then
 			log "Waiting 30 seconds before retry..."
@@ -112,41 +151,24 @@ function up() {
 			log "Retrying tunnel setup (attempt $((retry_count + 1))/$((max_retries + 1)))..."
 		fi
 
-		log "Closing potentially running tunnel..."
-		down
-
-		log "Opening new tunnel..."
-		debug_log "Executing: $TUNNEL_CLI_COMMAND on $*"
-		local tunnel_output tunnel_exit_code
-		# Temporarily disable exit on error to capture the exit code
-		set +e
-		tunnel_output=$($TUNNEL_CLI_COMMAND on "$@" 2>&1)
-		tunnel_exit_code=$?
-		set -e
-		echo "$tunnel_output"
-		
-		# Check exit code first - fail immediately if non-zero
-		if [ $tunnel_exit_code -ne 0 ]; then
-			log "Tunnel start command failed with exit code $tunnel_exit_code"
-		else
-			# Extract tunnel URL from the "Tunnel URL: " line
-			local tunnel_url
-			tunnel_url=$(echo "$tunnel_output" | grep "^.*Tunnel URL: " | sed 's/.*Tunnel URL: //' | head -1)
-			
-			if [[ -n "$tunnel_url" ]]; then
-				if health_check "$tunnel_url"; then
-					log "Tunnel setup successful"
-					return 0
-				fi
-			else
-				log "Warning: Could not extract tunnel URL from output for health check"
-			fi
+		if try_start_tunnel "$TUNNEL_CLI_COMMAND" "$@"; then
+			return 0
 		fi
-		
+
 		retry_count=$((retry_count + 1))
 	done
-	
-	log "Tunnel setup failed after $((max_retries + 1)) attempts"
+
+	# If we were using cloudflared and it failed, try falling back to localtunnel
+	if [[ -n "${USE_CLOUDFLARE_TUNNEL}" ]]; then
+		log "Cloudflare Tunnel failed after $((max_retries + 1)) attempts, falling back to localtunnel..."
+		TUNNEL_CLI_COMMAND="node $BASE_DIR/tunnel/tunnel-cli.js --provider localtunnel"
+
+		if try_start_tunnel "$TUNNEL_CLI_COMMAND" "$@"; then
+			return 0
+		fi
+	fi
+
+	log "Tunnel setup failed after all attempts"
 	# Return success to allow test suite to run - environment readiness checks will catch tunnel issues later
 	return 0
 }
