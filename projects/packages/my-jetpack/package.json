@@ -74,7 +74,7 @@
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
 		"@types/node": "^20.4.2",
-		"@types/react": "18.3.23",
+		"@types/react": "18.3.25",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",

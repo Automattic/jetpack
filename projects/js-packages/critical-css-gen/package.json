@@ -47,7 +47,7 @@
 		"@babel/preset-env": "7.28.3",
 		"@babel/preset-typescript": "7.27.1",
 		"@types/clean-css": "4.2.11",
-		"@types/css-tree": "2.3.10",
+		"@types/css-tree": "2.3.11",
 		"@types/node": "^20.4.2",
 		"express": "4.21.2",
 		"jest": "30.0.4",
