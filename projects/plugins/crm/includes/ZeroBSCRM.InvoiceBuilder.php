@@ -630,7 +630,7 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return
 
 						// Check if this transaction status should be included
 						$should_include_transaction = false;
-						if ( $transaction_statuses_to_include === 'all' ) {
+						if ( 'all' === $transaction_statuses_to_include ) {
 							$should_include_transaction = true;
 						} elseif ( is_array( $transaction_statuses_to_include ) && isset( $partial['status'] ) ) {
 							$should_include_transaction = in_array( $partial['status'], $transaction_statuses_to_include, true );
