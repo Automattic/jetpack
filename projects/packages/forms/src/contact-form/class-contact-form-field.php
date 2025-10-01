@@ -2695,7 +2695,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required_indicator Whether to display the required indicator.
 	 * @return string HTML markup.
 	 */
-	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = 'text' ) {
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		// Enqueue stylesheet for rating field.
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
@@ -2830,7 +2830,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 *
 	 * @return string HTML for the slider field.
 	 */
-	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = 'text' ) {
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		$this->enqueue_slider_field_assets();
 		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
