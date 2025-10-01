@@ -37,13 +37,13 @@ class GalleryImageEdit extends Component {
 		this.removeImageEventListeners();
 
 		if ( this.img.current && ! isBlobURL( this.props.origUrl ) ) {
-			this.img.current.addEventListener( 'load', this.onImageLoadComplete );
-			this.img.current.addEventListener( 'error', this.onImageLoadComplete );
+			const isComplete = this.img.current.complete;
+			this.setState( { isLoading: ! isComplete } );
 
-			if ( this.img.current.complete ) {
-				this.onImageLoadComplete();
-			} else {
-				this.setState( { isLoading: true } );
+			// Only add event listeners if image is not complete
+			if ( ! isComplete ) {
+				this.img.current.addEventListener( 'load', this.onImageLoadComplete );
+				this.img.current.addEventListener( 'error', this.onImageLoadComplete );
 			}
 		}
 	};
