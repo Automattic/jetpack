@@ -29,17 +29,17 @@ export default function () {
 		group( `Frontend tests for site: ${ site.url } ( ${ site.blog_id } )`, () => {
 			// Homepage.
 			let res = http.get( site.url );
-			console.log( res.tls_version, res.tls_cipher_suite );
-
 			check( res, {
 				'homepage status was 200': r => r.status == 200,
 			} );
+			console.log( `${ site.url } homepage status: ${ res.status }` );
 
 			// A random post.
 			res = http.get( `${ site.url }/?random` );
 			check( res, {
 				'random post status was 200': r => r.status == 200,
 			} );
+			console.log( `${ site.url } random post status: ${ res.status }` );
 		} );
 	} );
 
