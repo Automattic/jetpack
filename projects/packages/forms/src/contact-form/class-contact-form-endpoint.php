@@ -107,7 +107,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'type'                    => 'plugin',
 				'file'                    => 'hostinger-reach/hostinger-reach.php',
 				'settings_url'            => 'admin.php?page=hostinger-reach#/home',
-				'marketing_redirect_slug' => null,
+				'marketing_redirect_slug' => 'hostinger-reach',
 				'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
@@ -1179,6 +1179,43 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			case 'hostinger-reach':
 				// Hostinger Reach is a plugin that requires additional setup/connection.
 				$status['needsConnection'] = true;
+				$status['isConnected']     = false;
+				// Determine if Hostinger Reach is connected using its public handler.
+				if ( $is_active
+					&& class_exists( \Hostinger\Reach\Api\Handlers\ReachApiHandler::class )
+					&& class_exists( \Hostinger\Reach\Functions::class )
+					&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
+				) {
+					$reach_handler = new \Hostinger\Reach\Api\Handlers\ReachApiHandler(
+						new \Hostinger\Reach\Functions(),
+						new \Hostinger\Reach\Api\ApiKeyManager()
+					);
+					if ( method_exists( $reach_handler, 'is_connected' ) ) {
+						$status['isConnected'] = (bool) $reach_handler->is_connected();
+					}
+
+					// Populate available groups/lists for selection in the editor when connected.
+					if (
+						$status['isConnected']
+						&& class_exists( \Hostinger\Reach\Repositories\ContactListRepository::class )
+						&& class_exists( \Hostinger\Reach\Admin\Database\ContactListsTable::class )
+					) {
+						global $wpdb;
+						$contact_list_repository = new \Hostinger\Reach\Repositories\ContactListRepository( $wpdb, new \Hostinger\Reach\Admin\Database\ContactListsTable( $wpdb ) );
+
+						$contact_lists              = $contact_list_repository->all();
+						$contact_lists              = is_array( $contact_lists ) ? $contact_lists : array();
+						$status['details']['lists'] = array_map(
+							function ( $list ) {
+								return array(
+									'id'   => $list['id'] ?? null,
+									'name' => $list['name'] ?? '',
+								);
+							},
+							$contact_lists
+						);
+					}
+				}
 				break;
 		}
 
