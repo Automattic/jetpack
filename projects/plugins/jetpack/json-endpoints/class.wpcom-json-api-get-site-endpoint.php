@@ -324,14 +324,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Fields to include.
 	 *
-	 * @var list<string>|"_all" $fields_to_include
+	 * @var $fields_to_include
 	 */
 	protected $fields_to_include = '_all';
 
 	/**
 	 * Options to include.
 	 *
-	 * @var list<string>|"_all" $options_to_include
+	 * @var $options_to_include
 	 */
 	protected $options_to_include = '_all';
 
