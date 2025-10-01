@@ -1,3 +1,9 @@
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import {
+	__experimentalText as WPText,
+	__experimentalHStack as HStack,
+} from '@wordpress/components';
+import { BaseLegendItem } from '../../../components/legend/types';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -7,7 +13,7 @@ import {
 } from '../../../stories';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
-import { PieChart } from '../../pie-chart';
+import { PieChart, PieChartUnresponsive } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
@@ -85,7 +91,6 @@ export const Default: Story = {
 		resize: 'none',
 		thickness: 0.5,
 		gapScale: 0.03,
-		padding: 20,
 		cornerScale: 0.03,
 		withTooltips: true,
 		data,
@@ -197,6 +202,7 @@ export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		containerHeight: '500px',
 	},
 };
 
@@ -264,6 +270,7 @@ export const WithCompositionLegend: Story = {
 	args: {
 		data,
 		thickness: 0.5,
+		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
@@ -315,6 +322,112 @@ export const CustomLegendPositioning: Story = {
 		docs: {
 			description: {
 				story: 'Donut chart with vertical legend positioned at the top left.',
+			},
+		},
+	},
+};
+
+const WooPieLegend = ( {
+	legendItems,
+	legendData,
+	withComparison = false,
+}: {
+	legendItems: BaseLegendItem[];
+	legendData: { label: string; value: number; formattedValue: string; comparison?: number }[];
+	withComparison?: boolean;
+} ) => (
+	<div
+		style={ {
+			display: 'inline-grid',
+			gridTemplateColumns: '1fr auto auto',
+			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
+		} }
+	>
+		{ legendData.map( ( item, index ) => {
+			const { color } = legendItems[ index ];
+
+			return (
+				<>
+					<HStack direction="row" justify="flex-start" gap={ 2 }>
+						<div
+							style={ {
+								width: '8px',
+								height: '8px',
+								borderRadius: '50%',
+								flexShrink: 0,
+								backgroundColor: color,
+							} }
+						/>
+						<WPText size="small">{ item.label }</WPText>
+					</HStack>
+					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+						{ item.formattedValue }
+					</WPText>
+					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+						{ withComparison && item.comparison }
+					</WPText>
+				</>
+			);
+		} ) }
+	</div>
+);
+
+export const CustomLegend: Story = {
+	render: args => (
+		<PieChartUnresponsive { ...args }>
+			<PieChartUnresponsive.Legend
+				// eslint-disable-next-line react/jsx-no-bind
+				render={ items => (
+					<WooPieLegend
+						legendItems={ items }
+						legendData={ args.legendData }
+						withComparison={ args.withComparison }
+					/>
+				) }
+			/>
+		</PieChartUnresponsive>
+	),
+	args: {
+		...Default.args,
+		data: [
+			{
+				label: '',
+				value: 302331.26999999984,
+				percentage: 66.97002374697931,
+			},
+			{
+				label: '',
+				value: 149111.40999999995,
+				percentage: 33.029976253020635,
+			},
+		],
+		legendData: [
+			{
+				label: 'New',
+				value: 302331.26999999984,
+				formattedValue: '$302.33K',
+				comparison: '14%',
+			},
+			{
+				label: 'Returning',
+				value: 149111.40999999995,
+				formattedValue: '$149.11K',
+				comparison: '133%',
+			},
+		],
+		showLegend: false,
+		children: null,
+		thickness: 0.3,
+		cornerScale: 0.03,
+		gapScale: 0.01,
+		size: 164,
+		withComparison: true,
+		withTooltips: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Demonstrates how to customize the legend using the render prop.',
 			},
 		},
 	},
