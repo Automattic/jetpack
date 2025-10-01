@@ -324,14 +324,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Fields to include.
 	 *
-	 * @var $fields_to_include
+	 * @var list<string> | "_all" $fields_to_include
 	 */
 	protected $fields_to_include = '_all';
 
 	/**
 	 * Options to include.
 	 *
-	 * @var $options_to_include
+	 * @var list<string> | "_all" $options_to_include
 	 */
 	protected $options_to_include = '_all';
 
@@ -345,8 +345,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @param string     $path - the path.
 	 * @param int|string $blog_id - the blog ID or the string 'mine'.
 	 *
-	 *  * @return array|WP_Error Associative array describing the site on success,
-	 *                           or WP_Error on failure (invalid auth or blog).
+	 * @return array|\WP_Error Site response array on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		if ( 'mine' === $blog_id ) {
