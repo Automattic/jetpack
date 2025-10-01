@@ -1,8 +1,10 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useEntityRecords } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -77,52 +79,30 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const records = ( rawRecords || [] ) as FormResponse[];
 
-	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'publish,draft',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	// Use optimized counts endpoint instead of 3 separate queries.
+	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
+	const [ isLoadingCounts, setIsLoadingCounts ] = useState( true );
 
-	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'spam',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
-
-	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'trash',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	useEffect( () => {
+		setIsLoadingCounts( true );
+		apiFetch< { inbox: number; spam: number; trash: number } >( {
+			path: '/wp/v2/feedback/counts',
+		} )
+			.then( response => {
+				setCounts( response );
+				setIsLoadingCounts( false );
+			} )
+			.catch( () => {
+				setIsLoadingCounts( false );
+			} );
+	}, [ currentQuery ] );
 
 	return {
-		totalItemsInbox,
-		totalItemsSpam,
-		totalItemsTrash,
+		totalItemsInbox: counts.inbox,
+		totalItemsSpam: counts.spam,
+		totalItemsTrash: counts.trash,
 		records,
-		isLoadingData:
-			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
+		isLoadingData: isLoadingRecordsData || isLoadingCounts,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

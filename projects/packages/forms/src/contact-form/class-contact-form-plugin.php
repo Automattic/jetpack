@@ -2967,17 +2967,45 @@ class Contact_Form_Plugin {
 	 * @return array The array of post IDs
 	 */
 	public static function get_all_parent_post_ids( $query_args = array() ) {
+		global $wpdb;
+
 		$default_query_args = array(
-			'fields'           => 'id=>parent',
-			'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-			'post_type'        => 'feedback',
-			'post_status'      => 'publish',
-			'suppress_filters' => false,
+			'post_status' => 'publish',
 		);
 		$args               = array_merge( $default_query_args, $query_args );
-		// Get the feedbacks' parents' post IDs
-		$feedbacks = get_posts( $args );
-		return array_values( array_unique( array_values( $feedbacks ) ) );
+
+		$statuses = is_array( $args['post_status'] ) ? $args['post_status'] : explode( ',', $args['post_status'] );
+		$statuses = array_map( 'trim', $statuses );
+		sort( $statuses );
+
+		$cache_key = 'jetpack_forms_parent_ids_' . md5( implode( ',', $statuses ) );
+
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return $cached_result;
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$parent_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+				"SELECT DISTINCT post_parent
+				FROM $wpdb->posts
+				WHERE post_type = %s
+				AND post_status IN ($placeholders)
+				AND post_parent > 0
+				ORDER BY post_parent ASC",
+				array_merge( array( 'feedback' ), $statuses )
+			)
+		);
+		// phpcs:enable
+		$parent_ids = array_map( 'intval', $parent_ids );
+
+		set_transient( $cache_key, $parent_ids, 5 * MINUTE_IN_SECONDS );
+
+		return $parent_ids;
 	}
 
 	/**

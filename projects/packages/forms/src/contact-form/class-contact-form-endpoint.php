@@ -33,6 +33,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
+	 * Constructor.
+	 *
+	 * @param string $post_type Post type.
+	 */
+	public function __construct( $post_type = 'feedback' ) {
+		parent::__construct( $post_type );
+
+		add_action( 'transition_post_status', array( $this, 'maybe_invalidate_caches' ), 10, 3 );
+		add_action( 'deleted_post', array( $this, 'maybe_invalidate_caches_on_delete' ), 10, 2 );
+	}
+
+	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
@@ -254,6 +266,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_forms_config' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+			)
+		);
 	}
 
 	/**
@@ -263,43 +285,53 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function get_filters() {
-		// TODO: investigate how we can do this better regarding usage of $wpdb
-		// performance by querying all the entities, etc..
 		global $wpdb;
+
+		$cache_key     = 'jetpack_forms_filters';
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return rest_ensure_response( $cached_result );
+		}
+
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$months = $wpdb->get_results(
 			"SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
 			FROM $wpdb->posts
 			WHERE post_type = 'feedback'
+			AND post_status IN ('publish', 'draft')
 			ORDER BY post_date DESC"
 		);
 		// phpcs:enable
+
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
-			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
+			array( 'post_status' => array( 'draft', 'publish' ) )
 		);
-		return rest_ensure_response(
-			array(
-				'date'   => array_map(
-					static function ( $row ) {
-						return array(
-							'month' => (int) $row->month,
-							'year'  => (int) $row->year,
-						);
-					},
-					$months
-				),
-				'source' => array_map(
-					static function ( $post_id ) {
-						return array(
-							'id'    => $post_id,
-							'title' => get_the_title( $post_id ),
-							'url'   => get_permalink( $post_id ),
-						);
-					},
-					$source_ids
-				),
-			)
+
+		$result = array(
+			'date'   => array_map(
+				static function ( $row ) {
+					return array(
+						'month' => (int) $row->month,
+						'year'  => (int) $row->year,
+					);
+				},
+				$months
+			),
+			'source' => array_map(
+				static function ( $post_id ) {
+					return array(
+						'id'    => $post_id,
+						'title' => get_the_title( $post_id ),
+						'url'   => get_permalink( $post_id ),
+					);
+				},
+				$source_ids
+			),
 		);
+
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
+
+		return rest_ensure_response( $result );
 	}
 
 	/**
@@ -1067,5 +1099,100 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Get optimized status counts for feedback posts.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_status_counts( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		global $wpdb;
+
+		$cache_key     = 'jetpack_forms_status_counts';
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return rest_ensure_response( $cached_result );
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$counts = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
+				SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+				SUM(CASE WHEN post_status = %s THEN 1 ELSE 0 END) as spam,
+				SUM(CASE WHEN post_status = %s THEN 1 ELSE 0 END) as trash
+				FROM $wpdb->posts
+				WHERE post_type = %s",
+				'spam',
+				'trash',
+				'feedback'
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$result = array(
+			'inbox' => (int) ( $counts['inbox'] ?? 0 ),
+			'spam'  => (int) ( $counts['spam'] ?? 0 ),
+			'trash' => (int) ( $counts['trash'] ?? 0 ),
+		);
+
+		set_transient( $cache_key, $result, 30 );
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Maybe invalidate caches when a post status changes.
+	 *
+	 * Hooked to transition_post_status action.
+	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Old post status.
+	 * @param \WP_Post $post       Post object.
+	 */
+	public function maybe_invalidate_caches( $new_status, $old_status, $post ) {
+		// Only invalidate for feedback post type.
+		if ( 'feedback' !== $post->post_type ) {
+			return;
+		}
+
+		if ( $new_status === $old_status ) {
+			return;
+		}
+
+		$this->invalidate_feedback_caches();
+	}
+
+	/**
+	 * Maybe invalidate caches when a post is deleted.
+	 *
+	 * Hooked to deleted_post action.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public function maybe_invalidate_caches_on_delete( $post_id, $post ) {
+		// Only invalidate for feedback post type.
+		if ( 'feedback' !== $post->post_type ) {
+			return;
+		}
+
+		$this->invalidate_feedback_caches();
+	}
+
+	/**
+	 * Invalidate feedback caches when content changes.
+	 */
+	private function invalidate_feedback_caches() {
+		delete_transient( 'jetpack_forms_status_counts' );
+		delete_transient( 'jetpack_forms_filters' );
+		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'publish' ) );
+		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ) );
+
+		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'publish' ), 'transient' );
+		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ), 'transient' );
 	}
 }
