@@ -68,10 +68,8 @@ class Jetpack_Monetize_Checkout {
 	}
 
 	public function maybe_set_checkout_content() {
-		$current_page_id = get_queried_object_id();
-		$checkout_page   = $this->find_checkout_page();
-		print_r( array( $current_page_id ) );
-		if ( $current_page_id != null && $current_page_id === $checkout_page->ID ) {
+		$checkout_page = $this->find_checkout_page();
+		if ( is_page( $checkout_page->ID ) ) {
 			// Disable search engines from indexing the checkout page
 			add_filter( 'wp_head', array( $this, 'empty_content' ), 1, PHP_INT_MAX );
 			add_filter( 'wp_footer', array( $this, 'empty_content' ), 1, PHP_INT_MAX );
