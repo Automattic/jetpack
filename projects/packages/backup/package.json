@@ -55,7 +55,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
-		"@types/react": "18.3.23",
+		"@types/react": "18.3.25",
 		"@wordpress/browserslist-config": "6.31.0",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
