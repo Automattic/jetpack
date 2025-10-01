@@ -53,7 +53,7 @@ function get_admin_menu_class() {
 		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
-			return null;
+			return '';
 		}
 
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
@@ -69,7 +69,7 @@ function get_admin_menu_class() {
 		$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
-			return null;
+			return '';
 		}
 
 		// P2 sites.
