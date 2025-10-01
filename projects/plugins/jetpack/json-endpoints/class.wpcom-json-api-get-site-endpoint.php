@@ -1099,7 +1099,7 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
 	 *
-	 * @return array|WP_Error Array with 'formats' on success, or WP_Error on failure.
+	 * @return array|\WP_Error Array with 'formats' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -1167,7 +1167,7 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
 	 *
-	 * @return array|WP_Error Array with 'templates' on success, or WP_Error on failure.
+	 * @return array|\WP_Error Array with 'templates' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
