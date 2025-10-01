@@ -9,6 +9,9 @@ import { close, downChevron, leftChevron, rightChevron, upChevron } from '../ico
 
 class GalleryImageEdit extends Component {
 	img = createRef();
+	state = {
+		isLoading: false,
+	};
 
 	onImageClick = () => {
 		if ( ! this.props.isSelected ) {
@@ -26,8 +29,58 @@ class GalleryImageEdit extends Component {
 		}
 	};
 
-	componentDidUpdate() {
-		const { alt, height, image, link, url, width } = this.props;
+	onImageLoadComplete = () => {
+		this.setState( { isLoading: false } );
+	};
+
+	addImageEventListeners = () => {
+		this.removeImageEventListeners();
+
+		if ( this.img.current && ! isBlobURL( this.props.origUrl ) ) {
+			this.img.current.addEventListener( 'load', this.onImageLoadComplete );
+			this.img.current.addEventListener( 'error', this.onImageLoadComplete );
+
+			if ( this.img.current.complete ) {
+				this.onImageLoadComplete();
+			} else {
+				this.setState( { isLoading: true } );
+			}
+		}
+	};
+
+	removeImageEventListeners = () => {
+		if ( this.img.current ) {
+			this.img.current.removeEventListener( 'load', this.onImageLoadComplete );
+			this.img.current.removeEventListener( 'error', this.onImageLoadComplete );
+		}
+	};
+
+	componentDidMount() {
+		this.addImageEventListeners();
+	}
+
+	componentWillUnmount() {
+		this.removeImageEventListeners();
+	}
+
+	componentDidUpdate( prevProps ) {
+		const { alt, height, image, link, url, width, origUrl } = this.props;
+
+		// Handle URL transitions
+		const wasTransient = isBlobURL( prevProps.origUrl );
+		const isNowTransient = isBlobURL( origUrl );
+
+		// URL changed from blob to regular URL
+		if ( wasTransient && ! isNowTransient ) {
+			this.setState( { isLoading: false } );
+			this.addImageEventListeners();
+		}
+
+		// URL changed between regular URLs
+		if ( ! wasTransient && ! isNowTransient && prevProps.url !== url ) {
+			this.setState( { isLoading: false } );
+			this.addImageEventListeners();
+		}
 
 		if ( image ) {
 			const nextAtts = {};
@@ -78,6 +131,8 @@ class GalleryImageEdit extends Component {
 			width,
 		} = this.props;
 
+		const { isLoading } = this.state;
+
 		let href;
 
 		switch ( linkTo ) {
@@ -120,6 +175,7 @@ class GalleryImageEdit extends Component {
 				className={ clsx( 'tiled-gallery__item', {
 					'is-selected': isSelected,
 					'is-transient': isTransient,
+					'is-loading': ! isTransient && isLoading,
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 				tabIndex="0"
