@@ -11,4 +11,18 @@
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
 
+### Forms changes
+In particular, play around with the following:
+* Phone field with country selector: https://github.com/Automattic/jetpack/pull/45120
+* Hidden field block: https://github.com/Automattic/jetpack/pull/44079
+* Email notifications: https://github.com/Automattic/jetpack/pull/45230
+
+### Recipes shortcode
+The way this shortcode's dependencies are loaded have changed. Make sure it still works as expected.
+
+Note: UI quirks are out of scope for this release; the goal is to ensure no regressions.
+
+### General testing
+Poke around and identify any rough spots that changes in the [CHANGELOG.md] may have touched.
+
 **Thank you for all your help!**
