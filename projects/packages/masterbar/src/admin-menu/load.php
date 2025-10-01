@@ -31,11 +31,6 @@ function should_customize_nav( $admin_menu_class ) {
 		return false;
 	}
 
-	// No nav customizations on WP Admin of Jetpack sites.
-	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
-		return false;
-	}
-
 	return true;
 }
 
@@ -61,42 +56,35 @@ function get_admin_menu_class() {
 		return Atomic_Admin_Menu::class;
 	}
 
-	// WordPress.com Simple sites.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$blog_id = get_current_blog_id();
+	$blog_id = get_current_blog_id();
 
-		// Domain-only sites.
-		$blog_options   = get_blog_option( $blog_id, 'options' );
-		$is_domain_only = ! empty( $blog_options['is_domain_only'] );
-		if ( $is_domain_only ) {
-			require_once __DIR__ . '/class-domain-only-admin-menu.php';
-			return Domain_Only_Admin_Menu::class;
-		}
-
-		// DIFM Lite In Progress Sites. Uses the same menu used for domain-only sites.
-		// Ignore this check if we are in a support session.
-		$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
-		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
-		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
-			require_once __DIR__ . '/class-domain-only-admin-menu.php';
-			return Domain_Only_Admin_Menu::class;
-		}
-
-		// P2 sites.
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
-			require_once __DIR__ . '/class-p2-admin-menu.php';
-			return P2_Admin_Menu::class;
-		}
-
-		// Rest of simple sites.
-		require_once __DIR__ . '/class-wpcom-admin-menu.php';
-		return WPcom_Admin_Menu::class;
+	// Domain-only sites.
+	$blog_options   = get_blog_option( $blog_id, 'options' );
+	$is_domain_only = ! empty( $blog_options['is_domain_only'] );
+	if ( $is_domain_only ) {
+		require_once __DIR__ . '/class-domain-only-admin-menu.php';
+		return Domain_Only_Admin_Menu::class;
 	}
 
-	// Jetpack sites.
-	require_once __DIR__ . '/class-jetpack-admin-menu.php';
-	return Jetpack_Admin_Menu::class;
+	// DIFM Lite In Progress Sites. Uses the same menu used for domain-only sites.
+	// Ignore this check if we are in a support session.
+	$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
+	$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+	if ( $is_difm_lite_in_progress && ! $is_support_session ) {
+		require_once __DIR__ . '/class-domain-only-admin-menu.php';
+		return Domain_Only_Admin_Menu::class;
+	}
+
+	// P2 sites.
+	require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+	if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
+		require_once __DIR__ . '/class-p2-admin-menu.php';
+		return P2_Admin_Menu::class;
+	}
+
+	// WordPress.com Simple sites.
+	require_once __DIR__ . '/class-wpcom-admin-menu.php';
+	return WPcom_Admin_Menu::class;
 }
 
 /**
