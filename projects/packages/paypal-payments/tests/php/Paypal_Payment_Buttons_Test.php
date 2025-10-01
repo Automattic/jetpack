@@ -163,4 +163,28 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertFalse( $result, 'Malicious URL should be rejected' );
 	}
+
+	/**
+	 * Test that trailing dots in hostnames are normalized.
+	 * FQDNs can technically end with a dot (DNS root), so www.paypal.com. should be treated as www.paypal.com
+	 */
+	public function test_trailing_dot_is_normalized() {
+		// Test with trailing dot
+		$url_with_dot = 'https://www.paypal.com./sdk/js';
+		$result       = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url_with_dot );
+
+		$this->assertNotFalse( $result, 'URL with trailing dot should be accepted' );
+
+		$result_parsed = wp_parse_url( $result );
+		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped' );
+
+		// Test sandbox with trailing dot
+		$sandbox_with_dot = 'https://sandbox.paypal.com./sdk/js';
+		$result           = PayPal_Payment_Buttons::sanitize_paypal_script_url( $sandbox_with_dot );
+
+		$this->assertNotFalse( $result, 'Sandbox URL with trailing dot should be accepted' );
+
+		$result_parsed = wp_parse_url( $result );
+		$this->assertEquals( 'sandbox.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped from sandbox' );
+	}
 }

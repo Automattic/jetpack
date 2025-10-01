@@ -46,7 +46,9 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		// Normalize the host
 		$host = strtolower( $parsed_url['host'] );
+		$host = rtrim( $host, '.' );
 
 		// Only allow specific PayPal domains
 		$allowed_hosts = array(
