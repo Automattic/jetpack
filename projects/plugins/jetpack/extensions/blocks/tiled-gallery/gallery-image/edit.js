@@ -57,6 +57,11 @@ class GalleryImageEdit extends Component {
 
 	componentDidMount() {
 		this.addImageEventListeners();
+
+		// Also check if image is already complete in case ref wasn't ready during addImageEventListeners
+		if ( this.img.current && ! isBlobURL( this.props.origUrl ) && this.img.current.complete ) {
+			this.setState( { isLoading: false } );
+		}
 	}
 
 	componentWillUnmount() {
