@@ -8,7 +8,6 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Class Help_Center
@@ -39,7 +38,9 @@ class Help_Center {
 		}
 
 		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			return;
+			$this->purchases = array();
+		} else {
+			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -48,6 +49,28 @@ class Help_Center {
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
 
 		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+	}
+
+	/**
+	 * Returns ISO 639 conforming locale string of the current user.
+	 *
+	 * @return string ISO 639 locale string e.g. "en"
+	 */
+	private static function determine_iso_639_locale() {
+		$language = get_user_locale();
+		$language = strtolower( $language );
+
+		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/([-_].*)$/i', '', $language );
+		}
+
+		if ( empty( $language ) ) {
+			return 'en';
+		}
+
+		return $language;
 	}
 
 	/**
@@ -131,7 +154,7 @@ class Help_Center {
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			$locale = Common\determine_iso_639_locale();
+			$locale = self::determine_iso_639_locale();
 
 			if ( 'en' !== $locale ) {
 				// Load translations directly from widgets.wp.com.
@@ -202,7 +225,7 @@ class Help_Center {
 							'email'        => $user_email,
 						),
 						'site'        => $this->get_current_site(),
-						'locale'      => Common\determine_iso_639_locale(),
+						'locale'      => self::determine_iso_639_locale(),
 					)
 				),
 				'before'
@@ -246,7 +269,7 @@ class Help_Center {
 		}
 
 		$logo_id = get_option( 'site_logo' );
-		$bundles = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
+		$bundles = $this->purchases;
 		$plan    = array_pop( $bundles );
 
 		$return_data = array(
