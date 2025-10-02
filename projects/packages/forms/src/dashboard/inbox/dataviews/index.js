@@ -228,6 +228,24 @@ export default function InboxView() {
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const authorInfo = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip
+					);
+					return (
+						<>
+							{ item.is_unread && (
+								<span
+									className="jp-forms__inbox__unread-indicator"
+									aria-label={ __( 'Unread', 'jetpack-forms' ) }
+								>
+									●
+								</span>
+							) }
+							{ authorInfo }
+						</>
+					);
+				},
 				getValue: ( { item } ) => {
 					return decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
