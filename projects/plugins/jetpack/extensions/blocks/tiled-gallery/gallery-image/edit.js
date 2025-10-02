@@ -8,7 +8,11 @@ import clsx from 'clsx';
 import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
 
 class GalleryImageEdit extends Component {
+	/**
+	 * @type {import('react').RefObject<HTMLImageElement>}
+	 */
 	img = createRef();
+
 	state = {
 		isLoading: false,
 	};
@@ -31,6 +35,7 @@ class GalleryImageEdit extends Component {
 
 	onImageLoadComplete = () => {
 		this.setState( { isLoading: false } );
+		this.removeImageEventListeners();
 	};
 
 	addImageEventListeners = () => {
@@ -62,11 +67,9 @@ class GalleryImageEdit extends Component {
 	};
 
 	componentDidMount() {
-		this.addImageEventListeners();
-
-		// Also check if image is already complete in case ref wasn't ready during addImageEventListeners
-		if ( this.img.current && ! isBlobURL( this.props.origUrl ) && this.img.current.complete ) {
-			this.setState( { isLoading: false } );
+		if ( ! isBlobURL( this.props.origUrl ) && ! this.img.current?.complete ) {
+			this.setState( { isLoading: true } );
+			this.addImageEventListeners();
 		}
 	}
 
@@ -79,17 +82,15 @@ class GalleryImageEdit extends Component {
 
 		// Handle URL transitions
 		const wasTransient = isBlobURL( prevProps.origUrl );
-		const isNowTransient = isBlobURL( origUrl );
+		const isTransient = isBlobURL( origUrl );
 
-		// URL changed from blob to regular URL
-		if ( wasTransient && ! isNowTransient ) {
-			this.setState( { isLoading: false } );
-			this.addImageEventListeners();
-		}
-
-		// URL changed between regular URLs
-		if ( ! wasTransient && ! isNowTransient && prevProps.url !== url ) {
-			this.setState( { isLoading: false } );
+		if (
+			! isTransient &&
+			! this.img.current?.complete &&
+			( wasTransient || // transitioned from blob to regular URL
+				prevProps.url !== url ) // URL updated
+		) {
+			this.setState( { isLoading: true } );
 			this.addImageEventListeners();
 		}
 
