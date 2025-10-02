@@ -13,7 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -118,6 +118,7 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
+		currentQuery,
 	} = useInboxData();
 
 	useEffect( () => {
@@ -135,17 +136,23 @@ export default function InboxView() {
 			}
 			return accumulator;
 		}, {} );
+		const sortDirection = view.sort?.direction ?? 'desc';
+		const sortField = view.sort?.field ?? 'date';
 		const _queryArgs = {
 			per_page: view.perPage,
 			page: view.page,
-			search: view.search,
 			..._filters,
 			status: statusFilter,
+			orderby: sortField,
+			order: sortDirection,
+			...( view.search ? { search: view.search } : {} ),
 		};
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
-		setCurrentQuery( _queryArgs );
-	}, [ view, statusFilter, setCurrentQuery ] );
+		if ( ! isEqual( currentQuery, _queryArgs ) ) {
+			setCurrentQuery( _queryArgs );
+		}
+	}, [ view, statusFilter, setCurrentQuery, currentQuery ] );
 	const data = useMemo(
 		() =>
 			records?.map( record => ( {
@@ -329,7 +336,11 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
-					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
+					empty={
+						isLoadingData ? null : (
+							<EmptyResponses status={ statusFilter } isSearch={ !! view.search } />
+						)
+					}
 				/>
 			</div>
 			<SingleResponse

@@ -83,11 +83,49 @@ class Dashboard {
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
 		// Preload Forms endpoints needed in dashboard context.
-		$preload_paths = array(
+		// Pre-fetch the first inbox page so the UI renders instantly on first load.
+		$preload_params = array(
+			'_fields'  => 'id,status,date,date_gmt,author_name,author_email,author_url,author_avatar,ip,entry_title,entry_permalink,has_file,fields',
+			'context'  => 'view',
+			'order'    => 'desc',
+			'orderby'  => 'date',
+			'page'     => 1,
+			'per_page' => 20,
+			'status'   => 'draft,publish',
+		);
+		\ksort( $preload_params );
+		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
+		$initial_responses_locale_path = \add_query_arg(
+			\array_merge(
+				$preload_params,
+				array( '_locale' => 'user' )
+			),
+			'/wp/v2/feedback'
+		);
+		$preload_paths                 = array(
 			'/wp/v2/feedback/config',
 			'/wp/v2/feedback/integrations?version=2',
+			$initial_responses_path,
+			$initial_responses_locale_path,
 		);
-		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+		$preload_data                  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+		$default_key                   = rest_url( $initial_responses_path );
+		$default_payload               = $preload_data[ $default_key ] ?? $preload_data[ $initial_responses_path ] ?? null;
+		$locale_key                    = rest_url( $initial_responses_locale_path );
+		$locale_payload                = $preload_data[ $locale_key ] ?? $preload_data[ $initial_responses_locale_path ] ?? null;
+		$initial_preload_payload       = array_filter(
+			array(
+				'default' => $default_payload,
+				'locale'  => $locale_payload,
+			)
+		);
+		if ( ! empty( $initial_preload_payload ) ) {
+			wp_add_inline_script(
+				self::SCRIPT_HANDLE,
+				'window.jpFormsInitialResponses = ' . wp_json_encode( $initial_preload_payload ) . ';',
+				'before'
+			);
+		}
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
 			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
