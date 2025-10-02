@@ -34,6 +34,10 @@ class Jetpack_Application_Password_Extras {
 	 * @return bool The new value of the filter.
 	 */
 	public static function application_password_extras( $original_value ) {
+		if ( $original_value ) {
+			return true;
+		}
+
 		// Allow Application Password access to admin-ajax.php
 		if ( is_admin() && wp_doing_ajax() ) {
 			return true;
