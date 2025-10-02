@@ -517,7 +517,7 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__inbox__unread-indicator {
-	color: #2271b1;
+	color: var(--wp-admin-theme-color, #2271b1);
 	font-size: 12px;
 	margin-right: 6px;
 	vertical-align: middle;

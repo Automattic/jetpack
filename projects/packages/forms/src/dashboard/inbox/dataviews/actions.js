@@ -1,7 +1,8 @@
+import apiFetch from '@wordpress/api-fetch';
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, trash, backup } from '@wordpress/icons';
+import { seen, trash, backup, check, cancelCircleFilled } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -292,6 +293,118 @@ export const deleteAction = {
 							items.length
 					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			return;
+		}
+		// There is at least one failure.
+		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
+		createErrorNotice( errorMessage, { type: 'snackbar' } );
+	},
+};
+
+export const markAsReadAction = {
+	id: 'mark-as-read',
+	label: __( 'Mark as read', 'jetpack-forms' ),
+	isEligible: item => item.is_unread,
+	supportsBulk: true,
+	icon: <Icon icon={ check } />,
+	async callback( items, { registry } ) {
+		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const promises = await Promise.allSettled(
+			items.map( async ( { id } ) => {
+				// Update entity in store
+				editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+				// Update on server
+				return apiFetch( {
+					path: `/wp/v2/feedback/${ id }/read`,
+					method: 'POST',
+					data: { is_unread: false },
+				} );
+			} )
+		);
+		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as read.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: the number of responses. */
+							_n(
+								'%d response marked as read.',
+								'%d responses marked as read.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-read-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsUnreadAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
+			return;
+		}
+		// There is at least one failure.
+		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
+		createErrorNotice( errorMessage, { type: 'snackbar' } );
+	},
+};
+
+export const markAsUnreadAction = {
+	id: 'mark-as-unread',
+	label: __( 'Mark as unread', 'jetpack-forms' ),
+	isEligible: item => ! item.is_unread,
+	supportsBulk: true,
+	icon: <Icon icon={ cancelCircleFilled } />,
+	async callback( items, { registry } ) {
+		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const promises = await Promise.allSettled(
+			items.map( async ( { id } ) => {
+				// Update entity in store
+				editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+				// Update on server
+				return apiFetch( {
+					path: `/wp/v2/feedback/${ id }/read`,
+					method: 'POST',
+					data: { is_unread: true },
+				} );
+			} )
+		);
+		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as unread.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: the number of responses. */
+							_n(
+								'%d response marked as unread.',
+								'%d responses marked as unread.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-unread-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsReadAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.

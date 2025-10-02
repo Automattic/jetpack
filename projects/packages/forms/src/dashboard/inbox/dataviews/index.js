@@ -32,6 +32,8 @@ import {
 	moveToTrashAction,
 	deleteAction,
 	restoreAction,
+	markAsReadAction,
+	markAsUnreadAction,
 } from './actions';
 import { useView, defaultLayouts } from './views';
 
@@ -316,6 +318,8 @@ export default function InboxView() {
 
 	const actions = useMemo( () => {
 		const _actions = [
+			markAsReadAction,
+			markAsUnreadAction,
 			markAsSpamAction,
 			markAsNotSpamAction,
 			moveToTrashAction,
