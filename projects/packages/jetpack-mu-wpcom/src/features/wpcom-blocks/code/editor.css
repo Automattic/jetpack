@@ -1,0 +1,52 @@
+.wp-block-a8c-code {
+
+	/* A notice is used to warn of experimental status. */
+	.components-notice {
+		margin-top: -10px;
+
+		a {
+
+			&:not(:hover, :active, :focus) {
+				color: var(--wp-admin-theme-color, #3858e9);
+			}
+		}
+	}
+
+	.components-base-control__field {
+		margin: 0;
+	}
+
+	.components-base-control,
+	.components-base-control__field,
+	.components-input-control__container > button,
+	.components-text-control__input {
+		font-size: inherit;
+	}
+
+	.components-text-control__input {
+		margin-left: -12px;
+		background-color: transparent;
+		color: inherit;
+		font-family: inherit;
+
+		&::placeholder {
+			color: hsl(from currentColor h s l / 0.6);
+		}
+	}
+}
+
+.a8c\/code__filename.components-base-control {
+	margin: -1px;
+}
+
+.a8c\/code__language-select {
+
+	button,
+	.components-input-control__container {
+		background-color: transparent;
+		color: inherit;
+	}
+}
+
+/* vi: ts=2 sw=2 noet
+ */
