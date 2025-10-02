@@ -60,17 +60,12 @@ const icon = (
 );
 
 const emptyLanguageOption = {
-	name: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
-	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
 	key: '',
-	value: '',
+	name: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
 };
-const languageOptions: {
-	readonly name: string;
+const customSelectLanguageOptions: {
 	readonly key: string;
-
-	readonly label: string;
-	readonly value: string;
+	readonly name: string;
 }[] = [ emptyLanguageOption ];
 {
 	const langNames = new Set< string >();
@@ -80,9 +75,19 @@ const languageOptions: {
 	const sortedLangNames = Array.of( ...langNames );
 	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
 	sortedLangNames.forEach( lang =>
-		languageOptions.push( { name: lang, label: lang, key: lang, value: lang } )
+		customSelectLanguageOptions.push( {
+			key: lang,
+			name: lang,
+		} )
 	);
 }
+const selectLanguageOptions: ReadonlyArray< {
+	readonly value: string;
+	readonly label: string;
+} > = customSelectLanguageOptions.map( ( { key, name } ) => ( {
+	value: key,
+	label: name,
+} ) );
 
 registerBlockType( blockJson, {
 	icon,
@@ -118,7 +123,7 @@ registerBlockType( blockJson, {
 						<SelectControl
 							label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 							value={ attributes.language }
-							options={ languageOptions }
+							options={ selectLanguageOptions }
 							onChange={ ( newLanguage: string ) => {
 								setAttributes( {
 									language: newLanguage,
@@ -330,14 +335,12 @@ const DisplayLanguage = ( props: Props ) => {
 				value={
 					attributes.language
 						? {
-								name: attributes.language,
 								key: attributes.language,
-								label: attributes.language,
-								value: attributes.language,
+								name: attributes.language,
 						  }
 						: emptyLanguageOption
 				}
-				options={ languageOptions }
+				options={ customSelectLanguageOptions }
 				onChange={ ( {
 					selectedItem: { key: newLanguage },
 				}: {
