@@ -883,3 +883,49 @@ export const globalMarketComparisonByCountry: SeriesData[] = [
 		},
 	},
 ];
+
+/**
+ * Customer segmentation revenue data
+ *
+ * Revenue comparison between new and returning customers
+ * - Category: categorical
+ * - Data points: 2
+ * - Suitable for: PieChart, DonutChart
+ */
+export const customerRevenueData: DataPointPercentage[] = [
+	{
+		label: 'New',
+		value: 302331.27,
+		valueDisplay: '$302.33K',
+		percentage: 66.97,
+	},
+	{
+		label: 'Returning',
+		value: 149111.41,
+		valueDisplay: '$149.11K',
+		percentage: 33.03,
+	},
+];
+
+/**
+ * Customer segmentation legend data with comparison metrics
+ *
+ * Extended legend data for customer revenue with growth comparisons
+ * - Category: categorical with comparison
+ * - Data points: 2
+ * - Suitable for: Custom legends with PieChart, DonutChart
+ */
+export const customerRevenueLegendData = [
+	{
+		label: 'New',
+		value: 302331.27,
+		formattedValue: '$302.33K',
+		comparison: '14%',
+	},
+	{
+		label: 'Returning',
+		value: 149111.41,
+		formattedValue: '$149.11K',
+		comparison: '133%',
+	},
+];

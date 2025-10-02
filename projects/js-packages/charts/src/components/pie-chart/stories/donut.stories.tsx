@@ -11,6 +11,7 @@ import {
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
+import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
 import { PieChart, PieChartUnresponsive } from '../../pie-chart';
@@ -329,12 +330,10 @@ export const CustomLegendPositioning: Story = {
 
 const WooPieLegend = ( {
 	legendItems,
-	legendData,
-	withComparison = false,
+	withComparison,
 }: {
 	legendItems: BaseLegendItem[];
-	legendData: { label: string; value: number; formattedValue: string; comparison?: number }[];
-	withComparison?: boolean;
+	withComparison: boolean;
 } ) => (
 	<div
 		style={ {
@@ -343,7 +342,7 @@ const WooPieLegend = ( {
 			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
 		} }
 	>
-		{ legendData.map( ( item, index ) => {
+		{ customerRevenueLegendData.map( ( item, index ) => {
 			const { color } = legendItems[ index ];
 
 			return (
@@ -378,51 +377,21 @@ export const CustomLegend: Story = {
 			<PieChartUnresponsive.Legend
 				// eslint-disable-next-line react/jsx-no-bind
 				render={ items => (
-					<WooPieLegend
-						legendItems={ items }
-						legendData={ args.legendData }
-						withComparison={ args.withComparison }
-					/>
+					<WooPieLegend legendItems={ items } withComparison={ args.withComparison } />
 				) }
 			/>
 		</PieChartUnresponsive>
 	),
 	args: {
 		...Default.args,
-		data: [
-			{
-				label: '',
-				value: 302331.26999999984,
-				percentage: 66.97002374697931,
-			},
-			{
-				label: '',
-				value: 149111.40999999995,
-				percentage: 33.029976253020635,
-			},
-		],
-		legendData: [
-			{
-				label: 'New',
-				value: 302331.26999999984,
-				formattedValue: '$302.33K',
-				comparison: '14%',
-			},
-			{
-				label: 'Returning',
-				value: 149111.40999999995,
-				formattedValue: '$149.11K',
-				comparison: '133%',
-			},
-		],
-		showLegend: false,
-		children: null,
+		data: customerRevenueData.map( segment => ( { ...segment, label: '' } ) ),
 		thickness: 0.3,
 		cornerScale: 0.03,
 		gapScale: 0.01,
 		size: 164,
 		withComparison: true,
 		withTooltips: false,
+		containerHeight: '300px',
 	},
 	parameters: {
 		docs: {
