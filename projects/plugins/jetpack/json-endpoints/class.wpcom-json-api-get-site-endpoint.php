@@ -98,6 +98,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden'                   => '(bool) If the site is a Garden site.',
 		'garden_name'                 => '(string) The name of the Garden site.',
 		'garden_partner'              => '(string) The partner of the Garden site.',
+		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
 	);
 
 	/**
@@ -253,6 +254,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_garden',
 		'garden_name',
 		'garden_partner',
+		'garden_is_provisioned',
 	);
 
 	/**
@@ -270,7 +272,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Jetpack response option additions.
 	 *
-	 * @var array $jetpack_response_field_member_additions
+	 * @var array $jetpack_response_option_additions
 	 */
 	protected static $jetpack_response_option_additions = array(
 		'publicize_permanently_disabled',
@@ -340,8 +342,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * /sites/mine
 	 * /sites/%s -> $blog_id\
 	 *
-	 * @param string $path - the path.
-	 * @param int    $blog_id - the blog ID.
+	 * @param string     $path - the path.
+	 * @param int|string $blog_id - the blog ID or the string 'mine'.
+	 *
+	 * @return array|\WP_Error Site response array on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		if ( 'mine' === $blog_id ) {
@@ -647,6 +651,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'garden_partner':
 				$response[ $key ] = $this->site->garden_partner();
+				break;
+			case 'garden_is_provisioned':
+				$response[ $key ] = $this->site->garden_is_provisioned();
 				break;
 		}
 
@@ -1091,6 +1098,8 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
+	 *
+	 * @return array|\WP_Error Array with 'formats' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -1157,6 +1166,8 @@ class WPCOM_JSON_API_List_Page_Templates_Endpoint extends WPCOM_JSON_API_Endpoin
 	 *
 	 * @param string $path - the path.
 	 * @param int    $blog_id - the blog ID.
+	 *
+	 * @return array|\WP_Error Array with 'templates' on success, or WP_Error on failure.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

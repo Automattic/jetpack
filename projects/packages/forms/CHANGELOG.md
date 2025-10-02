@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.0] - 2025-09-30
+### Changed
+- Forms: Use localized number format for number of responses shown. [#45326]
+
 ## [6.6.0] - 2025-09-29
 ### Added
 - Add options to disable "Go Back" link and summary after submission. [#45273]
@@ -27,9 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.5.1] - 2025-09-22
 ### Fixed
-- Fix lints. [#45242]
-
-Fix image choice widths. [#45257]
+- Address linting issues. [#45242]
+- Fix image choice widths. [#45257]
 
 ## [6.5.0] - 2025-09-19
 ### Added
@@ -1625,6 +1628,7 @@ Fix image choice widths. [#45257]
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.7.0]: https://github.com/automattic/jetpack-forms/compare/v6.6.0...v6.7.0
 [6.6.0]: https://github.com/automattic/jetpack-forms/compare/v6.5.1...v6.6.0
 [6.5.1]: https://github.com/automattic/jetpack-forms/compare/v6.5.0...v6.5.1
 [6.5.0]: https://github.com/automattic/jetpack-forms/compare/v6.4.0...v6.5.0

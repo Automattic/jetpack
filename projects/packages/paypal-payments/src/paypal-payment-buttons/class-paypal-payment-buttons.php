@@ -31,6 +31,51 @@ class PayPal_Payment_Buttons {
 	public const PAYPAL_PARTNER_ATTRIBUTION_ID = 'WooNCPS_Ecom_Wordpress';
 
 	/**
+	 * Validates and sanitizes a script URL to ensure it's from an allowed PayPal domain.
+	 *
+	 * @param string $url The URL to validate and sanitize.
+	 * @return string|false The sanitized URL, or false if URL is not from an allowed PayPal domain.
+	 */
+	public static function sanitize_paypal_script_url( $url ) {
+		if ( empty( $url ) ) {
+			return false;
+		}
+
+		$parsed_url = wp_parse_url( $url );
+		if ( ! $parsed_url || empty( $parsed_url['host'] ) ) {
+			return false;
+		}
+
+		// Normalize the host
+		$host = strtolower( $parsed_url['host'] );
+		$host = rtrim( $host, '.' );
+
+		// Only allow specific PayPal domains
+		$allowed_hosts = array(
+			'www.paypal.com',
+			'paypal.com',
+			'www.sandbox.paypal.com',
+			'sandbox.paypal.com',
+		);
+
+		if ( ! in_array( $host, $allowed_hosts, true ) ) {
+			return false;
+		}
+
+		// Rebuild the URL with HTTPS
+		$sanitized_url = 'https://' . $host;
+
+		if ( isset( $parsed_url['path'] ) ) {
+			$sanitized_url .= $parsed_url['path'];
+		}
+		if ( isset( $parsed_url['query'] ) ) {
+			$sanitized_url .= '?' . $parsed_url['query'];
+		}
+
+		return $sanitized_url;
+	}
+
+	/**
 	 * Registers the block for use in Gutenberg
 	 * This is done via an action so that we can disable
 	 * registration if we need to.
@@ -70,7 +115,13 @@ class PayPal_Payment_Buttons {
 		}
 
 		if ( 'stacked' === $button_type ) {
-			$script_url = esc_url( $script_src );
+			// Sanitize the script URL to ensure it's from an allowed PayPal domain
+			$sanitized_url = self::sanitize_paypal_script_url( $script_src );
+			if ( false === $sanitized_url ) {
+				return;
+			}
+
+			$script_url = esc_url( $sanitized_url );
 			// We can't include the version number here. If we do, it is appended to the URL and causes a 400 response.
 			wp_enqueue_script( 'paypal-payment-buttons-block-head', $script_url, array(), null, false ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			add_filter(
