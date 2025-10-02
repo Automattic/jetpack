@@ -13,11 +13,12 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useRegistry } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
+import { download, trash } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -25,6 +26,8 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
+import { spam } from '../icons';
+import { markAsSpamAction, moveToTrashAction } from './dataviews/actions';
 import { getPath } from './utils';
 
 const getDisplayName = response => {
@@ -180,6 +183,8 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
 		useMarkAsSpam( response );
 
+	const registry = useRegistry();
+
 	const ref = useRef( undefined );
 
 	const openFilePreview = useCallback(
@@ -207,6 +212,14 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			onModalStateChange( false );
 		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
+
+	const handleMarkAsSpam = useCallback( () => {
+		markAsSpamAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const handleMoveToTrash = useCallback( () => {
+		moveToTrashAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
 
 	const renderFieldValue = value => {
 		if ( isImageSelectField( value ) ) {
@@ -325,6 +338,27 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
+					<div
+						className="jp-forms__inbox-response-header-actions"
+						style={ { position: 'absolute', top: 0, right: 0 } }
+					>
+						<Button
+							variant="secondary"
+							onClick={ handleMarkAsSpam }
+							showTooltip={ true }
+							label={ __( 'Mark as spam', 'jetpack-forms' ) }
+						>
+							<Icon icon={ spam } />
+						</Button>
+						<Button
+							variant="secondary"
+							onClick={ handleMoveToTrash }
+							showTooltip={ true }
+							label={ __( 'Send to trash', 'jetpack-forms' ) }
+						>
+							<Icon icon={ trash } />
+						</Button>
+					</div>
 					<HStack alignment="topLeft" spacing="3">
 						{ response.author_email && (
 							<Gravatar
