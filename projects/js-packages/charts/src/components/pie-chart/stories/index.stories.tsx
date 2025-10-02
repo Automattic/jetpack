@@ -108,7 +108,6 @@ export const Default: Story = {
 	args: {
 		thickness: 1,
 		gapScale: 0,
-		padding: 20,
 		cornerScale: 0,
 		withTooltips: false,
 		data,
@@ -137,6 +136,7 @@ export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		containerHeight: '500px',
 	},
 };
 
@@ -180,6 +180,7 @@ export const WithCompositionLegend: Story = {
 	),
 	args: {
 		data,
+		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
@@ -341,6 +342,7 @@ This pattern provides:
 export const CustomLabelColors: Story = {
 	args: {
 		...Default.args,
+		showLegend: true,
 		thickness: 0.85, // Slightly thinner for better label visibility
 		data: [
 			{
@@ -368,6 +370,7 @@ export const CustomLabelColors: Story = {
 		labelTextColor: '#FFFFFF', // White text for contrast against dark background
 		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
 		size: 400,
+		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
