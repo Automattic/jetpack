@@ -40,8 +40,9 @@ class Jetpack_Application_Password_Extras {
 		}
 
 		// Allow access to post/page previews
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['p'] ) || isset( $_GET['page_id'] ) ) {
+		$is_preview_request = isset( $_GET['preview'] ) && 'true' === $_GET['preview']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$has_post_id        = isset( $_GET['p'] ) || isset( $_GET['page_id'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( $is_preview_request && $has_post_id ) {
 			return true;
 		}
 
