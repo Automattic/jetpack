@@ -1186,34 +1186,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					&& class_exists( \Hostinger\Reach\Functions::class )
 					&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
 				) {
-					$reach_handler = new \Hostinger\Reach\Api\Handlers\ReachApiHandler(
-						new \Hostinger\Reach\Functions(),
-						new \Hostinger\Reach\Api\ApiKeyManager()
+					$reach_handler = new \Hostinger\Reach\Api\Handlers\ReachApiHandler( // @phan-suppress-current-line PhanUndeclaredClassMethod
+						new \Hostinger\Reach\Functions(), // @phan-suppress-current-line PhanUndeclaredClassMethod
+						new \Hostinger\Reach\Api\ApiKeyManager() // @phan-suppress-current-line PhanUndeclaredClassMethod
 					);
 					if ( method_exists( $reach_handler, 'is_connected' ) ) {
 						$status['isConnected'] = (bool) $reach_handler->is_connected();
-					}
-
-					// Populate available groups/lists for selection in the editor when connected.
-					if (
-						$status['isConnected']
-						&& class_exists( \Hostinger\Reach\Repositories\ContactListRepository::class )
-						&& class_exists( \Hostinger\Reach\Admin\Database\ContactListsTable::class )
-					) {
-						global $wpdb;
-						$contact_list_repository = new \Hostinger\Reach\Repositories\ContactListRepository( $wpdb, new \Hostinger\Reach\Admin\Database\ContactListsTable( $wpdb ) );
-
-						$contact_lists              = $contact_list_repository->all();
-						$contact_lists              = is_array( $contact_lists ) ? $contact_lists : array();
-						$status['details']['lists'] = array_map(
-							function ( $list ) {
-								return array(
-									'id'   => $list['id'] ?? null,
-									'name' => $list['name'] ?? '',
-								);
-							},
-							$contact_lists
-						);
 					}
 				}
 				break;

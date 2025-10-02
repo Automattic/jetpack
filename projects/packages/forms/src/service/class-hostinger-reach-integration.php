@@ -25,36 +25,17 @@ class Hostinger_Reach_Integration {
 	protected static $hostinger_api = null;
 
 	/**
-	 * Resolve the group name to use for the subscriber.
-	 *
-	 * @param mixed $form Contact form instance.
-	 * @return string Group name.
-	 */
-	protected static function resolve_group_name( $form ) {
-		$attr = array();
-		if ( is_object( $form ) && isset( $form->attributes ) && is_array( $form->attributes ) ) {
-			$attr = is_array( $form->attributes['hostingerReach'] ?? null ) ? $form->attributes['hostingerReach'] : array();
-		}
-		$group_name = isset( $attr['listName'] ) && is_string( $attr['listName'] ) && $attr['listName'] !== ''
-			? $attr['listName']
-			: 'Jetpack Forms';
-		return $group_name;
-	}
-
-	/**
 	 * Submit contact to Hostinger Reach.
 	 *
-	 * @param mixed  $api_handler     Reach API handler.
-	 * @param array  $subscriber_data Associative array: email, first_name, last_name.
-	 * @param string $group_name      Target group name.
+	 * @param mixed $api_handler     Reach API handler.
+	 * @param array $subscriber_data Associative array: email, first_name, last_name.
 	 * @return void
 	 */
-	protected static function submit_contact( $api_handler, array $subscriber_data, $group_name ) {
+	protected static function submit_contact( $api_handler, array $subscriber_data ) {
 		if ( ! $api_handler || empty( $subscriber_data['email'] ) ) {
 			return;
 		}
 
-		$subscriber_data['group'] = $group_name;
 		$api_handler->post_contact( $subscriber_data );
 	}
 
@@ -95,6 +76,7 @@ class Hostinger_Reach_Integration {
 
 		$subscriber_data          = array();
 		$subscriber_data['email'] = $feedback->get_author_email();
+		$subscriber_data['group'] = 'Jetpack Forms';
 
 		if ( $feedback->get_field_value_by_label( 'First Name' ) ) {
 			$subscriber_data['name'] = $feedback->get_field_value_by_label( 'First Name' );
@@ -133,7 +115,8 @@ class Hostinger_Reach_Integration {
 			return array();
 		}
 
-		$subscriber_data = array();
+		$subscriber_data          = array();
+		$subscriber_data['group'] = 'Jetpack Forms';
 		foreach ( $form->fields as $field ) {
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
 			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
@@ -243,13 +226,11 @@ class Hostinger_Reach_Integration {
 			return;
 		}
 
-		// Resolve group name and prepare subscriber data (email is required).
-		$group_name      = self::resolve_group_name( $form );
 		$subscriber_data = $is_v2_data ? self::get_subscriber_data( $feedback ) : self::get_subscriber_data_from_fields( $fields );
 		if ( empty( $subscriber_data ) ) {
 			return;
 		}
 
-		self::submit_contact( $api_handler, $subscriber_data, $group_name );
+		self::submit_contact( $api_handler, $subscriber_data );
 	}
 }

@@ -4,28 +4,19 @@ import {
 	Button,
 	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	SelectControl,
 	ToggleControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement, useEffect, useMemo } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import HostingerReachIcon from '../../../../icons/hostinger-reach';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
 interface HostingerReachCardProps extends SingleIntegrationCardProps {
-	hostingerReach: {
-		enabledForForm?: boolean;
-		listId?: string | null;
-		listName?: string | null;
-	};
-	setAttributes: ( attrs: {
-		hostingerReach: { enabledForForm?: boolean; listId?: string | null; listName?: string | null };
-	} ) => void;
+	hostingerReach: { enabledForForm?: boolean };
+	setAttributes: ( attrs: { hostingerReach: { enabledForForm?: boolean } } ) => void;
 }
-
-type HostingerList = { id: string; name: string };
 
 const HostingerReachCard = ( {
 	isExpanded,
@@ -36,12 +27,6 @@ const HostingerReachCard = ( {
 	refreshStatus,
 }: HostingerReachCardProps ) => {
 	const { isConnected = false, settingsUrl = '' } = data || {};
-
-	const lists: HostingerList[] = useMemo(
-		() =>
-			Array.isArray( data?.details?.lists ) ? ( data.details.lists as HostingerList[] ) : [],
-		[ data?.details?.lists ]
-	);
 
 	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
 	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
@@ -63,38 +48,6 @@ const HostingerReachCard = ( {
 			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
 		}
 	};
-
-	useEffect( () => {
-		if ( ! hostingerReach.enabledForForm ) {
-			return;
-		}
-
-		// If there are no lists, clear the selection
-		if ( lists.length === 0 ) {
-			if ( hostingerReach.listId || hostingerReach.listName ) {
-				setAttributes( {
-					hostingerReach: {
-						...hostingerReach,
-						listId: null,
-						listName: null,
-					},
-				} );
-			}
-			return;
-		}
-
-		const listIsValid =
-			hostingerReach.listId && lists.some( list => list.id === hostingerReach.listId );
-		if ( ! listIsValid ) {
-			setAttributes( {
-				hostingerReach: {
-					...hostingerReach,
-					listId: lists[ 0 ].id,
-					listName: lists[ 0 ].name,
-				},
-			} );
-		}
-	}, [ hostingerReach, lists, setAttributes ] );
 
 	const cardData: IntegrationCardData = {
 		...data,
@@ -161,35 +114,6 @@ const HostingerReachCard = ( {
 				</div>
 			) : (
 				<div>
-					{ lists?.length ? (
-						<SelectControl
-							label={ __(
-								'Which Hostinger Reach list should contacts be added to?',
-								'jetpack-forms'
-							) }
-							value={ hostingerReach.listId }
-							options={ lists.map( list => ( { label: list.name, value: list.id } ) ) }
-							onChange={ value => {
-								const selected = lists.find( l => l.id === value );
-								setAttributes( {
-									hostingerReach: {
-										...hostingerReach,
-										listId: selected?.id ?? null,
-										listName: selected?.name ?? null,
-									},
-								} );
-							} }
-							__next40pxDefaultSize={ true }
-							__nextHasNoMarginBottom={ true }
-						/>
-					) : (
-						<p className="integration-card__description">
-							{ __(
-								'You do not have any Hostinger Reach lists yet. Click the dashboard button below to create one.',
-								'jetpack-forms'
-							) }
-						</p>
-					) }
 					{ hasEmailBlock && (
 						<div className="integration-card__section">
 							<ToggleControl
