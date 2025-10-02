@@ -5,6 +5,7 @@ import {
 	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	ToggleControl,
+	TextControl,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
@@ -14,8 +15,10 @@ import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
 interface HostingerReachCardProps extends SingleIntegrationCardProps {
-	hostingerReach: { enabledForForm?: boolean };
-	setAttributes: ( attrs: { hostingerReach: { enabledForForm?: boolean } } ) => void;
+	hostingerReach: { enabledForForm?: boolean; groupName?: string };
+	setAttributes: ( attrs: {
+		hostingerReach: { enabledForForm?: boolean; groupName?: string };
+	} ) => void;
 }
 
 const HostingerReachCard = ( {
@@ -114,6 +117,22 @@ const HostingerReachCard = ( {
 				</div>
 			) : (
 				<div>
+					<div className="integration-card__section">
+						<TextControl
+							label={ __( 'Group name (optional)', 'jetpack-forms' ) }
+							help={ __(
+								"If empty, contacts will be added under 'Jetpack Forms'.",
+								'jetpack-forms'
+							) }
+							value={ hostingerReach.groupName ?? '' }
+							onChange={ value =>
+								setAttributes( {
+									hostingerReach: { ...hostingerReach, groupName: value },
+								} )
+							}
+							__nextHasNoMarginBottom
+						/>
+					</div>
 					{ hasEmailBlock && (
 						<div className="integration-card__section">
 							<ToggleControl

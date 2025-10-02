@@ -27,15 +27,17 @@ class Hostinger_Reach_Integration {
 	/**
 	 * Submit contact to Hostinger Reach.
 	 *
-	 * @param mixed $api_handler     Reach API handler.
-	 * @param array $subscriber_data Associative array: email, first_name, last_name.
+	 * @param mixed  $api_handler     Reach API handler.
+	 * @param array  $subscriber_data Associative array: email, first_name, last_name.
+	 * @param string $group_name      Target group name.
 	 * @return void
 	 */
-	protected static function submit_contact( $api_handler, array $subscriber_data ) {
+	protected static function submit_contact( $api_handler, array $subscriber_data, $group_name ) {
 		if ( ! $api_handler || empty( $subscriber_data['email'] ) ) {
 			return;
 		}
 
+		$subscriber_data['group'] = $group_name;
 		$api_handler->post_contact( $subscriber_data );
 	}
 
@@ -64,6 +66,19 @@ class Hostinger_Reach_Integration {
 	}
 
 	/**
+	 * Get group name from form attributes, falling back to 'Jetpack Forms'.
+	 *
+	 * @param mixed $form Contact form instance.
+	 * @return string
+	 */
+	protected static function get_group_name( $form ) {
+		$group_name = ! empty( $form->attributes['hostingerReach']['groupName'] ?? '' )
+			? trim( $form->attributes['hostingerReach']['groupName'] )
+			: 'Jetpack Forms';
+		return $group_name;
+	}
+
+	/**
 	 * Extract subscriber data (email, first_name, last_name) using Feedback API (v2 storage).
 	 *
 	 * @param Feedback $feedback Feedback object for the submission.
@@ -76,7 +91,6 @@ class Hostinger_Reach_Integration {
 
 		$subscriber_data          = array();
 		$subscriber_data['email'] = $feedback->get_author_email();
-		$subscriber_data['group'] = 'Jetpack Forms';
 
 		if ( $feedback->get_field_value_by_label( 'First Name' ) ) {
 			$subscriber_data['name'] = $feedback->get_field_value_by_label( 'First Name' );
@@ -115,8 +129,8 @@ class Hostinger_Reach_Integration {
 			return array();
 		}
 
-		$subscriber_data          = array();
-		$subscriber_data['group'] = 'Jetpack Forms';
+		$subscriber_data = array();
+
 		foreach ( $form->fields as $field ) {
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
 			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
@@ -231,6 +245,8 @@ class Hostinger_Reach_Integration {
 			return;
 		}
 
-		self::submit_contact( $api_handler, $subscriber_data );
+		$group_name = self::get_group_name( $form );
+
+		self::submit_contact( $api_handler, $subscriber_data, $group_name );
 	}
 }
