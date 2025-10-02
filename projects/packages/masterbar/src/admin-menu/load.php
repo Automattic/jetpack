@@ -31,11 +31,6 @@ function should_customize_nav( $admin_menu_class ) {
 		return false;
 	}
 
-	// No nav customizations on WP Admin of Jetpack sites.
-	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
-		return false;
-	}
-
 	return true;
 }
 
@@ -94,9 +89,9 @@ function get_admin_menu_class() {
 		return WPcom_Admin_Menu::class;
 	}
 
-	// Jetpack sites.
-	require_once __DIR__ . '/class-jetpack-admin-menu.php';
-	return Jetpack_Admin_Menu::class;
+	// Default menu class.
+	require_once __DIR__ . '/class-admin-menu.php';
+	return Admin_Menu::class;
 }
 
 /**
