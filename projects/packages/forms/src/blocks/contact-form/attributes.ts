@@ -58,8 +58,7 @@ export default {
 	hostingerReach: {
 		type: 'object',
 		default: {
-			listId: null,
-			listName: null,
+			groupName: '',
 		},
 	},
 	saveResponses: {
