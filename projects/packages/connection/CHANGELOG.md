@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.18.12] - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
 ## [6.18.11] - 2025-09-29
 ### Changed
 - Internal updates.
@@ -1603,6 +1607,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[6.18.12]: https://github.com/Automattic/jetpack-connection/compare/v6.18.11...v6.18.12
 [6.18.11]: https://github.com/Automattic/jetpack-connection/compare/v6.18.10...v6.18.11
 [6.18.10]: https://github.com/Automattic/jetpack-connection/compare/v6.18.9...v6.18.10
 [6.18.9]: https://github.com/Automattic/jetpack-connection/compare/v6.18.8...v6.18.9
