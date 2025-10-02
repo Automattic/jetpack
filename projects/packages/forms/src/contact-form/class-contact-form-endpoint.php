@@ -1182,14 +1182,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				$status['isConnected']     = false;
 				// Determine if Hostinger Reach is connected using its public handler.
 				if ( $is_active
+					// @phan-suppress-next-line PhanUndeclaredClassReference
 					&& class_exists( \Hostinger\Reach\Api\Handlers\ReachApiHandler::class )
+					// @phan-suppress-next-line PhanUndeclaredClassReference
 					&& class_exists( \Hostinger\Reach\Functions::class )
+					// @phan-suppress-next-line PhanUndeclaredClassReference
 					&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
 				) {
 					$reach_handler = new \Hostinger\Reach\Api\Handlers\ReachApiHandler( // @phan-suppress-current-line PhanUndeclaredClassMethod
 						new \Hostinger\Reach\Functions(), // @phan-suppress-current-line PhanUndeclaredClassMethod
 						new \Hostinger\Reach\Api\ApiKeyManager() // @phan-suppress-current-line PhanUndeclaredClassMethod
 					);
+					// @phan-suppress-next-line PhanUndeclaredClassMethod
 					if ( method_exists( $reach_handler, 'is_connected' ) ) {
 						$status['isConnected'] = (bool) $reach_handler->is_connected();
 					}

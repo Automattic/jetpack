@@ -49,8 +49,11 @@ class Hostinger_Reach_Integration {
 	protected static function get_api() {
 		if (
 			null === self::$hostinger_api
+			// @phan-suppress-next-line PhanUndeclaredClassReference
 			&& class_exists( \Hostinger\Reach\Api\Handlers\ReachApiHandler::class )
+			// @phan-suppress-next-line PhanUndeclaredClassReference
 			&& class_exists( \Hostinger\Reach\Functions::class )
+			// @phan-suppress-next-line PhanUndeclaredClassReference
 			&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
 		) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod
