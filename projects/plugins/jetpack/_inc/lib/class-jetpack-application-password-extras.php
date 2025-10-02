@@ -20,7 +20,7 @@ class Jetpack_Application_Password_Extras {
 	 * Allowed CORS origins for AJAX requests
 	 */
 	const ALLOWED_AJAX_CORS_ORIGINS = array(
-		'https://appassets.androidplatform.net', // Android WebView
+		'https://android-app-assets.jetpack.com', // Jetpack Android mobile app WebView
 	);
 
 	/**
