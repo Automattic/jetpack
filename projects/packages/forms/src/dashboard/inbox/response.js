@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	ExternalLink,
@@ -13,7 +14,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useRegistry } from '@wordpress/data';
+import { useRegistry, useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -199,6 +200,7 @@ const InboxResponse = ( {
 	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
 	const [ isRestoring, setIsRestoring ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const { editEntityRecord } = useDispatch( 'core' );
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
@@ -484,6 +486,28 @@ const InboxResponse = ( {
 
 		ref.current.scrollTop = 0;
 	}, [ response ] );
+
+	// Mark feedback as read when viewing
+	useEffect( () => {
+		if ( ! response || ! response.id || ! response.is_unread ) {
+			return;
+		}
+
+		// Immediately update entity in store
+		editEntityRecord( 'postType', 'feedback', response.id, {
+			is_unread: false,
+		} );
+
+		// Then update on server
+		apiFetch( {
+			path: `/wp/v2/feedback/${ response.id }/read`,
+			method: 'POST',
+			data: { is_unread: false },
+		} ).catch( error => {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to mark feedback as read:', error );
+		} );
+	}, [ response, editEntityRecord ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
