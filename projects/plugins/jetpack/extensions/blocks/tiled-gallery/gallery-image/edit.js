@@ -49,11 +49,9 @@ class GalleryImageEdit extends Component {
 			if ( ! isComplete ) {
 				this.img.current.addEventListener( 'load', this.onImageLoadComplete, {
 					once: true,
-					passive: true,
 				} );
 				this.img.current.addEventListener( 'error', this.onImageLoadComplete, {
 					once: true,
-					passive: true,
 				} );
 			}
 		}

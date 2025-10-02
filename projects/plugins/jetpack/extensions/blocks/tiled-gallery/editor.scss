@@ -58,7 +58,7 @@
 
 		&.is-loading > img {
 			// Inspired by Calypso's placeholder mixin
-			animation: tiled-gallery-img-placeholder 1.6s ease-in-out infinite alternate;
+			animation: tiled-gallery-img-placeholder .8s ease-in-out infinite alternate;
 		}
 
 		&.is-selected {
