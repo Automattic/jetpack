@@ -508,9 +508,10 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__inbox__unread-indicator {
-	color: #d63638;
-	font-size: 8px;
-	margin-right: 4.5px;
-	margin-left: -12px;
-	vertical-align: middle;
+	font-weight: 600;
+	color: #222;
+}
+
+a .jp-forms__inbox__unread-indicator {
+	color: #135e96;
 }

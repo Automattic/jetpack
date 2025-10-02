@@ -225,6 +225,20 @@ export default function InboxView() {
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
 	);
+
+	const wrapperUnread = ( isUnread, itemValue ) => {
+		if ( isUnread ) {
+			return (
+				<span
+					className="jp-forms__inbox__unread-indicator"
+					aria-label={ __( 'Unread', 'jetpack-forms' ) }
+				>
+					{ itemValue }
+				</span>
+			);
+		}
+		return itemValue;
+	};
 	const fields = useMemo(
 		() => [
 			{
@@ -234,19 +248,7 @@ export default function InboxView() {
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					return (
-						<>
-							{ item.is_unread && (
-								<span
-									className="jp-forms__inbox__unread-indicator"
-									aria-label={ __( 'Unread', 'jetpack-forms' ) }
-								>
-									●
-								</span>
-							) }
-							{ authorInfo }
-						</>
-					);
+					return <>{ wrapperUnread( item.is_unread, authorInfo ) }</>;
 				},
 				getValue: ( { item } ) => {
 					return decodeEntities(
@@ -259,7 +261,9 @@ export default function InboxView() {
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
+				render: ( { item } ) => {
+					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
 					date.setDate( 1 );
@@ -283,7 +287,10 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<ExternalLink href={ item.entry_permalink }>
-							{ decodeEntities( item.entry_title ) || getPath( item ) }
+							{ wrapperUnread(
+								item.is_unread,
+								decodeEntities( item.entry_title ) || getPath( item )
+							) }
 						</ExternalLink>
 					);
 				},
