@@ -89,6 +89,16 @@
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
+.jp-forms__inbox-response-header-actions {
+	position: absolute;
+	top: 0;
+	right: 0;
+
+	.components-button.has-icon {
+		box-shadow: none;
+	}
+}
+
 .jp-forms__inbox-response-name {
 	font-size: 24px;
 	font-weight: 700;

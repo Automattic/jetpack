@@ -18,7 +18,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { download, trash } from '@wordpress/icons';
+import { download, trash, backup } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -26,8 +26,14 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { spam } from '../icons';
-import { markAsSpamAction, moveToTrashAction } from './dataviews/actions';
+import { spam, notSpam } from '../icons';
+import {
+	markAsSpamAction,
+	markAsNotSpamAction,
+	moveToTrashAction,
+	restoreAction,
+	deleteAction,
+} from './dataviews/actions';
 import { getPath } from './utils';
 
 const getDisplayName = response => {
@@ -217,9 +223,93 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		markAsSpamAction.callback( [ response ], { registry } );
 	}, [ response, registry ] );
 
+	const handleMarkAsNotSpam = useCallback( () => {
+		markAsNotSpamAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
 	const handleMoveToTrash = useCallback( () => {
 		moveToTrashAction.callback( [ response ], { registry } );
 	}, [ response, registry ] );
+
+	const handleRestore = useCallback( () => {
+		restoreAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const handleDelete = useCallback( () => {
+		deleteAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const renderActionButtons = () => {
+		const { status } = response;
+
+		switch ( status ) {
+			case 'spam':
+				return (
+					<>
+						<Button
+							variant="secondary"
+							onClick={ handleMarkAsNotSpam }
+							showTooltip={ true }
+							label={ __( 'Not spam', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ notSpam }
+						></Button>
+						<Button
+							variant="secondary"
+							onClick={ handleMoveToTrash }
+							showTooltip={ true }
+							label={ __( 'Send to trash', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ trash }
+						></Button>
+					</>
+				);
+
+			case 'trash':
+				return (
+					<>
+						<Button
+							variant="secondary"
+							onClick={ handleRestore }
+							showTooltip={ true }
+							label={ __( 'Restore', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ backup }
+						></Button>
+						<Button
+							variant="secondary"
+							onClick={ handleDelete }
+							showTooltip={ true }
+							label={ __( 'Delete permanently', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ trash }
+						></Button>
+					</>
+				);
+
+			default: // 'publish' (inbox) or any other status
+				return (
+					<>
+						<Button
+							variant="secondary"
+							onClick={ handleMarkAsSpam }
+							showTooltip={ true }
+							label={ __( 'Mark as spam', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ spam }
+						></Button>
+						<Button
+							variant="secondary"
+							onClick={ handleMoveToTrash }
+							showTooltip={ true }
+							label={ __( 'Send to trash', 'jetpack-forms' ) }
+							iconSize={ 20 }
+							icon={ trash }
+						></Button>
+					</>
+				);
+		}
+	};
 
 	const renderFieldValue = value => {
 		if ( isImageSelectField( value ) ) {
@@ -342,22 +432,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 						className="jp-forms__inbox-response-header-actions"
 						style={ { position: 'absolute', top: 0, right: 0 } }
 					>
-						<Button
-							variant="secondary"
-							onClick={ handleMarkAsSpam }
-							showTooltip={ true }
-							label={ __( 'Mark as spam', 'jetpack-forms' ) }
-						>
-							<Icon icon={ spam } />
-						</Button>
-						<Button
-							variant="secondary"
-							onClick={ handleMoveToTrash }
-							showTooltip={ true }
-							label={ __( 'Send to trash', 'jetpack-forms' ) }
-						>
-							<Icon icon={ trash } />
-						</Button>
+						{ renderActionButtons() }
 					</div>
 					<HStack alignment="topLeft" spacing="3">
 						{ response.author_email && (
