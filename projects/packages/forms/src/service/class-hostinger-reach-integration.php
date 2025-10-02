@@ -70,8 +70,11 @@ class Hostinger_Reach_Integration {
 			&& class_exists( \Hostinger\Reach\Functions::class )
 			&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
 		) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			self::$hostinger_api = new \Hostinger\Reach\Api\Handlers\ReachApiHandler(
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				new \Hostinger\Reach\Functions(),
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				new \Hostinger\Reach\Api\ApiKeyManager()
 			);
 		}
