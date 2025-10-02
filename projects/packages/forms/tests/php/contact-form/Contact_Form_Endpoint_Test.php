@@ -140,6 +140,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
+		$this->assertArrayHasKey( 'is_unread', $schema_properties );
 	}
 
 	/**
@@ -673,5 +674,145 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertArrayHasKey( 'has_file', $data );
 		$this->assertFalse( $data['has_file'] );
+	}
+
+	/**
+	 * Test default unread state on new feedback
+	 */
+	public function test_feedback_is_unread_by_default() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // is_unread
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'is_unread', $data );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify the state persists
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertFalse( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as unread
+	 */
+	public function test_mark_feedback_as_unread() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		// First mark as read
+		wp_update_post(
+			array(
+				'ID'             => $post_id,
+				'comment_status' => 'closed',
+			)
+		);
+
+		// Then mark as unread
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback with invalid ID
+	 */
+	public function test_mark_feedback_with_invalid_id() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+	}
+
+	/**
+	 * Test unauthorized access to mark feedback
+	 */
+	public function test_mark_feedback_unauthorized() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
 	}
 }
