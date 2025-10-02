@@ -42,7 +42,6 @@ function wpcom_remove_menus_for_p2_sites() {
 	remove_submenu_page( 'options-general.php', 'crowdsignal-settings' );
 	remove_submenu_page( 'options-general.php', 'ratingsettings' );
 	remove_submenu_page( 'options-general.php', 'activitypub' );
-	remove_menu_page( 'edit.php?post_type=p2_pattern' );
 
 	require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
 
