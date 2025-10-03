@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Charts: add legend margin and styling props
+Charts: add legendItemClassName prop for custom legend item styling
