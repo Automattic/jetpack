@@ -6,6 +6,7 @@ import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';
 import { Button, Path, Spinner, SVG } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -13,12 +14,22 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import { config } from '../..';
-import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integration-status';
+import { INTEGRATIONS_STORE } from '../../../store/integrations';
 import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
+/**
+ * Internal dependencies
+ */
+import type { SelectIntegrations, IntegrationsDispatch } from '../../../store/integrations';
+import type { Integration } from '../../../types';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	const [ isExporting, setIsExporting ] = useState( false );
-	const { integration, refreshStatus } = useIntegrationStatus( 'google-drive' );
+	const { integration } = useSelect( ( select: SelectIntegrations ) => {
+		const store = select( INTEGRATIONS_STORE );
+		const list = store.getIntegrations() || [];
+		return { integration: list.find( ( i: Integration ) => i.id === 'google-drive' ) };
+	}, [] ) as { integration?: Integration };
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
@@ -58,12 +69,12 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 		setIsTogglingConnection( true );
 		requestExternalAccess( integration?.settingsUrl, ( { keyring_id: keyringId } ) => {
 			if ( keyringId ) {
-				refreshStatus();
+				refreshIntegrations();
 			} else {
 				setIsTogglingConnection( false );
 			}
 		} );
-	}, [ tracks, integration?.settingsUrl, refreshStatus ] );
+	}, [ tracks, integration?.settingsUrl, refreshIntegrations ] );
 
 	if ( isOfflineMode ) {
 		return null;
