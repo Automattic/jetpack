@@ -5,12 +5,7 @@ import clsx from 'clsx';
 import { type RefAttributes, type ForwardRefExoticComponent, forwardRef, useCallback } from 'react';
 import { useTextTruncation } from '../../../hooks';
 import { useGlobalChartsTheme } from '../../../providers';
-import {
-	valueOrIdentity,
-	valueOrIdentityString,
-	labelTransformFactory,
-	processLegendMargin,
-} from '../utils';
+import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
@@ -83,8 +78,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			itemMargin = '0',
 			itemDirection = 'row',
 			legendLabelProps,
-			legendMargin,
-			legendStyle,
+			legendItemClassName,
 			...legendItemProps
 		},
 		ref
@@ -123,13 +117,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
 							...theme.legendContainerStyles,
-							...processLegendMargin( legendMargin ),
-							...legendStyle,
 						} }
 					>
 						{ labels.map( ( label, i ) => (
 							<LegendItem
-								className={ clsx( 'visx-legend-item', styles[ 'legend-item' ] ) }
+								className={ clsx(
+									'visx-legend-item',
+									styles[ 'legend-item' ],
+									legendItemClassName
+								) }
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
