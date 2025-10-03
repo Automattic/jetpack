@@ -130,8 +130,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendAlignment = 'center',
 	legendMaxWidth,
 	legendTextOverflow = 'wrap',
-	legendMargin,
-	legendStyle,
+	legendItemClassName,
 	legendShape = 'circle',
 	legendValueDisplay = 'percentage',
 	label,
@@ -357,8 +356,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						alignment={ legendAlignment }
 						maxWidth={ legendMaxWidth }
 						textOverflow={ legendTextOverflow }
-						legendMargin={ legendMargin }
-						legendStyle={ legendStyle }
+						legendItemClassName={ legendItemClassName }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
