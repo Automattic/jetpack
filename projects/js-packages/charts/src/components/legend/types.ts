@@ -1,5 +1,4 @@
 import { LegendOrdinal } from '@visx/legend';
-import type { LegendMargin } from './types/legend-margin';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
@@ -26,15 +25,10 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 */
 	textOverflow?: 'ellipsis' | 'wrap';
 	/**
-	 * Margin around the legend container.
-	 * @see LegendMargin for type details
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
 	 */
-	legendMargin?: LegendMargin;
-	/**
-	 * Custom CSS styles for the legend container.
-	 * These styles will be merged with and override default styles.
-	 */
-	legendStyle?: CSSProperties;
+	legendItemClassName?: string;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {

@@ -1,4 +1,3 @@
-import type { LegendMargin } from './components/legend/types/legend-margin';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
@@ -357,15 +356,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendTextOverflow?: 'ellipsis' | 'wrap';
 	/**
-	 * Margin around the legend container.
-	 * @see LegendMargin for type details
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
 	 */
-	legendMargin?: LegendMargin;
-	/**
-	 * Custom CSS styles for the legend container.
-	 * These styles will be merged with and override default styles.
-	 */
-	legendStyle?: CSSProperties;
+	legendItemClassName?: string;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
