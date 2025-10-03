@@ -52,16 +52,10 @@ export const legendArgTypes = {
 		description:
 			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
 	},
-	legendMargin: {
-		control: { type: 'object' as const },
+	legendItemClassName: {
+		control: { type: 'text' as const },
 		table: { category: 'Legend' },
 		description:
-			'Margin around the legend container. Can be a CSS string (e.g. "10px", "1rem 2rem") or object (e.g. {top: 10, right: 15, bottom: 10, left: 15})',
-	},
-	legendStyle: {
-		control: { type: 'object' as const },
-		table: { category: 'Legend' },
-		description:
-			'Custom CSS styles for the legend container. Enter as object (e.g. {padding: "20px", backgroundColor: "#f0f0f0", border: "1px solid #ccc"})',
+			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
 	},
 };
