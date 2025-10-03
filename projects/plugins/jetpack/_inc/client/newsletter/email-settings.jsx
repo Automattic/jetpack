@@ -417,6 +417,12 @@ const EmailSettings = props => {
 						'Choose who receives emails when subscribers reply to your newsletter.',
 						'jetpack'
 					) }
+					{ subscriptionReplyTo === 'author' &&
+						' ' +
+							__(
+								'The author’s account must be connected to WordPress.com to use their email as the reply-to address.',
+								'jetpack'
+							) }
 				</p>
 				<RadioControl
 					className="jp-form-radio-gap"
