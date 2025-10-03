@@ -15,9 +15,9 @@ const DEFAULT_STATE: IntegrationsState = {
 /**
  * Integrations store reducer.
  *
- * @param state Current state.
- * @param action Dispatched action.
- * @return Updated state.
+ * @param state  - Current state
+ * @param action - Dispatched action
+ * @return Updated state
  */
 export default function reducer(
 	state: IntegrationsState = DEFAULT_STATE,
