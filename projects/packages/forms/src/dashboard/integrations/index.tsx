@@ -2,7 +2,6 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 /**
@@ -22,7 +21,7 @@ import './style.scss';
 import type { Integration } from '../../types';
 
 const Integrations = () => {
-	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus();
+	const { integrations, refreshIntegrations } = useIntegrationsStatus();
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		googleSheets: false,
@@ -88,65 +87,54 @@ const Integrations = () => {
 						) }
 					</div>
 				</div>
-				<div
-					className={
-						'jp-forms__integrations-body' +
-						( isLoading ? ' jp-forms__integrations-body--loading' : '' )
-					}
-				>
-					{ isLoading ? (
-						<Spinner />
-					) : (
-						<>
-							{ akismetData && (
-								<AkismetDashboardCard
-									isExpanded={ expandedCards.akismet }
-									onToggle={ handleToggleAkismet }
-									data={ akismetData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-							{ googleDriveData && (
-								<GoogleSheetsDashboardCard
-									isExpanded={ expandedCards.googleSheets }
-									onToggle={ handleToggleGoogleSheets }
-									data={ googleDriveData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-							{ crmData && (
-								<JetpackCRMDashboardCard
-									isExpanded={ expandedCards.crm }
-									onToggle={ handleToggleCRM }
-									data={ crmData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-							{ mailpoetData && (
-								<MailPoetDashboardCard
-									isExpanded={ expandedCards.mailpoet }
-									onToggle={ handleToggleMailPoet }
-									data={ mailpoetData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-							{ salesforceData && (
-								<SalesforceDashboardCard
-									isExpanded={ expandedCards.salesforce }
-									onToggle={ handleToggleSalesforce }
-									data={ salesforceData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-							{ creativeMailData && (
-								<CreativeMailDashboardCard
-									isExpanded={ expandedCards.creativemail }
-									onToggle={ handleToggleCreativeMail }
-									data={ creativeMailData }
-									refreshStatus={ refreshIntegrations }
-								/>
-							) }
-						</>
+				<div className="jp-forms__integrations-body">
+					{ akismetData && (
+						<AkismetDashboardCard
+							isExpanded={ expandedCards.akismet }
+							onToggle={ handleToggleAkismet }
+							data={ akismetData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ googleDriveData && (
+						<GoogleSheetsDashboardCard
+							isExpanded={ expandedCards.googleSheets }
+							onToggle={ handleToggleGoogleSheets }
+							data={ googleDriveData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ crmData && (
+						<JetpackCRMDashboardCard
+							isExpanded={ expandedCards.crm }
+							onToggle={ handleToggleCRM }
+							data={ crmData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ mailpoetData && (
+						<MailPoetDashboardCard
+							isExpanded={ expandedCards.mailpoet }
+							onToggle={ handleToggleMailPoet }
+							data={ mailpoetData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ salesforceData && (
+						<SalesforceDashboardCard
+							isExpanded={ expandedCards.salesforce }
+							onToggle={ handleToggleSalesforce }
+							data={ salesforceData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ creativeMailData && (
+						<CreativeMailDashboardCard
+							isExpanded={ expandedCards.creativemail }
+							onToggle={ handleToggleCreativeMail }
+							data={ creativeMailData }
+							refreshStatus={ refreshIntegrations }
+						/>
 					) }
 				</div>
 			</div>

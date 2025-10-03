@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: remove integrations loading spinner.
