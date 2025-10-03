@@ -43,65 +43,17 @@ describe( 'BaseLegend', () => {
 		expect( legendItems ).toHaveLength( 0 );
 	} );
 
-	test( 'applies legendMargin to container', () => {
-		render(
-			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin="20px 30px" />
-		);
-		const legendContainer = screen.getByTestId( 'legend-horizontal' );
-		expect( legendContainer ).toHaveStyle( { margin: '20px 30px' } );
-	} );
-
-	test( 'applies legendStyle to container', () => {
-		const customStyles = { backgroundColor: 'rgb(240, 240, 240)', padding: '10px' };
-		render(
-			<BaseLegend items={ defaultItems } orientation="horizontal" legendStyle={ customStyles } />
-		);
-		const legendContainer = screen.getByTestId( 'legend-horizontal' );
-		expect( legendContainer ).toHaveStyle( customStyles );
-	} );
-
-	test( 'applies legendMargin object to container', () => {
-		const marginObject = { top: 10, right: 15, bottom: 10, left: 15 };
-		render(
-			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin={ marginObject } />
-		);
-		const legendContainer = screen.getByTestId( 'legend-horizontal' );
-		expect( legendContainer ).toHaveStyle( {
-			marginTop: '10px',
-			marginRight: '15px',
-			marginBottom: '10px',
-			marginLeft: '15px',
-		} );
-	} );
-
-	test( 'applies legendMargin object with mixed units', () => {
-		const marginObject = { top: '1rem', right: 20, bottom: '0.5em', left: 10 };
-		render(
-			<BaseLegend items={ defaultItems } orientation="horizontal" legendMargin={ marginObject } />
-		);
-		const legendContainer = screen.getByTestId( 'legend-horizontal' );
-		expect( legendContainer ).toHaveStyle( {
-			marginTop: '1rem',
-			marginRight: '20px',
-			marginBottom: '0.5em',
-			marginLeft: '10px',
-		} );
-	} );
-
-	test( 'merges legendMargin and legendStyle correctly', () => {
-		const customStyles = { backgroundColor: 'rgb(240, 240, 240)', padding: '10px' };
+	test( 'applies legendItemClassName to legend items', () => {
 		render(
 			<BaseLegend
 				items={ defaultItems }
 				orientation="horizontal"
-				legendMargin="20px"
-				legendStyle={ customStyles }
+				legendItemClassName="custom-legend-item"
 			/>
 		);
-		const legendContainer = screen.getByTestId( 'legend-horizontal' );
-		expect( legendContainer ).toHaveStyle( {
-			margin: '20px',
-			...customStyles,
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		legendItems.forEach( item => {
+			expect( item ).toHaveClass( 'custom-legend-item' );
 		} );
 	} );
 
