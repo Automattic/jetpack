@@ -53,9 +53,23 @@ export const Default: Story = {
 		resize: 'none',
 		thickness: 0.4,
 		data,
-		label: 'OS',
-		note: 'Windows +10%',
 		clockwise: true,
+		children: (
+			<Group>
+				<Text
+					textAnchor="middle"
+					verticalAnchor="start"
+					y={ -40 }
+					fontSize={ 16 }
+					fontWeight={ 600 }
+				>
+					OS
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="start" y={ -20 } fontSize={ 14 }>
+					Windows +10%
+				</Text>
+			</Group>
+		),
 	},
 };
 
@@ -95,24 +109,46 @@ export const WithCompositionLegend: Story = {
 				<PieSemiCircleChart
 					width={ 400 }
 					data={ args.data }
-					label="Performance Metrics"
-					note="Q4 2023 Results"
 					showLegend={ true }
 					legendPosition={ args.legendPosition || 'bottom' }
 					legendOrientation={ args.legendOrientation || 'horizontal' }
 					legendAlignment={ args.legendAlignment || 'center' }
 					legendMaxWidth={ args.legendMaxWidth }
 					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
+				>
+					<Group>
+						<Text
+							textAnchor="middle"
+							verticalAnchor="start"
+							y={ -40 }
+							fontSize={ 16 }
+							fontWeight={ 600 }
+						>
+							Performance Metrics
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="start" y={ -20 } fontSize={ 14 }>
+							Q4 2023 Results
+						</Text>
+					</Group>
+				</PieSemiCircleChart>
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
-				<PieSemiCircleChart
-					width={ 400 }
-					data={ args.data }
-					label="Performance Metrics"
-					note="Q4 2023 Results"
-				>
+				<PieSemiCircleChart width={ 400 } data={ args.data }>
+					<Group>
+						<Text
+							textAnchor="middle"
+							verticalAnchor="start"
+							y={ -40 }
+							fontSize={ 16 }
+							fontWeight={ 600 }
+						>
+							Performance Metrics
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="start" y={ -20 } fontSize={ 14 }>
+							Q4 2023 Results
+						</Text>
+					</Group>
 					<PieSemiCircleChart.Legend
 						position={ args.legendPosition || 'bottom' }
 						orientation={ args.legendOrientation || 'horizontal' }
@@ -163,14 +199,28 @@ export const CustomLegendPositioning: Story = {
 				percentage: 48,
 			},
 		],
-		label: 'OS',
-		note: 'Windows +10%',
 		withTooltips: true,
 		showLegend: true,
 		legendOrientation: 'vertical',
 		legendAlignment: 'end',
 		legendPosition: 'top',
 		legendShape: 'circle',
+		children: (
+			<Group>
+				<Text
+					textAnchor="middle"
+					verticalAnchor="start"
+					y={ -40 }
+					fontSize={ 16 }
+					fontWeight={ 600 }
+				>
+					OS
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="start" y={ -20 } fontSize={ 14 }>
+					Windows +10%
+				</Text>
+			</Group>
+		),
 	},
 	parameters: {
 		docs: {
@@ -261,15 +311,15 @@ export const CompositionAPI: Story = {
 			>
 				<div>
 					<h3>With Custom SVG Elements</h3>
-					<PieSemiCircleChart
-						width={ 400 }
-						data={ args.data }
-						label="OS Usage"
-						note="Q4 2023"
-						withTooltips={ true }
-					>
+					<PieSemiCircleChart width={ 400 } data={ args.data } withTooltips={ true }>
 						<PieSemiCircleChart.SVG>
 							<Group>
+								<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+									OS Usage
+								</Text>
+								<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+									Q4 2023
+								</Text>
 								<Text
 									x={ 0 }
 									y={ -80 }
@@ -300,12 +350,17 @@ export const CompositionAPI: Story = {
 
 				<div>
 					<h3>With Custom Legend and HTML Content</h3>
-					<PieSemiCircleChart
-						width={ 400 }
-						data={ args.data }
-						label="Performance"
-						note="Latest Results"
-					>
+					<PieSemiCircleChart width={ 400 } data={ args.data }>
+						<PieSemiCircleChart.SVG>
+							<Group>
+								<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+									Performance
+								</Text>
+								<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+									Latest Results
+								</Text>
+							</Group>
+						</PieSemiCircleChart.SVG>
 						<PieSemiCircleChart.HTML>
 							<div
 								style={ {
@@ -350,19 +405,20 @@ export const CompositionAPI: Story = {
 			</div>
 
 			<div style={ { marginTop: '3rem' } }>
-				<h3>Legacy Support - Direct Group Components</h3>
+				<h3>Direct Group Components</h3>
 				<p style={ { fontSize: '14px', color: '#666', marginBottom: '1rem' } }>
-					For backward compatibility, Group components are still supported directly:
+					Group components are supported directly for simpler use cases:
 				</p>
-				<PieSemiCircleChart
-					width={ 400 }
-					data={ args.data }
-					label="Legacy Mode"
-					note="Still works!"
-				>
+				<PieSemiCircleChart width={ 400 } data={ args.data }>
 					<Group>
+						<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+							Direct Usage
+						</Text>
+						<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+							Simple and clean!
+						</Text>
 						<Text x={ 0 } y={ -70 } textAnchor="middle" fontSize={ 12 } fill="#999">
-							Direct Group usage
+							Additional annotation
 						</Text>
 						<rect x={ -30 } y={ -85 } width={ 60 } height={ 2 } fill="#ddd" />
 					</Group>
