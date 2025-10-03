@@ -1,5 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Group } from '@visx/group';
+import { Text } from '@visx/text';
 import { act } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
 import PieSemiCircleChart from '../pie-semi-circle-chart';
@@ -35,13 +37,23 @@ describe( 'PieSemiCircleChart', () => {
 		expect( segments ).toHaveLength( 2 );
 	} );
 
-	it( 'renders label and note when provided', () => {
-		const label = 'Chart Title';
-		const note = 'Additional Info';
-		renderPieChart( { data: mockData, label, note } );
+	it( 'renders custom children content', () => {
+		renderPieChart( {
+			data: mockData,
+			children: (
+				<Group>
+					<Text textAnchor="middle" y={ -40 }>
+						Chart Title
+					</Text>
+					<Text textAnchor="middle" y={ -20 }>
+						Additional Info
+					</Text>
+				</Group>
+			),
+		} );
 
-		expect( screen.getByText( label ) ).toBeInTheDocument();
-		expect( screen.getByText( note ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Chart Title' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Additional Info' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows legend when showLegend is true', () => {
@@ -176,6 +188,91 @@ describe( 'PieSemiCircleChart', () => {
 			expect(
 				screen.getByText( 'Invalid data: Negative values are not allowed' )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Composition API', () => {
+		it( 'renders children with SVG content', () => {
+			renderPieChart( {
+				data: mockData,
+				children: (
+					<Group>
+						<Text textAnchor="middle" y={ -40 }>
+							Custom Title
+						</Text>
+					</Group>
+				),
+			} );
+
+			expect( screen.getByText( 'Custom Title' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders PieSemiCircleChart.SVG compound component', () => {
+			render(
+				<GlobalChartsProvider>
+					<PieSemiCircleChart data={ mockData }>
+						<PieSemiCircleChart.SVG>
+							<Group>
+								<Text textAnchor="middle" y={ -50 }>
+									SVG Component Title
+								</Text>
+							</Group>
+						</PieSemiCircleChart.SVG>
+					</PieSemiCircleChart>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByText( 'SVG Component Title' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders PieSemiCircleChart.HTML compound component', () => {
+			render(
+				<GlobalChartsProvider>
+					<PieSemiCircleChart data={ mockData }>
+						<PieSemiCircleChart.HTML>
+							<div data-testid="html-content">HTML Content</div>
+						</PieSemiCircleChart.HTML>
+					</PieSemiCircleChart>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByTestId( 'html-content' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'HTML Content' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders mixed SVG and HTML compound components', () => {
+			render(
+				<GlobalChartsProvider>
+					<PieSemiCircleChart data={ mockData }>
+						<PieSemiCircleChart.SVG>
+							<Group>
+								<Text textAnchor="middle" y={ -50 }>
+									SVG Title
+								</Text>
+							</Group>
+						</PieSemiCircleChart.SVG>
+						<PieSemiCircleChart.HTML>
+							<div data-testid="footer">Chart Footer</div>
+						</PieSemiCircleChart.HTML>
+					</PieSemiCircleChart>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByText( 'SVG Title' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'footer' ) ).toBeInTheDocument();
+		} );
+
+		it( 'renders Legend as compound component', () => {
+			render(
+				<GlobalChartsProvider>
+					<PieSemiCircleChart data={ mockData }>
+						<PieSemiCircleChart.Legend orientation="horizontal" />
+					</PieSemiCircleChart>
+				</GlobalChartsProvider>
+			);
+
+			expect( screen.getByText( 'Category A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Category B' ) ).toBeInTheDocument();
 		} );
 	} );
 } );
