@@ -19,9 +19,7 @@ use WP_Theme_JSON;
  * Contains necessary functionality for the Code Block.
  */
 abstract class Code_Block {
-	const VERSION       = '2.1';
 	const MODULE_PREFIX = '@a8cCodeBlock/';
-	const BLOCK_NAME    = 'a8c/code';
 
 	/**
 	 * Filterable check for whether the block should be available.
