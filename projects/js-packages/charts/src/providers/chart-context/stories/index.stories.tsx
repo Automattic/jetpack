@@ -1,4 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { Group } from '@visx/group';
+import { Text } from '@visx/text';
 import {
 	LineChart,
 	BarChart,
@@ -186,10 +188,21 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 			<PieSemiCircleChart
 				data={ pieChartData }
 				width={ 350 }
-				label="Semi-Circle Chart"
 				withTooltips={ true }
 				showLegend={ true }
-			/>
+			>
+				<Group>
+					<Text
+						textAnchor="middle"
+						verticalAnchor="start"
+						y={ -40 }
+						fontSize={ 16 }
+						fontWeight={ 600 }
+					>
+						Semi-Circle Chart
+					</Text>
+				</Group>
+			</PieSemiCircleChart>
 
 			<BarListChart data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
 
@@ -247,10 +260,21 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 			<PieSemiCircleChart
 				data={ pieChartData }
 				width={ 350 }
-				label="Semi-Circle Chart"
 				withTooltips={ true }
 				showLegend={ true }
-			/>
+			>
+				<Group>
+					<Text
+						textAnchor="middle"
+						verticalAnchor="start"
+						y={ -40 }
+						fontSize={ 16 }
+						fontWeight={ 600 }
+					>
+						Semi-Circle Chart
+					</Text>
+				</Group>
+			</PieSemiCircleChart>
 
 			<BarListChart data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
 
