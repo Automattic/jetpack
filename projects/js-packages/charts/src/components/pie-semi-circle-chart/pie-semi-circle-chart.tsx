@@ -1,7 +1,6 @@
 import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
-import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
@@ -47,17 +46,8 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	clockwise?: boolean;
 
 	/**
-	 * Label text to display above the chart
-	 */
-	label?: string;
-
-	/**
-	 * Note text to display below the label
-	 */
-	note?: string;
-
-	/**
 	 * Use the children prop to render additional elements on the chart.
+	 * Supports composition API with PieSemiCircleChart.SVG and PieSemiCircleChart.HTML components.
 	 */
 	children?: ReactNode;
 
@@ -133,8 +123,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendItemClassName,
 	legendShape = 'circle',
 	legendValueDisplay = 'percentage',
-	label,
-	note,
 	className,
 	children,
 	tooltipOffsetX = 0,
@@ -315,26 +303,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								) );
 							} }
 						</Pie>
-
-						{ /* Label and note text */ }
-						<Group>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -40 } // Position above the chart with space for note
-								className={ styles.label }
-							>
-								{ label }
-							</Text>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -20 } // Position between label and chart
-								className={ styles.note }
-							>
-								{ note }
-							</Text>
-						</Group>
 
 						{ /* Render SVG children from composition API */ }
 						{ svgChildren }
