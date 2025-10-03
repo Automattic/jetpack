@@ -43,6 +43,20 @@ describe( 'BaseLegend', () => {
 		expect( legendItems ).toHaveLength( 0 );
 	} );
 
+	test( 'applies legendItemClassName to legend items', () => {
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				legendItemClassName="custom-legend-item"
+			/>
+		);
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		legendItems.forEach( item => {
+			expect( item ).toHaveClass( 'custom-legend-item' );
+		} );
+	} );
+
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
 			{ label: 'Item 1', color: '#ff0000', value: undefined },

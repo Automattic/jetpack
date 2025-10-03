@@ -84,6 +84,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendAlignment = 'center',
 	legendMaxWidth,
 	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -385,6 +386,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						alignment={ legendAlignment }
 						maxWidth={ legendMaxWidth }
 						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'bar-chart__legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }
