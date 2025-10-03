@@ -2,5 +2,3 @@ Significance: patch
 Type: fixed  
 
 Remove redundant esc_html__() wrapper from export heading to prevent double escaping and ensure proper string rendering.
-
-fix-esc-html-wrapper-export-heading
