@@ -1,4 +1,4 @@
-import { SelectControl, ToggleControl } from '@wordpress/components';
+import { FormTokenField, ToggleControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -24,11 +24,11 @@ const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipien
 		return user.capabilities?.edit_posts || user.capabilities?.edit_pages;
 	} );
 
-	// Create options for the select control
-	const userOptions = eligibleUsers.map( user => ( {
-		label: user.name || user.slug,
-		value: user.id.toString(),
-	} ) );
+	// Create a map of user ID to user name for easy lookup
+	const userMap = {};
+	eligibleUsers.forEach( user => {
+		userMap[ user.id.toString() ] = user.name || user.slug;
+	} );
 
 	// Get the current post author
 	const { postAuthorId } = useSelect( select => {
@@ -39,6 +39,14 @@ const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipien
 		};
 	}, [] );
 
+	// Convert user IDs to names for display
+	const selectedUserNames = localNotificationRecipients
+		.filter( userId => userMap[ userId ] )
+		.map( userId => userMap[ userId ] );
+
+	// All available user names for suggestions
+	const allUserNames = eligibleUsers.map( user => user.name || user.slug );
+
 	return (
 		<>
 			<ToggleControl
@@ -46,7 +54,20 @@ const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipien
 				checked={ localFormNotifications }
 				onChange={ value => {
 					if ( value ) {
-						setAttributes( { notificationRecipients: localNotificationRecipients } );
+						// Auto-select post author when enabling notifications
+						const authorIdStr = postAuthorId?.toString();
+						let recipientsToSet = localNotificationRecipients;
+
+						if (
+							recipientsToSet.length === 0 &&
+							authorIdStr &&
+							eligibleUsers.some( user => user.id === postAuthorId )
+						) {
+							recipientsToSet = [ authorIdStr ];
+						}
+
+						setLocalNotificationRecipients( recipientsToSet );
+						setAttributes( { notificationRecipients: recipientsToSet } );
 					} else {
 						setAttributes( { notificationRecipients: [] } );
 					}
@@ -59,24 +80,21 @@ const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipien
 					<InspectorHint>
 						{ __( 'Select users who can receive form submission notifications:', 'jetpack-forms' ) }
 					</InspectorHint>
-					<SelectControl
+					<FormTokenField
 						label={ __( 'Send notifications to', 'jetpack-forms' ) }
-						value={ ( () => {
-							if ( localNotificationRecipients.length > 0 ) {
-								return localNotificationRecipients[ 0 ];
-							}
-							if ( postAuthorId && eligibleUsers.some( user => user.id === postAuthorId ) ) {
-								return postAuthorId.toString();
-							}
-							return '';
-						} )() }
-						options={ userOptions }
-						onChange={ userId => {
-							const newRecipients = userId ? [ userId ] : [];
+						value={ selectedUserNames }
+						suggestions={ allUserNames }
+						onChange={ selectedNames => {
+							// Convert user names back to IDs
+							const newRecipients = selectedNames
+								.map( name => {
+									const user = eligibleUsers.find( u => ( u.name || u.slug ) === name );
+									return user ? user.id.toString() : null;
+								} )
+								.filter( Boolean );
 							setLocalNotificationRecipients( newRecipients );
 							setAttributes( { notificationRecipients: newRecipients } );
 						} }
-						help={ __( 'Select a user who has access to form responses.', 'jetpack-forms' ) }
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
