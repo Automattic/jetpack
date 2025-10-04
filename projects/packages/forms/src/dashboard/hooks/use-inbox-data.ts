@@ -47,6 +47,22 @@ interface UseInboxDataReturn {
 	filterOptions: Record< string, unknown >;
 }
 
+const RESPONSE_FIELDS = [
+	'id',
+	'status',
+	'date',
+	'date_gmt',
+	'author_name',
+	'author_email',
+	'author_url',
+	'author_avatar',
+	'ip',
+	'entry_title',
+	'entry_permalink',
+	'has_file',
+	'fields',
+].join( ',' );
+
 /**
  * Hook to get all inbox related data.
  *
@@ -73,7 +89,10 @@ export default function useInboxData(): UseInboxDataReturn {
 		isResolving: isLoadingRecordsData,
 		totalItems,
 		totalPages,
-	} = useEntityRecords( 'postType', 'feedback', currentQuery );
+	} = useEntityRecords( 'postType', 'feedback', {
+		...currentQuery,
+		_fields: RESPONSE_FIELDS,
+	} );
 
 	const records = ( rawRecords || [] ) as FormResponse[];
 

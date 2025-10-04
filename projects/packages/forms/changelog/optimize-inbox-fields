@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: optimize inbox data loading with _fields parameter to reduce payload size.
