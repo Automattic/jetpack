@@ -113,7 +113,6 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const {
 		records: rawRecords,
-		isResolving: isResolvingRecords,
 		hasResolved,
 		totalItems,
 		totalPages,
@@ -121,85 +120,14 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const records = useMemo( () => ( rawRecords || [] ) as FormResponse[], [ rawRecords ] );
 
-	const isInitialQuery = useMemo( () => {
-		const DEFAULT_QUERY = {
-			status: 'draft,publish',
-			page: 1,
-			per_page: 20,
-			orderby: 'date',
-			order: 'desc',
-		};
-		const hasExtraFilters = Boolean(
-			currentQuery?.search || currentQuery?.parent || currentQuery?.after || currentQuery?.before
-		);
-		if ( hasExtraFilters ) {
-			return false;
-		}
-		return Object.entries( DEFAULT_QUERY ).every( ( [ key, value ] ) => {
-			return ( currentQuery?.[ key ] ?? value ) === value;
-		} );
-	}, [ currentQuery ] );
+	const effectiveTotalItems = typeof totalItems === 'number' ? totalItems : records.length;
+	const effectiveTotalPages = typeof totalPages === 'number' ? totalPages : 0;
 
-	const preloadedData = useMemo( () => {
-		if ( typeof window === 'undefined' || ! isInitialQuery ) {
-			return undefined;
-		}
-		const globalWindow = window as unknown as {
-			jpFormsInitialResponses?: Record<
-				string,
-				{ body?: unknown; headers?: Record< string, string > }
-			>;
-		};
-		const source = globalWindow.jpFormsInitialResponses;
-		if ( ! source ) {
-			return undefined;
-		}
-		const entry = source.default ?? source.locale ?? Object.values( source )[ 0 ];
-		if ( ! entry ) {
-			return undefined;
-		}
-		const headers = entry.headers ?? {};
-		const totalItemsHeader = headers[ 'X-WP-Total' ] ?? headers[ 'x-wp-total' ];
-		const totalPagesHeader = headers[ 'X-WP-TotalPages' ] ?? headers[ 'x-wp-totalpages' ];
-		return {
-			records: Array.isArray( entry.body ) ? ( entry.body as FormResponse[] ) : [],
-			totalItems: totalItemsHeader ? Number( totalItemsHeader ) : undefined,
-			totalPages: totalPagesHeader ? Number( totalPagesHeader ) : undefined,
-		};
-	}, [ isInitialQuery ] );
-
-	const preloadedRecords = useMemo( () => preloadedData?.records ?? [], [ preloadedData ] );
-	const [ cachedRecords, setCachedRecords ] = useState< FormResponse[] >( preloadedRecords );
-	const hasCachedRecords = cachedRecords.length > 0;
-
-	useEffect( () => {
-		if ( preloadedRecords.length && ! hasCachedRecords ) {
-			setCachedRecords( preloadedRecords );
-		}
-	}, [ preloadedRecords, hasCachedRecords ] );
-
-	useEffect( () => {
-		if ( records.length ) {
-			setCachedRecords( records );
-		}
-	}, [ records ] );
-
-	const shouldUseCacheForCurrentQuery = isInitialQuery;
-	const fallbackRecords = shouldUseCacheForCurrentQuery ? cachedRecords : [];
-	const effectiveRecords = records.length ? records : fallbackRecords;
-	const effectiveTotalItems =
-		typeof totalItems === 'number'
-			? totalItems
-			: preloadedData?.totalItems ?? effectiveRecords.length;
-	const effectiveTotalPages =
-		typeof totalPages === 'number' ? totalPages : preloadedData?.totalPages ?? 0;
-
-	const suppressSpinner = isInitialQuery && hasCachedRecords;
-	const isQueryPending = ! hasResolved || isResolvingRecords;
+	const isLoadingRecordsData = ! rawRecords?.length && ! hasResolved;
 
 	// Use optimized counts endpoint instead of 3 separate queries.
 	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
-	const [ isLoadingCounts, setIsLoadingCounts ] = useState( true );
+	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
 
 	useEffect( () => {
 		let isMounted = true;
@@ -214,7 +142,7 @@ export default function useInboxData(): UseInboxDataReturn {
 					setCounts( response );
 				}
 			} catch {
-				// Silently ignore failures so the UI can continue rendering.
+				// Silently fail - counts are non-critical
 			} finally {
 				if ( isMounted ) {
 					setIsLoadingCounts( false );
@@ -229,12 +157,14 @@ export default function useInboxData(): UseInboxDataReturn {
 		};
 	}, [ countsQueryKey, totalItems ] );
 
+	const isLoadingData = isLoadingRecordsData;
+
 	return {
 		totalItemsInbox: counts.inbox,
 		totalItemsSpam: counts.spam,
 		totalItemsTrash: counts.trash,
-		records: effectiveRecords,
-		isLoadingData: isQueryPending && ! records.length && ! suppressSpinner,
+		records,
+		isLoadingData,
 		isLoadingCounts,
 		totalItems: effectiveTotalItems,
 		totalPages: effectiveTotalPages,

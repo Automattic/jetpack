@@ -71,7 +71,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
 			)
 		);
 
@@ -103,32 +103,29 @@ class Dashboard {
 			'/wp/v2/feedback'
 		);
 		$preload_paths                 = array(
+			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
 			'/wp/v2/feedback/integrations?version=2',
+			'/wp/v2/feedback/counts',
+			'/wp/v2/feedback/filters',
 			$initial_responses_path,
 			$initial_responses_locale_path,
 		);
-		$preload_data                  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
-		$default_key                   = rest_url( $initial_responses_path );
-		$default_payload               = $preload_data[ $default_key ] ?? $preload_data[ $initial_responses_path ] ?? null;
-		$locale_key                    = rest_url( $initial_responses_locale_path );
-		$locale_payload                = $preload_data[ $locale_key ] ?? $preload_data[ $initial_responses_locale_path ] ?? null;
-		$initial_preload_payload       = array_filter(
-			array(
-				'default' => $default_payload,
-				'locale'  => $locale_payload,
-			)
-		);
-		if ( ! empty( $initial_preload_payload ) ) {
-			wp_add_inline_script(
-				self::SCRIPT_HANDLE,
-				'window.jpFormsInitialResponses = ' . wp_json_encode( $initial_preload_payload ) . ';',
-				'before'
-			);
+		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+
+		// Normalize keys to match what apiFetch will request (without domain).
+		$preload_data = array();
+		foreach ( $preload_data_raw as $key => $value ) {
+			$normalized_key                  = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
+			$preload_data[ $normalized_key ] = $value;
 		}
+
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload_data )
+			),
 			'before'
 		);
 	}
