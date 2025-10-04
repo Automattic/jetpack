@@ -428,12 +428,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
-					<div
-						className="jp-forms__inbox-response-header-actions"
-						style={ { position: 'absolute', top: 0, right: 0 } }
-					>
-						{ renderActionButtons() }
-					</div>
+					<div className="jp-forms__inbox-response-header-actions">{ renderActionButtons() }</div>
 					<HStack alignment="topLeft" spacing="3">
 						{ response.author_email && (
 							<Gravatar
