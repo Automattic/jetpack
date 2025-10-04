@@ -129,7 +129,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		variationName,
 		emailNotifications,
 		disableGoBack,
-		formNotifications,
 		notificationRecipients,
 	} = attributes;
 	const formsConfig = useFormsConfig();
@@ -846,7 +845,6 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					</PanelBody>
 					<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
 						<JetpackFormNotificationsSettings
-							formNotifications={ formNotifications }
 							notificationRecipients={ notificationRecipients }
 							setAttributes={ setAttributes }
 						/>
