@@ -77,6 +77,13 @@ class Contact_Form_Plugin {
 	 */
 	public static $step_count = 0;
 
+	/**
+	 * REST controller instance used for cache invalidation.
+	 *
+	 * @var string
+	 */
+	private $post_type = 'feedback';
+
 	/*
 	 * Field keys that might be present in the entry json but we don't want to show to the admin
 	 * since they not something that the visitor entered into the form.
@@ -180,6 +187,9 @@ class Contact_Form_Plugin {
 	protected function __construct() {
 		$this->add_shortcode();
 
+		add_action( 'transition_post_status', array( $this, 'maybe_invalidate_caches' ), 10, 3 );
+		add_action( 'deleted_post', array( $this, 'maybe_invalidate_caches_on_delete' ), 10, 2 );
+
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
 		add_action( 'dynamic_sidebar_before', array( $this, 'track_current_widget_before' ) );
@@ -224,7 +234,7 @@ class Contact_Form_Plugin {
 
 		// custom post type we'll use to keep copies of the feedback items
 		register_post_type(
-			'feedback',
+			$this->post_type,
 			array(
 				'labels'                => array(
 					'name'               => __( 'Form Responses', 'jetpack-forms' ),
@@ -3470,5 +3480,51 @@ class Contact_Form_Plugin {
 		// Use wp_safe_redirect to ensure we're redirecting to a safe location
 		wp_safe_redirect( $redirect_url );
 		exit;
+	}
+
+	/**
+	 * Maybe invalidate caches when a post status changes.
+	 *
+	 * Hooked to transition_post_status action.
+	 *
+	 * @param string   $new_status New post status.
+	 * @param string   $old_status Old post status.
+	 * @param \WP_Post $post       Post object.
+	 */
+	public function maybe_invalidate_caches( $new_status, $old_status, $post ) {
+		if ( $this->post_type !== $post->post_type || $new_status === $old_status ) {
+			return;
+		}
+
+		$this->invalidate_feedback_caches();
+	}
+
+	/**
+	 * Maybe invalidate caches when a post is deleted.
+	 *
+	 * Hooked to deleted_post action.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object.
+	 */
+	public function maybe_invalidate_caches_on_delete( $post_id, $post ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionPar
+		if ( $this->post_type !== $post->post_type ) {
+			return;
+		}
+
+		$this->invalidate_feedback_caches();
+	}
+
+	/**
+	 * Invalidate feedback caches when content changes.
+	 */
+	private function invalidate_feedback_caches() {
+		delete_transient( 'jetpack_forms_status_counts' );
+		delete_transient( 'jetpack_forms_filters' );
+		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'publish' ) );
+		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ) );
+
+		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'publish' ), 'transient' );
+		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ), 'transient' );
 	}
 }

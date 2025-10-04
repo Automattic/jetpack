@@ -33,18 +33,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
-	 * Constructor.
-	 *
-	 * @param string $post_type Post type.
-	 */
-	public function __construct( $post_type = 'feedback' ) {
-		parent::__construct( $post_type );
-
-		add_action( 'transition_post_status', array( $this, 'maybe_invalidate_caches' ), 10, 3 );
-		add_action( 'deleted_post', array( $this, 'maybe_invalidate_caches_on_delete' ), 10, 2 );
-	}
-
-	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
@@ -1142,57 +1130,5 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		set_transient( $cache_key, $result, 30 );
 
 		return rest_ensure_response( $result );
-	}
-
-	/**
-	 * Maybe invalidate caches when a post status changes.
-	 *
-	 * Hooked to transition_post_status action.
-	 *
-	 * @param string   $new_status New post status.
-	 * @param string   $old_status Old post status.
-	 * @param \WP_Post $post       Post object.
-	 */
-	public function maybe_invalidate_caches( $new_status, $old_status, $post ) {
-		// Only invalidate for feedback post type.
-		if ( 'feedback' !== $post->post_type ) {
-			return;
-		}
-
-		if ( $new_status === $old_status ) {
-			return;
-		}
-
-		$this->invalidate_feedback_caches();
-	}
-
-	/**
-	 * Maybe invalidate caches when a post is deleted.
-	 *
-	 * Hooked to deleted_post action.
-	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post    Post object.
-	 */
-	public function maybe_invalidate_caches_on_delete( $post_id, $post ) {
-		// Only invalidate for feedback post type.
-		if ( 'feedback' !== $post->post_type ) {
-			return;
-		}
-
-		$this->invalidate_feedback_caches();
-	}
-
-	/**
-	 * Invalidate feedback caches when content changes.
-	 */
-	private function invalidate_feedback_caches() {
-		delete_transient( 'jetpack_forms_status_counts' );
-		delete_transient( 'jetpack_forms_filters' );
-		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'publish' ) );
-		delete_transient( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ) );
-
-		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'publish' ), 'transient' );
-		wp_cache_delete( 'jetpack_forms_parent_ids_' . md5( 'draft,publish' ), 'transient' );
 	}
 }
