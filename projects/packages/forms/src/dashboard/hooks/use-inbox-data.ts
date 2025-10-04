@@ -82,7 +82,7 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const {
 		records: rawRecords,
-		isResolving: isLoadingRecordsData,
+		hasResolved,
 		totalItems,
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', {
@@ -131,12 +131,14 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ countsQueryParams ]
 	);
 
+	const isLoadingData = ! rawRecords?.length && ! hasResolved;
+
 	return {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
 		records,
-		isLoadingData: isLoadingRecordsData,
+		isLoadingData,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,
