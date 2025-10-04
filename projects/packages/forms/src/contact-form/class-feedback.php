@@ -149,6 +149,13 @@ class Feedback {
 	protected $source;
 
 	/**
+	 * The notification recipients of the feedback entry.
+	 *
+	 * @var array
+	 */
+	protected $notification_recipients = array();
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -196,6 +203,8 @@ class Feedback {
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? $this->get_first_field_of_type( 'notification_recipients' );
+
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
@@ -242,6 +251,8 @@ class Feedback {
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+
+		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
@@ -719,6 +730,25 @@ class Feedback {
 	}
 
 	/**
+	 * Gets the notification recipients of the feedback entry.
+	 *
+	 * @return array
+	 */
+	public function get_notification_recipients() {
+		return $this->notification_recipients;
+	}
+
+	/**
+	 * Sets the notification recipients of the feedback entry.
+	 *
+	 * @param array $recipients The notification recipients.
+	 * @return void
+	 */
+	public function set_notification_recipients( $recipients ) {
+		$this->notification_recipients = (array) $recipients;
+	}
+
+	/**
 	 * Gets the value of the consent field.
 	 *
 	 * @return bool
@@ -941,8 +971,9 @@ class Feedback {
 
 		$fields_to_serialize = array_merge(
 			array(
-				'subject' => $this->subject,
-				'ip'      => $this->ip_address,
+				'subject'                 => $this->subject,
+				'ip'                      => $this->ip_address,
+				'notification_recipients' => $this->notification_recipients,
 			),
 			$this->source->serialize()
 		);
@@ -1535,6 +1566,21 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed notification recipients.
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
+	 * @return array
+	 */
+	private function get_computed_notification_recipients( $post_data, $form ) {
+		$field_ids = $form->get_field_ids();
+		if ( isset( $field_ids['notification_recipients'] ) ) {
+			return $this->get_field_value( $field_ids['notification_recipients'], $post_data );
+		}
+		return array();
 	}
 
 	/**
