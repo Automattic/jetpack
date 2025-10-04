@@ -51,6 +51,7 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
+import JetpackFormNotificationsSettings from './components/jetpack-form-notifications-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -128,6 +129,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		variationName,
 		emailNotifications,
 		disableGoBack,
+		formNotifications,
+		notificationRecipients,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -838,6 +841,13 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							emailNotifications={ emailNotifications }
 							instanceId={ instanceId }
 							postAuthorEmail={ postAuthorEmail }
+							setAttributes={ setAttributes }
+						/>
+					</PanelBody>
+					<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
+						<JetpackFormNotificationsSettings
+							formNotifications={ formNotifications }
+							notificationRecipients={ notificationRecipients }
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
