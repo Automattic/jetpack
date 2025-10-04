@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, trash, backup, check, cancelCircleFilled } from '@wordpress/icons';
+import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
@@ -15,7 +15,7 @@ export const BULK_ACTIONS = {
 
 export const viewAction = {
 	id: 'view-response',
-	icon: <Icon icon={ seen } />,
+	icon: <Icon icon={ commentContent } />,
 	isPrimary: true,
 	label: __( 'View response', 'jetpack-forms' ),
 };
@@ -307,7 +307,7 @@ export const markAsReadAction = {
 	label: __( 'Mark as read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ check } />,
+	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -363,7 +363,7 @@ export const markAsUnreadAction = {
 	label: __( 'Mark as unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ cancelCircleFilled } />,
+	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );

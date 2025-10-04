@@ -245,14 +245,7 @@ export default function InboxView() {
 
 	const wrapperUnread = ( isUnread, itemValue ) => {
 		if ( isUnread ) {
-			return (
-				<span
-					className="jp-forms__inbox__unread-indicator"
-					aria-label={ __( 'Unread', 'jetpack-forms' ) }
-				>
-					{ itemValue }
-				</span>
-			);
+			return <span className="jp-forms__inbox__unread">{ itemValue }</span>;
 		}
 		return itemValue;
 	};
@@ -265,7 +258,19 @@ export default function InboxView() {
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					return <>{ wrapperUnread( item.is_unread, authorInfo ) }</>;
+					return (
+						<>
+							{ item.is_unread && (
+								<span
+									className="jp-forms__inbox__unread-indicator"
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
+							) }
+							{ wrapperUnread( item.is_unread, authorInfo ) }
+						</>
+					);
 				},
 				getValue: ( { item } ) => {
 					return decodeEntities(
