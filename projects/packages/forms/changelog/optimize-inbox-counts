@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: replace 3 separate count queries with single optimized counts endpoint.

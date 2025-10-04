@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from '@wordpress/data';
+import { isEqual } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -16,7 +17,7 @@ const filters = ( state = {}, action ) => {
 
 const currentQuery = ( state = {}, action ) => {
 	if ( action.type === SET_CURRENT_QUERY ) {
-		return action.currentQuery;
+		return isEqual( state, action.currentQuery ) ? state : action.currentQuery;
 	}
 	return state;
 };

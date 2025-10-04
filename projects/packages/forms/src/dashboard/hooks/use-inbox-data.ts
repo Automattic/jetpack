@@ -1,8 +1,12 @@
 /**
  * External dependencies
  */
+
+import apiFetch from '@wordpress/api-fetch';
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect, useState } from '@wordpress/element';
+import { addQueryArgs } from '@wordpress/url';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -36,6 +40,7 @@ interface UseInboxDataReturn {
 	totalItemsTrash: number;
 	records: FormResponse[];
 	isLoadingData: boolean;
+	isLoadingCounts: boolean;
 	totalItems: number;
 	totalPages: number;
 	selectedResponsesCount: number;
@@ -110,52 +115,43 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'publish,draft',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
+	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
 
-	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'spam',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	useEffect( () => {
+		const fetchCounts = async () => {
+			setIsLoadingCounts( true );
+			const params: Record< string, unknown > = {};
+			if ( currentQuery?.search ) {
+				params.search = currentQuery.search;
+			}
+			if ( currentQuery?.parent ) {
+				params.parent = currentQuery.parent;
+			}
+			if ( currentQuery?.before ) {
+				params.before = currentQuery.before;
+			}
+			if ( currentQuery?.after ) {
+				params.after = currentQuery.after;
+			}
+			const path = addQueryArgs( '/wp/v2/feedback/counts', params );
+			const response = await apiFetch< { inbox: number; spam: number; trash: number } >( {
+				path,
+			} );
+			setCounts( response );
+			setIsLoadingCounts( false );
+		};
 
-	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'trash',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+		fetchCounts();
+	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
 
 	return {
-		totalItemsInbox,
-		totalItemsSpam,
-		totalItemsTrash,
+		totalItemsInbox: counts.inbox,
+		totalItemsSpam: counts.spam,
+		totalItemsTrash: counts.trash,
 		records,
-		isLoadingData:
-			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
+		isLoadingData: isLoadingRecordsData,
+		isLoadingCounts,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

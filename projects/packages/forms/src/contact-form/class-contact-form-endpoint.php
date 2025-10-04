@@ -277,6 +277,39 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+				'args'                => array(
+					'search' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'parent' => array(
+						'type'              => 'array',
+						'items'             => array(
+							'type' => 'integer',
+						),
+						'sanitize_callback' => function ( $value ) {
+							return array_map( 'absint', (array) $value );
+						},
+					),
+					'before' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'after'  => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -323,6 +356,75 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Retrieves status counts for inbox, spam, and trash in a single optimized query.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function get_status_counts( $request ) {
+		global $wpdb;
+
+		$search = $request->get_param( 'search' );
+		$parent = $request->get_param( 'parent' );
+		$before = $request->get_param( 'before' );
+		$after  = $request->get_param( 'after' );
+
+		$cache_key     = 'jetpack_forms_status_counts_' . md5( wp_json_encode( compact( 'search', 'parent', 'before', 'after' ) ) );
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return rest_ensure_response( $cached_result );
+		}
+
+		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+		$join_clauses     = '';
+
+		if ( ! empty( $search ) ) {
+			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
+			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+		}
+
+		if ( ! empty( $parent ) && is_array( $parent ) ) {
+			$parent_ids         = array_map( 'absint', $parent );
+			$parent_ids_string  = implode( ',', $parent_ids );
+			$where_conditions[] = "post_parent IN ($parent_ids_string)";
+		}
+
+		if ( ! empty( $before ) || ! empty( $after ) ) {
+			if ( ! empty( $before ) ) {
+				$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+			}
+			if ( ! empty( $after ) ) {
+				$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+			}
+		}
+
+		$where_clause = implode( ' AND ', $where_conditions );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$counts = $wpdb->get_row(
+			"SELECT
+			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM $wpdb->posts
+			$join_clauses
+			WHERE $where_clause",
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$result = array(
+			'inbox' => (int) ( $counts['inbox'] ?? 0 ),
+			'spam'  => (int) ( $counts['spam'] ?? 0 ),
+			'trash' => (int) ( $counts['trash'] ?? 0 ),
+		);
+
+		set_transient( $cache_key, $result, 30 );
+
+		return rest_ensure_response( $result );
 	}
 
 	/**
