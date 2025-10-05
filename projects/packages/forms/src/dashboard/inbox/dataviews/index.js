@@ -207,16 +207,33 @@ export default function InboxView() {
 	// set the sidePanelItem when we have data and selection.
 	// We don't need to do this in `mobile`,  because we don't render the side panel.
 	if ( ! isMobile && !! data && !! selection.length ) {
-		const firstValidSelection = selection.find( id =>
-			data.some( record => getItemId( record ) === id )
-		);
-		const recordToShow = data?.find( record => getItemId( record ) === firstValidSelection );
+		// Find the last (most recently selected) valid selection instead of the first
+		const lastValidSelection = selection
+			.slice()
+			.reverse()
+			.find( id => data.some( record => getItemId( record ) === id ) );
+		const recordToShow = data?.find( record => getItemId( record ) === lastValidSelection );
 		if ( ! sidePanelItem && recordToShow ) {
 			setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
 			// This case handles the case where we were having a side panel item
 			// visible but the data have changed and the item is not there anymore.
 			setSidePanelItem();
+		} else if (
+			!! sidePanelItem &&
+			!! recordToShow &&
+			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+			sidePanelItem !== recordToShow
+		) {
+			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
+			// This ensures the side panel shows the latest version of the same entity
+			setSidePanelItem( recordToShow );
+		} else if (
+			!! recordToShow &&
+			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
+		) {
+			// Set side panel item when selecting a different item
+			setSidePanelItem( recordToShow );
 		}
 	}
 	const paginationInfo = useMemo(
