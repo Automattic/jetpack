@@ -356,6 +356,7 @@ export default function InboxView() {
 				isMobile={ isMobile }
 				data={ data }
 				onChangeSelection={ onChangeSelection }
+				selection={ selection }
 			/>
 		</HStack>
 	);
@@ -368,6 +369,7 @@ const SingleResponse = ( {
 	isMobile,
 	data,
 	onChangeSelection,
+	selection,
 } ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
 
@@ -382,6 +384,17 @@ const SingleResponse = ( {
 			setIsChildModalOpen( isOpen );
 		},
 		[ setIsChildModalOpen ]
+	);
+
+	const handleActionComplete = useCallback(
+		actionedItemId => {
+			// Remove only the actioned item from selection, keep the rest
+			if ( actionedItemId && selection ) {
+				const newSelection = selection.filter( id => id !== actionedItemId );
+				onChangeSelection( newSelection );
+			}
+		},
+		[ onChangeSelection, selection ]
 	);
 
 	// Navigation logic
@@ -425,6 +438,7 @@ const SingleResponse = ( {
 			onPrevious={ handlePrevious }
 			hasNext={ hasNext }
 			hasPrevious={ hasPrevious }
+			onActionComplete={ handleActionComplete }
 		/>
 	);
 	if ( ! isMobile ) {

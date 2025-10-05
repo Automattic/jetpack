@@ -189,6 +189,7 @@ const InboxResponse = ( {
 	onPrevious,
 	hasNext,
 	hasPrevious,
+	onActionComplete,
 } ) => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
@@ -228,25 +229,30 @@ const InboxResponse = ( {
 		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
 
-	const handleMarkAsSpam = useCallback( () => {
-		markAsSpamAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
+	const handleMarkAsSpam = useCallback( async () => {
+		await markAsSpamAction.callback( [ response ], { registry } );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
 
-	const handleMarkAsNotSpam = useCallback( () => {
-		markAsNotSpamAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
+	const handleMarkAsNotSpam = useCallback( async () => {
+		await markAsNotSpamAction.callback( [ response ], { registry } );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
 
-	const handleMoveToTrash = useCallback( () => {
-		moveToTrashAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
+	const handleMoveToTrash = useCallback( async () => {
+		await moveToTrashAction.callback( [ response ], { registry } );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
 
-	const handleRestore = useCallback( () => {
-		restoreAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
+	const handleRestore = useCallback( async () => {
+		await restoreAction.callback( [ response ], { registry } );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
 
-	const handleDelete = useCallback( () => {
-		deleteAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
+	const handleDelete = useCallback( async () => {
+		await deleteAction.callback( [ response ], { registry } );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
 
 	const handleNoopAction = useCallback( () => {
 		// Placeholder for future read/unread toggle action
