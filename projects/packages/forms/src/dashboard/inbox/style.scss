@@ -410,12 +410,12 @@
 	flex: 1 1 40%;
 	position: sticky;
 	top: var(--wp-admin--admin-bar--height, 32px);
-	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px));
-
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
 	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
 	margin-bottom: 97px;
 
 	@media (min-width: 782px) {
+		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
 
