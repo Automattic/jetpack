@@ -77,7 +77,7 @@
 }
 
 .jp-forms__inbox-response-header {
-	margin: 24px 0 0;
+	margin: 0;
 	padding: 0 32px 0 0;
 
 	@media (min-width: 782px) {
@@ -89,15 +89,29 @@
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
-.jp-forms__inbox-response-header-actions {
-	position: absolute;
-	top: 0;
-	right: 0;
+.jp-forms__inbox-response-toolbar {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 8px 20px;
+	border-bottom: 1px solid var(--jp-forms-border-color);
 
 	.components-button.has-icon {
 		box-shadow: none;
 	}
+
+	.jp-forms__inbox-response-toolbar-left {
+		display: flex;
+		gap: 4px;
+	}
+
+	.jp-forms__inbox-response-toolbar-right {
+		display: flex;
+		gap: 4px;
+		align-items: center;
+	}
 }
+
 
 .jp-forms__inbox-response-name {
 	font-size: 24px;

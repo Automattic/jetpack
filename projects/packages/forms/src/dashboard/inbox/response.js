@@ -18,7 +18,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { download, trash, backup } from '@wordpress/icons';
+import { download, trash, backup, close, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -26,7 +26,7 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { spam, notSpam } from '../icons';
+import { spam, notSpam, read, unread } from '../icons';
 import {
 	markAsSpamAction,
 	markAsNotSpamAction,
@@ -180,7 +180,16 @@ const FileField = ( { file, onClick } ) => {
 	);
 };
 
-const InboxResponse = ( { response, loading, onModalStateChange } ) => {
+const InboxResponse = ( {
+	response,
+	loading,
+	onModalStateChange,
+	onClose,
+	onNext,
+	onPrevious,
+	hasNext,
+	hasPrevious,
+} ) => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -239,8 +248,16 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 		deleteAction.callback( [ response ], { registry } );
 	}, [ response, registry ] );
 
+	const handleNoopAction = useCallback( () => {
+		// Placeholder for future read/unread toggle action
+	}, [] );
+
 	const renderActionButtons = () => {
-		const { status } = response;
+		const { status, is_unread } = response;
+		const readIcon = is_unread ? read : unread;
+		const readLabel = read
+			? __( 'Mark as unread', 'jetpack-forms' )
+			: __( 'Mark as read', 'jetpack-forms' );
 
 		switch ( status ) {
 			case 'spam':
@@ -251,16 +268,18 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 							onClick={ handleMarkAsNotSpam }
 							showTooltip={ true }
 							label={ __( 'Not spam', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ notSpam }
+							size="small"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
 							label={ __( 'Send to trash', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ trash }
+							size="small"
 						></Button>
 					</>
 				);
@@ -273,16 +292,18 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 							onClick={ handleRestore }
 							showTooltip={ true }
 							label={ __( 'Restore', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ backup }
+							size="small"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleDelete }
 							showTooltip={ true }
 							label={ __( 'Delete permanently', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ trash }
+							size="small"
 						></Button>
 					</>
 				);
@@ -292,23 +313,76 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 					<>
 						<Button
 							variant="secondary"
+							onClick={ handleNoopAction }
+							showTooltip={ true }
+							label={ readLabel }
+							iconSize={ 12 }
+							icon={ readIcon }
+							size="small"
+						></Button>
+						<Button
+							variant="secondary"
 							onClick={ handleMarkAsSpam }
 							showTooltip={ true }
 							label={ __( 'Mark as spam', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ spam }
+							size="small"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
 							label={ __( 'Send to trash', 'jetpack-forms' ) }
-							iconSize={ 20 }
+							iconSize={ 16 }
 							icon={ trash }
+							size="small"
 						></Button>
 					</>
 				);
 		}
+	};
+
+	const renderNavigationButtons = () => {
+		return (
+			<>
+				{ onPrevious && (
+					<Button
+						variant="tertiary"
+						onClick={ onPrevious }
+						disabled={ ! hasPrevious }
+						showTooltip={ true }
+						label={ __( 'Previous', 'jetpack-forms' ) }
+						iconSize={ 16 }
+						icon={ chevronLeft }
+						size="small"
+					></Button>
+				) }
+				{ onNext && (
+					<Button
+						variant="tertiary"
+						onClick={ onNext }
+						disabled={ ! hasNext }
+						showTooltip={ true }
+						label={ __( 'Next', 'jetpack-forms' ) }
+						iconSize={ 16 }
+						icon={ chevronRight }
+						size="small"
+					></Button>
+				) }
+				{ onClose && (
+					<Button
+						variant="tertiary"
+						onClick={ onClose }
+						showTooltip={ true }
+						label={ __( 'Close', 'jetpack-forms' ) }
+						iconSize={ 12 }
+						icon={ close }
+						size="small"
+					></Button>
+				) }
+			</>
+		);
 	};
 
 	const renderFieldValue = value => {
@@ -426,9 +500,12 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 	return (
 		<>
+			<div className="jp-forms__inbox-response-toolbar">
+				<div className="jp-forms__inbox-response-toolbar-left">{ renderActionButtons() }</div>
+				<div className="jp-forms__inbox-response-toolbar-right">{ renderNavigationButtons() }</div>
+			</div>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
-					<div className="jp-forms__inbox-response-header-actions">{ renderActionButtons() }</div>
 					<HStack alignment="topLeft" spacing="3">
 						{ response.author_email && (
 							<Gravatar

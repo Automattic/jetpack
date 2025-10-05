@@ -37,7 +37,7 @@ import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
-const getItemId = item => item.id.toString();
+const getItemId = item => item?.id?.toString() ?? '';
 
 const formatFieldName = fieldName => {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
@@ -337,19 +337,28 @@ export default function InboxView() {
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
+				data={ data }
+				onChangeSelection={ onChangeSelection }
 			/>
 		</HStack>
 	);
 }
 
-const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
+const SingleResponse = ( {
+	sidePanelItem,
+	setSidePanelItem,
+	isLoadingData,
+	isMobile,
+	data,
+	onChangeSelection,
+} ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
-			setSidePanelItem();
+			onChangeSelection( [] );
 		}
-	}, [ setSidePanelItem, isChildModalOpen ] );
+	}, [ onChangeSelection, isChildModalOpen ] );
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
@@ -357,6 +366,34 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 		},
 		[ setIsChildModalOpen ]
 	);
+
+	// Navigation logic
+	const currentIndex =
+		sidePanelItem && data
+			? data.findIndex( item => getItemId( item ) === getItemId( sidePanelItem ) )
+			: -1;
+	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
+	const hasPrevious = currentIndex > 0;
+
+	const handleNext = useCallback( () => {
+		if ( hasNext && data && currentIndex >= 0 ) {
+			const nextItem = data[ currentIndex + 1 ];
+			if ( nextItem ) {
+				setSidePanelItem( nextItem );
+				onChangeSelection( [ getItemId( nextItem ) ] );
+			}
+		}
+	}, [ hasNext, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+
+	const handlePrevious = useCallback( () => {
+		if ( hasPrevious && data && currentIndex >= 0 ) {
+			const prevItem = data[ currentIndex - 1 ];
+			if ( prevItem ) {
+				setSidePanelItem( prevItem );
+				onChangeSelection( [ getItemId( prevItem ) ] );
+			}
+		}
+	}, [ hasPrevious, data, currentIndex, setSidePanelItem, onChangeSelection ] );
 
 	if ( ! sidePanelItem ) {
 		return null;
@@ -366,6 +403,11 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 			response={ sidePanelItem }
 			isLoading={ isLoadingData }
 			onModalStateChange={ handleModalStateChange }
+			onClose={ onRequestClose }
+			onNext={ handleNext }
+			onPrevious={ handlePrevious }
+			hasNext={ hasNext }
+			hasPrevious={ hasPrevious }
 		/>
 	);
 	if ( ! isMobile ) {
