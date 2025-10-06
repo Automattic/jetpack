@@ -3,6 +3,7 @@ import {
 	__experimentalText as WPText,
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
+import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
 import {
 	chartDecorator,
@@ -329,10 +330,12 @@ export const CustomLegendPositioning: Story = {
 };
 
 const WooPieLegend = ( {
-	legendItems,
+	chartItems,
+	items,
 	withComparison,
 }: {
-	legendItems: BaseLegendItem[];
+	chartItems: BaseLegendItem[];
+	items: { label: string; value: number; formattedValue: string; comparison: string }[];
 	withComparison: boolean;
 } ) => (
 	<div
@@ -342,11 +345,11 @@ const WooPieLegend = ( {
 			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
 		} }
 	>
-		{ customerRevenueLegendData.map( ( item, index ) => {
-			const { color } = legendItems[ index ];
+		{ items.map( ( item, index ) => {
+			const { color } = chartItems[ index ];
 
 			return (
-				<>
+				<Fragment key={ index }>
 					<HStack direction="row" justify="flex-start" gap={ 2 }>
 						<div
 							style={ {
@@ -365,7 +368,7 @@ const WooPieLegend = ( {
 					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
 						{ withComparison && item.comparison }
 					</WPText>
-				</>
+				</Fragment>
 			);
 		} ) }
 	</div>
@@ -377,7 +380,11 @@ export const CustomLegend: Story = {
 			<PieChartUnresponsive.Legend
 				// eslint-disable-next-line react/jsx-no-bind
 				render={ items => (
-					<WooPieLegend legendItems={ items } withComparison={ args.withComparison } />
+					<WooPieLegend
+						chartItems={ items }
+						items={ customerRevenueLegendData }
+						withComparison={ args.withComparison }
+					/>
 				) }
 			/>
 		</PieChartUnresponsive>
