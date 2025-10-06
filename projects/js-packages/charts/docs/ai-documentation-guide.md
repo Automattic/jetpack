@@ -39,7 +39,7 @@ Always include:
 The [Component] component supports [feature description], providing [benefits]:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { [Component] } from '@automattic/charts';
 
     <[Component] data={ data }>
@@ -79,16 +79,26 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 The separate API reference should include:
 
-- Complete component documentation with prop tables
+- Complete component prop tables with types, defaults, and descriptions
 - TypeScript type definitions
-- Comprehensive parameter descriptions
+- Type property descriptions
 - Required vs optional prop distinctions
+
+The API reference should NOT include:
+
+- Usage examples or code snippets
+- Usage patterns or best practices
+- Integration examples
+- Notes about behavior
+
+All usage documentation, code examples, patterns, and behavioral notes belong in the main documentation file. The API reference is strictly for technical specifications.
 
 This separation allows users to:
 
 - Quickly access examples and usage patterns in the main docs
 - Reference detailed API information when needed
 - Navigate Storybook more efficiently with focused documentation
+- Find all usage examples in one place (main docs) rather than scattered across files
 
 ### 5. Basic Usage Section
 
@@ -101,7 +111,7 @@ Description of simplest implementation:
 
 <Canvas of={ [FeatureName]Stories.Default } />
 
-<Source language="jsx" code={ `[minimal-example]` } />
+<Source language="tsx" code={ `[minimal-example]` } />
 
 ### Required Props
 
@@ -137,7 +147,7 @@ Description and use case:
 
 <Canvas of={ [FeatureName]Stories.[AnotherVariation] } />
 
-<Source language="jsx" code={ `example-code` } />
+<Source language="tsx" code={ `example-code` } />
 ```
 
 ### 7. Styling and Customization
@@ -151,7 +161,7 @@ How to customize appearance:
 
 <Canvas of={ [FeatureName]Stories.Styled } />
 
-<Source language="jsx" code={ `styling-example` } />
+<Source language="tsx" code={ `styling-example` } />
 
 ### Styling Options
 
@@ -169,20 +179,30 @@ Controls [what this category affects]:
 Explanation of how feature integrates with chart themes.
 ```
 
-### 8. Advanced Features
+### 8. Advanced Usage
 
-Document complex functionality:
+Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
 ```mdx
-## Advanced Features
+## Advanced Usage
 
 ### [Advanced Feature Name]
 
-Explanation of complex functionality with examples.
+Explanation of complex functionality with examples:
+
+<Source language="tsx" code={ `[comprehensive-example]` } />
 
 ### [Another Advanced Feature]
 
-More advanced usage patterns.
+More advanced usage patterns with code examples:
+
+<Source language="tsx" code={ `[advanced-pattern-example]` } />
+
+### Important Notes
+
+- Key behavioral notes
+- Best practices
+- Common pitfalls to avoid
 ```
 
 ### 9. Accessibility Section
@@ -213,7 +233,7 @@ Always include accessibility information:
 
 If applicable, provide migration examples:
 
-<Source language="jsx" code={`
+<Source language="tsx" code={`
 // Old API
 [old-example]
 
@@ -235,6 +255,8 @@ If applicable, provide migration examples:
 
 - **Always use realistic data**: Show complete, runnable examples
 - **Follow TypeScript patterns**: Include proper typing in examples
+- **Use `tsx` for component code**: All `<Source>` blocks with tsx/component code should use `language="tsx"`, use `language="typescript"` only for pure type definitions or imports
+- **Use tabs for indentation**: All code examples in `<Source>` blocks must use tabs, not spaces, for indentation
 - **Use consistent naming**: `data`, `dataPoint`, `sampleData` for chart data
 - **Show progressive complexity**: Start simple, build up to advanced usage
 
@@ -287,6 +309,7 @@ Before considering documentation complete, verify both main docs and API referen
 
 - [ ] Main docs: All usage patterns and examples documented
 - [ ] API docs: All props documented with types and descriptions
+- [ ] API docs: Contains NO usage examples or code snippets
 - [ ] Visual examples for all major variations in main docs
 - [ ] Code examples are complete and runnable in main docs
 - [ ] Accessibility considerations covered in main docs
