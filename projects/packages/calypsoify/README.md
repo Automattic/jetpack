@@ -2,6 +2,9 @@
 
 Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.
 
+> [!CAUTION]
+> This package is abandoned. Its features are now part of the block editor for everyone.
+
 ![](https://cldup.com/awmrHOWz7t.png)
 
 ## How to install Calypsoify

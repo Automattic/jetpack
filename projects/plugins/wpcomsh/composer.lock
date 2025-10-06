@@ -530,7 +530,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/calypsoify",
-                "reference": "1e57eb50b5a1d78b81fd8e4241073d1f9ed56142"
+                "reference": "5f052281a3effc4251b834f23178864d9555e1be"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -586,6 +586,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
+            "abandoned": true,
             "transport-options": {
                 "relative": true
             }
