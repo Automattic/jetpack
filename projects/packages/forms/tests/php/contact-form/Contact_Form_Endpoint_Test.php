@@ -738,10 +738,12 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 		$this->assertFalse( $data['is_unread'] );
+		$this->assertIsInt( 0, Contact_Form_Plugin::get_unread_count() );
 
 		// Verify Feedback class method
 		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
 		$this->assertFalse( $feedback->is_unread() );
+		$this->assertIsInt( 1, Contact_Form_Plugin::get_unread_count() );
 	}
 
 	/**

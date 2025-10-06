@@ -33,6 +33,7 @@ import {
 	moveToTrashAction,
 	restoreAction,
 	deleteAction,
+	updateMenuCounter,
 } from './dataviews/actions';
 import { getPath } from './utils';
 
@@ -503,10 +504,15 @@ const InboxResponse = ( {
 			path: `/wp/v2/feedback/${ response.id }/read`,
 			method: 'POST',
 			data: { is_unread: false },
-		} ).catch( error => {
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to mark feedback as read:', error );
-		} );
+		} )
+			.then( ( { count } ) => {
+				updateMenuCounter( count );
+			} )
+			.catch( () => {
+				editEntityRecord( 'postType', 'feedback', response.id, {
+					is_unread: true,
+				} );
+			} );
 	}, [ response, editEntityRecord ] );
 
 	const handelImageLoaded = useCallback( () => {

@@ -1091,6 +1091,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$success = $is_unread ? $feedback_response->mark_as_unread() : $feedback_response->mark_as_read();
 
+		Contact_Form_Plugin::recalculate_unread_count();
 		if ( ! $success ) {
 			return new WP_Error(
 				'rest_cannot_update',
@@ -1103,6 +1104,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			array(
 				'id'        => $post_id,
 				'is_unread' => $feedback_response->is_unread(),
+				'count'     => Contact_Form_Plugin::get_unread_count(),
 			)
 		);
 	}
