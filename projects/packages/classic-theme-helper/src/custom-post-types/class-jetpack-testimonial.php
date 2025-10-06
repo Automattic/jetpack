@@ -552,7 +552,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
 			if ( false === $testimonials ) {
-				$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
+				$testimonials = (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 );
 
 				if ( ! empty( $testimonials ) ) {
 					set_transient( 'jetpack-testimonial-count-cache', $testimonials, 60 * 60 * 12 );
