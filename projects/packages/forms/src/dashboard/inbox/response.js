@@ -260,7 +260,7 @@ const InboxResponse = ( {
 
 	const renderActionButtons = () => {
 		const { status, is_unread } = response;
-		const readIcon = is_unread ? read : unread;
+		const readIcon = is_unread ? unread : read;
 		const readLabel = read
 			? __( 'Mark as unread', 'jetpack-forms' )
 			: __( 'Mark as read', 'jetpack-forms' );
@@ -274,18 +274,18 @@ const InboxResponse = ( {
 							onClick={ handleMarkAsNotSpam }
 							showTooltip={ true }
 							label={ __( 'Not spam', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ notSpam }
-							size="small"
+							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
 							label={ __( 'Send to trash', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ trash }
-							size="small"
+							size="compact"
 						></Button>
 					</>
 				);
@@ -298,18 +298,18 @@ const InboxResponse = ( {
 							onClick={ handleRestore }
 							showTooltip={ true }
 							label={ __( 'Restore', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ backup }
-							size="small"
+							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleDelete }
 							showTooltip={ true }
 							label={ __( 'Delete permanently', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ trash }
-							size="small"
+							size="compact"
 						></Button>
 					</>
 				);
@@ -322,27 +322,27 @@ const InboxResponse = ( {
 							onClick={ handleNoopAction }
 							showTooltip={ true }
 							label={ readLabel }
-							iconSize={ 12 }
+							iconSize={ 24 }
 							icon={ readIcon }
-							size="small"
+							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMarkAsSpam }
 							showTooltip={ true }
 							label={ __( 'Mark as spam', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ spam }
-							size="small"
+							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
 							label={ __( 'Send to trash', 'jetpack-forms' ) }
-							iconSize={ 16 }
+							iconSize={ 24 }
 							icon={ trash }
-							size="small"
+							size="compact"
 						></Button>
 					</>
 				);
@@ -359,9 +359,8 @@ const InboxResponse = ( {
 						disabled={ ! hasPrevious }
 						showTooltip={ true }
 						label={ __( 'Previous', 'jetpack-forms' ) }
-						iconSize={ 16 }
 						icon={ chevronLeft }
-						size="small"
+						size="compact"
 					></Button>
 				) }
 				{ onNext && (
@@ -371,9 +370,8 @@ const InboxResponse = ( {
 						disabled={ ! hasNext }
 						showTooltip={ true }
 						label={ __( 'Next', 'jetpack-forms' ) }
-						iconSize={ 16 }
 						icon={ chevronRight }
-						size="small"
+						size="compact"
 					></Button>
 				) }
 				{ onClose && (
@@ -382,9 +380,8 @@ const InboxResponse = ( {
 						onClick={ onClose }
 						showTooltip={ true }
 						label={ __( 'Close', 'jetpack-forms' ) }
-						iconSize={ 12 }
 						icon={ close }
-						size="small"
+						size="compact"
 					></Button>
 				) }
 			</>
