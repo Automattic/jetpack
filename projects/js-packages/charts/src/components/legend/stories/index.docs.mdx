@@ -231,6 +231,29 @@ Available shapes: `'rect'` (default), `'circle'`, `'line'`
 
 ## Advanced Usage
 
+### Custom Rendering with Render Prop
+
+For complete control over legend rendering, use the `render` prop to provide a custom layout function. Here is an example of a custom layout where the item color is synced with the chart segment color by referencing the generated item in the global charts context:
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		chartId="chart-with-custom-legend"
+		render={ ( items ) => (
+			<div className="custom-legend">
+				{ customLegendItems.map( ( customLegendItem, i ) => (
+					<div key={ i } className="custom-legend-item">
+						<span style={ { color: items[i].color } }>●</span>
+						<span>{ customLegendItem.label }: { customLegendItem.value }</span>
+					</div>
+				) ) }
+			</div>
+		) }
+	/>` }
+/>
+
+The `render` prop receives the legend items array and allows you to create completely custom legend layouts, bypassing the default visx-based rendering.
+
 ### Custom Glyphs
 
 Provide custom glyph rendering functions for unique symbols or complex visualizations:
