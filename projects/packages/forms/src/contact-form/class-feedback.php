@@ -796,6 +796,24 @@ class Feedback {
 	}
 
 	/**
+	 * Get the count of unread feedback entries.
+	 *
+	 * @return int
+	 */
+	public static function get_unread_count() {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'publish',
+				'comment_status' => self::STATUS_UNREAD,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+		return (int) $query->found_posts;
+	}
+
+	/**
 	 * Get the uploaded files from the feedback entry.
 	 *
 	 * @return array
