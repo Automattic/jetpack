@@ -142,7 +142,7 @@ const PieChartInternal = ( {
 	legendShape = 'circle',
 	size,
 	thickness = 1,
-	padding = 20,
+	padding = 0,
 	gapScale = 0,
 	cornerScale = 0,
 	showLabels = true,

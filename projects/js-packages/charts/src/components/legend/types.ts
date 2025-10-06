@@ -29,6 +29,10 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * This allows consumers to customize individual legend item styling.
 	 */
 	legendItemClassName?: string;
+	/**
+	 * Function for rendering a custom legend layout.
+	 */
+	render?: ( items: BaseLegendItem[] ) => ReactNode;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
