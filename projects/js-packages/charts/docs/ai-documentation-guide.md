@@ -42,13 +42,14 @@ The [Component] component supports [feature description], providing [benefits]:
 	language="tsx"
 	code={ `import { [Component] } from '@automattic/charts';
 
-    <[Component] data={ data }>
-    	<[Component].[FeatureComponent]>
-    		<[Component].[SubComponent]
-    			[key-props]
-    		/>
-    	</[Component].[FeatureComponent]>
-    </[Component]>` }
+    	<[Component] data={ data }>
+    		<[Component].[FeatureComponent]>
+    			<[Component].[SubComponent]
+    				[key-props]
+    			/>
+    		</[Component].[FeatureComponent]>
+    	</[Component]>
+    ` }
 
 />
 ```
@@ -81,7 +82,6 @@ The separate API reference should include:
 
 - Complete component prop tables with types, defaults, and descriptions
 - TypeScript type definitions
-- Type property descriptions
 - Required vs optional prop distinctions
 
 The API reference should NOT include:
@@ -234,12 +234,12 @@ Always include accessibility information:
 If applicable, provide migration examples:
 
 <Source language="tsx" code={`
-// Old API
-[old-example]
+	// Old API
+	[old-example]
 
-// New API
-[new-example]
-`} />
+    // New API
+    [new-example]
+    `} />
 ```
 
 ## Content Guidelines
