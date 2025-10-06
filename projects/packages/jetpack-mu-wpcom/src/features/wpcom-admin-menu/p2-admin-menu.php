@@ -50,10 +50,13 @@ function wpcom_remove_menus_for_p2_sites() {
 
 	if ( $is_hub ) {
 		remove_menu_page( 'index.php' );
-		remove_menu_page( 'https://wordpress.com/home/' . $domain );
+		remove_menu_page( "https://wordpress.com/home/$domain" );
 		remove_menu_page( 'stats' );
-		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/domains/manage/' . $domain );
-		remove_submenu_page( 'paid-upgrades.php', 'https://wordpress.com/email/' . $domain );
+		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/domains/manage/$domain" );
+		remove_submenu_page( 'paid-upgrades.php', "https://wordpress.com/email/$domain" );
+		remove_submenu_page( 'wpcom-hosting-menu', "https://wordpress.com/overview/$domain" );
+		remove_submenu_page( 'wpcom-hosting-menu', "https://wordpress.com/email/$domain" );
+		remove_submenu_page( 'wpcom-hosting-menu', "https://wordpress.com/domains/manage/$domain" );
 		remove_menu_page( 'edit.php' );
 		remove_menu_page( 'edit.php?post_type=page' );
 		remove_menu_page( 'upload.php' );
@@ -69,9 +72,10 @@ function wpcom_remove_menus_for_p2_sites() {
 
 		// TODO: Untangle this screen
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'tools.php', __( 'Integrations', 'jetpack-mu-wpcom' ), __( 'Integrations', 'jetpack-mu-wpcom' ), 'manage_options', 'https://wordpress.com/marketing/connections/' . $domain, null, 0 );
+		add_submenu_page( 'tools.php', __( 'Integrations', 'jetpack-mu-wpcom' ), __( 'Integrations', 'jetpack-mu-wpcom' ), 'manage_options', "https://wordpress.com/marketing/connections/$domain", null, 0 );
 	} else {
 		remove_menu_page( 'paid-upgrades.php' );
+		remove_menu_page( 'wpcom-hosting-menu' );
 
 		$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST;
 		if ( $is_api_request ) {
@@ -81,6 +85,8 @@ function wpcom_remove_menus_for_p2_sites() {
 			$customize_url = add_query_arg( 'return', rawurlencode( remove_query_arg( wp_removable_query_args(), $request_uri ) ), 'customize.php' );
 		}
 		$additional_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
+
+		remove_submenu_page( 'themes.php', "https://wordpress.com/themes/$domain?ref=wpcom-themes-menu" );
 		remove_submenu_page( 'themes.php', esc_url( $additional_css_url ) );
 	}
 }
