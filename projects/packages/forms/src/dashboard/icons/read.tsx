@@ -4,8 +4,12 @@
 import { Path, SVG } from '@wordpress/primitives';
 
 const read = (
-	<SVG width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<Path d="M22 6C22 5.28 21.62 4.65 21 4.3L12 1L3 4.3C2.38 4.65 2 5.28 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18L22 6ZM20 6V6.01L12 11L4 6L12 3.32L20 6ZM4 18V8.34L12 13.36L20 8.37L20 18H4Z" />
+	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
+		<Path
+			fill-rule="evenodd"
+			d="M3 7c0-1.10457.89543-2 2-2h14c1.1046 0 2 .89543 2 2v10c0 1.1046-.8954 2-2 2H5c-1.10457 0-2-.8954-2-2V7Zm2-.5h14c.2761 0 .5.22386.5.5v.93754L12 13.5625 4.5 7.93746V7c0-.27614.22386-.5.5-.5Zm-.5 3.31246V17c0 .2761.22386.5.5.5h14c.2761 0 .5-.2239.5-.5V9.81254L12 15.4375 4.5 9.81246Z"
+			clip-rule="evenodd"
+		/>
 	</SVG>
 );
 
