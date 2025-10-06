@@ -2168,37 +2168,6 @@ importers:
 
   projects/packages/boost-core: {}
 
-  projects/packages/calypsoify:
-    dependencies:
-      '@automattic/calypso-color-schemes':
-        specifier: 4.0.0
-        version: 4.0.0
-      '@wordpress/data':
-        specifier: 10.31.0
-        version: 10.31.0(react@18.3.1)
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@wordpress/browserslist-config':
-        specifier: 6.31.0
-        version: 6.31.0
-      sass-embedded:
-        specifier: 1.87.0
-        version: 1.87.0
-      sass-loader:
-        specifier: 16.0.5
-        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
-      webpack:
-        specifier: 5.101.3
-        version: 5.101.3(webpack-cli@6.0.1)
-      webpack-cli:
-        specifier: 6.0.1
-        version: 6.0.1(webpack@5.101.3)
-
   projects/packages/chatbot: {}
 
   projects/packages/classic-theme-helper:

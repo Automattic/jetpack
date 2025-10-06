@@ -40,12 +40,6 @@ function wpcom_nosara_track_admin_page_views() {
 			return;
 		}
 
-		$is_calypsoify_enabled = isset( $_GET['calypsoify'] ) && 1 === (int) $_GET['calypsoify']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// Calypsoified WP Admin pages should not count as WP Admin page views, since the user is actually in Calypso.
-		if ( $is_calypsoify_enabled ) {
-			return;
-		}
-
 		$blog_id    = $current_blog->blog_id;
 		$user_types = \WPCOM_User::get_types();
 	}
