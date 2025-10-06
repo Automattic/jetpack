@@ -145,13 +145,13 @@ abstract class Code_Block {
 
 		$args['render_callback']       = array( __CLASS__, 'render_block' );
 		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
-		$args['editor_style_handles']  = array( self::MODULE_PREFIX . 'editor' );
-		$args['style_handles ']        = array( self::MODULE_PREFIX . 'style' );
+
+		$args['editor_style_handles'] = array( self::MODULE_PREFIX . 'editor' );
+		$args['style_handles']        = array( self::MODULE_PREFIX . 'style' );
+		unset( $args['view_style_handles'] );
+		$args['textdomain'] = 'jetpack-mu-wpcom';
 
 		$args['attributes'] = array(
-			// Preserve this attribute in the case of content created by the core/code block.
-			'content'                 => $args['attributes']['content'],
-
 			'code'                    => array(
 				'type'     => 'string',
 				'source'   => 'text',

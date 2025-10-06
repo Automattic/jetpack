@@ -1,12 +1,12 @@
 /* Basic editor and frontend layout styles */
 
-.wp-block-a8c-code {
+.wp-block-code {
 	--font-family: Consolas, Monaco, monospace;
 
 	&.show-line-numbers {
 		counter-set: code-line-number calc(var(--line-numbers-start-at, 1) - 1);
 
-		pre.cm-content > code {
+		code {
 
 			.cm-line {
 				margin-left: calc(var(--line-number-gutter-width, 2ch) + 32px);
@@ -56,7 +56,7 @@
 		gap: 32px;
 	}
 
-	.cm-content {
+	pre {
 		flex-grow: 2;
 		flex-shrink: 0;
 		display: block;
@@ -89,7 +89,7 @@
 	}
 
 	/* in the frontend */
-	pre.cm-content {
+	pre {
 
 		/* prevent empty lines from collapsing vertically */
 		.cm-line:empty::after {

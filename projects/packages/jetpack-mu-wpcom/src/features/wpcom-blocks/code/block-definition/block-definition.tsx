@@ -190,6 +190,64 @@ function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
 	settings.save = blockSave;
 	settings.example = exampleBlock;
 	( settings.transforms?.from ?? [] ).concat( transforms.from );
+	settings.attributes = {
+		...settings.attributes,
+		code: {
+			type: 'string',
+			source: 'text',
+			default: '',
+			selector: 'code',
+		},
+		tokenizedLines: {
+			type: 'array',
+			default: [],
+		},
+		language: {
+			type: 'string',
+			default: '',
+		},
+		languageConfidence: {
+			type: 'string',
+			default: 'unknown',
+		},
+		triggerCodeUpdate: {
+			type: 'boolean',
+			default: false,
+		},
+
+		showCopyButton: {
+			type: 'boolean',
+			default: false,
+		},
+		showLanguageName: {
+			type: 'boolean',
+			default: false,
+		},
+		showLineNumbers: {
+			type: 'boolean',
+			default: false,
+		},
+		lineNumbersStartAt: {
+			type: 'number',
+			default: 1,
+		},
+		filename: {
+			type: 'string',
+			default: '',
+		},
+
+		colorComment: { type: 'string' },
+		colorKeyword: { type: 'string' },
+		colorBoolean: { type: 'string' },
+		colorLiteral: { type: 'string' },
+		colorString: { type: 'string' },
+		colorSpecialString: { type: 'string' },
+		colorMacroName: { type: 'string' },
+		colorVariableDefinition: { type: 'string' },
+		colorTypeName: { type: 'string' },
+		colorClassName: { type: 'string' },
+		colorInvalid: { type: 'string' },
+	};
 
 	return settings;
 }
@@ -311,13 +369,9 @@ const blockEdit = withColors(
 
 const blockSave = ( props: SaveBlockProps ) => {
 	const { code } = props.attributes;
-	console.log( {
-		code,
-		content: props.attributes.content,
-	} );
 	return (
 		<CodeWrapper wrapperProps={ useBlockProps.save() } { ...props }>
-			{ htmlEncode( code ?? props.attributes.content.text ) }
+			{ htmlEncode( code ) }
 		</CodeWrapper>
 	);
 };
