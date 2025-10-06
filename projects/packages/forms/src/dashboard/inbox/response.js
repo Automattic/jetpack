@@ -354,7 +354,7 @@ const InboxResponse = ( {
 			<>
 				{ onPrevious && (
 					<Button
-						variant="tertiary"
+						variant="secondary"
 						onClick={ onPrevious }
 						disabled={ ! hasPrevious }
 						showTooltip={ true }
@@ -365,7 +365,7 @@ const InboxResponse = ( {
 				) }
 				{ onNext && (
 					<Button
-						variant="tertiary"
+						variant="secondary"
 						onClick={ onNext }
 						disabled={ ! hasNext }
 						showTooltip={ true }
@@ -376,7 +376,7 @@ const InboxResponse = ( {
 				) }
 				{ onClose && (
 					<Button
-						variant="tertiary"
+						variant="secondary"
 						onClick={ onClose }
 						showTooltip={ true }
 						label={ __( 'Close', 'jetpack-forms' ) }
