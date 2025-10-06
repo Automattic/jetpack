@@ -326,12 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.1-a.11 - 2025-09-30
+### 15.1-beta - 2025-10-06
 #### Enhancements
-- Forms: Use localized number format for number of responses shown.
+- Forms: Improve preloading for endpoints.
 
-#### Improved compatibility
-- Cookie Consent Block: Ensure we always have a default set of colors to style the block when theme colors are not available.
+#### Bug fixes
+- Cookie Consent Widget: Ensure the default widget text can be translated.
 
 --------
 
