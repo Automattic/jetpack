@@ -27,6 +27,10 @@ The [Component] component supports [feature description], providing [benefits an
 	</[Component]>` }
 />
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
+
 ## Basic Usage
 
 ### Basic [Feature Name]
@@ -53,8 +57,7 @@ The [Component] component supports [feature description], providing [benefits an
 
 ### Optional Props
 
-- **`[optionalProp]`**: [Description and default behavior]
-- **`[anotherOptional]`**: [Description and use cases]
+For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
 
 ## [Feature] Types
 
@@ -178,45 +181,6 @@ Controls [what this affects]:
 
 - [Focus behavior and visual indicators]
 - [Focus trapping or restoration if applicable]
-
-## API Reference
-
-### [Component].[FeatureComponent]
-
-[Description of the container/wrapper component].
-
-**Props:**
-
-- `children`: [Description of expected children]
-
-### [Component].[SubComponent]
-
-[Description of the main feature component].
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `[requiredProp]` | `[Type]` | - | **Required.** [Description] |
-| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description] |
-| `[anotherProp]` | `[ComplexType]` | - | [Description] |
-
-### [TypeName] Type
-
-```typescript
-type [TypeName] = {
-	[property]: [Type];
-	[optionalProperty]?: [Type];
-};
-```
-
-### [AnotherTypeName] Type
-
-```typescript
-type [AnotherTypeName] = {
-	[property]: [Type];
-};
-```
 
 ## Migration from [Legacy API]
 
