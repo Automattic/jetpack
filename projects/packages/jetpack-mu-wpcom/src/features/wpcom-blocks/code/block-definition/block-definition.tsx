@@ -12,6 +12,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
 import blockJson from '../common/block.json';
@@ -89,129 +90,246 @@ const selectLanguageOptions: ReadonlyArray< {
 	label: name,
 } ) );
 
-registerBlockType( blockJson, {
+/**
+ * Filter to enhance the core code block.
+ *
+ * @param settings - Block settings
+ * @return Settings.
+ */
+
+interface CodeBlockSettings {
+	name: string;
+	icon?: React.JSX.Element;
+	keywords?: [];
+	attributes: {
+		content: {
+			type: string;
+			source: string;
+			selector: string;
+			__unstablePreserveWhiteSpace: boolean;
+		};
+		lock: {
+			type: string;
+		};
+		metadata: {
+			type: string;
+		};
+		align: {
+			type: string;
+			enum: string[];
+		};
+		className: {
+			type: string;
+		};
+		style: {
+			type: string;
+		};
+		backgroundColor: {
+			type: string;
+		};
+		textColor: {
+			type: string;
+		};
+		gradient: {
+			type: string;
+		};
+		fontSize: {
+			type: string;
+		};
+		fontFamily: {
+			type: string;
+		};
+		borderColor: {
+			type: string;
+		};
+		anchor: {
+			type: string;
+			source: string;
+			attribute: string;
+			selector: string;
+		};
+		blockCommentId: {
+			type: string;
+		};
+	};
+	supports: {};
+	apiVersion?: number;
+	title?: string;
+	description?: string | React.JSX.Element;
+	category?: string;
+	variations?: [];
+	example?: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		attributes: any;
+	};
+	transforms?: {
+		from?: any[];
+		to?: any[];
+	};
+
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	edit: Function;
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+	save: Function;
+}
+
+/**
+ * Enhance the core code block.
+ *
+ * @param settings - Block settings.
+ * @return Enhanced block settings.
+ */
+function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
+	if ( settings.name !== 'core/code' ) {
+		return settings;
+	}
+
+	// console.log( '%o', settings );
+
+	settings.edit = blockEdit;
+	settings.save = blockSave;
+	settings.example = exampleBlock;
+	( settings.transforms?.from ?? [] ).concat( transforms.from );
+
+	return settings;
+}
+
+const blockEdit = withColors(
+	...( [
+		'colorComment',
+		'colorKeyword',
+		'colorBoolean',
+		'colorLiteral',
+		'colorString',
+		'colorSpecialString',
+		'colorMacroName',
+		'colorVariableDefinition',
+		'colorTypeName',
+		'colorClassName',
+		'colorInvalid',
+	] satisfies ReadonlyArray< `${ keyof Pick<
+		Attributes,
+		Extract< keyof Attributes, `color${ Capitalize< string > }` >
+	> }` > )
+)( ( props: EditBlockProps ) => {
+	const { setAttributes, attributes } = props;
+
+	return (
+		<>
+			<InspectorControls group="color">
+				<ColorTools { ...props } />
+			</InspectorControls>
+			<InspectorControls>
+				<PanelBody title="Code Settings">
+					<SelectControl
+						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
+						value={ attributes.language }
+						options={ selectLanguageOptions }
+						onChange={ ( newLanguage: string ) => {
+							setAttributes( {
+								language: newLanguage,
+								languageConfidence: 'certain',
+							} );
+						} }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showLanguageName }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showLanguageName: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showCopyButton }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showCopyButton: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showLineNumbers }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showLineNumbers: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<TextControl
+						label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
+						type="number"
+						value={ attributes.lineNumbersStartAt }
+						disabled={ ! attributes.showLineNumbers }
+						onChange={ ( _nextLineNumbersStartAt: string ) => {
+							let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
+
+							if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
+								nextLineNumbersStartAt = 1;
+							}
+							if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
+								nextLineNumbersStartAt = 1;
+							}
+
+							// Clamp to the allowed range
+							nextLineNumbersStartAt = Math.max(
+								LINE_NUMBER_START_MIN,
+								Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
+							);
+
+							setAttributes( {
+								lineNumbersStartAt: nextLineNumbersStartAt,
+							} );
+						} }
+						min={ LINE_NUMBER_START_MIN }
+						max={ LINE_NUMBER_START_MAX }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<React.Suspense fallback={ <Loading { ...props } /> }>
+				<Chrome { ...props }>
+					<EditCodeMirror { ...props } />
+					<Notice status="warning" isDismissible={ false }>
+						<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content
+						may break.
+					</Notice>
+				</Chrome>
+			</React.Suspense>
+		</>
+	);
+} );
+
+const blockSave = ( props: SaveBlockProps ) => {
+	const { code } = props.attributes;
+	console.log( {
+		code,
+		content: props.attributes.content,
+	} );
+	return (
+		<CodeWrapper wrapperProps={ useBlockProps.save() } { ...props }>
+			{ htmlEncode( code ?? props.attributes.content.text ) }
+		</CodeWrapper>
+	);
+};
+
+const XregisterBlockType = ( ..._: unknown[] ) => undefined;
+
+XregisterBlockType( blockJson, {
 	icon,
 	example: exampleBlock,
 	transforms,
-	edit: withColors(
-		...( [
-			'colorComment',
-			'colorKeyword',
-			'colorBoolean',
-			'colorLiteral',
-			'colorString',
-			'colorSpecialString',
-			'colorMacroName',
-			'colorVariableDefinition',
-			'colorTypeName',
-			'colorClassName',
-			'colorInvalid',
-		] satisfies ReadonlyArray< `${ keyof Pick<
-			Attributes,
-			Extract< keyof Attributes, `color${ Capitalize< string > }` >
-		> }` > )
-	)( ( props: EditBlockProps ) => {
-		const { setAttributes, attributes } = props;
-
-		return (
-			<>
-				<InspectorControls group="color">
-					<ColorTools { ...props } />
-				</InspectorControls>
-				<InspectorControls>
-					<PanelBody title="Code Settings">
-						<SelectControl
-							label={ __( 'Language', 'jetpack-mu-wpcom' ) }
-							value={ attributes.language }
-							options={ selectLanguageOptions }
-							onChange={ ( newLanguage: string ) => {
-								setAttributes( {
-									language: newLanguage,
-									languageConfidence: 'certain',
-								} );
-							} }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showLanguageName }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showLanguageName: next,
-								} )
-							}
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showCopyButton }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showCopyButton: next,
-								} )
-							}
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showLineNumbers }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showLineNumbers: next,
-								} )
-							}
-							__nextHasNoMarginBottom
-						/>
-						<TextControl
-							label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
-							type="number"
-							value={ attributes.lineNumbersStartAt }
-							disabled={ ! attributes.showLineNumbers }
-							onChange={ ( _nextLineNumbersStartAt: string ) => {
-								let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
-
-								if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
-									nextLineNumbersStartAt = 1;
-								}
-								if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
-									nextLineNumbersStartAt = 1;
-								}
-
-								// Clamp to the allowed range
-								nextLineNumbersStartAt = Math.max(
-									LINE_NUMBER_START_MIN,
-									Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
-								);
-
-								setAttributes( {
-									lineNumbersStartAt: nextLineNumbersStartAt,
-								} );
-							} }
-							min={ LINE_NUMBER_START_MIN }
-							max={ LINE_NUMBER_START_MAX }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-					</PanelBody>
-				</InspectorControls>
-				<React.Suspense fallback={ <Loading { ...props } /> }>
-					<Chrome { ...props }>
-						<EditCodeMirror { ...props } />
-						<Notice status="warning" isDismissible={ false }>
-							<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content
-							may break.
-						</Notice>
-					</Chrome>
-				</React.Suspense>
-			</>
-		);
-	} ),
-
-	save: ( props: SaveBlockProps ) => {
-		const { code } = props.attributes;
-		return <CodeWrapper { ...props }>{ htmlEncode( code ) }</CodeWrapper>;
-	},
+	edit: blockEdit,
+	save: blockSave,
 } );
 
 registerBlockStyle( BLOCK_NAME, {
@@ -388,25 +506,28 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
 /**
  * This function wraps the code content when it is not managed by CodeMirror.
  *
- * @param props            - Component props.
- * @param props.attributes -- Block attributes.
- * @param props.children   -- Component children, the contents of the block.
+ * @param props              - Component props.
+ * @param props.attributes   -- Block attributes.
+ * @param props.children     -- Component children, the contents of the block.
  *
+ * @param props.wrapperProps
  * @return UI.
  */
 function CodeWrapper( {
 	attributes: { language },
 	children: code,
+	wrapperProps,
 }: {
 	children: string;
 	attributes: Pick< EditBlockProps[ 'attributes' ], 'language' >;
+	wrapperProps?: React.HTMLAttributes< HTMLPreElement >;
 } ): React.JSX.Element {
 	if ( code.endsWith( '\n' ) ) {
 		code += '\n';
 	}
 
 	return (
-		<pre className="cm-content">
+		<pre { ...wrapperProps }>
 			<code
 				className={
 					language
@@ -520,3 +641,5 @@ const EditCodeMirror = React.lazy(
 	// eslint-disable-next-line import/no-unresolved -- The feature registers this module for import.
 	() => import( /* webpackIgnore: true */ '@a8cCodeBlock/block-edit-function' )
 );
+
+addFilter( 'blocks.registerBlockType', 'jetpack/enhance-core-code-block', enhanceCoreCodeBlock );

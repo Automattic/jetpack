@@ -40,7 +40,7 @@ abstract class Code_Block {
 		}
 
 		self::init();
-		add_action( 'wp_loaded', array( __CLASS__, 'register_block' ) );
+		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 
 		add_action(
@@ -138,17 +138,99 @@ abstract class Code_Block {
 		);
 	}
 
-	/** Register the block. */
-	public static function register_block() {
-		register_block_type_from_metadata(
-			__DIR__ . '/common/block.json',
-			array(
-				'editor_script'   => self::MODULE_PREFIX . 'block-definition',
-				'editor_style'    => self::MODULE_PREFIX . 'editor',
-				'style'           => self::MODULE_PREFIX . 'style',
-				'render_callback' => array( __CLASS__, 'render_block' ),
-			)
+	public static function register_block_type_args( array $args, string $block_type ): array {
+		if ( 'core/code' !== $block_type ) {
+			return $args;
+		}
+
+		$args['render_callback']       = array( __CLASS__, 'render_block' );
+		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
+		$args['editor_style_handles']  = array( self::MODULE_PREFIX . 'editor' );
+		$args['style_handles ']        = array( self::MODULE_PREFIX . 'style' );
+
+		$args['attributes'] = array(
+			// Preserve this attribute in the case of content created by the core/code block.
+			'content'                 => $args['attributes']['content'],
+
+			'code'                    => array(
+				'type'     => 'string',
+				'source'   => 'text',
+				'default'  => '',
+				'selector' => 'code',
+			),
+			'tokenizedLines'          => array(
+				'type'    => 'array',
+				'default' =>
+				array(),
+			),
+			'language'                => array(
+				'type'    => 'string',
+				'default' => '',
+			),
+			'languageConfidence'      => array(
+				'type'    => 'string',
+				'default' => 'unknown',
+			),
+			'triggerCodeUpdate'       => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showCopyButton'          => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showLanguageName'        => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showLineNumbers'         => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'lineNumbersStartAt'      => array(
+				'type'    => 'number',
+				'default' => 1,
+			),
+			'filename'                => array(
+				'type'    => 'string',
+				'default' => '',
+			),
+			'colorComment'            => array(
+				'type' => 'string',
+			),
+			'colorKeyword'            => array(
+				'type' => 'string',
+			),
+			'colorBoolean'            => array(
+				'type' => 'string',
+			),
+			'colorLiteral'            => array(
+				'type' => 'string',
+			),
+			'colorString'             => array(
+				'type' => 'string',
+			),
+			'colorSpecialString'      => array(
+				'type' => 'string',
+			),
+			'colorMacroName'          => array(
+				'type' => 'string',
+			),
+			'colorVariableDefinition' => array(
+				'type' => 'string',
+			),
+			'colorTypeName'           => array(
+				'type' => 'string',
+			),
+			'colorClassName'          => array(
+				'type' => 'string',
+			),
+			'colorInvalid'            => array(
+				'type' => 'string',
+			),
 		);
+
+		return $args;
 	}
 
 	/**

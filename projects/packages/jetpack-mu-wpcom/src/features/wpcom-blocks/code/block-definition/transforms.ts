@@ -11,20 +11,6 @@ const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
 export const transforms = {
-	to: [
-		{
-			type: 'block',
-			blocks: [ 'core/code' ],
-			transform: ( attrs: Attributes ) => {
-				const code = attrs.code;
-				const div = document.createElement( 'div' );
-				div.innerText = code;
-				const content = div.innerHTML;
-				return createBlock( 'core/code', { content } );
-			},
-		},
-	],
-
 	from: [
 		// Handle GH-like code fence openers, e.g. ```js
 		{
@@ -53,16 +39,6 @@ export const transforms = {
 				return createBlock< Attributes >( BLOCK_NAME, {
 					language,
 					languageConfidence: 'certain',
-				} );
-			},
-		},
-
-		{
-			type: 'block',
-			blocks: [ 'core/code' ],
-			transform: ( { content }: { content: { text: string } } ) => {
-				return createBlock< Attributes >( BLOCK_NAME, {
-					code: content.text,
 				} );
 			},
 		},

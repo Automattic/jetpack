@@ -3,6 +3,14 @@ export const BLOCK_NAME = blockJson.name;
 
 export interface Attributes {
 	code: string;
+
+	/**
+	 * Code block may have this attribute.
+	 */
+	content?: {
+		text?: string;
+	};
+
 	tokenizedLines: ReadonlyArray< ReadonlyArray< [ string, string ] | [ string ] > >;
 	/** Always a string. Empty string "" indicates no language. */
 	language: string;
