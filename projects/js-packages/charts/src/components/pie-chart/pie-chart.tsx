@@ -138,6 +138,7 @@ const PieChartInternal = ( {
 	legendAlignment = 'center',
 	legendMaxWidth,
 	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'circle',
 	size,
 	thickness = 1,
@@ -367,6 +368,7 @@ const PieChartInternal = ( {
 						alignment={ legendAlignment }
 						maxWidth={ legendMaxWidth }
 						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'pie-chart-legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }

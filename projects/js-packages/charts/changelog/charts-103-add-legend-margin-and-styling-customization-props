@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: add legendItemClassName prop for custom legend item styling

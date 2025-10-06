@@ -102,7 +102,7 @@ function wpcom_launchpad_get_task_definitions() {
 						return '/domains/manage/' . $data['site_slug_encoded'];
 				}
 
-				return '/setup/domain-upsell/domains?siteSlug=' . $data['site_slug_encoded'];
+				return '/setup/domain-and-plan/domains?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'first_post_published'            => array(

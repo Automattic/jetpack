@@ -24,6 +24,11 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
 	 */
 	textOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
+	 */
+	legendItemClassName?: string;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {

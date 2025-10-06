@@ -78,6 +78,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			itemMargin = '0',
 			itemDirection = 'row',
 			legendLabelProps,
+			legendItemClassName,
 			...legendItemProps
 		},
 		ref
@@ -120,7 +121,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 					>
 						{ labels.map( ( label, i ) => (
 							<LegendItem
-								className={ clsx( 'visx-legend-item', styles[ 'legend-item' ] ) }
+								className={ clsx(
+									'visx-legend-item',
+									styles[ 'legend-item' ],
+									legendItemClassName
+								) }
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }
