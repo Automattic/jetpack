@@ -1,10 +1,12 @@
 // eslint-disable-next-line import/no-unresolved -- This is a virtual module provided by a webpack plugin.
 import { extensionToLang } from '@@codemirrorLanguageData@@';
 // @ts-expect-error No types.
+import { language } from '@codemirror/language';
 import * as wpBlocks from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { type Attributes, BLOCK_NAME } from '../common/block.ts';
+import type { RichTextValue } from '@wordpress/rich-text';
 
 const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
@@ -12,6 +14,49 @@ const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
 export const transforms = {
 	from: [
+		{
+			type: 'block',
+			blocks: [ 'core/paragraph' ],
+			transform: ( { content }: { content: RichTextValue } ) =>
+				createBlock( BLOCK_NAME, { code: content.text } ),
+		},
+
+		{
+			type: 'block',
+			blocks: [ 'core/html' ],
+			transform: ( { content }: { content: string } ) => {
+				console.log( { content, t: typeof content } );
+				return createBlock( BLOCK_NAME, {
+					code: content,
+					language: 'HTML',
+					languageConfidence: 'certain',
+				} );
+			},
+		},
+
+		{
+			type: 'raw',
+			priority: 5,
+			isMatch: ( node: HTMLElement ) =>
+				node.nodeName === 'PRE' &&
+				node.children.length === 1 &&
+				node.firstChild!.nodeName === 'CODE',
+			transform: ( preElement: HTMLPreElement ) => {
+				return createBlock( BLOCK_NAME, { code: preElement.innerText } );
+			},
+			schema: {
+				pre: {
+					children: {
+						code: {
+							children: {
+								'#text': {},
+							},
+						},
+					},
+				},
+			},
+		},
+
 		// Handle GH-like code fence openers, e.g. ```js
 		{
 			type: 'enter',
@@ -89,6 +134,7 @@ export const transforms = {
 			}: {
 				content?: string;
 				language?: string;
+				lineNumbers?: boolean;
 				firstLineNumber?: string;
 			} ) => {
 				const blockAttributes: Partial< Attributes > = {
@@ -111,8 +157,12 @@ export const transforms = {
 					blockAttributes.languageConfidence = 'certain';
 				}
 
-				if ( attributes.firstLineNumber ) {
-					blockAttributes.lineNumbersStartAt = Number( attributes.firstLineNumber );
+				if ( attributes.lineNumbers !== false ) {
+					blockAttributes.showLineNumbers = true;
+
+					if ( attributes.firstLineNumber ) {
+						blockAttributes.lineNumbersStartAt = Number( attributes.firstLineNumber );
+					}
 				}
 
 				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );

@@ -124,6 +124,7 @@ declare global {
 			i18n: import('@wordpress/i18n');
 			keycodes: import('@wordpress/keycodes');
 			keyboardShortcuts: import('@wordpress/keyboard-shortcuts');
+			richText: import('@wordpress/rich-text');
 		};
 	}
 }

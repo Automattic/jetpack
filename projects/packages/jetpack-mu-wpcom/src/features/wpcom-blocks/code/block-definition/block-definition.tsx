@@ -172,12 +172,28 @@ interface CodeBlockSettings {
  * @param settings - Block settings.
  * @return Enhanced block settings.
  */
-function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
+function filterBlockRegistration( settings: CodeBlockSettings ) {
+	// Our transform is better than the syntaxhighlighter/code transform.
+	// Remove it.
+	if ( false && settings.name === 'syntaxhighlighter/code' ) {
+		if ( settings.transforms?.to ) {
+			settings.transforms.to = settings.transforms.to.filter(
+				transform =>
+					! (
+						transform.type === 'block' &&
+						Array.isArray( transform.blocks ) &&
+						transform.blocks.length === 1 &&
+						transform.blocks[ 0 ] === 'core/code'
+					)
+			);
+		}
+		return settings;
+	}
 	if ( settings.name !== 'core/code' ) {
 		return settings;
 	}
 
-	// console.log( '%o', settings );
+	console.log( { attributes: settings.attributes, supports: settings.supports } );
 
 	settings.edit = blockEdit;
 	settings.save = blockSave;
@@ -185,70 +201,82 @@ function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
 
 	if ( ! settings.transforms ) {
 		settings.transforms = { from: transforms.from };
-	} else if ( ! settings.transforms.from ) {
-		settings.transforms.from = transforms.from;
 	} else {
-		settings.transforms.from.push( ...transforms.from );
+		settings.transforms.from = transforms.from;
 	}
 
-	settings.attributes = {
-		...settings.attributes,
-		code: {
-			type: 'string',
-			source: 'text',
-			default: '',
-			selector: 'code',
-		},
-		tokenizedLines: {
-			type: 'array',
-			default: [],
-		},
-		language: {
-			type: 'string',
-			default: '',
-		},
-		languageConfidence: {
-			type: 'string',
-			default: 'unknown',
-		},
-		triggerCodeUpdate: {
-			type: 'boolean',
-			default: false,
-		},
-
-		showCopyButton: {
-			type: 'boolean',
-			default: false,
-		},
-		showLanguageName: {
-			type: 'boolean',
-			default: false,
-		},
-		showLineNumbers: {
-			type: 'boolean',
-			default: false,
-		},
-		lineNumbersStartAt: {
-			type: 'number',
-			default: 1,
-		},
-		filename: {
-			type: 'string',
-			default: '',
-		},
-
-		colorComment: { type: 'string' },
-		colorKeyword: { type: 'string' },
-		colorBoolean: { type: 'string' },
-		colorLiteral: { type: 'string' },
-		colorString: { type: 'string' },
-		colorSpecialString: { type: 'string' },
-		colorMacroName: { type: 'string' },
-		colorVariableDefinition: { type: 'string' },
-		colorTypeName: { type: 'string' },
-		colorClassName: { type: 'string' },
-		colorInvalid: { type: 'string' },
+	settings.attributes.content = {
+		type: 'rich-text',
+		source: 'rich-text',
+		selector: 'code',
+		__unstablePreserveWhiteSpace: true,
+		role: 'content',
 	};
+
+	// settings.attributes = {
+	// 			"content": {
+	// 		"type": "rich-text",
+	// 		"source": "rich-text",
+	// 		"selector": "code",
+	// 		"__unstablePreserveWhiteSpace": true,
+	// 		"role": "content"
+	// 	}
+	// 	code: {
+	// 		type: 'string',
+	// 		source: 'text',
+	// 		default: '',
+	// 		selector: 'code',
+	// 	},
+	// 	tokenizedLines: {
+	// 		type: 'array',
+	// 		default: [],
+	// 	},
+	// 	language: {
+	// 		type: 'string',
+	// 		default: '',
+	// 	},
+	// 	languageConfidence: {
+	// 		type: 'string',
+	// 		default: 'unknown',
+	// 	},
+	// 	triggerCodeUpdate: {
+	// 		type: 'boolean',
+	// 		default: false,
+	// 	},
+	//
+	// 	showCopyButton: {
+	// 		type: 'boolean',
+	// 		default: false,
+	// 	},
+	// 	showLanguageName: {
+	// 		type: 'boolean',
+	// 		default: false,
+	// 	},
+	// 	showLineNumbers: {
+	// 		type: 'boolean',
+	// 		default: false,
+	// 	},
+	// 	lineNumbersStartAt: {
+	// 		type: 'number',
+	// 		default: 1,
+	// 	},
+	// 	filename: {
+	// 		type: 'string',
+	// 		default: '',
+	// 	},
+	//
+	// 	colorComment: { type: 'string' },
+	// 	colorKeyword: { type: 'string' },
+	// 	colorBoolean: { type: 'string' },
+	// 	colorLiteral: { type: 'string' },
+	// 	colorString: { type: 'string' },
+	// 	colorSpecialString: { type: 'string' },
+	// 	colorMacroName: { type: 'string' },
+	// 	colorVariableDefinition: { type: 'string' },
+	// 	colorTypeName: { type: 'string' },
+	// 	colorClassName: { type: 'string' },
+	// 	colorInvalid: { type: 'string' },
+	// };
 
 	return settings;
 }
@@ -271,6 +299,17 @@ const blockEdit = withColors(
 		Extract< keyof Attributes, `color${ Capitalize< string > }` >
 	> }` > )
 )( ( props: EditBlockProps ) => {
+	console.log( { editCode: props.attributes.code, editContent: props.attributes.content } );
+
+	// Handle incoming transforms. Copy the "content" attribute into "code" if necessary.
+	// This should propagate into the correct attributes.
+	if (
+		( ! props.attributes.code && props.attributes.content?.text ) ||
+		typeof props.attributes.content === 'string'
+	) {
+		props.attributes.code = props.attributes.content?.text ?? props.attributes.content;
+	}
+
 	const { setAttributes, attributes } = props;
 
 	return (
@@ -370,6 +409,7 @@ const blockEdit = withColors(
 
 const blockSave = ( props: SaveBlockProps ) => {
 	const { code } = props.attributes;
+	console.log( { saveCode: props.attributes.code, saveContent: props.attributes.content } );
 	return (
 		<CodeWrapper wrapperProps={ useBlockProps.save() } { ...props }>
 			{ htmlEncode( code ) }
@@ -687,4 +727,4 @@ const EditCodeMirror = React.lazy(
 	() => import( /* webpackIgnore: true */ '@a8cCodeBlock/block-edit-function' )
 );
 
-addFilter( 'blocks.registerBlockType', 'jetpack/enhance-core-code-block', enhanceCoreCodeBlock );
+addFilter( 'blocks.registerBlockType', 'jetpack/enhance-core-code-block', filterBlockRegistration );

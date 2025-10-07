@@ -1,7 +1,14 @@
-import blockJson from './block.json';
-export const BLOCK_NAME = blockJson.name;
+import type { RichTextValue } from '@wordpress/rich-text';
+export const BLOCK_NAME = 'core/code';
 
 export interface Attributes {
+	/**
+	 * This attribute should not be used.
+	 * It is maintained for compatibility with core/code like transforms.
+	 */
+	content: RichTextValue;
+
+	/** The raw code string */
 	code: string;
 
 	tokenizedLines: ReadonlyArray< ReadonlyArray< [ string, string ] | [ string ] > >;

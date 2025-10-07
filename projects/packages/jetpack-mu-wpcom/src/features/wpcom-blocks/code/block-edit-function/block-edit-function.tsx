@@ -23,6 +23,7 @@ const { createBlock, getDefaultBlockName } = window.wp.blocks;
 const { useDispatch, useSelect } = window.wp.data;
 const { __ } = window.wp.i18n;
 const { isKeyboardEvent, BACKSPACE: KEY_CODE_BACKSPACE } = window.wp.keycodes;
+const { RichTextData, create: createRichText } = window.wp.richText;
 
 /**
  * The Edit function with CodeMirror available.
@@ -177,6 +178,10 @@ function EditCodeMirror( props: EditBlockProps ) {
 
 			guessLanguage( code );
 			setAttributes( {
+				// Content is updated for compatibility with core/code to support things like
+				// existing transforms.
+				content: createRichText( { text: code } ),
+
 				code,
 				tokenizedLines: lines,
 			} );
