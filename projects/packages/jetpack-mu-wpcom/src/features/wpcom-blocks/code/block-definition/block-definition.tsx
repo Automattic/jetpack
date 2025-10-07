@@ -182,7 +182,15 @@ function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
 	settings.edit = blockEdit;
 	settings.save = blockSave;
 	settings.example = exampleBlock;
-	( settings.transforms?.from ?? [] ).concat( transforms.from );
+
+	if ( ! settings.transforms ) {
+		settings.transforms = { from: transforms.from };
+	} else if ( ! settings.transforms.from ) {
+		settings.transforms.from = transforms.from;
+	} else {
+		settings.transforms.from.push( ...transforms.from );
+	}
+
 	settings.attributes = {
 		...settings.attributes,
 		code: {
