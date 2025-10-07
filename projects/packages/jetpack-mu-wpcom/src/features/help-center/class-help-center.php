@@ -28,6 +28,13 @@ class Help_Center {
 	private $is_support_site = false;
 
 	/**
+	 * The purchases of the current site.
+	 *
+	 * @var array
+	 */
+	private $purchases = array();
+
+	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
