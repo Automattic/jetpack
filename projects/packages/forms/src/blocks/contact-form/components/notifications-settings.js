@@ -50,7 +50,7 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 	return (
 		<>
 			<ToggleControl
-				label={ __( 'Enable form submission notifications', 'jetpack-forms' ) }
+				label={ __( 'Enable form response notifications', 'jetpack-forms' ) }
 				checked={ localFormNotifications }
 				onChange={ value => {
 					if ( value ) {
@@ -78,7 +78,7 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 			{ localFormNotifications && (
 				<>
 					<InspectorHint>
-						{ __( 'Select users who can receive form submission notifications:', 'jetpack-forms' ) }
+						{ __( 'Select users who can receive form response notifications:', 'jetpack-forms' ) }
 					</InspectorHint>
 					<FormTokenField
 						label={ __( 'Send notifications to', 'jetpack-forms' ) }
