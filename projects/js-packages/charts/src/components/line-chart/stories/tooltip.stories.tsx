@@ -20,39 +20,56 @@ const tooltipStoryArgs = {
 	...lineChartStoryArgs,
 };
 
-export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
-Default.args = {
-	...tooltipStoryArgs,
-};
+// Consolidated tooltip configuration story with interactive controls
+export const TooltipConfiguration: StoryObj< typeof LineChart > = {
+	render: args => {
+		const crosshairMapping = {
+			none: undefined,
+			vertical: { showVertical: true },
+			horizontal: { showHorizontal: true },
+			both: { showVertical: true, showHorizontal: true },
+		};
 
-export const NoTooltips: StoryObj< typeof LineChart > = Template.bind( {} );
-NoTooltips.args = {
-	...tooltipStoryArgs,
-	withTooltips: false,
-};
+		const crosshairMode = args.crosshairMode || 'none';
+		const withTooltipCrosshairs = crosshairMapping[ crosshairMode ];
 
-export const Crosshairs: StoryObj< typeof LineChart > = Template.bind( {} );
-Crosshairs.args = {
-	...tooltipStoryArgs,
-	withTooltipCrosshairs: {
-		showVertical: true,
-		showHorizontal: true,
+		return <LineChart { ...args } withTooltipCrosshairs={ withTooltipCrosshairs } />;
 	},
-};
-
-export const CrosshairVertical: StoryObj< typeof LineChart > = Template.bind( {} );
-CrosshairVertical.args = {
-	...tooltipStoryArgs,
-	withTooltipCrosshairs: {
-		showVertical: true,
+	args: {
+		...tooltipStoryArgs,
+		withTooltips: true,
+		crosshairMode: 'none',
 	},
-};
+	argTypes: {
+		withTooltips: {
+			control: { type: 'boolean' },
+			description: 'Enable or disable tooltips',
+		},
+		crosshairMode: {
+			control: { type: 'radio' },
+			options: [ 'none', 'vertical', 'horizontal', 'both' ],
+			description: 'Crosshair display mode',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive tooltip configuration with all available controls. Use the controls panel to explore different tooltip and crosshair options.
 
-export const CrosshairHorizontal: StoryObj< typeof LineChart > = Template.bind( {} );
-CrosshairHorizontal.args = {
-	...tooltipStoryArgs,
-	withTooltipCrosshairs: {
-		showHorizontal: true,
+**Key Features:**
+- **Tooltips**: Toggle tooltips on/off to see chart with and without hover information
+- **Crosshairs**: Choose between no crosshairs, vertical, horizontal, or both
+  - **Vertical**: Shows a vertical line at cursor position for comparing values across series
+  - **Horizontal**: Shows a horizontal line for identifying specific value levels
+  - **Both**: Combined vertical and horizontal crosshairs for precise data point location
+
+**Use Cases:**
+- No crosshairs: Clean minimal look, best for simple data
+- Vertical: Best for comparing multiple series at same x-axis point
+- Horizontal: Best for identifying threshold values
+- Both: Maximum precision for dense or detailed data`,
+			},
+		},
 	},
 };
 
