@@ -142,7 +142,7 @@ describe( 'NotificationsSettings', () => {
 			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
-		expect( screen.getByText( 'Enable form submission notifications' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enable form response notifications' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not show user selector when toggle is disabled', () => {
@@ -256,8 +256,6 @@ describe( 'NotificationsSettings', () => {
 
 		const hint = screen.getByTestId( 'inspector-hint' );
 		expect( hint ).toBeInTheDocument();
-		expect( hint ).toHaveTextContent(
-			'Select users who can receive form submission notifications:'
-		);
+		expect( hint ).toHaveTextContent( 'Select users who can receive form response notifications:' );
 	} );
 } );
