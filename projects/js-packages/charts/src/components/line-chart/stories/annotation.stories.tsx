@@ -44,6 +44,91 @@ const createAnnotationTemplate =
 		</LineChart>
 	);
 
+// Consolidated annotation configuration story with interactive controls
+export const AnnotationConfiguration: StoryObj< typeof LineChart > = {
+	render: args => {
+		const subjectType = args.annotationSubjectType || 'circle';
+		const withCustomColors = args.withCustomColors || false;
+
+		const createColoredStyle = ( color: string ) => ( {
+			circleSubject: { fill: color },
+			connector: { stroke: color },
+			label: { anchorLineStroke: color },
+		} );
+
+		const annotations = [
+			{
+				datum: sampleData[ 0 ].data[ 10 ],
+				title: 'Notable event',
+				subtitle: 'This is a notable event',
+				subjectType,
+				styles: withCustomColors ? createColoredStyle( '#98C8DF' ) : {},
+			},
+			{
+				datum: sampleData[ 1 ].data[ 1 ],
+				title: 'Another notable event',
+				subtitle: 'This is another notable event',
+				subjectType,
+				styles: withCustomColors ? createColoredStyle( '#006DAB' ) : {},
+			},
+			{
+				datum: sampleData[ 2 ].data[ 7 ],
+				title: 'Concerning event',
+				subtitle: 'This is a concerning event',
+				subjectType,
+				styles: withCustomColors ? createColoredStyle( 'var(--jp-red)' ) : {},
+			},
+		];
+
+		return (
+			<LineChart { ...args }>
+				<LineChart.AnnotationsOverlay>
+					{ annotations.map( ( annotation, index ) => (
+						<LineChart.Annotation key={ index } { ...annotation } />
+					) ) }
+				</LineChart.AnnotationsOverlay>
+			</LineChart>
+		);
+	},
+	args: {
+		...lineChartStoryArgs,
+		annotationSubjectType: 'circle',
+		withCustomColors: false,
+	},
+	argTypes: {
+		annotationSubjectType: {
+			control: { type: 'radio' },
+			options: [ 'circle', 'line-vertical', 'line-horizontal' ],
+			description: 'Type of annotation marker',
+		},
+		withCustomColors: {
+			control: { type: 'boolean' },
+			description: 'Apply custom colors to annotations',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive annotation configuration with all available controls. Use the controls panel to explore different annotation types and styling options.
+
+**Subject Types:**
+- **Circle**: Point annotation marking a specific data point
+- **Line Vertical**: Vertical line annotation spanning the chart height, useful for marking events or time periods
+- **Line Horizontal**: Horizontal line annotation spanning the chart width, useful for marking threshold values
+
+**Styling Options:**
+- **Default**: Uses chart theme colors for consistency
+- **Custom Colors**: Applies distinct colors to each annotation for emphasis or categorization
+
+**Use Cases:**
+- Circle: Highlight specific data points, outliers, or important events
+- Vertical lines: Mark releases, deployments, or time-based events
+- Horizontal lines: Show targets, thresholds, or baseline values`,
+			},
+		},
+	},
+};
+
 const Template = createAnnotationTemplate( [
 	{},
 	{},
@@ -57,97 +142,6 @@ const Template = createAnnotationTemplate( [
 ] );
 
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
-
-const VerticalTemplate = createAnnotationTemplate( [
-	{ subjectType: 'line-vertical' },
-	{ subjectType: 'line-vertical' },
-	{
-		subjectType: 'line-vertical',
-		styles: {
-			connector: { stroke: 'var(--jp-red)' },
-			label: { anchorLineStroke: 'var(--jp-red)' },
-		},
-	},
-] );
-
-export const Vertical: StoryObj< typeof LineChart > = VerticalTemplate.bind( {} );
-
-const HorizontalTemplate = createAnnotationTemplate( [
-	{ subjectType: 'line-horizontal' },
-	{ subjectType: 'line-horizontal' },
-	{
-		subjectType: 'line-horizontal',
-		styles: {
-			connector: { stroke: 'var(--jp-red)' },
-			label: { anchorLineStroke: 'var(--jp-red)' },
-		},
-	},
-] );
-
-export const Horizontal: StoryObj< typeof LineChart > = HorizontalTemplate.bind( {} );
-
-const MixedTemplate = createAnnotationTemplate( [
-	{ subjectType: 'circle' },
-	{ subjectType: 'line-vertical' },
-	{
-		subjectType: 'line-horizontal',
-		styles: {
-			connector: { stroke: 'var(--jp-red)' },
-			label: { anchorLineStroke: 'var(--jp-red)' },
-		},
-	},
-] );
-
-export const Mixed: StoryObj< typeof LineChart > = MixedTemplate.bind( {} );
-
-const ColoredTemplate = createAnnotationTemplate( [
-	{
-		styles: {
-			label: {
-				backgroundFill: '#98C8DF',
-				showAnchorLine: false,
-			},
-			circleSubject: {
-				fill: '#98C8DF',
-			},
-			connector: {
-				stroke: '#98C8DF',
-			},
-		},
-	},
-	{
-		styles: {
-			label: {
-				backgroundFill: '#006DAB',
-				fontColor: '#fff',
-				showAnchorLine: false,
-			},
-			circleSubject: {
-				fill: '#006DAB',
-			},
-			connector: {
-				stroke: '#006DAB',
-			},
-		},
-	},
-	{
-		styles: {
-			label: {
-				backgroundFill: 'var(--jp-red)',
-				showAnchorLine: false,
-				fontColor: '#fff',
-			},
-			circleSubject: {
-				fill: 'var(--jp-red)',
-			},
-			connector: {
-				stroke: 'var(--jp-red)',
-			},
-		},
-	},
-] );
-
-export const Colored: StoryObj< typeof LineChart > = ColoredTemplate.bind( {} );
 
 const DeployedIcon = () => (
 	<span
