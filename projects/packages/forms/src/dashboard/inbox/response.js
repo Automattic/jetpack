@@ -27,8 +27,7 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { updateMenuCounter } from './dataviews/actions';
-import { getPath } from './utils';
+import { getPath, updateMenuCounter } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
