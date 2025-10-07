@@ -183,13 +183,9 @@ function enhanceCoreCodeBlock( settings: CodeBlockSettings ) {
 	settings.save = blockSave;
 	settings.example = exampleBlock;
 
-	if ( ! settings.transforms ) {
-		settings.transforms = { from: transforms.from };
-	} else if ( ! settings.transforms.from ) {
-		settings.transforms.from = transforms.from;
-	} else {
-		settings.transforms.from.push( ...transforms.from );
-	}
+	// The core/code block uses incompatible RichText markup for its content.
+	// That's incompatible, transforms must be replaced.
+	settings.transforms = transforms;
 
 	settings.attributes = {
 		...settings.attributes,
