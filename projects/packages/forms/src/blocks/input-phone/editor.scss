@@ -16,6 +16,7 @@
 		&.is-selected {
 			border-color: #2271b1;
 			box-shadow: 0 0 0 1px #2271b1;
+			z-index: 1;
 		}
 
 		// these class is used to style input and textarea elements

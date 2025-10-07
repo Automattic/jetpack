@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.24.0] - 2025-10-06
 ### Changed
-- Admin Menu: Show `wp-admin` menu of self-hosted Jetpack sites in Calypso. [#45336]
-- Clean-up the code for quick switcher after RDV. [#45353]
+- Admin Menu: Use original menu order for self-hosted Jetpack sites in Calypso. [#45336]
+- Clean up the code for quick switcher after RDV. [#45353]
 - Update package dependencies. [#45334]
 
 ### Removed
-- Admin Menu: Remove unused menu registrations [#45351]
+- Admin Menu: Remove unused menu registrations. [#45351]
 
 ## [0.23.3] - 2025-09-29
 ### Changed

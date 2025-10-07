@@ -101,6 +101,18 @@ const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
 
 const PRIORITIZED_INSERTER_BLOCKS = [ ...validFields.map( block => `jetpack/${ block.name }` ) ];
 
+// Determine if a block has a required attribute. Exclude hidden fields.
+const isInputWithRequiredField = ( fullName?: string ): boolean => {
+	if ( ! fullName || ! fullName.startsWith( 'jetpack/' ) ) return false;
+	const baseName = fullName.slice( 'jetpack/'.length );
+	const field = childBlocks.find( block => block.name === baseName );
+	// @ts-expect-error: childBlocks are defined in JS without explicit types.
+	// TS is inferring the type wrong. Fix is to update childBlocks to TS with types.
+	const hasRequired = field && field?.settings?.attributes?.required !== undefined;
+	const isHidden = field?.name === 'field-hidden';
+	return hasRequired && ! isHidden;
+};
+
 function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
@@ -219,7 +231,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
 	const currentInnerBlocks = useSelect(
@@ -229,6 +241,26 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
+
+	// Helper function to identify input field blocks
+	const getInputFieldBlocks = useCallback( blocks => {
+		const inputFields = [];
+
+		const findInputFields = blockList => {
+			blockList.forEach( block => {
+				if ( isInputWithRequiredField( block.name ) ) {
+					inputFields.push( block );
+				}
+				// Recursively check inner blocks (for multistep forms)
+				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
+					findInputFields( block.innerBlocks );
+				}
+			} );
+		};
+
+		findInputFields( blocks );
+		return inputFields;
+	}, [] );
 
 	// Effect to handle block insertion and reordering
 	useEffect( () => {
@@ -267,6 +299,22 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		replaceInnerBlocks,
 		__unstableMarkNextChangeAsNotPersistent,
 	] );
+
+	// Effect to automatically make single input fields required
+	useEffect( () => {
+		const inputFields = getInputFieldBlocks( currentInnerBlocks );
+
+		// Only proceed if there's exactly one input field
+		if ( inputFields.length === 1 ) {
+			const singleField = inputFields[ 0 ];
+
+			// Check if the field is not already required
+			if ( ! singleField.attributes?.required ) {
+				// Update the field to be required
+				updateBlockAttributes( singleField.clientId, { required: true } );
+			}
+		}
+	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {

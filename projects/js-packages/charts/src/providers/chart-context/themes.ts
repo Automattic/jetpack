@@ -129,8 +129,8 @@ const wooTheme: ChartTheme = {
 	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [
 		'#3858E9', // WooCommerce brand blue
-		'#873EFF', // Purple
 		'#66BDFF', // Light blue
+		'#873EFF', // Purple
 		'#7B90FF', // Periwinkle blue
 		'#EB6594', // Pink/rose
 	],

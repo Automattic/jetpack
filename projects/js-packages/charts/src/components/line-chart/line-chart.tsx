@@ -5,6 +5,7 @@ import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { differenceInHours } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
 	useXYChartTheme,
@@ -108,9 +109,18 @@ const formatDateTick = ( timestamp: number ) => {
 	} );
 };
 
+const formatHourTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleTimeString( undefined, {
+		hour: 'numeric',
+		hour12: true,
+	} );
+};
+
 const guessOptimalNumTicks = (
 	data: ReturnType< typeof useChartDataTransform >,
-	chartWidth: number
+	chartWidth: number,
+	tickFormatter: ( timestamp: number ) => string
 ) => {
 	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
@@ -121,7 +131,7 @@ const guessOptimalNumTicks = (
 	let secondBestGuess = 1; // a tick number that's no greater than upperBound
 
 	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
-		const ticks = xScale.ticks( numTicks ).map( d => formatDateTick( d.getTime() ) );
+		const ticks = xScale.ticks( numTicks ).map( d => tickFormatter( d.getTime() ) );
 
 		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
 		if ( ticks.length > upperBound ) {
@@ -268,12 +278,19 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
+			const minX = Math.min( ...dataSorted.map( datom => datom.data.at( 0 )?.date ) );
+			const maxX = Math.max( ...dataSorted.map( datom => datom.data.at( -1 )?.date ) );
+			const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
+
+			// Show the difference in hours if less than 24 hours; otherwise, display the date.
+			const formatter = diffInHours <= 24 ? formatHourTick : formatDateTick;
+
 			return {
 				axis: {
 					x: {
 						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width ),
-						tickFormat: formatDateTick,
+						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
+						tickFormat: formatter,
 						...options?.axis?.x,
 					},
 					y: {

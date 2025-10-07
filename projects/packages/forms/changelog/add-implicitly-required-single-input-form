@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Added required indicator settings, made forms with a sinble input required by default.

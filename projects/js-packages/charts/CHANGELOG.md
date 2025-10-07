@@ -10,8 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `legendItemClassName` prop for custom legend item styling. [#45286]
 
 ### Changed
-- Update package dependencies. [#45334]
-- Update package dependencies. [#45335]
+- Update package dependencies. [#45334] [#45335]
 
 ## [0.39.0] - 2025-09-29
 ### Added

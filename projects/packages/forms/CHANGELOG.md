@@ -11,12 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Improve preloading for endpoints. [#45362]
-- Update package dependencies. [#45334]
-- Update package dependencies. [#45335]
+- Update package dependencies. [#45334] [#45335]
 
 ### Fixed
-- Forms: fix integrations bottom border. [#45359]
-- Forms: remove integrations loading spinner. [#45373]
+- Forms: Fix integrations bottom border. [#45359]
+- Forms: Remove integrations loading spinner. [#45373]
 
 ## [6.7.0] - 2025-09-30
 ### Changed
