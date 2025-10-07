@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.3.6';
+	const PACKAGE_VERSION = '4.3.7';
 
 	/**
 	 * List of screen IDs where JITMs are allowed to display.
