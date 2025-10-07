@@ -27,7 +27,7 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { getPath, updateMenuCounter } from './utils';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -315,6 +315,9 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			is_unread: false,
 		} );
 
+		// Immediately update menu counters optimistically to avoid delays
+		updateMenuCounterOptimistically( -1 );
+
 		// Then update on server
 		apiFetch( {
 			path: `/wp/v2/feedback/${ response.id }/read`,
@@ -322,6 +325,7 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			data: { is_unread: false },
 		} )
 			.then( ( { count } ) => {
+				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
 			} )
 			.catch( () => {

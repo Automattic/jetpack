@@ -7,7 +7,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
-import { updateMenuCounter } from '../utils';
+import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
@@ -316,21 +316,32 @@ export const markAsReadAction = {
 			items.map( async ( { id } ) => {
 				// Update entity in store
 				editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+
+				// Immediately update menu counters optimistically to avoid delays
+				updateMenuCounterOptimistically( -items.length );
+
 				// Update on server
-				return apiFetch( {
-					path: `/wp/v2/feedback/${ id }/read`,
-					method: 'POST',
-					data: { is_unread: false },
-				} )
-					.then( ( { count } ) => {
-						// Update the unread count in the menu.
-						updateMenuCounter( count );
+				return (
+					apiFetch( {
+						path: `/wp/v2/feedback/${ id }/read`,
+						method: 'POST',
+						data: { is_unread: false },
 					} )
-					.catch( () => {
-						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
-						throw new Error( 'Failed to mark as read' );
-					} );
+						.then( ( { count } ) => {
+							// Update the unread count in the menu.
+							updateMenuCounter( count );
+						} )
+						// Server update failed
+						.catch( () => {
+							// Revert the change in the store
+							editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+
+							// Revert the change in the sidebar
+							updateMenuCounterOptimistically( items.length );
+
+							throw new Error( 'Failed to mark as read' );
+						} )
+				);
 			} )
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
@@ -381,21 +392,32 @@ export const markAsUnreadAction = {
 			items.map( async ( { id } ) => {
 				// Update entity in store
 				editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+
+				// Immediately update menu counters optimistically to avoid delays
+				updateMenuCounterOptimistically( items.length );
+
 				// Update on server
-				return apiFetch( {
-					path: `/wp/v2/feedback/${ id }/read`,
-					method: 'POST',
-					data: { is_unread: true },
-				} )
-					.then( ( { count } ) => {
-						// Update the unread count in the menu.
-						updateMenuCounter( count );
+				return (
+					apiFetch( {
+						path: `/wp/v2/feedback/${ id }/read`,
+						method: 'POST',
+						data: { is_unread: true },
 					} )
-					.catch( () => {
-						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
-						throw new Error( 'Failed to mark as unread' );
-					} );
+						.then( ( { count } ) => {
+							// Update the unread count in the menu.
+							updateMenuCounter( count );
+						} )
+						// Server update failed
+						.catch( () => {
+							// Revert the change in the store
+							editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+
+							// Revert the change in the sidebar
+							updateMenuCounterOptimistically( -items.length );
+
+							throw new Error( 'Failed to mark as unread' );
+						} )
+				);
 			} )
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
