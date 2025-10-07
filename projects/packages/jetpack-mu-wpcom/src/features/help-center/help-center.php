@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Help Center
  * Plugin URI: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/jetpack-mu-wpcom/src/features/help-center
- * Description: It is how you reach support
+ * Description: This plugin loads the Help Center. It is how you reach support
  * Text Domain: jetpack-mu-wpcom
  * Note: This file is used to load the Help Center as a standalone plugin. It's not used by Jetpack
  *
