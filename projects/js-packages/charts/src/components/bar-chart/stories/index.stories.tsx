@@ -31,7 +31,7 @@ export default meta;
 
 type Story = StoryObj< StoryArgs >;
 
-// Default story with multiple series
+// Default story with multiple series and interactive controls
 export const Default: Story = {
 	args: {
 		withTooltips: true,
@@ -40,6 +40,50 @@ export const Default: Story = {
 		maxWidth: 1200,
 		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+		orientation: 'vertical',
+	},
+	argTypes: {
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'vertical', 'horizontal' ],
+			description: 'Orientation of the bars',
+		},
+		gridVisibility: {
+			control: { type: 'radio' },
+			options: [ 'none', 'x', 'y', 'both' ],
+			description: 'Which grid lines to display',
+		},
+		withTooltips: {
+			control: { type: 'boolean' },
+			description: 'Enable or disable tooltips',
+		},
+		showZeroValues: {
+			control: { type: 'boolean' },
+			description: 'Display zero values with minimum height bars',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive bar chart with orientation and grid controls. Use the controls panel to explore different layouts and visual options.
+
+**Orientation Options:**
+- **Vertical**: Traditional bar chart with bars extending upward (best for time series or categorical comparisons)
+- **Horizontal**: Bars extending rightward (better for long labels or ranking data)
+
+**Grid Visibility:**
+- **None**: Clean chart without grid lines
+- **X**: Show only vertical grid lines (useful for value comparisons in vertical charts)
+- **Y**: Show only horizontal grid lines (useful for value comparisons in horizontal charts)
+- **Both**: Full grid for precise value reading
+
+**Tooltips:**
+- Toggle to show/hide interactive hover information
+
+**Zero Values:**
+- When enabled, zero values are shown with minimum height bars for better UX`,
+			},
+		},
 	},
 };
 
