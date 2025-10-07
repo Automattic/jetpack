@@ -15,7 +15,6 @@ import {
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
-import blockJson from '../common/block.json';
 import {
 	type Attributes,
 	BLOCK_NAME,
@@ -32,7 +31,7 @@ const {
 	__experimentalGetElementClassName,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
-const { registerBlockType, registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
+const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
@@ -53,12 +52,6 @@ const fibonacci = ( n ) => n < 1 ? 0
 		filename: 'example.js',
 	} satisfies Partial< Attributes >,
 };
-
-const icon = (
-	<svg width="24" height="24">
-		<path d="m8.53 7.531-4.293 4.277a.25.25 0 0 0 0 .353l4.294 4.31-1.062 1.058-4.294-4.31a1.75 1.75 0 0 1-.116-2.342l.12-.132L7.47 6.47 8.529 7.53ZM18.53 5.53l-1.292 1.292a.25.25 0 0 0 .001.354l3.582 3.57.12.131a1.75 1.75 0 0 1-.116 2.343l-4.294 4.31-1.062-1.06 4.294-4.309a.25.25 0 0 0 .031-.314l-.031-.04-3.582-3.569a1.75 1.75 0 0 1-.003-2.476L17.47 4.47l1.06 1.06Z" />
-	</svg>
-);
 
 const emptyLanguageOption = {
 	key: '',
@@ -375,16 +368,6 @@ const blockSave = ( props: SaveBlockProps ) => {
 		</CodeWrapper>
 	);
 };
-
-const XregisterBlockType = ( ..._: unknown[] ) => undefined;
-
-XregisterBlockType( blockJson, {
-	icon,
-	example: exampleBlock,
-	transforms,
-	edit: blockEdit,
-	save: blockSave,
-} );
 
 registerBlockStyle( BLOCK_NAME, {
 	name: 'no-highlight',
