@@ -44,9 +44,7 @@ class Help_Center {
 			return;
 		}
 
-		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			$this->purchases = array();
-		} else {
+		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
