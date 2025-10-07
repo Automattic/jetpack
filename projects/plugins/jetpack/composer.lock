@@ -700,16 +700,16 @@
         },
         {
             "name": "automattic/jetpack-classic-theme-helper",
-            "version": "v0.13.21",
+            "version": "v0.13.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-classic-theme-helper.git",
-                "reference": "538cecd30d2bad920486cf53b1523d707bab1137"
+                "reference": "035ff5a69d38f46247111dc91aa4d98a27aeb6b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-classic-theme-helper/zipball/538cecd30d2bad920486cf53b1523d707bab1137",
-                "reference": "538cecd30d2bad920486cf53b1523d707bab1137",
+                "url": "https://api.github.com/repos/Automattic/jetpack-classic-theme-helper/zipball/035ff5a69d38f46247111dc91aa4d98a27aeb6b8",
+                "reference": "035ff5a69d38f46247111dc91aa4d98a27aeb6b8",
                 "shasum": ""
             },
             "require": {
@@ -750,9 +750,9 @@
             ],
             "description": "Features used with classic themes",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-classic-theme-helper/tree/v0.13.21"
+                "source": "https://github.com/Automattic/jetpack-classic-theme-helper/tree/v0.13.22"
             },
-            "time": "2025-10-06T10:33:19+00:00"
+            "time": "2025-10-07T13:45:22+00:00"
         },
         {
             "name": "automattic/jetpack-compat",

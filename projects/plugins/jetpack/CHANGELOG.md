@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1-beta.2 - 2025-10-07
+- Testimonials: Prevent warning when custom post type is not registered.
+
 ## 15.1-beta - 2025-10-06
 ### Enhancements
 - Forms: Improve preloading for endpoints. [#45362]
