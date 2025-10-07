@@ -660,7 +660,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_wpcom_flex':
 				$response[ $key ] = $this->site->is_wpcom_flex();
 				break;
-			}
 		}
 
 		do_action( 'post_render_site_response_key', $key );
