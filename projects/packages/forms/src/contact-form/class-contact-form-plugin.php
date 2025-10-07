@@ -1414,8 +1414,10 @@ class Contact_Form_Plugin {
 			// show the count on Jetpack and Jetpack → Forms
 			$unread = self::get_unread_count();
 
-			if ( $unread > 0 && isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
+			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
+				$inline_style = ( $unread > 0 ) ? '' : 'style="display: none;"';
+
+				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod' {$inline_style}><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
 				$jetpack_badge_count    = $unread;
 
 				// Main menu entries
