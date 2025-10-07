@@ -33,9 +33,8 @@ import {
 	moveToTrashAction,
 	restoreAction,
 	deleteAction,
-	updateMenuCounter,
 } from './dataviews/actions';
-import { getPath } from './utils';
+import { getPath, updateMenuCounter } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
