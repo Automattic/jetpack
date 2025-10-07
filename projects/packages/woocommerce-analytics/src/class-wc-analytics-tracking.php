@@ -251,7 +251,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			$data = parent::get_server_details();
 		} elseif ( method_exists( WC_Site_Tracking::class, 'get_server_details' ) ) {
 			// WC < 6.8
-			$data = WC_Site_Tracking::get_server_details();
+			$data = WC_Site_Tracking::get_server_details(); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
 		}
 
 		return array_merge(
@@ -277,7 +277,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return parent::get_blog_details( $blog_id );
 		} elseif ( method_exists( WC_Site_Tracking::class, 'get_blog_details' ) ) {
 			// WC < 6.8
-			return WC_Site_Tracking::get_blog_details( $blog_id );
+			return WC_Site_Tracking::get_blog_details( $blog_id ); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
 		}
 		return array();
 	}
