@@ -41,28 +41,73 @@ ManySeries.args = {
 	showLegend: true,
 };
 
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
+// Consolidated legend configuration story with interactive controls
+export const LegendConfiguration: StoryObj< typeof LineChart > = Template.bind( {} );
+LegendConfiguration.args = {
 	...lineChartStoryArgs,
-	showLegend: true,
-};
-
-export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomLegendPositioning.args = {
-	...lineChartStoryArgs,
+	data: sampleData,
 	showLegend: true,
 	height: 400,
-	legendAlignment: 'start',
-	legendPosition: 'top',
+	legendAlignment: 'center',
+	legendPosition: 'bottom',
 	legendOrientation: 'horizontal',
-	withLegendGlyph: true,
+	legendShape: 'rect',
+	withLegendGlyph: false,
+	legendMaxWidth: undefined,
+	legendTextOverflow: 'wrap',
 };
 
-CustomLegendPositioning.parameters = {
+LegendConfiguration.argTypes = {
+	showLegend: {
+		control: { type: 'boolean' },
+		description: 'Show or hide the legend',
+	},
+	legendPosition: {
+		control: { type: 'radio' },
+		options: [ 'top', 'bottom' ],
+		description: 'Vertical position of the legend',
+	},
+	legendAlignment: {
+		control: { type: 'radio' },
+		options: [ 'start', 'center', 'end' ],
+		description: 'Horizontal alignment of the legend',
+	},
+	legendOrientation: {
+		control: { type: 'radio' },
+		options: [ 'horizontal', 'vertical' ],
+		description: 'Layout direction of legend items',
+	},
+	legendShape: {
+		control: { type: 'radio' },
+		options: [ 'circle', 'rect', 'line' ],
+		description: 'Shape of legend markers',
+	},
+	withLegendGlyph: {
+		control: { type: 'boolean' },
+		description: 'Show glyphs in legend (matching line markers)',
+	},
+	legendMaxWidth: {
+		control: { type: 'text' },
+		description: 'Maximum width for legend items (e.g., "150px", "50%"). Try "100px" to see text overflow behavior.',
+	},
+	legendTextOverflow: {
+		control: { type: 'radio' },
+		options: [ 'wrap', 'ellipsis' ],
+		description: 'How text behaves when exceeding maxWidth: wrap to multiple lines or truncate with ellipsis',
+	},
+};
+
+LegendConfiguration.parameters = {
 	docs: {
 		description: {
-			story:
-				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+			story: `Interactive legend configuration with all available controls. Use the controls panel to explore different legend positioning, styling, and text overflow options.
+
+**Key Features:**
+- **Position & Alignment**: Place the legend at top/bottom with start/center/end alignment
+- **Orientation**: Horizontal for compact legends, vertical for detailed lists
+- **Shapes**: Choose between circle, rectangle, or line markers
+- **Glyphs**: Show matching line chart glyphs in the legend
+- **Text Overflow**: Control how long labels are handled with maxWidth and textOverflow options`,
 		},
 	},
 };
