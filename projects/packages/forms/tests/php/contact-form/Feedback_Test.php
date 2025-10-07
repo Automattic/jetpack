@@ -2649,4 +2649,67 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $result, 'mark_as_unread should return false on DB failure' );
 		$this->assertFalse( $feedback->is_unread(), 'Feedback should remain read' );
 	}
+
+	/**
+	 * Test that notification recipients are stored and retrieved correctly.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_notification_recipients_handling() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array( '123', '1234' ),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array( '123', '1234' ), $response->get_notification_recipients(), 'Notification recipients should match for form submission' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array( '123', '1234' ), $saved_response->get_notification_recipients(), 'Notification recipients should match for saved response' );
+	}
+
+	/**
+	 * Test that notification recipients default to empty array when not set.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_notification_recipients_default_empty() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array(), $response->get_notification_recipients(), 'Notification recipients should default to empty array' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array(), $saved_response->get_notification_recipients(), 'Saved notification recipients should default to empty array' );
+	}
 }
