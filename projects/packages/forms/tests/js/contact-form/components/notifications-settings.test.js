@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import JetpackFormNotificationsSettings from '../../../../src/blocks/contact-form/components/jetpack-form-notifications-settings';
+import NotificationsSettings from '../../../../src/blocks/contact-form/components/notifications-settings';
 
 // Create stable handlers outside of mock to avoid react/jsx-no-bind issues
 const createToggleHandler = onChange => {
@@ -129,7 +129,7 @@ jest.mock( '../../../../src/blocks/shared/components/inspector-hint', () => ( { 
 	<div data-testid="inspector-hint">{ children }</div>
 ) );
 
-describe( 'JetpackFormNotificationsSettings', () => {
+describe( 'NotificationsSettings', () => {
 	let setAttributesMock;
 
 	beforeEach( () => {
@@ -139,10 +139,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'renders the toggle control', () => {
 		render(
-			<JetpackFormNotificationsSettings
-				setAttributes={ setAttributesMock }
-				notificationRecipients={ [] }
-			/>
+			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
 		expect( screen.getByText( 'Enable form submission notifications' ) ).toBeInTheDocument();
@@ -150,10 +147,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'does not show user selector when toggle is disabled', () => {
 		render(
-			<JetpackFormNotificationsSettings
-				setAttributes={ setAttributesMock }
-				notificationRecipients={ [] }
-			/>
+			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
 		expect( screen.queryByTestId( 'form-token-field' ) ).not.toBeInTheDocument();
@@ -161,10 +155,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'shows user selector when toggle is enabled', async () => {
 		render(
-			<JetpackFormNotificationsSettings
-				setAttributes={ setAttributesMock }
-				notificationRecipients={ [] }
-			/>
+			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
 		const toggle = screen.getByRole( 'checkbox' );
@@ -176,10 +167,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'auto-selects post author when toggle is enabled with no recipients', async () => {
 		render(
-			<JetpackFormNotificationsSettings
-				setAttributes={ setAttributesMock }
-				notificationRecipients={ [] }
-			/>
+			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
 		const toggle = screen.getByRole( 'checkbox' );
@@ -193,7 +181,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'preserves existing recipients when component is initialized with them', () => {
 		render(
-			<JetpackFormNotificationsSettings
+			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '2' ] }
 			/>
@@ -209,7 +197,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'clears recipients when toggle is disabled', async () => {
 		render(
-			<JetpackFormNotificationsSettings
+			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1', '2' ] }
 			/>
@@ -226,7 +214,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'filters users to only show those with edit capabilities', () => {
 		render(
-			<JetpackFormNotificationsSettings
+			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1' ] }
 			/>
@@ -245,7 +233,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'displays selected users by name', () => {
 		render(
-			<JetpackFormNotificationsSettings
+			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1', '2' ] }
 			/>
@@ -260,10 +248,7 @@ describe( 'JetpackFormNotificationsSettings', () => {
 
 	it( 'shows inspector hint when toggle is enabled', async () => {
 		render(
-			<JetpackFormNotificationsSettings
-				setAttributes={ setAttributesMock }
-				notificationRecipients={ [] }
-			/>
+			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
 		);
 
 		const toggle = screen.getByRole( 'checkbox' );

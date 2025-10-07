@@ -51,7 +51,7 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
-import JetpackFormNotificationsSettings from './components/jetpack-form-notifications-settings';
+import NotificationsSettings from './components/notifications-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -845,7 +845,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 					</PanelBody>
 					{ hasFeatureFlag( 'form-notifications' ) && (
 						<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
-							<JetpackFormNotificationsSettings
+							<NotificationsSettings
 								notificationRecipients={ notificationRecipients }
 								setAttributes={ setAttributes }
 							/>

@@ -6,7 +6,7 @@ import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import InspectorHint from '../../shared/components/inspector-hint';
 
-const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
+const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 	const [ localNotificationRecipients, setLocalNotificationRecipients ] =
 		useState( notificationRecipients );
 	const [ localFormNotifications, setLocalFormNotifications ] = useState(
@@ -104,4 +104,4 @@ const JetpackFormNotificationsSettings = ( { setAttributes, notificationRecipien
 	);
 };
 
-export default JetpackFormNotificationsSettings;
+export default NotificationsSettings;
