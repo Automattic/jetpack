@@ -243,7 +243,11 @@ For complete control over legend rendering, use the `render` prop to provide a c
 			<div className="custom-legend">
 				{ customLegendItems.map( ( customLegendItem, i ) => (
 					<div key={ i } className="custom-legend-item">
-						<span style={ { color: items[i].color } }>●</span>
+						<span
+							className="legend-bullet"
+							style={ { backgroundColor: items[i].color } }
+							aria-hidden="true"
+						></span>
 						<span>{ customLegendItem.label }: { customLegendItem.value }</span>
 					</div>
 				) ) }
