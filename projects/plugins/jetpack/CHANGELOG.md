@@ -10,9 +10,9 @@
 - Cookie Consent Widget: Ensure the default widget text can be translated. [#45367]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Admin Menu: Show `wp-admin` menu of self-hosted Jetpack sites in Calypso. [#45336]
+- Admin Menu: Use original menu order for self-hosted Jetpack sites in Calypso. [#45358]
 - Editor assets endpoint: Optimize URL processing. [#45358]
-- Garden Sites: Exposes the `garden_is_provisioned` flag on the site endpoint. [#45321]
+- Garden Sites: Expose the `garden_is_provisioned` flag on the site endpoint. [#45321]
 - Tiled Gallery: Improve editor animation performance by removing loading animations when possible. [#45344]
 - Update package dependencies. [#45334] [#45335]
 
