@@ -114,6 +114,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'type'                     => 'text',
 				'required'                 => false,
 				'requiredtext'             => null,
+				'requiredindicator'        => true,
 				'options'                  => array(),
 				'optionsdata'              => array(),
 				'id'                       => null,
@@ -522,14 +523,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render() {
 
-		$field_id            = $this->get_attribute( 'id' );
-		$field_type          = $this->maybe_override_type();
-		$field_label         = $this->get_attribute( 'label' );
-		$field_required      = $this->get_attribute( 'required' );
-		$field_required_text = $this->get_attribute( 'requiredtext' );
-		$field_placeholder   = $this->get_attribute( 'placeholder' );
-		$field_width         = $this->get_attribute( 'width' );
-		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+		$field_id                 = $this->get_attribute( 'id' );
+		$field_type               = $this->maybe_override_type();
+		$field_label              = $this->get_attribute( 'label' );
+		$field_required           = $this->get_attribute( 'required' );
+		$field_required_text      = $this->get_attribute( 'requiredtext' );
+		$field_required_indicator = (bool) $this->get_attribute( 'requiredindicator' );
+		$field_placeholder        = $this->get_attribute( 'placeholder' );
+		$field_width              = $this->get_attribute( 'width' );
+		$class                    = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
 		$label_classes  = $this->get_attribute( 'labelclasses' );
 		$label_styles   = $this->get_attribute( 'labelstyles' );
@@ -682,7 +684,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs );
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs, $field_required_indicator );
 
 		/**
 		 * Filter the HTML of the Contact Form.
@@ -767,21 +769,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
 	 * @param bool   $always_render - if the label should always be shown.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false, $required_indicator = true ) {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
 			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text );
+						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text );
+						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
 					case 'below':
-						return $this->render_below_label( $id, $label, $required, $required_field_text );
+						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
 			}
 
@@ -794,7 +797,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs['style'] = $this->label_styles;
 		}
 
-		$type_class           = $type ? ' ' . $type : '';
+		$type_class = $type ? ' ' . $type : '';
+
 		$extra_attrs['class'] = "grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' );
 
 		if ( ! empty( $this->label_classes ) ) {
@@ -813,7 +817,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			"</label>\n";
 	}
 
@@ -826,10 +830,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
 		if ( ! empty( $this->label_styles ) ) {
 			$extra_attrs['style'] = $this->label_styles;
 		}
@@ -852,7 +857,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. '<span class="grunion-label-text">' . wp_kses_post( $legend ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
+				. ( $required && $required_indicator ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
 
@@ -967,12 +972,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'email', __( 'Please enter a valid email address', 'jetpack-forms' ) );
-		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -987,10 +993,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$show_country_selector = $this->get_attribute( 'showcountryselector' );
 		$default_country       = $this->get_attribute( 'default' );
 		$search_placeholder    = $this->get_attribute( 'searchplaceholder' );
@@ -998,7 +1005,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		if ( ! $show_country_selector ) {
 			// old telephone field treatment
 			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
+			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
 			return $label . $field;
 		}
@@ -1016,7 +1023,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$link_label_id = $id . '-number';
 
 		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'phone', $link_label_id, $label, $required, $required_field_text );
+		$label = $this->render_label( 'phone', $link_label_id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
@@ -1154,13 +1161,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'url', __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' ) );
 
-		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -1175,15 +1183,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
 
-		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
@@ -1214,10 +1223,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$this->set_invalid_message( 'radio', __( 'Please select one of the options.', 'jetpack-forms' ) );
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
@@ -1258,7 +1268,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 		}
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
 			$field .= "<div class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
@@ -1353,10 +1363,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$label_class                   = 'grunion-field-label checkbox';
 		$label_class                  .= $this->is_error() ? ' form-error' : '';
 		$label_class                  .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -1366,7 +1377,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
 		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
-		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
+		$field .= wp_kses_post( $label ) . ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		$field .= '</div>';
@@ -1411,10 +1422,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field CSS class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+	private function render_file_field( $id, $label, $class, $required, $required_field_text, $required_indicator = true ) {
 		// Check if Jetpack is active
 		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
 			return '<div class="jetpack-form-field-error">' .
@@ -1513,7 +1525,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasMaxFiles'      => false,
 		);
 
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>
@@ -1644,10 +1656,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
@@ -1696,7 +1709,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
 		}
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
 			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
@@ -1788,11 +1801,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
+		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
 		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors'>\n";
@@ -1827,10 +1841,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
@@ -1854,7 +1869,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
 		$extra_attrs = array( 'data-format' => $date_format );
 
-		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
@@ -1946,13 +1961,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
 
-		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
 
 		return $field;
@@ -1967,10 +1983,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
 		$is_multiple       = $this->get_attribute( 'ismultiple' );
@@ -1987,7 +2004,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		$options_classes = $this->get_attribute( 'optionsclasses' );
 		$options_styles  = $this->get_attribute( 'optionsstyles' );
@@ -2149,10 +2166,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param array  $extra_attrs - Extra attributes used in number field, namely `min` and `max`.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		$this->set_invalid_message( 'number', __( 'Please enter a valid number', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
 			// translators: %d is the minimum value.
@@ -2162,7 +2180,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_number', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
 	}
@@ -2178,11 +2196,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param string $type - the type.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
-		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text );
+	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type, $required_indicator = true ) {
+		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -2301,10 +2320,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_outline_label( $id, $label, $required, $required_field_text ) {
+	public function render_outline_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		$classes  = 'notched-label__label';
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -2321,7 +2341,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
 					>
 					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+					. ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
 				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
@@ -2336,10 +2356,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_animated_label( $id, $label, $required, $required_field_text ) {
+	public function render_animated_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		$classes  = 'animated-label__label';
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -2351,7 +2372,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>
 				<span class="grunion-label-text">' . wp_kses_post( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && $required_indicator !== 'hidden' ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
@@ -2362,17 +2383,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_below_label( $id, $label, $required, $required_field_text ) {
+	public function render_below_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		return '
 			<label
 				for="' . esc_attr( $id ) . '"
 				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
 			>'
 			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			. ( $required && $required_indicator ? '<span>' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
@@ -2388,10 +2410,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text for a field marked as required.
 	 * @param array  $extra_attrs - extra attributes to be passed to render functions.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
 		if ( ! $this->is_field_renderable( $type ) ) {
 			return '';
 		}
@@ -2471,44 +2494,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		switch ( $type ) {
 			case 'email':
-				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'phone':
 			case 'telephone':
-				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'url':
-				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'textarea':
-				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'checkbox':
-				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'checkbox-multiple':
-				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'select':
-				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'date':
-				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
 				break;
 			case 'number':
-				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs, $required_indicator );
 				break;
 			case 'slider':
-				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs, $required_indicator );
 				break;
 			case 'file':
-				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
+				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'rating':
 				$field .= $this->render_rating_field(
@@ -2517,17 +2540,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$value,
 					$field_class,
 					$required,
-					$required_field_text
+					$required_field_text,
+					$required_indicator
 				);
 				break;
 			case 'time':
-				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'image-select':
-				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			default: // text field
-				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
+				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type, $required_indicator );
 				break;
 		}
 
@@ -2668,9 +2692,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class              Additional CSS classes.
 	 * @param bool   $required           Whether field is required.
 	 * @param string $required_field_text Required label text.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 * @return string HTML markup.
 	 */
-	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		// Enqueue stylesheet for rating field.
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
@@ -2680,7 +2705,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
-		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
+		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		/*
 		 * Determine which icon SVG to use based on the 'iconstyle' attribute.
@@ -2801,10 +2826,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text The required field text.
 	 * @param string $placeholder The field placeholder.
 	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML for the slider field.
 	 */
-	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		$this->enqueue_slider_field_assets();
 		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
@@ -2823,7 +2849,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
 		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 
 		ob_start();
 		?>

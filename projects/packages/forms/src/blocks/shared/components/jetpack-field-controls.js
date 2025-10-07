@@ -75,6 +75,19 @@ const JetpackFieldControls = ( {
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 			__nextHasNoMarginBottom={ true }
 		/>,
+		required && (
+			<ToggleControl
+				key="requiredIndicator"
+				label={ __( 'Show required text', 'jetpack-forms' ) }
+				checked={ !! attributes.requiredIndicator }
+				onChange={ value => setAttributes( { requiredIndicator: value } ) }
+				help={ __(
+					'Toggle whether to display the required indicator text for this field.',
+					'jetpack-forms'
+				) }
+				__nextHasNoMarginBottom={ true }
+			/>
+		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"

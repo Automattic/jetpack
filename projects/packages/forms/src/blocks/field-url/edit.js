@@ -12,6 +12,7 @@ export default function UrlFieldEdit( props ) {
 			label={ __( 'Website', 'jetpack-forms' ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
+			requiredIndicator={ props.attributes.requiredIndicator }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
