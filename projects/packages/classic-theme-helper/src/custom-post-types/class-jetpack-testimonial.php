@@ -112,7 +112,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			}
 
 			// Only add the 'Customize' sub-menu if the theme supports it.
-			if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) && ! empty( self::count_testimonials() ) ) {
+			if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				add_action( 'admin_menu', array( $this, 'add_customize_page' ) );
 			}
 
@@ -566,6 +566,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 * Adds a submenu link to the Customizer.
 		 */
 		public function add_customize_page() {
+			if ( ! empty( self::count_testimonials() ) ) {
+				return;
+			}
 			add_submenu_page(
 				'edit.php?post_type=' . self::CUSTOM_POST_TYPE,
 				esc_html__( 'Customize Testimonials Archive', 'jetpack-classic-theme-helper' ),
