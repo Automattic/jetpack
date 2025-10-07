@@ -4,7 +4,6 @@ import { extensionToLang } from '@@codemirrorLanguageData@@';
 import * as wpBlocks from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { type RichTextValue, create as createRichText } from '@wordpress/rich-text';
 import { type Attributes, BLOCK_NAME } from '../common/block.ts';
 
 const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
@@ -12,61 +11,7 @@ const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
 export const transforms = {
-	to: [
-		{
-			type: 'block',
-			blocks: [ 'core/paragraph' ],
-			transform: ( { code }: Attributes ) => {
-				const content = createRichText( { text: code } );
-				console.log( { xform: 'to-paragraph', code, content } );
-				return createBlock( 'core/paragraph', { content } );
-			},
-		},
-	],
-
 	from: [
-		{
-			type: 'block',
-			blocks: [ 'core/paragraph' ],
-			transform: ( { content }: { content: RichTextValue } ) =>
-				createBlock( BLOCK_NAME, { code: content.text } ),
-		},
-		{
-			type: 'block',
-			blocks: [ 'core/html' ],
-			transform: ( { content } ) => {
-				console.log( { xform: 'c/html', content } );
-				return createBlock( BLOCK_NAME, { code: content } );
-			},
-		},
-
-		{
-			type: 'raw',
-			priority: 5,
-			isMatch: node => {
-				const res =
-					node.nodeName === 'PRE' &&
-					node.children.length === 1 &&
-					node.firstChild.nodeName === 'CODE';
-				console.log( { xform: 'code-raw', node, res } );
-				return res;
-			},
-			transform: ( preElement: HTMLPreElement ) => {
-				return createBlock( BLOCK_NAME, { code: preElement.innerText } );
-			},
-			schema: {
-				pre: {
-					children: {
-						code: {
-							children: {
-								'#text': {},
-							},
-						},
-					},
-				},
-			},
-		},
-
 		// Handle GH-like code fence openers, e.g. ```js
 		{
 			type: 'enter',
