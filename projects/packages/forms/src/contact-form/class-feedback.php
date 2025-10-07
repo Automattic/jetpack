@@ -203,7 +203,7 @@ class Feedback {
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
-		$this->notification_recipients = $parsed_content['notification_recipients'] ?? $this->get_first_field_of_type( 'notification_recipients' );
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -1571,16 +1571,21 @@ class Feedback {
 	/**
 	 * Gets the computed notification recipients.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param array        $post_data The post data from the form submission.
 	 * @param Contact_Form $form The form object.
 	 * @return array
 	 */
 	private function get_computed_notification_recipients( $post_data, $form ) {
-		$field_ids = $form->get_field_ids();
-		if ( isset( $field_ids['notification_recipients'] ) ) {
-			return $this->get_field_value( $field_ids['notification_recipients'], $post_data );
+		$notification_recipients = $form->get_attribute( 'notificationRecipients' );
+
+		// Ensure we return an array
+		if ( ! is_array( $notification_recipients ) ) {
+			return array();
 		}
-		return array();
+
+		return $notification_recipients;
 	}
 
 	/**
