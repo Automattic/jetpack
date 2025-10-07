@@ -61,6 +61,113 @@ const glyphStoryArgs = {
 	withStartGlyphs: true,
 };
 
+// Consolidated glyph configuration story with interactive controls
+export const GlyphConfiguration: StoryObj< StoryArgs > = {
+	render: args => {
+		const glyphType = args.glyphType || 'default';
+		const glyphSize = args.glyphSize || 8;
+
+		const glyphRenderers = {
+			default: undefined,
+			star: ( { color, size, x, y } ) => (
+				<GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />
+			),
+			heart: ( { color, size, x, y } ) => {
+				const hasXY =
+					typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
+				const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
+				return (
+					<g { ...groupProps }>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width={ size * 2 }
+							height={ size * 2 }
+							viewBox="0 0 24 24"
+							style={ { overflow: 'visible', pointerEvents: 'none' } }
+						>
+							<path
+								d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+								fill={ color }
+								stroke={ color }
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								transform="translate(-12, -12)"
+							/>
+						</svg>
+					</g>
+				);
+			},
+		};
+
+		return (
+			<LineChart
+				{ ...args }
+				renderGlyph={ glyphRenderers[ glyphType ] }
+				glyphStyle={ {
+					radius: glyphSize,
+				} }
+			/>
+		);
+	},
+	args: {
+		...glyphStoryArgs,
+		glyphType: 'default',
+		glyphSize: 8,
+	},
+	argTypes: {
+		withStartGlyphs: {
+			control: { type: 'boolean' },
+			description: 'Show glyphs at the start of each line',
+		},
+		withEndGlyphs: {
+			control: { type: 'boolean' },
+			description: 'Show glyphs at the end of each line',
+		},
+		withLegendGlyph: {
+			control: { type: 'boolean' },
+			description: 'Show matching glyphs in the legend',
+		},
+		glyphType: {
+			control: { type: 'radio' },
+			options: [ 'default', 'star', 'heart' ],
+			description: 'Shape of the glyph markers',
+		},
+		glyphSize: {
+			control: { type: 'range', min: 4, max: 16, step: 1 },
+			description: 'Size (radius) of the glyph markers',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive glyph configuration with all available controls. Use the controls panel to explore different glyph positioning, types, and sizes.
+
+**Glyph Positions:**
+- **Start Glyphs**: Markers at the beginning of each line series
+- **End Glyphs**: Markers at the end of each line series
+- **Legend Glyphs**: Show matching glyph markers in the legend for easy series identification
+
+**Glyph Types:**
+- **Default**: Simple circle markers
+- **Star**: Star-shaped markers for emphasis
+- **Heart**: Custom SVG heart shape demonstrating full customization
+
+**Use Cases:**
+- Start glyphs: Highlight series origins, useful for animated or progressive data
+- End glyphs: Emphasize current/final values
+- Legend glyphs: Improve legend clarity by showing matching markers
+- Custom glyphs: Brand-specific shapes, category indicators, or data type symbols
+
+**Size Control:**
+- Adjust the radius (4-16px) to balance visibility with chart clarity
+- Larger glyphs: Better for presentations or high-level overviews
+- Smaller glyphs: Better for detailed analysis with many data points`,
+			},
+		},
+	},
+};
+
 export const Start: StoryObj< StoryArgs > = Template.bind( {} );
 Start.args = {
 	...glyphStoryArgs,
