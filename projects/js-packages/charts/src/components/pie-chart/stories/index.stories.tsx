@@ -132,11 +132,73 @@ export const WithTooltips: Story = {
 	},
 };
 
-export const WithLegend: Story = {
+// Consolidated legend configuration story with interactive controls
+export const LegendConfiguration: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		legendPosition: 'bottom',
+		legendAlignment: 'center',
+		legendOrientation: 'horizontal',
+		legendShape: 'circle',
+		legendValueDisplay: 'percentage',
+		legendMaxWidth: undefined,
+		legendTextOverflow: 'wrap',
 		containerHeight: '500px',
+	},
+	argTypes: {
+		showLegend: {
+			control: { type: 'boolean' },
+			description: 'Show or hide the legend',
+		},
+		legendPosition: {
+			control: { type: 'radio' },
+			options: [ 'top', 'bottom' ],
+			description: 'Vertical position of the legend',
+		},
+		legendAlignment: {
+			control: { type: 'radio' },
+			options: [ 'start', 'center', 'end' ],
+			description: 'Horizontal alignment of the legend',
+		},
+		legendOrientation: {
+			control: { type: 'radio' },
+			options: [ 'horizontal', 'vertical' ],
+			description: 'Layout direction of legend items',
+		},
+		legendShape: {
+			control: { type: 'radio' },
+			options: [ 'circle', 'rect' ],
+			description: 'Shape of legend markers',
+		},
+		legendValueDisplay: {
+			control: { type: 'radio' },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			description: 'What type of value to display in the legend',
+		},
+		legendMaxWidth: {
+			control: { type: 'text' },
+			description: 'Maximum width for legend items (e.g., "150px"). Try "100px" to see text overflow behavior.',
+		},
+		legendTextOverflow: {
+			control: { type: 'radio' },
+			options: [ 'wrap', 'ellipsis' ],
+			description: 'How text behaves when exceeding maxWidth',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive legend configuration with all available controls. Use the controls panel to explore different legend options for pie charts.
+
+**Key Features:**
+- **Position & Alignment**: Place the legend at top/bottom with start/center/end alignment
+- **Orientation**: Horizontal for compact legends, vertical for detailed lists
+- **Shapes**: Choose between circle (traditional for pie charts) or rectangle markers
+- **Value Display**: Show percentage, raw value, formatted value, or no value
+- **Text Overflow**: Control how long labels are handled with maxWidth and textOverflow options`,
+			},
+		},
 	},
 };
 
@@ -187,53 +249,6 @@ export const WithCompositionLegend: Story = {
 			description: {
 				story:
 					'Demonstrates the new composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		thickness: 1, // Full pie chart
-		gapScale: 0.03,
-		padding: 20,
-		cornerScale: 0.03,
-		withTooltips: true,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'center',
-		legendPosition: 'top',
-		legendShape: 'circle',
-		size: 400,
-		containerWidth: '432px',
-		containerHeight: '480px',
-		resize: 'none',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Pie chart with top-end positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
 			},
 		},
 	},
