@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show ticks in hours when the interval is less than 24 hours.

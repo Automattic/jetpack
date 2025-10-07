@@ -77,13 +77,6 @@ function get_admin_menu_class() {
 			return Domain_Only_Admin_Menu::class;
 		}
 
-		// P2 sites.
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
-			require_once __DIR__ . '/class-p2-admin-menu.php';
-			return P2_Admin_Menu::class;
-		}
-
 		// Rest of simple sites.
 		require_once __DIR__ . '/class-wpcom-admin-menu.php';
 		return WPcom_Admin_Menu::class;

@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
+const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
@@ -32,6 +33,10 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.js',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
+				'wpcom-blocks-code-block-definition':
+					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
+				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',
+				'wpcom-blocks-code-style': './src/features/wpcom-blocks/code/style.css',
 				'wpcom-blocks-event-countdown-editor':
 					'./src/features/wpcom-blocks/event-countdown/editor.js',
 				'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
@@ -98,6 +103,7 @@ module.exports = async () => {
 						__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
 					},
 				} ),
+				new CodeMirrorLanguageDataPlugin(),
 			],
 			module: {
 				strictExportPresence: true,

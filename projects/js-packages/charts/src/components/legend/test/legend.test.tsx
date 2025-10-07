@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
 import { BaseLegend } from '../private/base-legend';
 import type { LegendProps } from '../types';
@@ -41,6 +42,20 @@ describe( 'BaseLegend', () => {
 		render( <BaseLegend items={ [] } orientation="horizontal" /> );
 		const legendItems = screen.queryAllByRole( 'listitem' );
 		expect( legendItems ).toHaveLength( 0 );
+	} );
+
+	test( 'applies legendItemClassName to legend items', () => {
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				legendItemClassName="custom-legend-item"
+			/>
+		);
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		legendItems.forEach( item => {
+			expect( item ).toHaveClass( 'custom-legend-item' );
+		} );
 	} );
 
 	test( 'handles missing values', () => {
@@ -191,6 +206,124 @@ describe( 'BaseLegend', () => {
 			// Should still render the legend items
 			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
+		} );
+	} );
+
+	describe( 'custom render prop', () => {
+		test( 'calls render function with items', () => {
+			const renderFn = jest.fn( () => <div data-testid="custom-legend">Custom Legend</div> );
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( renderFn ).toHaveBeenCalledWith( defaultItems );
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+		} );
+
+		test( 'uses custom render instead of default legend markup', () => {
+			const renderFn = () => (
+				<div data-testid="custom-legend">
+					<span>Custom rendering</span>
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			// Custom markup should be present
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Custom rendering' ) ).toBeInTheDocument();
+
+			// Default legend markup should not be present
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'custom render can access all item properties', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<ul data-testid="custom-legend-list">
+					{ items.map( ( item, index ) => (
+						<li key={ index } data-testid={ `custom-item-${ index }` }>
+							<span style={ { color: item.color } }>{ item.label }</span>
+							<span>{ item.value }</span>
+						</li>
+					) ) }
+				</ul>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend-list' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'custom-item-0' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'custom-item-1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		} );
+
+		test( 'custom render handles empty items array', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="custom-legend">
+					{ items.length === 0 ? 'No items' : `${ items.length } items` }
+				</div>
+			);
+			render( <BaseLegend items={ [] } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'No items' ) ).toBeInTheDocument();
+		} );
+
+		test( 'custom render can create alternative layouts', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="custom-grid-legend" style={ { display: 'grid' } }>
+					{ items.map( ( item, index ) => (
+						<div key={ index } data-testid="grid-item">
+							<div style={ { backgroundColor: item.color, width: 20, height: 20 } } />
+							<div>{ item.label }</div>
+							<div>{ item.value }</div>
+						</div>
+					) ) }
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-grid-legend' ) ).toBeInTheDocument();
+			const gridItems = screen.getAllByTestId( 'grid-item' );
+			expect( gridItems ).toHaveLength( 2 );
+		} );
+
+		test( 'custom render with complex JSX structure', () => {
+			const renderFn = ( items: typeof defaultItems ) => (
+				<div data-testid="complex-legend">
+					<h3>Legend Title</h3>
+					<div className="legend-body">
+						{ items.map( ( item, index ) => (
+							<div key={ index } className="legend-row">
+								<svg width={ 10 } height={ 10 }>
+									<circle cx={ 5 } cy={ 5 } r={ 5 } fill={ item.color } />
+								</svg>
+								<span>{ item.label }: </span>
+								<strong>{ item.value }</strong>
+							</div>
+						) ) }
+					</div>
+				</div>
+			);
+			render( <BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'complex-legend' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Legend Title' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Item 1:' ) ).toBeInTheDocument();
+			expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+		} );
+
+		test( 'orientation prop is ignored when using custom render', () => {
+			const renderFn = () => <div data-testid="custom-legend">Custom</div>;
+			const { rerender } = render(
+				<BaseLegend items={ defaultItems } orientation="horizontal" render={ renderFn } />
+			);
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-horizontal' ) ).not.toBeInTheDocument();
+
+			rerender( <BaseLegend items={ defaultItems } orientation="vertical" render={ renderFn } /> );
+
+			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
+			expect( screen.queryByTestId( 'legend-vertical' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

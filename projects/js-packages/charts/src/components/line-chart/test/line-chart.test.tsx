@@ -367,25 +367,25 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'X-Axis Ticks', () => {
-		test( 'renders only one tick.', () => {
+		test( 'renders ticks in hours.', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( '2024-01-01' ), value: 10 },
-							{ date: new Date( '2024-01-01' ), value: 20 },
-							{ date: new Date( '2024-01-01' ), value: 30 },
-							{ date: new Date( '2024-01-01' ), value: 40 },
-							{ date: new Date( '2024-01-01' ), value: 50 },
+							{ date: new Date( '2024-01-01:1:' ), value: 10 },
+							{ date: new Date( '2024-01-01:3:' ), value: 20 },
+							{ date: new Date( '2024-01-01:5:' ), value: 30 },
+							{ date: new Date( '2024-01-01:7:' ), value: 40 },
+							{ date: new Date( '2024-01-01:23:' ), value: 50 },
 						],
 					},
 				],
 			} );
 
-			const ticks = screen.getAllByText( /Jan \d+/ );
-			expect( ticks ).toHaveLength( 1 );
+			const ticks = screen.getAllByText( /\d+ [AM|PM]/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
 		test( 'renders optimal number of ticks.', () => {

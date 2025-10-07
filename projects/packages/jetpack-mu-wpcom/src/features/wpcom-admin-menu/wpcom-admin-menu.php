@@ -707,3 +707,7 @@ function wpcom_add_settings_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_settings_menu', 999999 );
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	require_once __DIR__ . '/p2-admin-menu.php';
+}

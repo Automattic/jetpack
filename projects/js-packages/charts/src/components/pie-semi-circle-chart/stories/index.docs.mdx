@@ -51,6 +51,10 @@ const data = [
 
 The chart automatically validates data to ensure positive values and meaningful percentages, displaying error states for invalid data configurations.
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Pie Semi Circle Chart API Reference](./?path=/docs/js-packages-charts-types-pie-semi-circle-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Basic Semi-Circle Chart
@@ -86,13 +90,7 @@ The simplest implementation requires only data with proper percentage values. Un
 
 ### Optional Props
 
-- **`width`**: Chart width in pixels (height is automatically calculated as half the width)
-- **`thickness`**: Ring thickness as a value between 0 and 1 (default: 0.4)
-- **`clockwise`**: Direction of rendering - true for clockwise, false for counter-clockwise (default: true)
-- **`label`**: Text displayed above the chart
-- **`note`**: Additional text displayed below the label
-- **`withTooltips`**: Enable interactive tooltips on hover (default: false)
-- **`showLegend`**: Display legend below the chart (default: false)
+For detailed information about all optional props, see the [Pie Semi Circle Chart API Reference](./?path=/docs/js-packages-charts-types-pie-semi-circle-chart-api-reference--docs).
 
 ## Chart Variations
 
@@ -336,48 +334,6 @@ The chart integrates with the chart context system for consistent behavior acros
 - Automatic chart ID generation for accessibility
 - Theme consistency across multiple charts
 - Legend item registration for cross-chart interactions
-
-## API Reference
-
-### PieSemiCircleChart
-
-Main component for rendering semi-circular pie charts.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `DataPointPercentage[]` | - | **Required.** Array of data points to display |
-| `width` | `number` | `400` | Width of the chart in pixels (height is automatically half of width) |
-| `thickness` | `number` | `0.4` | Thickness of the pie segments (0-1, where 1 is full thickness) |
-| `clockwise` | `boolean` | `true` | Direction of segment rendering |
-| `label` | `string` | - | Text displayed above the chart |
-| `note` | `string` | - | Additional text displayed below the label |
-| `withTooltips` | `boolean` | `false` | Enable interactive tooltips on hover |
-| `showLegend` | `boolean` | `false` | Display legend below the chart |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout direction |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `'circle' \| 'rect' \| 'line'` | `'circle'` | Shape of legend indicators |
-| `className` | `string` | - | Additional CSS class for the container |
-| `chartId` | `string` | - | Optional unique identifier (auto-generated if not provided) |
-
-### DataPointPercentage Type
-
-```typescript
-type DataPointPercentage = {
-	/** Label for the data point */
-	label: string;
-	/** Numerical value */
-	value: number;
-	/** Formatted value for display in tooltips and legends */
-	valueDisplay?: string;
-	/** Percentage value (must be positive, doesn't need to sum to 100) */
-	percentage: number;
-	/** Optional custom color override */
-	color?: string;
-};
-```
 
 ## Migration
 

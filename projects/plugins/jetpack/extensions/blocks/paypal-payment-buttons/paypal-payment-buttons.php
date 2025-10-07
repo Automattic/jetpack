@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Register the block.
 add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 );
 

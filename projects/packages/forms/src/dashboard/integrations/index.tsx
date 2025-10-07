@@ -134,7 +134,6 @@ const Integrations = () => {
 							onToggle={ handleToggleCreativeMail }
 							data={ creativeMailData }
 							refreshStatus={ refreshIntegrations }
-							borderBottom={ false }
 						/>
 					) }
 				</div>

@@ -380,7 +380,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @return string The absolute URL.
 	 */
 	public function make_url_absolute( $src ) {
-		if ( ! empty( $src ) && strpos( $src, '/' ) === 0 && strpos( $src, '//' ) !== 0 ) {
+		if ( ! empty( $src ) && str_starts_with( $src, '/' ) && ! str_starts_with( $src, '//' ) ) {
 			return site_url( $src );
 		}
 		return $src;
