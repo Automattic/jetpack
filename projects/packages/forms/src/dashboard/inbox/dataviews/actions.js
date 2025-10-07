@@ -13,7 +13,7 @@ import InboxResponse from '../response';
  * @param {number} count - The new unread count.
  */
 export const updateMenuCounter = count => {
-	// iterate over all elements with the class 'feedback-unread-counter' and update their text content
+	// iterate over all elements with the class 'jp-feedback-unread-counter' and update their text content
 	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
 		if ( item.dataset.unreadDiff ) {
 			const newCount = parseInt( item.dataset.unreadDiff, 10 ) + count;
@@ -340,7 +340,7 @@ export const markAsReadAction = {
 					data: { is_unread: false },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the store.
+						// Update the unread count in the menu.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
@@ -405,7 +405,7 @@ export const markAsUnreadAction = {
 					data: { is_unread: true },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the store.
+						// Update the unread count in the menu.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
