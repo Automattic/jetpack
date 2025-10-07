@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { hasFeatureFlag, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -843,12 +843,14 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
-						<JetpackFormNotificationsSettings
-							notificationRecipients={ notificationRecipients }
-							setAttributes={ setAttributes }
-						/>
-					</PanelBody>
+					{ hasFeatureFlag( 'form-notifications' ) && (
+						<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
+							<JetpackFormNotificationsSettings
+								notificationRecipients={ notificationRecipients }
+								setAttributes={ setAttributes }
+							/>
+						</PanelBody>
+					) }
 					{ showFormIntegrations && (
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
