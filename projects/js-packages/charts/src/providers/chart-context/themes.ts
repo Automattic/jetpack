@@ -24,6 +24,7 @@ const defaultTheme: CompleteChartTheme = {
 	seriesLineStyles: [],
 	legendShapeStyles: [],
 	glyphs: [],
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
@@ -82,6 +83,7 @@ const jetpackTheme: ChartTheme = {
 	legendLabelStyles: {
 		color: 'var(--jp-gray-80, #2c3338)',
 	},
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
@@ -141,6 +143,7 @@ const wooTheme: ChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
+	svgLabelSmall: { fill: '#757575' },
 	xTickLineStyles: { stroke: 'black' },
 	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 	legendLabelStyles: {

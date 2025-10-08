@@ -5,6 +5,7 @@ import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubje
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
+import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
@@ -182,6 +183,8 @@ export type ChartTheme = {
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
+	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
+	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
