@@ -89,6 +89,16 @@
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
+.jp-forms__inbox-response-actions {
+	border-bottom: 1px solid var(--jp-forms-border-color);
+	padding: 8px 0;
+	width: 100%;
+
+	@media (min-width: 782px) {
+		padding: 8px 20px;
+	}
+}
+
 .jp-forms__inbox-response-name {
 	font-size: 24px;
 	font-weight: 700;
@@ -384,11 +394,14 @@
 	min-width: 300px !important;
 	overflow: auto;
 	flex: 1 1 40%;
-
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 32px);
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
 	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
 	margin-bottom: 97px;
 
 	@media (min-width: 782px) {
+		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
 
@@ -461,10 +474,6 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Styling override when loaded in modal on mobile
 .components-modal__content {
-
-	.jp-forms__inbox-response-avatar {
-		left: 0;
-	}
 
 	.jp-forms__inbox-response-title,
 	.jp-forms__inbox-response-subtitle,

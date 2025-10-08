@@ -13,11 +13,12 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useRegistry } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
+import { download, close, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -25,6 +26,13 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
+import {
+	markAsSpamAction,
+	markAsNotSpamAction,
+	moveToTrashAction,
+	restoreAction,
+	deleteAction,
+} from './dataviews/actions';
 import { getPath } from './utils';
 
 const getDisplayName = response => {
@@ -171,14 +179,32 @@ const FileField = ( { file, onClick } ) => {
 	);
 };
 
-const InboxResponse = ( { response, loading, onModalStateChange } ) => {
+const InboxResponse = ( {
+	response,
+	loading,
+	onModalStateChange,
+	onClose,
+	onNext,
+	onPrevious,
+	hasNext,
+	hasPrevious,
+	onActionComplete,
+	isMobile,
+} ) => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
+	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
+	const [ isMarkingAsNotSpam, setIsMarkingAsNotSpam ] = useState( false );
+	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
+	const [ isRestoring, setIsRestoring ] = useState( false );
+	const [ isDeleting, setIsDeleting ] = useState( false );
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
 		useMarkAsSpam( response );
+
+	const registry = useRegistry();
 
 	const ref = useRef( undefined );
 
@@ -207,6 +233,164 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 			onModalStateChange( false );
 		}
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
+
+	const handleMarkAsSpam = useCallback( async () => {
+		setIsMarkingAsSpam( true );
+		await markAsSpamAction.callback( [ response ], { registry } );
+		setIsMarkingAsSpam( false );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
+
+	const handleMarkAsNotSpam = useCallback( async () => {
+		setIsMarkingAsNotSpam( true );
+		await markAsNotSpamAction.callback( [ response ], { registry } );
+		setIsMarkingAsNotSpam( false );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
+
+	const handleMoveToTrash = useCallback( async () => {
+		setIsMovingToTrash( true );
+		await moveToTrashAction.callback( [ response ], { registry } );
+		setIsMovingToTrash( true );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
+
+	const handleRestore = useCallback( async () => {
+		setIsRestoring( true );
+		await restoreAction.callback( [ response ], { registry } );
+		setIsRestoring( false );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
+
+	const handleDelete = useCallback( async () => {
+		setIsDeleting( true );
+		await deleteAction.callback( [ response ], { registry } );
+		setIsDeleting( false );
+		onActionComplete?.( response.id.toString() );
+	}, [ response, registry, onActionComplete ] );
+
+	const renderActionButtons = () => {
+		switch ( response.status ) {
+			case 'spam':
+				return (
+					<>
+						<Button
+							variant="tertiary"
+							onClick={ handleMarkAsNotSpam }
+							isBusy={ isMarkingAsNotSpam }
+							showTooltip={ true }
+							label={ markAsNotSpamAction.label }
+							iconSize={ 24 }
+							icon={ markAsNotSpamAction.icon }
+							size="compact"
+						></Button>
+						<Button
+							variant="tertiary"
+							onClick={ handleMoveToTrash }
+							isBusy={ isMovingToTrash }
+							showTooltip={ true }
+							label={ moveToTrashAction.label }
+							iconSize={ 24 }
+							icon={ moveToTrashAction.icon }
+							size="compact"
+						></Button>
+					</>
+				);
+
+			case 'trash':
+				return (
+					<>
+						<Button
+							variant="tertiary"
+							onClick={ handleRestore }
+							isBusy={ isRestoring }
+							showTooltip={ true }
+							label={ restoreAction.label }
+							iconSize={ 24 }
+							icon={ restoreAction.icon }
+							size="compact"
+						></Button>
+						<Button
+							variant="tertiary"
+							onClick={ handleDelete }
+							showTooltip={ true }
+							isBusy={ isDeleting }
+							label={ deleteAction.label }
+							iconSize={ 24 }
+							icon={ deleteAction.icon }
+							size="compact"
+						></Button>
+					</>
+				);
+
+			default: // 'publish' (inbox) or any other status
+				return (
+					<>
+						<Button
+							variant="tertiary"
+							onClick={ handleMarkAsSpam }
+							isBusy={ isMarkingAsSpam }
+							showTooltip={ true }
+							label={ markAsSpamAction.label }
+							iconSize={ 24 }
+							icon={ markAsSpamAction.icon }
+							size="compact"
+						></Button>
+						<Button
+							variant="tertiary"
+							onClick={ handleMoveToTrash }
+							isBusy={ isMovingToTrash }
+							showTooltip={ true }
+							label={ moveToTrashAction.label }
+							iconSize={ 24 }
+							icon={ moveToTrashAction.icon }
+							size="compact"
+						></Button>
+					</>
+				);
+		}
+	};
+
+	const renderNavigationButtons = () => {
+		return (
+			<>
+				{ onPrevious && (
+					<Button
+						accessibleWhenDisabled={ true }
+						variant="tertiary"
+						onClick={ onPrevious }
+						disabled={ ! hasPrevious }
+						showTooltip={ true }
+						label={ __( 'Previous', 'jetpack-forms' ) }
+						icon={ chevronLeft }
+						size="compact"
+					></Button>
+				) }
+				{ onNext && (
+					<Button
+						accessibleWhenDisabled={ true }
+						variant="tertiary"
+						onClick={ onNext }
+						disabled={ ! hasNext }
+						showTooltip={ true }
+						label={ __( 'Next', 'jetpack-forms' ) }
+						icon={ chevronRight }
+						size="compact"
+					></Button>
+				) }
+				{ ! isMobile && onClose && (
+					<Button
+						variant="tertiary"
+						onClick={ onClose }
+						showTooltip={ true }
+						label={ __( 'Close', 'jetpack-forms' ) }
+						icon={ close }
+						size="compact"
+					></Button>
+				) }
+			</>
+		);
+	};
 
 	const renderFieldValue = value => {
 		if ( isImageSelectField( value ) ) {
@@ -323,6 +507,10 @@ const InboxResponse = ( { response, loading, onModalStateChange } ) => {
 
 	return (
 		<>
+			<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
+				<HStack alignment="left">{ renderActionButtons() }</HStack>
+				<HStack alignment="right">{ renderNavigationButtons() }</HStack>
+			</HStack>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">

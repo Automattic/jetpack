@@ -37,7 +37,7 @@ import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
-const getItemId = item => item.id.toString();
+const getItemId = item => item?.id?.toString() ?? '';
 
 const formatFieldName = fieldName => {
 	const match = fieldName.match( /^(\d+_)?(.*)/i );
@@ -207,16 +207,33 @@ export default function InboxView() {
 	// set the sidePanelItem when we have data and selection.
 	// We don't need to do this in `mobile`,  because we don't render the side panel.
 	if ( ! isMobile && !! data && !! selection.length ) {
-		const firstValidSelection = selection.find( id =>
-			data.some( record => getItemId( record ) === id )
-		);
-		const recordToShow = data?.find( record => getItemId( record ) === firstValidSelection );
+		// Find the last (most recently selected) valid selection instead of the first
+		const lastValidSelection = selection
+			.slice()
+			.reverse()
+			.find( id => data.some( record => getItemId( record ) === id ) );
+		const recordToShow = data?.find( record => getItemId( record ) === lastValidSelection );
 		if ( ! sidePanelItem && recordToShow ) {
 			setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
 			// This case handles the case where we were having a side panel item
 			// visible but the data have changed and the item is not there anymore.
 			setSidePanelItem();
+		} else if (
+			!! sidePanelItem &&
+			!! recordToShow &&
+			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+			sidePanelItem !== recordToShow
+		) {
+			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
+			// This ensures the side panel shows the latest version of the same entity
+			setSidePanelItem( recordToShow );
+		} else if (
+			!! recordToShow &&
+			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
+		) {
+			// Set side panel item when selecting a different item
+			setSidePanelItem( recordToShow );
 		}
 	}
 	const paginationInfo = useMemo(
@@ -337,19 +354,30 @@ export default function InboxView() {
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
+				data={ data }
+				onChangeSelection={ onChangeSelection }
+				selection={ selection }
 			/>
 		</HStack>
 	);
 }
 
-const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
+const SingleResponse = ( {
+	sidePanelItem,
+	setSidePanelItem,
+	isLoadingData,
+	isMobile,
+	data,
+	onChangeSelection,
+	selection,
+} ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
-			setSidePanelItem();
+			onChangeSelection( [] );
 		}
-	}, [ setSidePanelItem, isChildModalOpen ] );
+	}, [ onChangeSelection, isChildModalOpen ] );
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
@@ -358,6 +386,45 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 		[ setIsChildModalOpen ]
 	);
 
+	const handleActionComplete = useCallback(
+		actionedItemId => {
+			// Remove only the actioned item from selection, keep the rest
+			if ( actionedItemId && selection ) {
+				const newSelection = selection.filter( id => id !== actionedItemId );
+				onChangeSelection( newSelection );
+			}
+		},
+		[ onChangeSelection, selection ]
+	);
+
+	// Navigation logic
+	const currentIndex =
+		sidePanelItem && data
+			? data.findIndex( item => getItemId( item ) === getItemId( sidePanelItem ) )
+			: -1;
+	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
+	const hasPrevious = currentIndex > 0;
+
+	const handleNext = useCallback( () => {
+		if ( hasNext && data && currentIndex >= 0 ) {
+			const nextItem = data[ currentIndex + 1 ];
+			if ( nextItem ) {
+				setSidePanelItem( nextItem );
+				onChangeSelection( [ getItemId( nextItem ) ] );
+			}
+		}
+	}, [ hasNext, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+
+	const handlePrevious = useCallback( () => {
+		if ( hasPrevious && data && currentIndex >= 0 ) {
+			const prevItem = data[ currentIndex - 1 ];
+			if ( prevItem ) {
+				setSidePanelItem( prevItem );
+				onChangeSelection( [ getItemId( prevItem ) ] );
+			}
+		}
+	}, [ hasPrevious, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+
 	if ( ! sidePanelItem ) {
 		return null;
 	}
@@ -365,7 +432,14 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 		<InboxResponse
 			response={ sidePanelItem }
 			isLoading={ isLoadingData }
+			isMobile={ isMobile }
 			onModalStateChange={ handleModalStateChange }
+			onClose={ onRequestClose }
+			onNext={ handleNext }
+			onPrevious={ handlePrevious }
+			hasNext={ hasNext }
+			hasPrevious={ hasPrevious }
+			onActionComplete={ handleActionComplete }
 		/>
 	);
 	if ( ! isMobile ) {
@@ -373,7 +447,7 @@ const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMob
 	}
 	return (
 		<Modal
-			title={ __( 'View response', 'jetpack-forms' ) }
+			title={ __( 'Response', 'jetpack-forms' ) }
 			size="medium"
 			onRequestClose={ onRequestClose }
 		>
