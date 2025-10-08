@@ -1,4 +1,3 @@
-import { __ } from '@wordpress/i18n';
 import {
 	RECEIVE_INTEGRATIONS,
 	INVALIDATE_INTEGRATIONS,
@@ -35,7 +34,7 @@ export default function reducer(
 			return {
 				...state,
 				isLoading: false,
-				error: action.error ?? __( 'Unknown error', 'jetpack-forms' ),
+				error: action.error ?? 'Unknown error',
 			};
 		case RECEIVE_INTEGRATIONS:
 			return {
