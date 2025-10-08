@@ -584,10 +584,10 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 	}
 
 	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	$gs_upgrade_plan = WPCOM_VALUE_BUNDLE;
+	$gs_upgrade_plan = 'value_bundle';
 	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
 	if ( is_global_styles_on_personal_plan() ) {
-		$gs_upgrade_plan = WPCOM_PERSONAL_BUNDLE;
+		$gs_upgrade_plan = 'personal-bundle';
 		$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
 	}
 
@@ -603,7 +603,7 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 			'jetpack-mu-wpcom'
 		),
 		$support_url,
-		get_store_product( $gs_upgrade_plan )->product_name
+		Plans::get_plan_short_name( $gs_upgrade_plan )
 	);
 
 	if ( wpcom_is_previewing_global_styles() ) {
