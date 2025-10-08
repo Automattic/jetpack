@@ -32,16 +32,6 @@ class WPCom_Themes_Service {
 	private WPCom_Themes_Merger $merger;
 
 	/**
-	 * Valid theme tiers for Atomic sites.
-	 */
-	private const VALID_THEME_TIERS = array(
-		'free',
-		'premium',
-		'personal',
-		'woocommerce',
-	);
-
-	/**
 	 * Class constructor.
 	 *
 	 * @param WPCom_Themes_Api    $api    The WordPress.com themes API.
