@@ -294,8 +294,11 @@ class Jetpack_Photon_Static_Assets_CDN {
 		$body = json_decode( $body, true );
 
 		$return = time();
-		if ( is_array( $body ) ) {
-			$return = array_filter( array_keys( $body['files'] ), array( __CLASS__, 'is_js_or_css_file' ) );
+		if ( is_array( $body ) && isset( $body['files'] ) && is_array( $body['files'] ) ) {
+			$return = array_filter(
+				array_keys( $body['files'] ),
+				array( __CLASS__, 'is_js_or_css_file' )
+			);
 		}
 
 		$cache[ $plugin ]             = array();
