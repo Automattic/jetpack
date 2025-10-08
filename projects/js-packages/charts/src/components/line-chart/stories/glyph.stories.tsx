@@ -79,8 +79,8 @@ const glyphStoryArgs = {
 	withStartGlyphs: true,
 };
 
-// Interactive playground for exploring glyph options
-export const Playground: StoryObj< StoryArgs > = {
+// Interactive story for exploring glyph options
+export const GlyphConfiguration: StoryObj< StoryArgs > = {
 	render: args => {
 		const glyphType = args.glyphType || 'default';
 		const glyphSize = args.glyphSize || 8;

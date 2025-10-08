@@ -41,9 +41,9 @@ ManySeries.args = {
 	showLegend: true,
 };
 
-// Interactive playground for legend options
-export const LegendPlayground: StoryObj< typeof LineChart > = Template.bind( {} );
-LegendPlayground.args = {
+// Interactive story for legend options
+export const LegendConfiguration: StoryObj< typeof LineChart > = Template.bind( {} );
+LegendConfiguration.args = {
 	...lineChartStoryArgs,
 	data: sampleData,
 	showLegend: true,

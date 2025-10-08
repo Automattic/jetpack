@@ -132,8 +132,8 @@ export const WithTooltips: Story = {
 	},
 };
 
-// Interactive playground for legend options
-export const LegendPlayground: Story = {
+// Interactive story for legend options
+export const LegendConfiguration: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
