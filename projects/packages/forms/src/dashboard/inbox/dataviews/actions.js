@@ -54,10 +54,14 @@ export const markAsSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		if ( itemsUpdated.length ) {
+			invalidateCounts();
+		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -110,12 +114,16 @@ export const markAsNotSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		if ( itemsUpdated.length ) {
+			invalidateCounts();
+		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -168,12 +176,14 @@ export const restoreAction = {
 	async callback( items, { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			invalidateCounts();
 			const successMessage =
 				items.length === 1
 					? __( 'Response restored.', 'jetpack-forms' )
@@ -218,12 +228,14 @@ export const moveToTrashAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			invalidateCounts();
 			const successMessage =
 				items.length === 1
 					? __( 'Response moved to trash.', 'jetpack-forms' )
@@ -266,7 +278,7 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateFilters } = registry.dispatch( dashboardStore );
+		const { invalidateFilters, invalidateCounts } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
@@ -274,9 +286,10 @@ export const deleteAction = {
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		// If there is at least one successful update, invalidate the cache for filters.
+		// If there is at least one successful update, invalidate the cache for filters and counts.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
+			invalidateCounts();
 		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.

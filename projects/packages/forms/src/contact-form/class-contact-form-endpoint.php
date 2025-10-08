@@ -277,6 +277,50 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		// Get optimized status counts.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+				'args'                => array(
+					'search' => array(
+						'description'       => 'Limit results to those matching a string.',
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'parent' => array(
+						'description'       => 'Limit results to those of specific parent IDs.',
+						'type'              => 'array',
+						'items'             => array(
+							'type' => 'integer',
+						),
+						'sanitize_callback' => function ( $value ) {
+							return array_map( 'absint', (array) $value );
+						},
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'before' => array(
+						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'after'  => array(
+						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -323,6 +367,68 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Retrieves status counts for inbox, spam, and trash in a single optimized query.
+	 *
+	 * Replaces 3 separate REST API requests with 1 database query using CASE statements.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function get_status_counts( $request ) {
+		global $wpdb;
+
+		$search = $request->get_param( 'search' );
+		$parent = $request->get_param( 'parent' );
+		$before = $request->get_param( 'before' );
+		$after  = $request->get_param( 'after' );
+
+		// Build WHERE clauses.
+		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+
+		if ( ! empty( $search ) ) {
+			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
+			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+		}
+
+		if ( ! empty( $parent ) && is_array( $parent ) ) {
+			// Safe to use direct interpolation after absint() - no SQL injection possible with integers.
+			$parent_ids_string  = implode( ',', array_map( 'absint', $parent ) );
+			$where_conditions[] = "post_parent IN ($parent_ids_string)";
+		}
+
+		if ( ! empty( $before ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+		}
+
+		if ( ! empty( $after ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+		}
+
+		$where_clause = implode( ' AND ', $where_conditions );
+
+		// Execute single query with CASE statements for all status counts.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$counts = $wpdb->get_row(
+			"SELECT
+			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM $wpdb->posts
+			WHERE $where_clause",
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$result = array(
+			'inbox' => (int) ( $counts['inbox'] ?? 0 ),
+			'spam'  => (int) ( $counts['spam'] ?? 0 ),
+			'trash' => (int) ( $counts['trash'] ?? 0 ),
+		);
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

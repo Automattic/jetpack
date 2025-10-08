@@ -5,11 +5,31 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SET_SELECTED_RESPONSES, RECEIVE_FILTERS, SET_CURRENT_QUERY } from './action-types';
+import {
+	SET_SELECTED_RESPONSES,
+	RECEIVE_FILTERS,
+	RECEIVE_COUNTS,
+	INVALIDATE_COUNTS,
+	SET_CURRENT_QUERY,
+} from './action-types';
 
 const filters = ( state = {}, action ) => {
 	if ( action.type === RECEIVE_FILTERS ) {
 		return action.filters;
+	}
+	return state;
+};
+
+const counts = ( state = null, action ) => {
+	if ( action.type === RECEIVE_COUNTS ) {
+		return action.counts;
+	}
+	return state;
+};
+
+const countsInvalidationKey = ( state = 0, action ) => {
+	if ( action.type === INVALIDATE_COUNTS ) {
+		return state + 1;
 	}
 	return state;
 };
@@ -31,5 +51,7 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
+	counts,
+	countsInvalidationKey,
 	currentQuery,
 } );
