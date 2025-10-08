@@ -150,12 +150,17 @@ class Dashboard {
 	public function has_feedback() {
 		$posts = new \WP_Query(
 			array(
-				'post_type'   => 'feedback',
-				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+				'post_type'              => 'feedback',
+				'post_status'            => array( 'publish', 'draft', 'spam', 'trash' ),
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'suppress_filters'       => true,
 			)
 		);
-
-		return $posts->found_posts > 0;
+		return $posts->have_posts();
 	}
 
 	/**
