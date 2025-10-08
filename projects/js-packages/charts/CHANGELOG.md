@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.41.0] - 2025-10-08
+### Added
+- Charts: Add custom legend support [#45347]
+- Charts: Set the color of the axis labels via the theme [#45406]
+- Charts Legend: Update docs [#45391]
+- Show ticks in hours when the interval is less than 24 hours. [#45390]
+
+### Changed
+- Charts: Separate API reference documentation from usage documentation [#45322]
+
 ## [0.40.0] - 2025-10-06
 ### Added
 - Add `legendItemClassName` prop for custom legend item styling. [#45286]
@@ -493,6 +503,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.41.0]: https://github.com/Automattic/charts/compare/v0.40.0...v0.41.0
 [0.40.0]: https://github.com/Automattic/charts/compare/v0.39.0...v0.40.0
 [0.39.0]: https://github.com/Automattic/charts/compare/v0.38.2...v0.39.0
 [0.38.2]: https://github.com/Automattic/charts/compare/v0.38.1...v0.38.2
