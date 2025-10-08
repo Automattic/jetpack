@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix telephone field block country selector dropdown so it shows in front of other blocks while selected
