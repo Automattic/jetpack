@@ -2593,4 +2593,60 @@ class Feedback_Test extends BaseTestCase {
 		$post = get_post( $post_id );
 		$this->assertEquals( 'open', $post->comment_status, 'Unread feedback should have comment_status = open' );
 	}
+
+	public function test_mark_as_read_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_read();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_read should return false on DB failure' );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should remain unread' );
+	}
+
+	public function test_mark_as_unread_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			false // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_unread();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_unread should return false on DB failure' );
+		$this->assertFalse( $feedback->is_unread(), 'Feedback should remain read' );
+	}
 }
