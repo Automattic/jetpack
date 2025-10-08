@@ -14,7 +14,6 @@ import {
 } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
-import { create as createRichText } from '@wordpress/rich-text';
 import * as React from 'react';
 import {
 	type Attributes,
@@ -38,23 +37,6 @@ const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
 
 type Props = EditBlockProps | SaveBlockProps;
-
-const exampleBlock = {
-	attributes: {
-		content: createRichText( {
-			text: `// ✨ Code is poetry. ✨
-/**
- * Find the nth fibonacci number (inefficiently)
- */
-const fibonacci = ( n ) => n < 1 ? 0
-  : n > 3 ? 1
-  : fibonacci( n - 1 ) + fibonacci( n - 2 );`,
-		} ),
-		language: 'JavaScript',
-		languageConfidence: 'certain',
-		filename: 'example.js',
-	} satisfies Partial< Attributes >,
-};
 
 const emptyLanguageOption = {
 	key: '',
