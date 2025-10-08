@@ -283,12 +283,39 @@ const InboxResponse = ( {
 		setHasMarkedSelfAsRead( response.id );
 		markAsUnreadAction.callback( [ response ], { registry } );
 	}, [ response, registry ] );
+	const readUnreadButtons = (
+		<>
+			{ response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsRead }
+					showTooltip={ true }
+					label={ handleMarkAsRead.label }
+					iconSize={ 24 }
+					icon={ markAsReadAction.icon }
+					size="compact"
+				></Button>
+			) }
+			{ ! response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsUnread }
+					showTooltip={ true }
+					label={ markAsUnreadAction.label }
+					iconSize={ 24 }
+					icon={ markAsUnreadAction.icon }
+					size="compact"
+				></Button>
+			) }
+		</>
+	);
 
 	const renderActionButtons = () => {
 		switch ( response.status ) {
 			case 'spam':
 				return (
 					<>
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleMarkAsNotSpam }
@@ -315,6 +342,7 @@ const InboxResponse = ( {
 			case 'trash':
 				return (
 					<>
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleRestore }
@@ -341,28 +369,7 @@ const InboxResponse = ( {
 			default: // 'publish' (inbox) or any other status
 				return (
 					<>
-						{ response.is_unread && (
-							<Button
-								variant="tertiary"
-								onClick={ handleMarkAsRead }
-								showTooltip={ true }
-								label={ handleMarkAsRead.label }
-								iconSize={ 24 }
-								icon={ markAsReadAction.icon }
-								size="compact"
-							></Button>
-						) }
-						{ ! response.is_unread && (
-							<Button
-								variant="tertiary"
-								onClick={ handleMarkAsUnread }
-								showTooltip={ true }
-								label={ markAsUnreadAction.label }
-								iconSize={ 24 }
-								icon={ markAsUnreadAction.icon }
-								size="compact"
-							></Button>
-						) }
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleMarkAsSpam }
