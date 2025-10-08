@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.9.0] - 2025-10-08
 ### Added
-- Forms: add actions on dashboard inbox's single response view [#45352]
-- Forms: Added required indicator settings, made forms with a sinble input required by default. [#45300]
+- Add actions on dashboard inbox's single response view. [#45352]
+- Add required indicator settings and make forms with a sinble input required by default. [#45300]
 
 ### Changed
-- Forms: optimize inbox data loading with _fields parameter to reduce payload size. [#45376]
+- Optimize inbox data loading with `_fields` parameter to reduce payload size. [#45376]
 
 ### Fixed
-- Forms: fix telephone field block country selector dropdown so it shows in front of other blocks while selected [#45380]
+- Fix telephone field block country selector dropdown so it shows in front of other blocks while selected. [#45380]
 
 ## [6.8.0] - 2025-10-06
 ### Added
