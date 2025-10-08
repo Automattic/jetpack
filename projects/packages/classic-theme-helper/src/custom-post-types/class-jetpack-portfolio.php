@@ -161,7 +161,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		public static function site_should_display_portfolios() {
 			$should_display = true;
 			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
-				return apply_filters( 'classic_theme_helper_should_display_portfolios', true );
+				return true;
 			}
 			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
 				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
