@@ -518,6 +518,7 @@ function wpcom_should_show_global_styles_admin_bar() {
 	$current_blog_id = wpcom_global_styles_get_wpcom_current_blog_id();
 
 	if ( ! (
+		is_user_logged_in() &&
 		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
 		current_user_can( 'manage_options' )
 	) ) {
