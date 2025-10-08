@@ -76,12 +76,15 @@ const selectLanguageOptions: ReadonlyArray< {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- No good interface available for this type now.
 function filterBlockRegistration( settings: any ) {
-	// Our transform is better than the transform provided by syntaxhighlighter/code.
-	// Remove thier transform.
-	if ( false && settings.name === 'syntaxhighlighter/code' ) {
+	/*
+	 * The enhanced code block includes a "from" transform that handles things like language
+	 * name, line number settings, etc. Remove the "to" transform provided by syntaxhighlighter/code
+	 * so that simpler trnasform is not applied.
+	 */
+	if ( settings.name === 'syntaxhighlighter/code' ) {
 		if ( settings.transforms?.to ) {
 			settings.transforms.to = settings.transforms.to.filter(
-				transform =>
+				( transform: { type: string; blocks?: unknown } ) =>
 					! (
 						transform.type === 'block' &&
 						Array.isArray( transform.blocks ) &&
