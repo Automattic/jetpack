@@ -251,7 +251,7 @@ const InboxResponse = ( {
 	const handleMoveToTrash = useCallback( async () => {
 		setIsMovingToTrash( true );
 		await moveToTrashAction.callback( [ response ], { registry } );
-		setIsMovingToTrash( true );
+		setIsMovingToTrash( false );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
