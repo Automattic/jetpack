@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix individual entity fetches when marking as read/unread

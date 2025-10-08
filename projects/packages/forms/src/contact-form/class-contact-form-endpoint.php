@@ -518,7 +518,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'arg_options' => array(
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
-			'readonly'    => true,
 		);
 
 		$this->schema = $schema;
@@ -541,7 +540,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$post_id         = $request['id'];
 		$previous_status = get_post_status( $post_id );
-		$updated_item    = parent::update_item( $request );
+
+		// Handle is_unread update if present and remove it from request before parent processes it
+		$is_unread_param = null;
+		if ( isset( $request['is_unread'] ) ) {
+			$is_unread_param   = $request['is_unread'];
+			$feedback_response = Feedback::get( $post_id );
+			if ( $feedback_response ) {
+				$is_unread_param ? $feedback_response->mark_as_unread() : $feedback_response->mark_as_read();
+				Contact_Form_Plugin::recalculate_unread_count();
+			}
+			// Remove from request so parent doesn't try to process it
+			unset( $request['is_unread'] );
+		}
+
+		$updated_item = parent::update_item( $request );
 
 		if ( ! is_wp_error( $updated_item ) && ! empty( $updated_item->data && ! empty( $updated_item->data['status'] ) ) ) {
 			if ( $previous_status === 'spam' && $updated_item->data['status'] === 'publish' ) {

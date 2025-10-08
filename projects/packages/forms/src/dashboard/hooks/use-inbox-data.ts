@@ -60,6 +60,7 @@ const RESPONSE_FIELDS = [
 	'entry_title',
 	'entry_permalink',
 	'has_file',
+	'is_unread',
 	'fields',
 ].join( ',' );
 
@@ -97,14 +98,43 @@ export default function useInboxData(): UseInboxDataReturn {
 	// Merge raw records with any local edits from editEntityRecord
 	const records = useSelect(
 		select => {
+			const requestedFields = RESPONSE_FIELDS.split( ',' );
+
 			return ( rawRecords || [] ).map( record => {
-				// Get the edited version of this record if it exists
+				const recordId = ( record as FormResponse ).id;
+
+				// Check if there are edits for this record
+				const hasEdits = select( coreDataStore ).hasEditsForEntityRecord(
+					'postType',
+					'feedback',
+					recordId
+				);
+
+				if ( ! hasEdits ) {
+					return record;
+				}
+
+				// Get the edited entity
 				const editedRecord = select( coreDataStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
-					( record as FormResponse ).id
+					recordId
 				);
-				return editedRecord || record;
+
+				if ( ! editedRecord ) {
+					return record;
+				}
+
+				// Only extract the fields that were in our original _fields request
+				// to avoid triggering fetches for additional fields
+				const mergedRecord = { ...record };
+				requestedFields.forEach( field => {
+					if ( field in editedRecord ) {
+						mergedRecord[ field ] = editedRecord[ field ];
+					}
+				} );
+
+				return mergedRecord;
 			} ) as FormResponse[];
 		},
 		[ rawRecords ]
