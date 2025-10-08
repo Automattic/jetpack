@@ -844,4 +844,23 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
 	}
+
+	public function test_get_unread_count_zero() {
+		delete_option( 'jetpack_feedback_unread_count' );
+		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
+		$this->assertGreaterThanOrEqual( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	public function test_get_unread_count_nonzero() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		delete_option( 'jetpack_feedback_unread_count' );
+	}
+
+	public function test_recalculate_unread_count() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		Contact_Form_Plugin::recalculate_unread_count();
+		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
+	}
 }

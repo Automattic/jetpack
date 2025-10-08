@@ -254,6 +254,29 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_forms_config' ),
 			)
 		);
+
+		// Mark feedback as read/unread endpoint.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>\d+)/read',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_read_status' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				'args'                => array(
+					'id'        => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'is_unread' => array(
+						'type'              => 'boolean',
+						'required'          => true,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -488,6 +511,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['is_unread'] = array(
+			'description' => __( 'Whether the form response is unread.', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'readonly'    => true,
+		);
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
@@ -629,6 +662,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
 			$data['has_file'] = $feedback_response->has_file();
+		}
+
+		if ( rest_is_field_included( 'is_unread', $fields ) ) {
+			$data['is_unread'] = $feedback_response->is_unread();
 		}
 
 		$response->set_data( $data );
@@ -1031,6 +1068,45 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 		$is_deleted = External_Connections::delete_connection( $slug );
 		return rest_ensure_response( array( 'deleted' => $is_deleted ) );
+	}
+
+	/**
+	 * Updates the read/unread status of a feedback item.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_read_status( $request ) {
+		$post_id   = $request->get_param( 'id' );
+		$is_unread = $request->get_param( 'is_unread' );
+
+		$feedback_response = Feedback::get( $post_id );
+		if ( ! $feedback_response ) {
+			return new WP_Error(
+				'rest_post_invalid_id',
+				__( 'Invalid feedback ID.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$success = $is_unread ? $feedback_response->mark_as_unread() : $feedback_response->mark_as_read();
+
+		Contact_Form_Plugin::recalculate_unread_count();
+		if ( ! $success ) {
+			return new WP_Error(
+				'rest_cannot_update',
+				__( 'Failed to update feedback read status.', 'jetpack-forms' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'        => $post_id,
+				'is_unread' => $feedback_response->is_unread(),
+				'count'     => Contact_Form_Plugin::get_unread_count(),
+			)
+		);
 	}
 
 	/**

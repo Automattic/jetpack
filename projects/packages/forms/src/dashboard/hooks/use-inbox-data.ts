@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEntityRecords } from '@wordpress/core-data';
+import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useSearchParams } from 'react-router';
 /**
@@ -94,7 +94,21 @@ export default function useInboxData(): UseInboxDataReturn {
 		_fields: RESPONSE_FIELDS,
 	} );
 
-	const records = ( rawRecords || [] ) as FormResponse[];
+	// Merge raw records with any local edits from editEntityRecord
+	const records = useSelect(
+		select => {
+			return ( rawRecords || [] ).map( record => {
+				// Get the edited version of this record if it exists
+				const editedRecord = select( coreDataStore ).getEditedEntityRecord(
+					'postType',
+					'feedback',
+					( record as FormResponse ).id
+				);
+				return editedRecord || record;
+			} ) as FormResponse[];
+		},
+		[ rawRecords ]
+	);
 
 	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
 		'postType',

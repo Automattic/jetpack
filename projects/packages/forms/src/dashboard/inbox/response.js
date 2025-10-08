@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
 	ExternalLink,
@@ -13,7 +14,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useRegistry } from '@wordpress/data';
+import { useRegistry, useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -32,8 +33,10 @@ import {
 	moveToTrashAction,
 	restoreAction,
 	deleteAction,
+	markAsReadAction,
+	markAsUnreadAction,
 } from './dataviews/actions';
-import { getPath } from './utils';
+import { getPath, updateMenuCounter } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -199,6 +202,9 @@ const InboxResponse = ( {
 	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
 	const [ isRestoring, setIsRestoring ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
+
+	const { editEntityRecord } = useDispatch( 'core' );
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
@@ -269,11 +275,47 @@ const InboxResponse = ( {
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
+	const handleMarkAsRead = useCallback( () => {
+		markAsReadAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const handleMarkAsUnread = useCallback( () => {
+		setHasMarkedSelfAsRead( response.id );
+		markAsUnreadAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+	const readUnreadButtons = (
+		<>
+			{ response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsRead }
+					showTooltip={ true }
+					label={ handleMarkAsRead.label }
+					iconSize={ 24 }
+					icon={ markAsReadAction.icon }
+					size="compact"
+				></Button>
+			) }
+			{ ! response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsUnread }
+					showTooltip={ true }
+					label={ markAsUnreadAction.label }
+					iconSize={ 24 }
+					icon={ markAsUnreadAction.icon }
+					size="compact"
+				></Button>
+			) }
+		</>
+	);
+
 	const renderActionButtons = () => {
 		switch ( response.status ) {
 			case 'spam':
 				return (
 					<>
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleMarkAsNotSpam }
@@ -300,6 +342,7 @@ const InboxResponse = ( {
 			case 'trash':
 				return (
 					<>
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleRestore }
@@ -326,6 +369,7 @@ const InboxResponse = ( {
 			default: // 'publish' (inbox) or any other status
 				return (
 					<>
+						{ readUnreadButtons }
 						<Button
 							variant="tertiary"
 							onClick={ handleMarkAsSpam }
@@ -484,6 +528,39 @@ const InboxResponse = ( {
 
 		ref.current.scrollTop = 0;
 	}, [ response ] );
+
+	// Mark feedback as read when viewing
+	useEffect( () => {
+		if ( ! response || ! response.id || ! response.is_unread ) {
+			setHasMarkedSelfAsRead( response.id );
+			return;
+		}
+		if ( hasMarkedSelfAsRead === response.id ) {
+			return;
+		}
+
+		setHasMarkedSelfAsRead( response.id );
+
+		// Immediately update entity in store
+		editEntityRecord( 'postType', 'feedback', response.id, {
+			is_unread: false,
+		} );
+
+		// Then update on server
+		apiFetch( {
+			path: `/wp/v2/feedback/${ response.id }/read`,
+			method: 'POST',
+			data: { is_unread: false },
+		} )
+			.then( ( { count } ) => {
+				updateMenuCounter( count );
+			} )
+			.catch( () => {
+				editEntityRecord( 'postType', 'feedback', response.id, {
+					is_unread: true,
+				} );
+			} );
+	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );

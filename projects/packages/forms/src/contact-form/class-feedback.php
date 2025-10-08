@@ -18,6 +18,20 @@ class Feedback {
 	const POST_TYPE = 'feedback';
 
 	/**
+	 * Comment status for unread feedback.
+	 *
+	 * @var string
+	 */
+	private const STATUS_UNREAD = 'open';
+
+	/**
+	 * Comment status for read feedback.
+	 *
+	 * @var string
+	 */
+	private const STATUS_READ = 'closed';
+
+	/**
 	 * The form field values.
 	 *
 	 * @var array
@@ -112,6 +126,20 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
+	 * Whether the feedback entry is unread.
+	 *
+	 * @var bool
+	 */
+	protected $is_unread = true;
+
+	/**
+	 * The post ID of the feedback entry.
+	 *
+	 * @var int|null
+	 */
+	protected $post_id = null;
+
+	/**
 	 * The entry object of the post that the feedback was submitted from.
 	 *
 	 * This is used to store the entry object of the post that the feedback was submitted from.
@@ -151,9 +179,11 @@ class Feedback {
 
 		$parsed_content = $this->parse_content( $feedback_post->post_content, $feedback_post->post_mime_type );
 
+		$this->post_id            = $feedback_post->ID;
 		$this->status             = $feedback_post->post_status;
 		$this->legacy_feedback_id = $feedback_post->post_name;
 		$this->feedback_time      = $feedback_post->post_date;
+		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
 		$this->fields = $parsed_content['fields'] ?? array();
 
@@ -707,6 +737,83 @@ class Feedback {
 	}
 
 	/**
+	 * Check if the feedback is unread.
+	 *
+	 * @return bool
+	 */
+	public function is_unread() {
+		return $this->is_unread;
+	}
+
+	/**
+	 * Mark the feedback as read.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_read() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_READ,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mark the feedback as unread.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_unread() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_UNREAD,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = true;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the count of unread feedback entries.
+	 *
+	 * @return int
+	 */
+	public static function get_unread_count() {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'publish',
+				'comment_status' => self::STATUS_UNREAD,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+		return (int) $query->found_posts;
+	}
+
+	/**
 	 * Get the uploaded files from the feedback entry.
 	 *
 	 * @return array
@@ -817,6 +924,7 @@ class Feedback {
 				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->source->get_id(),
+				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
 

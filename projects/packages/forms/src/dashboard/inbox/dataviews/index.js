@@ -32,6 +32,8 @@ import {
 	moveToTrashAction,
 	deleteAction,
 	restoreAction,
+	markAsReadAction,
+	markAsUnreadAction,
 } from './actions';
 import { useView, defaultLayouts } from './views';
 
@@ -240,11 +242,36 @@ export default function InboxView() {
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
 	);
+
+	const wrapperUnread = ( isUnread, itemValue ) => {
+		if ( isUnread ) {
+			return <span className="jp-forms__inbox__unread">{ itemValue }</span>;
+		}
+		return itemValue;
+	};
 	const fields = useMemo(
 		() => [
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const authorInfo = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip
+					);
+					return (
+						<>
+							{ item.is_unread && (
+								<span
+									className="jp-forms__inbox__unread-indicator"
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
+							) }
+							{ wrapperUnread( item.is_unread, authorInfo ) }
+						</>
+					);
+				},
 				getValue: ( { item } ) => {
 					return decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
@@ -256,7 +283,9 @@ export default function InboxView() {
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
+				render: ( { item } ) => {
+					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
 					date.setDate( 1 );
@@ -280,7 +309,10 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<ExternalLink href={ item.entry_permalink }>
-							{ decodeEntities( item.entry_title ) || getPath( item ) }
+							{ wrapperUnread(
+								item.is_unread,
+								decodeEntities( item.entry_title ) || getPath( item )
+							) }
 						</ExternalLink>
 					);
 				},
@@ -298,6 +330,8 @@ export default function InboxView() {
 
 	const actions = useMemo( () => {
 		const _actions = [
+			markAsReadAction,
+			markAsUnreadAction,
 			markAsSpamAction,
 			markAsNotSpamAction,
 			moveToTrashAction,
