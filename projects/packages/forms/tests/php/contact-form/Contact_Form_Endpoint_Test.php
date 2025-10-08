@@ -723,6 +723,7 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 			'test@example.com',
 			'',
 			'',
+			'',
 			'publish',
 			false,
 			true // is_unread
