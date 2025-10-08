@@ -1477,7 +1477,7 @@ class Contact_Form_Plugin {
 	 * @return int The count of unread feedback entries.
 	 */
 	public static function get_unread_count() {
-		return (int) get_option( 'feedback_unread_count_v2', 0 );
+		return (int) get_option( 'jetpack_feedback_unread_count', 0 ); // previously defaulted named "feedback_unread_count".
 	}
 
 	/**
@@ -1489,7 +1489,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function recalculate_unread_count() {
 		$count = Feedback::get_unread_count();
-		update_option( 'feedback_unread_count_v2', $count );
+		update_option( 'jetpack_feedback_unread_count', $count );
 		return $count;
 	}
 
