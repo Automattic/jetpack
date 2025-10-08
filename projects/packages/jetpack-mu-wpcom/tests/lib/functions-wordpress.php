@@ -51,3 +51,17 @@ if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 		}
 	}
 }
+
+if ( ! function_exists( 'get_user_attribute' ) ) {
+	/**
+	 * A drop-in for a WordPress.com function.
+	 * Tests can mock return value using the global $test_user_attributes variable.
+	 */
+	function get_user_attribute( $user_id, $attribute ) {
+		global $test_user_attributes;
+		if ( ! isset( $test_user_attributes ) || ! is_array( $test_user_attributes ) ) {
+			return null;
+		}
+		return $test_user_attributes[ $attribute ] ?? null;
+	}
+}
