@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sharing: Prevent PHP fatals when passed malformed data.
