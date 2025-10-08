@@ -99,8 +99,6 @@ function filterBlockRegistration( settings: any ) {
 		return settings;
 	}
 
-	console.log( { attributes: settings.attributes, supports: settings.supports } );
-
 	settings.edit = blockEdit;
 	settings.save = blockSave;
 	if ( settings.example?.content ) {
