@@ -70,10 +70,10 @@ export const GlyphConfiguration: StoryObj< StoryArgs > = {
 		const glyphRenderers = {
 			default: undefined,
 			star: ( { color, size, x, y } ) => (
-				<GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />
+				<GlyphStar top={ y } left={ x } size={ size } fill={ color } />
 			),
 			heart: ( { color, size, x, y } ) => {
-				const hasXY = typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
+				const hasXY = typeof x === 'number' && typeof y === 'number';
 				const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
 				return (
 					<g { ...groupProps }>
@@ -184,7 +184,7 @@ Custom.args = {
 	...glyphStoryArgs,
 	withLegendGlyph: true,
 	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />;
+		return <GlyphStar top={ y } left={ x } size={ size } fill={ color } />;
 	},
 	glyphStyle: {
 		radius: 10,
@@ -192,7 +192,7 @@ Custom.args = {
 };
 
 const CustomStarGlyph = ( { color, size, x, y } ) => {
-	const hasXY = typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
+	const hasXY = typeof x === 'number' && typeof y === 'number';
 	const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
 	return (
 		<g { ...groupProps }>
@@ -252,7 +252,7 @@ const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate >
 							>
 								<svg width={ 20 } height={ 20 }>
 									<GlyphStar
-										size={ 10 * 10 }
+										size={ 10 }
 										top={ 10 }
 										left={ 10 }
 										fill={ '#fff' }
@@ -273,7 +273,7 @@ export const InTooltip: StoryObj< StoryArgs > = Template.bind( {} );
 InTooltip.args = {
 	...glyphStoryArgs,
 	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size * size } fill={ '#fff' } stroke={ color } />;
+		return <GlyphStar top={ y } left={ x } size={ size } fill={ '#fff' } stroke={ color } />;
 	},
 	glyphStyle: {
 		radius: 10,
