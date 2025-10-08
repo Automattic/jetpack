@@ -33,6 +33,8 @@ import {
 	moveToTrashAction,
 	restoreAction,
 	deleteAction,
+	markAsReadAction,
+	markAsUnreadAction,
 } from './dataviews/actions';
 import { getPath, updateMenuCounter } from './utils';
 
@@ -200,6 +202,8 @@ const InboxResponse = ( {
 	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
 	const [ isRestoring, setIsRestoring ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
+
 	const { editEntityRecord } = useDispatch( 'core' );
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
@@ -271,6 +275,15 @@ const InboxResponse = ( {
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
+	const handleMarkAsRead = useCallback( () => {
+		markAsReadAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const handleMarkAsUnread = useCallback( () => {
+		setHasMarkedSelfAsRead( response.id );
+		markAsUnreadAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
 	const renderActionButtons = () => {
 		switch ( response.status ) {
 			case 'spam':
@@ -328,6 +341,28 @@ const InboxResponse = ( {
 			default: // 'publish' (inbox) or any other status
 				return (
 					<>
+						{ response.is_unread && (
+							<Button
+								variant="tertiary"
+								onClick={ handleMarkAsRead }
+								showTooltip={ true }
+								label={ handleMarkAsRead.label }
+								iconSize={ 24 }
+								icon={ markAsReadAction.icon }
+								size="compact"
+							></Button>
+						) }
+						{ ! response.is_unread && (
+							<Button
+								variant="tertiary"
+								onClick={ handleMarkAsUnread }
+								showTooltip={ true }
+								label={ markAsUnreadAction.label }
+								iconSize={ 24 }
+								icon={ markAsUnreadAction.icon }
+								size="compact"
+							></Button>
+						) }
 						<Button
 							variant="tertiary"
 							onClick={ handleMarkAsSpam }
@@ -490,8 +525,14 @@ const InboxResponse = ( {
 	// Mark feedback as read when viewing
 	useEffect( () => {
 		if ( ! response || ! response.id || ! response.is_unread ) {
+			setHasMarkedSelfAsRead( response.id );
 			return;
 		}
+		if ( hasMarkedSelfAsRead === response.id ) {
+			return;
+		}
+
+		setHasMarkedSelfAsRead( response.id );
 
 		// Immediately update entity in store
 		editEntityRecord( 'postType', 'feedback', response.id, {
@@ -512,7 +553,7 @@ const InboxResponse = ( {
 					is_unread: true,
 				} );
 			} );
-	}, [ response, editEntityRecord ] );
+	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
