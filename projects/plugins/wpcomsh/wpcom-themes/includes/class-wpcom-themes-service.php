@@ -106,7 +106,7 @@ class WPCom_Themes_Service {
 		$tier               = $theme->theme_tier->slug ?? 'premium';
 		$theme_tier_feature = $tier . '-themes';
 
-		return $tier === 'free' || wpcom_site_has_feature( $theme_tier_feature );
+		return $tier !== 'partner' && ( $tier === 'free' || wpcom_site_has_feature( $theme_tier_feature ) );
 	}
 
 	/**
