@@ -89,17 +89,15 @@
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
-.jp-forms__inbox-response-toolbar {
-	padding: 8px 20px;
-	margin: 0 -32px;
+.jp-forms__inbox-response-actions {
 	border-bottom: 1px solid var(--jp-forms-border-color);
+	padding: 8px 0;
+	width: 100%;
 
 	@media (min-width: 782px) {
-		width: 100%;
-		margin: 0;
+		padding: 8px 20px;
 	}
 }
-
 
 .jp-forms__inbox-response-name {
 	font-size: 24px;

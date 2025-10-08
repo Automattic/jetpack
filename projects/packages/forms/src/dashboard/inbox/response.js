@@ -507,7 +507,7 @@ const InboxResponse = ( {
 
 	return (
 		<>
-			<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-toolbar">
+			<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
 				<HStack alignment="left">{ renderActionButtons() }</HStack>
 				<HStack alignment="right">{ renderNavigationButtons() }</HStack>
 			</HStack>
