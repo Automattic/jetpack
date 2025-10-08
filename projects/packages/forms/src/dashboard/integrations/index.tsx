@@ -2,12 +2,13 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
+import { INTEGRATIONS_STORE } from '../../store/integrations';
 import AkismetDashboardCard from './akismet-card';
 import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
@@ -18,10 +19,17 @@ import './style.scss';
 /**
  * Types
  */
+import type { SelectIntegrations, IntegrationsDispatch } from '../../store/integrations';
 import type { Integration } from '../../types';
 
 const Integrations = () => {
-	const { integrations, refreshIntegrations } = useIntegrationsStatus();
+	const { integrations } = useSelect( ( select: SelectIntegrations ) => {
+		const store = select( INTEGRATIONS_STORE );
+		return {
+			integrations: store.getIntegrations() || [],
+		};
+	}, [] ) as { integrations: Integration[] };
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		googleSheets: false,
@@ -63,7 +71,7 @@ const Integrations = () => {
 	const handleToggleMailPoet = useCallback( () => toggleCard( 'mailpoet' ), [ toggleCard ] );
 
 	const findIntegrationById = ( id: string ) =>
-		integrations?.find( ( integration: Integration ) => integration.id === id );
+		integrations.find( integration => integration.id === id );
 
 	// Only supported integrations will be returned from endpoint.
 	const akismetData = findIntegrationById( 'akismet' );
