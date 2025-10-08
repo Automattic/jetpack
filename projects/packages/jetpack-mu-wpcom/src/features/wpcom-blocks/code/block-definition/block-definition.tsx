@@ -492,10 +492,10 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
  * This function wraps the code content when it is not managed by CodeMirror.
  *
  * @param props              - Component props.
- * @param props.attributes   -- Block attributes.
- * @param props.children     -- Component children, the contents of the block.
+ * @param props.attributes   - Block attributes.
+ * @param props.children     - Component children, the contents of the block.
+ * @param props.wrapperProps - Props to pass to the PRE container element.
  *
- * @param props.wrapperProps
  * @return UI.
  */
 function CodeWrapper( {
