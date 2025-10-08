@@ -27,6 +27,8 @@ import clsx from 'clsx';
 import useFormsConfig from '../../hooks/use-forms-config';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
+import ResponseActions from '../components/response-actions';
+import ResponseNavigation from '../components/response-navigation';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
 import {
 	markAsSpamAction,
@@ -206,6 +208,7 @@ const InboxResponse = ( {
 	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
 
 	const { editEntityRecord } = useDispatch( 'core' );
+	const registry = useRegistry();
 
 	const formsConfig = useFormsConfig();
 	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
@@ -213,8 +216,6 @@ const InboxResponse = ( {
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
 		useMarkAsSpam( response );
-
-	const registry = useRegistry();
 
 	const ref = useRef( undefined );
 
@@ -600,10 +601,22 @@ const InboxResponse = ( {
 
 	return (
 		<>
-			<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-				<HStack alignment="left">{ renderActionButtons() }</HStack>
-				<HStack alignment="right">{ renderNavigationButtons() }</HStack>
-			</HStack>
+			{ ! isMobile && (
+				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
+					<HStack alignment="left">
+						<ResponseActions onActionComplete={ onActionComplete } response={ response } />
+					</HStack>
+					<HStack alignment="right">
+						<ResponseNavigation
+							hasNext={ hasNext }
+							hasPrevious={ hasPrevious }
+							onClose={ onClose }
+							onNext={ onNext }
+							onPrevious={ onPrevious }
+						/>
+					</HStack>
+				</HStack>
+			) }
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">

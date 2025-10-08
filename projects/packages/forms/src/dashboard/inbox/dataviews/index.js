@@ -20,6 +20,8 @@ import { useSearchParams } from 'react-router';
  * Internal dependencies
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
+import ResponseActions from '../../components/response-actions';
+import ResponseNavigation from '../../components/response-navigation';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
@@ -475,6 +477,18 @@ const SingleResponse = ( {
 			title={ __( 'Response', 'jetpack-forms' ) }
 			size="medium"
 			onRequestClose={ onRequestClose }
+			headerActions={
+				<>
+					<ResponseActions response={ sidePanelItem } onActionComplete={ handleActionComplete } />
+					<ResponseNavigation
+						hasNext={ hasNext }
+						hasPrevious={ hasPrevious }
+						onClose={ null }
+						onNext={ handleNext }
+						onPrevious={ handlePrevious }
+					/>
+				</>
+			}
 		>
 			{ contents }
 		</Modal>
