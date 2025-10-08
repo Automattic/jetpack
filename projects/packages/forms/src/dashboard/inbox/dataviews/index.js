@@ -432,6 +432,7 @@ const SingleResponse = ( {
 		<InboxResponse
 			response={ sidePanelItem }
 			isLoading={ isLoadingData }
+			isMobile={ isMobile }
 			onModalStateChange={ handleModalStateChange }
 			onClose={ onRequestClose }
 			onNext={ handleNext }

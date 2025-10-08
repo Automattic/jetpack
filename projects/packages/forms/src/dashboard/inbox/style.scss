@@ -90,9 +90,6 @@
 }
 
 .jp-forms__inbox-response-toolbar {
-	display: flex;
-	justify-content: space-between;
-
 	padding: 8px 20px;
 	margin: 0 -32px;
 	border-bottom: 1px solid var(--jp-forms-border-color);
@@ -100,21 +97,6 @@
 	@media (min-width: 782px) {
 		width: 100%;
 		margin: 0;
-	}
-
-	.components-button.has-icon {
-		box-shadow: none;
-	}
-
-	.jp-forms__inbox-response-toolbar-left {
-		display: flex;
-		gap: 4px;
-	}
-
-	.jp-forms__inbox-response-toolbar-right {
-		display: flex;
-		gap: 4px;
-		align-items: center;
 	}
 }
 
@@ -494,10 +476,6 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Styling override when loaded in modal on mobile
 .components-modal__content {
-
-	.jp-forms__inbox-response-avatar {
-		left: 0;
-	}
 
 	.jp-forms__inbox-response-title,
 	.jp-forms__inbox-response-subtitle,

@@ -189,6 +189,7 @@ const InboxResponse = ( {
 	hasNext,
 	hasPrevious,
 	onActionComplete,
+	isMobile,
 } ) => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
@@ -274,7 +275,7 @@ const InboxResponse = ( {
 				return (
 					<>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleMarkAsNotSpam }
 							isBusy={ isMarkingAsNotSpam }
 							showTooltip={ true }
@@ -284,7 +285,7 @@ const InboxResponse = ( {
 							size="compact"
 						></Button>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleMoveToTrash }
 							isBusy={ isMovingToTrash }
 							showTooltip={ true }
@@ -300,7 +301,7 @@ const InboxResponse = ( {
 				return (
 					<>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleRestore }
 							isBusy={ isRestoring }
 							showTooltip={ true }
@@ -310,7 +311,7 @@ const InboxResponse = ( {
 							size="compact"
 						></Button>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleDelete }
 							showTooltip={ true }
 							isBusy={ isDeleting }
@@ -326,7 +327,7 @@ const InboxResponse = ( {
 				return (
 					<>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleMarkAsSpam }
 							isBusy={ isMarkingAsSpam }
 							showTooltip={ true }
@@ -336,7 +337,7 @@ const InboxResponse = ( {
 							size="compact"
 						></Button>
 						<Button
-							variant="secondary"
+							variant="tertiary"
 							onClick={ handleMoveToTrash }
 							isBusy={ isMovingToTrash }
 							showTooltip={ true }
@@ -356,7 +357,7 @@ const InboxResponse = ( {
 				{ onPrevious && (
 					<Button
 						accessibleWhenDisabled={ true }
-						variant="secondary"
+						variant="tertiary"
 						onClick={ onPrevious }
 						disabled={ ! hasPrevious }
 						showTooltip={ true }
@@ -368,7 +369,7 @@ const InboxResponse = ( {
 				{ onNext && (
 					<Button
 						accessibleWhenDisabled={ true }
-						variant="secondary"
+						variant="tertiary"
 						onClick={ onNext }
 						disabled={ ! hasNext }
 						showTooltip={ true }
@@ -377,9 +378,9 @@ const InboxResponse = ( {
 						size="compact"
 					></Button>
 				) }
-				{ onClose && (
+				{ ! isMobile && onClose && (
 					<Button
-						variant="secondary"
+						variant="tertiary"
 						onClick={ onClose }
 						showTooltip={ true }
 						label={ __( 'Close', 'jetpack-forms' ) }
@@ -506,10 +507,10 @@ const InboxResponse = ( {
 
 	return (
 		<>
-			<div className="jp-forms__inbox-response-toolbar">
-				<div className="jp-forms__inbox-response-toolbar-left">{ renderActionButtons() }</div>
-				<div className="jp-forms__inbox-response-toolbar-right">{ renderNavigationButtons() }</div>
-			</div>
+			<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-toolbar">
+				<HStack alignment="left">{ renderActionButtons() }</HStack>
+				<HStack alignment="right">{ renderNavigationButtons() }</HStack>
+			</HStack>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">
