@@ -515,7 +515,7 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	$current_blog_id = get_current_blog_id();
+	$current_blog_id = wpcom_global_styles_get_wpcom_current_blog_id();
 
 	if ( ! (
 		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
@@ -525,7 +525,8 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	if ( has_blog_sticker( 'difm-lite-in-progress' ) ) {
+	if ( ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'difm-lite-in-progress' ) ) ||
+		( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' ) ) ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
 	}
@@ -544,7 +545,7 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	// Do not show the lanuch banner when previewed in the customizer
+	// Do not show the notice when previewed in the customizer
 	if ( is_customize_preview() ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
