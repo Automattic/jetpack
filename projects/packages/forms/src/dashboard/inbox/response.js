@@ -18,7 +18,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { download, trash, backup, close, chevronLeft, chevronRight } from '@wordpress/icons';
+import { download, close, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
@@ -26,7 +26,7 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { spam, notSpam, read, unread } from '../icons';
+import { read, unread } from '../icons';
 import {
 	markAsSpamAction,
 	markAsNotSpamAction,
@@ -273,18 +273,18 @@ const InboxResponse = ( {
 							variant="secondary"
 							onClick={ handleMarkAsNotSpam }
 							showTooltip={ true }
-							label={ __( 'Not spam', 'jetpack-forms' ) }
+							label={ markAsNotSpamAction.label }
 							iconSize={ 24 }
-							icon={ notSpam }
+							icon={ markAsNotSpamAction.icon }
 							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
-							label={ __( 'Send to trash', 'jetpack-forms' ) }
+							label={ moveToTrashAction.label }
 							iconSize={ 24 }
-							icon={ trash }
+							icon={ moveToTrashAction.icon }
 							size="compact"
 						></Button>
 					</>
@@ -297,18 +297,18 @@ const InboxResponse = ( {
 							variant="secondary"
 							onClick={ handleRestore }
 							showTooltip={ true }
-							label={ __( 'Restore', 'jetpack-forms' ) }
+							label={ restoreAction.label }
 							iconSize={ 24 }
-							icon={ backup }
+							icon={ restoreAction.icon }
 							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleDelete }
 							showTooltip={ true }
-							label={ __( 'Delete permanently', 'jetpack-forms' ) }
+							label={ deleteAction.label }
 							iconSize={ 24 }
-							icon={ trash }
+							icon={ deleteAction.icon }
 							size="compact"
 						></Button>
 					</>
@@ -330,18 +330,18 @@ const InboxResponse = ( {
 							variant="secondary"
 							onClick={ handleMarkAsSpam }
 							showTooltip={ true }
-							label={ __( 'Mark as spam', 'jetpack-forms' ) }
+							label={ markAsSpamAction.label }
 							iconSize={ 24 }
-							icon={ spam }
+							icon={ markAsSpamAction.icon }
 							size="compact"
 						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
 							showTooltip={ true }
-							label={ __( 'Send to trash', 'jetpack-forms' ) }
+							label={ moveToTrashAction.label }
 							iconSize={ 24 }
-							icon={ trash }
+							icon={ moveToTrashAction.icon }
 							size="compact"
 						></Button>
 					</>
