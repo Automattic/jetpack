@@ -182,9 +182,24 @@ class Helper {
 				}
 
 				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
-				$key  = sprintf( '%s_%d', $type, count( $filters ) );
 
-				$filters[ $key ] = $widget_filter;
+				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
+				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
+					if ( function_exists( 'wc_get_attribute_taxonomies' ) ) {
+						$product_attributes = wc_get_attribute_taxonomies();
+						foreach ( $product_attributes as $attribute ) {
+							$attribute_name               = wc_attribute_taxonomy_name( $attribute->attribute_name );
+							$key                          = sprintf( '%s_%d', $type, count( $filters ) );
+							$expanded_filter              = $widget_filter;
+							$expanded_filter['attribute'] = $attribute_name;
+							$expanded_filter['name']      = $attribute->attribute_label;
+							$filters[ $key ]              = $expanded_filter;
+						}
+					}
+				} else {
+					$key             = sprintf( '%s_%d', $type, count( $filters ) );
+					$filters[ $key ] = $widget_filter;
+				}
 			}
 		}
 
@@ -280,6 +295,19 @@ class Helper {
 					$name = $tax->label;
 				} elseif ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
 					$name = $tax->labels->name;
+				}
+				break;
+
+			case 'product_attribute':
+				if ( isset( $widget_filter['attribute'] ) && ! empty( $widget_filter['attribute'] ) ) {
+					$attribute_taxonomy = get_taxonomy( $widget_filter['attribute'] );
+					if ( $attribute_taxonomy && isset( $attribute_taxonomy->label ) ) {
+						$name = $attribute_taxonomy->label;
+					} else {
+						$name = _x( 'Product Attributes', 'label for filtering posts', 'jetpack-search-pkg' );
+					}
+				} else {
+					$name = _x( 'Product Attributes', 'label for filtering posts', 'jetpack-search-pkg' );
 				}
 				break;
 		}

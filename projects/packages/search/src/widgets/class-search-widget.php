@@ -700,6 +700,13 @@ class Search_Widget extends \WP_Widget {
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
 						);
 						break;
+					case 'product_attribute':
+						$filters[] = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'product_attribute',
+							'count' => $count,
+						);
+						break;
 				}
 			}
 		}
@@ -995,6 +1002,9 @@ class Search_Widget extends \WP_Widget {
 						<?php endif; ?>
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
+						</option>
+						<option value="product_attribute" <?php $this->render_widget_option_selected( 'type', $args['type'], 'product_attribute', $is_template ); ?>>
+							<?php esc_html_e( 'Product Attribute', 'jetpack-search-pkg' ); ?>
 						</option>
 					</select>
 				</label>

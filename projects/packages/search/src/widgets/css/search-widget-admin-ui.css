@@ -67,6 +67,11 @@
 	display: none;
 }
 
+/* When product attribute is selected, hide taxonomy selector */
+.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__taxonomy-select {
+	display: none;
+}
+
 .jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {
 	display: none;
 }

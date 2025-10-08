@@ -1229,6 +1229,11 @@ class Classic_Search {
 					$this->add_date_histogram_aggregation_to_es_query_builder( $aggregation, $label, $builder );
 
 					break;
+
+				case 'product_attribute':
+					$this->add_product_attribute_aggregation_to_es_query_builder( $aggregation, $label, $builder );
+
+					break;
 			}
 		}
 	}
@@ -1342,6 +1347,68 @@ class Classic_Search {
 	}
 
 	/**
+	 * Given an individual product_attribute aggregation, add it to the query builder object for use in Elasticsearch.
+	 *
+	 * @since 0.44.0
+	 *
+	 * @param array                                         $aggregation The aggregation to add to the query builder.
+	 * @param string                                        $label       The 'label' (unique id) for this aggregation.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 */
+	public function add_product_attribute_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
+		// For Classic Search: if no specific attribute is provided, query all global product attributes.
+		// Note: Instant Search handles this differently via get_filters_from_widgets() expansion.
+		if ( empty( $aggregation['attribute'] ) ) {
+			if ( ! function_exists( 'wc_get_attribute_taxonomies' ) ) {
+				return;
+			}
+
+			$product_attributes = wc_get_attribute_taxonomies();
+
+			if ( empty( $product_attributes ) ) {
+				return;
+			}
+
+			foreach ( $product_attributes as $attribute ) {
+				$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
+				$field          = 'taxonomy.' . $attribute_name;
+				$agg_label      = $label . '_' . $attribute_name;
+
+				$builder->add_aggs(
+					$agg_label,
+					array(
+						'terms' => array(
+							'field' => $field . '.slug',
+							'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+						),
+					)
+				);
+
+				// Store this aggregation in the aggregations array so get_filters() can process it.
+				$this->aggregations[ $agg_label ] = array(
+					'type'      => 'product_attribute',
+					'attribute' => $attribute_name,
+					'count'     => $aggregation['count'],
+					'name'      => isset( $aggregation['name'] ) ? $aggregation['name'] : '',
+				);
+			}
+		} else {
+			// Handle specific attribute (for backwards compatibility).
+			$field = 'taxonomy.' . $aggregation['attribute'];
+
+			$builder->add_aggs(
+				$label,
+				array(
+					'terms' => array(
+						'field' => $field . '.slug',
+						'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+					),
+				)
+			);
+		}
+	}
+
+	/**
 	 * And an existing filter object with a list of additional filters.
 	 *
 	 * Attempts to optimize the filters somewhat.
@@ -1452,6 +1519,10 @@ class Classic_Search {
 		// NOTE - Looping over the _results_, not the original configured aggregations, so we get the 'real' data from ES.
 		foreach ( $aggregation_results as $label => $aggregation ) {
 			if ( empty( $aggregation ) ) {
+				continue;
+			}
+
+			if ( ! isset( $this->aggregations[ $label ] ) ) {
 				continue;
 			}
 
@@ -1596,6 +1667,57 @@ class Classic_Search {
 						$active = true;
 
 						$remove_url = Helper::remove_query_arg( 'author' );
+
+						break;
+
+					case 'product_attribute':
+						$attribute_taxonomy = $this->aggregations[ $label ]['attribute'];
+
+						$term = get_term_by( 'slug', $item['key'], $attribute_taxonomy );
+
+						if ( ! $term ) {
+							continue 2; // switch() is considered a looping structure.
+						}
+
+						$tax_query_var = $this->get_taxonomy_query_var( $attribute_taxonomy );
+
+						if ( ! $tax_query_var ) {
+							continue 2;
+						}
+
+						// Figure out which terms are already selected for this attribute.
+						$existing_attribute_slugs = array();
+						if ( ! empty( $query->tax_query ) && ! empty( $query->tax_query->queries ) && is_array( $query->tax_query->queries ) ) {
+							foreach ( $query->tax_query->queries as $tax_query ) {
+								if ( is_array( $tax_query ) && $attribute_taxonomy === $tax_query['taxonomy'] &&
+									'slug' === $tax_query['field'] &&
+									is_array( $tax_query['terms'] ) ) {
+									$existing_attribute_slugs = array_merge( $existing_attribute_slugs, $tax_query['terms'] );
+								}
+							}
+						}
+
+						$query_vars = array(
+							$tax_query_var => implode( '+', array_merge( $existing_attribute_slugs, array( $term->slug ) ) ),
+						);
+
+						$name = $term->name;
+
+						// Let's determine if this term is active or not.
+						if ( in_array( $item['key'], $existing_attribute_slugs, true ) ) {
+							$active = true;
+
+							$slug_count = count( $existing_attribute_slugs );
+
+							if ( $slug_count > 1 ) {
+								$remove_url = Helper::add_query_arg(
+									$tax_query_var,
+									rawurlencode( implode( '+', array_diff( $existing_attribute_slugs, array( $item['key'] ) ) ) )
+								);
+							} else {
+								$remove_url = Helper::remove_query_arg( $tax_query_var );
+							}
+						}
 
 						break;
 
