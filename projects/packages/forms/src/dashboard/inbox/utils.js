@@ -9,38 +9,49 @@ export const getPath = item => {
 };
 
 /**
- * Update the unread count in the admin menu.
+ * Update `count-0` style CSS class in the unread menu badge with new count like `count-1`.
+ *
+ * @param {HTMLElement} element - Counter badge element
+ * @param {number}      count   - Count to use in new CSS class
+ */
+function updateBadge( element, count ) {
+	const oldClass = [ ...element.classList ].find( c => c.startsWith( 'count-' ) );
+	element.classList.replace( oldClass, `count-${ count }` );
+	element.ariaHidden = count > 0 ? 'false' : 'true';
+	element.textContent = count;
+}
+
+/**
+ * Update the unread count in the admin menu to specific count.
  *
  * @param {number} count - The new unread count.
  */
 export const updateMenuCounter = count => {
-	// iterate over all elements with the class 'jp-feedback-unread-counter' and update their text content
+	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
 	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
+		// Jetpack menu item has combined count and forms unread counter
 		if ( item.dataset.unreadDiff ) {
 			const unreadDiff = parseInt( item.dataset.unreadDiff, 10 ) + count;
-			item.textContent = unreadDiff > 0 ? unreadDiff : '';
-			item.style.display = unreadDiff > 0 ? '' : 'none';
+			updateBadge( item, unreadDiff );
 		} else {
-			item.textContent = count > 0 ? count : '';
-			item.style.display = count > 0 ? '' : 'none';
+			updateBadge( item, count );
 		}
 	} );
 };
 
 /**
- *
  * Update the unread count in the admin menu by addition or substraction, not by knowing the actual count.
+ *
  * @param {number} count - By how much we should add or substract from the current sidebar menu count; either positive or negative integer.
  */
 export const updateMenuCounterOptimistically = count => {
-	// iterate over all elements with the class 'jp-feedback-unread-counter' and update their text content
+	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
 	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
 		let optimisticCount = 0;
 		if ( item.textContent !== '' ) {
 			optimisticCount = parseInt( item.textContent, 10 ) + count;
 		}
 
-		item.textContent = optimisticCount > 0 ? optimisticCount : '';
-		item.style.display = optimisticCount > 0 ? '' : 'none';
+		updateBadge( item, optimisticCount );
 	} );
 };
