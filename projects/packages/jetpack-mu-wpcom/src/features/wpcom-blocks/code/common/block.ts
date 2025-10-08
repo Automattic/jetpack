@@ -9,7 +9,9 @@ export interface Attributes {
 	 * An array of lines and spans of text.
 	 * @todo name the tuple parts.
 	 */
-	tokenizedLines: ReadonlyArray< ReadonlyArray< [ string, string ] | [ string ] > >;
+	tokenizedLines: ReadonlyArray<
+		ReadonlyArray< [ base64html: string, className: string ] | [ base64html: string ] >
+	>;
 
 	/** Always a string. Empty string "" indicates no language. */
 	language: string;

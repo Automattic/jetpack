@@ -13,7 +13,7 @@ import { toBase64 } from '../common/base-64.ts';
 import { LanguageData } from './codemirror-language-data.ts';
 import * as languageUtils from './language-utils';
 import { WorkerAdmin } from './worker-admin.ts';
-import type { EditBlockProps } from '../common/block.ts';
+import type { Attributes, EditBlockProps } from '../common/block.ts';
 import type { LanguageSupport } from '@codemirror/language';
 import type { Extension } from '@codemirror/state';
 
@@ -146,7 +146,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 		( code: string ) => {
 			const tree = currentLanguageRef.current?.language.parser.parse( code ) ?? null;
 
-			let currentLine: Array< [ string, string ] | [ string ] > = [];
+			let currentLine: Array< Attributes[ 'tokenizedLines' ][ number ][ number ] > = [];
 			const lines: Array< typeof currentLine > = [];
 
 			if ( tree !== null ) {
