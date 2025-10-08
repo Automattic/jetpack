@@ -1,11 +1,8 @@
-import { GlyphStar } from '@visx/glyph';
-import { useGlobalChartsTheme, GlobalChartsProvider } from '../../../providers';
+import { GlobalChartsProvider } from '../../../providers';
 import { ChartStoryArgs, CHART_THEME_MAP, themeArgTypes } from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme } from './config';
-import type { DataPointDate } from '../../../types';
+import { lineChartMetaArgs, lineChartStoryArgs, glyphTheme, glyphRenderers } from './config';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
-import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
@@ -49,6 +46,27 @@ const meta: Meta< StoryArgs > = {
 			...themeArgTypes.themeName,
 			options: [ 'default', 'jetpack', 'woo', 'custom', 'glyph' ],
 		},
+		withStartGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line start',
+		},
+		withEndGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line end',
+		},
+		withLegendGlyph: {
+			control: 'boolean',
+			description: 'Show glyphs in legend',
+		},
+		glyphType: {
+			control: 'radio',
+			options: [ 'default', 'star', 'heart' ],
+			description: 'Glyph shape',
+		},
+		glyphSize: {
+			control: { type: 'range', min: 4, max: 16, step: 1 },
+			description: 'Glyph size (radius)',
+		},
 	},
 };
 
@@ -61,51 +79,22 @@ const glyphStoryArgs = {
 	withStartGlyphs: true,
 };
 
-// Consolidated glyph configuration story with interactive controls
-export const GlyphConfiguration: StoryObj< StoryArgs > = {
+// Interactive playground for exploring glyph options
+export const Playground: StoryObj< StoryArgs > = {
 	render: args => {
 		const glyphType = args.glyphType || 'default';
 		const glyphSize = args.glyphSize || 8;
-
-		const glyphRenderers = {
+		const glyphMap = {
 			default: undefined,
-			star: ( { color, size, x, y } ) => (
-				<GlyphStar top={ y } left={ x } size={ size } fill={ color } />
-			),
-			heart: ( { color, size, x, y } ) => {
-				const hasXY = typeof x === 'number' && typeof y === 'number';
-				const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
-				return (
-					<g { ...groupProps }>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							width={ size * 2 }
-							height={ size * 2 }
-							viewBox="0 0 24 24"
-							style={ { overflow: 'visible', pointerEvents: 'none' } }
-						>
-							<path
-								d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-								fill={ color }
-								stroke={ color }
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								transform="translate(-12, -12)"
-							/>
-						</svg>
-					</g>
-				);
-			},
+			star: glyphRenderers.star,
+			heart: glyphRenderers.heart,
 		};
 
 		return (
 			<LineChart
 				{ ...args }
-				renderGlyph={ glyphRenderers[ glyphType ] }
-				glyphStyle={ {
-					radius: glyphSize,
-				} }
+				renderGlyph={ glyphMap[ glyphType ] }
+				glyphStyle={ { radius: glyphSize } }
 			/>
 		);
 	},
@@ -113,57 +102,6 @@ export const GlyphConfiguration: StoryObj< StoryArgs > = {
 		...glyphStoryArgs,
 		glyphType: 'default',
 		glyphSize: 8,
-	},
-	argTypes: {
-		withStartGlyphs: {
-			control: { type: 'boolean' },
-			description: 'Show glyphs at the start of each line',
-		},
-		withEndGlyphs: {
-			control: { type: 'boolean' },
-			description: 'Show glyphs at the end of each line',
-		},
-		withLegendGlyph: {
-			control: { type: 'boolean' },
-			description: 'Show matching glyphs in the legend',
-		},
-		glyphType: {
-			control: { type: 'radio' },
-			options: [ 'default', 'star', 'heart' ],
-			description: 'Shape of the glyph markers',
-		},
-		glyphSize: {
-			control: { type: 'range', min: 4, max: 16, step: 1 },
-			description: 'Size (radius) of the glyph markers',
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: `Interactive glyph configuration with all available controls. Use the controls panel to explore different glyph positioning, types, and sizes.
-
-**Glyph Positions:**
-- **Start Glyphs**: Markers at the beginning of each line series
-- **End Glyphs**: Markers at the end of each line series
-- **Legend Glyphs**: Show matching glyph markers in the legend for easy series identification
-
-**Glyph Types:**
-- **Default**: Simple circle markers
-- **Star**: Star-shaped markers for emphasis
-- **Heart**: Custom SVG heart shape demonstrating full customization
-
-**Use Cases:**
-- Start glyphs: Highlight series origins, useful for animated or progressive data
-- End glyphs: Emphasize current/final values
-- Legend glyphs: Improve legend clarity by showing matching markers
-- Custom glyphs: Brand-specific shapes, category indicators, or data type symbols
-
-**Size Control:**
-- Adjust the radius (4-16px) to balance visibility with chart clarity
-- Larger glyphs: Better for presentations or high-level overviews
-- Smaller glyphs: Better for detailed analysis with many data points`,
-			},
-		},
 	},
 };
 
@@ -179,106 +117,14 @@ End.args = {
 	withEndGlyphs: true,
 };
 
-export const Custom: StoryObj< StoryArgs > = Template.bind( {} );
-Custom.args = {
-	...glyphStoryArgs,
-	withLegendGlyph: true,
-	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size } fill={ color } />;
-	},
-	glyphStyle: {
-		radius: 10,
-	},
-};
-
-const CustomStarGlyph = ( { color, size, x, y } ) => {
-	const hasXY = typeof x === 'number' && typeof y === 'number';
-	const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
-	return (
-		<g { ...groupProps }>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width={ size * 2 }
-				height={ size * 2 }
-				viewBox="0 0 24 24"
-				style={ { overflow: 'visible', pointerEvents: 'none' } }
-			>
-				<path
-					d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-					fill={ color }
-					stroke={ color }
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-					transform="translate(-12, -12)"
-				/>
-			</svg>
-		</g>
-	);
-};
-
 export const CustomSvg: StoryObj< StoryArgs > = Template.bind( {} );
 CustomSvg.args = {
 	...glyphStoryArgs,
 	withLegendGlyph: true,
-	renderGlyph: ( { color, size, x, y } ) => (
-		<CustomStarGlyph color={ color } size={ size } x={ x } y={ y } />
-	),
+	renderGlyph: glyphRenderers.heart,
 	glyphStyle: {
 		radius: 8,
 	},
-};
-
-const ToolTipWithGlyph = ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
-	const providerTheme = useGlobalChartsTheme();
-
-	return (
-		<div>
-			<div style={ { marginBottom: '0.5rem' } }>
-				{ tooltipData?.nearestDatum?.datum?.date?.toLocaleDateString() }
-			</div>
-			<div>
-				{ Object.entries( tooltipData?.datumByKey || {} ).map( ( [ key, value ], index ) => {
-					const { datum } = value as { datum: { value: number } };
-					return (
-						<div key={ key }>
-							<div
-								style={ {
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
-									marginBottom: '0.2rem',
-								} }
-							>
-								<svg width={ 20 } height={ 20 }>
-									<GlyphStar
-										size={ 10 }
-										top={ 10 }
-										left={ 10 }
-										fill={ '#fff' }
-										stroke={ providerTheme.colors[ index % providerTheme.colors.length ] }
-									/>
-								</svg>
-								{ key }: { datum.value }
-							</div>
-						</div>
-					);
-				} ) }
-			</div>
-		</div>
-	);
-};
-
-export const InTooltip: StoryObj< StoryArgs > = Template.bind( {} );
-InTooltip.args = {
-	...glyphStoryArgs,
-	renderGlyph: ( { color, size, x, y } ) => {
-		return <GlyphStar top={ y } left={ x } size={ size } fill={ '#fff' } stroke={ color } />;
-	},
-	glyphStyle: {
-		radius: 10,
-	},
-	renderTooltip: ToolTipWithGlyph,
 };
 
 export const CustomPerDataPoint: StoryObj< StoryArgs > = Template.bind( {} );
