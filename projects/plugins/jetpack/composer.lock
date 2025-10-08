@@ -1344,16 +1344,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v6.8.0",
+            "version": "v6.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "82c35a92dbbd9002c31072426fac07282c17f4a4"
+                "reference": "37a1fcc2285c0a13f3947a023bb92b8d351ce235"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/82c35a92dbbd9002c31072426fac07282c17f4a4",
-                "reference": "82c35a92dbbd9002c31072426fac07282c17f4a4",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/37a1fcc2285c0a13f3947a023bb92b8d351ce235",
+                "reference": "37a1fcc2285c0a13f3947a023bb92b8d351ce235",
                 "shasum": ""
             },
             "require": {
@@ -1385,7 +1385,7 @@
                 "textdomain": "jetpack-forms",
                 "mirror-repo": "Automattic/jetpack-forms",
                 "branch-alias": {
-                    "dev-trunk": "6.8.x-dev"
+                    "dev-trunk": "6.9.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
@@ -1405,9 +1405,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.8.0"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.9.0"
             },
-            "time": "2025-10-06T10:33:54+00:00"
+            "time": "2025-10-08T13:23:36+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
