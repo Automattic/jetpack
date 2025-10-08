@@ -61,6 +61,7 @@ const RESPONSE_FIELDS = [
 	'entry_permalink',
 	'has_file',
 	'fields',
+	'is_unread',
 ].join( ',' );
 
 /**
