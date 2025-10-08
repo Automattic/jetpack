@@ -98,6 +98,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 
 			// CPT magic
 			$this->register_post_types();
+			if ( ! post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
 			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_testimonial' ) );
@@ -155,6 +158,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public static function site_should_display_testimonials() {
 			$should_display = true;
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				return apply_filters( 'classic_theme_helper_should_display_testimonials', true );
+			}
+
 			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
 				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
