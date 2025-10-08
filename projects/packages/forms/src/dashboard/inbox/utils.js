@@ -1,3 +1,5 @@
+import { formatNumber } from '@automattic/number-formatters';
+
 // Function to get the URL of the page or post where the form was submitted.
 export const getPath = item => {
 	try {
@@ -18,7 +20,7 @@ function updateBadge( element, count ) {
 	const oldClass = [ ...element.classList ].find( c => c.startsWith( 'count-' ) );
 	element.classList.replace( oldClass, `count-${ count }` );
 	element.ariaHidden = count > 0 ? 'false' : 'true';
-	element.textContent = count;
+	element.textContent = formatNumber( count );
 }
 
 /**
@@ -49,7 +51,8 @@ export const updateMenuCounterOptimistically = count => {
 	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
 		let optimisticCount = 0;
 		if ( item.textContent !== '' ) {
-			optimisticCount = parseInt( item.textContent, 10 ) + count;
+			// Ensure large formatted numbers like "1,000" are converted to integers properly
+			optimisticCount = parseInt( item.textContent.replace( /\D/g, '' ), 10 ) + count;
 		}
 
 		updateBadge( item, optimisticCount );
