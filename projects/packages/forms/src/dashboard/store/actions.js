@@ -7,6 +7,7 @@ import {
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
+	SET_COUNTS,
 } from './action-types';
 
 /**
@@ -49,6 +50,19 @@ export function setCurrentQuery( currentQuery ) {
 	return {
 		type: SET_CURRENT_QUERY,
 		currentQuery,
+	};
+}
+
+/**
+ * Set the status counts.
+ *
+ * @param {object} counts - The counts object with inbox, spam, and trash.
+ * @return {object} Action object.
+ */
+export function setCounts( counts ) {
+	return {
+		type: SET_COUNTS,
+		counts,
 	};
 }
 

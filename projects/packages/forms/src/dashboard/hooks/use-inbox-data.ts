@@ -50,6 +50,7 @@ interface UseInboxDataReturn {
 	currentQuery: Record< string, unknown >;
 	setCurrentQuery: ( query: Record< string, unknown > ) => void;
 	filterOptions: Record< string, unknown >;
+	updateCountsOptimistically: ( fromStatus: string, toStatus: string, count?: number ) => void;
 }
 
 const RESPONSE_FIELDS = [
@@ -75,16 +76,28 @@ const RESPONSE_FIELDS = [
  */
 export default function useInboxData(): UseInboxDataReturn {
 	const [ searchParams ] = useSearchParams();
-	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
+	const { setCurrentQuery, setSelectedResponses, setCounts, updateCountsOptimistically } =
+		useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useSelect(
 		select => ( {
 			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
 			currentStatus: select( dashboardStore ).getCurrentStatus(),
 			currentQuery: select( dashboardStore ).getCurrentQuery(),
 			filterOptions: select( dashboardStore ).getFilters(),
+			totalItemsInbox: select( dashboardStore ).getInboxCount(),
+			totalItemsSpam: select( dashboardStore ).getSpamCount(),
+			totalItemsTrash: select( dashboardStore ).getTrashCount(),
 		} ),
 		[]
 	);
@@ -115,7 +128,6 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
 	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
 
 	useEffect( () => {
@@ -143,12 +155,18 @@ export default function useInboxData(): UseInboxDataReturn {
 		};
 
 		fetchCounts();
-	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
+	}, [
+		currentQuery?.search,
+		currentQuery?.parent,
+		currentQuery?.before,
+		currentQuery?.after,
+		setCounts,
+	] );
 
 	return {
-		totalItemsInbox: counts.inbox,
-		totalItemsSpam: counts.spam,
-		totalItemsTrash: counts.trash,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
 		records,
 		isLoadingData: isLoadingRecordsData,
 		isLoadingCounts,
@@ -161,5 +179,6 @@ export default function useInboxData(): UseInboxDataReturn {
 		currentQuery,
 		setCurrentQuery,
 		filterOptions,
+		updateCountsOptimistically,
 	};
 }

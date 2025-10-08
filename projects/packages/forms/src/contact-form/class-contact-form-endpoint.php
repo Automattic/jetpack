@@ -364,6 +364,22 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @param WP_REST_Request $request Full data about the request.
 	 * @return WP_REST_Response Response object on success.
 	 */
+	/**
+	 * Clears the cached status counts for the default view.
+	 * Called when feedback items are created, updated, or deleted.
+	 */
+	private function clear_status_counts_cache() {
+		delete_transient( 'jetpack_forms_status_counts_default' );
+	}
+
+	/**
+	 * Get status counts for feedback items.
+	 * Returns inbox, spam, and trash counts with optional filtering.
+	 * Only caches the default view (no filters) for performance.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Response object on success.
+	 */
 	public function get_status_counts( $request ) {
 		global $wpdb;
 
@@ -372,10 +388,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$before = $request->get_param( 'before' );
 		$after  = $request->get_param( 'after' );
 
-		$cache_key     = 'jetpack_forms_status_counts_' . md5( wp_json_encode( compact( 'search', 'parent', 'before', 'after' ) ) );
-		$cached_result = get_transient( $cache_key );
-		if ( false !== $cached_result ) {
-			return rest_ensure_response( $cached_result );
+		$is_default_view = empty( $search ) && empty( $parent ) && empty( $before ) && empty( $after );
+		if ( $is_default_view ) {
+			$cached_result = get_transient( 'jetpack_forms_status_counts_default' );
+			if ( false !== $cached_result ) {
+				return rest_ensure_response( $cached_result );
+			}
 		}
 
 		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
@@ -422,7 +440,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'trash' => (int) ( $counts['trash'] ?? 0 ),
 		);
 
-		set_transient( $cache_key, $result, 30 );
+		if ( $is_default_view ) {
+			set_transient( 'jetpack_forms_status_counts_default', $result, 30 );
+		}
 
 		return rest_ensure_response( $result );
 	}
@@ -629,6 +649,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Deletes the item.
+	 * Overrides the parent method to clear cached counts when an item is deleted.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function delete_item( $request ) {
+		$result = parent::delete_item( $request );
+		if ( ! is_wp_error( $result ) ) {
+			$this->clear_status_counts_cache();
+		}
+		return $result;
+	}
+
+	/**
 	 * Updates the item.
 	 * Overrides the parent method to resend the email when the item is updated from spam to publish.
 	 *
@@ -653,6 +688,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				do_action( 'contact_form_akismet', 'ham', $akismet_values );
 				$this->resend_email( $post_id );
 			}
+			// Clear cached counts when status changes
+			$this->clear_status_counts_cache();
 		}
 		return $updated_item;
 	}
@@ -874,6 +911,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			++$deleted;
 		}
 
+		if ( $deleted > 0 ) {
+			$this->clear_status_counts_cache();
+		}
+
 		return new WP_REST_Response( array( 'deleted' => $deleted ), 200 );
 	}
 
@@ -892,6 +933,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
 		}
+		$this->clear_status_counts_cache();
 		return new WP_REST_Response( array(), 200 );
 	}
 
@@ -910,6 +952,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
 		}
+		$this->clear_status_counts_cache();
 		return new WP_REST_Response( array(), 200 );
 	}
 

@@ -120,6 +120,7 @@ export default function InboxView() {
 		isLoadingData,
 		totalItems,
 		totalPages,
+		updateCountsOptimistically,
 	} = useInboxData();
 
 	const queryArgs = useMemo( () => {
@@ -333,14 +334,36 @@ export default function InboxView() {
 	);
 
 	const actions = useMemo( () => {
+		// Wrap actions with optimistic updates
+		const wrapActionWithOptimisticUpdate = ( action, toStatus ) => ( {
+			...action,
+			async callback( items, context ) {
+				// statusFilter represents the current view: 'draft,publish' (inbox), 'spam', or 'trash'
+				// For inbox, we need to map to individual status from items
+				const fromStatus = statusFilter === 'draft,publish' ? items[ 0 ]?.status : statusFilter;
+				// Optimistically update counts
+				updateCountsOptimistically( fromStatus, toStatus, items.length );
+				// Call original action
+				return action.callback( items, context );
+			},
+		} );
+
 		const _actions = [
 			markAsReadAction,
 			markAsUnreadAction,
-			markAsSpamAction,
-			markAsNotSpamAction,
-			moveToTrashAction,
-			restoreAction,
-			deleteAction,
+			wrapActionWithOptimisticUpdate( markAsSpamAction, 'spam' ),
+			wrapActionWithOptimisticUpdate( markAsNotSpamAction, 'publish' ),
+			wrapActionWithOptimisticUpdate( moveToTrashAction, 'trash' ),
+			wrapActionWithOptimisticUpdate( restoreAction, 'publish' ),
+			{
+				...deleteAction,
+				async callback( items, context ) {
+					const fromStatus = statusFilter === 'draft,publish' ? items[ 0 ]?.status : statusFilter;
+					// Optimistically update counts (permanent delete, no toStatus)
+					updateCountsOptimistically( fromStatus, 'deleted', items.length );
+					return deleteAction.callback( items, context );
+				},
+			},
 		];
 		if ( isMobile ) {
 			_actions.unshift( viewActionModal );
@@ -356,7 +379,7 @@ export default function InboxView() {
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile, onChangeSelection, selection, updateCountsOptimistically, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;

@@ -6,7 +6,12 @@ import { isEqual } from 'lodash';
 /**
  * Internal dependencies
  */
-import { SET_SELECTED_RESPONSES, RECEIVE_FILTERS, SET_CURRENT_QUERY } from './action-types';
+import {
+	SET_SELECTED_RESPONSES,
+	RECEIVE_FILTERS,
+	SET_CURRENT_QUERY,
+	SET_COUNTS,
+} from './action-types';
 
 const filters = ( state = {}, action ) => {
 	if ( action.type === RECEIVE_FILTERS ) {
@@ -29,8 +34,16 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	return state;
 };
 
+const counts = ( state = { inbox: 0, spam: 0, trash: 0 }, action ) => {
+	if ( action.type === SET_COUNTS ) {
+		return action.counts;
+	}
+	return state;
+};
+
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
 	currentQuery,
+	counts,
 } );
