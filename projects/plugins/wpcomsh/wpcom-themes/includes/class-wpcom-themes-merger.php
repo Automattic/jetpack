@@ -14,7 +14,7 @@ class WPCom_Themes_Merger {
 	 * Merges themes prioritizing WPCom themes.
 	 *
 	 * @param stdClass $wporg_themes_object The WP.org themes API result.
-	 * @param array    $wpcom_themes The WP.com themes to include.
+	 * @param array    $wpcom_themes        The WP.com themes to include.
 	 *
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
@@ -24,7 +24,7 @@ class WPCom_Themes_Merger {
 		// Create an associative array with theme slugs as keys for quick lookup
 		$wpcom_theme_slugs = array_flip(
 			array_map(
-				fn( $theme ) => $theme->slug,
+				fn ( $theme ) => $theme->slug,
 				$wpcom_themes
 			)
 		);
@@ -54,7 +54,7 @@ class WPCom_Themes_Merger {
 	 * Merge themes by release date with no particular bias.
 	 *
 	 * @param stdClass $wporg_themes_object The WP.org themes API result.
-	 * @param array    $wpcom_themes The WP.com themes to include.
+	 * @param array    $wpcom_themes        The WP.com themes to include.
 	 *
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
