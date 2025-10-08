@@ -447,7 +447,7 @@ const SingleResponse = ( {
 	}
 	return (
 		<Modal
-			title={ __( 'View response', 'jetpack-forms' ) }
+			title={ __( 'Response', 'jetpack-forms' ) }
 			size="medium"
 			onRequestClose={ onRequestClose }
 		>
