@@ -14,24 +14,17 @@ class WPCom_Themes_Merger {
 	 * Merges themes prioritizing WPCom themes.
 	 *
 	 * @param stdClass $wporg_themes_object The WP.org themes API result.
-	 * @param array    $wpcom_themes        The WP.com themes to include.
+	 * @param array    $wpcom_themes The WP.com themes to include.
 	 *
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function merge_by_wpcom_first( stdClass $wporg_themes_object, array $wpcom_themes ): stdClass {
-		// If the site doesn't have the COMMUNITY_THEMES feature, skip merging and return only WPCom themes
-		if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
-			$wporg_themes_object->info['results'] = count( $wpcom_themes );
-			$wporg_themes_object->themes          = $wpcom_themes;
-			return $wporg_themes_object;
-		}
-
 		$wporg_themes_excluding_wpcom = array();
 
 		// Create an associative array with theme slugs as keys for quick lookup
 		$wpcom_theme_slugs = array_flip(
 			array_map(
-				fn ( $theme ) => $theme->slug,
+				fn( $theme ) => $theme->slug,
 				$wpcom_themes
 			)
 		);
@@ -61,18 +54,11 @@ class WPCom_Themes_Merger {
 	 * Merge themes by release date with no particular bias.
 	 *
 	 * @param stdClass $wporg_themes_object The WP.org themes API result.
-	 * @param array    $wpcom_themes        The WP.com themes to include.
+	 * @param array    $wpcom_themes The WP.com themes to include.
 	 *
 	 * @return stdClass The themes API result including wpcom themes.
 	 */
 	public function merge_by_release_date( stdClass $wporg_themes_object, array $wpcom_themes ): stdClass {
-		// If the site doesn't have the COMMUNITY_THEMES feature, skip merging and return only WPCom themes
-		if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
-			$wporg_themes_object->info['results'] = count( $wpcom_themes );
-			$wporg_themes_object->themes          = $wpcom_themes;
-			return $wporg_themes_object;
-		}
-
 		$last_theme_date  = strtotime( end( $wporg_themes_object->themes )->creation_time );
 		$first_theme_date = strtotime( reset( $wporg_themes_object->themes )->creation_time );
 
