@@ -355,6 +355,7 @@ const InboxResponse = ( {
 			<>
 				{ onPrevious && (
 					<Button
+						accessibleWhenDisabled={ true }
 						variant="secondary"
 						onClick={ onPrevious }
 						disabled={ ! hasPrevious }
@@ -366,6 +367,7 @@ const InboxResponse = ( {
 				) }
 				{ onNext && (
 					<Button
+						accessibleWhenDisabled={ true }
 						variant="secondary"
 						onClick={ onNext }
 						disabled={ ! hasNext }
