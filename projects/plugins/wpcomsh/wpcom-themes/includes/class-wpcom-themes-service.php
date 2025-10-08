@@ -97,7 +97,13 @@ class WPCom_Themes_Service {
 	protected function map_and_filter_wpcom_themes( array $wpcom_themes ): array {
 		$themes = array();
 		foreach ( $wpcom_themes as $theme ) {
-			if ( $this->has_valid_theme_tier( $theme ) ) {
+			$theme_tier         = $theme->theme_tier->slug ?? '';
+			$theme_tier_feature = $theme_tier . '-themes';
+
+			if (
+				$theme_tier === 'free' ||
+				( $this->has_valid_theme_tier( $theme ) && wpcom_site_has_feature( $theme_tier_feature ) )
+			) {
 				$themes[] = $this->mapper->map_wpcom_to_wporg( $theme );
 			}
 		}
