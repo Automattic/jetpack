@@ -2,23 +2,28 @@ import type { RichTextValue } from '@wordpress/rich-text';
 export const BLOCK_NAME = 'core/code';
 
 export interface Attributes {
-	/**
-	 * This attribute should not be used.
-	 * It is maintained for compatibility with core/code like transforms.
-	 */
+	/** The code string */
 	content: RichTextValue;
 
-	/** The raw code string */
-	code: string;
-
+	/**
+	 * An array of lines and spans of text.
+	 * @todo name the tuple parts.
+	 */
 	tokenizedLines: ReadonlyArray< ReadonlyArray< [ string, string ] | [ string ] > >;
+
 	/** Always a string. Empty string "" indicates no language. */
 	language: string;
 	languageConfidence: 'certain' | 'tentative' | 'unknown';
 
+	/**
+	 * This is used from the file transform to inject the text from the file.
+	 * It is necessary mainly because file read operations are async, while block transforms
+	 * are not.
+	 */
 	triggerCodeUpdate: boolean;
 
 	showCopyButton: boolean;
+
 	showLanguageName: boolean;
 
 	showLineNumbers: boolean;

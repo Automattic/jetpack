@@ -23,7 +23,7 @@ const { createBlock, getDefaultBlockName } = window.wp.blocks;
 const { useDispatch, useSelect } = window.wp.data;
 const { __ } = window.wp.i18n;
 const { isKeyboardEvent, BACKSPACE: KEY_CODE_BACKSPACE } = window.wp.keycodes;
-const { RichTextData, create: createRichText } = window.wp.richText;
+const { create: createRichText } = window.wp.richText;
 
 /**
  * The Edit function with CodeMirror available.
@@ -84,10 +84,10 @@ function EditCodeMirror( props: EditBlockProps ) {
 			changes: {
 				from: 0,
 				to: viewRef.current.state.doc.length,
-				insert: attributes.code,
+				insert: attributes.content.text,
 			},
 		} );
-	}, [ attributes.code, attributes.triggerCodeUpdate, setAttributes ] );
+	}, [ attributes.content, attributes.triggerCodeUpdate, setAttributes ] );
 
 	/**
 	 * Attempts to infer the language inside the code block.
@@ -178,11 +178,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 
 			guessLanguage( code );
 			setAttributes( {
-				// Content is updated for compatibility with core/code to support things like
-				// existing transforms.
 				content: createRichText( { text: code } ),
-
-				code,
 				tokenizedLines: lines,
 			} );
 		},
@@ -344,7 +340,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 			}
 
 			viewRef.current = new View.EditorView( {
-				doc: attributes.code,
+				doc: attributes.content.text,
 				extensions: makeExtensions(),
 				parent: ref.current,
 			} );

@@ -152,12 +152,8 @@ abstract class Code_Block {
 		$args['textdomain'] = 'jetpack-mu-wpcom';
 
 		$args['attributes'] = array(
-			'code'                    => array(
-				'type'     => 'string',
-				'source'   => 'text',
-				'default'  => '',
-				'selector' => 'code',
-			),
+			// Content attribute is preserved for compatibility with the core/code block and transforms.
+			'content'                 => $args['attributes']['content'],
 			'tokenizedLines'          => array(
 				'type'    => 'array',
 				'default' =>

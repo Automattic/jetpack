@@ -14,6 +14,7 @@ import {
 } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
+import { create as createRichText } from '@wordpress/rich-text';
 import * as React from 'react';
 import {
 	type Attributes,
@@ -40,13 +41,15 @@ type Props = EditBlockProps | SaveBlockProps;
 
 const exampleBlock = {
 	attributes: {
-		code: `// ✨ Code is poetry. ✨
+		content: createRichText( {
+			text: `// ✨ Code is poetry. ✨
 /**
  * Find the nth fibonacci number (inefficiently)
  */
 const fibonacci = ( n ) => n < 1 ? 0
   : n > 3 ? 1
   : fibonacci( n - 1 ) + fibonacci( n - 2 );`,
+		} ),
 		language: 'JavaScript',
 		languageConfidence: 'certain',
 		filename: 'example.js',
@@ -153,7 +156,7 @@ interface CodeBlockSettings {
 	variations?: [];
 	example?: {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		attributes: any;
+		attributes?: any;
 	};
 	transforms?: {
 		from?: any[];
@@ -173,8 +176,8 @@ interface CodeBlockSettings {
  * @return Enhanced block settings.
  */
 function filterBlockRegistration( settings: CodeBlockSettings ) {
-	// Our transform is better than the syntaxhighlighter/code transform.
-	// Remove it.
+	// Our transform is better than the transform provided by syntaxhighlighter/code.
+	// Remove thier transform.
 	if ( false && settings.name === 'syntaxhighlighter/code' ) {
 		if ( settings.transforms?.to ) {
 			settings.transforms.to = settings.transforms.to.filter(
@@ -197,21 +200,27 @@ function filterBlockRegistration( settings: CodeBlockSettings ) {
 
 	settings.edit = blockEdit;
 	settings.save = blockSave;
-	settings.example = exampleBlock;
+	if ( settings.example?.content ) {
+		settings.example.language = 'JavaScript';
+		settings.example.languageConfidence = 'certain';
+		settings.example.filename = 'example.js';
+	}
 
 	if ( ! settings.transforms ) {
 		settings.transforms = { from: transforms.from };
-	} else {
+	} else if ( ! settings.transforms.from ) {
 		settings.transforms.from = transforms.from;
+	} else {
+		settings.transforms.from.push( ...transforms.from );
 	}
 
-	settings.attributes.content = {
-		type: 'rich-text',
-		source: 'rich-text',
-		selector: 'code',
-		__unstablePreserveWhiteSpace: true,
-		role: 'content',
-	};
+	// settings.attributes.content = {
+	// 	type: 'rich-text',
+	// 	source: 'rich-text',
+	// 	selector: 'code',
+	// 	__unstablePreserveWhiteSpace: true,
+	// 	role: 'content',
+	// };
 
 	// settings.attributes = {
 	// 			"content": {
@@ -299,17 +308,6 @@ const blockEdit = withColors(
 		Extract< keyof Attributes, `color${ Capitalize< string > }` >
 	> }` > )
 )( ( props: EditBlockProps ) => {
-	console.log( { editCode: props.attributes.code, editContent: props.attributes.content } );
-
-	// Handle incoming transforms. Copy the "content" attribute into "code" if necessary.
-	// This should propagate into the correct attributes.
-	if (
-		( ! props.attributes.code && props.attributes.content?.text ) ||
-		typeof props.attributes.content === 'string'
-	) {
-		props.attributes.code = props.attributes.content?.text ?? props.attributes.content;
-	}
-
 	const { setAttributes, attributes } = props;
 
 	return (
@@ -408,8 +406,9 @@ const blockEdit = withColors(
 } );
 
 const blockSave = ( props: SaveBlockProps ) => {
-	const { code } = props.attributes;
-	console.log( { saveCode: props.attributes.code, saveContent: props.attributes.content } );
+	const {
+		content: { text: code },
+	} = props.attributes;
 	return (
 		<CodeWrapper wrapperProps={ useBlockProps.save() } { ...props }>
 			{ htmlEncode( code ) }
@@ -573,7 +572,7 @@ const DisplayLanguage = ( props: Props ) => {
  * @return Loading state UI.
  */
 function Loading( props: EditBlockProps ): React.JSX.Element {
-	let code = props.attributes.code;
+	let code = props.attributes.content.text;
 	if ( ! code ) {
 		code = __( 'Loading…', 'jetpack-mu-wpcom' );
 	}
