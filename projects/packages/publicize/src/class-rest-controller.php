@@ -106,6 +106,9 @@ class REST_Controller {
 							return is_array( $param );
 						},
 						'sanitize_callback' => function ( $param ) {
+							if ( ! is_array( $param ) ) {
+								return array();
+							}
 							return array_map( 'absint', $param );
 						},
 					),
