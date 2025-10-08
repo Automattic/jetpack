@@ -73,6 +73,11 @@
 		padding: 4px 0 !important;
 		line-height: inherit !important;
 
+		/* prevent empty lines from collapsing vertically in rendered views */
+		.cm-line:empty::after {
+			content: "\00a0";
+		}
+
 		> code {
 			font-size: inherit !important;
 			margin: 0 !important;
@@ -84,17 +89,8 @@
 
 	.cm-line::before {
 
-		/* These are essential for layout */
+		/* Essential for layout */
 		box-sizing: content-box !important;
-	}
-
-	/* in the frontend */
-	pre {
-
-		/* prevent empty lines from collapsing vertically */
-		.cm-line:empty::after {
-			content: "\00a0";
-		}
 	}
 
 	.cm-line {
@@ -398,6 +394,3 @@
 	font-family: inherit !important;
 	border: 1px solid transparent;
 }
-
-/* vi: ts=2 sw=2 noet
- */
