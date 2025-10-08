@@ -751,6 +751,90 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_unread_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	public function test_bad_db_read_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			true // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	public function test_bad_db_unread_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			false // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	/**
 	 * Test marking feedback as unread
 	 */
 	public function test_mark_feedback_as_unread() {
