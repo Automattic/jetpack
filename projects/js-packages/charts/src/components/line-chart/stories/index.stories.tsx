@@ -41,9 +41,9 @@ ManySeries.args = {
 	showLegend: true,
 };
 
-// Consolidated legend configuration story with interactive controls
-export const LegendConfiguration: StoryObj< typeof LineChart > = Template.bind( {} );
-LegendConfiguration.args = {
+// Interactive playground for legend options
+export const LegendPlayground: StoryObj< typeof LineChart > = Template.bind( {} );
+LegendPlayground.args = {
 	...lineChartStoryArgs,
 	data: sampleData,
 	showLegend: true,
@@ -53,65 +53,6 @@ LegendConfiguration.args = {
 	legendOrientation: 'horizontal',
 	legendShape: 'rect',
 	withLegendGlyph: false,
-	legendMaxWidth: undefined,
-	legendTextOverflow: 'wrap',
-};
-
-LegendConfiguration.argTypes = {
-	showLegend: {
-		control: { type: 'boolean' },
-		description: 'Show or hide the legend',
-	},
-	legendPosition: {
-		control: { type: 'radio' },
-		options: [ 'top', 'bottom' ],
-		description: 'Vertical position of the legend',
-	},
-	legendAlignment: {
-		control: { type: 'radio' },
-		options: [ 'start', 'center', 'end' ],
-		description: 'Horizontal alignment of the legend',
-	},
-	legendOrientation: {
-		control: { type: 'radio' },
-		options: [ 'horizontal', 'vertical' ],
-		description: 'Layout direction of legend items',
-	},
-	legendShape: {
-		control: { type: 'radio' },
-		options: [ 'circle', 'rect', 'line' ],
-		description: 'Shape of legend markers',
-	},
-	withLegendGlyph: {
-		control: { type: 'boolean' },
-		description: 'Show glyphs in legend (matching line markers)',
-	},
-	legendMaxWidth: {
-		control: { type: 'text' },
-		description:
-			'Maximum width for legend items (e.g., "150px", "50%"). Try "100px" to see text overflow behavior.',
-	},
-	legendTextOverflow: {
-		control: { type: 'radio' },
-		options: [ 'wrap', 'ellipsis' ],
-		description:
-			'How text behaves when exceeding maxWidth: wrap to multiple lines or truncate with ellipsis',
-	},
-};
-
-LegendConfiguration.parameters = {
-	docs: {
-		description: {
-			story: `Interactive legend configuration with all available controls. Use the controls panel to explore different legend positioning, styling, and text overflow options.
-
-**Key Features:**
-- **Position & Alignment**: Place the legend at top/bottom with start/center/end alignment
-- **Orientation**: Horizontal for compact legends, vertical for detailed lists
-- **Shapes**: Choose between circle, rectangle, or line markers
-- **Glyphs**: Show matching line chart glyphs in the legend
-- **Text Overflow**: Control how long labels are handled with maxWidth and textOverflow options`,
-		},
-	},
 };
 
 // Story showing use with LineChart using composition API

@@ -132,8 +132,8 @@ export const WithTooltips: Story = {
 	},
 };
 
-// Consolidated legend configuration story with interactive controls
-export const LegendConfiguration: Story = {
+// Interactive playground for legend options
+export const LegendPlayground: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
@@ -142,64 +142,7 @@ export const LegendConfiguration: Story = {
 		legendOrientation: 'horizontal',
 		legendShape: 'circle',
 		legendValueDisplay: 'percentage',
-		legendMaxWidth: undefined,
-		legendTextOverflow: 'wrap',
 		containerHeight: '500px',
-	},
-	argTypes: {
-		showLegend: {
-			control: { type: 'boolean' },
-			description: 'Show or hide the legend',
-		},
-		legendPosition: {
-			control: { type: 'radio' },
-			options: [ 'top', 'bottom' ],
-			description: 'Vertical position of the legend',
-		},
-		legendAlignment: {
-			control: { type: 'radio' },
-			options: [ 'start', 'center', 'end' ],
-			description: 'Horizontal alignment of the legend',
-		},
-		legendOrientation: {
-			control: { type: 'radio' },
-			options: [ 'horizontal', 'vertical' ],
-			description: 'Layout direction of legend items',
-		},
-		legendShape: {
-			control: { type: 'radio' },
-			options: [ 'circle', 'rect' ],
-			description: 'Shape of legend markers',
-		},
-		legendValueDisplay: {
-			control: { type: 'radio' },
-			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
-			description: 'What type of value to display in the legend',
-		},
-		legendMaxWidth: {
-			control: { type: 'text' },
-			description:
-				'Maximum width for legend items (e.g., "150px"). Try "100px" to see text overflow behavior.',
-		},
-		legendTextOverflow: {
-			control: { type: 'radio' },
-			options: [ 'wrap', 'ellipsis' ],
-			description: 'How text behaves when exceeding maxWidth',
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: `Interactive legend configuration with all available controls. Use the controls panel to explore different legend options for pie charts.
-
-**Key Features:**
-- **Position & Alignment**: Place the legend at top/bottom with start/center/end alignment
-- **Orientation**: Horizontal for compact legends, vertical for detailed lists
-- **Shapes**: Choose between circle (traditional for pie charts) or rectangle markers
-- **Value Display**: Show percentage, raw value, formatted value, or no value
-- **Text Overflow**: Control how long labels are handled with maxWidth and textOverflow options`,
-			},
-		},
 	},
 };
 
