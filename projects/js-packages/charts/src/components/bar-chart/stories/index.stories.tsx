@@ -4,8 +4,6 @@ import {
 	ChartStoryArgs,
 	legendArgTypes,
 	medalCountsData,
-	largeValuesData,
-	trafficData,
 	themeArgTypes,
 } from '../../../stories';
 import BarChart from '../bar-chart';
@@ -34,6 +32,15 @@ const meta: Meta< StoryArgs > = {
 			options: [ 'none', 'x', 'y', 'both' ],
 			description: 'Grid line visibility',
 		},
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+		},
+		withPatterns: {
+			control: 'boolean',
+			description: 'Use patterns for bars',
+		},
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -41,7 +48,31 @@ export default meta;
 
 type Story = StoryObj< StoryArgs >;
 
-// Default story with interactive controls
+// Interactive configuration story
+export const Configuration: Story = {
+	render: args => {
+		const seriesCount = args.seriesCount || 'multiple';
+		const dataMap = {
+			single: [ medalCountsData[ 0 ] ],
+			multiple: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
+			many: medalCountsData,
+		};
+
+		return <BarChart { ...args } data={ dataMap[ seriesCount ] } />;
+	},
+	args: {
+		withTooltips: true,
+		seriesCount: 'multiple',
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		orientation: 'vertical',
+		withPatterns: false,
+	},
+};
+
+// Basic example
 export const Default: Story = {
 	args: {
 		withTooltips: true,
@@ -51,91 +82,6 @@ export const Default: Story = {
 		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
 		orientation: 'vertical',
-	},
-};
-
-// Story with single data series
-export const SingleSeries: Story = {
-	args: {
-		...Default.args,
-		data: [ medalCountsData[ 0 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with a single data series.',
-			},
-		},
-	},
-};
-
-// Story with single data series
-export const TimeSeries: Story = {
-	args: {
-		...Default.args,
-		data: [
-			{
-				...trafficData[ 0 ],
-				label: 'Data with dateString and date',
-				data: [
-					...trafficData[ 0 ].data,
-					{ dateString: '2024-01-31', value: 2230 },
-					{ dateString: '2024-02-01', value: 2580 },
-					{ date: new Date( '2024-02-02 00:00:00' ), value: 3500 },
-					{ dateString: '2024-02-03 00:00:00', value: 1500 },
-					{ dateString: '2024-02-04', value: 2500 },
-					{ dateString: '2024-02-05 00:00', value: 3000 },
-				],
-			},
-		],
-		options: {
-			axis: {
-				x: {
-					tickFormat: ( timestamp: number ) => {
-						const date = new Date( timestamp );
-						return date.toLocaleDateString( 'en-US', { dateStyle: 'short' } );
-					},
-				},
-			},
-		},
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with a time series.',
-			},
-		},
-	},
-};
-
-// Story without tooltip
-export const ManyDataSeries: Story = {
-	args: {
-		...Default.args,
-		data: medalCountsData,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with many data series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 400,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
-			},
-		},
 	},
 };
 
@@ -192,31 +138,6 @@ ErrorStates.parameters = {
 	},
 };
 
-// Story demonstrating Smart Formatting (formatYTick) with large values
-export const SmartFormatting: Story = {
-	args: {
-		withTooltips: true,
-		data: largeValuesData,
-		gridVisibility: 'x',
-	},
-};
-
-SmartFormatting.parameters = {
-	docs: {
-		description: {
-			story:
-				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
-		},
-	},
-};
-
-export const WithLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-	},
-};
-
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => (
@@ -245,40 +166,6 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
 			},
 		},
-	},
-};
-
-// Story showcasing legend customization controls
-export const CustomLegendPositioning: Story = {
-	args: {
-		withTooltips: true,
-		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
-		// showLegend defaults to false, explicitly enabling for demonstration
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
-			},
-		},
-	},
-};
-
-export const HorizontalBarChart: Story = {
-	args: {
-		...Default.args,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-		orientation: 'horizontal',
-		gridVisibility: 'none',
 	},
 };
 

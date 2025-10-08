@@ -1,7 +1,6 @@
 import {
 	ChartStoryArgs,
 	temperatureData as sampleData,
-	largeValuesData,
 	trafficData as webTrafficData,
 } from '../../../stories';
 import LineChart from '../line-chart';
@@ -15,6 +14,29 @@ const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+		},
+		dimensionMode: {
+			control: { type: 'radio' },
+			options: [ 'responsive', 'fixed' ],
+			description: 'Chart sizing mode',
+		},
+		smoothing: {
+			control: 'boolean',
+			description: 'Enable line smoothing',
+		},
+		curveType: {
+			control: { type: 'radio' },
+			options: [ 'linear', 'smooth', 'monotone' ],
+			description: 'Line curve type',
+		},
+		withGradientFill: {
+			control: 'boolean',
+			description: 'Fill area under line with gradient',
+		},
 	},
 };
 
@@ -22,23 +44,36 @@ export default meta;
 
 const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 
-// Default story with multiple series
+// Interactive configuration story with all controls
+export const Configuration: StoryObj< typeof LineChart > = {
+	render: args => {
+		const seriesCount = args.seriesCount || 'multiple';
+		const dimensionMode = args.dimensionMode || 'responsive';
+
+		const dataMap = {
+			single: [ sampleData[ 0 ] ],
+			multiple: sampleData.slice( 0, 4 ),
+			many: sampleData,
+		};
+
+		const dimensionProps = dimensionMode === 'fixed' ? { width: 800, height: 400 } : {};
+
+		return <LineChart { ...args } data={ dataMap[ seriesCount ] } { ...dimensionProps } />;
+	},
+	args: {
+		...lineChartStoryArgs,
+		seriesCount: 'multiple',
+		dimensionMode: 'responsive',
+		smoothing: true,
+		curveType: 'smooth',
+		withGradientFill: false,
+	},
+};
+
+// Basic example
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
 Default.args = {
 	...lineChartStoryArgs,
-};
-
-// Story with single data series
-export const SingleSeries: StoryObj< typeof LineChart > = Template.bind( {} );
-SingleSeries.args = {
-	data: [ sampleData[ 0 ] ], // Only London temperature data
-};
-
-export const ManySeries: StoryObj< typeof LineChart > = Template.bind( {} );
-ManySeries.args = {
-	...lineChartStoryArgs,
-	data: sampleData,
-	showLegend: true,
 };
 
 // Interactive story for legend options
@@ -83,119 +118,6 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
-};
-
-// Story with custom dimensions
-export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-};
-
-// Add after existing stories
-export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
-FixedDimensions.args = {
-	...lineChartStoryArgs,
-	width: 800,
-	height: 400,
-	withTooltips: true,
-};
-
-FixedDimensions.parameters = {
-	docs: {
-		description: {
-			story: 'Line chart with fixed dimensions that override the responsive behavior.',
-		},
-	},
-};
-
-// Story with gradient filled line chart
-export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
-GradientFilled.args = {
-	...lineChartStoryArgs,
-	margin: undefined,
-	data: webTrafficData,
-	withGradientFill: true,
-	options: {
-		axis: { y: { orientation: 'right' } },
-	},
-};
-
-// Story with custom gradient colors per series
-export const GradientCustomColors: StoryObj< typeof LineChart > = Template.bind( {} );
-GradientCustomColors.args = {
-	width: 600,
-	height: 300,
-	data: [
-		{
-			label: 'Revenue',
-			data: [
-				{ date: new Date( '2024-01-01' ), value: 45000 },
-				{ date: new Date( '2024-02-01' ), value: 52000 },
-				{ date: new Date( '2024-03-01' ), value: 48000 },
-				{ date: new Date( '2024-04-01' ), value: 61000 },
-				{ date: new Date( '2024-05-01' ), value: 68000 },
-				{ date: new Date( '2024-06-01' ), value: 72000 },
-			],
-			options: {
-				gradient: {
-					fromOpacity: 0.8,
-					toOpacity: 0,
-				},
-			},
-		},
-		{
-			label: 'Expenses',
-			data: [
-				{ date: new Date( '2024-01-01' ), value: 28000 },
-				{ date: new Date( '2024-02-01' ), value: 31000 },
-				{ date: new Date( '2024-03-01' ), value: 29000 },
-				{ date: new Date( '2024-04-01' ), value: 33000 },
-				{ date: new Date( '2024-05-01' ), value: 35000 },
-				{ date: new Date( '2024-06-01' ), value: 38000 },
-			],
-			options: {
-				gradient: {
-					from: 'var(--jp-red)',
-					to: 'var(--jp-red)',
-					fromOpacity: 0.6,
-					toOpacity: 0,
-				},
-			},
-		},
-	],
-	withGradientFill: true,
-};
-
-// Story with transparent gradient sections
-export const GradientTransparent: StoryObj< typeof LineChart > = Template.bind( {} );
-GradientTransparent.args = {
-	width: 600,
-	height: 300,
-	data: [
-		{
-			label: 'Temperature (°C)',
-			data: [
-				{ date: new Date( '2024-01-01' ), value: 15 },
-				{ date: new Date( '2024-02-01' ), value: 18 },
-				{ date: new Date( '2024-03-01' ), value: 22 },
-				{ date: new Date( '2024-04-01' ), value: 26 },
-				{ date: new Date( '2024-05-01' ), value: 30 },
-				{ date: new Date( '2024-06-01' ), value: 28 },
-			],
-			options: {
-				gradient: {
-					stops: [
-						{ offset: '0%', opacity: 0.7 },
-						{ offset: '20%', opacity: 0 },
-						{ offset: '100%', opacity: 0 },
-					],
-				},
-			},
-		},
-	],
-	withGradientFill: true,
 };
 
 export const ErrorStates: StoryObj< typeof LineChart > = {
@@ -274,214 +196,4 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 			},
 		},
 	},
-};
-
-export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
-WithoutSmoothing.args = {
-	...lineChartStoryArgs,
-	smoothing: false,
-};
-
-export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
-WithPointerEvents.args = {
-	...lineChartStoryArgs,
-	// eslint-disable-next-line no-alert
-	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
-};
-
-export const CurveTypes: StoryObj< typeof LineChart > = {
-	render: () => {
-		// Create sample data that highlights the difference between curve types
-		// Monotone X will prevent overshooting on steep changes followed by gradual changes
-		const curveData = [
-			{
-				label: 'Sample Series',
-				data: [
-					{ date: new Date( '2024-01-01' ), value: 10 },
-					{ date: new Date( '2024-01-02' ), value: 90 }, // Sharp rise
-					{ date: new Date( '2024-01-03' ), value: 85 }, // Slight decline
-					{ date: new Date( '2024-01-04' ), value: 82 }, // Gradual decline
-					{ date: new Date( '2024-01-05' ), value: 5 }, // Sharp drop
-					{ date: new Date( '2024-01-06' ), value: 8 }, // Slight rise
-					{ date: new Date( '2024-01-07' ), value: 10 }, // Gradual rise
-				],
-				options: {},
-			},
-		];
-
-		return (
-			<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(3, 1fr)' } }>
-				<div>
-					<h3>Linear Curve</h3>
-					<LineChart
-						width={ 300 }
-						height={ 200 }
-						data={ curveData }
-						curveType="linear"
-						withGradientFill={ false }
-						withLegendGlyph={ false }
-					/>
-				</div>
-				<div>
-					<h3>Smooth Curve (Catmull-Rom)</h3>
-					<LineChart
-						width={ 300 }
-						height={ 200 }
-						data={ curveData }
-						curveType="smooth"
-						withGradientFill={ false }
-						withLegendGlyph={ false }
-					/>
-				</div>
-				<div>
-					<h3>Monotone X Curve</h3>
-					<LineChart
-						width={ 300 }
-						height={ 200 }
-						data={ curveData }
-						curveType="monotone"
-						withGradientFill={ false }
-						withLegendGlyph={ false }
-					/>
-				</div>
-			</div>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Examples of the three different curve types available. The data points are designed to highlight how Monotone X prevents overshooting (going above/below data points) compared to Catmull-Rom smoothing, while still maintaining a smooth curve. Linear shows the raw connections between points.',
-			},
-		},
-	},
-};
-
-// Story demonstrating Smart Formatting (formatYTick) with large values
-export const SmartFormatting: StoryObj< typeof LineChart > = Template.bind( {} );
-SmartFormatting.args = {
-	data: largeValuesData,
-	withGradientFill: false,
-	smoothing: true,
-	options: {
-		axis: {
-			x: {
-				orientation: 'bottom',
-			},
-			y: {
-				orientation: 'left',
-			},
-		},
-	},
-};
-
-SmartFormatting.parameters = {
-	docs: {
-		description: {
-			story:
-				'Demonstrates the Smart Formatting feature (formatYTick) that automatically formats Y-axis tick labels based on the data range. Values ≥1B are formatted as "1.23B", ≥1M as "1.2M", ≥1K as "1k", and smaller values as "1,234". This example shows revenue in billions and users in millions.',
-		},
-	},
-};
-
-// Offset for dashed line to prevent overlapping with solid line
-const DASHED_LINE_OFFSET = 100;
-
-export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
-BrokenLine.args = {
-	...lineChartStoryArgs,
-	data: [
-		{
-			...webTrafficData[ 0 ],
-			label: 'Visitors with dashed line',
-			data: webTrafficData[ 0 ].data.map( point => ( {
-				...point,
-				value: point.value + DASHED_LINE_OFFSET,
-			} ) ),
-			options: {
-				...webTrafficData[ 0 ].options,
-				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
-			},
-		},
-		webTrafficData[ 0 ],
-	],
-	showLegend: true,
-};
-
-BrokenLine.parameters = {
-	docs: {
-		description: {
-			story: 'Demonstrates the option of setting a seriesLineStyle to a dash array.',
-		},
-	},
-};
-
-export const DateStringFormats: StoryObj< typeof LineChart > = {
-	render: () => {
-		return (
-			<LineChart
-				data={ [
-					{
-						label: 'String Dates',
-						data: [
-							{ dateString: '2024-01-01', value: 10 },
-							{ dateString: '2024-01-02', value: 20 },
-							{ dateString: '2024-01-03 00:00:00', value: 15 },
-							{ dateString: '2024-01-04', value: 25 },
-							{ dateString: '2024-01-05 00:00', value: 30 },
-						],
-						options: {},
-					},
-				] }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			/>
-		);
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					"Demonstrates the line chart's ability to handle various date string formats and mixed date types. All dates are converted to local timezone. The chart can process:\n" +
-					'- Simple date strings (YYYY-MM-DD)\n' +
-					'- Date with time (YYYY-MM-DD 00:00:00)\n' +
-					'- Date with time (YYYY-MM-DD 00:00)\n' +
-					'- ISO format (YYYY-MM-DDT00:00:00)\n' +
-					'- UTC format (YYYY-MM-DDT00:00:00Z)\n' +
-					'- Timezone offset (YYYY-MM-DDT00:00:00±HH:mm)\n',
-			},
-		},
-	},
-};
-
-export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
-Comparison.args = {
-	showLegend: true,
-	smoothing: false,
-	data: [
-		{
-			...sampleData[ 0 ],
-			label: 'New York',
-		},
-		{
-			...sampleData[ 1 ],
-			label: 'New York last year',
-			group: 'new-york',
-			options: {
-				type: 'comparison' as const,
-			},
-		},
-		{
-			...sampleData[ 2 ],
-			label: 'Tokyo',
-		},
-		{
-			...sampleData[ 3 ],
-			label: 'Tokyo last year',
-			group: 'tokyo',
-			options: {
-				type: 'comparison' as const,
-			},
-		},
-	],
 };

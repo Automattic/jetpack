@@ -105,35 +105,13 @@ export const GlyphConfiguration: StoryObj< StoryArgs > = {
 	},
 };
 
-export const Start: StoryObj< StoryArgs > = Template.bind( {} );
-Start.args = {
-	...glyphStoryArgs,
-};
-
-export const End: StoryObj< StoryArgs > = Template.bind( {} );
-End.args = {
-	...glyphStoryArgs,
-	withStartGlyphs: false,
-	withEndGlyphs: true,
-};
-
-export const CustomSvg: StoryObj< StoryArgs > = Template.bind( {} );
-CustomSvg.args = {
-	...glyphStoryArgs,
-	withLegendGlyph: true,
-	renderGlyph: glyphRenderers.heart,
-	glyphStyle: {
-		radius: 8,
-	},
-};
-
-export const CustomPerDataPoint: StoryObj< StoryArgs > = Template.bind( {} );
-CustomPerDataPoint.args = {
+// Example with theme-based glyphs per data point
+export const ThemeGlyphs: StoryObj< StoryArgs > = Template.bind( {} );
+ThemeGlyphs.args = {
 	...glyphStoryArgs,
 	showLegend: true,
-	withStartGlyphs: true,
 	withLegendGlyph: true,
-	themeName: 'glyph', // Mock prop used to switch the rendered theme in the storybook.
+	themeName: 'glyph',
 	glyphStyle: {
 		radius: 8,
 	},
