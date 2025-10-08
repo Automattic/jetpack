@@ -31,8 +31,26 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data ): ?array {
 		$processor = self::create_fragment( $html );
 
-		// Find the location for insertion.
-		if ( ! $processor->next_tag( 'CODE' ) ) {
+		// Skip leading whitespace
+		while (
+			$processor->next_token()
+			&& $processor->get_token_type() === '#text'
+			&& $processor->text_node_classification === self::TEXT_IS_WHITESPACE
+		) {
+			continue;
+		}
+
+		// The serialized PRE tag has block wrapper attributes.
+		// Remove them, they'll be applied in a wrapper.
+		if ( $processor->get_tag() !== 'PRE' ) {
+			return null;
+		} else {
+			$processor->remove_attribute( 'class' );
+			$processor->remove_attribute( 'style' );
+		}
+
+		// The next token should be the CODE tag opener.
+		if ( ! $processor->next_token() || $processor->get_tag() !== 'CODE' ) {
 			return null;
 		}
 		$processor->set_bookmark( 'code_block_html_replace_start' );

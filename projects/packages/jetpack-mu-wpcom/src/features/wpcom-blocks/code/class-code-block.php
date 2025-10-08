@@ -261,11 +261,11 @@ abstract class Code_Block {
 			return $content;
 		}
 
-		list($code_string, $replaced_content) = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'] );
-
-		if ( null === $replaced_content ) {
+		$processed_content = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'] );
+		if ( null === $processed_content ) {
 			return $content;
 		}
+		list( $code_string, $replaced_content ) = $processed_content;
 
 		$extra_attrs      = array();
 		$style_properties = array();
@@ -353,14 +353,14 @@ abstract class Code_Block {
 			: '';
 
 		$output = <<<HTML
-	<div {$attrs}>{$header_html}
-		<div class="cm-editor">
-			<div class="cm-scroller">
-				{$replaced_content}
-			</div>
+<div {$attrs}>{$header_html}
+	<div class="cm-editor">
+		<div class="cm-scroller">
+			{$replaced_content}
 		</div>
 	</div>
-	HTML;
+</div>
+HTML;
 
 		return $output;
 	}
