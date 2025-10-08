@@ -72,92 +72,10 @@ const selectLanguageOptions: ReadonlyArray< {
  * Filter to enhance the core code block.
  *
  * @param settings - Block settings
- * @return Settings.
+ * @return Modified settings.
  */
-
-interface CodeBlockSettings {
-	name: string;
-	icon?: React.JSX.Element;
-	keywords?: [];
-	attributes: {
-		content: {
-			type: string;
-			source: string;
-			selector: string;
-			__unstablePreserveWhiteSpace: boolean;
-		};
-		lock: {
-			type: string;
-		};
-		metadata: {
-			type: string;
-		};
-		align: {
-			type: string;
-			enum: string[];
-		};
-		className: {
-			type: string;
-		};
-		style: {
-			type: string;
-		};
-		backgroundColor: {
-			type: string;
-		};
-		textColor: {
-			type: string;
-		};
-		gradient: {
-			type: string;
-		};
-		fontSize: {
-			type: string;
-		};
-		fontFamily: {
-			type: string;
-		};
-		borderColor: {
-			type: string;
-		};
-		anchor: {
-			type: string;
-			source: string;
-			attribute: string;
-			selector: string;
-		};
-		blockCommentId: {
-			type: string;
-		};
-	};
-	supports: {};
-	apiVersion?: number;
-	title?: string;
-	description?: string | React.JSX.Element;
-	category?: string;
-	variations?: [];
-	example?: {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		attributes?: any;
-	};
-	transforms?: {
-		from?: any[];
-		to?: any[];
-	};
-
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-	edit: Function;
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-	save: Function;
-}
-
-/**
- * Enhance the core code block.
- *
- * @param settings - Block settings.
- * @return Enhanced block settings.
- */
-function filterBlockRegistration( settings: CodeBlockSettings ) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- No good interface available for this type now.
+function filterBlockRegistration( settings: any ) {
 	// Our transform is better than the transform provided by syntaxhighlighter/code.
 	// Remove thier transform.
 	if ( false && settings.name === 'syntaxhighlighter/code' ) {
