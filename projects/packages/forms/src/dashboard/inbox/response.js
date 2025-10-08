@@ -26,7 +26,6 @@ import clsx from 'clsx';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { read, unread } from '../icons';
 import {
 	markAsSpamAction,
 	markAsNotSpamAction,
@@ -254,18 +253,8 @@ const InboxResponse = ( {
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
-	const handleNoopAction = useCallback( () => {
-		// Placeholder for future read/unread toggle action
-	}, [] );
-
 	const renderActionButtons = () => {
-		const { status, is_unread } = response;
-		const readIcon = is_unread ? unread : read;
-		const readLabel = read
-			? __( 'Mark as unread', 'jetpack-forms' )
-			: __( 'Mark as read', 'jetpack-forms' );
-
-		switch ( status ) {
+		switch ( response.status ) {
 			case 'spam':
 				return (
 					<>
@@ -317,15 +306,6 @@ const InboxResponse = ( {
 			default: // 'publish' (inbox) or any other status
 				return (
 					<>
-						<Button
-							variant="secondary"
-							onClick={ handleNoopAction }
-							showTooltip={ true }
-							label={ readLabel }
-							iconSize={ 24 }
-							icon={ readIcon }
-							size="compact"
-						></Button>
 						<Button
 							variant="secondary"
 							onClick={ handleMarkAsSpam }
