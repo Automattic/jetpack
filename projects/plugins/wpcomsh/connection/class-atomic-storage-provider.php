@@ -58,6 +58,22 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Determine if errors should be reported for this option.
+		 *
+		 * Only report errors for critical connection options (blog_token and id).
+		 * This enables selective error reporting to WordPress.com for specific options.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $option_name The option name to check.
+		 * @return bool True if errors should be reported for this option.
+		 */
+		public function should_report_errors_for( $option_name ) {
+			// Only report errors for blog_token and id (blog_id)
+			return in_array( $option_name, array( 'blog_token', 'id' ), true );
+		}
+
+		/**
 		 * Get environment identifier for logging.
 		 *
 		 * @return string Environment identifier.
