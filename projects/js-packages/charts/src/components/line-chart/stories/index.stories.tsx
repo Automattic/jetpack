@@ -88,12 +88,14 @@ LegendConfiguration.argTypes = {
 	},
 	legendMaxWidth: {
 		control: { type: 'text' },
-		description: 'Maximum width for legend items (e.g., "150px", "50%"). Try "100px" to see text overflow behavior.',
+		description:
+			'Maximum width for legend items (e.g., "150px", "50%"). Try "100px" to see text overflow behavior.',
 	},
 	legendTextOverflow: {
 		control: { type: 'radio' },
 		options: [ 'wrap', 'ellipsis' ],
-		description: 'How text behaves when exceeding maxWidth: wrap to multiple lines or truncate with ellipsis',
+		description:
+			'How text behaves when exceeding maxWidth: wrap to multiple lines or truncate with ellipsis',
 	},
 };
 

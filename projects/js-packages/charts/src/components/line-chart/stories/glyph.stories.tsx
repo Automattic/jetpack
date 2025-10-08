@@ -73,8 +73,7 @@ export const GlyphConfiguration: StoryObj< StoryArgs > = {
 				<GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />
 			),
 			heart: ( { color, size, x, y } ) => {
-				const hasXY =
-					typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
+				const hasXY = typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
 				const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
 				return (
 					<g { ...groupProps }>
