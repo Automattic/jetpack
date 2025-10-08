@@ -781,9 +781,12 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Default query arguments
 			$defaults = array(
 				'order'          => $atts['order'],
-				'orderby'        => $atts['orderby'],
 				'posts_per_page' => $atts['showposts'],
 			);
+
+			if ( ! empty( $atts['orderby'] ) ) {
+				$defaults['orderby'] = $atts['orderby'];
+			}
 
 			$args              = wp_parse_args( $atts, $defaults );
 			$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type
