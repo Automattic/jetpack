@@ -193,6 +193,11 @@ const InboxResponse = ( {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
+	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
+	const [ isMarkingAsNotSpam, setIsMarkingAsNotSpam ] = useState( false );
+	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
+	const [ isRestoring, setIsRestoring ] = useState( false );
+	const [ isDeleting, setIsDeleting ] = useState( false );
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
@@ -229,27 +234,37 @@ const InboxResponse = ( {
 	}, [ onModalStateChange, setIsPreviewModalOpen, setIsImageLoading ] );
 
 	const handleMarkAsSpam = useCallback( async () => {
+		setIsMarkingAsSpam( true );
 		await markAsSpamAction.callback( [ response ], { registry } );
+		setIsMarkingAsSpam( false );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleMarkAsNotSpam = useCallback( async () => {
+		setIsMarkingAsNotSpam( true );
 		await markAsNotSpamAction.callback( [ response ], { registry } );
+		setIsMarkingAsNotSpam( false );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleMoveToTrash = useCallback( async () => {
+		setIsMovingToTrash( true );
 		await moveToTrashAction.callback( [ response ], { registry } );
+		setIsMovingToTrash( true );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleRestore = useCallback( async () => {
+		setIsRestoring( true );
 		await restoreAction.callback( [ response ], { registry } );
+		setIsRestoring( false );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleDelete = useCallback( async () => {
+		setIsDeleting( true );
 		await deleteAction.callback( [ response ], { registry } );
+		setIsDeleting( false );
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
@@ -261,6 +276,7 @@ const InboxResponse = ( {
 						<Button
 							variant="secondary"
 							onClick={ handleMarkAsNotSpam }
+							isBusy={ isMarkingAsNotSpam }
 							showTooltip={ true }
 							label={ markAsNotSpamAction.label }
 							iconSize={ 24 }
@@ -270,6 +286,7 @@ const InboxResponse = ( {
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
+							isBusy={ isMovingToTrash }
 							showTooltip={ true }
 							label={ moveToTrashAction.label }
 							iconSize={ 24 }
@@ -285,6 +302,7 @@ const InboxResponse = ( {
 						<Button
 							variant="secondary"
 							onClick={ handleRestore }
+							isBusy={ isRestoring }
 							showTooltip={ true }
 							label={ restoreAction.label }
 							iconSize={ 24 }
@@ -295,6 +313,7 @@ const InboxResponse = ( {
 							variant="secondary"
 							onClick={ handleDelete }
 							showTooltip={ true }
+							isBusy={ isDeleting }
 							label={ deleteAction.label }
 							iconSize={ 24 }
 							icon={ deleteAction.icon }
@@ -309,6 +328,7 @@ const InboxResponse = ( {
 						<Button
 							variant="secondary"
 							onClick={ handleMarkAsSpam }
+							isBusy={ isMarkingAsSpam }
 							showTooltip={ true }
 							label={ markAsSpamAction.label }
 							iconSize={ 24 }
@@ -318,6 +338,7 @@ const InboxResponse = ( {
 						<Button
 							variant="secondary"
 							onClick={ handleMoveToTrash }
+							isBusy={ isMovingToTrash }
 							showTooltip={ true }
 							label={ moveToTrashAction.label }
 							iconSize={ 24 }
