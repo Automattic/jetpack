@@ -13,50 +13,7 @@ const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
 export const transforms = {
 	from: [
-		// {
-		// 	type: 'block',
-		// 	blocks: [ 'core/paragraph' ],
-		// 	transform: ( { content }: { content: RichTextValue } ) =>
-		// 		createBlock( BLOCK_NAME, { code: content.text } ),
-		// },
-		//
-		// {
-		// 	type: 'block',
-		// 	blocks: [ 'core/html' ],
-		// 	transform: ( { content }: { content: string } ) => {
-		// 		console.log( { content, t: typeof content } );
-		// 		return createBlock( BLOCK_NAME, {
-		// 			code: content,
-		// 			language: 'HTML',
-		// 			languageConfidence: 'certain',
-		// 		} );
-		// 	},
-		// },
-		//
-		// {
-		// 	type: 'raw',
-		// 	priority: 5,
-		// 	isMatch: ( node: HTMLElement ) =>
-		// 		node.nodeName === 'PRE' &&
-		// 		node.children.length === 1 &&
-		// 		node.firstChild!.nodeName === 'CODE',
-		// 	transform: ( preElement: HTMLPreElement ) => {
-		// 		return createBlock( BLOCK_NAME, { code: preElement.innerText } );
-		// 	},
-		// 	schema: {
-		// 		pre: {
-		// 			children: {
-		// 				code: {
-		// 					children: {
-		// 						'#text': {},
-		// 					},
-		// 				},
-		// 			},
-		// 		},
-		// 	},
-		// },
-
-		// Handle GH-like code fence openers, e.g. ```js
+		// Handle code fence openers, e.g. ```js
 		{
 			type: 'enter',
 			priority: 5,
