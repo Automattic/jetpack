@@ -83,7 +83,7 @@ export default function useInboxData(): UseInboxDataReturn {
 				const editedRecord = select( coreDataStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
-					record.id
+					( record as FormResponse ).id
 				);
 				return editedRecord || record;
 			} ) as FormResponse[];
