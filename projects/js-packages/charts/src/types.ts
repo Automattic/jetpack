@@ -183,7 +183,7 @@ export type ChartTheme = {
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
-	/** Styles for the axis labels */
+	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** LeaderboardChart specific settings */
