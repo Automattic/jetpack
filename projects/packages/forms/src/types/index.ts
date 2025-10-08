@@ -96,6 +96,8 @@ export interface FormResponse {
 	entry_permalink: string;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
+	/** Whether the response is unread. */
+	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
 }
