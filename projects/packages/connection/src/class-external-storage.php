@@ -201,6 +201,7 @@ class External_Storage {
 		// Check if provider implements per-option reporting (optional method not defined in interface).
 		// Providers can optionally implement: public function should_report_errors_for( $option_name )
 		if ( null !== $provider && method_exists( $provider, 'should_report_errors_for' ) && ! empty( $key ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethodInCallable - Optional method, checked via method_exists()
 			return call_user_func( array( $provider, 'should_report_errors_for' ), $key );
 		}
 
