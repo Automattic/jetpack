@@ -42,7 +42,6 @@ abstract class Code_Block {
 		self::init();
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
-
 		add_action(
 			'wp_enqueue_scripts',
 			function () {
@@ -67,7 +66,9 @@ abstract class Code_Block {
 		add_action( 'after_setup_theme', array( __CLASS__, 'after_setup_theme' ), 100 );
 	}
 
-	/** Set up the plugin. */
+	/**
+	 * Registration of scripts and styles.
+	 */
 	private static function init() {
 		$block_definition_asset_file      = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-block-definition/wpcom-blocks-code-block-definition.asset.php';
 		$jetpack_wpcom_modules_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build-module/assets.php';
@@ -138,6 +139,14 @@ abstract class Code_Block {
 		);
 	}
 
+	/**
+	 * Filter for block registration to modify the core/code block.
+	 *
+	 * @param array  $args The block type arguments.
+	 * @param string $block_type The block type name.
+	 *
+	 * @return array The modified block type arguments.
+	 */
 	public static function register_block_type_args( array $args, string $block_type ): array {
 		if ( 'core/code' !== $block_type ) {
 			return $args;
