@@ -497,13 +497,7 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
  * @return bool Whether the global styles notice should be rendered.
  */
 function wpcom_should_show_global_styles_admin_bar() {
-	// TODO: Remove this before merging. It's been added only to make easier the testing on Atomic sites.
-	$test_should_show_global_styles_admin_bar = apply_filters( 'wpcom_should_show_global_styles_admin_bar', false );
-	if ( $test_should_show_global_styles_admin_bar ) {
-		return true;
-	}
-
-	static $should_show_global_styles_admin_bar = null;
+		static $should_show_global_styles_admin_bar = null;
 	if ( $should_show_global_styles_admin_bar !== null ) {
 		return $should_show_global_styles_admin_bar;
 	}
@@ -518,7 +512,6 @@ function wpcom_should_show_global_styles_admin_bar() {
 	$current_blog_id = wpcom_global_styles_get_wpcom_current_blog_id();
 
 	if ( ! (
-		is_user_logged_in() &&
 		is_user_member_of_blog( $current_user_id, $current_blog_id ) &&
 		current_user_can( 'manage_options' )
 	) ) {
@@ -561,6 +554,12 @@ function wpcom_should_show_global_styles_admin_bar() {
 	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
+	}
+
+	// TODO: Remove this before merging. It's been added only to make easier the testing on Atomic sites.
+	$test_should_show_global_styles_admin_bar = apply_filters( 'wpcom_should_show_global_styles_admin_bar', false );
+	if ( $test_should_show_global_styles_admin_bar ) {
+		return true;
 	}
 
 	$should_show_global_styles_admin_bar = true;
