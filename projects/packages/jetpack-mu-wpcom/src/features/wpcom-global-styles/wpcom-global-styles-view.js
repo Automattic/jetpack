@@ -17,58 +17,51 @@ function recordEvent( button, props = {} ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const launchBanner = document.querySelector( '.launch-banner' );
+	const popoverToggle = document.querySelector( '#wp-admin-bar-wpcom-global-styles' );
+	const popover = document.querySelector( '#wp-admin-bar-wpcom-global-styles .ab-sub-wrapper' );
+	const upgradeButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-upgrade a' );
+	const previewButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-preview a' );
+	const closeButton = document.querySelector( '#wpadminbar .wpcom-global-styles-close' );
+	const resetButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-reset a' );
 
-	if ( ! launchBanner ) {
+	if (
+		! popoverToggle ||
+		! popover ||
+		! upgradeButton ||
+		! previewButton ||
+		! closeButton ||
+		! resetButton
+	) {
 		return;
 	}
-
-	// Don't show the banner if the site is previewed via an iframe.
-	if ( window.top !== window.self ) {
-		return;
-	}
-
-	document.body.style.marginTop = '50px';
-	document.body.style.scrollPaddingTop = '50px';
-	launchBanner.style.display = null;
-
-	const container = document;
-	const popoverToggle = container.querySelector( '.launch-bar-global-styles-toggle' );
-	const popover = container.querySelector( '.launch-bar-global-styles-popover' );
-	const upgradeButton = container.querySelector( '.launch-bar-global-styles-upgrade' );
-	const previewButton = container.querySelector( '.launch-bar-global-styles-preview' );
-	const closeButton = container.querySelector( '.launch-bar-global-styles-close' );
-	const resetButton = container.querySelector( '.launch-bar-global-styles-reset' );
 
 	const limitedGlobalStylesNoticeAction =
 		localStorage.getItem( 'limitedGlobalStylesNoticeAction' ) ?? 'show';
 	if ( limitedGlobalStylesNoticeAction === 'show' ) {
-		popover?.classList.remove( 'hidden' );
 		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'show' } );
+		popoverToggle.classList.add( 'hover' );
+		popoverToggle.querySelector( '.ab-item' ).setAttribute( 'aria-expanded', 'true' );
+		popover.style.display = 'block';
+	} else {
+		closeButton.style.display = 'none';
 	}
 
-	popoverToggle?.addEventListener( 'click', event => {
-		event.preventDefault();
-		const action = popover?.classList.contains( 'hidden' ) ? 'show' : 'hide';
-		recordEvent( 'wpcom_global_styles_gating_notice', { action } );
-		localStorage.setItem( 'limitedGlobalStylesNoticeAction', action );
-		popover?.classList.toggle( 'hidden' );
-	} );
-
-	closeButton?.addEventListener( 'click', event => {
+	closeButton.addEventListener( 'click', event => {
 		event.preventDefault();
 		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'hide' } );
 		localStorage.setItem( 'limitedGlobalStylesNoticeAction', 'hide' );
-		popover?.classList.add( 'hidden' );
+		// Core adds a 180ms delay to the hover state, so we need to wait for that to complete before removing the class.
+		setTimeout( () => popoverToggle.classList.remove( 'hover' ), 180 );
+		popoverToggle.querySelector( '.ab-item' ).setAttribute( 'aria-expanded', 'false' );
+		popover.style.removeProperty( 'display' );
+		closeButton.style.display = 'none';
 	} );
 
-	upgradeButton?.addEventListener( 'click', event => {
-		event.preventDefault();
+	upgradeButton.addEventListener( 'click', () => {
 		recordEvent( 'wpcom_global_styles_gating_notice_upgrade' );
-		window.location = upgradeButton.href;
 	} );
 
-	previewButton?.addEventListener( 'click', event => {
+	previewButton.addEventListener( 'click', event => {
 		event.preventDefault();
 		const checkbox = previewButton.querySelector( 'input[type="checkbox"]' );
 		if ( checkbox ) {
@@ -80,9 +73,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		window.location = previewButton.href;
 	} );
 
-	resetButton?.addEventListener( 'click', event => {
-		event.preventDefault();
+	resetButton.addEventListener( 'click', () => {
 		recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
-		window.open( resetButton.href, '_blank' ).focus();
 	} );
 } );
