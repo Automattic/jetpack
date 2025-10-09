@@ -657,7 +657,7 @@ class Classic_Search {
 
 		foreach ( $the_tax_query->queries as $tax_query ) {
 			// Right now we only support slugs...see note above.
-			if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
+			if ( ! is_array( $tax_query ) || ! isset( $tax_query['field'] ) || 'slug' !== $tax_query['field'] ) {
 				continue;
 			}
 
@@ -1469,9 +1469,13 @@ class Classic_Search {
 
 				if ( ! empty( $query->tax_query ) && ! empty( $query->tax_query->queries ) && is_array( $query->tax_query->queries ) ) {
 					foreach ( $query->tax_query->queries as $tax_query ) {
-						if ( is_array( $tax_query ) && $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
+						if (
+							is_array( $tax_query ) &&
+							isset( $tax_query['taxonomy'] ) &&
+							$this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
 							'slug' === $tax_query['field'] &&
-							is_array( $tax_query['terms'] ) ) {
+							is_array( $tax_query['terms'] )
+						) {
 							$existing_term_slugs = array_merge( $existing_term_slugs, $tax_query['terms'] );
 						}
 					}
