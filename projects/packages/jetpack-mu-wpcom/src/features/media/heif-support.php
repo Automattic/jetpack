@@ -206,7 +206,7 @@ function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type )
  * Add the HEIF/HEIC upload filter on REST API initialization.
  */
 function jetpack_wpcom_add_heif_rest_api_filter() {
-	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api' );
+	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
 }
 add_action( 'rest_api_init', 'jetpack_wpcom_add_heif_rest_api_filter' );
 
