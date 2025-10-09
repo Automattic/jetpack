@@ -141,6 +141,14 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+
+		// Also make sure that we don't have fields that are not relevant to feedback.
+		$this->assertArrayNotHasKey( 'link', $schema_properties );
+		$this->assertArrayNotHasKey( 'password', $schema_properties );
+		$this->assertArrayNotHasKey( 'template', $schema_properties );
+		$this->assertArrayNotHasKey( 'title', $schema_properties );
+		$this->assertArrayNotHasKey( 'content', $schema_properties );
+		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
 	}
 
 	/**
