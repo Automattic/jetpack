@@ -9,7 +9,7 @@ Donut Charts are circular charts with a hollow center, perfect for displaying pr
 
 **Important:** There is no separate DonutChart component. Donuts are created by configuring the PieChart component with `thickness < 1`. This means all PieChart props, features, and styling options are available for donut charts.
 
-<Canvas of={ DonutStories.Doughnut } />
+<Canvas of={ DonutStories.Configuration } />
 
 ## API Reference
 
@@ -19,11 +19,11 @@ For detailed information about component props, types, compound components, and 
 
 ## Basic Usage
 
-### Simple Donut Chart
+### Interactive Configuration
 
-Create a donut chart by setting the `thickness` prop to a value between 0 and 1:
+Explore different donut configurations using the interactive controls:
 
-<Canvas of={ DonutStories.Default } />
+<Canvas of={ DonutStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -63,11 +63,11 @@ All optional props from [PieChart](./?path=/docs/js-packages-charts-types-pie-ch
 
 ## Donut Variations
 
+Use the **Configuration story** above to explore different donut variations by adjusting the controls:
+
 ### Thin Ring Donut
 
-Create a thin ring by using a low thickness value:
-
-<Canvas of={ DonutStories.Thin } />
+Create a thin ring by setting thickness to **0.2** in the controls panel.
 
 <Source
 	language="jsx"
@@ -88,9 +88,7 @@ Create a thin ring by using a low thickness value:
 
 ### Thick Donut
 
-Use a higher thickness value for more substantial donut rings:
-
-<Canvas of={ DonutStories.Default } />
+Set thickness to **0.8** for more substantial donut rings:
 
 <Source
 	language="jsx"
@@ -108,17 +106,15 @@ Use a higher thickness value for more substantial donut rings:
 
 ### Styled Donut with Gaps
 
-Combine thickness with gaps and rounded corners for modern appearance:
-
-<Canvas of={ DonutStories.Doughnut } />
+Combine thickness with gaps and rounded corners for modern appearance. Set thickness to **0.5**, gapScale to **0.03**, and cornerScale to **0.03**:
 
 <Source
 	language="jsx"
 	code={ `<PieChart
 		size={ 400 }
-		thickness={ 0.6 }
-		gapScale={ 0.05 }
-		cornerScale={ 0.1 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
 		data={ data }
 	>
 		<Group>
@@ -136,9 +132,7 @@ Combine thickness with gaps and rounded corners for modern appearance:
 
 ### Donut with Tooltips
 
-Tooltips work seamlessly with donut charts:
-
-<Canvas of={ DonutStories.WithTooltipsDoughnut } />
+Tooltips work seamlessly with donut charts. Toggle **withTooltips** in the Configuration story:
 
 <Source
 	language="jsx"
@@ -157,9 +151,7 @@ Tooltips work seamlessly with donut charts:
 
 ### Donut with Legend
 
-Combine legends with donut charts for comprehensive data presentation:
-
-<Canvas of={ DonutStories.CustomLegendPositioning } />
+Combine legends with donut charts by enabling **showLegend** in the Configuration story:
 
 <Source
 	language="jsx"
