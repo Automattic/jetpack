@@ -668,6 +668,14 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['is_unread'] = $feedback_response->is_unread();
 		}
 
+		unset( $data['parent'] );
+		unset( $data['link'] );
+		unset( $data['password'] );
+		unset( $data['template'] );
+		unset( $data['title'] );
+		unset( $data['content'] );
+		unset( $data['excerpt'] );
+
 		$response->set_data( $data );
 
 		return rest_ensure_response( $response );
