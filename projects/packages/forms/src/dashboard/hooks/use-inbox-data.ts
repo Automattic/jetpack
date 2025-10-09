@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect, useMemo, useState } from '@wordpress/element';
+import { addQueryArgs } from '@wordpress/url';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -36,6 +39,7 @@ interface UseInboxDataReturn {
 	totalItemsTrash: number;
 	records: FormResponse[];
 	isLoadingData: boolean;
+	isLoadingCounts: boolean;
 	totalItems: number;
 	totalPages: number;
 	selectedResponsesCount: number;
@@ -93,52 +97,70 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'publish,draft',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	// Normalize the current query values to ensure consistent comparisons.
+	const searchValue = currentQuery?.search || undefined;
+	const parentValue = currentQuery?.parent || undefined;
+	const beforeValue = currentQuery?.before || undefined;
+	const afterValue = currentQuery?.after || undefined;
 
-	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'spam',
-			per_page: 1,
-			_fields: 'id',
+	const countsQueryParams = useMemo( () => {
+		const params: Record< string, unknown > = {};
+		if ( searchValue ) {
+			params.search = searchValue;
 		}
-	);
+		if ( parentValue ) {
+			params.parent = parentValue;
+		}
+		if ( beforeValue ) {
+			params.before = beforeValue;
+		}
+		if ( afterValue ) {
+			params.after = afterValue;
+		}
+		return params;
+	}, [ searchValue, parentValue, beforeValue, afterValue ] );
 
-	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'trash',
-			per_page: 1,
-			_fields: 'id',
-		}
+	// Fetch counts using the optimized endpoint
+	const [ counts, setCounts ] = useState< { inbox: number; spam: number; trash: number } | null >(
+		null
 	);
+	const [ isLoadingCounts, setIsLoadingCounts ] = useState( true );
+
+	useEffect( () => {
+		let isCancelled = false;
+		setIsLoadingCounts( true );
+
+		const path = addQueryArgs( '/wp/v2/feedback/counts', countsQueryParams );
+
+		apiFetch< { inbox: number; spam: number; trash: number } >( { path } )
+			.then( results => {
+				if ( ! isCancelled ) {
+					setCounts( results );
+					setIsLoadingCounts( false );
+				}
+			} )
+			.catch( () => {
+				if ( ! isCancelled ) {
+					setIsLoadingCounts( false );
+				}
+			} );
+
+		return () => {
+			isCancelled = true;
+		};
+	}, [ countsQueryParams ] );
+
+	const totalItemsInbox = counts?.inbox ?? 0;
+	const totalItemsSpam = counts?.spam ?? 0;
+	const totalItemsTrash = counts?.trash ?? 0;
 
 	return {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
 		records,
-		isLoadingData:
-			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
+		isLoadingData: isLoadingRecordsData,
+		isLoadingCounts,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

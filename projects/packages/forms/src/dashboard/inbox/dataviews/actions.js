@@ -307,12 +307,21 @@ export const markAsReadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
-		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( async ( { id } ) => {
-				// Update entity in store
-				editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					receiveEntityRecords( 'postType', 'feedback', [
+						{ ...currentEntity, is_unread: false },
+					] );
+				}
+
 				// Update on server
 				return apiFetch( {
 					path: `/wp/v2/feedback/${ id }/read`,
@@ -325,7 +334,11 @@ export const markAsReadAction = {
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+						if ( currentEntity ) {
+							receiveEntityRecords( 'postType', 'feedback', [
+								{ ...currentEntity, is_unread: true },
+							] );
+						}
 						throw new Error( 'Failed to mark as read' );
 					} );
 			} )
@@ -372,12 +385,19 @@ export const markAsUnreadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
-		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( async ( { id } ) => {
-				// Update entity in store
-				editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					receiveEntityRecords( 'postType', 'feedback', [ { ...currentEntity, is_unread: true } ] );
+				}
+
 				// Update on server
 				return apiFetch( {
 					path: `/wp/v2/feedback/${ id }/read`,
@@ -390,7 +410,11 @@ export const markAsUnreadAction = {
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+						if ( currentEntity ) {
+							receiveEntityRecords( 'postType', 'feedback', [
+								{ ...currentEntity, is_unread: false },
+							] );
+						}
 						throw new Error( 'Failed to mark as unread' );
 					} );
 			} )

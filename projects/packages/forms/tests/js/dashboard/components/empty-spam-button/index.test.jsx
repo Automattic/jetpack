@@ -47,7 +47,14 @@ jest.mock( '@wordpress/notices', () => ( {
 	store: 'notices',
 } ) );
 
-jest.mock( '@wordpress/api-fetch', () => jest.fn( () => Promise.resolve( { deleted: 1 } ) ) );
+jest.mock( '@wordpress/api-fetch', () =>
+	jest.fn( req => {
+		if ( req.path && req.path.includes( '/wp/v2/feedback/counts' ) ) {
+			return Promise.resolve( { inbox: 0, spam: 1, trash: 0 } );
+		}
+		return Promise.resolve( { deleted: 1 } );
+	} )
+);
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	tracks: {
@@ -73,6 +80,7 @@ jest.mock( '@wordpress/data', () => {
 		getCurrentStatus: jest.fn().mockReturnValue( 'trash' ),
 		getCurrentQuery: jest.fn().mockReturnValue( {} ),
 		getFilters: jest.fn().mockReturnValue( {} ),
+		getCounts: jest.fn().mockReturnValue( { inbox: 0, spam: 1, trash: 0 } ),
 	};
 
 	return {
@@ -117,11 +125,14 @@ describe( 'EmptySpamButton', () => {
 	beforeEach( () => {
 		// Reset all mocks before each test
 		jest.clearAllMocks();
-		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( { totalItems: 1 } );
+		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( {
+			totalItems: 1,
+			isResolving: false,
+		} );
 	} );
 
 	it( 'renders correctly', () => {
-		render( <EmptySpamButton /> );
+		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
@@ -130,8 +141,7 @@ describe( 'EmptySpamButton', () => {
 	} );
 
 	it( 'shows disabled state when trash is empty', () => {
-		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( { totalItems: 0 } );
-		render( <EmptySpamButton /> );
+		render( <EmptySpamButton totalItemsSpam={ 0 } isLoadingCounts={ false } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
@@ -139,7 +149,7 @@ describe( 'EmptySpamButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		render( <EmptySpamButton /> );
+		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
@@ -154,7 +164,7 @@ describe( 'EmptySpamButton', () => {
 		const { useDispatch } = require( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		render( <EmptySpamButton /> );
+		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
 
 		// Click empty trash button
 		const button = screen.getByText( 'Delete spam' );

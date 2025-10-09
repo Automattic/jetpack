@@ -4,3 +4,4 @@ export const getCurrentStatus = state => state.currentQuery?.status ?? 'draft,pu
 export const getSelectedResponsesFromCurrentDataset = state =>
 	state.selectedResponsesFromCurrentDataset;
 export const getSelectedResponsesCount = state => state.selectedResponsesFromCurrentDataset.length;
+export const getCounts = state => state.counts;

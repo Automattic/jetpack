@@ -99,6 +99,30 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/count
+	 */
+	public function test_get_feedbacks_count_returns_200() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'inbox', $data );
+		$this->assertArrayHasKey( 'spam', $data );
+		$this->assertArrayHasKey( 'trash', $data );
+	}
+
+	/**
+	 * Test GET feedback/count unautorized.
+	 */
+	public function test_get_feedbacks_count_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test DELETE feedback/trash
 	 */
 	public function test_empty_trash_returns_200() {

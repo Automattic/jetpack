@@ -5,7 +5,12 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { SET_SELECTED_RESPONSES, RECEIVE_FILTERS, SET_CURRENT_QUERY } from './action-types';
+import {
+	SET_SELECTED_RESPONSES,
+	RECEIVE_FILTERS,
+	SET_CURRENT_QUERY,
+	RECEIVE_COUNTS,
+} from './action-types';
 
 const filters = ( state = {}, action ) => {
 	if ( action.type === RECEIVE_FILTERS ) {
@@ -28,8 +33,16 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	return state;
 };
 
+const counts = ( state = {}, action ) => {
+	if ( action.type === RECEIVE_COUNTS ) {
+		return action.counts;
+	}
+	return state;
+};
+
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
 	currentQuery,
+	counts,
 } );

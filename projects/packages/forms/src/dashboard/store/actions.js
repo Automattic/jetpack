@@ -7,6 +7,7 @@ import {
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
+	RECEIVE_COUNTS,
 } from './action-types';
 
 /**
@@ -49,6 +50,19 @@ export function setCurrentQuery( currentQuery ) {
 	return {
 		type: SET_CURRENT_QUERY,
 		currentQuery,
+	};
+}
+
+/**
+ * Receive counts for the responses.
+ *
+ * @param {object} counts - Counts for the responses.
+ * @return {object} Action object.
+ */
+export function receiveCounts( counts ) {
+	return {
+		type: RECEIVE_COUNTS,
+		counts,
 	};
 }
 
