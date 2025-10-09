@@ -144,22 +144,29 @@ export const transforms = {
 				const [ file ] = files;
 				const language = getLanguageFromFile( file )!;
 
-				const block = createBlock< Attributes >( BLOCK_NAME, {
+				const reader = new FileReader();
+				reader.readAsText( file );
+
+				const blockAttributes: Partial< Attributes > = {
 					language,
 					languageConfidence: 'certain',
 					filename: file.name,
-				} );
+				};
 
-				const reader = new FileReader();
-				reader.addEventListener( 'load', event => {
-					const code = event.target?.result as string;
+				if ( reader.readyState === FileReader.DONE ) {
+					if ( ! reader.error ) {
+						blockAttributes.content = RichTextData.fromPlainText( reader.result as string );
+					}
+					return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				}
+
+				const block = createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+				reader.addEventListener( 'load', () => {
 					dispatch( editorStore ).updateBlockAttributes( [ block.clientId ], {
-						code,
+						content: RichTextData.fromPlainText( reader.result as string ),
 						triggerCodeUpdate: true,
 					} );
 				} );
-				reader.readAsText( file );
-
 				return block;
 			},
 		},
