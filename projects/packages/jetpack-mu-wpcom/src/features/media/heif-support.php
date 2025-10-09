@@ -187,15 +187,15 @@ add_filter( 'upload_mimes', 'jetpack_wpcom_add_heif_mimes_to_supported_upload_ty
 /**
  * Prevent WordPress from blocking HEIF/HEIC uploads in REST API.
  *
- * This allows HEIF files to pass through the REST API validation
+ * This allows HEIF/HEIC files to pass through the REST API validation
  * so they can be converted to JPEG by our conversion filter.
  *
  * @param bool        $check_mime Whether to check the mime type.
- * @param string|null $mime_type          The mime type being uploaded.
+ * @param string|null $mime_type  The mime type being uploaded.
  * @return bool
  */
 function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type ) {
-	if ( in_array( $mime_type, array( 'image/heif', 'image/heic' ), true ) ) {
+	if ( wp_is_heic_image_mime_type( $mime_type ) ) {
 		return false;
 	}
 
@@ -203,9 +203,9 @@ function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type )
 }
 
 /**
- * Add the HEIF upload filter on REST API initialization.
+ * Add the HEIF/HEIC upload filter on REST API initialization.
  */
 function jetpack_wpcom_add_heif_rest_api_filter() {
-	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
+	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api' );
 }
 add_action( 'rest_api_init', 'jetpack_wpcom_add_heif_rest_api_filter' );
