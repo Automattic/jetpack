@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useEntityRecords } from '@wordpress/core-data';
+import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
@@ -92,7 +92,20 @@ export default function useInboxData(): UseInboxDataReturn {
 		...currentQuery,
 	} );
 
-	const records = ( rawRecords || [] ) as FormResponse[];
+	const records = useSelect(
+		select => {
+			return ( rawRecords || [] ).map( record => {
+				// Get the edited version of this record if it exists
+				const editedRecord = select( coreDataStore ).getEditedEntityRecord(
+					'postType',
+					'feedback',
+					( record as FormResponse ).id
+				);
+				return editedRecord || record;
+			} ) as FormResponse[];
+		},
+		[ rawRecords ]
+	);
 
 	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
 

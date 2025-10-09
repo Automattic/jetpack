@@ -336,7 +336,8 @@ export const markAsReadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
-		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
+		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
@@ -346,9 +347,9 @@ export const markAsReadAction = {
 
 				// Optimistically update entity in store
 				if ( currentEntity ) {
-					receiveEntityRecords( 'postType', 'feedback', [
-						{ ...currentEntity, is_unread: false },
-					] );
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: false,
+					} );
 				}
 
 				// Update on server
@@ -364,9 +365,9 @@ export const markAsReadAction = {
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
 						if ( currentEntity ) {
-							receiveEntityRecords( 'postType', 'feedback', [
-								{ ...currentEntity, is_unread: true },
-							] );
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: true,
+							} );
 						}
 						throw new Error( 'Failed to mark as read' );
 					} );
@@ -414,7 +415,7 @@ export const markAsUnreadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
-		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
@@ -424,7 +425,9 @@ export const markAsUnreadAction = {
 
 				// Optimistically update entity in store
 				if ( currentEntity ) {
-					receiveEntityRecords( 'postType', 'feedback', [ { ...currentEntity, is_unread: true } ] );
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: true,
+					} );
 				}
 
 				// Update on server
@@ -440,9 +443,9 @@ export const markAsUnreadAction = {
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
 						if ( currentEntity ) {
-							receiveEntityRecords( 'postType', 'feedback', [
-								{ ...currentEntity, is_unread: false },
-							] );
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: false,
+							} );
 						}
 						throw new Error( 'Failed to mark as unread' );
 					} );
