@@ -158,7 +158,16 @@ abstract class Code_Block {
 		$args['editor_style_handles'] = array( self::MODULE_PREFIX . 'editor' );
 		$args['style_handles']        = array( self::MODULE_PREFIX . 'style' );
 		unset( $args['view_style_handles'] );
-		$args['textdomain'] = 'jetpack-mu-wpcom';
+
+		/**
+		 * Typography support:
+		 * - fontSize: Supported.
+		 * - fontFamily: Unsupported, should be supported.
+		 * - lineHeight: Unsupported. No plans to support.
+		 *
+		 * @todo support fontFamily
+		 */
+		$args['supports']['typography'] = array( 'fontSize' => true );
 
 		$args['attributes'] = array(
 			// Content attribute is preserved for compatibility with the core/code block and transforms.
@@ -234,6 +243,7 @@ abstract class Code_Block {
 				'type' => 'string',
 			),
 		);
+		$args['textdomain'] = 'jetpack-mu-wpcom';
 
 		return $args;
 	}
