@@ -51,6 +51,12 @@ export const markAsSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'spam', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
@@ -107,6 +113,12 @@ export const markAsNotSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'spam', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -165,6 +177,12 @@ export const restoreAction = {
 	async callback( items, { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -215,6 +233,12 @@ export const moveToTrashAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'trash', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
@@ -263,8 +287,13 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateFilters } = registry.dispatch( dashboardStore );
+		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'deleted', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )

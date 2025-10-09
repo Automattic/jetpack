@@ -7,7 +7,8 @@ import {
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
-	RECEIVE_COUNTS,
+	SET_COUNTS,
+	UPDATE_COUNTS_OPTIMISTICALLY,
 } from './action-types';
 
 /**
@@ -54,15 +55,32 @@ export function setCurrentQuery( currentQuery ) {
 }
 
 /**
- * Receive counts for the responses.
+ * Set the status counts.
  *
- * @param {object} counts - Counts for the responses.
+ * @param {object} counts - The counts object with inbox, spam, and trash.
  * @return {object} Action object.
  */
-export function receiveCounts( counts ) {
+export function setCounts( counts ) {
 	return {
-		type: RECEIVE_COUNTS,
+		type: SET_COUNTS,
 		counts,
+	};
+}
+
+/**
+ * Optimistically update counts when status changes.
+ *
+ * @param {string} fromStatus - The status items are moving from.
+ * @param {string} toStatus   - The status items are moving to.
+ * @param {number} count      - Number of items being moved.
+ * @return {object} Action object.
+ */
+export function updateCountsOptimistically( fromStatus, toStatus, count = 1 ) {
+	return {
+		type: UPDATE_COUNTS_OPTIMISTICALLY,
+		fromStatus,
+		toStatus,
+		count,
 	};
 }
 
