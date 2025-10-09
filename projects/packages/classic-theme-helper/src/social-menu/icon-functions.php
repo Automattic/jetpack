@@ -194,6 +194,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 			'nextdoor.com'      => 'nextdoor',
 			'patreon.com'       => 'patreon',
 			'pinterest.'        => 'pinterest',
+			'pocketcasts.com'   => 'pocketcasts',
 			'getpocket.com'     => 'pocket',
 			'ravelry.com'       => 'ravelry',
 			'reddit.com'        => 'reddit',
