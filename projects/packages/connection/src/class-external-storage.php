@@ -206,7 +206,7 @@ class External_Storage {
 		}
 
 		// Deprecated: JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED constant
-		// @deprecated $$next-version$$ Use should_report_errors_for() method in your Storage Provider instead.
+		// @deprecated 6.18.13 Use should_report_errors_for() method in your Storage Provider instead.
 		if ( defined( 'JETPACK_EXTERNAL_STORAGE_REPORTING_ENABLED' ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
