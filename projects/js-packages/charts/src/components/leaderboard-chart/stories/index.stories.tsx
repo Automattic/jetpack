@@ -17,7 +17,9 @@ import { hexToRgba } from '../../../utils/color-utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > > & {
+	dataVariant?: string;
+};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Leaderboard Chart',
@@ -38,6 +40,7 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Whether to show comparison data (previous period bars and delta values)',
 			table: {
+				category: 'Data',
 				defaultValue: { summary: 'false' },
 			},
 		},
@@ -96,6 +99,7 @@ const meta: Meta< StoryArgs > = {
 			control: 'boolean',
 			description: 'Whether to overlay the label on top of the bar',
 			table: {
+				category: 'Labels',
 				defaultValue: { summary: 'false' },
 			},
 		},
@@ -126,6 +130,12 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'undefined' },
 			},
 		},
+		dataVariant: {
+			control: { type: 'radio' },
+			options: [ 'default', 'small', 'large-values', 'negative-growth', 'empty' ],
+			description: 'Dataset variant to display',
+			table: { category: 'Data' },
+		},
 		...sharedChartArgTypes,
 		...legendArgTypes,
 		...themeArgTypes,
@@ -148,6 +158,49 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 type Story = StoryObj< StoryArgs >;
+
+// Interactive configuration story with all controls
+export const Configuration: Story = {
+	render: args => {
+		const dataVariant = args.dataVariant || 'default';
+		const dataMap = {
+			default: sampleData,
+			small: smallDataset,
+			'large-values': largeValues,
+			'negative-growth': negativeGrowth,
+			empty: [],
+		};
+
+		return <LeaderboardChart { ...args } data={ dataMap[ dataVariant ] } />;
+	},
+	args: {
+		withComparison: true,
+		loading: false,
+		withOverlayLabel: false,
+		dataVariant: 'default',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Interactive leaderboard chart configuration with all available controls. Use the controls panel to explore different data variants, comparison modes, and display options.
+
+**Key Features:**
+- **Data Variants**: Switch between default, small, large values, negative growth, and empty datasets
+- **Comparison Mode**: Toggle between showing/hiding previous period comparison bars
+- **Overlay Label**: Position labels on top of bars for a compact layout
+- **Loading State**: See how the chart displays during data loading
+- **Colors**: Customize primary and secondary bar colors
+- **Legend**: Configure legend display and positioning
+
+**Use Cases:**
+- **With Comparison**: Best for showing period-over-period growth trends
+- **Without Comparison**: Clean, focused view of current period data
+- **Overlay Labels**: Ideal for compact layouts or mobile views
+- **Large Values**: Demonstrates proper number formatting for big metrics`,
+			},
+		},
+	},
+};
 
 export const Default: Story = {
 	args: {
@@ -172,14 +225,6 @@ export const WithOverlayLabel: Story = {
 	},
 };
 
-export const Loading: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: true,
-	},
-};
-
 export const CustomColors: Story = {
 	args: {
 		data: sampleData,
@@ -187,38 +232,6 @@ export const CustomColors: Story = {
 		loading: false,
 		primaryColor: 'red',
 		secondaryColor: 'green',
-	},
-};
-
-export const SmallDataset: Story = {
-	args: {
-		data: smallDataset,
-		withComparison: true,
-		loading: false,
-	},
-};
-
-export const EmptyData: Story = {
-	args: {
-		data: [],
-		withComparison: true,
-		loading: false,
-	},
-};
-
-export const LargeValues: Story = {
-	args: {
-		data: largeValues,
-		withComparison: true,
-		loading: false,
-	},
-};
-
-export const NegativeGrowth: Story = {
-	args: {
-		data: negativeGrowth,
-		withComparison: true,
-		loading: false,
 	},
 };
 
