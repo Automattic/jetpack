@@ -190,16 +190,15 @@ add_filter( 'upload_mimes', 'jetpack_wpcom_add_heif_mimes_to_supported_upload_ty
  * This allows HEIF files to pass through the REST API validation
  * so they can be converted to JPEG by our conversion filter.
  *
- * @param bool        $prevent_unsupported Whether to prevent unsupported uploads.
+ * @param bool        $check_mime Whether to check the mime type.
  * @param string|null $mime_type          The mime type being uploaded.
  * @return bool
  */
-function jetpack_wpcom_allow_heif_uploads_in_rest_api( $prevent_unsupported, $mime_type ) {
-	// Allow HEIF/HEIC uploads to pass through validation
+function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type ) {
 	if ( in_array( $mime_type, array( 'image/heif', 'image/heic' ), true ) ) {
-		return false; // Don't prevent the upload
+		return false;
 	}
 
-	return $prevent_unsupported;
+	return $check_mime;
 }
 add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
