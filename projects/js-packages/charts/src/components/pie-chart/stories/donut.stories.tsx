@@ -18,7 +18,9 @@ import { Text } from '../../../visx/text';
 import { PieChart, PieChartUnresponsive } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
+	centerContent?: string;
+};
 
 const data = [
 	{
@@ -54,30 +56,44 @@ const meta: Meta< StoryArgs > = {
 				step: 10,
 				default: 400,
 			},
+			description: 'Diameter of the donut chart in pixels',
+			table: { category: 'Dimensions' },
 		},
 		thickness: {
 			control: {
 				type: 'range',
-				min: 0,
-				max: 1,
+				min: 0.2,
+				max: 0.8,
 				step: 0.01,
 			},
+			description: 'Donut thickness (0.2 = thin, 0.5 = medium, 0.8 = thick)',
+			table: { category: 'Visual Style' },
 		},
 		gapScale: {
 			control: {
 				type: 'range',
 				min: 0,
-				max: 1,
+				max: 0.05,
 				step: 0.01,
 			},
+			description: 'Gap between segments',
+			table: { category: 'Visual Style' },
 		},
 		cornerScale: {
 			control: {
 				type: 'range',
 				min: 0,
-				max: 1,
+				max: 0.05,
 				step: 0.01,
 			},
+			description: 'Corner rounding',
+			table: { category: 'Visual Style' },
+		},
+		centerContent: {
+			control: { type: 'radio' },
+			options: [ 'none', 'user-activity', 'doughnut-emoji' ],
+			description: 'Content to display in the donut center',
+			table: { category: 'Data' },
 		},
 	},
 } satisfies Meta< StoryArgs >;
@@ -85,8 +101,39 @@ const meta: Meta< StoryArgs > = {
 export default meta;
 type Story = StoryObj< StoryArgs >;
 
-export const Default: Story = {
+// Interactive configuration story with all donut controls
+export const Configuration: Story = {
+	render: args => {
+		const centerContent = args.centerContent || 'user-activity';
+
+		const centerContentMap = {
+			none: undefined,
+			'user-activity': (
+				<Group>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+						User Activity
+					</Text>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+						Total: 100K Users
+					</Text>
+				</Group>
+			),
+			'doughnut-emoji': (
+				<Group>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+						🍩 Doughnut
+					</Text>
+					<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
+						Three donuts for the price of one!
+					</Text>
+				</Group>
+			),
+		};
+
+		return <PieChart { ...args }>{ centerContentMap[ centerContent ] }</PieChart>;
+	},
 	args: {
+		data,
 		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
@@ -95,240 +142,32 @@ export const Default: Story = {
 		gapScale: 0.03,
 		cornerScale: 0.03,
 		withTooltips: true,
-		data,
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					User Activity
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
-					Total: 100K Users
-				</Text>
-			</Group>
-		),
-	},
-};
-
-export const WithoutCenter: Story = {
-	args: {
-		...Default.args,
-		children: undefined,
-	},
-};
-
-export const ErrorStates: Story = {
-	render: () => (
-		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
-			<div>
-				<h3>Empty Data</h3>
-				<PieChart size={ 300 } thickness={ 0.6 } data={ [] } />
-			</div>
-			<div>
-				<h3>Single Value</h3>
-				<PieChart
-					size={ 300 }
-					thickness={ 0.6 }
-					data={ [ { label: 'Single', value: 100, percentage: 100 } ] }
-				/>
-			</div>
-		</div>
-	),
-};
-
-export const Thin: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.2,
-		gapScale: 0.01,
-		size: 700,
-		containerWidth: '732px',
-		containerHeight: '732px',
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					Thin Donut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
-					Thickness: 20%
-				</Text>
-			</Group>
-		),
-	},
-};
-
-export const Doughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		gapScale: 0.03,
-		cornerScale: 0.03,
-		size: 600,
-		containerWidth: '632px',
-		containerHeight: '632px',
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					🍩 Doughnut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
-					Three donuts for the price of one!
-				</Text>
-			</Group>
-		),
+		showLegend: false,
+		centerContent: 'user-activity',
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
+				story: `Interactive donut chart configuration with all available controls. Use the controls panel to explore different thickness, gap, corner, and center content options.
+
+**Key Features:**
+- **Thickness**: Adjust from thin (0.2) to thick (0.8) donut
+- **Gap Scale**: Control spacing between segments
+- **Corner Scale**: Add rounded corners to segments
+- **Center Content**: Display custom text, icons, or metrics in the center
+- **Legend**: Toggle and configure legend positioning
+- **Tooltips**: Enable interactive hover information
+
+**Use Cases:**
+- **Thin donut (0.2)**: Elegant, minimalist look for simple data
+- **Medium donut (0.5)**: Balanced visibility of data and center content
+- **Thick donut (0.8)**: Emphasis on data segments, less on center`,
 			},
 		},
 	},
 };
 
-export const WithTooltipsDoughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		withTooltips: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart with interactive tooltips that appear on hover.',
-			},
-		},
-	},
-};
-
-export const WithLegend: Story = {
-	args: {
-		...Default.args,
-		showLegend: true,
-		containerHeight: '500px',
-	},
-};
-
-export const WithCompositionLegend: Story = {
-	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'center',
-			} }
-		>
-			<div>
-				<h3>Traditional Props-based</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					showLegend={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendMaxWidth={ args.legendMaxWidth }
-					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-				</PieChart>
-			</div>
-			<div>
-				<h3>Composition API</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-					<PieChart.Legend
-						position={ args.legendPosition || 'bottom' }
-						orientation={ args.legendOrientation || 'horizontal' }
-						alignment={ args.legendAlignment || 'center' }
-						maxWidth={ args.legendMaxWidth }
-						textOverflow={ args.legendTextOverflow || 'wrap' }
-					/>
-				</PieChart>
-			</div>
-		</div>
-	),
-	args: {
-		data,
-		thickness: 0.5,
-		containerHeight: '500px',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.4,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
-					Distribution
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Donut chart with vertical legend positioned at the top left.',
-			},
-		},
-	},
-};
-
+// Custom legend component for advanced use cases
 const WooPieLegend = ( {
 	chartItems,
 	items,
@@ -390,7 +229,6 @@ export const CustomLegend: Story = {
 		</PieChartUnresponsive>
 	),
 	args: {
-		...Default.args,
 		data: customerRevenueData.map( segment => ( { ...segment, label: '' } ) ),
 		thickness: 0.3,
 		cornerScale: 0.03,
@@ -399,11 +237,13 @@ export const CustomLegend: Story = {
 		withComparison: true,
 		withTooltips: false,
 		containerHeight: '300px',
+		resize: 'none',
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Demonstrates how to customize the legend using the render prop.',
+				story:
+					'Demonstrates how to customize the legend using the render prop pattern for advanced styling and layout control.',
 			},
 		},
 	},
