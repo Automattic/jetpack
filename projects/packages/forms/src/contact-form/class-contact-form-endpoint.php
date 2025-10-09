@@ -370,9 +370,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Retrieves status counts for inbox, spam, and trash in a single optimized query.
-	 *
-	 * Replaces 3 separate REST API requests with 1 database query using CASE statements.
+	 * Retrieves status counts for inbox, spam, and trash.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 * @return WP_REST_Response Response object on success.
@@ -385,7 +383,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$before = $request->get_param( 'before' );
 		$after  = $request->get_param( 'after' );
 
-		// Build WHERE clauses.
 		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
 
 		if ( ! empty( $search ) ) {
@@ -394,7 +391,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		if ( ! empty( $parent ) && is_array( $parent ) ) {
-			// Safe to use direct interpolation after absint() - no SQL injection possible with integers.
 			$parent_ids_string  = implode( ',', array_map( 'absint', $parent ) );
 			$where_conditions[] = "post_parent IN ($parent_ids_string)";
 		}
