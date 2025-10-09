@@ -19,10 +19,7 @@ export const viewAction = {
 	icon: <Icon icon={ commentContent } />,
 	isPrimary: true,
 	label: __( 'View response', 'jetpack-forms' ),
-};
-
-export const viewActionModal = {
-	...viewAction,
+	modalHeader: __( 'Response', 'jetpack-forms' ),
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
 		return <InboxResponse isLoading={ false } response={ item } />;

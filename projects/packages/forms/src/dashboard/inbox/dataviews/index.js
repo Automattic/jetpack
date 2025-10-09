@@ -26,7 +26,6 @@ import InboxResponse from '../response';
 import { getPath } from '../utils.js';
 import {
 	viewAction,
-	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -339,20 +338,10 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewActionModal );
-		} else {
-			_actions.unshift( {
-				...viewAction,
-				callback( items ) {
-					const [ item ] = items;
-					const selectedId = item.id.toString();
-					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
-					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
-				},
-			} );
+			_actions.unshift( viewAction );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
