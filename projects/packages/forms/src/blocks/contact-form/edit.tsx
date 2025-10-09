@@ -784,8 +784,8 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ 'redirect' !== customThankyou && (
 							<>
 								<ToggleControl
-									label={ __( 'Disable "Go back" link', 'jetpack-forms' ) }
-									checked={ disableGoBack }
+									label={ __( 'Show "Go back" link', 'jetpack-forms' ) }
+									checked={ !! disableGoBack }
 									onChange={ ( newDisableGoBack: boolean ) =>
 										setAttributes( { disableGoBack: newDisableGoBack } )
 									}
