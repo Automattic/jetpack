@@ -214,8 +214,7 @@ class Feedback {
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
-		$raw_recipients                = $parsed_content['notification_recipients'] ?? array();
-		$this->notification_recipients = $this->validate_notification_recipients( $raw_recipients );
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
