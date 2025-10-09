@@ -209,3 +209,15 @@ function jetpack_wpcom_add_heif_rest_api_filter() {
 	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api' );
 }
 add_action( 'rest_api_init', 'jetpack_wpcom_add_heif_rest_api_filter' );
+
+/**
+ * Disable HEIC upload error in plupload settings for WordPress.com.
+ *
+ * @param array $defaults The default plupload settings.
+ * @return array The modified settings.
+ */
+function jetpack_wpcom_disable_heic_plupload_error( $defaults ) {
+	$defaults['heic_upload_error'] = false;
+	return $defaults;
+}
+add_filter( 'plupload_default_settings', 'jetpack_wpcom_disable_heic_plupload_error' );
