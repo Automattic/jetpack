@@ -109,7 +109,7 @@ declare global {
 					innerBlocks?: Array< unknown >
 				) => React.JSX.Element | null;
 			};
-			compose: import('@wordpress/compose');
+			compose: typeof import('@wordpress/compose');
 			coreData: {
 				store: Store;
 			};
@@ -121,10 +121,10 @@ declare global {
 					dependencies?: unknown[]
 				) => any;
 			};
-			i18n: import('@wordpress/i18n');
-			keycodes: import('@wordpress/keycodes');
-			keyboardShortcuts: import('@wordpress/keyboard-shortcuts');
-			richText: import('@wordpress/rich-text');
+			i18n: typeof import('@wordpress/i18n');
+			keycodes: typeof import('@wordpress/keycodes');
+			keyboardShortcuts: typeof import('@wordpress/keyboard-shortcuts');
+			richText: typeof import('@wordpress/rich-text');
 		};
 	}
 }
