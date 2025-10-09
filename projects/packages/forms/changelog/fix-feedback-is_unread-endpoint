@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix sending data that is not needed in the endpoint to prevent exposing data
