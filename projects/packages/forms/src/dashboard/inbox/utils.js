@@ -60,6 +60,8 @@ export const updateMenuCounterOptimistically = count => {
 			optimisticCount = parseInt( item.textContent.replace( /\D/g, '' ), 10 ) + count;
 		}
 
-		updateBadge( item, optimisticCount );
+		if ( optimisticCount >= 0 ) {
+			updateBadge( item, optimisticCount );
+		}
 	} );
 };
