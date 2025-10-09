@@ -668,7 +668,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['is_unread'] = $feedback_response->is_unread();
 		}
 
-		unset( $data['parent'] );
+		// Remove field that are not relevant to feedback.
 		unset( $data['link'] );
 		unset( $data['password'] );
 		unset( $data['template'] );
