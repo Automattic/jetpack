@@ -13,6 +13,8 @@ import {
 	moveToTrashAction,
 	restoreAction,
 	deleteAction,
+	markAsReadAction,
+	markAsUnreadAction,
 } from '../../inbox/dataviews/actions';
 /**
  * Types
@@ -21,11 +23,13 @@ import type { FormResponse } from '../../../types';
 
 type ResponseNavigationProps = {
 	onActionComplete?: ( id: string ) => void;
+	onMarkAsRead?: ( id: number | false ) => void;
 	response: FormResponse;
 };
 
 const ResponseActions = ( {
 	onActionComplete,
+	onMarkAsRead,
 	response,
 }: ResponseNavigationProps ): JSX.Element => {
 	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
@@ -71,10 +75,47 @@ const ResponseActions = ( {
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
+	const handleMarkAsRead = useCallback( () => {
+		markAsReadAction.callback( [ response ], { registry } );
+	}, [ response, registry ] );
+
+	const handleMarkAsUnread = useCallback( () => {
+		onMarkAsRead( response.id );
+		markAsUnreadAction.callback( [ response ], { registry } );
+	}, [ response, registry, onMarkAsRead ] );
+
+	const readUnreadButtons = onMarkAsRead ? (
+		<>
+			{ response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsRead }
+					showTooltip={ true }
+					label={ markAsReadAction.label }
+					iconSize={ 24 }
+					icon={ markAsReadAction.icon }
+					size="compact"
+				></Button>
+			) }
+			{ ! response.is_unread && (
+				<Button
+					variant="tertiary"
+					onClick={ handleMarkAsUnread }
+					showTooltip={ true }
+					label={ markAsUnreadAction.label }
+					iconSize={ 24 }
+					icon={ markAsUnreadAction.icon }
+					size="compact"
+				></Button>
+			) }
+		</>
+	) : null;
+
 	switch ( response.status ) {
 		case 'spam':
 			return (
 				<>
+					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
 						onClick={ handleMarkAsNotSpam }
@@ -101,6 +142,7 @@ const ResponseActions = ( {
 		case 'trash':
 			return (
 				<>
+					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
 						onClick={ handleRestore }
@@ -127,6 +169,7 @@ const ResponseActions = ( {
 		default: // 'publish' (inbox) or any other status
 			return (
 				<>
+					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
 						onClick={ handleMarkAsSpam }
