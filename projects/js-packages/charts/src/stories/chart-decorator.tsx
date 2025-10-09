@@ -74,6 +74,8 @@ export const sharedChartArgTypes = {
 			min: 100,
 			max: 1200,
 		},
+		description: 'Maximum width of the chart in pixels',
+		table: { category: 'Dimensions' },
 	},
 	aspectRatio: {
 		control: {
@@ -81,6 +83,8 @@ export const sharedChartArgTypes = {
 			min: 0,
 			max: 1,
 		},
+		description: 'Height/width ratio for responsive charts',
+		table: { category: 'Dimensions' },
 	},
 	resizeDebounceTime: {
 		control: {
@@ -88,18 +92,23 @@ export const sharedChartArgTypes = {
 			min: 0,
 			max: 10000,
 		},
+		description: 'Delay in milliseconds before recalculating chart dimensions on resize',
+		table: { category: 'Dimensions' },
 	},
 	containerWidth: {
 		control: { type: 'text' },
 		description: 'CSS width value for the chart container (e.g., "400px", "100%")',
+		table: { category: 'Dimensions' },
 	},
 	containerHeight: {
 		control: { type: 'text' },
 		description: 'CSS height value for the chart container (e.g., "400px", "100%")',
+		table: { category: 'Dimensions' },
 	},
 	resize: {
 		control: { type: 'select' },
 		options: [ 'none', 'both', 'horizontal', 'vertical' ],
 		description: 'Resize behavior for the chart container',
+		table: { category: 'Dimensions' },
 	},
 } as const;
