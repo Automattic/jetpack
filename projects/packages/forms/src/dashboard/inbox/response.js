@@ -682,17 +682,15 @@ const InboxResponse = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip>
-					{ __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' ) }
-				</Tip>
+				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
 			) }
 			{ response.status === 'trash' && (
 				<Tip>
 					{ sprintf(
 						/* translators: %d number of days. */
 						_n(
-							'Responses moved to trash will be deleted forever after %d day.',
-							'Responses moved to trash will be deleted forever after %d days.',
+							'Items in trash are permanently deleted after %d day.',
+							'Items in trash are permanently deleted after %d days.',
 							emptyTrashDays,
 							'jetpack-forms'
 						),

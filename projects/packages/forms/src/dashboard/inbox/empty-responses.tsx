@@ -17,8 +17,11 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	const formsConfig = useFormsConfig();
 	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
 
-	const searchHeading = __( 'No responses found', 'jetpack-forms' );
-	const searchMessage = __( 'Your search returned no results.', 'jetpack-forms' );
+	const searchHeading = __( 'No results found', 'jetpack-forms' );
+	const searchMessage = __(
+		"Try adjusting your search or filters to find what you're looking for.",
+		'jetpack-forms'
+	);
 	if ( isSearch ) {
 		return (
 			<EmptyWrapper>
@@ -32,8 +35,8 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	const noTrashMessage = sprintf(
 		/* translators: %d number of days. */
 		_n(
-			'Responses moved to trash will be deleted forever after %d day.',
-			'Responses moved to trash will be deleted forever after %d days.',
+			'Items in trash are permanently deleted after %d day.',
+			'Items in trash are permanently deleted after %d days.',
 			emptyTrashDays,
 			'jetpack-forms'
 		),
@@ -49,10 +52,7 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	}
 
 	const noSpamHeading = __( 'Lucky you, no spam!', 'jetpack-forms' );
-	const noSpamMessage = __(
-		'Spam responses are automatically trashed after 15 days.',
-		'jetpack-forms'
-	);
+	const noSpamMessage = __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' );
 	if ( status === 'spam' ) {
 		return (
 			<EmptyWrapper>
@@ -64,7 +64,13 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 
 	return (
 		<EmptyWrapper>
-			<p>{ __( 'No responses', 'jetpack-forms' ) }</p>
+			<h4>{ __( "You're set up. No responses yet.", 'jetpack-forms' ) }</h4>
+			<p>
+				{ __(
+					'Share your form to start collecting responses. New items will appear here.',
+					'jetpack-forms'
+				) }
+			</p>
 		</EmptyWrapper>
 	);
 };
