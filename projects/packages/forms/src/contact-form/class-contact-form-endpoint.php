@@ -521,9 +521,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		foreach ( $this->get_keys_to_remove() as $key ) {
+			if ( isset( $schema['properties'][ $key ] ) ) {
+				unset( $schema['properties'][ $key ] );
+			}
+		}
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
+	}
+
+	/**
+	 * Get keys to remove from the endpoint that are usually part of a custom post type but not from the feedback one.
+	 *
+	 * @return array List of keys to remove.
+	 */
+	private function get_keys_to_remove() {
+		return array( 'link', 'password', 'template', 'title', 'content', 'excerpt' );
 	}
 
 	/**
@@ -669,12 +684,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		// Remove field that are not relevant to feedback.
-		unset( $data['link'] );
-		unset( $data['password'] );
-		unset( $data['template'] );
-		unset( $data['title'] );
-		unset( $data['content'] );
-		unset( $data['excerpt'] );
 
 		$response->set_data( $data );
 
