@@ -201,4 +201,11 @@ function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type )
 
 	return $check_mime;
 }
-add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
+
+/**
+ * Add the HEIF upload filter on REST API initialization.
+ */
+function jetpack_wpcom_add_heif_rest_api_filter() {
+	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
+}
+add_action( 'rest_api_init', 'jetpack_wpcom_add_heif_rest_api_filter' );
