@@ -238,4 +238,6 @@ export interface FormsConfigData {
 	exportNonce?: string;
 	/** Nonce for creating a new form (dashboard-only). */
 	newFormNonce?: string;
+	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
+	emptyTrashDays?: number;
 }

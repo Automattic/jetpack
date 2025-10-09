@@ -1140,6 +1140,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
 			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
+			'emptyTrashDays'          => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
 		);
 
 		return rest_ensure_response( $config );

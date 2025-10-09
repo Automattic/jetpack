@@ -18,12 +18,13 @@ import { useRegistry, useDispatch } from '@wordpress/data';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, close, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import useFormsConfig from '../../hooks/use-forms-config';
 import CopyClipboardButton from '../components/copy-clipboard-button';
 import Gravatar from '../components/gravatar';
 import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
@@ -205,6 +206,9 @@ const InboxResponse = ( {
 	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
 
 	const { editEntityRecord } = useDispatch( 'core' );
+
+	const formsConfig = useFormsConfig();
+	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
 
 	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
@@ -678,8 +682,20 @@ const InboxResponse = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip className="jp-forms__inbox-spam">
-					{ __( 'Spam responses are automatically trashed after 15 days.', 'jetpack-forms' ) }
+				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+			) }
+			{ response.status === 'trash' && (
+				<Tip>
+					{ sprintf(
+						/* translators: %d number of days. */
+						_n(
+							'Items in trash are permanently deleted after %d day.',
+							'Items in trash are permanently deleted after %d days.',
+							emptyTrashDays,
+							'jetpack-forms'
+						),
+						emptyTrashDays
+					) }
 				</Tip>
 			) }
 		</>
