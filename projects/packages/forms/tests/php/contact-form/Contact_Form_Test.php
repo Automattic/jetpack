@@ -2724,12 +2724,14 @@ EOT;
 			'disableGoBack'          => false,
 		);
 		// Add a widget ID to the attributes for testing.
-		$expected_attributes                        = $attributes;
-		$expected_attributes['jetpackCRM']          = '1';
-		$expected_attributes['block_template']      = '';
-		$expected_attributes['block_template_part'] = '';
-		$expected_attributes['id']                  = 'widget-string';
-		$expected_attributes['saveResponses']       = 'yes';
+		$expected_attributes                           = $attributes;
+		$expected_attributes['jetpackCRM']             = '1';
+		$expected_attributes['block_template']         = '';
+		$expected_attributes['block_template_part']    = '';
+		$expected_attributes['id']                     = 'widget-string';
+		$expected_attributes['saveResponses']          = 'yes';
+		$expected_attributes['disableGoBack']          = '';
+		$expected_attributes['notificationRecipients'] = array();
 
 		$form = new Contact_Form(
 			$attributes,

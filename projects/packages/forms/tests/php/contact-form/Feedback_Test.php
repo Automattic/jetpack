@@ -2649,4 +2649,180 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertFalse( $result, 'mark_as_unread should return false on DB failure' );
 		$this->assertFalse( $feedback->is_unread(), 'Feedback should remain read' );
 	}
+
+	/**
+	 * Test that notification recipients are stored and retrieved correctly.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_notification_recipients_handling() {
+		// Create valid users with edit capabilities
+		$user_id_1 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_1',
+				'user_email' => 'user1@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$user_id_2 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_2',
+				'user_email' => 'user2@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array( (string) $user_id_1, (string) $user_id_2 ),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $response->get_notification_recipients(), 'Notification recipients should match for form submission' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $saved_response->get_notification_recipients(), 'Notification recipients should match for saved response' );
+
+		// Clean up
+		wp_delete_user( $user_id_1 );
+		wp_delete_user( $user_id_2 );
+	}
+
+	/**
+	 * Test that notification recipients default to empty array when not set.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_notification_recipients_default_empty() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array(), $response->get_notification_recipients(), 'Notification recipients should default to empty array' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array(), $saved_response->get_notification_recipients(), 'Saved notification recipients should default to empty array' );
+	}
+
+	/**
+	 * Test that notification recipients validates user capabilities.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_notification_recipients_validates_capabilities() {
+		// Create users with different capabilities
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_user',
+				'user_email' => 'admin@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_email' => 'editor@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$author_id = wp_insert_user(
+			array(
+				'user_login' => 'author_user',
+				'user_email' => 'author@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'author',
+			)
+		);
+
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'subscriber_user',
+				'user_email' => 'subscriber@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		// Include admin, editor, author, subscriber, and a non-existent user ID
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array(
+					(string) $admin_id,
+					(string) $editor_id,
+					(string) $author_id,
+					(string) $subscriber_id,
+					'999999', // Non-existent user
+				),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Only admin, editor, and author should be included (they have edit_posts capability)
+		// Subscriber and non-existent user should be filtered out
+		$expected_recipients = array(
+			(string) $admin_id,
+			(string) $editor_id,
+			(string) $author_id,
+		);
+
+		$this->assertEquals( $expected_recipients, $response->get_notification_recipients(), 'Only users with edit capabilities should be included' );
+
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		$this->assertEquals( $expected_recipients, $saved_response->get_notification_recipients(), 'Saved response should maintain validated recipients' );
+
+		// Clean up
+		wp_delete_user( $admin_id );
+		wp_delete_user( $editor_id );
+		wp_delete_user( $author_id );
+		wp_delete_user( $subscriber_id );
+	}
 }
