@@ -33,6 +33,21 @@
 			color: hsl(from currentColor h s l / 0.6);
 		}
 	}
+
+	/* Override CodeMirror's font family to respect them and editor settings. */
+	.cm-scroller {
+		font-family: inherit;
+	}
+
+	.cm-gutters {
+		color: oklch(from currentColor l c h / 0.6);
+		background-color: transparent;
+		border: none;
+	}
+
+	.cm-gutterElement {
+		backdrop-filter: blur(1em);
+	}
 }
 
 .a8c\/code__filename.components-base-control {
@@ -47,6 +62,3 @@
 		color: inherit;
 	}
 }
-
-/* vi: ts=2 sw=2 noet
- */

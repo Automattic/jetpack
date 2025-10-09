@@ -73,22 +73,22 @@
 		padding: 4px 0 !important;
 		line-height: inherit !important;
 
-		/* prevent empty lines from collapsing vertically in rendered views */
-		.cm-line:empty::after {
-			content: "\00a0";
-		}
-
-		> code {
-			font-size: inherit !important;
-			margin: 0 !important;
-			padding: 0 !important;
-			line-height: inherit !important;
-			font-family: inherit !important;
-		}
 	}
 
-	.cm-line::before {
+	 code {
+		font-size: inherit !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		line-height: inherit !important;
+		font-family: inherit !important;
+	}
 
+	/* prevent empty lines from collapsing vertically in rendered views */
+	.cm-line:empty::after {
+		content: "\A0";
+	}
+	/* prevent empty lines from collapsing vertically in rendered views */
+	.cm-line::before {
 		/* Essential for layout */
 		box-sizing: content-box !important;
 	}
@@ -96,56 +96,6 @@
 	.cm-line {
 		display: block;
 		padding: 0 2px 0 6px;
-	}
-
-	.cm-gutters {
-		position: sticky;
-		flex-shrink: 0;
-		display: flex;
-		height: 100%;
-		box-sizing: border-box;
-		inset-inline-start: 0;
-		z-index: 200;
-
-		backdrop-filter: blur(1em);
-
-		background-color: initial;
-		border-right: none;
-
-		color: oklch(from currentColor l c h / 0.6);
-	}
-
-	.cm-gutter {
-		display: flex !important;
-		flex-direction: column;
-		flex-shrink: 0;
-		box-sizing: border-box;
-		min-height: 100%;
-		overflow: hidden;
-
-		font-family: var(--font-family);
-	}
-
-	.cm-gutterElement {
-		box-sizing: border-box;
-		min-width: 20px;
-		text-align: right;
-		white-space: nowrap;
-
-		&:first-child {
-			margin-top: 4px;
-		}
-
-		&:last-child {
-			margin-bottom: 4px;
-		}
-	}
-
-	.cm-lineNumbers .cm-gutterElement {
-		padding: 0 3px 0 5px;
-		min-width: 20px;
-		text-align: right;
-		white-space: nowrap;
 	}
 
 	.tok-link {
