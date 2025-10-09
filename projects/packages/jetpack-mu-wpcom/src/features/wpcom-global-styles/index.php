@@ -56,13 +56,13 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 	}
 
 	// Do not limit Global Styles on theme demo sites.
-	if ( wpcom_global_styles_has_blog_sticker( 'theme-demo-site', $blog_id ) ) {
+	if ( wpcom_has_blog_sticker( 'theme-demo-site', $blog_id ) ) {
 		return false;
 	}
 
 	// Do not limit Global Styles on Big Sky free trial sites. Those sites will
 	// have their own paywall to go through.
-	if ( wpcom_global_styles_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
+	if ( wpcom_has_blog_sticker( 'big-sky-free-trial', $blog_id ) ) {
 		return false;
 	}
 
@@ -89,23 +89,6 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 	}
 
 	return true;
-}
-
-/**
- * Wrapper to test a blog sticker on both Simple and Atomic sites at once.
- *
- * @param string $blog_sticker The blog sticker.
- * @param int    $blog_id The WPCOM blog ID.
- * @return bool Whether the site has the blog sticker.
- */
-function wpcom_global_styles_has_blog_sticker( $blog_sticker, $blog_id ) {
-	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( $blog_sticker, $blog_id ) ) {
-		return true;
-	}
-	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( $blog_sticker ) ) {
-		return true;
-	}
-	return false;
 }
 
 /**
@@ -430,8 +413,8 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 	}
 
 	// If the exemption check has already been performed, just return if the site is exempt.
-	if ( wpcom_global_styles_has_blog_sticker( 'wpcom-premium-global-styles-exemption-checked', $blog_id ) ) {
-		return wpcom_global_styles_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
+	if ( wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exemption-checked', $blog_id ) ) {
+		return wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
 	}
 
 	// If the current user cannot modify the `wp_global_styles` CPT, the exemption check is not needed;
@@ -499,7 +482,7 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	if ( wpcom_global_styles_has_blog_sticker( 'difm-lite-in-progress', $current_blog_id ) ) {
+	if ( wpcom_has_blog_sticker( 'difm-lite-in-progress', $current_blog_id ) ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
 	}
@@ -728,7 +711,7 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 
 	// Users who bought a Personal plan during the GS on Personal experiment should
 	// retain access to Global Styles.
-	if ( wpcom_global_styles_has_blog_sticker( 'wpcom-global-styles-personal-plan', $blog_id ) ) {
+	if ( wpcom_has_blog_sticker( 'wpcom-global-styles-personal-plan', $blog_id ) ) {
 		if ( wpcom_site_has_personal_plan( $blog_id ) ) {
 			return true;
 		} else {
