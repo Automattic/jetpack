@@ -24,6 +24,29 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'vertical', 'horizontal' ],
+			description: 'Bar orientation',
+			table: { category: 'Visual Style' },
+		},
+		gridVisibility: {
+			control: { type: 'radio' },
+			options: [ 'none', 'x', 'y', 'both' ],
+			description: 'Grid line visibility',
+			table: { category: 'Visual Style' },
+		},
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+			table: { category: 'Data' },
+		},
+		withPatterns: {
+			control: 'boolean',
+			description: 'Use patterns for bars',
+			table: { category: 'Visual Style' },
+		},
 	},
 } satisfies Meta< StoryArgs >;
 
