@@ -45,7 +45,7 @@
 		"@codemirror/search": "6.5.11",
 		"@codemirror/state": "6.5.2",
 		"@codemirror/view": "6.38.0",
-		"@gravatar-com/hovercards": "0.10.8",
+		"@gravatar-com/hovercards": "0.15.0",
 		"@gravatar-com/quick-editor": "0.8.0",
 		"@lezer/common": "1.2.3",
 		"@lezer/highlight": "1.2.1",
