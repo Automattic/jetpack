@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Added missing WPCOM feature checks on theme API functions on Atomic.
