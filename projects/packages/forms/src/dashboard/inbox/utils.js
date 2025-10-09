@@ -18,7 +18,12 @@ export const getPath = item => {
  */
 function updateBadge( element, count ) {
 	const oldClass = [ ...element.classList ].find( c => c.startsWith( 'count-' ) );
-	element.classList.replace( oldClass, `count-${ count }` );
+	if ( oldClass ) {
+		element.classList.replace( oldClass, `count-${ count }` );
+	} else {
+		element.classList.add( `count-${ count }` );
+	}
+
 	element.ariaHidden = count > 0 ? 'false' : 'true';
 	element.textContent = formatNumber( count );
 }
