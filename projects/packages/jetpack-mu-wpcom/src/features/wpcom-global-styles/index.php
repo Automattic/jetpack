@@ -460,8 +460,14 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
  * @return bool Whether the global styles notice should be rendered.
  */
 function wpcom_should_show_global_styles_admin_bar() {
-		static $should_show_global_styles_admin_bar = null;
+	static $should_show_global_styles_admin_bar = null;
 	if ( $should_show_global_styles_admin_bar !== null ) {
+		return $should_show_global_styles_admin_bar;
+	}
+
+	// Only show notice in the frontend.
+	if ( is_admin() ) {
+		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
 	}
 
