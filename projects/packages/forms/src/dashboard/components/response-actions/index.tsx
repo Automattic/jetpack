@@ -80,7 +80,7 @@ const ResponseActions = ( {
 	}, [ response, registry ] );
 
 	const handleMarkAsUnread = useCallback( () => {
-		onMarkAsRead( response.id );
+		onMarkAsRead?.( response.id );
 		markAsUnreadAction.callback( [ response ], { registry } );
 	}, [ response, registry, onMarkAsRead ] );
 
