@@ -27,7 +27,7 @@ export const glyphTheme = merge( jetpackTheme, {
 				key: props.key,
 				top: props.y,
 				left: props.x,
-				size: props.size,
+				size: props.size * props.size,
 				fill: props.color,
 			} ),
 		props =>
@@ -35,7 +35,7 @@ export const glyphTheme = merge( jetpackTheme, {
 				key: props.key,
 				top: props.y,
 				left: props.x,
-				size: props.size,
+				size: props.size * props.size,
 				fill: props.color,
 			} ),
 	],
@@ -51,10 +51,10 @@ export const glyphTheme = merge( jetpackTheme, {
  */
 export const glyphRenderers = {
 	star: ( { color, size, x, y } ) => (
-		<GlyphStar top={ y } left={ x } size={ size } fill={ color } />
+		<GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />
 	),
 	starOutline: ( { color, size, x, y } ) => (
-		<GlyphStar top={ y } left={ x } size={ size } fill="#fff" stroke={ color } />
+		<GlyphStar top={ y } left={ x } size={ size * size } fill="#fff" stroke={ color } />
 	),
 	heart: ( { color, size, x, y } ) => {
 		const hasXY = typeof x === 'number' && typeof y === 'number';
