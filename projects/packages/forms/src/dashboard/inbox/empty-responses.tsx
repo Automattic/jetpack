@@ -1,10 +1,18 @@
-import { __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import useFormsConfig from '../../hooks/use-forms-config';
 
-const EmptyWrapper = ( { children } ) => (
-	<VStack alignment="center" spacing="0">
-		{ children }
+const EmptyWrapper = ( { heading = '', body = '' } ) => (
+	<VStack alignment="center" spacing="2">
+		{ heading && (
+			<Text as="h3" weight="500" size="15">
+				{ heading }
+			</Text>
+		) }
+		{ body && <Text variant="muted">{ body }</Text> }
 	</VStack>
 );
 
@@ -23,12 +31,7 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 		'jetpack-forms'
 	);
 	if ( isSearch ) {
-		return (
-			<EmptyWrapper>
-				<h4>{ searchHeading }</h4>
-				<p>{ searchMessage }</p>
-			</EmptyWrapper>
-		);
+		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
 	}
 
 	const noTrashHeading = __( 'Trash is empty', 'jetpack-forms' );
@@ -44,34 +47,24 @@ const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
 	);
 	if ( status === 'trash' ) {
 		return (
-			<EmptyWrapper>
-				<h4>{ noTrashHeading }</h4>
-				<p>{ emptyTrashDays > 0 && noTrashMessage }</p>;
-			</EmptyWrapper>
+			<EmptyWrapper heading={ noTrashHeading } body={ emptyTrashDays > 0 && noTrashMessage } />
 		);
 	}
 
 	const noSpamHeading = __( 'Lucky you, no spam!', 'jetpack-forms' );
 	const noSpamMessage = __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' );
 	if ( status === 'spam' ) {
-		return (
-			<EmptyWrapper>
-				<h4>{ noSpamHeading }</h4>
-				<p>{ noSpamMessage }</p>
-			</EmptyWrapper>
-		);
+		return <EmptyWrapper heading={ noSpamHeading } body={ noSpamMessage } />;
 	}
 
 	return (
-		<EmptyWrapper>
-			<h4>{ __( "You're set up. No responses yet.", 'jetpack-forms' ) }</h4>
-			<p>
-				{ __(
-					'Share your form to start collecting responses. New items will appear here.',
-					'jetpack-forms'
-				) }
-			</p>
-		</EmptyWrapper>
+		<EmptyWrapper
+			heading={ __( "You're set up. No responses yet.", 'jetpack-forms' ) }
+			body={ __(
+				'Share your form to start collecting responses. New items will appear here.',
+				'jetpack-forms'
+			) }
+		/>
 	);
 };
 
