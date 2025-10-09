@@ -294,14 +294,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'parent' => array(
-						'description'       => 'Limit results to those of specific parent IDs.',
-						'type'              => 'array',
-						'items'             => array(
-							'type' => 'integer',
-						),
-						'sanitize_callback' => function ( $value ) {
-							return array_map( 'absint', (array) $value );
-						},
+						'description'       => 'Limit results to those of a specific parent ID.',
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'before' => array(
@@ -390,9 +385,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
 		}
 
-		if ( ! empty( $parent ) && is_array( $parent ) ) {
-			$parent_ids_string  = implode( ',', array_map( 'absint', $parent ) );
-			$where_conditions[] = "post_parent IN ($parent_ids_string)";
+		if ( ! empty( $parent ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_parent = %d', $parent );
 		}
 
 		if ( ! empty( $before ) ) {
