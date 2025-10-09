@@ -1,9 +1,9 @@
-import type { RichTextValue } from '@wordpress/rich-text';
+import type { RichTextData } from '@wordpress/rich-text';
 export const BLOCK_NAME = 'core/code';
 
 export interface Attributes {
 	/** The code string */
-	content: RichTextValue;
+	content: RichTextData;
 
 	/**
 	 * An array of lines and spans of text.

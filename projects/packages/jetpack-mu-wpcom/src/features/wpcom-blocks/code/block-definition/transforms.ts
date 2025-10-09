@@ -4,7 +4,7 @@ import { extensionToLang } from '@@codemirrorLanguageData@@';
 import * as wpBlocks from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { create as createRichText } from '@wordpress/rich-text';
+import { RichTextData } from '@wordpress/rich-text';
 import { type Attributes, BLOCK_NAME } from '../common/block.ts';
 
 const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
@@ -58,7 +58,7 @@ export const transforms = {
 				language?: string;
 			} ) => {
 				const blockAttributes: Partial< Attributes > = {
-					content: createRichText( { text: code } ),
+					content: RichTextData.fromPlainText( code ),
 				};
 				if ( attributes.lineNumbers === true ) {
 					blockAttributes.showLineNumbers = true;
@@ -94,7 +94,7 @@ export const transforms = {
 				firstLineNumber?: string;
 			} ) => {
 				const blockAttributes: Partial< Attributes > = {
-					content: createRichText( { text: content } ),
+					content: RichTextData.fromPlainText( content ),
 				};
 
 				/*
