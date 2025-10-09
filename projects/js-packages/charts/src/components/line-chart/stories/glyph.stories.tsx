@@ -49,6 +49,32 @@ const meta: Meta< StoryArgs > = {
 			...themeArgTypes.themeName,
 			options: [ 'default', 'jetpack', 'woo', 'custom', 'glyph' ],
 		},
+		withStartGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line start',
+			table: { category: 'Glyphs' },
+		},
+		withEndGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line end',
+			table: { category: 'Glyphs' },
+		},
+		withLegendGlyph: {
+			control: 'boolean',
+			description: 'Show glyphs in legend',
+			table: { category: 'Glyphs' },
+		},
+		glyphType: {
+			control: 'radio',
+			options: [ 'default', 'star', 'heart' ],
+			description: 'Glyph shape',
+			table: { category: 'Glyphs' },
+		},
+		glyphSize: {
+			control: { type: 'range', min: 4, max: 16, step: 1 },
+			description: 'Glyph size (radius)',
+			table: { category: 'Glyphs' },
+		},
 	},
 };
 
