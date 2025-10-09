@@ -75,7 +75,7 @@
 
 	}
 
-	 code {
+	code {
 		font-size: inherit !important;
 		margin: 0 !important;
 		padding: 0 !important;
@@ -87,8 +87,10 @@
 	.cm-line:empty::after {
 		content: "\A0";
 	}
+
 	/* prevent empty lines from collapsing vertically in rendered views */
 	.cm-line::before {
+
 		/* Essential for layout */
 		box-sizing: content-box !important;
 	}
