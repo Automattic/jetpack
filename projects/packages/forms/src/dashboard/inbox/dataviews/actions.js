@@ -51,6 +51,12 @@ export const markAsSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'spam', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
@@ -107,6 +113,12 @@ export const markAsNotSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'spam', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -165,6 +177,12 @@ export const restoreAction = {
 	async callback( items, { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -215,6 +233,12 @@ export const moveToTrashAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'trash', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
@@ -263,8 +287,13 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateFilters } = registry.dispatch( dashboardStore );
+		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'deleted', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
@@ -307,7 +336,8 @@ export const markAsReadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
-		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
+		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
@@ -317,9 +347,9 @@ export const markAsReadAction = {
 
 				// Optimistically update entity in store
 				if ( currentEntity ) {
-					receiveEntityRecords( 'postType', 'feedback', [
-						{ ...currentEntity, is_unread: false },
-					] );
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: false,
+					} );
 				}
 
 				// Update on server
@@ -335,9 +365,9 @@ export const markAsReadAction = {
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
 						if ( currentEntity ) {
-							receiveEntityRecords( 'postType', 'feedback', [
-								{ ...currentEntity, is_unread: true },
-							] );
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: true,
+							} );
 						}
 						throw new Error( 'Failed to mark as read' );
 					} );
@@ -385,7 +415,7 @@ export const markAsUnreadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
-		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
@@ -395,7 +425,9 @@ export const markAsUnreadAction = {
 
 				// Optimistically update entity in store
 				if ( currentEntity ) {
-					receiveEntityRecords( 'postType', 'feedback', [ { ...currentEntity, is_unread: true } ] );
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: true,
+					} );
 				}
 
 				// Update on server
@@ -411,9 +443,9 @@ export const markAsUnreadAction = {
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
 						if ( currentEntity ) {
-							receiveEntityRecords( 'postType', 'feedback', [
-								{ ...currentEntity, is_unread: false },
-							] );
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: false,
+							} );
 						}
 						throw new Error( 'Failed to mark as unread' );
 					} );

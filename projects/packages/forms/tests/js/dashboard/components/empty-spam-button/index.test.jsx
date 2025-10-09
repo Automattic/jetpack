@@ -73,6 +73,9 @@ jest.mock( '@wordpress/data', () => {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		invalidateResolution: jest.fn(),
+		setCounts: jest.fn(),
+		setCurrentQuery: jest.fn(),
+		setSelectedResponses: jest.fn(),
 	};
 
 	const mockSelect = {
@@ -81,6 +84,9 @@ jest.mock( '@wordpress/data', () => {
 		getCurrentQuery: jest.fn().mockReturnValue( {} ),
 		getFilters: jest.fn().mockReturnValue( {} ),
 		getCounts: jest.fn().mockReturnValue( { inbox: 0, spam: 1, trash: 0 } ),
+		getInboxCount: jest.fn().mockReturnValue( 0 ),
+		getSpamCount: jest.fn().mockReturnValue( 1 ),
+		getTrashCount: jest.fn().mockReturnValue( 0 ),
 	};
 
 	return {
@@ -90,6 +96,13 @@ jest.mock( '@wordpress/data', () => {
 			}
 			if ( store === 'core' ) {
 				return { invalidateResolution: mockDispatch.invalidateResolution };
+			}
+			if ( store === 'dashboard' ) {
+				return {
+					setCounts: mockDispatch.setCounts,
+					setCurrentQuery: mockDispatch.setCurrentQuery,
+					setSelectedResponses: mockDispatch.setSelectedResponses,
+				};
 			}
 			return {};
 		} ),

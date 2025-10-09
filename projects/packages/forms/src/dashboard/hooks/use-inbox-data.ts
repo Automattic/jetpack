@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { useSearchParams } from 'react-router';
 /**
@@ -58,16 +58,27 @@ interface UseInboxDataReturn {
  */
 export default function useInboxData(): UseInboxDataReturn {
 	const [ searchParams ] = useSearchParams();
-	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
+	const { setCurrentQuery, setSelectedResponses, setCounts } = useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useSelect(
 		select => ( {
 			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
 			currentStatus: select( dashboardStore ).getCurrentStatus(),
 			currentQuery: select( dashboardStore ).getCurrentQuery(),
 			filterOptions: select( dashboardStore ).getFilters(),
+			totalItemsInbox: select( dashboardStore ).getInboxCount(),
+			totalItemsSpam: select( dashboardStore ).getSpamCount(),
+			totalItemsTrash: select( dashboardStore ).getTrashCount(),
 		} ),
 		[]
 	);
@@ -81,7 +92,6 @@ export default function useInboxData(): UseInboxDataReturn {
 		...currentQuery,
 	} );
 
-	// Merge raw records with any local edits from editEntityRecord
 	const records = useSelect(
 		select => {
 			return ( rawRecords || [] ).map( record => {
@@ -97,62 +107,40 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	// Normalize the current query values to ensure consistent comparisons.
-	const searchValue = currentQuery?.search || undefined;
-	const parentValue = currentQuery?.parent || undefined;
-	const beforeValue = currentQuery?.before || undefined;
-	const afterValue = currentQuery?.after || undefined;
-
-	const countsQueryParams = useMemo( () => {
-		const params: Record< string, unknown > = {};
-		if ( searchValue ) {
-			params.search = searchValue;
-		}
-		if ( parentValue ) {
-			params.parent = parentValue;
-		}
-		if ( beforeValue ) {
-			params.before = beforeValue;
-		}
-		if ( afterValue ) {
-			params.after = afterValue;
-		}
-		return params;
-	}, [ searchValue, parentValue, beforeValue, afterValue ] );
-
-	// Fetch counts using the optimized endpoint
-	const [ counts, setCounts ] = useState< { inbox: number; spam: number; trash: number } | null >(
-		null
-	);
-	const [ isLoadingCounts, setIsLoadingCounts ] = useState( true );
+	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
 
 	useEffect( () => {
-		let isCancelled = false;
-		setIsLoadingCounts( true );
-
-		const path = addQueryArgs( '/wp/v2/feedback/counts', countsQueryParams );
-
-		apiFetch< { inbox: number; spam: number; trash: number } >( { path } )
-			.then( results => {
-				if ( ! isCancelled ) {
-					setCounts( results );
-					setIsLoadingCounts( false );
-				}
-			} )
-			.catch( () => {
-				if ( ! isCancelled ) {
-					setIsLoadingCounts( false );
-				}
+		const fetchCounts = async () => {
+			setIsLoadingCounts( true );
+			const params: Record< string, unknown > = {};
+			if ( currentQuery?.search ) {
+				params.search = currentQuery.search;
+			}
+			if ( currentQuery?.parent ) {
+				params.parent = currentQuery.parent;
+			}
+			if ( currentQuery?.before ) {
+				params.before = currentQuery.before;
+			}
+			if ( currentQuery?.after ) {
+				params.after = currentQuery.after;
+			}
+			const path = addQueryArgs( '/wp/v2/feedback/counts', params );
+			const response = await apiFetch< { inbox: number; spam: number; trash: number } >( {
+				path,
 			} );
-
-		return () => {
-			isCancelled = true;
+			setCounts( response );
+			setIsLoadingCounts( false );
 		};
-	}, [ countsQueryParams ] );
 
-	const totalItemsInbox = counts?.inbox ?? 0;
-	const totalItemsSpam = counts?.spam ?? 0;
-	const totalItemsTrash = counts?.trash ?? 0;
+		fetchCounts();
+	}, [
+		currentQuery?.search,
+		currentQuery?.parent,
+		currentQuery?.before,
+		currentQuery?.after,
+		setCounts,
+	] );
 
 	return {
 		totalItemsInbox,
