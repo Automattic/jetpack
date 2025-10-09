@@ -682,12 +682,10 @@ const InboxResponse = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip className="jp-forms__inbox-response-tip">
-					{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }
-				</Tip>
+				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
 			) }
 			{ response.status === 'trash' && (
-				<Tip className="jp-forms__inbox-response-tip">
+				<Tip>
 					{ sprintf(
 						/* translators: %d number of days. */
 						_n(

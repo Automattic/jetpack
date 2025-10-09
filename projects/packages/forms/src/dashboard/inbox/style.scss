@@ -406,10 +406,12 @@
 	}
 
 	.components-tip {
+		align-items: anchor-center;
 		background-color: rgba(var(--wp-admin-theme-color--rgb), 0.04);
-		margin: 0 24px 16px;
+		border-radius: variables.$radius-small;
+		margin: 8px 24px 16px;
 		padding: 8px 16px;
-		border-radius: 4px;
+		text-wrap: pretty;
 	}
 }
 
@@ -526,9 +528,4 @@ body.jetpack_page_jetpack-forms-admin {
 	margin-right: 4.5px;
 	margin-left: -12px;
 	vertical-align: middle;
-}
-
-.jp-forms__inbox-response-tip {
-	align-items: anchor-center;
-	text-wrap: pretty;
 }
