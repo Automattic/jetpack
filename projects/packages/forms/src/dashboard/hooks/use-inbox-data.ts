@@ -97,9 +97,9 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	// Build counts query params - normalize values to avoid unnecessary refetches
+	// Normalize the current query values to ensure consistent comparisons.
 	const searchValue = currentQuery?.search || undefined;
-	const parentValue = currentQuery?.parent?.length ? currentQuery.parent : undefined;
+	const parentValue = currentQuery?.parent || undefined;
 	const beforeValue = currentQuery?.before || undefined;
 	const afterValue = currentQuery?.after || undefined;
 
