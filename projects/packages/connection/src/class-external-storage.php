@@ -128,11 +128,8 @@ class External_Storage {
 	 * @param string $environment The environment identifier (atomic, vip, etc.).
 	 */
 	public static function log_event( $event_type, $key, $details = '', $environment = 'unknown' ) {
-		// Apply rate limiting to prevent log spam
-		if ( ! self::should_log_event( $key ) ) {
-			return;
-		}
 		// Local debug logging (only when WP_DEBUG is enabled)
+		// Always allow local logging for debugging, regardless of rate limits
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				sprintf(
@@ -147,6 +144,11 @@ class External_Storage {
 
 		// Only report 'error' and 'empty' events to WordPress.com
 		if ( 'error' !== $event_type && 'empty' !== $event_type ) {
+			return;
+		}
+
+		// Check rate limiting before attempting to report to WordPress.com
+		if ( ! self::should_log_event( $key ) ) {
 			return;
 		}
 
@@ -184,6 +186,9 @@ class External_Storage {
 
 		$error = new \WP_Error( $error_code, $error_message, $error_data );
 		Error_Handler::get_instance()->report_error( $error, false, true );
+
+		// Set rate limit AFTER successful reporting to prevent repeated reports
+		self::set_rate_limit( $key );
 	}
 
 	/**
@@ -225,7 +230,7 @@ class External_Storage {
 	 * Determine if we should report an empty state based on delay mechanism.
 	 * We need this due to delays in writing in external storage vs writing into the database.
 	 * On first encounter of empty state, sets a transient. On subsequent encounters
-	 * after 10 minutes, allows reporting (indicating likely disconnection, not sync delay).
+	 * after 3 minutes, allows reporting (indicating likely disconnection, not sync delay).
 	 *
 	 * @since 6.18.0
 	 *
@@ -242,10 +247,10 @@ class External_Storage {
 			return false;
 		}
 
-		// Check if 10 minutes have passed since first empty encounter
-		$delay_threshold = 10 * MINUTE_IN_SECONDS;
+		// Check if 3 minutes have passed since first empty encounter
+		$delay_threshold = 3 * MINUTE_IN_SECONDS;
 		if ( ( time() - $first_empty_time ) >= $delay_threshold ) {
-			// 10+ minutes of empty state - likely disconnection, report it
+			// 3+ minutes of empty state - likely disconnection, report it
 			delete_transient( $delay_key );
 			return true;
 		}
@@ -256,24 +261,34 @@ class External_Storage {
 	/**
 	 * Determine if an event should be logged based on rate limiting rules.
 	 *
-	 * This prevents log spam from noisy events by applying a simple one-hour
-	 * rate limit per key, regardless of event type.
+	 * This prevents log spam from noisy events by checking if a rate limit
+	 * is currently active for the given key.
 	 *
 	 * @since 6.18.0
 	 *
-	 * @param string $key        The key that triggered the event.
+	 * @param string $key The key that triggered the event.
 	 * @return bool True if the event should be logged, false if rate limited.
 	 */
 	private static function should_log_event( $key ) {
 		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $key;
 
 		// Check if we're still within the rate limit period
-		if ( get_transient( $rate_limit_key ) ) {
-			return false;
-		}
+		return ! get_transient( $rate_limit_key );
+	}
 
+	/**
+	 * Set a rate limit for a given key to prevent repeated reporting.
+	 *
+	 * This is called after successfully reporting an error to WordPress.com
+	 * to prevent the same issue from being reported multiple times within
+	 * a one-hour window.
+	 *
+	 * @since 6.18.0
+	 *
+	 * @param string $key The key to set a rate limit for.
+	 */
+	private static function set_rate_limit( $key ) {
+		$rate_limit_key = 'jetpack_ext_storage_rate_limit_' . $key;
 		set_transient( $rate_limit_key, true, HOUR_IN_SECONDS );
-
-		return true;
 	}
 }
