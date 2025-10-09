@@ -35,6 +35,8 @@ const meta: Meta< StoryArgs > = {
 				step: 10,
 				default: 400,
 			},
+			description: 'Diameter of the pie chart in pixels',
+			table: { category: 'Dimensions' },
 		},
 		thickness: {
 			control: {
@@ -43,6 +45,8 @@ const meta: Meta< StoryArgs > = {
 				max: 1,
 				step: 0.01,
 			},
+			description: 'Thickness of the pie (1 = full pie, <1 = donut)',
+			table: { category: 'Visual Style' },
 		},
 		padding: {
 			control: {
@@ -51,6 +55,8 @@ const meta: Meta< StoryArgs > = {
 				max: 100,
 				step: 1,
 			},
+			description: 'Internal padding around the chart',
+			table: { category: 'Dimensions' },
 		},
 		gapScale: {
 			control: {
@@ -59,6 +65,8 @@ const meta: Meta< StoryArgs > = {
 				max: 1,
 				step: 0.01,
 			},
+			description: 'Scale of gaps between segments (0 = no gaps)',
+			table: { category: 'Visual Style' },
 		},
 		cornerScale: {
 			control: {
@@ -67,18 +75,23 @@ const meta: Meta< StoryArgs > = {
 				max: 1,
 				step: 0.01,
 			},
+			description: 'Scale of rounded corners on segments (0 = sharp corners)',
+			table: { category: 'Visual Style' },
 		},
 		labelTextColor: {
 			control: { type: 'color' },
 			description: 'Color of the label text displayed on pie chart segments',
+			table: { category: 'Labels' },
 		},
 		labelBackgroundColor: {
 			control: { type: 'color' },
 			description: 'Background color for labels displayed on pie chart segments',
+			table: { category: 'Labels' },
 		},
 		showLabels: {
 			control: 'boolean',
 			description: 'Show or hide labels on pie segments',
+			table: { category: 'Labels' },
 		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
