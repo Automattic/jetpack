@@ -340,8 +340,9 @@ export const markAsReadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
 		const promises = await Promise.allSettled(
-			items.map( async ( { id } ) => {
+			items.map( async ( { id, status } ) => {
 				// Get current entity from store
 				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
 
@@ -351,8 +352,10 @@ export const markAsReadAction = {
 						is_unread: false,
 					} );
 
-					// Immediately update menu counters optimistically to avoid delays
-					updateMenuCounterOptimistically( -items.length );
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( -1 );
+					}
 				}
 
 				// Update on server
@@ -362,7 +365,7 @@ export const markAsReadAction = {
 					data: { is_unread: false },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the menu.
+						// Update menu counter with accurate count from server.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
@@ -372,8 +375,10 @@ export const markAsReadAction = {
 								is_unread: true,
 							} );
 
-							// Revert the change in the sidebar
-							updateMenuCounterOptimistically( items.length );
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( 1 );
+							}
 						}
 						throw new Error( 'Failed to mark as read' );
 					} );
@@ -425,7 +430,7 @@ export const markAsUnreadAction = {
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
-			items.map( async ( { id } ) => {
+			items.map( async ( { id, status } ) => {
 				// Get current entity from store
 				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
 
@@ -435,8 +440,10 @@ export const markAsUnreadAction = {
 						is_unread: true,
 					} );
 
-					// Immediately update menu counters optimistically to avoid delays
-					updateMenuCounterOptimistically( items.length );
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( 1 );
+					}
 				}
 
 				// Update on server
@@ -446,7 +453,7 @@ export const markAsUnreadAction = {
 					data: { is_unread: true },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the menu.
+						// Update menu counter with accurate count from server.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
@@ -456,8 +463,10 @@ export const markAsUnreadAction = {
 								is_unread: false,
 							} );
 
-							// Revert the change in the sidebar
-							updateMenuCounterOptimistically( -items.length );
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( -1 );
+							}
 						}
 						throw new Error( 'Failed to mark as unread' );
 					} );

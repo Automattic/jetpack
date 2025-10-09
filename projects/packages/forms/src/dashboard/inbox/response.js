@@ -551,7 +551,9 @@ const InboxResponse = ( {
 		} );
 
 		// Immediately update menu counters optimistically to avoid delays
-		updateMenuCounterOptimistically( -1 );
+		if ( response.status === 'publish' ) {
+			updateMenuCounterOptimistically( -1 );
+		}
 
 		// Then update on server
 		apiFetch( {
@@ -570,7 +572,9 @@ const InboxResponse = ( {
 				} );
 
 				// Revert the change in the sidebar
-				updateMenuCounterOptimistically( 1 );
+				if ( response.status === 'publish' ) {
+					updateMenuCounterOptimistically( 1 );
+				}
 			} );
 	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 
