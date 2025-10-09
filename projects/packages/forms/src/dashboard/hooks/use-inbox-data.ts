@@ -62,19 +62,12 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const {
-		selectedResponsesCount,
-		currentStatus,
-		currentQuery,
-		filterOptions,
-		countsInvalidationKey,
-	} = useSelect(
+	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
 		select => ( {
 			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
 			currentStatus: select( dashboardStore ).getCurrentStatus(),
 			currentQuery: select( dashboardStore ).getCurrentQuery(),
 			filterOptions: select( dashboardStore ).getFilters(),
-			countsInvalidationKey: select( dashboardStore ).getCountsInvalidationKey(),
 		} ),
 		[]
 	);
@@ -104,34 +97,40 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
+	// Build counts query params - normalize values to avoid unnecessary refetches
+	const searchValue = currentQuery?.search || undefined;
+	const parentValue = currentQuery?.parent?.length ? currentQuery.parent : undefined;
+	const beforeValue = currentQuery?.before || undefined;
+	const afterValue = currentQuery?.after || undefined;
+
+	const countsQueryParams = useMemo( () => {
+		const params: Record< string, unknown > = {};
+		if ( searchValue ) {
+			params.search = searchValue;
+		}
+		if ( parentValue ) {
+			params.parent = parentValue;
+		}
+		if ( beforeValue ) {
+			params.before = beforeValue;
+		}
+		if ( afterValue ) {
+			params.after = afterValue;
+		}
+		return params;
+	}, [ searchValue, parentValue, beforeValue, afterValue ] );
+
 	// Fetch counts using the optimized endpoint
 	const [ counts, setCounts ] = useState< { inbox: number; spam: number; trash: number } | null >(
 		null
 	);
 	const [ isLoadingCounts, setIsLoadingCounts ] = useState( true );
 
-	const countsQuery = useMemo( () => {
-		const query: Record< string, unknown > = {};
-		if ( currentQuery?.search ) {
-			query.search = currentQuery.search;
-		}
-		if ( currentQuery?.parent ) {
-			query.parent = currentQuery.parent;
-		}
-		if ( currentQuery?.before ) {
-			query.before = currentQuery.before;
-		}
-		if ( currentQuery?.after ) {
-			query.after = currentQuery.after;
-		}
-		return query;
-	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
-
 	useEffect( () => {
 		let isCancelled = false;
 		setIsLoadingCounts( true );
 
-		const path = addQueryArgs( '/wp/v2/feedback/counts', countsQuery );
+		const path = addQueryArgs( '/wp/v2/feedback/counts', countsQueryParams );
 
 		apiFetch< { inbox: number; spam: number; trash: number } >( { path } )
 			.then( results => {
@@ -149,7 +148,7 @@ export default function useInboxData(): UseInboxDataReturn {
 		return () => {
 			isCancelled = true;
 		};
-	}, [ countsQuery, countsInvalidationKey ] );
+	}, [ countsQueryParams ] );
 
 	const totalItemsInbox = counts?.inbox ?? 0;
 	const totalItemsSpam = counts?.spam ?? 0;

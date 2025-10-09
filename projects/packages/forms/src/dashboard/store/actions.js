@@ -5,10 +5,9 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	SET_SELECTED_RESPONSES,
 	RECEIVE_FILTERS,
-	RECEIVE_COUNTS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
-	INVALIDATE_COUNTS,
+	RECEIVE_COUNTS,
 } from './action-types';
 
 /**
@@ -28,25 +27,6 @@ export function receiveFilters( filters ) {
 // the filters in the dashboard to reflect the changes.
 export const invalidateFilters = () => {
 	return { type: INVALIDATE_FILTERS };
-};
-
-/**
- * Receive the counts for inbox, spam, and trash.
- *
- * @param {object} counts - The counts object with inbox, spam, and trash.
- * @return {object} Action object.
- */
-export function receiveCounts( counts ) {
-	return {
-		type: RECEIVE_COUNTS,
-		counts,
-	};
-}
-
-// When we perform actions that change counts (delete, spam, trash, etc.),
-// we need to invalidate the counts to refetch them.
-export const invalidateCounts = () => {
-	return { type: INVALIDATE_COUNTS };
 };
 
 /**
@@ -70,6 +50,19 @@ export function setCurrentQuery( currentQuery ) {
 	return {
 		type: SET_CURRENT_QUERY,
 		currentQuery,
+	};
+}
+
+/**
+ * Receive counts for the responses.
+ *
+ * @param {object} counts - Counts for the responses.
+ * @return {object} Action object.
+ */
+export function receiveCounts( counts ) {
+	return {
+		type: RECEIVE_COUNTS,
+		counts,
 	};
 }
 

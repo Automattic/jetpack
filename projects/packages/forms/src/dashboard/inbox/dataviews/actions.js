@@ -54,14 +54,10 @@ export const markAsSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		if ( itemsUpdated.length ) {
-			invalidateCounts();
-		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -114,16 +110,12 @@ export const markAsNotSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		if ( itemsUpdated.length ) {
-			invalidateCounts();
-		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -176,14 +168,12 @@ export const restoreAction = {
 	async callback( items, { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			invalidateCounts();
 			const successMessage =
 				items.length === 1
 					? __( 'Response restored.', 'jetpack-forms' )
@@ -228,14 +218,12 @@ export const moveToTrashAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
 			)
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			invalidateCounts();
 			const successMessage =
 				items.length === 1
 					? __( 'Response moved to trash.', 'jetpack-forms' )
@@ -278,7 +266,7 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateFilters, invalidateCounts } = registry.dispatch( dashboardStore );
+		const { invalidateFilters } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
@@ -286,10 +274,9 @@ export const deleteAction = {
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
-		// If there is at least one successful update, invalidate the cache for filters and counts.
+		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
-			invalidateCounts();
 		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
@@ -323,12 +310,21 @@ export const markAsReadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
-		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( async ( { id } ) => {
-				// Update entity in store
-				editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					receiveEntityRecords( 'postType', 'feedback', [
+						{ ...currentEntity, is_unread: false },
+					] );
+				}
+
 				// Update on server
 				return apiFetch( {
 					path: `/wp/v2/feedback/${ id }/read`,
@@ -341,7 +337,11 @@ export const markAsReadAction = {
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+						if ( currentEntity ) {
+							receiveEntityRecords( 'postType', 'feedback', [
+								{ ...currentEntity, is_unread: true },
+							] );
+						}
 						throw new Error( 'Failed to mark as read' );
 					} );
 			} )
@@ -388,12 +388,19 @@ export const markAsUnreadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
-		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { receiveEntityRecords } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
 			items.map( async ( { id } ) => {
-				// Update entity in store
-				editEntityRecord( 'postType', 'feedback', id, { is_unread: true } );
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					receiveEntityRecords( 'postType', 'feedback', [ { ...currentEntity, is_unread: true } ] );
+				}
+
 				// Update on server
 				return apiFetch( {
 					path: `/wp/v2/feedback/${ id }/read`,
@@ -406,7 +413,11 @@ export const markAsUnreadAction = {
 					} )
 					.catch( () => {
 						// Revert the change in the store if the server update fails.
-						editEntityRecord( 'postType', 'feedback', id, { is_unread: false } );
+						if ( currentEntity ) {
+							receiveEntityRecords( 'postType', 'feedback', [
+								{ ...currentEntity, is_unread: false },
+							] );
+						}
 						throw new Error( 'Failed to mark as unread' );
 					} );
 			} )
