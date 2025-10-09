@@ -519,8 +519,7 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	if ( ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'difm-lite-in-progress' ) ) ||
-		( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' ) ) ) {
+	if ( wpcom_global_styles_has_blog_sticker( 'difm-lite-in-progress', $current_blog_id ) ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
 	}
