@@ -13,7 +13,9 @@ import {
 import BarListChart from '../bar-list-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > > & {
+	seriesCount?: string;
+};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar List Chart',
@@ -25,6 +27,12 @@ const meta: Meta< StoryArgs > = {
 	argTypes: {
 		...sharedChartArgTypes,
 		...themeArgTypes,
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple' ],
+			description: 'Number of data series to display',
+			table: { category: 'Data' },
+		},
 	},
 };
 
@@ -32,20 +40,32 @@ export default meta;
 
 type Story = StoryObj< StoryArgs >;
 
-// Default story with multiple series
+// Interactive configuration story with all controls
+export const Configuration: Story = {
+	render: args => {
+		const seriesCount = args.seriesCount || 'single';
+		const dataMap = {
+			single: salesByProduct,
+			multiple: salesByChannel,
+		};
+
+		return <BarListChart { ...args } data={ dataMap[ seriesCount ] } />;
+	},
+	args: {
+		withTooltips: true,
+		seriesCount: 'single',
+		containerWidth: '600px',
+		containerHeight: '332px',
+	},
+};
+
+// Default story with single series
 export const Default: Story = {
 	args: {
 		withTooltips: true,
 		data: salesByProduct,
 		containerWidth: '600px',
 		containerHeight: '332px',
-	},
-};
-
-export const MultiSeries: Story = {
-	args: {
-		...Default.args,
-		data: salesByChannel,
 	},
 };
 
