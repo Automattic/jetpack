@@ -18,24 +18,29 @@ const meta: Meta< StoryArgs > = {
 			control: { type: 'radio' },
 			options: [ 'single', 'multiple', 'many' ],
 			description: 'Number of data series',
+			table: { category: 'Data' },
 		},
 		dimensionMode: {
 			control: { type: 'radio' },
 			options: [ 'responsive', 'fixed' ],
 			description: 'Chart sizing mode',
+			table: { category: 'Dimensions' },
 		},
 		smoothing: {
 			control: 'boolean',
 			description: 'Enable line smoothing',
+			table: { category: 'Visual Style' },
 		},
 		curveType: {
 			control: { type: 'radio' },
 			options: [ 'linear', 'smooth', 'monotone' ],
 			description: 'Line curve type',
+			table: { category: 'Visual Style' },
 		},
 		withGradientFill: {
 			control: 'boolean',
 			description: 'Fill area under line with gradient',
+			table: { category: 'Visual Style' },
 		},
 	},
 };
