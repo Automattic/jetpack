@@ -8,7 +8,7 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Accept PayPal payments from any post or page on your website.
+Easily showcase products/services, upload images, manage variants, set pricing options, and simplify checkout with shipping and taxes.
 
 == Description ==
 
