@@ -751,16 +751,6 @@ class Feedback {
 	}
 
 	/**
-	 * Sets the notification recipients of the feedback entry.
-	 *
-	 * @param array $recipients The notification recipients.
-	 * @return void
-	 */
-	public function set_notification_recipients( $recipients ) {
-		$this->notification_recipients = (array) $recipients;
-	}
-
-	/**
 	 * Gets the value of the consent field.
 	 *
 	 * @return bool
