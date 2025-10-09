@@ -20,7 +20,17 @@ const filters = ( state = {}, action ) => {
 	return state;
 };
 
-const currentQuery = ( state = {}, action ) => {
+const currentQuery = (
+	state = {
+		context: 'view',
+		order: 'desc',
+		orderby: 'date',
+		page: 1,
+		per_page: 20,
+		status: 'draft,publish',
+	},
+	action
+) => {
 	if ( action.type === SET_CURRENT_QUERY ) {
 		return action.currentQuery;
 	}
