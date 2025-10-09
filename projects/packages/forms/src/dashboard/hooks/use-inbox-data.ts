@@ -47,22 +47,6 @@ interface UseInboxDataReturn {
 	filterOptions: Record< string, unknown >;
 }
 
-const RESPONSE_FIELDS = [
-	'id',
-	'status',
-	'date',
-	'date_gmt',
-	'author_name',
-	'author_email',
-	'author_url',
-	'author_avatar',
-	'ip',
-	'entry_title',
-	'entry_permalink',
-	'has_file',
-	'fields',
-].join( ',' );
-
 /**
  * Hook to get all inbox related data.
  *
@@ -91,7 +75,6 @@ export default function useInboxData(): UseInboxDataReturn {
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', {
 		...currentQuery,
-		_fields: RESPONSE_FIELDS,
 	} );
 
 	// Merge raw records with any local edits from editEntityRecord
