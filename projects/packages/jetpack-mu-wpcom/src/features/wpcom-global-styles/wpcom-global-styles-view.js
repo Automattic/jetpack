@@ -17,14 +17,20 @@ function recordEvent( button, props = {} ) {
 }
 
 document.addEventListener( 'DOMContentLoaded', () => {
-	const popoverToggle = document.querySelector( '#wp-admin-bar-wpcom-global-styles' );
-	const popover = document.querySelector( '#wp-admin-bar-wpcom-global-styles .ab-sub-wrapper' );
-	const upgradeButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-upgrade a' );
-	const previewButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-preview a' );
-	const closeButton = document.querySelector( '#wpadminbar .wpcom-global-styles-close' );
-	const resetButton = document.querySelector( '#wp-admin-bar-wpcom-global-styles-reset a' );
+	const otherAdminBarItems = document.querySelectorAll(
+		'#wpadminbar .quicklinks > ul > li:not(#wp-admin-bar-wpcom-global-styles)'
+	);
+	const container = document.querySelector( '#wp-admin-bar-wpcom-global-styles' );
+	const popoverToggle = container.querySelector( '.ab-item' );
+	const popover = container.querySelector( '.ab-sub-wrapper' );
+	const upgradeButton = popover.querySelector( '#wp-admin-bar-wpcom-global-styles-upgrade a' );
+	const previewButton = popover.querySelector( '#wp-admin-bar-wpcom-global-styles-preview a' );
+	const closeButton = popover.querySelector( '.wpcom-global-styles-close' );
+	const resetButton = popover.querySelector( '#wp-admin-bar-wpcom-global-styles-reset a' );
 
 	if (
+		! otherAdminBarItems.length ||
+		! container ||
 		! popoverToggle ||
 		! popover ||
 		! upgradeButton ||
@@ -35,26 +41,39 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
+	const showPopover = () => {
+		container.classList.add( 'hover' );
+		popoverToggle.setAttribute( 'aria-expanded', 'true' );
+		popover.style.display = 'block';
+		closeButton.style.visibility = 'visible';
+	};
+
+	const hidePopover = () => {
+		// Core adds a 180ms delay to the hover state, so we need to wait for that to complete before removing the class.
+		setTimeout( () => container.classList.remove( 'hover' ), 180 );
+		popoverToggle.setAttribute( 'aria-expanded', 'false' );
+		popover.style.removeProperty( 'display' );
+	};
+
 	const limitedGlobalStylesNoticeAction =
 		localStorage.getItem( 'limitedGlobalStylesNoticeAction' ) ?? 'show';
 	if ( limitedGlobalStylesNoticeAction === 'show' ) {
 		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'show' } );
-		popoverToggle.classList.add( 'hover' );
-		popoverToggle.querySelector( '.ab-item' ).setAttribute( 'aria-expanded', 'true' );
-		popover.style.display = 'block';
-	} else {
-		closeButton.style.display = 'none';
+		showPopover();
+
+		otherAdminBarItems.forEach( item => {
+			item.addEventListener( 'click', () => {
+				hidePopover();
+			} );
+		} );
 	}
 
 	closeButton.addEventListener( 'click', event => {
 		event.preventDefault();
 		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'hide' } );
 		localStorage.setItem( 'limitedGlobalStylesNoticeAction', 'hide' );
-		// Core adds a 180ms delay to the hover state, so we need to wait for that to complete before removing the class.
-		setTimeout( () => popoverToggle.classList.remove( 'hover' ), 180 );
-		popoverToggle.querySelector( '.ab-item' ).setAttribute( 'aria-expanded', 'false' );
-		popover.style.removeProperty( 'display' );
-		closeButton.style.display = 'none';
+		hidePopover();
+		closeButton.style.removeProperty( 'visibility' );
 	} );
 
 	upgradeButton.addEventListener( 'click', () => {
@@ -75,5 +94,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	resetButton.addEventListener( 'click', () => {
 		recordEvent( 'wpcom_global_styles_gating_notice_reset_support' );
+	} );
+
+	popoverToggle.addEventListener( 'click', () => {
+		// On desktop devices, clicking on the popover redirects to the upgrade page.
+		if ( ! ( 'ontouchstart' in window ) ) {
+			recordEvent( 'wpcom_global_styles_gating_notice_upgrade' );
+		}
 	} );
 } );

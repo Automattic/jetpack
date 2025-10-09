@@ -2,6 +2,7 @@
 
 	@media (max-width: 782px) {
 		display: block;
+		position: static;
 	}
 
 	> .ab-item {
@@ -25,13 +26,6 @@
 				width: 52px;
 				text-align: center;
 			}
-		}
-	}
-
-	> .ab-sub-wrapper {
-
-		@media (max-width: 782px) {
-			transform: translateX(calc(26px - 50%));
 		}
 	}
 
@@ -189,6 +183,7 @@
 		border: none;
 		outline: none;
 		display: flex;
+		visibility: hidden;
 
 		@media (max-width: 782px) {
 			top: -2px;
