@@ -72,4 +72,6 @@ class Global_Styles_Status_Rest_API extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'Global_Styles_Status_Rest_API' );
+if ( function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+	wpcom_rest_api_v2_load_plugin( 'Global_Styles_Status_Rest_API' );
+}
