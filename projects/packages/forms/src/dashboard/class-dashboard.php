@@ -85,7 +85,7 @@ class Dashboard {
 		// Preload Forms endpoints needed in dashboard context.
 		// Pre-fetch the first inbox page so the UI renders instantly on first load.
 		$preload_params = array(
-			'context'  => 'view',
+			'context'  => 'edit',
 			'order'    => 'desc',
 			'orderby'  => 'date',
 			'page'     => 1,

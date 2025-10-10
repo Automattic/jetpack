@@ -137,9 +137,11 @@ export default function InboxView() {
 			return accumulator;
 		}, {} );
 		const _queryArgs = {
+			order: 'desc',
+			orderby: 'date',
 			per_page: view.perPage,
 			page: view.page,
-			search: view.search,
+			...( view.search ? { search: view.search } : {} ),
 			..._filters,
 			status: statusFilter,
 		};

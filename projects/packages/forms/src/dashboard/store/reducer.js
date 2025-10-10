@@ -22,7 +22,6 @@ const filters = ( state = {}, action ) => {
 
 const currentQuery = (
 	state = {
-		context: 'view',
 		order: 'desc',
 		orderby: 'date',
 		page: 1,
