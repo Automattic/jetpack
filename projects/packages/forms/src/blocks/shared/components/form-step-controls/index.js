@@ -8,12 +8,13 @@ import {
 	ToolbarDropdownMenu,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { next, previous, check } from '@wordpress/icons';
 import { store as singleStepStore } from '../../../../store/form-step-preview';
 import StepIcon from '../../../form-step/icon';
 import StepContainerIcon from '../../../form-step-container/icon';
 import useStepNavigation from '../../hooks/use-step-navigation';
+import { getStepLabel } from '../../util/step-labels';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.
@@ -121,12 +122,7 @@ export default function StepControls( { formClientId } ) {
 										) : null
 									}
 								>
-									{ sprintf(
-										/* translators: %1$d is the step number (1, 2, 3, etc.), %2$s is the step label. */
-										__( '%1$d – %2$s', 'jetpack-forms' ),
-										index + 1,
-										step?.attributes?.stepLabel || __( 'Unlabeled', 'jetpack-forms' )
-									) }
+									{ getStepLabel( index, step?.attributes?.stepLabel ) }
 								</MenuItem>
 							) ) }
 						</MenuGroup>
