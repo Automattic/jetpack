@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { __ } from '@wordpress/i18n';
+import { UNKNOWN_ERROR_MESSAGE } from '../constants';
 import { INVALIDATE_CONFIG } from './action-types';
 import { receiveConfig, setConfigError, setConfigLoading } from './actions';
 import type { ConfigAction, ConfigState } from './types';
@@ -13,7 +13,7 @@ const fetchConfigData = async ( dispatch: ( action: ConfigAction ) => void ) => 
 		} );
 		dispatch( receiveConfig( result ) );
 	} catch ( e ) {
-		const message = e instanceof Error ? e.message : __( 'Unknown error', 'jetpack-forms' );
+		const message = e instanceof Error ? e.message : UNKNOWN_ERROR_MESSAGE;
 		dispatch( setConfigError( message ) );
 	} finally {
 		dispatch( setConfigLoading( false ) );
