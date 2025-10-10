@@ -15,7 +15,7 @@ return make_phan_config(
 	array(
 		'+stubs'                          => array( 'full-site-editing', 'gutenberg', 'photon-opencv', 'wpcom' ),
 		'exclude_file_list'               => array(
-			'tests/php/lib/class-wpcom-features.php',
+			'tests/lib/class-wpcom-features.php',
 		),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
