@@ -40,7 +40,6 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_woocommerce_capabilities_are_whitelisted() {
-		$woocommerce_module = Modules::get_module( 'woocommerce' );
 		$capabilities_whitelist = apply_filters( 'jetpack_sync_capabilities_whitelist', array() );
 
 		$this->assertContains( 'manage_woocommerce', $capabilities_whitelist );
