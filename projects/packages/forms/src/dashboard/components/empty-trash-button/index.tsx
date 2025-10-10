@@ -46,7 +46,7 @@ const EmptyTrashButton = ( {
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsTrash = totalItemsTrashProp ?? hookData.totalItemsTrash;
-	const isLoadingCounts = isLoadingCountsProp ?? hookData.isLoadingCounts;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
 	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {

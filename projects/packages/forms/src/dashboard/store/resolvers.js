@@ -1,4 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import { INVALIDATE_FILTERS } from './action-types';
 
 export const getFilters =
@@ -11,3 +12,30 @@ export const getFilters =
 	};
 
 getFilters.shouldInvalidate = action => action.type === INVALIDATE_FILTERS;
+
+/**
+ * Resolver for fetching counts based on current query parameters.
+ *
+ * @param {object} queryParams - Query parameters for filtering counts.
+ * @return {void}
+ */
+export const getCounts =
+	( queryParams = {} ) =>
+	async ( { dispatch } ) => {
+		const params = {};
+		if ( queryParams?.search ) {
+			params.search = queryParams.search;
+		}
+		if ( queryParams?.parent ) {
+			params.parent = queryParams.parent;
+		}
+		if ( queryParams?.before ) {
+			params.before = queryParams.before;
+		}
+		if ( queryParams?.after ) {
+			params.after = queryParams.after;
+		}
+		const path = addQueryArgs( '/wp/v2/feedback/counts', params );
+		const response = await apiFetch( { path } );
+		dispatch.setCounts( response );
+	};

@@ -46,7 +46,7 @@ const EmptySpamButton = ( {
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam;
-	const isLoadingCounts = isLoadingCountsProp ?? hookData.isLoadingCounts;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
 	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
