@@ -127,6 +127,7 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_capabilities_whitelist', array( $this, 'add_woocommerce_capabilities_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
@@ -394,6 +395,16 @@ class WooCommerce extends Module {
 	}
 
 	/**
+	 * Add WooCommerce capabilities to the capabilities whitelist.
+	 *
+	 * @param array $list Existing capabilities whitelist.
+	 * @return array Updated capabilities whitelist.
+	 */
+	public function add_woocommerce_capabilities_whitelist( $list ) {
+		return array_merge( $list, self::$wc_capabilities_whitelist );
+	}
+
+	/**
 	 * Adds 'revew' to the list of comment types so Sync will listen for status changes on 'reviews'.
 	 *
 	 * @access public
@@ -626,6 +637,19 @@ class WooCommerce extends Module {
 	 */
 	private static $wc_comment_meta_whitelist = array(
 		'rating',
+	);
+
+	/**
+	 * Whitelist for capabilities we are interested to sync.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array
+	 */
+	private static $wc_capabilities_whitelist = array(
+		'manage_woocommerce',
+		'view_woocommerce_reports',
 	);
 
 	/**

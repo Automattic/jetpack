@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+
+Add manage_woocommerce and view_woocommerce_reports capabilities to sync whitelist for WooCommerce integration.
+

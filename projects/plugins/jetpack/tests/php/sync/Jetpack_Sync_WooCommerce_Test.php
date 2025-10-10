@@ -39,6 +39,14 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( (bool) Modules::get_module( 'woocommerce' ) );
 	}
 
+	public function test_woocommerce_capabilities_are_whitelisted() {
+		$woocommerce_module = Modules::get_module( 'woocommerce' );
+		$capabilities_whitelist = apply_filters( 'jetpack_sync_capabilities_whitelist', array() );
+
+		$this->assertContains( 'manage_woocommerce', $capabilities_whitelist );
+		$this->assertContains( 'view_woocommerce_reports', $capabilities_whitelist );
+	}
+
 	/** Incremental sync **/
 	public function test_orders_are_synced() {
 		$order = $this->createOrderWithItem();
