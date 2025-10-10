@@ -37,6 +37,7 @@ const ResponseActions = ( {
 	const [ isMovingToTrash, setIsMovingToTrash ] = useState( false );
 	const [ isRestoring, setIsRestoring ] = useState( false );
 	const [ isDeleting, setIsDeleting ] = useState( false );
+	const [ isTogglingReadStatus, setIsTogglingReadStatus ] = useState( false );
 
 	const registry = useRegistry();
 
@@ -75,21 +76,26 @@ const ResponseActions = ( {
 		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
-	const handleMarkAsRead = useCallback( () => {
-		markAsReadAction.callback( [ response ], { registry } );
-	}, [ response, registry ] );
-
-	const handleMarkAsUnread = useCallback( () => {
+	const handleMarkAsRead = useCallback( async () => {
+		setIsTogglingReadStatus( true );
 		onMarkAsRead?.( response.id );
-		markAsUnreadAction.callback( [ response ], { registry } );
+		await markAsReadAction.callback( [ response ], { registry } );
+		setIsTogglingReadStatus( false );
 	}, [ response, registry, onMarkAsRead ] );
 
-	const readUnreadButtons = onMarkAsRead ? (
+	const handleMarkAsUnread = useCallback( async () => {
+		setIsTogglingReadStatus( true );
+		await markAsUnreadAction.callback( [ response ], { registry } );
+		setIsTogglingReadStatus( false );
+	}, [ response, registry ] );
+
+	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
 				<Button
 					variant="tertiary"
 					onClick={ handleMarkAsRead }
+					isBusy={ isTogglingReadStatus }
 					showTooltip={ true }
 					label={ markAsReadAction.label }
 					iconSize={ 24 }
@@ -101,6 +107,7 @@ const ResponseActions = ( {
 				<Button
 					variant="tertiary"
 					onClick={ handleMarkAsUnread }
+					isBusy={ isTogglingReadStatus }
 					showTooltip={ true }
 					label={ markAsUnreadAction.label }
 					iconSize={ 24 }
@@ -109,7 +116,7 @@ const ResponseActions = ( {
 				></Button>
 			) }
 		</>
-	) : null;
+	);
 
 	switch ( response.status ) {
 		case 'spam':
