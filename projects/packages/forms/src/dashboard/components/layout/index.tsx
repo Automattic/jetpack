@@ -29,6 +29,7 @@ const Layout = () => {
 
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
 	const hasFeedback = useConfigValue( 'hasFeedback' );
+	const isLoadingConfig = enableIntegrationsTab === undefined;
 
 	const { currentStatus } = useSelect(
 		select => ( {
@@ -52,7 +53,7 @@ const Layout = () => {
 				name: 'responses',
 				title: __( 'Responses', 'jetpack-forms' ),
 			},
-			...( enableIntegrationsTab !== false
+			...( enableIntegrationsTab
 				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
 				: [] ),
 			{
@@ -99,8 +100,6 @@ const Layout = () => {
 		},
 		[ navigate, location.search, isSm, getCurrentTab, hasFeedback ]
 	);
-
-	const isLoadingConfig = hasFeedback === undefined;
 
 	return (
 		<div className="jp-forms__layout">
