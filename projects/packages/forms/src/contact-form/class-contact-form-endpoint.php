@@ -254,6 +254,68 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_forms_config' ),
 			)
 		);
+
+		// Mark feedback as read/unread endpoint.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>\d+)/read',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_read_status' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				'args'                => array(
+					'id'        => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'is_unread' => array(
+						'type'              => 'boolean',
+						'required'          => true,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+				),
+			)
+		);
+
+		// Get optimized status counts.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+				'args'                => array(
+					'search' => array(
+						'description'       => 'Limit results to those matching a string.',
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'parent' => array(
+						'description'       => 'Limit results to those of a specific parent ID.',
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'before' => array(
+						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'after'  => array(
+						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -303,12 +365,76 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves status counts for inbox, spam, and trash.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function get_status_counts( $request ) {
+		global $wpdb;
+
+		$search = $request->get_param( 'search' );
+		$parent = $request->get_param( 'parent' );
+		$before = $request->get_param( 'before' );
+		$after  = $request->get_param( 'after' );
+
+		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+
+		if ( ! empty( $search ) ) {
+			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
+			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+		}
+
+		if ( ! empty( $parent ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_parent = %d', $parent );
+		}
+
+		if ( ! empty( $before ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+		}
+
+		if ( ! empty( $after ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+		}
+
+		$where_clause = implode( ' AND ', $where_conditions );
+
+		// Execute single query with CASE statements for all status counts.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$counts = $wpdb->get_row(
+			"SELECT
+			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM $wpdb->posts
+			WHERE $where_clause",
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$result = array(
+			'inbox' => (int) ( $counts['inbox'] ?? 0 ),
+			'spam'  => (int) ( $counts['spam'] ?? 0 ),
+			'trash' => (int) ( $counts['trash'] ?? 0 ),
+		);
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
 	 * Adds the additional fields to the item's schema.
 	 *
 	 * @return array Item schema as an array.
 	 */
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
+
+		// Remove fields that are not relevant to feedback.
+		foreach ( array( 'link', 'password', 'template', 'title', 'content', 'excerpt' ) as $key ) {
+			if ( isset( $schema['properties'][ $key ] ) ) {
+				unset( $schema['properties'][ $key ] );
+			}
+		}
 
 		$schema['properties']['parent'] = array(
 			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
@@ -488,6 +614,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['is_unread'] = array(
+			'description' => __( 'Whether the form response is unread.', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'readonly'    => true,
+		);
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
@@ -629,6 +765,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
 			$data['has_file'] = $feedback_response->has_file();
+		}
+
+		if ( rest_is_field_included( 'is_unread', $fields ) ) {
+			$data['is_unread'] = $feedback_response->is_unread();
 		}
 
 		$response->set_data( $data );
@@ -1034,6 +1174,45 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Updates the read/unread status of a feedback item.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_read_status( $request ) {
+		$post_id   = $request->get_param( 'id' );
+		$is_unread = $request->get_param( 'is_unread' );
+
+		$feedback_response = Feedback::get( $post_id );
+		if ( ! $feedback_response ) {
+			return new WP_Error(
+				'rest_post_invalid_id',
+				__( 'Invalid feedback ID.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$success = $is_unread ? $feedback_response->mark_as_unread() : $feedback_response->mark_as_read();
+
+		Contact_Form_Plugin::recalculate_unread_count();
+		if ( ! $success ) {
+			return new WP_Error(
+				'rest_cannot_update',
+				__( 'Failed to update feedback read status.', 'jetpack-forms' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'        => $post_id,
+				'is_unread' => $feedback_response->is_unread(),
+				'count'     => Contact_Form_Plugin::get_unread_count(),
+			)
+		);
+	}
+
+	/**
 	 * Return consolidated Forms config payload.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -1064,6 +1243,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
 			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
+			'emptyTrashDays'          => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
 		);
 
 		return rest_ensure_response( $config );

@@ -44,10 +44,7 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.7.0 - 2025-08-06
+### 0.7.1 - 2025-10-09
 #### Changed
-- My Jetpack: Unify the user connection flow with a unified screen.
-- Sync: Ignore the ActivityPub Outbox CPT.
-- Update dependencies.
 - Update package dependencies.
 

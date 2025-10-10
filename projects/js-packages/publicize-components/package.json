@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "1.4.2",
+	"version": "1.4.3",
 	"private": true,
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
@@ -41,7 +41,7 @@
 		"@wordpress/compose": "7.31.0",
 		"@wordpress/core-data": "7.31.0",
 		"@wordpress/data": "10.31.0",
-		"@wordpress/dataviews": "9.0.0",
+		"@wordpress/dataviews": "9.1.0",
 		"@wordpress/date": "5.31.0",
 		"@wordpress/edit-post": "8.31.0",
 		"@wordpress/editor": "14.31.0",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org.

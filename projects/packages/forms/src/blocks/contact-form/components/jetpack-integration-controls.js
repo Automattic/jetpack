@@ -30,7 +30,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 		<>
 			<PanelBody
 				title={ __( 'Integrations', 'jetpack-forms' ) }
-				className="jetpack-contact-form__integrations-panel"
+				className="jetpack-contact-form__panel jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
 				<ActiveIntegrations

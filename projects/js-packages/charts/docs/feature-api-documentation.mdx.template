@@ -1,5 +1,7 @@
 # API Reference
 
+This document provides comprehensive API specifications for the [Component] [Feature].
+
 ## [Component].[FeatureComponent]
 
 [Description of the container/wrapper component].
@@ -14,13 +16,15 @@
 
 **Props:**
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `[requiredProp]` | `[Type]` | - | **Required.** [Description] |
-| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description] |
-| `[anotherProp]` | `[ComplexType]` | - | [Description] |
+| Prop             | Type                          | Default     | Description                 |
+| ---------------- | ----------------------------- | ----------- | --------------------------- |
+| `[requiredProp]` | `[Type]`                      | -           | **Required.** [Description] |
+| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description]               |
+| `[anotherProp]`  | `[ComplexType]`               | -           | [Description]               |
 
 ## [TypeName] Type
+
+[Brief description of what this type represents].
 
 ```typescript
 type [TypeName] = {
@@ -30,6 +34,8 @@ type [TypeName] = {
 ```
 
 ## [AnotherTypeName] Type
+
+[Brief description of what this type represents].
 
 ```typescript
 type [AnotherTypeName] = {

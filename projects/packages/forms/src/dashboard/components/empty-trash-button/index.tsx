@@ -15,28 +15,45 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data';
+import { store as dashboardStore } from '../../store';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
 
+interface EmptyTrashButtonProps {
+	totalItemsTrash?: number;
+	isLoadingCounts?: boolean;
+}
+
 /**
  * Renders a button to empty form responses.
  *
+ * @param {object}  props                 - Component props.
+ * @param {number}  props.totalItemsTrash - The total number of trash items (optional, will use hook if not provided).
+ * @param {boolean} props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
  * @return {JSX.Element} The empty trash button.
  */
-const EmptyTrashButton = (): JSX.Element => {
+const EmptyTrashButton = ( {
+	totalItemsTrash: totalItemsTrashProp,
+	isLoadingCounts: isLoadingCountsProp,
+}: EmptyTrashButtonProps = {} ): JSX.Element => {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateCounts } = useDispatch( dashboardStore );
 
-	const { selectedResponsesCount, currentQuery, totalItemsTrash, isLoadingData } = useInboxData();
+	// Use props if provided, otherwise use hook
+	const hookData = useInboxData();
+	const totalItemsTrash = totalItemsTrashProp ?? hookData.totalItemsTrash;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
+	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
-		setIsEmpty( isLoadingData || ! totalItemsTrash );
-	}, [ totalItemsTrash, isLoadingData ] );
+		setIsEmpty( isLoadingCounts || ! totalItemsTrash );
+	}, [ totalItemsTrash, isLoadingCounts ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
@@ -88,12 +105,15 @@ const EmptyTrashButton = (): JSX.Element => {
 					'feedback',
 					{ ...currentQuery, per_page: 1, _fields: 'id' },
 				] );
+				// invalidate counts to refresh the counts across all status tabs
+				invalidateCounts();
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
 		invalidateResolution,
+		invalidateCounts,
 		isEmpty,
 		isEmptying,
 		currentQuery,

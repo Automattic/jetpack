@@ -478,7 +478,6 @@ function wpcom_should_show_global_styles_admin_bar() {
 	$should_show_global_styles_admin_bar = true;
 	return $should_show_global_styles_admin_bar;
 }
-
 /**
  * Renders the global style notice in the admin bar.
  *

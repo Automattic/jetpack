@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tests: Replace deprecated RunClassInSeparateProcess attribute with errantly-equivalent RunTestsInSeparateProcesses. 

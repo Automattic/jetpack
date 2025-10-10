@@ -96,6 +96,8 @@ export interface FormResponse {
 	entry_permalink: string;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
+	/** Whether the response is unread. */
+	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
 }
@@ -238,4 +240,6 @@ export interface FormsConfigData {
 	exportNonce?: string;
 	/** Nonce for creating a new form (dashboard-only). */
 	newFormNonce?: string;
+	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
+	emptyTrashDays?: number;
 }

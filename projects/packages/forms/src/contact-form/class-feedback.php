@@ -18,6 +18,20 @@ class Feedback {
 	const POST_TYPE = 'feedback';
 
 	/**
+	 * Comment status for unread feedback.
+	 *
+	 * @var string
+	 */
+	private const STATUS_UNREAD = 'open';
+
+	/**
+	 * Comment status for read feedback.
+	 *
+	 * @var string
+	 */
+	private const STATUS_READ = 'closed';
+
+	/**
 	 * The form field values.
 	 *
 	 * @var array
@@ -112,6 +126,20 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
+	 * Whether the feedback entry is unread.
+	 *
+	 * @var bool
+	 */
+	protected $is_unread = true;
+
+	/**
+	 * The post ID of the feedback entry.
+	 *
+	 * @var int|null
+	 */
+	protected $post_id = null;
+
+	/**
 	 * The entry object of the post that the feedback was submitted from.
 	 *
 	 * This is used to store the entry object of the post that the feedback was submitted from.
@@ -119,6 +147,13 @@ class Feedback {
 	 * @var Feedback_Source
 	 */
 	protected $source;
+
+	/**
+	 * The notification recipients of the feedback entry.
+	 *
+	 * @var array
+	 */
+	protected $notification_recipients = array();
 
 	/**
 	 * Create a response object from a feedback post ID.
@@ -143,6 +178,17 @@ class Feedback {
 	}
 
 	/**
+	 * Clear the internal cache of feedback objects.
+	 *
+	 * Useful for testing or when feedback data needs to be reloaded fresh.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function clear_cache() {
+		self::$feedback_fields = array();
+	}
+
+	/**
 	 * Create a Feedback object from a feedback post.
 	 *
 	 * @param WP_Post $feedback_post The feedback post object.
@@ -151,9 +197,11 @@ class Feedback {
 
 		$parsed_content = $this->parse_content( $feedback_post->post_content, $feedback_post->post_mime_type );
 
+		$this->post_id            = $feedback_post->ID;
 		$this->status             = $feedback_post->post_status;
 		$this->legacy_feedback_id = $feedback_post->post_name;
 		$this->feedback_time      = $feedback_post->post_date;
+		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
 		$this->fields = $parsed_content['fields'] ?? array();
 
@@ -165,6 +213,8 @@ class Feedback {
 
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -212,6 +262,8 @@ class Feedback {
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+
+		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
@@ -689,6 +741,15 @@ class Feedback {
 	}
 
 	/**
+	 * Gets the notification recipients of the feedback entry.
+	 *
+	 * @return array
+	 */
+	public function get_notification_recipients() {
+		return $this->notification_recipients;
+	}
+
+	/**
 	 * Gets the value of the consent field.
 	 *
 	 * @return bool
@@ -704,6 +765,83 @@ class Feedback {
 	 */
 	public function has_file() {
 		return $this->has_file;
+	}
+
+	/**
+	 * Check if the feedback is unread.
+	 *
+	 * @return bool
+	 */
+	public function is_unread() {
+		return $this->is_unread;
+	}
+
+	/**
+	 * Mark the feedback as read.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_read() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_READ,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mark the feedback as unread.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_unread() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_UNREAD,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = true;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the count of unread feedback entries.
+	 *
+	 * @return int
+	 */
+	public static function get_unread_count() {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'publish',
+				'comment_status' => self::STATUS_UNREAD,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+		return (int) $query->found_posts;
 	}
 
 	/**
@@ -817,6 +955,7 @@ class Feedback {
 				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->source->get_id(),
+				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
 
@@ -833,8 +972,9 @@ class Feedback {
 
 		$fields_to_serialize = array_merge(
 			array(
-				'subject' => $this->subject,
-				'ip'      => $this->ip_address,
+				'subject'                 => $this->subject,
+				'ip'                      => $this->ip_address,
+				'notification_recipients' => $this->notification_recipients,
 			),
 			$this->source->serialize()
 		);
@@ -1427,6 +1567,48 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed notification recipients.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
+	 * @return array
+	 */
+	private function get_computed_notification_recipients( $post_data, $form ) {
+		$notification_recipients = $form->get_attribute( 'notificationRecipients' );
+		return $this->validate_notification_recipients( $notification_recipients );
+	}
+
+	/**
+	 * Validates notification recipients have proper capabilities.
+	 *
+	 * Ensures each user ID corresponds to a real user with edit_posts or edit_pages capability.
+	 * Filters out invalid or unauthorized user IDs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $recipients Array of user IDs.
+	 * @return array Array of validated user IDs.
+	 */
+	private function validate_notification_recipients( $recipients ) {
+		if ( ! is_array( $recipients ) ) {
+			return array();
+		}
+
+		$valid_recipients = array();
+		foreach ( $recipients as $user_id ) {
+			$user = get_userdata( $user_id );
+			// Only allow users with edit_posts or edit_pages capability
+			if ( $user && ( $user->has_cap( 'edit_posts' ) || $user->has_cap( 'edit_pages' ) ) ) {
+				$valid_recipients[] = $user_id;
+			}
+		}
+
+		return $valid_recipients;
 	}
 
 	/**

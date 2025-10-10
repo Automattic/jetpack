@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26335f6723fffa1b26ae5a942697dee3",
+    "content-hash": "73f7b19533abcfcc07b1cffb4e24411d",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1216,7 +1216,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "09c1ae07f7c3246f1a0fb8ff8876fd1a097f6cc7"
+                "reference": "f1f6c9150fd25384eb315d8b903f0731cd847dd4"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1246,7 +1246,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.23.x-dev"
+                    "dev-trunk": "0.24.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -2113,16 +2113,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.2",
+            "version": "v2.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "58a48bf01ae28a4c974bdcc0449733f03b2326de"
+                "reference": "5b82125fbb5aed63c84bba2e7e2bebcae17a24db"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/58a48bf01ae28a4c974bdcc0449733f03b2326de",
-                "reference": "58a48bf01ae28a4c974bdcc0449733f03b2326de",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/5b82125fbb5aed63c84bba2e7e2bebcae17a24db",
+                "reference": "5b82125fbb5aed63c84bba2e7e2bebcae17a24db",
                 "shasum": ""
             },
             "require-dev": {
@@ -2164,7 +2164,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-07-22T10:34:27+00:00"
+            "time": "2025-10-08T10:52:37+00:00"
         },
         {
             "name": "scssphp/scssphp",

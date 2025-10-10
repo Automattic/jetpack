@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Optimize has_feedback() query to improve dashboard load performance by limiting query to fetch only 1 ID instead of loading all feedback posts.

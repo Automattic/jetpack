@@ -14,17 +14,18 @@ import * as [FeatureName]Stories from './[feature-name].stories';
 The [Component] component supports [feature description], providing [benefits and key capabilities]:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `import { [Component] } from '@automattic/charts';
 
-	<[Component] data={ data }>
-		<[Component].[FeatureComponent]>
-			<[Component].[SubComponent]
-				[key-required-props]
-				[key-optional-props]
-			/>
-		</[Component].[FeatureComponent]>
-	</[Component]>` }
+		<[Component] data={ data }>
+			<[Component].[FeatureComponent]>
+				<[Component].[SubComponent]
+					[key-required-props]
+					[key-optional-props]
+				/>
+			</[Component].[FeatureComponent]>
+		</[Component]>
+	` }
 />
 
 ## API Reference
@@ -40,14 +41,15 @@ For detailed information about component props, types, and method signatures, se
 <Canvas of={ [FeatureName]Stories.Default } />
 
 <Source
-	language="jsx"
-	code={ `<[Component] data={data}>
-		<[Component].[FeatureComponent]>
-			<[Component].[SubComponent]
-				[minimal-props-example]
-			/>
-		</[Component].[FeatureComponent]>
-	</[Component]>` }
+	language="tsx"
+	code={ `<[Component] data={ data }>
+			<[Component].[FeatureComponent]>
+				<[Component].[SubComponent]
+					[minimal-props-example]
+				/>
+			</[Component].[FeatureComponent]>
+		</[Component]>
+	` }
 />
 
 ### Required Props
@@ -74,10 +76,11 @@ For detailed information about all optional props, see the [[Component] [Feature
 <Canvas of={ [FeatureName]Stories.[VariationName] } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<[Component].[SubComponent]
-		[variation-specific-props]
-	/>` }
+			[variation-specific-props]
+		/>
+	`}
 />
 
 ### [Another Variation Type]
@@ -101,15 +104,16 @@ For detailed information about all optional props, see the [[Component] [Feature
 <Canvas of={ [FeatureName]Stories.Styled } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `<[Component].[SubComponent]
-		[props]
-		styles={{
-			[styleCategory]: {
-				[property]: '[value]',
-			},
-		}}
-	/>` }
+			[props]
+			styles={ {
+				[styleCategory]: {
+					[property]: '[value]',
+				},
+			} }
+		/>
+	` }
 />
 
 ### Styling Options
@@ -142,7 +146,7 @@ Controls [what this affects]:
 <Canvas of={ [FeatureName]Stories.Custom } />
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={`[custom-implementation-example]`}
 />
 
@@ -151,7 +155,7 @@ Controls [what this affects]:
 [If applicable, show interactive capabilities]:
 
 <Source
-	language="jsx"
+	language="tsx"
 	code={ `[interactive-example]` }
 />
 
@@ -187,12 +191,13 @@ Controls [what this affects]:
 [If applicable, provide migration examples]:
 
 <Source
-	language="jsx"
-	code={`// Old API (deprecated)
-[legacy-example]
+	language="tsx"
+	code={ `// Old API (deprecated)
+		[legacy-example]
 
-// New API
-[new-api-example]
-`} />
+		// New API
+		[new-api-example]
+	` }
+/>
 
 [Brief explanation of benefits of the new approach and any breaking changes to be aware of].
