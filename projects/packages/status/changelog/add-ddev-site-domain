@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Adds .ddev.site to the is_local_site check
+Add .ddev.site to the is_local_site check
