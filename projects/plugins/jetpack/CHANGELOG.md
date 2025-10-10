@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.1.1 - 2025-10-10
+### Bug fixes
+- Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org. [#45387]
+
 ## 15.1 - 2025-10-08
 
 - Testimonials: Prevent warning when custom post type is not registered.
