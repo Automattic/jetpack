@@ -1,4 +1,5 @@
 import {
+	InspectorAdvancedControls,
 	InspectorControls,
 	store as blockEditorStore,
 	useBlockProps,
@@ -162,13 +163,6 @@ export default function ConsentFieldEdit( props ) {
 			<InspectorControls>
 				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-					<ToggleControl
-						label={ __( 'Sync fields style', 'jetpack-forms' ) }
-						checked={ attributes.shareFieldAttributes }
-						onChange={ onShareFieldAttributesChange }
-						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom
-					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
 					<BaseControl __nextHasNoMarginBottom>
@@ -192,6 +186,15 @@ export default function ConsentFieldEdit( props ) {
 					</BaseControl>
 				</PanelBody>
 			</InspectorControls>
+			<InspectorAdvancedControls>
+				<ToggleControl
+					label={ __( 'Sync fields style', 'jetpack-forms' ) }
+					checked={ attributes.shareFieldAttributes }
+					onChange={ onShareFieldAttributesChange }
+					help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					__nextHasNoMarginBottom
+				/>
+			</InspectorAdvancedControls>
 		</>
 	);
 }

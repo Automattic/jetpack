@@ -1,4 +1,5 @@
 import {
+	InspectorAdvancedControls,
 	InspectorControls,
 	BlockControls,
 	useBlockProps,
@@ -99,16 +100,17 @@ export default function CheckboxFieldEdit( props ) {
 						__nextHasNoMarginBottom={ true }
 					/>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-
-					<ToggleControl
-						label={ __( 'Sync fields style', 'jetpack-forms' ) }
-						checked={ attributes.shareFieldAttributes }
-						onChange={ onShareFieldAttributesChange }
-						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom={ true }
-					/>
 				</PanelBody>
 			</InspectorControls>
+			<InspectorAdvancedControls>
+				<ToggleControl
+					label={ __( 'Sync fields style', 'jetpack-forms' ) }
+					checked={ attributes.shareFieldAttributes }
+					onChange={ onShareFieldAttributesChange }
+					help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					__nextHasNoMarginBottom={ true }
+				/>
+			</InspectorAdvancedControls>
 		</>
 	);
 }
