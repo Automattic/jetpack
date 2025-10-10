@@ -20,17 +20,22 @@ const fetchConfigData = async ( dispatch: ( action: ConfigAction ) => void ) => 
 	}
 };
 
-export const getConfig = {
-	fulfill:
-		() =>
-		async ( { dispatch }: { dispatch: ( action: ConfigAction ) => void } ) => {
-			await fetchConfigData( dispatch );
-		},
-	isFulfilled: ( state: ConfigState ) => {
-		// Consider fulfilled if config exists or is currently loading
-		return state.config !== null || state.isLoading;
-	},
-	shouldInvalidate: ( action: ConfigAction ) => {
-		return action.type === INVALIDATE_CONFIG;
-	},
+/**
+ * Resolver to fetch config data.
+ *
+ * @return {Function} The resolver function.
+ */
+export function getConfig() {
+	return async ( { dispatch }: { dispatch: ( action: ConfigAction ) => void } ) => {
+		await fetchConfigData( dispatch );
+	};
+}
+
+getConfig.isFulfilled = ( state: ConfigState ) => {
+	// Consider fulfilled if config exists or is currently loading
+	return state.config !== null || state.isLoading;
+};
+
+getConfig.shouldInvalidate = ( action: ConfigAction ) => {
+	return action.type === INVALIDATE_CONFIG;
 };
