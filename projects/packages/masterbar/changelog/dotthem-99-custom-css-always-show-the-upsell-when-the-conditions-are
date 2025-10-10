@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Show Additional CSS nudges on both Simple and Atomic, independently of the admin interface.
