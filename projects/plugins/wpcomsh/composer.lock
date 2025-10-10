@@ -907,7 +907,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "4f83bde798e393d208074fdb0d06ea43e286367f"
+                "reference": "8068f9fc71f61d33f59c0285f1983d8725c0547c"
             },
             "require": {
                 "php": ">=7.2"
@@ -928,7 +928,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 }
             },
             "autoload": {
@@ -1216,7 +1216,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "f1f6c9150fd25384eb315d8b903f0731cd847dd4"
+                "reference": "eed145198312ded8a36970cc45aed446b2804fa8"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1246,7 +1246,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.24.x-dev"
+                    "dev-trunk": "0.25.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1299,7 +1299,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "33fe8fe3615f822057d6e839eda930c42ff2b7b1"
+                "reference": "ed1b4d4fccb610d910a596419bf98ffafa08bffe"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1336,7 +1336,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "6.7.x-dev"
+                    "dev-trunk": "6.8.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
