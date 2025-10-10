@@ -118,9 +118,8 @@ class Dashboard {
 		// Normalize keys to match what apiFetch will request (without domain).
 		$preload_data = array();
 		foreach ( $preload_data_raw as $key => $value ) {
-			$normalized_key                                = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
-			$preload_data[ $normalized_key ]               = $value;
-			$preload_data[ ltrim( $normalized_key, '/' ) ] = $value;
+			$normalized_key                  = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
+			$preload_data[ $normalized_key ] = $value;
 		}
 
 		wp_add_inline_script(
