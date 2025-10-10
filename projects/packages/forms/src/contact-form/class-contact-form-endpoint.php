@@ -767,7 +767,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
 		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
-			$data['edit_form_url'] = $response->get_edit_form_url();
+			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
 			$data['subject'] = $feedback_response->get_subject();
