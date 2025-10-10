@@ -41,6 +41,8 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
+	const isMobile = 'ontouchstart' in window;
+
 	const showPopover = () => {
 		container.classList.add( 'hover' );
 		popoverToggle.setAttribute( 'aria-expanded', 'true' );
@@ -53,27 +55,28 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		setTimeout( () => container.classList.remove( 'hover' ), 180 );
 		popoverToggle.setAttribute( 'aria-expanded', 'false' );
 		popover.style.removeProperty( 'display' );
+		closeButton.style.removeProperty( 'visibility' );
 	};
 
 	const limitedGlobalStylesNoticeAction =
 		localStorage.getItem( 'limitedGlobalStylesNoticeAction' ) ?? 'show';
-	if ( limitedGlobalStylesNoticeAction === 'show' ) {
-		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'show' } );
+	const shouldShowPopover = limitedGlobalStylesNoticeAction === 'show';
+
+	if ( shouldShowPopover ) {
 		showPopover();
 
-		otherAdminBarItems.forEach( item => {
-			item.addEventListener( 'click', () => {
-				hidePopover();
+		if ( isMobile ) {
+			// Hide the popover when any other admin bar item is pressed.
+			otherAdminBarItems.forEach( item => {
+				item.addEventListener( 'click', hidePopover );
 			} );
-		} );
+		}
 	}
 
 	closeButton.addEventListener( 'click', event => {
 		event.preventDefault();
-		recordEvent( 'wpcom_global_styles_gating_notice', { action: 'hide' } );
-		localStorage.setItem( 'limitedGlobalStylesNoticeAction', 'hide' );
 		hidePopover();
-		closeButton.style.removeProperty( 'visibility' );
+		localStorage.setItem( 'limitedGlobalStylesNoticeAction', 'hide' );
 	} );
 
 	upgradeButton.addEventListener( 'click', () => {
@@ -98,7 +101,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 
 	popoverToggle.addEventListener( 'click', () => {
 		// On desktop devices, clicking on the popover redirects to the upgrade page.
-		if ( ! ( 'ontouchstart' in window ) ) {
+		if ( ! isMobile ) {
 			recordEvent( 'wpcom_global_styles_gating_notice_upgrade' );
 		}
 	} );
