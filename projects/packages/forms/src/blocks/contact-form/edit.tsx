@@ -33,7 +33,7 @@ import clsx from 'clsx';
 /*
  * Internal dependencies
  */
-import useFormsConfig from '../../hooks/use-forms-config';
+import useConfigValue from '../../hooks/use-config-value';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -168,8 +168,7 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 	} = attributes;
-	const formsConfig = useFormsConfig();
-	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
+	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
