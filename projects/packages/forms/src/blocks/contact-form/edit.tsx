@@ -751,7 +751,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
-						className="jetpack-contact-form__responses-storage-panel"
+						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings
@@ -759,7 +759,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody
+						title={ __( 'Action after submit', 'jetpack-forms' ) }
+						initialOpen={ false }
+						className="jetpack-contact-form__panel"
+					>
 						<InspectorHint>
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
@@ -833,7 +837,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody
+						title={ __( 'Email responses', 'jetpack-forms' ) }
+						initialOpen={ false }
+						className="jetpack-contact-form__panel"
+					>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
@@ -844,7 +852,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						/>
 					</PanelBody>
 					{ hasFeatureFlag( 'form-notifications' ) && (
-						<PanelBody title={ __( 'Form notifications', 'jetpack-forms' ) } initialOpen={ false }>
+						<PanelBody
+							title={ __( 'Form notifications', 'jetpack-forms' ) }
+							initialOpen={ false }
+							className="jetpack-contact-form__panel"
+						>
 							<NotificationsSettings
 								notificationRecipients={ notificationRecipients }
 								setAttributes={ setAttributes }
