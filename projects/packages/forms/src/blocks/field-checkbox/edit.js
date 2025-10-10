@@ -1,4 +1,5 @@
 import {
+	InspectorAdvancedControls,
 	InspectorControls,
 	BlockControls,
 	useBlockProps,
@@ -80,7 +81,10 @@ export default function CheckboxFieldEdit( props ) {
 				<ToolbarRequiredGroup required={ required } onClick={ onRequiredToggle } />
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Checkbox settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Checkbox settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<ToggleControl
 						label={ __( 'Checked by default', 'jetpack-forms' ) }
 						checked={ !! defaultValue }
@@ -90,7 +94,10 @@ export default function CheckboxFieldEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack-forms' ) }
 						checked={ required }
@@ -99,16 +106,17 @@ export default function CheckboxFieldEdit( props ) {
 						__nextHasNoMarginBottom={ true }
 					/>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-
-					<ToggleControl
-						label={ __( 'Sync fields style', 'jetpack-forms' ) }
-						checked={ attributes.shareFieldAttributes }
-						onChange={ onShareFieldAttributesChange }
-						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom={ true }
-					/>
 				</PanelBody>
 			</InspectorControls>
+			<InspectorAdvancedControls>
+				<ToggleControl
+					label={ __( 'Sync fields style', 'jetpack-forms' ) }
+					checked={ attributes.shareFieldAttributes }
+					onChange={ onShareFieldAttributesChange }
+					help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					__nextHasNoMarginBottom={ true }
+				/>
+			</InspectorAdvancedControls>
 		</>
 	);
 }

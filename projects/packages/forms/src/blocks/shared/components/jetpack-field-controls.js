@@ -89,14 +89,6 @@ const JetpackFieldControls = ( {
 			/>
 		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
-		<ToggleControl
-			key="shareFieldAttributes"
-			label={ __( 'Sync fields style', 'jetpack-forms' ) }
-			checked={ attributes.shareFieldAttributes }
-			onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
-			help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
-			__nextHasNoMarginBottom={ true }
-		/>,
 	];
 
 	extraFieldSettings.forEach( ( { element, index } ) => {
@@ -125,11 +117,22 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>
 			<InspectorAdvancedControls>
+				<ToggleControl
+					key="shareFieldAttributes"
+					label={ __( 'Sync fields style', 'jetpack-forms' ) }
+					checked={ attributes.shareFieldAttributes }
+					onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+					help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					__nextHasNoMarginBottom={ true }
+				/>
 				<TextControl
 					className={ errorState.error ? 'jetpack-forms-field-controls__input-error' : '' }
 					label={ __( 'Name/ID', 'jetpack-forms' ) }
