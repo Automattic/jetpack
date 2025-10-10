@@ -1,5 +1,11 @@
 :global {
 
+	// Hello Dolly compatibility fix
+	body.jetpack_page_my-jetpack p#dolly {
+		position: absolute;
+		right: 0;
+	}
+
 	#my-jetpack-container {
 		--wp-admin-theme-color: var(--jp-black);
 		--wp-admin-theme-color-darker-10: var(--jp-black-80);
