@@ -143,19 +143,19 @@ const Integrations = () => {
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }
-					{ creativeMailData && (
-						<CreativeMailDashboardCard
-							isExpanded={ expandedCards.creativemail }
-							onToggle={ handleToggleCreativeMail }
-							data={ creativeMailData }
-							refreshStatus={ refreshIntegrations }
-						/>
-					) }
 					{ hostingerReachData && (
 						<HostingerReachDashboardCard
 							isExpanded={ expandedCards.hostingerReach }
 							onToggle={ handleToggleHostingerReach }
 							data={ hostingerReachData }
+							refreshStatus={ refreshIntegrations }
+						/>
+					) }
+					{ creativeMailData && (
+						<CreativeMailDashboardCard
+							isExpanded={ expandedCards.creativemail }
+							onToggle={ handleToggleCreativeMail }
+							data={ creativeMailData }
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }
