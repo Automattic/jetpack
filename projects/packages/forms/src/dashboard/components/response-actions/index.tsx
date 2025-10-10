@@ -40,38 +40,38 @@ const ResponseActions = ( {
 	const registry = useRegistry();
 
 	const handleMarkAsSpam = useCallback( async () => {
+		onActionComplete?.( response );
 		setIsMarkingAsSpam( true );
 		await markAsSpamAction.callback( [ response ], { registry } );
 		setIsMarkingAsSpam( false );
-		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleMarkAsNotSpam = useCallback( async () => {
+		onActionComplete?.( response );
 		setIsMarkingAsNotSpam( true );
 		await markAsNotSpamAction.callback( [ response ], { registry } );
 		setIsMarkingAsNotSpam( false );
-		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleMoveToTrash = useCallback( async () => {
+		onActionComplete?.( response );
 		setIsMovingToTrash( true );
 		await moveToTrashAction.callback( [ response ], { registry } );
 		setIsMovingToTrash( false );
-		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleRestore = useCallback( async () => {
+		onActionComplete?.( response );
 		setIsRestoring( true );
 		await restoreAction.callback( [ response ], { registry } );
 		setIsRestoring( false );
-		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleDelete = useCallback( async () => {
+		onActionComplete?.( response );
 		setIsDeleting( true );
 		await deleteAction.callback( [ response ], { registry } );
 		setIsDeleting( false );
-		onActionComplete?.( response.id.toString() );
 	}, [ response, registry, onActionComplete ] );
 
 	const handleMarkAsRead = useCallback( async () => {
