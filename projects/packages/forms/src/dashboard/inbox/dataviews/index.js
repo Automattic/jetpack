@@ -462,7 +462,6 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 					{ __( 'Response', 'jetpack-forms' ) }
 				</h1>
 				<div>
-					<ResponseActions response={ currentResponse } onActionComplete={ handleActionComplete } />
 					<ResponseNavigation
 						hasNext={ hasNext }
 						hasPrevious={ hasPrevious }
@@ -477,6 +476,11 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 				isLoading={ false }
 				response={ currentResponse }
 				onClose={ null }
+			/>
+			<ResponseActions
+				isMobile={ true }
+				response={ currentResponse }
+				onActionComplete={ handleActionComplete }
 			/>
 		</div>
 	);
@@ -601,12 +605,16 @@ const SingleResponse = ( {
 			onRequestClose={ onRequestClose }
 			headerActions={
 				<>
-					<ResponseActions response={ sidePanelItem } onActionComplete={ handleActionComplete } />
 					<ResponseNavigation { ...navigationProps } onClose={ null } />
 				</>
 			}
 		>
 			{ contents }
+			<ResponseActions
+				isMobile={ true }
+				response={ sidePanelItem }
+				onActionComplete={ handleActionComplete }
+			/>
 		</Modal>
 	);
 };

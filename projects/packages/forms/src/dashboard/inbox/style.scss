@@ -536,3 +536,13 @@ body.jetpack_page_jetpack-forms-admin {
 	margin-left: -12px;
 	vertical-align: middle;
 }
+
+.jp-forms-response-actions-mobile {
+	display: flex;
+	justify-content: space-between;
+	padding: 8px 0;
+	position: fixed;
+	bottom: 12px;
+	margin: 0;
+	gap: 12px;
+}

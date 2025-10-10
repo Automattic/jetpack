@@ -4,6 +4,7 @@
 import { Button } from '@wordpress/components';
 import { useRegistry } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -25,12 +26,14 @@ type ResponseNavigationProps = {
 	onActionComplete?: ( id: string ) => void;
 	onMarkAsRead?: ( id: number | false ) => void;
 	response: FormResponse;
+	isMobile?: boolean;
 };
 
 const ResponseActions = ( {
 	onActionComplete,
 	onMarkAsRead,
 	response,
+	isMobile = false,
 }: ResponseNavigationProps ): JSX.Element => {
 	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
 	const [ isMarkingAsNotSpam, setIsMarkingAsNotSpam ] = useState( false );
@@ -89,11 +92,13 @@ const ResponseActions = ( {
 		setIsTogglingReadStatus( false );
 	}, [ response, registry ] );
 
+	const variant = isMobile ? 'secondary' : 'tertiary';
+
 	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
 				<Button
-					variant="tertiary"
+					variant={ variant }
 					onClick={ handleMarkAsRead }
 					isBusy={ isTogglingReadStatus }
 					showTooltip={ true }
@@ -101,11 +106,13 @@ const ResponseActions = ( {
 					iconSize={ 24 }
 					icon={ markAsReadAction.icon }
 					size="compact"
-				></Button>
+				>
+					{ isMobile ? __( 'Read', 'jetpack-forms' ) : null }
+				</Button>
 			) }
 			{ ! response.is_unread && (
 				<Button
-					variant="tertiary"
+					variant={ variant }
 					onClick={ handleMarkAsUnread }
 					isBusy={ isTogglingReadStatus }
 					showTooltip={ true }
@@ -113,18 +120,22 @@ const ResponseActions = ( {
 					iconSize={ 24 }
 					icon={ markAsUnreadAction.icon }
 					size="compact"
-				></Button>
+				>
+					{ isMobile ? __( 'Unread', 'jetpack-forms' ) : null }
+				</Button>
 			) }
 		</>
 	);
 
+	let buttons;
+
 	switch ( response.status ) {
 		case 'spam':
-			return (
+			buttons = (
 				<>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleMarkAsNotSpam }
 						isBusy={ isMarkingAsNotSpam }
 						showTooltip={ true }
@@ -132,9 +143,11 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ markAsNotSpamAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Restore', 'jetpack-forms' ) : null }
+					</Button>
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
 						showTooltip={ true }
@@ -142,16 +155,18 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ moveToTrashAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Trash', 'jetpack-forms' ) : null }
+					</Button>
 				</>
 			);
-
+			break;
 		case 'trash':
-			return (
+			buttons = (
 				<>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleRestore }
 						isBusy={ isRestoring }
 						showTooltip={ true }
@@ -159,9 +174,11 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ restoreAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Restore', 'jetpack-forms' ) : null }
+					</Button>
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleDelete }
 						showTooltip={ true }
 						isBusy={ isDeleting }
@@ -169,16 +186,19 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ deleteAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Delete', 'jetpack-forms' ) : null }
+					</Button>
 				</>
 			);
+			break;
 
 		default: // 'publish' (inbox) or any other status
-			return (
+			buttons = (
 				<>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleMarkAsSpam }
 						isBusy={ isMarkingAsSpam }
 						showTooltip={ true }
@@ -186,9 +206,11 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ markAsSpamAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Spam', 'jetpack-forms' ) : null }
+					</Button>
 					<Button
-						variant="tertiary"
+						variant={ variant }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
 						showTooltip={ true }
@@ -196,10 +218,17 @@ const ResponseActions = ( {
 						iconSize={ 24 }
 						icon={ moveToTrashAction.icon }
 						size="compact"
-					></Button>
+					>
+						{ isMobile ? __( 'Trash', 'jetpack-forms' ) : null }
+					</Button>
 				</>
 			);
 	}
+
+	if ( isMobile ) {
+		return <div className="jp-forms-response-actions-mobile">{ buttons }</div>;
+	}
+	return buttons;
 };
 
 export default ResponseActions;
