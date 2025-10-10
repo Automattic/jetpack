@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Handle lazy-loading of WP_User object properties.
