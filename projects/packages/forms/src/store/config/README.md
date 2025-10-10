@@ -197,24 +197,180 @@ function ResetButton() {
 
 ## How It Works
 
-1. **Automatic Fetching**: The first time you access config data (via `useConfigValue` or `getConfigValue` selector), the store automatically fetches it from `/wp/v2/feedback/config`
+1. **Automatic Fetching**: The first time you access config data, the store automatically fetches it from `/wp/v2/feedback/config`
 2. **Caching**: Once fetched, the config is cached in the Redux store and won't be re-fetched unless you explicitly invalidate it
-3. **Resolvers**: The store uses WordPress data resolvers to handle async fetching automatically:
-   - `getConfig` resolver: Triggered when calling the `getConfig()` selector
-   - `getConfigValue` resolver: Triggered when calling `getConfigValue(key)` selector - only fetches if config is not already loaded
-4. **Type Safety**: Full TypeScript support ensures you only access valid config keys
+3. **Request Deduplication**: Multiple simultaneous calls to `useConfigValue()` with different keys trigger only ONE API request
+4. **Resolvers**: The store uses WordPress data resolvers to handle async fetching automatically
+5. **Type Safety**: Full TypeScript support ensures you only access valid config keys
 
 ### Resolver Behavior
 
-The config store has two resolvers:
+The config store has one resolver: `getConfig`
 
-- **`getConfig` resolver**: Always fetches the config from the API
-- **`getConfigValue` resolver**: Smart resolver that only fetches if config hasn't been loaded yet
+**How `useConfigValue` works:**
 
-When you use `useConfigValue('hasAI')`:
-1. The hook calls the `getConfigValue('hasAI')` selector
-2. WordPress automatically triggers the `getConfigValue` resolver
-3. The resolver checks if config is already loaded
+When you call `useConfigValue('hasAI')`:
+1. The hook internally calls `getConfig()` selector to fetch the entire config object
+2. WordPress automatically triggers the `getConfig` resolver if config isn't loaded
+3. The resolver checks if config is already loaded or currently loading via `isFulfilled`
 4. If not loaded, it fetches from `/wp/v2/feedback/config`
-5. Once loaded, subsequent calls to any config value use the cached data
+5. Once loaded, it returns the value for the specific key (`config.hasAI`)
+6. Subsequent calls to `useConfigValue()` with any key use the cached config
 
+**Request Deduplication:**
+
+Multiple components calling different config values simultaneously:
+```typescript
+// Component A
+const hasAI = useConfigValue('hasAI');
+
+// Component B
+const blogId = useConfigValue('blogId');
+
+// Component C
+const canInstall = useConfigValue('canInstallPlugins');
+```
+
+All three calls trigger the same `getConfig` resolver, but the resolver's `isFulfilled` check ensures only ONE API request is made. All components receive their respective values from the same fetched config object.
+
+## Benefits
+
+- **Performance**: Config is fetched once and cached, avoiding redundant API calls
+- **Request Deduplication**: Multiple simultaneous calls with different keys result in only one API request
+- **Consistency**: All components get the same config data from a single source
+- **Type Safety**: TypeScript autocomplete helps you use the correct config keys
+- **Async by Default**: All config fetching happens asynchronously without blocking UI
+- **Error Handling**: Built-in loading and error states make it easy to handle failures
+- **Standard Pattern**: Follows WordPress data API best practices
+
+## Implementation Details
+
+### isFulfilled Check
+
+The resolver uses an `isFulfilled` function to prevent duplicate requests:
+
+```typescript
+isFulfilled: (state: ConfigState) => {
+  // Consider fulfilled if config exists or is currently loading
+  return state.config !== null || state.isLoading;
+}
+```
+
+This ensures that:
+- If config is already loaded, no fetch occurs
+- If a fetch is in progress (`isLoading: true`), subsequent calls wait for the same fetch
+- Only the first call actually triggers the API request
+
+### Store Structure
+
+```typescript
+type ConfigState = {
+  config: Partial<FormsConfigData> | null;
+  isLoading: boolean;
+  error: string | null;
+};
+```
+
+## Adding a New Config Key
+
+To add a new configuration value to the config store, follow these steps:
+
+### 1. Update the PHP Endpoint
+
+First, add your new config value to the REST API endpoint response. In the Forms package, this is typically done in the endpoint handler:
+
+```php
+// src/contact-form/class-contact-form-endpoint.php
+public function get_config() {
+    return array(
+        'isMailPoetEnabled' => $this->is_mailpoet_enabled(),
+        'hasAI' => $this->has_ai(),
+        // Add your new key here
+        'myNewFeature' => $this->check_my_new_feature(),
+    );
+}
+```
+
+### 2. Update the TypeScript Type Definition
+
+Add the new key to the `FormsConfigData` interface in `src/types/index.ts`:
+
+```typescript
+export interface FormsConfigData {
+    /** Whether MailPoet integration is enabled across contexts. */
+    isMailPoetEnabled?: boolean;
+
+    /** Whether AI Assist features are available for the site/user. */
+    hasAI?: boolean;
+
+    /** Whether my new feature is enabled. */
+    myNewFeature?: boolean; // Add your new key with proper JSDoc
+
+    // ... other keys
+}
+```
+
+**Important Notes:**
+- Add JSDoc comments to document what the config value represents
+- Use optional properties (`?`) since not all config values may be present in all contexts
+- Use appropriate TypeScript types (`boolean`, `string`, `number`, etc.)
+
+### 3. Update the README
+
+Add your new config key to the "Available Config Keys" section above:
+
+```markdown
+- `myNewFeature` - Whether my new feature is enabled
+```
+
+### 4. Use the New Config Value
+
+Now you can use your new config value in any component:
+
+```typescript
+import useConfigValue from '../hooks/use-config-value';
+
+function MyComponent() {
+  const myNewFeature = useConfigValue('myNewFeature');
+
+  if (myNewFeature === undefined) {
+    return <Spinner />;
+  }
+
+  return myNewFeature ? <NewFeature /> : <OldFeature />;
+}
+```
+
+### Complete Example
+
+Here's a complete example of adding a new `showBetaFeatures` config:
+
+**1. PHP (endpoint):**
+```php
+return array(
+    'showBetaFeatures' => current_user_can('manage_options') && get_option('jetpack_forms_beta_features', false),
+);
+```
+
+**2. TypeScript (`src/types/index.ts`):**
+```typescript
+export interface FormsConfigData {
+    /** Whether beta features should be shown to the current user. */
+    showBetaFeatures?: boolean;
+    // ... other keys
+}
+```
+
+**3. README:**
+```markdown
+- `showBetaFeatures` - Whether beta features should be shown to the current user
+```
+
+**4. Usage:**
+```typescript
+function BetaFeatureToggle() {
+  const showBeta = useConfigValue('showBetaFeatures');
+
+  return showBeta && <BetaFeaturesPanel />;
+}
+```
