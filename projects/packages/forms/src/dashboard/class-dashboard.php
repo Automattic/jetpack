@@ -101,12 +101,15 @@ class Dashboard {
 			),
 			'/wp/v2/feedback'
 		);
+		$filters_path                  = '/wp/v2/feedback/filters';
+		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
 			'/wp/v2/feedback/integrations?version=2',
 			'/wp/v2/feedback/counts',
-			'/wp/v2/feedback/filters',
+			$filters_path,
+			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
 		);
