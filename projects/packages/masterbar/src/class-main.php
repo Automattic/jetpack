@@ -44,10 +44,8 @@ class Main {
 
 		$host = new Host();
 
-		if ( $host->is_wpcom_platform() ) {
-			new Inline_Help();
-			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
-		}
+		new Inline_Help();
+		require_once __DIR__ . '/wp-posts-list/bootstrap.php';
 
 		if ( $host->is_woa_site() ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';
