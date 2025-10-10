@@ -10,16 +10,6 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 use Automattic\Jetpack\Plans;
 
 /**
- * Checks if Global Styles on personal are available on the current site either by A/B test assign or feature flag.
- *
- * @return bool Whether Global Styles are available.
- */
-function is_global_styles_on_personal_plan() {
-	return wpcom_site_has_global_styles_in_personal_plan()
-		|| ( class_exists( 'WPCOM_Feature_Flags' ) && WPCOM_Feature_Flags::is_enabled( WPCOM_Feature_Flags::GLOBAL_STYLES_ON_PERSONAL_PLAN ) );
-}
-
-/**
  * Checks if Global Styles should be limited on the given site.
  *
  * @param  int $blog_id Blog ID.
@@ -37,22 +27,7 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 	}
 
 	if ( ! $blog_id ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-		} elseif ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			/*
-			 * Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
-			 * doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
-			 */
-			$jetpack_options = get_option( 'jetpack_options' );
-			if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-				$blog_id = (int) $jetpack_options['id'];
-			} else {
-				$blog_id = get_current_blog_id();
-			}
-		} else {
-			return false;
-		}
+		$blog_id = get_wpcom_blog_id();
 	}
 
 	// Do not limit Global Styles on theme demo sites.
@@ -77,11 +52,6 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 		return false;
 	}
 
-	// Do not limit Global Styles on self-hosted Jetpack sites.
-	if ( wpcom_global_styles_is_self_hosted_site( $blog_id ) ) {
-		return false;
-	}
-
 	// Do not limit Global Styles when live previewing a Premium theme without a Premium plan or higher
 	// because the live preview already shows an upgrade notice, and we avoid duplication.
 	if ( wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $blog_id ) ) {
@@ -89,20 +59,6 @@ function wpcom_should_limit_global_styles( $blog_id = 0 ) {
 	}
 
 	return true;
-}
-
-/**
- * Wrapper to test whether a blog is a self-hosted site
- *
- * @param int $blog_id The WPCOM blog ID.
- * @return bool Whether the site has the blog sticker.
- */
-function wpcom_global_styles_is_self_hosted_site( $blog_id ) {
-	if ( ! function_exists( 'is_jetpack_site' ) || ! function_exists( 'is_blog_atomic' ) ) {
-		return true;
-	}
-
-	return is_jetpack_site( $blog_id ) && ! is_blog_atomic( get_blog_details( $blog_id ) );
 }
 
 /**
@@ -154,14 +110,9 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		$learn_more_about_styles_post_id = WPCom_Languages::localize_url( $learn_more_about_styles_post_id );
 	}
 
-	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	if ( is_global_styles_on_personal_plan() ) {
-		$plan_name   = Plans::get_plan_short_name( 'personal-bundle' );
-		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=personal-bundle&feature=style-customization";
-	} else {
-		$plan_name   = Plans::get_plan_short_name( 'value_bundle' );
-		$upgrade_url = "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	}
+	$plan_slug   = wpcom_get_global_styles_upsell_plan_slug();
+	$plan_name   = Plans::get_plan_short_name( $plan_slug );
+	$upgrade_url = "$calypso_domain/plans/$site_slug?plan=$plan_slug&feature=style-customization";
 
 	wp_localize_script(
 		'wpcom-global-styles-editor',
@@ -352,16 +303,7 @@ function wpcom_global_styles_in_use_by_wp_global_styles_post( array $wp_global_s
  * @param int $blog_id Blog ID.
  * @return bool Whether the current user can edit the `wp_global_styles` post type.
  */
-function wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id = 0 ) {
-	// Non-Simple sites on a lower plan are temporary edge cases.
-	// We skip this check to prevent fatals on non-multisite installations.
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-		return true;
-	}
-
-	if ( ! $blog_id ) {
-		$blog_id = get_current_blog_id();
-	}
+function wpcom_simple_sites_global_styles_current_user_can_edit_wp_global_styles( $blog_id ) {
 	switch_to_blog( $blog_id );
 	$wp_global_styles_cpt = get_post_type_object( 'wp_global_styles' );
 	restore_current_blog();
@@ -417,9 +359,22 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 		return wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
 	}
 
+	/**
+	 * It's important to have this condition after the 'wpcom-premium-global-styles-exemption-checked' blog sticker is checked!
+	 *
+	 * Atomic sites do not have site exemptions because previously all Atomic sites were on Business/eCommerce.
+	 * Also, the summer special applies only to new sites.
+	 *
+	 * If plugins will be available on all SITES, not just new sites, this might not be true.
+	 * However, this shouldn't be a problem because the site should already have the sticker already applied on their site from the time they were on simple.
+	 */
+	if ( ! defined( 'IS_WPCOM' ) || IS_WPCOM ) {
+		return false;
+	}
+
 	// If the current user cannot modify the `wp_global_styles` CPT, the exemption check is not needed;
 	// other conditions will determine whether they can use GS.
-	if ( ! wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id ) ) {
+	if ( ! wpcom_simple_sites_global_styles_current_user_can_edit_wp_global_styles( $blog_id ) ) {
 		return false;
 	}
 
@@ -519,12 +474,6 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	// TODO: Remove this before merging. It's been added only to make easier the testing on Atomic sites.
-	$test_should_show_global_styles_admin_bar = apply_filters( 'wpcom_should_show_global_styles_admin_bar', false );
-	if ( $test_should_show_global_styles_admin_bar ) {
-		return true;
-	}
-
 	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
@@ -533,7 +482,6 @@ function wpcom_should_show_global_styles_admin_bar() {
 	$should_show_global_styles_admin_bar = true;
 	return $should_show_global_styles_admin_bar;
 }
-
 /**
  * Renders the global style notice in the admin bar.
  *
@@ -551,13 +499,8 @@ function wpcom_display_global_styles_notice_admin_bar( $wp_admin_bar ) {
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
 	}
 
-	// @TODO Remove this once the global styles are available for all users on the Personal Plan.
-	$gs_upgrade_plan = 'value_bundle';
-	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=value_bundle&feature=style-customization";
-	if ( is_global_styles_on_personal_plan() ) {
-		$gs_upgrade_plan = 'personal-bundle';
-		$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=personal-bundle&feature=style-customization";
-	}
+	$gs_upgrade_plan = wpcom_get_global_styles_upsell_plan_slug();
+	$upgrade_url     = "https://wordpress.com/plans/$site_slug?plan=$gs_upgrade_plan&feature=style-customization";
 
 	$support_url = function_exists( 'localized_wpcom_url' )
 		? localized_wpcom_url( 'https://wordpress.com/support/using-styles/' )
@@ -703,16 +646,17 @@ function wpcom_site_has_personal_plan( $blog_id ) {
  * @return bool Whether the site has access to Global Styles.
  */
 function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
-	/*
-	 * Non-Simple sites on a lower plan are temporary edge cases. We grant them access
-	 * to Global Styles to prevent unexpected temporary changes in their styles.
-	 */
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	if ( wpcom_site_has_feature( WPCOM_Features::GLOBAL_STYLES, $blog_id ) ) {
 		return true;
 	}
 
-	if ( wpcom_site_has_feature( WPCOM_Features::GLOBAL_STYLES, $blog_id ) ) {
-		return true;
+	/**
+	 * For now, we return false for Atomic sites since the A/B experiment logic for Personal plans needs to be modified.
+	 *
+	 * @todo: Rework the logic for personal plans experiments on Atomic sites if we want to perform an A/B test on Atomic.
+	 */
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		return false;
 	}
 
 	// Users who bought a Personal plan during the GS on Personal experiment should
@@ -769,10 +713,12 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
 /**
  * Checks whether the site has access to Global Styles with a Personal plan as part of an A/B test.
  *
+ * @todo: Update the code to support Atomic sites for A/B tests.
+ *
  * @param  int $blog_id Blog ID.
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
-function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
+function is_global_styles_on_personal_plan( $blog_id = 0 ) {
 	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 		return false;
 	}
@@ -815,10 +761,7 @@ function wpcom_site_has_global_styles_in_personal_plan( $blog_id = 0 ) {
  * @return string
  */
 function wpcom_get_global_styles_upsell_plan_slug() {
-	if ( wpcom_site_has_global_styles_in_personal_plan() ) {
-		return 'personal-bundle';
-	}
-
-	return 'value_bundle';
+	return is_global_styles_on_personal_plan() ? 'personal-bundle' : 'value_bundle';
 }
+
 add_filter( 'wpcom_customize_css_plan_slug', 'wpcom_get_global_styles_upsell_plan_slug' );
