@@ -342,10 +342,27 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewAction );
+			_actions.unshift( {
+				...viewAction,
+				RenderModal: ( { items, closeModal } ) => {
+					const [ item ] = items;
+					return <InboxResponseMobile response={ item } data={ data } closeModal={ closeModal } />;
+				},
+				hideModalHeader: true,
+			} );
+		} else {
+			_actions.unshift( {
+				...viewAction,
+				callback( items ) {
+					const [ item ] = items;
+					const selectedId = item.id.toString();
+					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				},
+			} );
 		}
 		return _actions;
-	}, [ isMobile ] );
+	}, [ isMobile, onChangeSelection, selection, data ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -389,6 +406,125 @@ export default function InboxView() {
 	);
 }
 
+/**
+ * Component wrapper for InboxResponse in DataViews modal
+ * Renders response with navigation in modal header for mobile view
+ * @param {object}   props            - The props object.
+ * @param {Array}    props.data       - The responses list array.
+ * @param {object}   props.response   - The response item.
+ * @param {Function} props.closeModal - Function to close the DataViews modal.
+ * @return {import('react').JSX.Element} The DataViews component.
+ */
+const InboxResponseMobile = ( { response, data, closeModal } ) => {
+	const [ currentResponse, setCurrentResponse ] = useState( response );
+
+	const currentIndex = useMemo(
+		() =>
+			currentResponse && data
+				? data.findIndex( item => getItemId( item ) === getItemId( currentResponse ) )
+				: -1,
+		[ currentResponse, data ]
+	);
+
+	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
+	const hasPrevious = currentIndex > 0;
+
+	const handleNext = useCallback( () => {
+		if ( hasNext && data && currentIndex >= 0 ) {
+			const nextItem = data[ currentIndex + 1 ];
+			if ( nextItem ) {
+				setCurrentResponse( nextItem );
+				// onChangeSelection( [ getItemId( nextItem ) ] );
+			}
+		}
+	}, [ hasNext, data, currentIndex ] );
+
+	const handlePrevious = useCallback( () => {
+		if ( hasPrevious && data && currentIndex >= 0 ) {
+			const prevItem = data[ currentIndex - 1 ];
+			if ( prevItem ) {
+				setCurrentResponse( prevItem );
+				// onChangeSelection( [ getItemId( prevItem ) ] );
+			}
+		}
+	}, [ hasPrevious, data, currentIndex ] );
+
+	const handleActionComplete = useCallback( () => {
+		closeModal?.();
+	}, [ closeModal ] );
+
+	return (
+		<div className="jp-forms__inbox__response-mobile">
+			<HStack
+				spacing="2"
+				justify="space-between"
+				className="jp-forms__inbox__response-mobile__header"
+			>
+				<h1 className="jp-forms__inbox__response-mobile__header-heading">
+					{ __( 'Response', 'jetpack-forms' ) }
+				</h1>
+				<div>
+					<ResponseActions response={ currentResponse } onActionComplete={ handleActionComplete } />
+					<ResponseNavigation
+						hasNext={ hasNext }
+						hasPrevious={ hasPrevious }
+						onNext={ handleNext }
+						onPrevious={ handlePrevious }
+						onClose={ closeModal }
+					/>
+				</div>
+			</HStack>
+			<InboxResponse
+				isMobile={ true }
+				isLoading={ false }
+				response={ currentResponse }
+				onClose={ null }
+			/>
+		</div>
+	);
+};
+
+const useResponseNavigation = ( { data, onChangeSelection, sidePanelItem, setSidePanelItem } ) => {
+	const currentIndex = useMemo(
+		() =>
+			sidePanelItem && data
+				? data.findIndex( item => getItemId( item ) === getItemId( sidePanelItem ) )
+				: -1,
+		[ sidePanelItem, data ]
+	);
+
+	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
+	const hasPrevious = currentIndex > 0;
+
+	const handleNext = useCallback( () => {
+		if ( hasNext && data && currentIndex >= 0 ) {
+			const nextItem = data[ currentIndex + 1 ];
+			if ( nextItem ) {
+				setSidePanelItem( nextItem );
+				onChangeSelection( [ getItemId( nextItem ) ] );
+			}
+		}
+	}, [ hasNext, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+
+	const handlePrevious = useCallback( () => {
+		if ( hasPrevious && data && currentIndex >= 0 ) {
+			const prevItem = data[ currentIndex - 1 ];
+			if ( prevItem ) {
+				setSidePanelItem( prevItem );
+				onChangeSelection( [ getItemId( prevItem ) ] );
+			}
+		}
+	}, [ hasPrevious, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+
+	return {
+		currentIndex,
+		hasNext,
+		hasPrevious,
+		handleNext,
+		handlePrevious,
+	};
+};
+
 const SingleResponse = ( {
 	sidePanelItem,
 	setSidePanelItem,
@@ -424,54 +560,42 @@ const SingleResponse = ( {
 		[ onChangeSelection, selection ]
 	);
 
-	// Navigation logic
-	const currentIndex =
-		sidePanelItem && data
-			? data.findIndex( item => getItemId( item ) === getItemId( sidePanelItem ) )
-			: -1;
-	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
-	const hasPrevious = currentIndex > 0;
-
-	const handleNext = useCallback( () => {
-		if ( hasNext && data && currentIndex >= 0 ) {
-			const nextItem = data[ currentIndex + 1 ];
-			if ( nextItem ) {
-				setSidePanelItem( nextItem );
-				onChangeSelection( [ getItemId( nextItem ) ] );
-			}
-		}
-	}, [ hasNext, data, currentIndex, setSidePanelItem, onChangeSelection ] );
-
-	const handlePrevious = useCallback( () => {
-		if ( hasPrevious && data && currentIndex >= 0 ) {
-			const prevItem = data[ currentIndex - 1 ];
-			if ( prevItem ) {
-				setSidePanelItem( prevItem );
-				onChangeSelection( [ getItemId( prevItem ) ] );
-			}
-		}
-	}, [ hasPrevious, data, currentIndex, setSidePanelItem, onChangeSelection ] );
+	// Use the navigation hook
+	const navigation = useResponseNavigation( {
+		data,
+		onChangeSelection,
+		sidePanelItem,
+		setSidePanelItem,
+	} );
 
 	if ( ! sidePanelItem ) {
 		return null;
 	}
+
+	// Navigation props to pass to InboxResponse and ResponseNavigation
+	const navigationProps = {
+		hasNext: navigation.hasNext,
+		hasPrevious: navigation.hasPrevious,
+		onNext: navigation.handleNext,
+		onPrevious: navigation.handlePrevious,
+	};
+
 	const contents = (
 		<InboxResponse
 			response={ sidePanelItem }
 			isLoading={ isLoadingData }
 			isMobile={ isMobile }
 			onModalStateChange={ handleModalStateChange }
-			onClose={ onRequestClose }
-			onNext={ handleNext }
-			onPrevious={ handlePrevious }
-			hasNext={ hasNext }
-			hasPrevious={ hasPrevious }
+			onClose={ isMobile ? null : onRequestClose }
+			{ ...navigationProps }
 			onActionComplete={ handleActionComplete }
 		/>
 	);
+
 	if ( ! isMobile ) {
 		return <div className="jp-forms__inbox__dataviews-response">{ contents }</div>;
 	}
+
 	return (
 		<Modal
 			title={ __( 'Response', 'jetpack-forms' ) }
@@ -480,13 +604,7 @@ const SingleResponse = ( {
 			headerActions={
 				<>
 					<ResponseActions response={ sidePanelItem } onActionComplete={ handleActionComplete } />
-					<ResponseNavigation
-						hasNext={ hasNext }
-						hasPrevious={ hasPrevious }
-						onClose={ null }
-						onNext={ handleNext }
-						onPrevious={ handlePrevious }
-					/>
+					<ResponseNavigation { ...navigationProps } onClose={ null } />
 				</>
 			}
 		>

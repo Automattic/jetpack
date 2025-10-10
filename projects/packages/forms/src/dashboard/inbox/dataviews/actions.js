@@ -6,7 +6,6 @@ import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
-import InboxResponse from '../response';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
 export const BULK_ACTIONS = {
@@ -20,10 +19,6 @@ export const viewAction = {
 	isPrimary: true,
 	label: __( 'View response', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
-	RenderModal: ( { items } ) => {
-		const [ item ] = items;
-		return <InboxResponse isLoading={ false } response={ item } />;
-	},
 };
 
 // TODO: We should probably have better error messages in case of failure.
