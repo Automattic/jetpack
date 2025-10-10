@@ -464,12 +464,6 @@ function wpcom_should_show_global_styles_admin_bar() {
 		return $should_show_global_styles_admin_bar;
 	}
 
-	// TODO: Remove this before merging. It's been added only to make easier the testing on Atomic sites.
-	$test_should_show_global_styles_admin_bar = apply_filters( 'wpcom_should_show_global_styles_admin_bar', false );
-	if ( $test_should_show_global_styles_admin_bar ) {
-		return true;
-	}
-
 	if ( ! wpcom_should_limit_global_styles() || ! wpcom_global_styles_in_use() ) {
 		$should_show_global_styles_admin_bar = false;
 		return $should_show_global_styles_admin_bar;
