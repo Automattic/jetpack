@@ -35,6 +35,9 @@ class Main {
 			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
 		}
 
+		// Show Additional CSS nudges on both Simple and Atomic, independently of the admin interface.
+		require_once __DIR__ . '/nudges/bootstrap.php';
+
 		if ( $is_wp_admin_interface ) {
 			return;
 		}
@@ -44,7 +47,6 @@ class Main {
 		if ( $host->is_wpcom_platform() ) {
 			new Inline_Help();
 			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
-			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
 		if ( $host->is_woa_site() ) {
