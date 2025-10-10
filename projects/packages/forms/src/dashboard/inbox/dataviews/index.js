@@ -434,7 +434,6 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 			const nextItem = data[ currentIndex + 1 ];
 			if ( nextItem ) {
 				setCurrentResponse( nextItem );
-				// onChangeSelection( [ getItemId( nextItem ) ] );
 			}
 		}
 	}, [ hasNext, data, currentIndex ] );
@@ -444,7 +443,6 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 			const prevItem = data[ currentIndex - 1 ];
 			if ( prevItem ) {
 				setCurrentResponse( prevItem );
-				// onChangeSelection( [ getItemId( prevItem ) ] );
 			}
 		}
 	}, [ hasPrevious, data, currentIndex ] );
