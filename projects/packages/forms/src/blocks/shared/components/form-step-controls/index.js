@@ -6,6 +6,8 @@ import {
 	MenuGroup,
 	MenuItem,
 	ToolbarDropdownMenu,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalTruncate as Truncate,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -122,7 +124,9 @@ export default function StepControls( { formClientId } ) {
 										) : null
 									}
 								>
-									{ getStepLabel( index, step?.attributes?.stepLabel ) }
+									<Truncate limit={ 50 }>
+										{ getStepLabel( index, step?.attributes?.stepLabel ) }
+									</Truncate>
 								</MenuItem>
 							) ) }
 						</MenuGroup>
