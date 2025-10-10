@@ -326,6 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
+### 15.1.1 - 2025-10-10
+#### Bug fixes
+- Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org.
+
 ### 15.1 - 2025-10-08
 
 - Testimonials: Prevent warning when custom post type is not registered.
