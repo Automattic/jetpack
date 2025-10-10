@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Expose the Settings > Permalinks upsell screen at `options-general.php?page=options-permalink` on Atomic sites that have the `summer-special-2025` blog sticker (Personal/Premium). This does not grant the Permalinks feature.
