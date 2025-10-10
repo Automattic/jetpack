@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
 - Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
 - Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
-- My Jetpack: Fixed multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
 - Update package dependencies. [#44677] [#44701] [#44725]
 
 ### Fixed
