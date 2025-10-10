@@ -15,6 +15,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data';
+import { store as dashboardStore } from '../../store';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
@@ -42,11 +43,12 @@ const EmptyTrashButton = ( {
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateCounts } = useDispatch( dashboardStore );
 
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsTrash = totalItemsTrashProp ?? hookData.totalItemsTrash;
-	const isLoadingCounts = isLoadingCountsProp ?? hookData.isLoadingCounts;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
 	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
@@ -103,12 +105,15 @@ const EmptyTrashButton = ( {
 					'feedback',
 					{ ...currentQuery, per_page: 1, _fields: 'id' },
 				] );
+				// invalidate counts to refresh the counts across all status tabs
+				invalidateCounts();
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
 		invalidateResolution,
+		invalidateCounts,
 		isEmpty,
 		isEmptying,
 		currentQuery,

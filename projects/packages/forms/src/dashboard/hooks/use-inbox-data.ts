@@ -1,11 +1,9 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
-import { addQueryArgs } from '@wordpress/url';
+import { useMemo } from '@wordpress/element';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -39,7 +37,6 @@ interface UseInboxDataReturn {
 	totalItemsTrash: number;
 	records: FormResponse[];
 	isLoadingData: boolean;
-	isLoadingCounts: boolean;
 	totalItems: number;
 	totalPages: number;
 	selectedResponsesCount: number;
@@ -58,7 +55,7 @@ interface UseInboxDataReturn {
  */
 export default function useInboxData(): UseInboxDataReturn {
 	const [ searchParams ] = useSearchParams();
-	const { setCurrentQuery, setSelectedResponses, setCounts } = useDispatch( dashboardStore );
+	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
@@ -107,40 +104,32 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	const [ isLoadingCounts, setIsLoadingCounts ] = useState( false );
+	// Prepare query params for counts resolver
+	const countsQueryParams = useMemo( () => {
+		const params: Record< string, unknown > = {};
+		if ( currentQuery?.search ) {
+			params.search = currentQuery.search;
+		}
+		if ( currentQuery?.parent ) {
+			params.parent = currentQuery.parent;
+		}
+		if ( currentQuery?.before ) {
+			params.before = currentQuery.before;
+		}
+		if ( currentQuery?.after ) {
+			params.after = currentQuery.after;
+		}
+		return params;
+	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
 
-	useEffect( () => {
-		const fetchCounts = async () => {
-			setIsLoadingCounts( true );
-			const params: Record< string, unknown > = {};
-			if ( currentQuery?.search ) {
-				params.search = currentQuery.search;
-			}
-			if ( currentQuery?.parent ) {
-				params.parent = currentQuery.parent;
-			}
-			if ( currentQuery?.before ) {
-				params.before = currentQuery.before;
-			}
-			if ( currentQuery?.after ) {
-				params.after = currentQuery.after;
-			}
-			const path = addQueryArgs( '/wp/v2/feedback/counts', params );
-			const response = await apiFetch< { inbox: number; spam: number; trash: number } >( {
-				path,
-			} );
-			setCounts( response );
-			setIsLoadingCounts( false );
-		};
-
-		fetchCounts();
-	}, [
-		currentQuery?.search,
-		currentQuery?.parent,
-		currentQuery?.before,
-		currentQuery?.after,
-		setCounts,
-	] );
+	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
+	// The resolver ensures counts are only fetched once for the same query params across all hook instances
+	useSelect(
+		select => {
+			select( dashboardStore ).getCounts( countsQueryParams );
+		},
+		[ countsQueryParams ]
+	);
 
 	return {
 		totalItemsInbox,
@@ -148,7 +137,6 @@ export default function useInboxData(): UseInboxDataReturn {
 		totalItemsTrash,
 		records,
 		isLoadingData: isLoadingRecordsData,
-		isLoadingCounts,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

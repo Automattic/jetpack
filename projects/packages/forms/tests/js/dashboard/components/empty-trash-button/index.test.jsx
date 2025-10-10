@@ -76,6 +76,7 @@ jest.mock( '@wordpress/data', () => {
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
 		setSelectedResponses: jest.fn(),
+		invalidateCounts: jest.fn(),
 	};
 
 	const mockSelect = {
@@ -102,6 +103,7 @@ jest.mock( '@wordpress/data', () => {
 					setCounts: mockDispatch.setCounts,
 					setCurrentQuery: mockDispatch.setCurrentQuery,
 					setSelectedResponses: mockDispatch.setSelectedResponses,
+					invalidateCounts: mockDispatch.invalidateCounts,
 				};
 			}
 			return {};
