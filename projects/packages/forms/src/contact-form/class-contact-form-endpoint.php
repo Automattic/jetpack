@@ -1193,8 +1193,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						new \Hostinger\Reach\Functions(), // @phan-suppress-current-line PhanUndeclaredClassMethod
 						new \Hostinger\Reach\Api\ApiKeyManager() // @phan-suppress-current-line PhanUndeclaredClassMethod
 					);
-					// @phan-suppress-next-line PhanUndeclaredClassMethod
 					if ( method_exists( $reach_handler, 'is_connected' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredClassMethod
 						$status['isConnected'] = (bool) $reach_handler->is_connected();
 					}
 				}
