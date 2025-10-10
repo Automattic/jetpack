@@ -16,6 +16,16 @@ use Automattic\Jetpack\Plans;
  * @return bool Whether Global Styles are limited.
  */
 function wpcom_should_limit_global_styles( $blog_id = 0 ) {
+	/**
+	 * Filter to force a limited Global Styles scenario. Useful for unit testing.
+	 *
+	 * @param bool $force_limit_global_styles Whether Global Styles are forced to be limited.
+	 */
+	$force_limit_global_styles = apply_filters( 'wpcom_force_limit_global_styles', false );
+	if ( $force_limit_global_styles ) {
+		return true;
+	}
+
 	if ( ! $blog_id ) {
 		$blog_id = get_wpcom_blog_id();
 	}
