@@ -4,6 +4,10 @@
 	body.jetpack_page_my-jetpack p#dolly {
 		position: absolute;
 		right: 0;
+
+		@media (max-width: 782px) {
+			padding-right: 10px;
+		}
 	}
 
 	#my-jetpack-container {
