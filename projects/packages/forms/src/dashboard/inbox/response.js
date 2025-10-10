@@ -37,7 +37,7 @@ import {
 	markAsReadAction,
 	markAsUnreadAction,
 } from './dataviews/actions';
-import { getPath, updateMenuCounter } from './utils';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from './utils';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -550,6 +550,11 @@ const InboxResponse = ( {
 			is_unread: false,
 		} );
 
+		// Immediately update menu counters optimistically to avoid delays
+		if ( response.status === 'publish' ) {
+			updateMenuCounterOptimistically( -1 );
+		}
+
 		// Then update on server
 		apiFetch( {
 			path: `/wp/v2/feedback/${ response.id }/read`,
@@ -557,12 +562,19 @@ const InboxResponse = ( {
 			data: { is_unread: false },
 		} )
 			.then( ( { count } ) => {
+				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
 			} )
 			.catch( () => {
+				// Revert the change in the store
 				editEntityRecord( 'postType', 'feedback', response.id, {
 					is_unread: true,
 				} );
+
+				// Revert the change in the sidebar
+				if ( response.status === 'publish' ) {
+					updateMenuCounterOptimistically( 1 );
+				}
 			} );
 	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 

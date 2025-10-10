@@ -7,7 +7,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
-import { updateMenuCounter } from '../utils';
+import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
@@ -340,8 +340,9 @@ export const markAsReadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
 		const promises = await Promise.allSettled(
-			items.map( async ( { id } ) => {
+			items.map( async ( { id, status } ) => {
 				// Get current entity from store
 				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
 
@@ -350,6 +351,11 @@ export const markAsReadAction = {
 					editEntityRecord( 'postType', 'feedback', id, {
 						is_unread: false,
 					} );
+
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( -1 );
+					}
 				}
 
 				// Update on server
@@ -359,7 +365,7 @@ export const markAsReadAction = {
 					data: { is_unread: false },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the menu.
+						// Update menu counter with accurate count from server.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
@@ -368,6 +374,11 @@ export const markAsReadAction = {
 							editEntityRecord( 'postType', 'feedback', id, {
 								is_unread: true,
 							} );
+
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( 1 );
+							}
 						}
 						throw new Error( 'Failed to mark as read' );
 					} );
@@ -419,7 +430,7 @@ export const markAsUnreadAction = {
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const promises = await Promise.allSettled(
-			items.map( async ( { id } ) => {
+			items.map( async ( { id, status } ) => {
 				// Get current entity from store
 				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
 
@@ -428,6 +439,11 @@ export const markAsUnreadAction = {
 					editEntityRecord( 'postType', 'feedback', id, {
 						is_unread: true,
 					} );
+
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( 1 );
+					}
 				}
 
 				// Update on server
@@ -437,7 +453,7 @@ export const markAsUnreadAction = {
 					data: { is_unread: true },
 				} )
 					.then( ( { count } ) => {
-						// Update the unread count in the menu.
+						// Update menu counter with accurate count from server.
 						updateMenuCounter( count );
 					} )
 					.catch( () => {
@@ -446,6 +462,11 @@ export const markAsUnreadAction = {
 							editEntityRecord( 'postType', 'feedback', id, {
 								is_unread: false,
 							} );
+
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( -1 );
+							}
 						}
 						throw new Error( 'Failed to mark as unread' );
 					} );
