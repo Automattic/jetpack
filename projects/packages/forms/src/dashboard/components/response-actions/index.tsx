@@ -22,14 +22,12 @@ import {
 import type { FormResponse } from '../../../types';
 
 type ResponseNavigationProps = {
-	onActionComplete?: ( id: string ) => void;
-	onMarkAsRead?: ( id: number | false ) => void;
+	onActionComplete?: ( FormResponse ) => void;
 	response: FormResponse;
 };
 
 const ResponseActions = ( {
 	onActionComplete,
-	onMarkAsRead,
 	response,
 }: ResponseNavigationProps ): JSX.Element => {
 	const [ isMarkingAsSpam, setIsMarkingAsSpam ] = useState( false );
@@ -78,16 +76,17 @@ const ResponseActions = ( {
 
 	const handleMarkAsRead = useCallback( async () => {
 		setIsTogglingReadStatus( true );
-		onMarkAsRead?.( response.id );
 		await markAsReadAction.callback( [ response ], { registry } );
 		setIsTogglingReadStatus( false );
-	}, [ response, registry, onMarkAsRead ] );
+		onActionComplete?.( { ...response, is_unread: false } );
+	}, [ response, registry, onActionComplete ] );
 
 	const handleMarkAsUnread = useCallback( async () => {
 		setIsTogglingReadStatus( true );
 		await markAsUnreadAction.callback( [ response ], { registry } );
 		setIsTogglingReadStatus( false );
-	}, [ response, registry ] );
+		onActionComplete?.( { ...response, is_unread: true } );
+	}, [ response, registry, onActionComplete ] );
 
 	const readUnreadButtons = (
 		<>

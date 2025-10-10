@@ -447,9 +447,19 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 		}
 	}, [ hasPrevious, data, currentIndex ] );
 
-	const handleActionComplete = useCallback( () => {
-		closeModal?.();
-	}, [ closeModal ] );
+	// Action complete handler is a bit different on mobile view.
+	// We don't close the modal if the response hasn't changed status (read/unread toggle)
+	// and we don't change nor mess with the selection.
+	const handleActionComplete = useCallback(
+		actionedResponse => {
+			if ( actionedResponse && actionedResponse.status === response.status ) {
+				setCurrentResponse( actionedResponse );
+				return;
+			}
+			closeModal?.();
+		},
+		[ closeModal, response ]
+	);
 
 	return (
 		<div className="jp-forms__inbox__response-mobile">
@@ -548,14 +558,19 @@ const SingleResponse = ( {
 	);
 
 	const handleActionComplete = useCallback(
-		actionedItemId => {
+		actionedItem => {
 			// Remove only the actioned item from selection, keep the rest
-			if ( actionedItemId && selection ) {
-				const newSelection = selection.filter( id => id !== actionedItemId );
+			if ( actionedItem?.id && selection ) {
+				const newSelection = selection.filter( id => id !== actionedItem.id );
 				onChangeSelection( newSelection );
 			}
+			// if the action is on current response and hasn't changed status,
+			// don't close the modal but update the side panel item
+			if ( actionedItem?.id === sidePanelItem.id && actionedItem.status === sidePanelItem.status ) {
+				setSidePanelItem( actionedItem );
+			}
 		},
-		[ onChangeSelection, selection ]
+		[ onChangeSelection, selection, sidePanelItem, setSidePanelItem ]
 	);
 
 	// Use the navigation hook

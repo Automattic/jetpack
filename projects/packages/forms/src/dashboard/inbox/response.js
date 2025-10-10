@@ -368,10 +368,6 @@ const InboxResponse = ( {
 			} );
 	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 
-	const onMarkAsRead = useCallback( responseId => {
-		setHasMarkedSelfAsRead( responseId );
-	}, [] );
-
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
 	}, [ setIsImageLoading ] );
@@ -397,11 +393,7 @@ const InboxResponse = ( {
 			{ ! isMobile && (
 				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
 					<HStack alignment="left">
-						<ResponseActions
-							onActionComplete={ onActionComplete }
-							onMarkAsRead={ onMarkAsRead }
-							response={ response }
-						/>
+						<ResponseActions onActionComplete={ onActionComplete } response={ response } />
 					</HStack>
 					<HStack alignment="right">
 						<ResponseNavigation
