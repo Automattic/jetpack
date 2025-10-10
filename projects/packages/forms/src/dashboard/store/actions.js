@@ -9,6 +9,7 @@ import {
 	INVALIDATE_FILTERS,
 	SET_COUNTS,
 	UPDATE_COUNTS_OPTIMISTICALLY,
+	INVALIDATE_COUNTS,
 } from './action-types';
 
 /**
@@ -28,6 +29,15 @@ export function receiveFilters( filters ) {
 // the filters in the dashboard to reflect the changes.
 export const invalidateFilters = () => {
 	return { type: INVALIDATE_FILTERS };
+};
+
+/**
+ * Invalidate the counts when responses are deleted.
+ *
+ * @return {object} Action object.
+ */
+export const invalidateCounts = () => {
+	return { type: INVALIDATE_COUNTS };
 };
 
 /**

@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { INVALIDATE_FILTERS } from './action-types';
+import { INVALIDATE_FILTERS, INVALIDATE_COUNTS } from './action-types';
 
 export const getFilters =
 	() =>
@@ -39,3 +39,5 @@ export const getCounts =
 		const response = await apiFetch( { path } );
 		dispatch.setCounts( response );
 	};
+
+getCounts.shouldInvalidate = action => action.type === INVALIDATE_COUNTS;
