@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../../../../hooks/use-forms-config';
+import useConfigValue from '../../../../../hooks/use-config-value';
 import { usePluginInstallation } from '../hooks/use-plugin-installation';
 
 type PluginActionButtonProps = {
@@ -34,9 +34,9 @@ const PluginActionButton = ( {
 		trackEventName
 	);
 
-	const config = useFormsConfig();
-	const canUserInstallPlugins = Boolean( config?.canInstallPlugins );
-	const canUserActivatePlugins = Boolean( config?.canActivatePlugins );
+	// Permissions from consolidated Forms config (shared across editor and dashboard)
+	const canUserInstallPlugins = useConfigValue( 'canInstallPlugins' );
+	const canUserActivatePlugins = useConfigValue( 'canActivatePlugins' );
 
 	const canPerformAction = isInstalled ? canUserActivatePlugins : canUserInstallPlugins;
 	const [ isReconcilingStatus, setIsReconcilingStatus ] = useState( false );

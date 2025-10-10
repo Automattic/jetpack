@@ -11,11 +11,10 @@ import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../../hooks/use-forms-config';
+import useConfigValue from '../../../hooks/use-config-value';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../inbox/export-responses';
-import { config } from '../../index';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
@@ -27,9 +26,9 @@ const Layout = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const formsConfig = useFormsConfig();
 
-	const enableIntegrationsTab = Boolean( formsConfig?.isIntegrationsEnabled );
+	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
+	const hasFeedback = useConfigValue( 'hasFeedback' );
 
 	const { currentStatus } = useSelect(
 		select => ( {
@@ -53,7 +52,7 @@ const Layout = () => {
 				name: 'responses',
 				title: __( 'Responses', 'jetpack-forms' ),
 			},
-			...( enableIntegrationsTab
+			...( enableIntegrationsTab !== false
 				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
 				: [] ),
 			{
@@ -72,15 +71,15 @@ const Layout = () => {
 			return path;
 		}
 
-		return config( 'hasFeedback' ) ? 'responses' : 'about';
-	}, [ location.pathname, tabs ] );
+		return hasFeedback ? 'responses' : 'about';
+	}, [ location.pathname, tabs, hasFeedback ] );
 
 	const isResponsesTab = getCurrentTab() === 'responses';
 
 	const handleTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( ! tabName ) {
-				tabName = config( 'hasFeedback' ) ? 'responses' : 'about';
+				tabName = hasFeedback ? 'responses' : 'about';
 			}
 
 			const currentTab = getCurrentTab();
@@ -98,8 +97,10 @@ const Layout = () => {
 				search: tabName === 'responses' ? location.search : '',
 			} );
 		},
-		[ navigate, location.search, isSm, getCurrentTab ]
+		[ navigate, location.search, isSm, getCurrentTab, hasFeedback ]
 	);
+
+	const isLoadingConfig = hasFeedback === undefined;
 
 	return (
 		<div className="jp-forms__layout">
@@ -124,15 +125,17 @@ const Layout = () => {
 					</div>
 				) }
 			</div>
-			<TabPanel
-				className="jp-forms__dashboard-tabs"
-				tabs={ tabs }
-				initialTabName={ getCurrentTab() }
-				onSelect={ handleTabSelect }
-				key={ getCurrentTab() }
-			>
-				{ () => <Outlet /> }
-			</TabPanel>
+			{ ! isLoadingConfig && (
+				<TabPanel
+					className="jp-forms__dashboard-tabs"
+					tabs={ tabs }
+					initialTabName={ getCurrentTab() }
+					onSelect={ handleTabSelect }
+					key={ getCurrentTab() }
+				>
+					{ () => <Outlet /> }
+				</TabPanel>
+			) }
 		</div>
 	);
 };

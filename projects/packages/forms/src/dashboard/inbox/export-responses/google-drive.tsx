@@ -13,7 +13,8 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { config } from '../..';
+
+import useConfigValue from '../../../hooks/use-config-value';
 import { INTEGRATIONS_STORE } from '../../../store/integrations';
 import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
 /**
@@ -31,6 +32,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	}, [] ) as { integration?: Integration };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
+	const gdriveConnectSupportURL = useConfigValue( 'gdriveConnectSupportURL' );
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
 	const [ isTogglingConnection, setIsTogglingConnection ] = useState( false );
@@ -110,7 +112,7 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 							<>
 								&nbsp;
 								<a
-									href={ config( 'gdriveConnectSupportURL' ) }
+									href={ gdriveConnectSupportURL }
 									title={ __( 'Connect to Google Drive', 'jetpack-forms' ) }
 									target="_blank"
 									rel="noopener noreferrer"
