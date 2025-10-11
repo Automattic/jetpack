@@ -349,14 +349,22 @@ function wpcom_global_styles_in_use() {
  * @return bool Whether the site is exempt from Premium Global Styles.
  */
 function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
-	// Sites created after we made GS a paid feature (2022-12-15) are never exempt.
-	if ( $blog_id >= 213403000 ) {
-		return false;
-	}
+	$is_summer_special = wpcom_has_blog_sticker( 'summer-special-2025', $blog_id );
+	$is_simple         = defined( 'IS_WPCOM' ) && IS_WPCOM;
 
 	// If the exemption check has already been performed, just return if the site is exempt.
 	if ( wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exemption-checked', $blog_id ) ) {
 		return wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
+	}
+
+	// Sites created after we made GS a paid feature (2022-12-15) are never exempt.
+	if ( $blog_id >= 213403000 && ! $is_summer_special ) {
+		return false;
+	}
+
+	// Summer special sites created before 2025-10-11 are exempt. Quick workaround until we refine the exempt logic for AT sites.
+	if ( $blog_id <= 249177000 && $is_summer_special && ! $is_simple ) {
+		return true;
 	}
 
 	/**
@@ -368,7 +376,7 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 	 * If plugins will be available on all SITES, not just new sites, this might not be true.
 	 * However, this shouldn't be a problem because the site should already have the sticker already applied on their site from the time they were on simple.
 	 */
-	if ( ! defined( 'IS_WPCOM' ) || IS_WPCOM ) {
+	if ( ! $is_simple ) {
 		return false;
 	}
 
