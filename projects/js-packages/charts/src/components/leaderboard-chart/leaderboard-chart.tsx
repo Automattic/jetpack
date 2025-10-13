@@ -242,15 +242,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					gap: showLegend ? '16px' : '0',
 				} }
 			>
-				<Grid
-					className={ styles.leaderboardGrid }
-					templateColumns="minmax(0, 1fr) auto"
-					rowGap={ rowGap }
-					columnGap={ columnGap }
-					style={ {
-						flex: 1,
-					} }
-				>
+				<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
 					{ data.map( entry => {
 						const colorIndex = Math.sign( entry.delta ) + 1;
 						const deltaColor = deltaColors[ colorIndex ];
