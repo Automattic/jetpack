@@ -468,7 +468,10 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 				justify="space-between"
 				className="jp-forms__inbox__response-mobile__header"
 			>
-				<h1 className="jp-forms__inbox__response-mobile__header-heading">
+				<h1
+					className="jp-forms__inbox__response-mobile__header-heading"
+					id="components-modal-header-0" // e2e looks for this ID when opening the modal
+				>
 					{ __( 'Response', 'jetpack-forms' ) }
 				</h1>
 				<HStack
