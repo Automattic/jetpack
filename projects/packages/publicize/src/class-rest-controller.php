@@ -109,7 +109,7 @@ class REST_Controller {
 							if ( ! is_array( $param ) ) {
 								return new WP_Error(
 									'rest_invalid_param',
-									esc_html__( 'The skipped_connections argument must be an array of connection IDs to skip.', 'jetpack-publicize-pkg' ),
+									esc_html__( 'The skipped_connections argument must be an array of connection IDs.', 'jetpack-publicize-pkg' ),
 									array( 'status' => 400 )
 								);
 							}
