@@ -159,6 +159,15 @@ const meta: Meta< StoryArgs > = {
 export default meta;
 type Story = StoryObj< StoryArgs >;
 
+// Helper to hide dataVariant control from non-Configuration stories
+const hideDataVariant = {
+	argTypes: {
+		dataVariant: {
+			table: { disable: true },
+		},
+	},
+};
+
 // Interactive configuration story with all controls
 export const Configuration: Story = {
 	render: args => {
@@ -203,6 +212,7 @@ export const Configuration: Story = {
 };
 
 export const Default: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -211,6 +221,7 @@ export const Default: Story = {
 };
 
 export const WithoutComparison: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: false,
@@ -219,6 +230,7 @@ export const WithoutComparison: Story = {
 };
 
 export const WithOverlayLabel: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withOverlayLabel: true,
@@ -226,6 +238,7 @@ export const WithOverlayLabel: Story = {
 };
 
 export const CustomColors: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -236,6 +249,7 @@ export const CustomColors: Story = {
 };
 
 export const CurrencyFormatting: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -254,6 +268,7 @@ export const CurrencyFormatting: Story = {
 };
 
 export const NumberFormatting: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -297,6 +312,7 @@ const CustomLabelComponent = ( { label, imageColor, style = {} } ) => (
 );
 
 export const CustomLabel: Story = {
+	...hideDataVariant,
 	args: {
 		data: dataWithImageColor.map( entry => ( {
 			...entry,
@@ -308,6 +324,7 @@ export const CustomLabel: Story = {
 };
 
 export const AdvancedFormatting: Story = {
+	...hideDataVariant,
 	args: {
 		data: largeValues,
 		withComparison: true,
@@ -334,6 +351,7 @@ export const AdvancedFormatting: Story = {
 };
 
 export const OverlayLabelWithImage: Story = {
+	...hideDataVariant,
 	args: {
 		data: dataWithImageColor.map( entry => ( {
 			...entry,
@@ -365,6 +383,7 @@ export const OverlayLabelWithImage: Story = {
 };
 
 export const WithLegend: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -374,6 +393,7 @@ export const WithLegend: Story = {
 };
 
 export const CustomLegendLabels: Story = {
+	...hideDataVariant,
 	args: {
 		data: sampleData,
 		withComparison: true,
@@ -387,6 +407,7 @@ export const CustomLegendLabels: Story = {
 };
 
 export const WithCompositionLegend: Story = {
+	...hideDataVariant,
 	render: args => (
 		<div
 			style={ {
