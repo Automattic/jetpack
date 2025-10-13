@@ -1,5 +1,7 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as BarChartStories from './index.stories';
+import BarChart from '../bar-chart';
+import { medalCountsData } from '../../../stories/sample-data';
 
 <Meta title="JS Packages/Charts/Types/Bar Chart" of={ BarChartStories } />
 
@@ -35,7 +37,15 @@ For detailed information about component props, types, and method signatures, se
 
 The simplest bar chart requires only a `data` prop with categorical data:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Simple Single Series">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart data={[medalCountsData[0]]} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -91,7 +101,20 @@ Standard vertical bar charts with categories on the x-axis and values on the y-a
 
 Horizontal bar charts with categories on the y-axis and values on the x-axis, ideal for long category names:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Horizontal Orientation">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart
+					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
+					orientation="horizontal"
+					gridVisibility="y"
+					withTooltips={true}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -137,7 +160,20 @@ Display multiple data series with automatic color differentiation and grouped ba
 
 The component handles large numbers of series gracefully with automatic color cycling:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Many Series with Legend">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart
+					data={medalCountsData}
+					withTooltips={true}
+					showLegend={true}
+					gridVisibility="x"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -173,9 +209,7 @@ Add visual accessibility and distinction with pattern fills instead of solid col
 
 ### Smart Formatting
 
-Automatic formatting handles large numbers with appropriate abbreviations:
-
-<Canvas of={ BarChartStories.Configuration } />
+Automatic formatting handles large numbers with appropriate abbreviations (see examples in the stories above).
 
 Values are automatically formatted as:
 - **1B and above**: "1.23B"
@@ -189,7 +223,41 @@ Values are automatically formatted as:
 
 Bar charts support both categorical labels and time-series data:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Time Series Data">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart
+					data={[
+						{
+							label: 'Page Views',
+							data: [
+								{ date: new Date('2024-01-01'), value: 2230 },
+								{ date: new Date('2024-02-01'), value: 2580 },
+								{ date: new Date('2024-03-01'), value: 3500 },
+								{ date: new Date('2024-04-01'), value: 3200 },
+								{ date: new Date('2024-05-01'), value: 4100 },
+							],
+							options: {},
+						},
+					]}
+					withTooltips={true}
+					gridVisibility="x"
+					options={{
+						axis: {
+							x: {
+								tickFormat: (timestamp) => {
+									const date = new Date(timestamp);
+									return date.toLocaleDateString('en-US', { month: 'short' });
+								},
+							},
+						},
+					}}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -279,7 +347,23 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Legend Horizontal Bottom">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart
+					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
+					withTooltips={true}
+					showLegend={true}
+					legendOrientation="horizontal"
+					legendAlignment="center"
+					legendPosition="bottom"
+					gridVisibility="x"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -297,7 +381,23 @@ Display series information with automatic color and pattern matching:
 
 Display legends vertically for charts with many series:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Legend Vertical Top">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<BarChart
+					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
+					withTooltips={true}
+					showLegend={true}
+					legendOrientation="vertical"
+					legendAlignment="start"
+					legendPosition="top"
+					gridVisibility="x"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -380,7 +480,19 @@ Control grid line visibility and appearance:
 
 Charts automatically resize based on container size:
 
-<Canvas of={ BarChartStories.Configuration } />
+<Canvas>
+	<Story name="Responsive Behavior">
+		{() => (
+			<div style={{ width: '100%' }}>
+				<BarChart
+					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
+					withTooltips={true}
+					gridVisibility="x"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
