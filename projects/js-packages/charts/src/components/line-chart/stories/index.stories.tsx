@@ -49,6 +49,18 @@ export default meta;
 
 const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
 
+// Helper to hide Configuration-only controls from other stories
+const hideConfigurationControls = {
+	argTypes: {
+		seriesCount: {
+			table: { disable: true },
+		},
+		dimensionMode: {
+			table: { disable: true },
+		},
+	},
+};
+
 // Interactive configuration story with all controls
 export const Configuration: StoryObj< typeof LineChart > = {
 	render: args => {
@@ -76,27 +88,34 @@ export const Configuration: StoryObj< typeof LineChart > = {
 };
 
 // Basic example
-export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
-Default.args = {
-	...lineChartStoryArgs,
+export const Default: StoryObj< typeof LineChart > = {
+	...hideConfigurationControls,
+	...Template.bind( {} ),
+	args: {
+		...lineChartStoryArgs,
+	},
 };
 
 // Interactive story for legend options
-export const LegendConfiguration: StoryObj< typeof LineChart > = Template.bind( {} );
-LegendConfiguration.args = {
-	...lineChartStoryArgs,
-	data: sampleData,
-	showLegend: true,
-	height: 400,
-	legendAlignment: 'center',
-	legendPosition: 'bottom',
-	legendOrientation: 'horizontal',
-	legendShape: 'rect',
-	withLegendGlyph: false,
+export const LegendConfiguration: StoryObj< typeof LineChart > = {
+	...hideConfigurationControls,
+	...Template.bind( {} ),
+	args: {
+		...lineChartStoryArgs,
+		data: sampleData,
+		showLegend: true,
+		height: 400,
+		legendAlignment: 'center',
+		legendPosition: 'bottom',
+		legendOrientation: 'horizontal',
+		legendShape: 'rect',
+		withLegendGlyph: false,
+	},
 };
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
+	...hideConfigurationControls,
 	render: args => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
@@ -126,6 +145,7 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 };
 
 export const ErrorStates: StoryObj< typeof LineChart > = {
+	...hideConfigurationControls,
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
