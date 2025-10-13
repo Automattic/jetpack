@@ -268,12 +268,16 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 3.0.1 - 2025-08-05
+### 3.0.2 - 2025-10-10
 #### Added
-- Caching: Ignore Yandex parameters so those visitors are served from the cache.
+- Add typecheck support for E2E tests.
 
 #### Changed
 - Update package dependencies.
+- Use `wp_rand()` instead of `rand()` and `mt_rand()`.
+
+#### Fixed
+- Code: Resolve PhanImpossibleCondition violations.
 
 --------
 

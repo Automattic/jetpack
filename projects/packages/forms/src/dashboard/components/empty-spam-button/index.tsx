@@ -15,28 +15,45 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data';
+import { store as dashboardStore } from '../../store';
 
 type CoreStore = typeof coreStore & {
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 };
 
+interface EmptySpamButtonProps {
+	totalItemsSpam?: number;
+	isLoadingCounts?: boolean;
+}
+
 /**
  * Renders a button to empty form responses.
  *
+ * @param {object}  props                 - Component props.
+ * @param {number}  props.totalItemsSpam  - The total number of spam items (optional, will use hook if not provided).
+ * @param {boolean} props.isLoadingCounts - Whether counts are loading (optional, will use hook if not provided).
  * @return {JSX.Element} The empty spam button.
  */
-const EmptySpamButton = (): JSX.Element => {
+const EmptySpamButton = ( {
+	totalItemsSpam: totalItemsSpamProp,
+	isLoadingCounts: isLoadingCountsProp,
+}: EmptySpamButtonProps = {} ): JSX.Element => {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateCounts } = useDispatch( dashboardStore );
 
-	const { selectedResponsesCount, currentQuery, totalItemsSpam, isLoadingData } = useInboxData();
+	// Use props if provided, otherwise use hook
+	const hookData = useInboxData();
+	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam;
+	const isLoadingCounts = isLoadingCountsProp ?? false;
+	const { selectedResponsesCount, currentQuery } = hookData;
 
 	useEffect( () => {
-		setIsEmpty( isLoadingData || ! totalItemsSpam );
-	}, [ totalItemsSpam, isLoadingData ] );
+		setIsEmpty( isLoadingCounts || ! totalItemsSpam );
+	}, [ totalItemsSpam, isLoadingCounts ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
@@ -88,12 +105,15 @@ const EmptySpamButton = (): JSX.Element => {
 					'feedback',
 					{ ...currentQuery, per_page: 1, _fields: 'id' },
 				] );
+				// invalidate counts to refresh the counts across all status tabs
+				invalidateCounts();
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
 		invalidateResolution,
+		invalidateCounts,
 		isEmpty,
 		isEmptying,
 		currentQuery,

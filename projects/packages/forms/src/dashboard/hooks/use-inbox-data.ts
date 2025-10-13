@@ -3,6 +3,7 @@
  */
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -47,22 +48,6 @@ interface UseInboxDataReturn {
 	filterOptions: Record< string, unknown >;
 }
 
-const RESPONSE_FIELDS = [
-	'id',
-	'status',
-	'date',
-	'date_gmt',
-	'author_name',
-	'author_email',
-	'author_url',
-	'author_avatar',
-	'ip',
-	'entry_title',
-	'entry_permalink',
-	'has_file',
-	'fields',
-].join( ',' );
-
 /**
  * Hook to get all inbox related data.
  *
@@ -74,27 +59,36 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		totalItemsInbox,
+		totalItemsSpam,
+		totalItemsTrash,
+	} = useSelect(
 		select => ( {
 			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
 			currentStatus: select( dashboardStore ).getCurrentStatus(),
 			currentQuery: select( dashboardStore ).getCurrentQuery(),
 			filterOptions: select( dashboardStore ).getFilters(),
+			totalItemsInbox: select( dashboardStore ).getInboxCount(),
+			totalItemsSpam: select( dashboardStore ).getSpamCount(),
+			totalItemsTrash: select( dashboardStore ).getTrashCount(),
 		} ),
 		[]
 	);
 
 	const {
 		records: rawRecords,
-		isResolving: isLoadingRecordsData,
+		hasResolved,
 		totalItems,
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', {
 		...currentQuery,
-		_fields: RESPONSE_FIELDS,
 	} );
 
-	// Merge raw records with any local edits from editEntityRecord
 	const records = useSelect(
 		select => {
 			return ( rawRecords || [] ).map( record => {
@@ -110,52 +104,41 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
-	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'publish,draft',
-			per_page: 1,
-			_fields: 'id',
+	// Prepare query params for counts resolver
+	const countsQueryParams = useMemo( () => {
+		const params: Record< string, unknown > = {};
+		if ( currentQuery?.search ) {
+			params.search = currentQuery.search;
 		}
+		if ( currentQuery?.parent ) {
+			params.parent = currentQuery.parent;
+		}
+		if ( currentQuery?.before ) {
+			params.before = currentQuery.before;
+		}
+		if ( currentQuery?.after ) {
+			params.after = currentQuery.after;
+		}
+		return params;
+	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
+
+	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
+	// The resolver ensures counts are only fetched once for the same query params across all hook instances
+	useSelect(
+		select => {
+			select( dashboardStore ).getCounts( countsQueryParams );
+		},
+		[ countsQueryParams ]
 	);
 
-	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'spam',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
-
-	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'trash',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	const isLoadingData = ! rawRecords?.length && ! hasResolved;
 
 	return {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
 		records,
-		isLoadingData:
-			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
+		isLoadingData,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

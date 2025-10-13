@@ -35,8 +35,13 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		// The regular user object doesn't have allowed_mime_types
 		unset( $server_user->data->allowed_mime_types );
 
-		unset( $user->allcaps['subscriber'] );
-		unset( $user->allcaps['level_0'] );
+		// WordPress 6.9 introduced lazy-loading of some WP_User properties.
+		// It also made said properties protected, so we can't modify keys directly.
+		$allcaps = $user->allcaps; // This triggers lazy loading
+		unset( $allcaps['subscriber'] );
+		unset( $allcaps['level_0'] );
+		$user->allcaps = $allcaps;
+
 		$this->assertEqualsObject( $user, $server_user, 'The replicastore user must equal the initial user.' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );

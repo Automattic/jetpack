@@ -1,3 +1,5 @@
+import { formatNumber } from '@automattic/number-formatters';
+
 // Function to get the URL of the page or post where the form was submitted.
 export const getPath = item => {
 	try {
@@ -9,20 +11,57 @@ export const getPath = item => {
 };
 
 /**
- * Update the unread count in the admin menu.
+ * Update `count-0` style CSS class in the unread menu badge with new count like `count-1`.
+ *
+ * @param {HTMLElement} element - Counter badge element
+ * @param {number}      count   - Count to use in new CSS class
+ */
+function updateBadge( element, count ) {
+	const oldClass = [ ...element.classList ].find( c => c.startsWith( 'count-' ) );
+	if ( oldClass ) {
+		element.classList.replace( oldClass, `count-${ count }` );
+	} else {
+		element.classList.add( `count-${ count }` );
+	}
+
+	element.ariaHidden = count > 0 ? 'false' : 'true';
+	element.textContent = formatNumber( count );
+}
+
+/**
+ * Update the unread count in the admin menu to specific count.
  *
  * @param {number} count - The new unread count.
  */
 export const updateMenuCounter = count => {
-	// iterate over all elements with the class 'jp-feedback-unread-counter' and update their text content
+	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
 	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
+		// Jetpack menu item has combined count and forms unread counter
 		if ( item.dataset.unreadDiff ) {
-			const newCount = parseInt( item.dataset.unreadDiff, 10 ) + count;
-			item.textContent = newCount > 0 ? newCount : '';
-			item.style.display = newCount > 0 ? '' : 'none';
+			const unreadDiff = parseInt( item.dataset.unreadDiff, 10 ) + count;
+			updateBadge( item, unreadDiff );
 		} else {
-			item.textContent = count > 0 ? count : '';
-			item.style.display = count > 0 ? '' : 'none';
+			updateBadge( item, count );
+		}
+	} );
+};
+
+/**
+ * Update the unread count in the admin menu by addition or substraction, not by knowing the actual count.
+ *
+ * @param {number} count - By how much we should add or substract from the current sidebar menu count; either positive or negative integer.
+ */
+export const updateMenuCounterOptimistically = count => {
+	// Iterate over all badges with the class 'jp-feedback-unread-counter' and update their count
+	document.querySelectorAll( '.jp-feedback-unread-counter' ).forEach( item => {
+		let optimisticCount = 0;
+		if ( item.textContent !== '' ) {
+			// Ensure large formatted numbers like "1,000" are converted to integers properly
+			optimisticCount = parseInt( item.textContent.replace( /\D/g, '' ), 10 ) + count;
+		}
+
+		if ( optimisticCount >= 0 ) {
+			updateBadge( item, optimisticCount );
 		}
 	} );
 };

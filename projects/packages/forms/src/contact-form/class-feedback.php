@@ -149,6 +149,13 @@ class Feedback {
 	protected $source;
 
 	/**
+	 * The notification recipients of the feedback entry.
+	 *
+	 * @var array
+	 */
+	protected $notification_recipients = array();
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -168,6 +175,17 @@ class Feedback {
 		$instance->load_from_post( $feedback_post );
 		self::$feedback_fields[ $feedback_post->ID ] = $instance;
 		return $instance;
+	}
+
+	/**
+	 * Clear the internal cache of feedback objects.
+	 *
+	 * Useful for testing or when feedback data needs to be reloaded fresh.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function clear_cache() {
+		self::$feedback_fields = array();
 	}
 
 	/**
@@ -195,6 +213,8 @@ class Feedback {
 
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -242,6 +262,8 @@ class Feedback {
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+
+		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
@@ -719,6 +741,15 @@ class Feedback {
 	}
 
 	/**
+	 * Gets the notification recipients of the feedback entry.
+	 *
+	 * @return array
+	 */
+	public function get_notification_recipients() {
+		return $this->notification_recipients;
+	}
+
+	/**
 	 * Gets the value of the consent field.
 	 *
 	 * @return bool
@@ -941,8 +972,9 @@ class Feedback {
 
 		$fields_to_serialize = array_merge(
 			array(
-				'subject' => $this->subject,
-				'ip'      => $this->ip_address,
+				'subject'                 => $this->subject,
+				'ip'                      => $this->ip_address,
+				'notification_recipients' => $this->notification_recipients,
 			),
 			$this->source->serialize()
 		);
@@ -1535,6 +1567,48 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed notification recipients.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
+	 * @return array
+	 */
+	private function get_computed_notification_recipients( $post_data, $form ) {
+		$notification_recipients = $form->get_attribute( 'notificationRecipients' );
+		return $this->validate_notification_recipients( $notification_recipients );
+	}
+
+	/**
+	 * Validates notification recipients have proper capabilities.
+	 *
+	 * Ensures each user ID corresponds to a real user with edit_posts or edit_pages capability.
+	 * Filters out invalid or unauthorized user IDs.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $recipients Array of user IDs.
+	 * @return array Array of validated user IDs.
+	 */
+	private function validate_notification_recipients( $recipients ) {
+		if ( ! is_array( $recipients ) ) {
+			return array();
+		}
+
+		$valid_recipients = array();
+		foreach ( $recipients as $user_id ) {
+			$user = get_userdata( $user_id );
+			// Only allow users with edit_posts or edit_pages capability
+			if ( $user && ( $user->has_cap( 'edit_posts' ) || $user->has_cap( 'edit_pages' ) ) ) {
+				$valid_recipients[] = $user_id;
+			}
+		}
+
+		return $valid_recipients;
 	}
 
 	/**

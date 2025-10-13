@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.2.0 - 2025-10-10
+### Added
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update dependencies. [#44673]
+- Update package dependencies. [#44725] [#45096] [#45097] [#45200] [#45298] [#45299]
+
+### Fixed
+- Fixes an issue with Social where default image id could not be cleared. [#44994]
+
 ## 7.1.0 - 2025-08-05
 ### Added
 - Social Image Generator: Add font option. [#44514]

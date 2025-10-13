@@ -188,6 +188,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
+			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 		);
 
