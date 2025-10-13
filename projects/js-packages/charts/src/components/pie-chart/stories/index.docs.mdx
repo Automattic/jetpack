@@ -1,6 +1,8 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as PieChartStories from './index.stories';
 import * as DonutStories from './donut.stories';
+import PieChart from '../pie-chart';
+import { osUsageData } from '../../../stories/sample-data';
 
 <Meta title="JS Packages/Charts/Types/Pie Chart" of={ PieChartStories } />
 
@@ -166,7 +168,21 @@ The chart validates:
 
 Control legend alignment and positioning:
 
-<Canvas of={ PieChartStories.LegendConfiguration } />
+<Canvas>
+	<Story name="Legend Positioning">
+		{() => (
+			<div style={{ maxWidth: '800px' }}>
+				<PieChart
+					size={400}
+					data={osUsageData}
+					showLegend={true}
+					legendAlignment="end"
+					legendPosition="top"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
