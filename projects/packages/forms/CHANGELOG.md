@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.10.0] - 2025-10-13
 ### Added
-- Add integrations store. [#45372]
+- Add integrations store. [#45372] [#45432]
 - Add notification settings panel. [#45396]
 - Add read and unread state. [#45350]
 
