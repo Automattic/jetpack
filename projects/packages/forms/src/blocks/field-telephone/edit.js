@@ -1,17 +1,10 @@
 import {
-	InspectorControls,
 	useBlockProps,
 	useInnerBlocksProps,
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	TextControl,
-	ToggleControl,
-	ToolbarButton,
-	ToolbarGroup,
-} from '@wordpress/components';
+import { TextControl, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -141,27 +134,6 @@ export default function PhoneFieldEdit( props ) {
 				</ToolbarGroup>
 			</BlockControls>
 
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<ToggleControl
-						label={ __( 'Show country selector', 'jetpack-forms' ) }
-						checked={ showCountrySelector || false }
-						onChange={ onChangeShowCountrySelector }
-						__nextHasNoMarginBottom={ true }
-					/>
-					{ showCountrySelector && (
-						<TextControl
-							label={ __( 'Search placeholder', 'jetpack-forms' ) }
-							value={ searchPlaceholder }
-							placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
-							onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
-							__nextHasNoMarginBottom={ true }
-							__next40pxDefaultSize={ true }
-						/>
-					) }
-				</PanelBody>
-			</InspectorControls>
-
 			<JetpackFieldControls
 				clientId={ clientId }
 				id={ id }
@@ -169,6 +141,31 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<>
+								<ToggleControl
+									label={ __( 'Show country selector', 'jetpack-forms' ) }
+									checked={ showCountrySelector || false }
+									onChange={ onChangeShowCountrySelector }
+									__nextHasNoMarginBottom={ true }
+								/>
+								{ showCountrySelector && (
+									<TextControl
+										label={ __( 'Search placeholder', 'jetpack-forms' ) }
+										value={ searchPlaceholder }
+										placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
+										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
+										__nextHasNoMarginBottom={ true }
+										__next40pxDefaultSize={ true }
+									/>
+								) }
+							</>
+						),
+					},
+				] }
 			/>
 		</>
 	);

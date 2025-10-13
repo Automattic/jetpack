@@ -1150,6 +1150,10 @@
 	}
 }
 
+.jetpack-contact-form__panel {
+	text-wrap: pretty;
+}
+
 :where(.wp-block-jetpack-input) {
 	width: 100%;
 	box-sizing: border-box;

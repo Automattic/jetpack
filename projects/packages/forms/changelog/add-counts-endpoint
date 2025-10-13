@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace 3 separate count REST API requests with 1 optimized database query using CASE statements to improve inbox performance.

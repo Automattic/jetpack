@@ -406,10 +406,23 @@
 	}
 
 	.components-tip {
-		background-color: rgba(var(--wp-admin-theme-color--rgb), 0.04);
-		margin: 0 24px 16px;
-		padding: 8px 16px;
-		border-radius: 4px;
+		align-items: anchor-center;
+		border-top: 1px solid var(--jp-forms-border-color);
+		margin: 8px 0 56px 0;
+		padding: 16px;
+		text-wrap: pretty;
+	}
+}
+
+.jp-forms__inbox__response-mobile {
+
+	.jp-forms__inbox__response-mobile__header-heading {
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	.jp-forms__inbox__response-mobile__header-actions {
+		width: auto;
 	}
 }
 
