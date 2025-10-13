@@ -39,7 +39,7 @@ For detailed information about component props, types, and method signatures, se
 
 The simplest line chart requires only a `data` prop with time-series data:
 
-<Canvas of={ LineChartStories.SingleSeries } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -108,7 +108,7 @@ For detailed prop information, type definitions, gradient configuration options,
 
 Connect data points with straight lines for precise, unsmoothed visualization:
 
-<Canvas of={ LineChartStories.CurveTypes } />
+<Canvas of={ LineChartStories.Configuration } />
 
 ### Smooth Curves (Catmull-Rom)
 
@@ -169,7 +169,7 @@ Display multiple data series with automatic color differentiation:
 
 Override individual series appearance with the `options` prop:
 
-<Canvas of={ LineChartStories.BrokenLine } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -200,7 +200,7 @@ Use semantic line types to distinguish between different data categories with au
 
 The `comparison` type can be used to differentiate comparison data from primary data series:
 
-<Canvas of={ LineChartStories.Comparison } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -252,7 +252,7 @@ Add visual depth with gradient fills under line series. The gradient system supp
 
 Enable gradient fills for all series with the `withGradientFill` prop:
 
-<Canvas of={ LineChartStories.GradientFilled } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -266,7 +266,7 @@ Enable gradient fills for all series with the `withGradientFill` prop:
 
 Customize gradient colors per series using the `gradient` option in series data:
 
-<Canvas of={ LineChartStories.GradientCustomColors } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -307,7 +307,7 @@ Customize gradient colors per series using the `gradient` option in series data:
 
 Create gradients that fade to transparent at specific points using stops, useful for highlighting data ranges. When no color is specified, the gradient uses the line color automatically:
 
-<Canvas of={ LineChartStories.GradientTransparent } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -357,7 +357,7 @@ Each stop in the `stops` array accepts:
 
 Add visual markers at data points using the glyph system:
 
-<Canvas of={ GlyphStories.Start } />
+<Canvas of={ GlyphStories.GlyphConfiguration } />
 
 <Source
 	language="jsx"
@@ -404,7 +404,7 @@ Enable rich interactive tooltips with optional crosshair guides:
 
 Handle user interactions with custom event handlers:
 
-<Canvas of={ LineChartStories.WithPointerEvents } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -425,7 +425,7 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 Display series information with automatic color matching:
 
-<Canvas of={ LineChartStories.CustomLegendPositioning } />
+<Canvas of={ LineChartStories.LegendConfiguration } />
 
 <Source
 	language="jsx"
@@ -460,7 +460,7 @@ Use different shapes and custom glyphs in legends:
 
 Customize axes with formatting, orientation, and tick options:
 
-<Canvas of={ LineChartStories.SmartFormatting } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -492,7 +492,7 @@ Customize axes with formatting, orientation, and tick options:
 
 Charts automatically resize based on container size:
 
-<Canvas of={ LineChartStories.FixedDimensions } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -548,7 +548,7 @@ Add contextual information to highlight specific data points or events. For comp
 
 The chart supports multiple date formats and automatically converts to local timezone:
 
-<Canvas of={ LineChartStories.DateStringFormats } />
+<Canvas of={ LineChartStories.Configuration } />
 
 <Source
 	language="jsx"
@@ -565,7 +565,7 @@ The chart supports multiple date formats and automatically converts to local tim
 
 Automatic formatting handles large numbers with smart abbreviations:
 
-<Canvas of={ LineChartStories.SmartFormatting } />
+<Canvas of={ LineChartStories.Configuration } />
 
 Values are automatically formatted as:
 - **1B and above**: "1.23B"
