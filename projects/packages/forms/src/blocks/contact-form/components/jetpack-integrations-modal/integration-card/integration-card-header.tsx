@@ -140,6 +140,7 @@ const IntegrationCardHeader = ( {
 							slug={ cardData.slug }
 							pluginFile={ cardData.pluginFile }
 							isInstalled={ isInstalled }
+							isActive={ isActive }
 							refreshStatus={ cardData.refreshStatus }
 							trackEventName={ cardData.trackEventName }
 						/>
