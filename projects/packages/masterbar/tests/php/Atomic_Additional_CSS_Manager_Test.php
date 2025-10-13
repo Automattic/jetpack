@@ -51,20 +51,25 @@ class Atomic_Additional_CSS_Manager_Test extends TestCase {
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = $this->getMockBuilder( Atomic_Additional_CSS_Manager::class )
 			->setConstructorArgs( array( 'foo.com' ) )
-			->onlyMethods( array( 'get_plan_name' ) )
+			->onlyMethods( array( 'get_plan' ) )
 			->getMock();
 
-		$manager->method( 'get_plan_name' )->willReturn( 'Business' );
+		$manager->method( 'get_plan' )->willReturn(
+			(object) array(
+				'product_name_short' => 'Premium',
+				'path_slug'          => 'premium',
+			)
+		);
 
 		$manager->register_nudge( $this->wp_customize );
 
 		$this->assertEquals(
-			'/checkout/foo.com/business',
+			'/checkout/foo.com/premium',
 			$this->wp_customize->controls()['custom_css_control']->cta_url
 		);
 
 		$this->assertEquals(
-			'Purchase the Business plan to<br> activate CSS customization',
+			'Purchase the Premium plan to<br> activate CSS customization',
 			$this->wp_customize->controls()['custom_css_control']->nudge_copy
 		);
 	}
