@@ -117,6 +117,20 @@ const meta: Meta< StoryArgs > = {
 export default meta;
 type Story = StoryObj< StoryArgs >;
 
+// Helper to hide all visual controls from stories that don't use args
+const hideAllControls = {
+	argTypes: {
+		size: { table: { disable: true } },
+		thickness: { table: { disable: true } },
+		padding: { table: { disable: true } },
+		gapScale: { table: { disable: true } },
+		cornerScale: { table: { disable: true } },
+		labelTextColor: { table: { disable: true } },
+		labelBackgroundColor: { table: { disable: true } },
+		showLabels: { table: { disable: true } },
+	},
+};
+
 export const Default: Story = {
 	args: {
 		thickness: 1,
@@ -225,6 +239,7 @@ export const Responsiveness: Story = {
 };
 
 export const CompositionAPI: Story = {
+	...hideAllControls,
 	render: args => {
 		const chartData = args.data || [
 			{ label: 'Desktop', value: 45, percentage: 45 },
@@ -362,6 +377,7 @@ Use the Storybook controls to experiment with different combinations. Try settin
 };
 
 export const ErrorStates: Story = {
+	...hideAllControls,
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
