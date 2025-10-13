@@ -339,7 +339,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Reorganize settings to a single panel for rating, slider and phone fields.
 
 #### Bug fixes
-- Newsletter Settings: Update wording to clarify how the reply-to settings can be used.
+- Newsletter: Update wording to clarify how the reply-to settings can be used.
 
 --------
 
