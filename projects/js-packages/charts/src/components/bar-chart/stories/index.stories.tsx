@@ -59,7 +59,7 @@ export const Configuration: Story = {
 		const dataMap = {
 			single: [ medalCountsData[ 0 ] ],
 			multiple: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-			many: medalCountsData,
+			many: medalCountsData.slice( 0, 8 ), // Show 8 series for "many" to make it visually distinct
 		};
 
 		return <BarChart { ...args } data={ dataMap[ seriesCount ] } />;

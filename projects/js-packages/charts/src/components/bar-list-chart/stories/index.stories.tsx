@@ -67,6 +67,11 @@ export const Default: Story = {
 		containerWidth: '600px',
 		containerHeight: '332px',
 	},
+	argTypes: {
+		seriesCount: {
+			table: { disable: true },
+		},
+	},
 };
 
 export const CustomLabelComponent: Story = {
@@ -97,6 +102,11 @@ export const CustomLabelComponent: Story = {
 					</>
 				);
 			},
+		},
+	},
+	argTypes: {
+		seriesCount: {
+			table: { disable: true },
 		},
 	},
 };
@@ -143,6 +153,11 @@ export const CustomValueComponent: Story = {
 				);
 			},
 			valueFormatter: ( value: number ) => `$${ formatNumberCompact( value ) }`,
+		},
+	},
+	argTypes: {
+		seriesCount: {
+			table: { disable: true },
 		},
 	},
 };
