@@ -13,7 +13,6 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -41,23 +40,6 @@ import { useView, defaultLayouts } from './views';
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
 const getItemId = item => item?.id?.toString() ?? '';
-
-const formatFieldName = fieldName => {
-	const match = fieldName.match( /^(\d+_)?(.*)/i );
-	if ( match ) {
-		return match[ 2 ];
-	}
-	return fieldName;
-};
-
-const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
-		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
-		return fieldValue.join( ', ' );
-	}
-	return fieldValue;
-};
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -151,39 +133,17 @@ export default function InboxView() {
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
-	const data = useMemo(
-		() =>
-			records?.map( record => ( {
-				...record,
-				/**
-				 * We need to perform some operations to the fields:
-				 * 1. Decode the values.
-				 * 2. Remove the `number_` prefix from the keys. An example stored key is `1_Name: "Rigas"`.
-				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
-				 */
-				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					let _key = formatFieldName( key );
-					let counter = 2;
-					while ( accumulator[ _key ] ) {
-						_key = `${ formatFieldName( key ) } (${ counter })`;
-						counter++;
-					}
-					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
-					return accumulator;
-				}, {} ),
-			} ) ),
-		[ records ]
-	);
+
 	const [ selection, setSelection ] = useState( selectedResponses?.split( ',' ) || EMPTY_ARRAY );
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
 	// do not exist at all or ids that are not in the current data set.
 	useEffect( () => {
 		const validSelectedIds = ( selection || [] ).filter( id =>
-			data?.some( record => getItemId( record ) === id )
+			records?.some( record => getItemId( record ) === id )
 		);
 		setSelectedResponses( validSelectedIds );
-	}, [ data, selection, setSelectedResponses ] );
+	}, [ records, selection, setSelectedResponses ] );
 	const [ sidePanelItem, setSidePanelItem ] = useState();
 	const onChangeSelection = useCallback(
 		items => {
@@ -192,7 +152,7 @@ export default function InboxView() {
 			if ( ! isMobile ) {
 				setSidePanelItem(
 					!! items?.length &&
-						data?.find( record => getItemId( record ) === items[ items.length - 1 ] )
+						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
 				);
 			}
 			setSearchParams( previousSearchParams => {
@@ -205,19 +165,19 @@ export default function InboxView() {
 				return _searchParams;
 			} );
 		},
-		[ data, setSearchParams, isMobile ]
+		[ records, setSearchParams, isMobile ]
 	);
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.
 	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! data && !! selection.length ) {
+	if ( ! isMobile && !! records && !! selection.length ) {
 		// Find the last (most recently selected) valid selection instead of the first
 		const lastValidSelection = selection
 			.slice()
 			.reverse()
-			.find( id => data.some( record => getItemId( record ) === id ) );
-		const recordToShow = data?.find( record => getItemId( record ) === lastValidSelection );
+			.find( id => records.some( record => getItemId( record ) === id ) );
+		const recordToShow = records?.find( record => getItemId( record ) === lastValidSelection );
 		if ( ! sidePanelItem && recordToShow ) {
 			setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
@@ -346,7 +306,9 @@ export default function InboxView() {
 				...viewAction,
 				RenderModal: ( { items, closeModal } ) => {
 					const [ item ] = items;
-					return <InboxResponseMobile response={ item } data={ data } closeModal={ closeModal } />;
+					return (
+						<InboxResponseMobile response={ item } data={ records } closeModal={ closeModal } />
+					);
 				},
 				hideModalHeader: true,
 			} );
@@ -362,7 +324,7 @@ export default function InboxView() {
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection, data ] );
+	}, [ isMobile, onChangeSelection, selection, records ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -381,7 +343,7 @@ export default function InboxView() {
 					paginationInfo={ paginationInfo }
 					fields={ fields }
 					actions={ actions }
-					data={ data || EMPTY_ARRAY }
+					data={ records || EMPTY_ARRAY }
 					isLoading={ isLoadingData }
 					view={ view }
 					onChangeView={ setView }
@@ -398,7 +360,7 @@ export default function InboxView() {
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
-				data={ data }
+				data={ records }
 				onChangeSelection={ onChangeSelection }
 				selection={ selection }
 			/>
