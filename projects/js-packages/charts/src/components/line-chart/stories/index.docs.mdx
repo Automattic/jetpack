@@ -1,6 +1,8 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as LineChartStories from './index.stories';
 import * as GlyphStories from './glyph.stories';
+import LineChart from '../line-chart';
+import { temperatureData, largeValuesData } from '../../../stories/sample-data';
 
 <Meta title="JS Packages/Charts/Types/Line Chart" of={ LineChartStories } />
 
@@ -39,7 +41,15 @@ For detailed information about component props, types, and method signatures, se
 
 The simplest line chart requires only a `data` prop with time-series data:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Simple Line Chart">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart data={[temperatureData[0]]} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -108,7 +118,15 @@ For detailed prop information, type definitions, gradient configuration options,
 
 Connect data points with straight lines for precise, unsmoothed visualization:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Linear Curves">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart data={temperatureData} curveType="linear" withTooltips={true} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 ### Smooth Curves (Catmull-Rom)
 
@@ -169,7 +187,32 @@ Display multiple data series with automatic color differentiation:
 
 Override individual series appearance with the `options` prop:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Custom Series Styling">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={[
+						{
+							...temperatureData[0],
+							label: 'Projected Data',
+							options: {
+								stroke: '#ff6b6b',
+								seriesLineStyle: {
+									strokeDasharray: '5 5 1'
+								},
+								legendShapeStyle: {
+									strokeDasharray: '5 5 1'
+								}
+							}
+						}
+					]}
+					withTooltips={true}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -200,7 +243,25 @@ Use semantic line types to distinguish between different data categories with au
 
 The `comparison` type can be used to differentiate comparison data from primary data series:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Comparison Type">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={[
+						temperatureData[0],
+						{
+							...temperatureData[1],
+							label: 'Last Year',
+							options: { type: 'comparison' }
+						}
+					]}
+					withTooltips={true}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -252,7 +313,15 @@ Add visual depth with gradient fills under line series. The gradient system supp
 
 Enable gradient fills for all series with the `withGradientFill` prop:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Basic Gradient Fill">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart data={temperatureData} withGradientFill={true} withTooltips={true} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -266,7 +335,29 @@ Enable gradient fills for all series with the `withGradientFill` prop:
 
 Customize gradient colors per series using the `gradient` option in series data:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Custom Gradient Colors">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={[
+						{
+							...temperatureData[0],
+							options: {
+								gradient: {
+									from: '#ff6b6b',
+									to: '#4ecdc4'
+								}
+							}
+						}
+					]}
+					withGradientFill={true}
+					withTooltips={true}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -307,7 +398,32 @@ Customize gradient colors per series using the `gradient` option in series data:
 
 Create gradients that fade to transparent at specific points using stops, useful for highlighting data ranges. When no color is specified, the gradient uses the line color automatically:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Gradient with Sections">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={[
+						{
+							...temperatureData[0],
+							options: {
+								gradient: {
+									stops: [
+										{ offset: '0%', opacity: 0.7 },
+										{ offset: '20%', opacity: 0 },
+										{ offset: '100%', opacity: 0 },
+									]
+								}
+							}
+						}
+					]}
+					withGradientFill={true}
+					withTooltips={true}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -404,7 +520,19 @@ Enable rich interactive tooltips with optional crosshair guides:
 
 Handle user interactions with custom event handlers:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Pointer Events">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={temperatureData}
+					withTooltips={true}
+					onPointerMove={({ datum }) => console.log('Hover:', datum)}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -425,7 +553,22 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 Display series information with automatic color matching:
 
-<Canvas of={ LineChartStories.LegendConfiguration } />
+<Canvas>
+	<Story name="Basic Legend">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={temperatureData}
+					withTooltips={true}
+					showLegend={true}
+					legendOrientation="horizontal"
+					legendAlignment="center"
+					legendPosition="bottom"
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -460,7 +603,31 @@ Use different shapes and custom glyphs in legends:
 
 Customize axes with formatting, orientation, and tick options:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Axis Configuration">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart
+					data={temperatureData}
+					withTooltips={true}
+					options={{
+						axis: {
+							x: {
+								orientation: 'bottom',
+								numTicks: 6,
+								tickFormat: (date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+							},
+							y: {
+								orientation: 'right',
+								numTicks: 4
+							}
+						}
+					}}
+				/>
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -492,7 +659,15 @@ Customize axes with formatting, orientation, and tick options:
 
 Charts automatically resize based on container size:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Responsive Behavior">
+		{() => (
+			<div style={{ width: '100%' }}>
+				<LineChart data={temperatureData} withTooltips={true} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -548,7 +723,15 @@ Add contextual information to highlight specific data points or events. For comp
 
 The chart supports multiple date formats and automatically converts to local timezone:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Date Handling">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart data={[temperatureData[0]]} withTooltips={true} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 <Source
 	language="jsx"
@@ -565,7 +748,15 @@ The chart supports multiple date formats and automatically converts to local tim
 
 Automatic formatting handles large numbers with smart abbreviations:
 
-<Canvas of={ LineChartStories.Configuration } />
+<Canvas>
+	<Story name="Large Values">
+		{() => (
+			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
+				<LineChart data={largeValuesData} withTooltips={true} />
+			</div>
+		)}
+	</Story>
+</Canvas>
 
 Values are automatically formatted as:
 - **1B and above**: "1.23B"
