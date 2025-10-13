@@ -100,8 +100,6 @@ export interface FormResponse {
 	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
-	/** Whether the response has been read. */
-	is_unread: boolean;
 }
 
 /**
