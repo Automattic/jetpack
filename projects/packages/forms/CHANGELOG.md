@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.0] - 2025-10-13
+### Added
+- Add integrations store. [#45372] [#45432]
+- Add notification settings panel. [#45396]
+- Add read and unread state. [#45350]
+
+### Changed
+- Add optimistic count updates to Forms inbox for immediate UI feedback when moving items between inbox, spam, and trash. [#45424]
+- Avoid typographic orphans in Forms panels in editor. [#45455]
+- Change how phone field interactivity API is initialized with more atomic registration of the elements. [#45290]
+- Fix preload middleware registration to properly cache API requests and support both path formats. [#45454]
+- Fix preload parameters to match actual feedback endpoint requests and avoid duplicate HTTP requests. [#45453]
+- Hide Google export card if disabled. [#45375]
+- Improve loading state to show spinner immediately when data hasn't loaded. [#45379]
+- Inbox: Remove view action for desktop. [#45444]
+- Inbox: Update empty state notices. [#45421]
+- Inbox: Preload initial data and essential endpoints for faster page load. [#45378]
+- Reorganize settings to a single panel for rating, slider and phone fields. [#45196]
+- Reverse copy of 'go back' toggle. [#45446]
+- Update read/unread counts optimistically in the sidebar. [#45425]
+- Replace separate count REST API requests with one optimized database query using CASE statements to improve inbox performance. [#45427]
+- Update package dependencies. [#45428] [#45429] [#45430]
+
+### Fixed
+- Fix missing tooltip on unread/read quick action button. [#45433]
+- Fix multistep dropdown showing "Unlabeled" instead of default step titles like "Step 1", "Step 2", etc. [#45463]
+- Limit the amount of data sent by the endpoint to prevent exposing data. [#45439]
+- Fix sticky loading state for trash view action. [#45411]
+- Improve cross plugin compatibility. [#45315]
+- Optimize `has_feedback()` query to improve dashboard load performance by limiting query to fetch only one ID instead of loading all feedback posts. [#45361]
+
 ## [6.9.0] - 2025-10-08
 ### Added
 - Add actions on dashboard inbox's single response view. [#45352]
@@ -1651,6 +1682,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.10.0]: https://github.com/automattic/jetpack-forms/compare/v6.9.0...v6.10.0
 [6.9.0]: https://github.com/automattic/jetpack-forms/compare/v6.8.0...v6.9.0
 [6.8.0]: https://github.com/automattic/jetpack-forms/compare/v6.7.0...v6.8.0
 [6.7.0]: https://github.com/automattic/jetpack-forms/compare/v6.6.0...v6.7.0

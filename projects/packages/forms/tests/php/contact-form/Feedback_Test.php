@@ -2653,7 +2653,7 @@ class Feedback_Test extends BaseTestCase {
 	/**
 	 * Test that notification recipients are stored and retrieved correctly.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 */
 	public function test_notification_recipients_handling() {
 		// Create valid users with edit capabilities
@@ -2708,7 +2708,7 @@ class Feedback_Test extends BaseTestCase {
 	/**
 	 * Test that notification recipients default to empty array when not set.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 */
 	public function test_notification_recipients_default_empty() {
 		$form_id    = Utility::get_form_id();
@@ -2739,7 +2739,7 @@ class Feedback_Test extends BaseTestCase {
 	/**
 	 * Test that notification recipients validates user capabilities.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 */
 	public function test_notification_recipients_validates_capabilities() {
 		// Create users with different capabilities
