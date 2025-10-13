@@ -332,12 +332,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Add integrations store.
 - Forms: Add notification settings panel.
 - Forms: Add read and unread state for new form responses.
-- Forms: Avoid typohraphic orphans in Forms panels in editor.
+- Forms: Avoid typographic orphans in Forms panels in editor.
 - Forms: Hide Google export card if disabled.
-- Forms: Inbox - remove view action for desktop and leave it just for mobile.
-- Forms: More elaborate empty states.
-- Forms: Reorganise settings to a single panel for rating, slider and phone fields.
-- Forms: Use store for integrations modal.
+- Forms: Remove Inbox view action for desktop and leave it just for mobile.
+- Forms: Update empty state notices.
+- Forms: Reorganize settings to a single panel for rating, slider and phone fields.
 
 #### Bug fixes
 - Newsletter Settings: Update wording to clarify how the reply-to settings can be used.
