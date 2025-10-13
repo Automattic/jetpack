@@ -321,23 +321,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas>
-	<Story name="Legend Horizontal Bottom">
-		{() => (
-			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
-				<BarChart
-					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
-					withTooltips={true}
-					showLegend={true}
-					legendOrientation="horizontal"
-					legendAlignment="center"
-					legendPosition="bottom"
-					gridVisibility="x"
-				/>
-			</div>
-		)}
-	</Story>
-</Canvas>
+<Canvas of={ BarChartStories.LegendHorizontalBottom } />
 
 <Source
 	language="jsx"

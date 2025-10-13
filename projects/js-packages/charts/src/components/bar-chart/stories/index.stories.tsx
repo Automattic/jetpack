@@ -52,6 +52,18 @@ export default meta;
 
 type Story = StoryObj< StoryArgs >;
 
+// Helper to hide Configuration-only controls from other stories
+const hideConfigurationControls = {
+	argTypes: {
+		seriesCount: {
+			table: { disable: true },
+		},
+		withPatterns: {
+			table: { disable: true },
+		},
+	},
+};
+
 // Interactive configuration story
 export const Configuration: Story = {
 	render: args => {
@@ -78,6 +90,7 @@ export const Configuration: Story = {
 
 // Basic example
 export const Default: Story = {
+	...hideConfigurationControls,
 	args: {
 		withTooltips: true,
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
@@ -90,6 +103,7 @@ export const Default: Story = {
 };
 
 export const HorizontalOrientation: Story = {
+	...hideConfigurationControls,
 	args: {
 		withTooltips: true,
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
@@ -102,6 +116,7 @@ export const HorizontalOrientation: Story = {
 };
 
 export const ManySeriesWithLegend: Story = {
+	...hideConfigurationControls,
 	args: {
 		data: medalCountsData,
 		withTooltips: true,
@@ -114,7 +129,25 @@ export const ManySeriesWithLegend: Story = {
 	},
 };
 
+export const LegendHorizontalBottom: Story = {
+	...hideConfigurationControls,
+	args: {
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
+		withTooltips: true,
+		showLegend: true,
+		legendOrientation: 'horizontal',
+		legendAlignment: 'center',
+		legendPosition: 'bottom',
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		orientation: 'vertical',
+	},
+};
+
 export const LegendVerticalTop: Story = {
+	...hideConfigurationControls,
 	args: {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
 		withTooltips: true,
@@ -131,6 +164,7 @@ export const LegendVerticalTop: Story = {
 };
 
 export const WithPatterns: Story = {
+	...hideConfigurationControls,
 	args: {
 		...Default.args,
 		withPatterns: true,
@@ -144,6 +178,7 @@ export const WithPatterns: Story = {
 };
 
 export const ErrorStates: StoryObj< typeof BarChart > = {
+	...hideConfigurationControls,
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>
 			<div>
@@ -185,6 +220,7 @@ ErrorStates.parameters = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
+	...hideConfigurationControls,
 	render: args => (
 		<div style={ { width: '800px' } }>
 			<BarChart
@@ -250,6 +286,7 @@ const dataWithZeroValues = [
 	},
 ];
 export const ZeroValueComparison: StoryObj< typeof BarChart > = {
+	...hideConfigurationControls,
 	render: () => (
 		<div style={ { display: 'grid', gap: '40px' } }>
 			<div>
