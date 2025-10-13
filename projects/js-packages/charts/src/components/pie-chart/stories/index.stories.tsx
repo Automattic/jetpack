@@ -131,6 +131,17 @@ const hideAllControls = {
 	},
 };
 
+// Helper to hide only hardcoded visual style controls from CompositionAPI story
+const hideHardcodedControls = {
+	argTypes: {
+		size: { table: { disable: true } },
+		thickness: { table: { disable: true } },
+		labelTextColor: { table: { disable: true } },
+		labelBackgroundColor: { table: { disable: true } },
+		showLabels: { table: { disable: true } },
+	},
+};
+
 export const Default: Story = {
 	args: {
 		thickness: 1,
@@ -239,7 +250,7 @@ export const Responsiveness: Story = {
 };
 
 export const CompositionAPI: Story = {
-	...hideAllControls,
+	...hideHardcodedControls,
 	render: args => {
 		const chartData = args.data || [
 			{ label: 'Desktop', value: 45, percentage: 45 },
