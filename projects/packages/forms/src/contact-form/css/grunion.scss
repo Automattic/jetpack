@@ -229,6 +229,10 @@ that needs to mimic the input element styles */
 	margin: revert;
 }
 
+:where(.contact-form-submission) .contact-form-custom-success-message {
+	white-space: pre-wrap;
+}
+
 .contact-form-submission h4 {
 	margin-top: 32px;
 	margin-bottom: 32px;
