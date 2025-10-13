@@ -1,11 +1,13 @@
+import apiFetch from '@wordpress/api-fetch';
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, trash, backup } from '@wordpress/icons';
+import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import InboxResponse from '../response';
+import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
@@ -14,13 +16,10 @@ export const BULK_ACTIONS = {
 
 export const viewAction = {
 	id: 'view-response',
-	icon: <Icon icon={ seen } />,
+	icon: <Icon icon={ commentContent } />,
 	isPrimary: true,
 	label: __( 'View response', 'jetpack-forms' ),
-};
-
-export const viewActionModal = {
-	...viewAction,
+	modalHeader: __( 'Response', 'jetpack-forms' ),
 	RenderModal: ( { items } ) => {
 		const [ item ] = items;
 		return <InboxResponse isLoading={ false } response={ item } />;
@@ -52,6 +51,12 @@ export const markAsSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'spam', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
@@ -108,6 +113,12 @@ export const markAsNotSpamAction = {
 	async callback( items, { registry } ) {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'spam', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -166,6 +177,12 @@ export const restoreAction = {
 	async callback( items, { registry } ) {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'publish', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
@@ -216,6 +233,12 @@ export const moveToTrashAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+
+		items.forEach( item => {
+			updateCountsOptimistically( item.status, 'trash', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
@@ -264,8 +287,13 @@ export const deleteAction = {
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
-		const { invalidateFilters } = registry.dispatch( dashboardStore );
+		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
+		items.forEach( () => {
+			updateCountsOptimistically( 'trash', 'deleted', 1 );
+		} );
+
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) =>
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
@@ -292,6 +320,184 @@ export const deleteAction = {
 							items.length
 					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			return;
+		}
+		// There is at least one failure.
+		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
+		createErrorNotice( errorMessage, { type: 'snackbar' } );
+	},
+};
+
+export const markAsReadAction = {
+	id: 'mark-as-read',
+	label: __( 'Mark as read', 'jetpack-forms' ),
+	isEligible: item => item.is_unread,
+	supportsBulk: true,
+	icon: <Icon icon={ seen } />,
+	async callback( items, { registry } ) {
+		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
+		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
+		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+
+		const promises = await Promise.allSettled(
+			items.map( async ( { id, status } ) => {
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: false,
+					} );
+
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( -1 );
+					}
+				}
+
+				// Update on server
+				return apiFetch( {
+					path: `/wp/v2/feedback/${ id }/read`,
+					method: 'POST',
+					data: { is_unread: false },
+				} )
+					.then( ( { count } ) => {
+						// Update menu counter with accurate count from server.
+						updateMenuCounter( count );
+					} )
+					.catch( () => {
+						// Revert the change in the store if the server update fails.
+						if ( currentEntity ) {
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: true,
+							} );
+
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( 1 );
+							}
+						}
+						throw new Error( 'Failed to mark as read' );
+					} );
+			} )
+		);
+		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as read.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: the number of responses. */
+							_n(
+								'%d response marked as read.',
+								'%d responses marked as read.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-read-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsUnreadAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
+			return;
+		}
+		// There is at least one failure.
+		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
+		const errorMessage = getGenericErrorMessage( numberOfErrors );
+		createErrorNotice( errorMessage, { type: 'snackbar' } );
+	},
+};
+
+export const markAsUnreadAction = {
+	id: 'mark-as-unread',
+	label: __( 'Mark as unread', 'jetpack-forms' ),
+	isEligible: item => ! item.is_unread,
+	supportsBulk: true,
+	icon: <Icon icon={ unseen } />,
+	async callback( items, { registry } ) {
+		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { getEntityRecord } = registry.select( coreStore );
+		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const promises = await Promise.allSettled(
+			items.map( async ( { id, status } ) => {
+				// Get current entity from store
+				const currentEntity = getEntityRecord( 'postType', 'feedback', id );
+
+				// Optimistically update entity in store
+				if ( currentEntity ) {
+					editEntityRecord( 'postType', 'feedback', id, {
+						is_unread: true,
+					} );
+
+					// Immediately update menu counters optimistically to avoid delays, but only for inbox
+					if ( status === 'publish' ) {
+						updateMenuCounterOptimistically( 1 );
+					}
+				}
+
+				// Update on server
+				return apiFetch( {
+					path: `/wp/v2/feedback/${ id }/read`,
+					method: 'POST',
+					data: { is_unread: true },
+				} )
+					.then( ( { count } ) => {
+						// Update menu counter with accurate count from server.
+						updateMenuCounter( count );
+					} )
+					.catch( () => {
+						// Revert the change in the store if the server update fails.
+						if ( currentEntity ) {
+							editEntityRecord( 'postType', 'feedback', id, {
+								is_unread: false,
+							} );
+
+							// Revert the optimistic change in the sidebar.
+							if ( status === 'publish' ) {
+								updateMenuCounterOptimistically( -1 );
+							}
+						}
+						throw new Error( 'Failed to mark as unread' );
+					} );
+			} )
+		);
+		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			const successMessage =
+				items.length === 1
+					? __( 'Response marked as unread.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: the number of responses. */
+							_n(
+								'%d response marked as unread.',
+								'%d responses marked as unread.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( successMessage, {
+				type: 'snackbar',
+				id: 'mark-as-unread-action',
+				actions: [
+					{
+						label: __( 'Undo', 'jetpack-forms' ),
+						onClick: () => {
+							markAsReadAction.callback( items, { registry } );
+						},
+					},
+				],
+			} );
 			return;
 		}
 		// There is at least one failure.

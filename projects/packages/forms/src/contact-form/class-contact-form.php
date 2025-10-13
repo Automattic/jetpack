@@ -188,6 +188,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'stepTransition'         => 'fade-slide', // The transition style for multi-step forms. Options: none, fade, slide, fade-slide
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
+			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 		);
 
@@ -1408,9 +1409,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 					} elseif ( is_bool( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
-						// NOTE: we need to avoid messing with styles as CSS can have complex syntax.
-						$att_strs[] = esc_html( $att ) . '="' .
-							( str_ends_with( $att, 'styles' ) ? $val : self::esc_shortcode_val( $val ) ) . '"';
+						// Allow CSS in known style attributes byut sanitize with safecss_filter_attr.
+						$allowed_style_keys = array( 'labelstyles', 'inputstyles', 'optionstyles', 'optionsstyles', 'stylevariationstyles' );
+						if ( in_array( $att, $allowed_style_keys, true ) ) {
+							$sanitized  = safecss_filter_attr( (string) $val );
+							$att_strs[] = esc_attr( $att ) . '="' . esc_html( $sanitized ) . '"';
+						} else {
+							$att_strs[] = esc_attr( $att ) . '="' . self::esc_shortcode_val( $val ) . '"';
+						}
 					}
 				}
 			}
@@ -1929,9 +1935,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
 
 		if ( 'publish' === $feedback_status ) {
-			// Increase count of unread feedback.
-			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
-			update_option( 'feedback_unread_count', $unread );
+			Contact_Form_Plugin::recalculate_unread_count();
 		}
 
 		if ( defined( 'AKISMET_VERSION' ) ) {

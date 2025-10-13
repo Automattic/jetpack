@@ -2793,7 +2793,8 @@ add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10
 function wpcom_launchpad_mark_plan_tasks_complete( $blog_id ) {
 	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 	$current_plan = WPCOM_Store_API::get_current_plan( $blog_id );
-	if ( $current_plan['is_free'] ) {
+
+	if ( $current_plan['is_free'] ?? true ) {
 		return;
 	}
 

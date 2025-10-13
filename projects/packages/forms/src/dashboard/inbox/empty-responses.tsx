@@ -1,4 +1,20 @@
-import { __ } from '@wordpress/i18n';
+import {
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import useFormsConfig from '../../hooks/use-forms-config';
+
+const EmptyWrapper = ( { heading = '', body = '' } ) => (
+	<VStack alignment="center" spacing="2">
+		{ heading && (
+			<Text as="h3" weight="500" size="15">
+				{ heading }
+			</Text>
+		) }
+		{ body && <Text variant="muted">{ body }</Text> }
+	</VStack>
+);
 
 type EmptyResponsesProps = {
 	status: string;
@@ -6,25 +22,50 @@ type EmptyResponsesProps = {
 };
 
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
-	const searchMessage = __( 'No responses found', 'jetpack-forms' );
-	if ( isSearch ) {
-		return <p>{ searchMessage }</p>;
-	}
+	const formsConfig = useFormsConfig();
+	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
 
-	const noTrashMessage = __( 'Trash is empty', 'jetpack-forms' );
-	if ( status === 'trash' ) {
-		return <p>{ noTrashMessage }</p>;
-	}
-
-	const noSpamMessage = __(
-		'Spam responses are automatically trashed after 15 days.',
+	const searchHeading = __( 'No results found', 'jetpack-forms' );
+	const searchMessage = __(
+		"Try adjusting your search or filters to find what you're looking for.",
 		'jetpack-forms'
 	);
-	if ( status === 'spam' ) {
-		return <p>{ noSpamMessage }</p>;
+	if ( isSearch ) {
+		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
 	}
 
-	return <p>{ __( 'No responses', 'jetpack-forms' ) }</p>;
+	const noTrashHeading = __( 'Trash is empty', 'jetpack-forms' );
+	const noTrashMessage = sprintf(
+		/* translators: %d number of days. */
+		_n(
+			'Items in trash are permanently deleted after %d day.',
+			'Items in trash are permanently deleted after %d days.',
+			emptyTrashDays,
+			'jetpack-forms'
+		),
+		emptyTrashDays
+	);
+	if ( status === 'trash' ) {
+		return (
+			<EmptyWrapper heading={ noTrashHeading } body={ emptyTrashDays > 0 && noTrashMessage } />
+		);
+	}
+
+	const noSpamHeading = __( 'Lucky you, no spam!', 'jetpack-forms' );
+	const noSpamMessage = __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' );
+	if ( status === 'spam' ) {
+		return <EmptyWrapper heading={ noSpamHeading } body={ noSpamMessage } />;
+	}
+
+	return (
+		<EmptyWrapper
+			heading={ __( "You're set up. No responses yet.", 'jetpack-forms' ) }
+			body={ __(
+				'Share your form to start collecting responses. New items will appear here.',
+				'jetpack-forms'
+			) }
+		/>
+	);
 };
 
 export default EmptyResponses;

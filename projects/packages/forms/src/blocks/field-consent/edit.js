@@ -160,7 +160,10 @@ export default function ConsentFieldEdit( props ) {
 		<>
 			<div { ...innerBlocksProps } />
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
@@ -170,7 +173,10 @@ export default function ConsentFieldEdit( props ) {
 						__nextHasNoMarginBottom
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Consent settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Consent settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<BaseControl __nextHasNoMarginBottom>
 						<SelectControl
 							label={ __( 'Permission to email', 'jetpack-forms' ) }

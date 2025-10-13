@@ -1,6 +1,6 @@
-## Jetpack 15.1
+## Jetpack 15.1.1
 
-### Before you start:
+### Before you start
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
@@ -10,19 +10,3 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
-
-### Forms changes
-In particular, play around with the following:
-* Phone field with country selector: https://github.com/Automattic/jetpack/pull/45120
-* Hidden field block: https://github.com/Automattic/jetpack/pull/44079
-* Email notifications: https://github.com/Automattic/jetpack/pull/45230
-
-### Recipes shortcode
-The way this shortcode's dependencies are loaded have changed. Make sure it still works as expected.
-
-Note: UI quirks are out of scope for this release; the goal is to ensure no regressions.
-
-### General testing
-Poke around and identify any rough spots that changes in the [CHANGELOG.md] may have touched.
-
-**Thank you for all your help!**

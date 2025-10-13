@@ -71,7 +71,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
 			)
 		);
 
@@ -83,16 +83,51 @@ class Dashboard {
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
 		// Preload Forms endpoints needed in dashboard context.
-		$preload_paths = array(
-			'/wp/v2/feedback/config',
-			'/wp/v2/feedback/config?_locale=user',
-			'/wp/v2/feedback/integrations?version=2',
-			'/wp/v2/feedback/integrations?version=2&_locale=user',
+		// Pre-fetch the first inbox page so the UI renders instantly on first load.
+		$preload_params = array(
+			'context'  => 'edit',
+			'order'    => 'desc',
+			'orderby'  => 'date',
+			'page'     => 1,
+			'per_page' => 20,
+			'status'   => 'draft,publish',
 		);
-		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+		\ksort( $preload_params );
+		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
+		$initial_responses_locale_path = \add_query_arg(
+			\array_merge(
+				$preload_params,
+				array( '_locale' => 'user' )
+			),
+			'/wp/v2/feedback'
+		);
+		$filters_path                  = '/wp/v2/feedback/filters';
+		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
+		$preload_paths                 = array(
+			'/wp/v2/types?context=view',
+			'/wp/v2/feedback/config',
+			'/wp/v2/feedback/integrations?version=2',
+			'/wp/v2/feedback/counts',
+			$filters_path,
+			$filters_locale_path,
+			$initial_responses_path,
+			$initial_responses_locale_path,
+		);
+		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+
+		// Normalize keys to match what apiFetch will request (without domain).
+		$preload_data = array();
+		foreach ( $preload_data_raw as $key => $value ) {
+			$normalized_key                  = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
+			$preload_data[ $normalized_key ] = $value;
+		}
+
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload_data )
+			),
 			'before'
 		);
 	}
@@ -150,12 +185,17 @@ class Dashboard {
 	public function has_feedback() {
 		$posts = new \WP_Query(
 			array(
-				'post_type'   => 'feedback',
-				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+				'post_type'              => 'feedback',
+				'post_status'            => array( 'publish', 'draft', 'spam', 'trash' ),
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'suppress_filters'       => true,
 			)
 		);
-
-		return $posts->found_posts > 0;
+		return $posts->have_posts();
 	}
 
 	/**

@@ -4,6 +4,7 @@ import {
 	getConfig,
 	getElement,
 	withSyncEvent as originalWithSyncEvent,
+	withScope,
 } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
 import { countries } from '../../blocks/field-telephone/country-list';
@@ -36,7 +37,7 @@ const updateSelection = selectedCountry => {
 	} ) );
 };
 
-const { actions } = store( NAMESPACE, {
+const { actions, callbacks } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
@@ -215,21 +216,48 @@ const { actions } = store( NAMESPACE, {
 		},
 	},
 	callbacks: {
-		initializePhoneField() {
+		registerPhoneInput() {
 			const element = getElement().ref;
 			const context = getContext();
-			// store refs for quick access later and less intensive dom scouting
-			phoneInputRefs[ context.fieldId ] = element.querySelector( 'input[type="tel"]' );
-			searchInputRefs[ context.fieldId ] = element.parentElement.querySelector(
-				'.jetpack-combobox-search'
-			);
-			optionsListRefs[ context.fieldId ] = element.parentElement.querySelector(
-				'.jetpack-combobox-options'
-			);
+			phoneInputRefs[ context.fieldId ] = element;
+		},
+		registerPhoneComboboxSearchInput() {
+			const element = getElement().ref;
+			const context = getContext();
+			searchInputRefs[ context.fieldId ] = element;
+		},
+		registerPhoneComboboxOptionsList() {
+			const element = getElement().ref;
+			const context = getContext();
+			optionsListRefs[ context.fieldId ] = element;
 		},
 		initializePhoneFieldCustomComboBox() {
 			const context = getContext();
 			if ( ! context.showCountrySelector ) {
+				return;
+			}
+
+			if (
+				! phoneInputRefs[ context.fieldId ] ||
+				! searchInputRefs[ context.fieldId ] ||
+				! optionsListRefs[ context.fieldId ]
+			) {
+				const { ref } = getElement();
+				// delay execution with a timeout and scoping withScope and return.
+				setTimeout(
+					withScope( function () {
+						const context2 = getContext();
+						phoneInputRefs[ context2.fieldId ] = ref;
+						searchInputRefs[ context2.fieldId ] = ref.parentElement.querySelector(
+							'.jetpack-combobox-search'
+						);
+						optionsListRefs[ context2.fieldId ] = ref.parentElement.querySelector(
+							'.jetpack-combobox-options'
+						);
+						callbacks.initializePhoneFieldCustomComboBox();
+					} ),
+					100
+				);
 				return;
 			}
 			const config = getConfig( 'jetpack/field-phone' );

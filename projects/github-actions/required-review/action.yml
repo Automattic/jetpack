@@ -36,6 +36,11 @@ inputs:
       pull request data, create status checks (`repo:status`), and to read
       your organization's teams (`read:org`).
     required: true
+outputs:
+  requirements-satisfied:
+    description: 'True if the review requirements are satisfied, false otherwise'
+  teams-needed-for-review:
+    description: 'JSON-stringified array of team names that are needed to review the PR.'
 runs:
   using: node20
   main: dist/index.js

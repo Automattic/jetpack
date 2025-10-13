@@ -12,7 +12,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 	 * Atomic Persistent Data storage provider for Jetpack Connection data.
 	 * Stage 1: Read-only support for blog_token and id (blog_id).
 	 *
-	 * @since $$next-version$$
+	 * @since 8.0.0
 	 */
 	class Atomic_Storage_Provider implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
 
