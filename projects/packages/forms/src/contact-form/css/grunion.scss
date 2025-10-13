@@ -225,11 +225,11 @@ that needs to mimic the input element styles */
 	word-wrap: break-word;
 }
 
-:where(.contact-form-submission) .contact-form-custom-success-message p {
+.contact-form-submission :where(.contact-form-custom-success-message) p {
 	margin: revert;
 }
 
-:where(.contact-form-submission) .contact-form-custom-success-message {
+.contact-form-submission :where(.contact-form-custom-success-message) {
 	white-space: pre-wrap;
 }
 
