@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms: add ID on modal header to be properly identified by e2e
