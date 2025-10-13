@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix multistep dropdown showing "Unlabeled" instead of default step titles like "Step 1", "Step 2", etc.

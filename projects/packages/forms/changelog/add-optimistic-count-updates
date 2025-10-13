@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add optimistic count updates to Forms inbox for immediate UI feedback when moving items between inbox, spam, and trash.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: preload initial inbox data and essential endpoints for faster page load.
