@@ -326,82 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.1.1 - 2025-10-10
-#### Bug fixes
-- Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org.
-
-### 15.1 - 2025-10-08
-
+### 15.2-a.1 - 2025-10-13
 #### Enhancements
-- Forms: Add hidden field.
-- Forms: Add hidden input field block.
-- Forms: Add integrations permissions check.
-- Forms: Add new block toggle to skip saving form submisions on WP Admin.
-- Forms: Add preloaded config endpoint.
-- Forms: Add scheduled deletion for submissions that skip the submission's inbox and are stored as temporary feedback.
-- Forms: Add setting to enable or disable email notifications for form submissions.
-- Forms: Allow enabling integration by default.
-- Forms: Improve preloading for endpoints.
-- Forms: Improve supported integrations filter.
-- Forms: Make rating and slider fields available to self-hosted users.
-- Forms: Phone field can now contain a country selector combobox.
-- Forms: Rename 'Manage responses' forms sidebar block panel to 'Responses storage'.
-- Forms: Return integration titles from endpoint.
-- Forms: Use localized number format for number of responses shown.
-
-#### Improved compatibility
-- Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats".
-- Cookie Consent Block: Ensure we always have a default set of colors to style the block when theme colors are not available.
-- Forms: Add integrations feature flag.
-- Site Accelerator (Image CDN): Add support for images added via Breakdance blocks.
+- Forms: Added required indicator settings, made forms with a sinble input required by default.
+- Forms: Add integrations store.
+- Forms: Add notification settings panel.
+- Forms: Add read and unread state for new form responses.
+- Forms: Avoid typohraphic orphans in Forms panels in editor.
+- Forms: Hide Google export card if disabled.
+- Forms: Inbox - remove view action for desktop and leave it just for mobile.
+- Forms: More elaborate empty states.
+- Forms: Reorganise settings to a single panel for rating, slider and phone fields.
+- Forms: Use store for integrations modal.
 
 #### Bug fixes
-- Testimonials: Prevent warning when custom post type is not registered.
-- AI Assistant: Fix spacing on Forms block.
-- Cookie Consent Widget: Ensure the default widget text can be translated.
-- Forms: Don't override field labels on transforms.
-- Forms: Fix MailPoet string warning.
-- Forms: Fix missing REST attributes.
-- Forms: Fix slider min/max editing.
-- Forms: Fix slider value position.
-- Resolve conflict with WordPress 6.7.3.
-- Sharing: Fix Facebook sharing URL.
-- Widget Visibility: Prevent PHP error under specific block conditions.
-
-#### Enhancements
-- Forms: Add hidden field.
-- Forms: Add hidden input field block.
-- Forms: Add integrations permissions check.
-- Forms: Add new block toggle to skip saving form submisions on WP Admin.
-- Forms: Add preloaded config endpoint.
-- Forms: Add scheduled deletion for submissions that skip the submission's inbox and are stored as temporary feedback.
-- Forms: Add setting to enable or disable email notifications for form submissions.
-- Forms: Allow enabling integration by default.
-- Forms: Improve preloading for endpoints.
-- Forms: Improve supported integrations filter.
-- Forms: Make rating and slider fields available to self-hosted users.
-- Forms: Phone field can now contain a country selector combobox.
-- Forms: Rename 'Manage responses' forms sidebar block panel to 'Responses storage'.
-- Forms: Return integration titles from endpoint.
-- Forms: Use localized number format for number of responses shown.
-
-#### Improved compatibility
-- Change the location of the Jetpack -> Stats submenu item to a new top-level admin menu item called "Stats".
-- Cookie Consent Block: Ensure we always have a default set of colors to style the block when theme colors are not available.
-- Forms: Add integrations feature flag.
-- Site Accelerator (Image CDN): Add support for images added via Breakdance blocks.
-
-#### Bug fixes
-- AI Assistant: Fix spacing on Forms block.
-- Cookie Consent Widget: Ensure the default widget text can be translated.
-- Forms: Don't override field labels on transforms.
-- Forms: Fix MailPoet string warning.
-- Forms: Fix missing REST attributes.
-- Forms: Fix slider min/max editing.
-- Forms: Fix slider value position.
-- Resolve conflict with WordPress 6.7.3.
-- Sharing: Fix Facebook sharing URL.
-- Widget Visibility: Prevent PHP error under specific block conditions.
+- Newsletter Settings: Update wording to clarify how the reply-to settings can be used.
 
 --------
 

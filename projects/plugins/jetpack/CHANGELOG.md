@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.2-a.1 - 2025-10-13
+### Enhancements
+- Forms: Added required indicator settings, made forms with a sinble input required by default. [#45300]
+- Forms: Add integrations store. [#45372]
+- Forms: Add notification settings panel. [#45396]
+- Forms: Add read and unread state for new form responses. [#45350]
+- Forms: Avoid typohraphic orphans in Forms panels in editor. [#45455]
+- Forms: Hide Google export card if disabled. [#45375]
+- Forms: Inbox - remove view action for desktop and leave it just for mobile. [#45444]
+- Forms: More elaborate empty states. [#45421]
+- Forms: Reorganise settings to a single panel for rating, slider and phone fields. [#45196]
+- Forms: Use store for integrations modal. [#45432]
+
+### Bug fixes
+- Newsletter Settings: Update wording to clarify how the reply-to settings can be used. [#45368]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comment likes: Prevent PHP warnings if site URL is invalid. [#45420]
+- Flex sites: Return the is_wpcom_flex flag from the sites API. [#45395]
+- Sync: Handle lazy-loading of WP_User object properties. [#45450]
+
 ## 15.1.1 - 2025-10-10
 ### Bug fixes
 - Asset CDN: avoid errors when we do not receive valid information about a plugin from WordPress.org. [#45387]

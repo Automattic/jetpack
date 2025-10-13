@@ -182,7 +182,7 @@ class Feedback {
 	 *
 	 * Useful for testing or when feedback data needs to be reloaded fresh.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 */
 	public static function clear_cache() {
 		self::$feedback_fields = array();
@@ -1572,7 +1572,7 @@ class Feedback {
 	/**
 	 * Gets the computed notification recipients.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 *
 	 * @param array        $post_data The post data from the form submission.
 	 * @param Contact_Form $form The form object.
@@ -1589,7 +1589,7 @@ class Feedback {
 	 * Ensures each user ID corresponds to a real user with edit_posts or edit_pages capability.
 	 * Filters out invalid or unauthorized user IDs.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.10.0
 	 *
 	 * @param array $recipients Array of user IDs.
 	 * @return array Array of validated user IDs.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Flex sites: return the is_wpcom_flex flag from the sites API
