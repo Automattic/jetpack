@@ -101,20 +101,7 @@ Standard vertical bar charts with categories on the x-axis and values on the y-a
 
 Horizontal bar charts with categories on the y-axis and values on the x-axis, ideal for long category names:
 
-<Canvas>
-	<Story name="Horizontal Orientation">
-		{() => (
-			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
-				<BarChart
-					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
-					orientation="horizontal"
-					gridVisibility="y"
-					withTooltips={true}
-				/>
-			</div>
-		)}
-	</Story>
-</Canvas>
+<Canvas of={ BarChartStories.HorizontalOrientation } />
 
 <Source
 	language="jsx"
@@ -160,20 +147,7 @@ Display multiple data series with automatic color differentiation and grouped ba
 
 The component handles large numbers of series gracefully with automatic color cycling:
 
-<Canvas>
-	<Story name="Many Series with Legend">
-		{() => (
-			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
-				<BarChart
-					data={medalCountsData}
-					withTooltips={true}
-					showLegend={true}
-					gridVisibility="x"
-				/>
-			</div>
-		)}
-	</Story>
-</Canvas>
+<Canvas of={ BarChartStories.ManySeriesWithLegend } />
 
 <Source
 	language="jsx"
@@ -381,23 +355,7 @@ Display series information with automatic color and pattern matching:
 
 Display legends vertically for charts with many series:
 
-<Canvas>
-	<Story name="Legend Vertical Top">
-		{() => (
-			<div style={{ maxWidth: '1200px', aspectRatio: '2/1' }}>
-				<BarChart
-					data={[medalCountsData[0], medalCountsData[1], medalCountsData[2]]}
-					withTooltips={true}
-					showLegend={true}
-					legendOrientation="vertical"
-					legendAlignment="start"
-					legendPosition="top"
-					gridVisibility="x"
-				/>
-			</div>
-		)}
-	</Story>
-</Canvas>
+<Canvas of={ BarChartStories.LegendVerticalTop } />
 
 <Source
 	language="jsx"

@@ -89,6 +89,47 @@ export const Default: Story = {
 	},
 };
 
+export const HorizontalOrientation: Story = {
+	args: {
+		withTooltips: true,
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
+		gridVisibility: 'y',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		orientation: 'horizontal',
+	},
+};
+
+export const ManySeriesWithLegend: Story = {
+	args: {
+		data: medalCountsData,
+		withTooltips: true,
+		showLegend: true,
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		orientation: 'vertical',
+	},
+};
+
+export const LegendVerticalTop: Story = {
+	args: {
+		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
+		withTooltips: true,
+		showLegend: true,
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
+		gridVisibility: 'x',
+		maxWidth: 1200,
+		aspectRatio: 0.5,
+		resizeDebounceTime: 300,
+		orientation: 'vertical',
+	},
+};
+
 export const WithPatterns: Story = {
 	args: {
 		...Default.args,
