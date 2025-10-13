@@ -30,7 +30,7 @@ const meta: Meta< StoryArgs > = {
 		},
 		gridVisibility: {
 			control: { type: 'radio' },
-			options: [ 'none', 'x', 'y', 'both' ],
+			options: [ 'none', 'x', 'y', 'xy' ],
 			description: 'Grid line visibility',
 			table: { category: 'Visual Style' },
 		},
@@ -59,7 +59,7 @@ export const Configuration: Story = {
 		const dataMap = {
 			single: [ medalCountsData[ 0 ] ],
 			multiple: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-			many: medalCountsData.slice( 0, 8 ), // Show 8 series for "many" to make it visually distinct
+			many: medalCountsData.slice( 0, 15 ), // Show 15 series for "many" to make it visually distinct from multiple (3)
 		};
 
 		return <BarChart { ...args } data={ dataMap[ seriesCount ] } />;
