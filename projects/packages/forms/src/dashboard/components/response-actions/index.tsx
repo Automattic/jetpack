@@ -120,7 +120,7 @@ const ResponseActions = ( {
 	switch ( response.status ) {
 		case 'spam':
 			return (
-				<>
+				<div>
 					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
@@ -142,12 +142,12 @@ const ResponseActions = ( {
 						icon={ moveToTrashAction.icon }
 						size="compact"
 					></Button>
-				</>
+				</div>
 			);
 
 		case 'trash':
 			return (
-				<>
+				<div>
 					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
@@ -169,12 +169,12 @@ const ResponseActions = ( {
 						icon={ deleteAction.icon }
 						size="compact"
 					></Button>
-				</>
+				</div>
 			);
 
 		default: // 'publish' (inbox) or any other status
 			return (
-				<>
+				<div>
 					{ readUnreadButtons }
 					<Button
 						variant="tertiary"
@@ -196,7 +196,7 @@ const ResponseActions = ( {
 						icon={ moveToTrashAction.icon }
 						size="compact"
 					></Button>
-				</>
+				</div>
 			);
 	}
 };

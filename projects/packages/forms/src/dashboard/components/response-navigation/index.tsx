@@ -21,7 +21,7 @@ const ResponseNavigation = ( {
 	onPrevious,
 }: ResponseNavigationProps ): JSX.Element => {
 	return (
-		<>
+		<div>
 			{ onPrevious && (
 				<Button
 					accessibleWhenDisabled={ true }
@@ -56,7 +56,7 @@ const ResponseNavigation = ( {
 					variant="tertiary"
 				></Button>
 			) }
-		</>
+		</div>
 	);
 };
 

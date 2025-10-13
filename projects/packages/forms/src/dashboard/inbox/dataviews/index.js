@@ -471,7 +471,11 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 				<h1 className="jp-forms__inbox__response-mobile__header-heading">
 					{ __( 'Response', 'jetpack-forms' ) }
 				</h1>
-				<div>
+				<HStack
+					spacing="2"
+					justify="space-between"
+					className="jp-forms__inbox__response-mobile__header-actions"
+				>
 					<ResponseActions response={ currentResponse } onActionComplete={ handleActionComplete } />
 					<ResponseNavigation
 						hasNext={ hasNext }
@@ -480,7 +484,7 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 						onPrevious={ handlePrevious }
 						onClose={ closeModal }
 					/>
-				</div>
+				</HStack>
 			</HStack>
 			<InboxResponse
 				isMobile={ true }
