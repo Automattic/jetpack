@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add .ddev.site to the is_local_site check
