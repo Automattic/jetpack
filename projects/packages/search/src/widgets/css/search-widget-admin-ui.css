@@ -67,9 +67,30 @@
 	display: none;
 }
 
-/* When product attribute is selected, hide taxonomy selector */
+/* When product attribute is selected, hide taxonomy selector, title
+ * field, and filter count */
 .jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
+}
+
+.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__title {
+	display: none;
+}
+
+.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__filter-count {
+	display: none;
+}
+
+/* Hide product attribute info by default */
+.jetpack-search-filters-widget__product-attribute-info {
+	display: none;
+	letter-spacing: normal;
+	font-size: 0.9rem;
+}
+
+/* Show product attribute info only when product attribute is selected */
+.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__product-attribute-info {
+	display: block;
 }
 
 .jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {

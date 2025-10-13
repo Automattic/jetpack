@@ -1004,7 +1004,7 @@ class Search_Widget extends \WP_Widget {
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
 						</option>
 						<option value="product_attribute" <?php $this->render_widget_option_selected( 'type', $args['type'], 'product_attribute', $is_template ); ?>>
-							<?php esc_html_e( 'Product Attribute', 'jetpack-search-pkg' ); ?>
+							<?php esc_html_e( 'Product Attributes', 'jetpack-search-pkg' ); ?>
 						</option>
 					</select>
 				</label>
@@ -1084,7 +1084,7 @@ class Search_Widget extends \WP_Widget {
 				</label>
 			</p>
 
-			<p>
+			<p class="jetpack-search-filters-widget__filter-count">
 				<label>
 					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack-search-pkg' ); ?>
 					<input
@@ -1098,6 +1098,10 @@ class Search_Widget extends \WP_Widget {
 						required
 					/>
 				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__product-attribute-info">
+				<?php esc_html_e( 'The Jetpack Search sidebar will dynamically show filtering options that correspond to any product attributes found in the current results.', 'jetpack-search-pkg' ); ?>
 			</p>
 
 			<p class="jetpack-search-filters-widget__controls">
