@@ -64,4 +64,12 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	formNotifications: {
+		type: 'boolean',
+		default: true,
+	},
+	notificationRecipients: {
+		type: 'array',
+		default: [],
+	},
 };

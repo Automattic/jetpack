@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.6 - 2025-10-10
+### Added
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45097] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334]
+
 ## 2.5 - 2025-08-05
 ### Added
 - My Jetpack: Added analytics for empty product search results. [#44344]

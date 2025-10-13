@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { hasFeatureFlag, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -51,6 +51,7 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
+import NotificationsSettings from './components/notifications-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -128,6 +129,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		variationName,
 		emailNotifications,
 		disableGoBack,
+		notificationRecipients,
 	} = attributes;
 	const formsConfig = useFormsConfig();
 	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
@@ -749,7 +751,7 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 				<InspectorControls>
 					<PanelBody
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
-						className="jetpack-contact-form__responses-storage-panel"
+						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
 					>
 						<JetpackManageResponsesSettings
@@ -757,7 +759,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					<PanelBody title={ __( 'Action after submit', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody
+						title={ __( 'Action after submit', 'jetpack-forms' ) }
+						initialOpen={ false }
+						className="jetpack-contact-form__panel"
+					>
 						<InspectorHint>
 							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 						</InspectorHint>
@@ -784,10 +790,10 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						{ 'redirect' !== customThankyou && (
 							<>
 								<ToggleControl
-									label={ __( 'Disable "Go back" link', 'jetpack-forms' ) }
-									checked={ disableGoBack }
+									label={ __( 'Show "Go back" link', 'jetpack-forms' ) }
+									checked={ ! disableGoBack }
 									onChange={ ( newDisableGoBack: boolean ) =>
-										setAttributes( { disableGoBack: newDisableGoBack } )
+										setAttributes( { disableGoBack: ! newDisableGoBack } )
 									}
 									__nextHasNoMarginBottom={ true }
 									__next40pxDefaultSize={ true }
@@ -831,7 +837,11 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							</div>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Email responses', 'jetpack-forms' ) } initialOpen={ false }>
+					<PanelBody
+						title={ __( 'Email responses', 'jetpack-forms' ) }
+						initialOpen={ false }
+						className="jetpack-contact-form__panel"
+					>
 						<JetpackEmailConnectionSettings
 							emailAddress={ to }
 							emailSubject={ subject }
@@ -841,6 +851,18 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
+					{ hasFeatureFlag( 'form-notifications' ) && (
+						<PanelBody
+							title={ __( 'Form notifications', 'jetpack-forms' ) }
+							initialOpen={ false }
+							className="jetpack-contact-form__panel"
+						>
+							<NotificationsSettings
+								notificationRecipients={ notificationRecipients }
+								setAttributes={ setAttributes }
+							/>
+						</PanelBody>
+					) }
 					{ showFormIntegrations && (
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />

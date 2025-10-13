@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.18] - 2025-10-09
+### Changed
+- Update package dependencies. [#45173] [#45241]
+
 ## [0.3.17] - 2025-09-17
 ### Changed
 - Update package dependencies. [#45097]
@@ -135,6 +139,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added package to intercept plugin deactivation [#27081]
 
+[0.3.18]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.17...v0.3.18
 [0.3.17]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.16...v0.3.17
 [0.3.16]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.15...v0.3.16
 [0.3.15]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.14...v0.3.15

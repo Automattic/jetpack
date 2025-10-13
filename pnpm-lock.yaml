@@ -2501,8 +2501,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@gravatar-com/hovercards':
-        specifier: 0.10.8
-        version: 0.10.8
+        specifier: 0.15.0
+        version: 0.15.0
       '@wordpress/base-styles':
         specifier: 6.7.0
         version: 6.7.0
@@ -2759,8 +2759,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@gravatar-com/hovercards':
-        specifier: 0.10.8
-        version: 0.10.8
+        specifier: 0.15.0
+        version: 0.15.0
       '@gravatar-com/quick-editor':
         specifier: 0.8.0
         version: 0.8.0
@@ -7180,8 +7180,8 @@ packages:
     peerDependencies:
       '@fullcalendar/core': ~6.1.19
 
-  '@gravatar-com/hovercards@0.10.8':
-    resolution: {integrity: sha512-P/PYqIF8SDlPiG3TgFKsTFJDwqahx8ojX+d4Cb9ThA3+0Nw5olNtKexklRafJBKDSySMEOttu+EGgigtxiE8dw==}
+  '@gravatar-com/hovercards@0.15.0':
+    resolution: {integrity: sha512-ASd6TbYDbBI3Jqh4iQkXSx57CleP43edo2UxosQVHIqDFm7fq26TV7B0TZVK80QNiaq5z03GMYtnSHMSR9hyoA==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.8.0':
@@ -18930,7 +18930,7 @@ snapshots:
       '@fullcalendar/core': 6.1.19
       '@fullcalendar/daygrid': 6.1.19(@fullcalendar/core@6.1.19)
 
-  '@gravatar-com/hovercards@0.10.8': {}
+  '@gravatar-com/hovercards@0.15.0': {}
 
   '@gravatar-com/quick-editor@0.8.0': {}
 

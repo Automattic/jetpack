@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.8.1] - 2025-10-10
+### Changed
+- Enable Global Styles limited on Atomic sites. [#45459]
+
+### Fixed
+- Fix Launchpad free plan check warning. [#45451]
+
+## [6.8.0] - 2025-10-10
+### Added
+- Add Code block (experimental). [#45181]
+- Admin Menu: Add P2 menu overrides. [#45355]
+- Admin Menu: Register "Jetpack > Traffic" on Simple sites. [#44658]
+- Enqueue Help Center in next-admin. [#44304]
+- Newspack blocks: Load feature on agency sites. [#44906]
+- Add the Help Center to `/support` homepage. [#44556]
+
+### Changed
+- Add Medium, Squarespace, and Wix importers in WP Admin import page. [#44860] [#44909]
+- Admin Menu: Move "Hosting > Marketing" to "Tools > Marketing". [#44663]
+- Admin Menu: Move "Settings > Newsletter" to "Jetpack > Newsletter". [#44630]
+- Admin Menu: Register Jetpack > Activity Log on default interface. [#44733]
+- Change the Help Center to be runnable as a standalone plugin. [#45354]
+- Clean up the code for quick switcher after RDV. [#45353]
+- Disable the Calypso quick switcher on the import page. [#45017]
+- Global Styles: Move frontend notice from launch bar to admin bar. [#45417]
+- Improve description of "private site" feature. [#44905]
+- Launchpad: Link to domain-and-plan flow within domain_upsell task. [#45360]
+- Launchpad: Update social tasks to open Jetpack Social. [#45160]
+- Send JSON with built-in WordPress functions. [#45002]
+- Update dependencies. [#45096]
+- Update the TypeScript version to be the same as monorepo. [#44795]
+- Update package dependencies. [#44677] [#44701] [#44948] [#45027] [#45097] [#45173] [#45200] [#45229] [#45298] [#45334] [#45430]
+- Verbum Comments: Optimize block filtering performance using Block_Scanner for fast pre-filtering when all blocks are allowed. [#44996]
+
+### Removed
+- Admin Menu: Remove Hosting > Marketing. [#45041]
+- Calypsoify: Remove package. [#45356]
+
+### Fixed
+- Add plugin header to the Help Center plugin file. [#45401]
+- Admin Menu: Fix duplicate Jetpack submenus. [#45131]
+- Newsletter launchpad: Add import steps when goal is `import-subscribers`. [#44853]
+- Remove broken menu items for Atomic Personal/Premium sites. [#44699]
+- Settings -> General: use correct https scheme for site URLs in Simple sites. [#44991]
+- Update logos in banner used for Dotcom Marketplace. [#45073]
+
 ## [6.7.0] - 2025-08-05
 ### Added
 - Add a Callout page for Tools > Site Health on Simple Sites. [#44498]
@@ -1637,6 +1683,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.7.0...v6.8.0
 [6.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.6.0...v6.7.0
 [6.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.5.0...v6.6.0
 [6.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.4.0...v6.5.0

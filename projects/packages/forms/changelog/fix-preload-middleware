@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: fix preload middleware registration to properly cache API requests and support both path formats.
