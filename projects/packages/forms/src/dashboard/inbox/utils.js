@@ -65,3 +65,11 @@ export const updateMenuCounterOptimistically = count => {
 		}
 	} );
 };
+
+/**
+ * Get the ID of an item.
+ *
+ * @param {object} item - The item to get the ID of.
+ * @return {string} The ID of the item.
+ */
+export const getItemId = item => item?.id?.toString() ?? '';
