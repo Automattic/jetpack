@@ -37,7 +37,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 			return true;
 		}
 
-		$feed_dom = $this->safely_load_xml( $file->body );
+		$feed_dom = $this->safely_load_xml( $file->get_body_content() );
 
 		// Do this as either/or but prioritise the itunes namespace. It's pretty likely
 		// that it's a podcast feed we've found if that namespace is present.
@@ -48,7 +48,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 	 * Safely loads an XML file
 	 *
 	 * @param string $xml A string of XML to load.
-	 * @return DOMDocument|false A restulting DOM document or `false` if there is an error.
+	 * @return DOMDocument|false A resulting DOM document or `false` if there is an error.
 	 */
 	private function safely_load_xml( $xml ) {
 		$disable_entity_loader = PHP_VERSION_ID < 80000;
