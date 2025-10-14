@@ -10,22 +10,17 @@ declare( strict_types = 1 );
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests for WPCOM attachment pages settings.
  *
- * @covers \wpcom_attachment_pages_setting_sanitization
- * @covers \wpcom_attachment_pages_settings_init
+ * @covers ::wpcom_attachment_pages_setting_sanitization
  * @covers ::wpcom_attachment_pages_settings_init
- * @covers ::wpcom_launchpad_is_task_list_dismissed
  */
-#[CoversFunction( 'wpcom_launchpad_is_task_list_dismissed' )]
+#[CoversFunction( 'wpcom_attachment_pages_setting_sanitization' )]
 #[CoversFunction( 'wpcom_attachment_pages_settings_init' )]
-#[CoversClass( wpcom_attachment_pages_setting_sanitization::class )]
-#[CoversClass( wpcom_attachment_pages_settings_init::class )]
 class WPCOM_Attachment_Pages_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests the sanitization function.
