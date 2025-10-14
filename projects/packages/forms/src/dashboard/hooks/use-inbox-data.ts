@@ -4,6 +4,8 @@
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
+import { isEmpty } from 'lodash';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -27,6 +29,23 @@ function getStatusFilter( urlStatus ) {
 	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
 	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
 }
+
+const formatFieldName = fieldName => {
+	const match = fieldName.match( /^(\d+_)?(.*)/i );
+	if ( match ) {
+		return match[ 2 ];
+	}
+	return fieldName;
+};
+
+const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
+	}
+	return fieldValue;
+};
 
 /**
  * Interface for the return value of the useInboxData hook.
@@ -98,7 +117,22 @@ export default function useInboxData(): UseInboxDataReturn {
 					'feedback',
 					( record as FormResponse ).id
 				);
-				return editedRecord || record;
+				return {
+					...( ( editedRecord || record ) as FormResponse ),
+					fields: Object.entries( ( record as FormResponse ).fields || {} ).reduce(
+						( accumulator, [ key, value ] ) => {
+							let _key = formatFieldName( key );
+							let counter = 2;
+							while ( accumulator[ _key ] ) {
+								_key = `${ formatFieldName( key ) } (${ counter })`;
+								counter++;
+							}
+							accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
+							return accumulator;
+						},
+						{}
+					),
+				};
 			} ) as FormResponse[];
 		},
 		[ rawRecords ]
