@@ -378,7 +378,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Create a contact form
 		$form = new Contact_Form(
 			array(
-				'customThankyou' => 'redirect', // Any value that's not 'message'
+				'customThankyou' => '',
 			),
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
@@ -2732,6 +2732,8 @@ EOT;
 		$expected_attributes['saveResponses']          = 'yes';
 		$expected_attributes['disableGoBack']          = '';
 		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['disableSummary']         = '';
+		$expected_attributes['confirmationType']       = '';
 
 		$form = new Contact_Form(
 			$attributes,
