@@ -22,6 +22,7 @@ import InboxStatusToggle from '../../components/inbox-status-toggle';
 import ResponseActions from '../../components/response-actions';
 import ResponseNavigation from '../../components/response-navigation';
 import useInboxData from '../../hooks/use-inbox-data';
+import useResponseNavigation from '../../hooks/use-response-navigation';
 import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
 import { getPath, getItemId } from '../utils.js';
@@ -455,47 +456,6 @@ const InboxResponseMobile = ( { response, data, closeModal } ) => {
 			/>
 		</div>
 	);
-};
-
-const useResponseNavigation = ( { data, onChangeSelection, sidePanelItem, setSidePanelItem } ) => {
-	const currentIndex = useMemo(
-		() =>
-			sidePanelItem && data
-				? data.findIndex( item => getItemId( item ) === getItemId( sidePanelItem ) )
-				: -1,
-		[ sidePanelItem, data ]
-	);
-
-	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
-	const hasPrevious = currentIndex > 0;
-
-	const handleNext = useCallback( () => {
-		if ( hasNext && data && currentIndex >= 0 ) {
-			const nextItem = data[ currentIndex + 1 ];
-			if ( nextItem ) {
-				setSidePanelItem( nextItem );
-				onChangeSelection( [ getItemId( nextItem ) ] );
-			}
-		}
-	}, [ hasNext, data, currentIndex, setSidePanelItem, onChangeSelection ] );
-
-	const handlePrevious = useCallback( () => {
-		if ( hasPrevious && data && currentIndex >= 0 ) {
-			const prevItem = data[ currentIndex - 1 ];
-			if ( prevItem ) {
-				setSidePanelItem( prevItem );
-				onChangeSelection( [ getItemId( prevItem ) ] );
-			}
-		}
-	}, [ hasPrevious, data, currentIndex, setSidePanelItem, onChangeSelection ] );
-
-	return {
-		currentIndex,
-		hasNext,
-		hasPrevious,
-		handleNext,
-		handlePrevious,
-	};
 };
 
 const SingleResponse = ( {
