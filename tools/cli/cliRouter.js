@@ -9,6 +9,7 @@ import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { docsDefine } from './commands/docs.js';
 import { draftDefine } from './commands/draft.js';
+import { genTestInstructionsDefine } from './commands/gen-test-instructions.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
@@ -55,6 +56,7 @@ export async function cli() {
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
 	argv.command( testCommand );
+	argv = genTestInstructionsDefine( argv );
 	argv = watchDefine( argv );
 
 	// This adds usage information on failure and demands that a subcommand must be passed.
