@@ -256,11 +256,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		} catch ( \Exception $e ) {
 			return null;
 		}
-		$source = $data['source'] ?? null;
+		$source = $data['source'] ?? array();
 		if ( empty( $source ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission() for logged-in users
-			$source_post_id = ! empty( $_POST['contact-form-id'] ) && is_numeric( $_POST['contact-form-id'] ) ? intval( $_POST['contact-form-id'] ) : 0;
-			$post           = get_post( intval( $source_post_id ) );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+			$source_post_id = ! empty( $_POST['contact-form-id'] ) && is_numeric( $_POST['contact-form-id'] ) ? absint( wp_unslash( $_POST['contact-form-id'] ) ) : 0;
+			$post           = get_post( $source_post_id );
 			if ( $post !== null && $source_post_id > 0 ) {
 				// create a fallback source
 				$source = array(
