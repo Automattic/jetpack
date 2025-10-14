@@ -1101,7 +1101,7 @@ class Search_Widget extends \WP_Widget {
 			<div class="jetpack-search-filters-widget__product-attribute-inclusions">
 			<?php
 			if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
-				$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction
+				$product_attributes  = wc_get_attribute_taxonomies();
 				$included_attributes = ! $is_template && isset( $args['included_attributes'] ) ? (array) $args['included_attributes'] : array();
 
 				if ( ! empty( $product_attributes ) ) :
@@ -1112,7 +1112,7 @@ class Search_Widget extends \WP_Widget {
 					<div class="jetpack-search-filters-widget__attribute-checkboxes">
 						<?php
 						foreach ( $product_attributes as $attribute ) :
-							$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction
+							$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
 							$is_included    = in_array( $attribute_name, $included_attributes, true );
 							?>
 							<label class="jetpack-search-filters-widget__attribute-checkbox">

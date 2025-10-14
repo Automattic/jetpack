@@ -210,7 +210,7 @@ class Helper {
 			return $filters;
 		}
 
-		$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+		$product_attributes  = wc_get_attribute_taxonomies();
 		$included_attributes = isset( $widget_filter['included_attributes'] ) ? (array) $widget_filter['included_attributes'] : array();
 
 		// If no attributes are explicitly included, show all attributes (backward compatibility).
@@ -218,7 +218,7 @@ class Helper {
 		$show_all = empty( $included_attributes ) || count( $included_attributes ) === count( $product_attributes );
 
 		foreach ( $product_attributes as $attribute ) {
-			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
 
 			if ( ! $show_all && ! in_array( $attribute_name, $included_attributes, true ) ) {
 				continue;

@@ -1366,14 +1366,14 @@ class Classic_Search {
 			return;
 		}
 
-		$product_attributes = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+		$product_attributes = wc_get_attribute_taxonomies();
 
 		if ( empty( $product_attributes ) ) {
 			return;
 		}
 
 		foreach ( $product_attributes as $attribute ) {
-			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
 			$agg_label      = $label . '_' . $attribute_name;
 
 			$this->build_product_attribute_agg( $attribute_name, $aggregation['count'], $agg_label, $builder );
