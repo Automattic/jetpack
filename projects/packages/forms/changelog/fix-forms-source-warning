@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
-Forms: fix php warning for when a site doesn't have the JWT token yet
+Forms: fix PHP warning for when a site doesn't have the JWT token yet
