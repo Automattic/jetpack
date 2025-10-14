@@ -360,7 +360,6 @@ export default function InboxView() {
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
-				data={ records }
 				onChangeSelection={ onChangeSelection }
 				selection={ selection }
 			/>
@@ -373,7 +372,6 @@ const SingleResponse = ( {
 	setSidePanelItem,
 	isLoadingData,
 	isMobile,
-	data,
 	onChangeSelection,
 	selection,
 } ) => {
@@ -410,7 +408,6 @@ const SingleResponse = ( {
 
 	// Use the navigation hook
 	const navigation = useResponseNavigation( {
-		data,
 		onChangeSelection,
 		record: sidePanelItem,
 		setRecord: setSidePanelItem,

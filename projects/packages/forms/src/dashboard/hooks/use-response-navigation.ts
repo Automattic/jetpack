@@ -1,48 +1,53 @@
 import { useMemo, useCallback } from '@wordpress/element';
 import { FormResponse } from '../../types';
 import { getItemId } from '../inbox/utils';
+import useInboxData from './use-inbox-data';
 
 interface UseResponseNavigationProps {
-	data: FormResponse[];
 	onChangeSelection: ( responses: string[] ) => void | null;
 	record: FormResponse;
 	setRecord: ( response: FormResponse ) => void;
 }
 
 const useResponseNavigation = ( {
-	data,
 	onChangeSelection,
 	record,
 	setRecord,
 }: UseResponseNavigationProps ) => {
+	const { records } = useInboxData();
 	const currentIndex = useMemo(
 		() =>
-			record && data ? data.findIndex( item => getItemId( item ) === getItemId( record ) ) : -1,
-		[ record, data ]
+			record && records
+				? records.findIndex( item => getItemId( item ) === getItemId( record ) )
+				: -1,
+		[ record, records ]
 	);
 
-	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
-	const hasPrevious = currentIndex > 0;
+	const hasNext = useMemo(
+		() => currentIndex >= 0 && currentIndex < ( records?.length ?? 0 ) - 1,
+		[ currentIndex, records ]
+	);
+	const hasPrevious = useMemo( () => currentIndex > 0, [ currentIndex ] );
 
 	const handleNext = useCallback( () => {
-		if ( hasNext && data && currentIndex >= 0 ) {
-			const nextItem = data[ currentIndex + 1 ];
+		if ( hasNext && records && currentIndex >= 0 ) {
+			const nextItem = records[ currentIndex + 1 ];
 			if ( nextItem ) {
 				setRecord( nextItem );
 				onChangeSelection?.( [ getItemId( nextItem ) ] );
 			}
 		}
-	}, [ hasNext, data, currentIndex, setRecord, onChangeSelection ] );
+	}, [ hasNext, records, currentIndex, setRecord, onChangeSelection ] );
 
 	const handlePrevious = useCallback( () => {
-		if ( hasPrevious && data && currentIndex >= 0 ) {
-			const prevItem = data[ currentIndex - 1 ];
+		if ( hasPrevious && records && currentIndex >= 0 ) {
+			const prevItem = records[ currentIndex - 1 ];
 			if ( prevItem ) {
 				setRecord( prevItem );
 				onChangeSelection?.( [ getItemId( prevItem ) ] );
 			}
 		}
-	}, [ hasPrevious, data, currentIndex, setRecord, onChangeSelection ] );
+	}, [ hasPrevious, records, currentIndex, setRecord, onChangeSelection ] );
 
 	return {
 		currentIndex,
