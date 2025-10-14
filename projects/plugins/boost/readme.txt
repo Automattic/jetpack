@@ -183,24 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.4.0 - 2025-09-18
+### 4.5.0-beta - 2025-10-14
 #### Added
-- Cornerstone Pages: Add filter to allow the full list of pages to be changed.
+- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
 
 #### Changed
-- Critical CSS: Updated UI to indicate when generated CSS is too much.
-- Do not force CRM installation for Complete plan users
-- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels)
-- Updated PNG import location after refactors in My Jetpack.
 - Update package dependencies.
 
 #### Fixed
-- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list.
-- E2E tests: improved connection flow
-- General: Fix translation warning when activating Boost.
-- Image CDN: Add support for images added via Breakdance blocks.
-- Image CDN: gracefully handle an attempt to filter null.
-- Page Cache: Fix fatal error when updating a page on multisite.
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
 
 --------
 

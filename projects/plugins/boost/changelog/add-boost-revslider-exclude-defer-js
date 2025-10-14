@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
