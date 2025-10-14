@@ -234,6 +234,10 @@ that needs to mimic the input element styles */
 	text-wrap: pretty;
 }
 
+.jetpack_forms_contact-form-custom-success-message + .jetpack_forms_contact-form-success-summary {
+	margin-top: 32px;
+}
+
 .contact-form-submission h4 {
 	margin-top: 32px;
 	margin-bottom: 32px;

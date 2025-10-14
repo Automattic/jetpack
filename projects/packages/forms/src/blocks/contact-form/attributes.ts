@@ -28,6 +28,9 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	confirmationType: {
+		enum: [ 'text', 'redirect' ],
+	},
 	jetpackCRM: {
 		type: 'boolean',
 	},
@@ -61,6 +64,10 @@ export default {
 		default: true,
 	},
 	disableGoBack: {
+		type: 'boolean',
+		default: false,
+	},
+	disableSummary: {
 		type: 'boolean',
 		default: false,
 	},

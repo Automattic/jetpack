@@ -411,7 +411,6 @@ class Util {
 						$match[0]
 					);
 				}
-				// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
 				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
 				$attrs = array_merge( $attrs, $new_attr );
 				return str_replace(
