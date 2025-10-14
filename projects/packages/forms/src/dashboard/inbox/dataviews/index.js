@@ -24,7 +24,7 @@ import ResponseNavigation from '../../components/response-navigation';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import InboxResponse from '../response';
-import { getPath } from '../utils.js';
+import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -39,7 +39,6 @@ import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
-const getItemId = item => item?.id?.toString() ?? '';
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
