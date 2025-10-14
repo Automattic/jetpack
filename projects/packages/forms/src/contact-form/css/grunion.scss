@@ -225,12 +225,13 @@ that needs to mimic the input element styles */
 	word-wrap: break-word;
 }
 
-.contact-form-submission :where(.contact-form-custom-success-message) p {
+.contact-form-submission :where(.jetpack_forms_contact-form-custom-success-message) p {
 	margin: revert;
 }
 
-.contact-form-submission :where(.contact-form-custom-success-message) {
+.contact-form-submission :where(.jetpack_forms_contact-form-custom-success-message) {
 	white-space: pre-wrap;
+	text-wrap: pretty;
 }
 
 .contact-form-submission h4 {

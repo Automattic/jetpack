@@ -1009,7 +1009,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			$message = wp_kses( $raw_message, $allowed_html );
-			$message = '<div class="contact-form-custom-success-message">' . $message . '</div>';
+			$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
 
 			$html .= $message;
 		} elseif ( ! $disable_summary ) {
@@ -1079,7 +1079,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			$message = wp_kses( $raw_message, $allowed_html );
-			$message = '<div class="contact-form-custom-success-message">' . $message . '</div>';
+			$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
 		} elseif ( ! $disable_summary ) {
 			$compiled_form = self::get_compiled_form( $feedback_id );
 			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
