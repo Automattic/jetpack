@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Slideshow block: Ensure image size selection is correctly reflected in editor at all times
