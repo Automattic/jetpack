@@ -308,9 +308,7 @@ export default function InboxView() {
 				...viewAction,
 				RenderModal: ( { items, closeModal } ) => {
 					const [ item ] = items;
-					return (
-						<ResponseMobileView response={ item } data={ records } closeModal={ closeModal } />
-					);
+					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 				},
 				hideModalHeader: true,
 			} );
@@ -326,7 +324,7 @@ export default function InboxView() {
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection, records ] );
+	}, [ isMobile, onChangeSelection, selection ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;

@@ -2,9 +2,9 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
-import { useState, useMemo, useCallback } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getItemId } from '../../inbox/utils';
+import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
 import ResponseView from './index';
@@ -12,43 +12,22 @@ import ResponseView from './index';
 /**
  * Component wrapper for InboxResponse in DataViews modal
  * Renders response with navigation in modal header for mobile view
- * @param {object}   props            - The props object.
- * @param {Array}    props.data       - The responses list array.
- * @param {object}   props.response   - The response item.
- * @param {Function} props.closeModal - Function to close the DataViews modal.
+ * @param {object}       props            - The props object.
+ * @param {FormResponse} props.response   - The response item.
+ * @param {Function}     props.closeModal - Function to close the DataViews modal.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-const ResponseMobileView = ( { response, data, closeModal } ) => {
+const ResponseMobileView = ( { response, closeModal } ) => {
 	const [ currentResponse, setCurrentResponse ] = useState( response );
 
-	const currentIndex = useMemo(
-		() =>
-			currentResponse && data
-				? data.findIndex( item => getItemId( item ) === getItemId( currentResponse ) )
-				: -1,
-		[ currentResponse, data ]
-	);
+	// Use the navigation hook
+	const navigation = useResponseNavigation( {
+		onChangeSelection: null,
+		record: currentResponse,
+		setRecord: setCurrentResponse,
+	} );
 
-	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
-	const hasPrevious = currentIndex > 0;
-
-	const handleNext = useCallback( () => {
-		if ( hasNext && data && currentIndex >= 0 ) {
-			const nextItem = data[ currentIndex + 1 ];
-			if ( nextItem ) {
-				setCurrentResponse( nextItem );
-			}
-		}
-	}, [ hasNext, data, currentIndex ] );
-
-	const handlePrevious = useCallback( () => {
-		if ( hasPrevious && data && currentIndex >= 0 ) {
-			const prevItem = data[ currentIndex - 1 ];
-			if ( prevItem ) {
-				setCurrentResponse( prevItem );
-			}
-		}
-	}, [ hasPrevious, data, currentIndex ] );
+	const { hasNext, hasPrevious, handleNext, handlePrevious } = navigation;
 
 	// Action complete handler is a bit different on mobile view.
 	// We don't close the modal if the response hasn't changed status (read/unread toggle)
