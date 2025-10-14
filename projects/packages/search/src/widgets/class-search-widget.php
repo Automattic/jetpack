@@ -702,17 +702,15 @@ class Search_Widget extends \WP_Widget {
 						break;
 					case 'product_attribute':
 						$filter_data = array(
-							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type' => 'product_attribute',
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'product_attribute',
+							'count' => $count,
 						);
 						// Save included attributes if any are selected.
 						if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
 							$filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
 						}
-						// For product attributes, we don't use the count field since we show all selected attributes.
-						// But we still need it in the array for backward compatibility with other filter types.
-						$filter_data['count'] = $count;
-						$filters[]            = $filter_data;
+						$filters[] = $filter_data;
 						break;
 				}
 			}
@@ -1101,36 +1099,37 @@ class Search_Widget extends \WP_Widget {
 			</p>
 
 			<div class="jetpack-search-filters-widget__product-attribute-inclusions">
-				<?php
-				if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
-					$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking existence.
-					$included_attributes = ! $is_template && isset( $args['included_attributes'] ) ? (array) $args['included_attributes'] : array();
-					if ( ! empty( $product_attributes ) ) :
-						?>
-						<p>
-							<label><?php esc_html_e( 'Select which product attributes to display as filters. If none are selected, all attributes will be shown.', 'jetpack-search-pkg' ); ?></label>
-						</p>
-						<div class="jetpack-search-filters-widget__attribute-checkboxes">
-							<?php foreach ( $product_attributes as $attribute ) : ?>
-								<?php
-								$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking existence.
-								$is_included    = in_array( $attribute_name, $included_attributes, true );
-								?>
-								<label class="jetpack-search-filters-widget__attribute-checkbox">
-									<input
-										type="checkbox"
-										name="<?php echo esc_attr( $this->get_field_name( 'included_attributes_' . ( $is_template ? '<%= data.index %>' : $filter_index ) ) ); ?>[]"
-										value="<?php echo esc_attr( $attribute_name ); ?>"
-										<?php checked( $is_included ); ?>
-									/>
-									<?php echo esc_html( $attribute->attribute_label ); ?>
-								</label>
-							<?php endforeach; ?>
-						</div>
+			<?php
+			if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
+				$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction
+				$included_attributes = ! $is_template && isset( $args['included_attributes'] ) ? (array) $args['included_attributes'] : array();
+
+				if ( ! empty( $product_attributes ) ) :
+					?>
+					<p>
+						<label><?php esc_html_e( 'Select which attributes to display as filters. Leave blank to show all.', 'jetpack-search-pkg' ); ?></label>
+					</p>
+					<div class="jetpack-search-filters-widget__attribute-checkboxes">
 						<?php
+						foreach ( $product_attributes as $attribute ) :
+							$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction
+							$is_included    = in_array( $attribute_name, $included_attributes, true );
+							?>
+							<label class="jetpack-search-filters-widget__attribute-checkbox">
+								<input
+									type="checkbox"
+									name="<?php echo esc_attr( $this->get_field_name( 'included_attributes_' . ( $is_template ? '<%= data.index %>' : $filter_index ) ) ); ?>[]"
+									value="<?php echo esc_attr( $attribute_name ); ?>"
+									<?php checked( $is_included ); ?>
+								/>
+								<?php echo esc_html( $attribute->attribute_label ); ?>
+							</label>
+						<?php endforeach; ?>
+					</div>
+					<?php
 					endif;
-				}
-				?>
+			}
+			?>
 			</div>
 
 			<p class="jetpack-search-filters-widget__filter-count">

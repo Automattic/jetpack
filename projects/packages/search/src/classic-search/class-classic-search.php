@@ -1639,15 +1639,18 @@ class Classic_Search {
 							}
 						}
 
-						$query_vars = array(
-							$tax_query_var => implode( '+', array_merge( $existing_attribute_slugs, array( $attribute_term->slug ) ) ),
-						);
-
 						$name = $attribute_term->name;
 
 						// Let's determine if this attribute is active or not.
-						if ( in_array( $item['key'], $existing_attribute_slugs, true ) ) {
+						$is_active = in_array( $item['key'], $existing_attribute_slugs, true );
+
+						if ( $is_active ) {
 							$active = true;
+
+							// For active items, maintain the current state (don't redundantly add the slug again).
+							$query_vars = array(
+								$tax_query_var => implode( '+', $existing_attribute_slugs ),
+							);
 
 							$slug_count = count( $existing_attribute_slugs );
 
@@ -1659,6 +1662,11 @@ class Classic_Search {
 							} else {
 								$remove_url = Helper::remove_query_arg( $tax_query_var );
 							}
+						} else {
+							// For inactive items, add this slug to the existing ones.
+							$query_vars = array(
+								$tax_query_var => implode( '+', array_merge( $existing_attribute_slugs, array( $attribute_term->slug ) ) ),
+							);
 						}
 
 						break;
