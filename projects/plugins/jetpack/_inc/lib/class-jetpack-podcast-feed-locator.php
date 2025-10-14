@@ -51,6 +51,10 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 	 * @return DOMDocument|false A resulting DOM document or `false` if there is an error.
 	 */
 	private function safely_load_xml( $xml ) {
+		if ( empty( $xml ) ) {
+			return false;
+		}
+
 		$disable_entity_loader = PHP_VERSION_ID < 80000;
 
 		if ( $disable_entity_loader ) {
