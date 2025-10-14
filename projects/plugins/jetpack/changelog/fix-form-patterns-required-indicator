@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: fixed a bug that removed the required text from required fields when creating a form from a pattern.
