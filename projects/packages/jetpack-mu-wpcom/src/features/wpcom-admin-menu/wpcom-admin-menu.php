@@ -298,8 +298,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	add_submenu_page(
 		'jetpack',
-		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
-		__( 'Backup', 'jetpack-mu-wpcom' ),
+		/** "Backup" is a product name, do not translate. */
+		'Backup',
+		'Backup',
 		'manage_options',
 		'https://wordpress.com/backup/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
