@@ -412,8 +412,8 @@ const SingleResponse = ( {
 	const navigation = useResponseNavigation( {
 		data,
 		onChangeSelection,
-		sidePanelItem,
-		setSidePanelItem,
+		record: sidePanelItem,
+		setRecord: setSidePanelItem,
 	} );
 
 	if ( ! sidePanelItem ) {

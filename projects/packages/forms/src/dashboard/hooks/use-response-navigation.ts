@@ -5,15 +5,15 @@ import { getItemId } from '../inbox/utils';
 interface UseResponseNavigationProps {
 	data: FormResponse[];
 	onChangeSelection: ( responses: string[] ) => void | null;
-	sidePanelItem: FormResponse;
-	setSidePanelItem: ( response: FormResponse ) => void;
+	record: FormResponse;
+	setRecord: ( response: FormResponse ) => void;
 }
 
 const useResponseNavigation = ( {
 	data,
 	onChangeSelection,
-	sidePanelItem: record,
-	setSidePanelItem: setRecord,
+	record,
+	setRecord,
 }: UseResponseNavigationProps ) => {
 	const currentIndex = useMemo(
 		() =>
