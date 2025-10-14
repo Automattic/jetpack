@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Podcast feed: Prevent fatals when content is an unexpected type.
+Podcast feed: Prevent fatals when content is empty.
