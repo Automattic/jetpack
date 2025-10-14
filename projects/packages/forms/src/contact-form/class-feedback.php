@@ -204,11 +204,14 @@ class Feedback {
 		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
 		$this->fields = $parsed_content['fields'] ?? array();
+		$source_id    = $feedback_post->post_parent ? (int) $feedback_post->post_parent : 0;
 
 		$this->source = new Feedback_Source(
-			$feedback_post->post_parent,
+			$parsed_content['source_id'] ?? $source_id,
 			$parsed_content['entry_title'] ?? '',
-			$parsed_content['entry_page'] ?? 1
+			$parsed_content['entry_page'] ?? 1,
+			$parsed_content['source_type'] ?? 'single',
+			$parsed_content['request_url'] ?? ''
 		);
 
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
@@ -242,6 +245,15 @@ class Feedback {
 		$instance = new self();
 		$instance->load_from_submission( $post_data, $form, $current_post, $current_page_number );
 		return $instance;
+	}
+
+	/**
+	 * Set the source of the feedback entry.
+	 *
+	 * @param Feedback_Source $source The source object.
+	 */
+	public function set_source( $source ) {
+		$this->source = $source;
 	}
 
 	/**
@@ -905,7 +917,7 @@ class Feedback {
 	 *
 	 * This is the post ID of the post or page that the feedback was submitted from.
 	 *
-	 * @return int|null
+	 * @return int|string
 	 */
 	public function get_entry_id() {
 		return $this->source->get_id();
@@ -930,6 +942,15 @@ class Feedback {
 	 */
 	public function get_entry_permalink() {
 		return $this->source->get_permalink();
+	}
+
+	/**
+	 * Get the editor URL where the user can edit the form.
+	 *
+	 * @return string
+	 */
+	public function get_edit_form_url() {
+		return $this->source->get_edit_form_url();
 	}
 	/**
 	 * Get the short permalink of a post.

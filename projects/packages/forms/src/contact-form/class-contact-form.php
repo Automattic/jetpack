@@ -122,6 +122,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public $has_verified_jwt = false;
 
 	/**
+	 * The source of the feedback entry.
+	 *
+	 * @var Feedback_Source
+	 */
+	private $source;
+
+	/**
 	 * Construction function.
 	 *
 	 * @param array  $attributes - the attributes.
@@ -251,6 +258,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$form                   = new self( $data['attributes'], $data['content'], empty( $data['attributes']['id'] ) );
+		$form->source           = Feedback_Source::from_serialized( $data['source'] );
 		$form->hash             = $data['hash'];
 		$form->has_verified_jwt = true;
 		return $form;
@@ -362,15 +370,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The JWT token.
 	 */
 	public function get_jwt() {
-		$attributes = $this->attributes;
+		$attributes   = $this->attributes;
+		$this->source = Feedback_Source::get_current( $attributes );
 		return JWT::encode(
 			array(
 				'attributes' => $attributes,
 				'content'    => $this->content,
 				'hash'       => $this->hash,
+				'source'     => $this->source->serialize(),
 			),
 			self::get_secret()
 		);
+	}
+
+	/**
+	 * Get the current source obejct. That is relevent to the form and there current request.
+	 *
+	 * @return Feedback_Source Return the current feedback source object.
+	 */
+	public function get_source() {
+		if ( ! $this->source ) {
+			$attributes   = $this->attributes;
+			$this->source = Feedback_Source::get_current( $attributes );
+		}
+		return $this->source;
 	}
 
 	/**
@@ -836,10 +859,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
-
-			if ( $page && $page > 1 ) {
-				$r .= "\t\t<input type='hidden' name='page' value='$page' />\n";
-			}
 
 			if ( ! $has_submit_button_block ) {
 				$r .= "\t</p>\n";
@@ -1663,15 +1682,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Stores feedback.  Sends email.
 	 */
 	public function process_submission() {
-		$page_number = 1;
 
-		// We skip the nonce verification for since nonce earlier in process_form_submission.
-		if ( isset( $_POST['page'] ) ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-			$page_number = absint( wp_unslash( $_POST['page'] ) ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-		}
-
-		$response = Feedback::from_submission( $_POST, $this, $this->current_post, $page_number ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
-
+		$response = Feedback::from_submission( $_POST, $this ); // phpcs:Ignore WordPress.Security.NonceVerification.Missing
+		$response->set_source( $this->get_source() );
 		$plugin = Contact_Form_Plugin::init();
 
 		$id                  = $this->get_attribute( 'id' );

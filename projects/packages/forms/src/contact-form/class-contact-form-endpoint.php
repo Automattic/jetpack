@@ -533,6 +533,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['edit_form_url'] = array(
+			'description' => __( 'The URL to edit the form.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['subject'] = array(
 			'description' => __( 'The subject line of the form submission.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -755,6 +765,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
+		}
+		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
+			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
 			$data['subject'] = $feedback_response->get_subject();
