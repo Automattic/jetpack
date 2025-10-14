@@ -185,15 +185,29 @@ class Helper {
 
 				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
 				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
-					if ( function_exists( 'wc_get_attribute_taxonomies' ) || function_exists( 'wc_attribute_taxonomy_name' ) ) {
-						$product_attributes = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+					if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
+						$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+						$included_attributes = isset( $widget_filter['included_attributes'] ) ? (array) $widget_filter['included_attributes'] : array();
+
+						// If no attributes are explicitly included, show all attributes (backward compatibility).
+						// Also optimize by treating "all selected" the same as "none selected" to avoid O(n²) in_array() checks.
+						$show_all = empty( $included_attributes ) || count( $included_attributes ) === count( $product_attributes );
+
 						foreach ( $product_attributes as $attribute ) {
-							$attribute_name               = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+							$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking for the existence of this function.
+
+							// Only include attributes that are in the included_attributes list (or show all if none specified).
+							if ( ! $show_all && ! in_array( $attribute_name, $included_attributes, true ) ) {
+								continue;
+							}
+
 							$key                          = sprintf( '%s_%d', $type, count( $filters ) );
 							$expanded_filter              = $widget_filter;
 							$expanded_filter['attribute'] = $attribute_name;
 							$expanded_filter['name']      = $attribute->attribute_label;
-							$filters[ $key ]              = $expanded_filter;
+							// Remove included_attributes from the expanded filter as it's no longer needed.
+							unset( $expanded_filter['included_attributes'] );
+							$filters[ $key ] = $expanded_filter;
 						}
 					}
 				} else {

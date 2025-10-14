@@ -16,6 +16,13 @@
 
 .jetpack-search-filters-widget__controls .delete {
 	color: #d63638;
+	font-size: 1rem;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.jetpack-search-filters-widget__controls .delete:hover {
+	text-decoration: underline;
 }
 
 .jetpack-search-filters-widget.hide-filters .jetpack-search-filters-widget__filter {
@@ -67,8 +74,8 @@
 	display: none;
 }
 
-/* When product attribute is selected, hide taxonomy selector, title
- * field, and filter count */
+/* When product attribute is selected, hide taxonomy select,
+   title, and filter count */
 .jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
 }
@@ -81,16 +88,33 @@
 	display: none;
 }
 
-/* Hide product attribute info by default */
-.jetpack-search-filters-widget__product-attribute-info {
+/* Hide product attribute inclusions by default */
+.jetpack-search-filters-widget__product-attribute-inclusions {
 	display: none;
-	letter-spacing: normal;
+}
+
+/* Show product attribute inclusions only when product attribute is selected */
+.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__product-attribute-inclusions {
+	display: block;
+}
+
+/* Style the attribute checkboxes in a three-column layout */
+.jetpack-search-filters-widget__attribute-checkboxes {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 4px 12px;
+	margin-bottom: 12px;
+}
+
+.jetpack-search-filters-widget__attribute-checkbox {
+	display: flex;
+	align-items: center;
+	margin: 0;
 	font-size: 0.9rem;
 }
 
-/* Show product attribute info only when product attribute is selected */
-.jetpack-search-filters-widget__filter.is-product_attribute .jetpack-search-filters-widget__product-attribute-info {
-	display: block;
+.jetpack-search-filters-widget__attribute-checkbox input[type="checkbox"] {
+	margin: 0 6px 0 0;
 }
 
 .jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {

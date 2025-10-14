@@ -701,11 +701,18 @@ class Search_Widget extends \WP_Widget {
 						);
 						break;
 					case 'product_attribute':
-						$filters[] = array(
-							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type'  => 'product_attribute',
-							'count' => $count,
+						$filter_data = array(
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'product_attribute',
 						);
+						// Save included attributes if any are selected.
+						if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
+							$filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
+						}
+						// For product attributes, we don't use the count field since we show all selected attributes.
+						// But we still need it in the array for backward compatibility with other filter types.
+						$filter_data['count'] = $count;
+						$filters[]            = $filter_data;
 						break;
 				}
 			}
@@ -732,13 +739,17 @@ class Search_Widget extends \WP_Widget {
 		}
 
 		$instance = $widget_instance;
-		foreach ( $widget_instance['filters'] as $filter ) {
+		foreach ( $widget_instance['filters'] as $index => $filter ) {
 			$instance['filter_type'][]             = isset( $filter['type'] ) ? $filter['type'] : '';
 			$instance['taxonomy_type'][]           = isset( $filter['taxonomy'] ) ? $filter['taxonomy'] : '';
 			$instance['filter_name'][]             = isset( $filter['name'] ) ? $filter['name'] : '';
 			$instance['num_filters'][]             = isset( $filter['count'] ) ? $filter['count'] : 5;
 			$instance['date_histogram_field'][]    = isset( $filter['field'] ) ? $filter['field'] : '';
 			$instance['date_histogram_interval'][] = isset( $filter['interval'] ) ? $filter['interval'] : '';
+			// Handle included_attributes for product_attribute filters.
+			if ( isset( $filter['included_attributes'] ) && is_array( $filter['included_attributes'] ) ) {
+				$instance[ 'included_attributes_' . $index ] = $filter['included_attributes'];
+			}
 		}
 		unset( $instance['filters'] );
 		return $instance;
@@ -843,9 +854,13 @@ class Search_Widget extends \WP_Widget {
 					<?php $this->render_widget_edit_filter( array(), true ); ?>
 				</script>
 				<div class="jetpack-search-filters-widget__filters">
-					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-						<?php $this->render_widget_edit_filter( $filter ); ?>
-					<?php endforeach; ?>
+					<?php
+					$filter_index = 0;
+					foreach ( (array) $instance['filters'] as $filter ) :
+						$this->render_widget_edit_filter( $filter, false, false, $filter_index );
+						++$filter_index;
+					endforeach;
+					?>
 				</div>
 				<p class="jetpack-search-filters-widget__add-filter-wrapper">
 					<a class="button jetpack-search-filters-widget__add-filter" href="#">
@@ -958,9 +973,10 @@ class Search_Widget extends \WP_Widget {
 	 * @param array $filter      The filter to render.
 	 * @param bool  $is_template Whether this is for an Underscore template or not.
 	 * @param bool  $is_instant_search Whether this site enables Instant Search or not.
+	 * @param int   $filter_index The index of this filter in the filters array.
 	 * @since 5.7.0
 	 */
-	public function render_widget_edit_filter( $filter, $is_template = false, $is_instant_search = false ) {
+	public function render_widget_edit_filter( $filter, $is_template = false, $is_instant_search = false, $filter_index = 0 ) {
 		$args = wp_parse_args(
 			$filter,
 			array(
@@ -1084,6 +1100,39 @@ class Search_Widget extends \WP_Widget {
 				</label>
 			</p>
 
+			<div class="jetpack-search-filters-widget__product-attribute-inclusions">
+				<?php
+				if ( function_exists( 'wc_get_attribute_taxonomies' ) && function_exists( 'wc_attribute_taxonomy_name' ) ) {
+					$product_attributes  = wc_get_attribute_taxonomies(); // @phan-suppress-current-line PhanUndeclaredFunction We're checking existence.
+					$included_attributes = ! $is_template && isset( $args['included_attributes'] ) ? (array) $args['included_attributes'] : array();
+					if ( ! empty( $product_attributes ) ) :
+						?>
+						<p>
+							<label><?php esc_html_e( 'Select which product attributes to display as filters. If none are selected, all attributes will be shown.', 'jetpack-search-pkg' ); ?></label>
+						</p>
+						<div class="jetpack-search-filters-widget__attribute-checkboxes">
+							<?php foreach ( $product_attributes as $attribute ) : ?>
+								<?php
+								$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name ); // @phan-suppress-current-line PhanUndeclaredFunction We're checking existence.
+								$is_included    = in_array( $attribute_name, $included_attributes, true );
+								?>
+								<label class="jetpack-search-filters-widget__attribute-checkbox">
+									<input
+										type="checkbox"
+										name="<?php echo esc_attr( $this->get_field_name( 'included_attributes_' . ( $is_template ? '<%= data.index %>' : $filter_index ) ) ); ?>[]"
+										value="<?php echo esc_attr( $attribute_name ); ?>"
+										<?php checked( $is_included ); ?>
+									/>
+									<?php echo esc_html( $attribute->attribute_label ); ?>
+								</label>
+							<?php endforeach; ?>
+						</div>
+						<?php
+					endif;
+				}
+				?>
+			</div>
+
 			<p class="jetpack-search-filters-widget__filter-count">
 				<label>
 					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack-search-pkg' ); ?>
@@ -1098,10 +1147,6 @@ class Search_Widget extends \WP_Widget {
 						required
 					/>
 				</label>
-			</p>
-
-			<p class="jetpack-search-filters-widget__product-attribute-info">
-				<?php esc_html_e( 'The Jetpack Search sidebar will dynamically show filtering options that correspond to any product attributes found in the current results.', 'jetpack-search-pkg' ); ?>
 			</p>
 
 			<p class="jetpack-search-filters-widget__controls">
