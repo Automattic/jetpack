@@ -31,8 +31,11 @@ export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 		image.url;
 	const imageSize =
 		image?.sizes?.[ sizeSlug ] || image?.media_details?.sizes?.[ sizeSlug ] || image;
+
+	imageProps.width = imageSize?.width || null;
+	imageProps.height = imageSize?.height || null;
 	imageProps.aspectRatio =
-		imageSize.width && imageSize.height ? `${ imageSize.width } / ${ imageSize.height }` : null;
+		imageSize?.width && imageSize?.height ? `${ imageSize.width } / ${ imageSize.height }` : null;
 	return imageProps;
 };
 
@@ -197,39 +200,18 @@ export const SlideshowEdit = ( {
 	);
 };
 
-const memoCache = new Map();
-
 export default compose(
 	withSelect( ( select, props ) => {
-		const { getEditorSettings } = select( 'core/editor' );
 		const { ids } = props.attributes;
-
-		const imageSizes = getEditorSettings().imageSizes;
-
-		// Create cache key
-		const memoKey = ids.join( ',' );
-
-		if ( memoCache.has( memoKey ) ) {
-			return {
-				imageSizes,
-				resizedImages: memoCache.get( memoKey ),
-			};
-		}
-
-		// If not in cache, calculate new value
 		const { getEntityRecord } = select( 'core' );
-		const resizedImages = ids.reduce( ( currentResizedImages, id ) => {
-			const image = getEntityRecord( 'postType', 'attachment', id );
-			const sizes = image?.media_details?.sizes;
-			return [ ...currentResizedImages, { id, sizes } ];
-		}, [] );
+		const imageSizes = select( 'core/editor' ).getEditorSettings().imageSizes;
 
-		memoCache.set( memoKey, resizedImages );
+		const resizedImages = ids.map( id => {
+			const media = getEntityRecord( 'postType', 'attachment', id );
+			return { id, sizes: media?.media_details?.sizes };
+		} );
 
-		return {
-			imageSizes,
-			resizedImages,
-		};
+		return { imageSizes, resizedImages };
 	} ),
 	withDispatch( dispatch => {
 		const { lockPostSaving, unlockPostSaving } = dispatch( 'core/editor' );
