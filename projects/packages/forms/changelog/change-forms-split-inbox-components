@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Split components and hooks into their own files
