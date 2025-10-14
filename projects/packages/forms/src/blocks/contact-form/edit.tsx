@@ -114,7 +114,40 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 	return hasRequired && ! isHidden;
 };
 
-function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
+type CustomThankyouType =
+	| '' // default message
+	| 'noSummary' // default message without a summary
+	| 'message' // custom message
+	| 'redirect'; // redirect to a new URL
+
+type JetpackContactFormAttributes = {
+	to: string;
+	subject: string;
+	customThankyou: CustomThankyouType;
+	customThankyouHeading: string;
+	customThankyouMessage: string;
+	customThankyouRedirect: string;
+	formTitle: string;
+	variationName: string;
+	emailNotifications: boolean;
+	disableGoBack: boolean;
+	notificationRecipients: string[];
+};
+type JetpackContactFormEditProps = {
+	name: string;
+	attributes: JetpackContactFormAttributes;
+	setAttributes: ( attributes: Partial< JetpackContactFormAttributes > ) => void;
+	clientId: string;
+	className: string;
+};
+
+function JetpackContactFormEdit( {
+	name,
+	attributes,
+	setAttributes,
+	clientId,
+	className,
+}: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
 
