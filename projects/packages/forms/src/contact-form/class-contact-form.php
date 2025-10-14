@@ -439,9 +439,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The default recipient email address.
 	 */
 	public static function get_default_to( $post_author_id = null ) {
+
+		// Check that the user has edit permissions for this blog and has an email address
 		if ( $post_author_id ) {
 			$post_author = get_userdata( $post_author_id );
-			if ( ! empty( $post_author->user_email ) ) {
+			if ( is_user_member_of_blog( $post_author_id ) && ! empty( $post_author->user_email ) ) {
 				return $post_author->user_email;
 			}
 		}
