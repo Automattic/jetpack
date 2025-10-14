@@ -256,6 +256,8 @@ function include_compatibility_files() {
 
 	// Migrate from WP Super Cache
 	require_once __DIR__ . '/compatibility/wp-super-cache-migration.php';
+
+	require_once __DIR__ . '/compatibility/revslider.php';
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
