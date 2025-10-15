@@ -95,6 +95,20 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Returns true if Hostinger Reach integration is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_hostinger_reach_enabled() {
+		/**
+		 * Enable Hostinger Reach integration.
+		 *
+		 * @param bool false Whether Hostinger Reach integration be enabled. Default is false.
+		 */
+		return apply_filters( 'jetpack_forms_hostinger_reach_enable', false );
+	}
+
+	/**
 	 * Returns true if the Integrations UI should be enabled.
 	 *
 	 * @return boolean

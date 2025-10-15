@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
@@ -332,6 +333,16 @@ class Contact_Form_Plugin {
 				'grunion_after_feedback_post_inserted',
 				array( MailPoet_Integration::class, 'handle_mailpoet_integration' ),
 				15,
+				4
+			);
+		}
+
+		// Register Hostinger Reach integration hook after the class is loaded.
+		if ( Jetpack_Forms::is_hostinger_reach_enabled() ) {
+			add_action(
+				'grunion_after_feedback_post_inserted',
+				array( Hostinger_Reach_Integration::class, 'handle_hostinger_reach_integration' ),
+				16,
 				4
 			);
 		}

@@ -55,6 +55,12 @@ export default {
 			listName: null,
 		},
 	},
+	hostingerReach: {
+		type: 'object',
+		default: {
+			groupName: '',
+		},
+	},
 	saveResponses: {
 		type: 'boolean',
 		default: true,

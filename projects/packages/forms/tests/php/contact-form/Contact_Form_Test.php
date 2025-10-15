@@ -2734,6 +2734,7 @@ EOT;
 		$expected_attributes['notificationRecipients'] = array();
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['hostingerReach']         = '';
 
 		$form = new Contact_Form(
 			$attributes,
