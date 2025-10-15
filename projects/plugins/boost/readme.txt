@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.0-beta - 2025-10-15
+### 4.5.0 - 2025-10-15
 #### Added
 - Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
 
