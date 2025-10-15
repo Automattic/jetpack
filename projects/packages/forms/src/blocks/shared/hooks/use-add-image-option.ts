@@ -21,7 +21,7 @@ export default function useAddImageOption( optionsClientId: string ): {
 		name: string;
 		attributes: Record< string, unknown >;
 	};
-	addOption: () => void;
+	addOption: ( index?: number ) => void;
 } {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
 	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
@@ -35,20 +35,27 @@ export default function useAddImageOption( optionsClientId: string ): {
 		};
 	}, [] );
 
-	const addOption = useCallback( () => {
-		// Get the current options block
-		const optionsBlock = getBlock( optionsClientId );
+	const addOption = useCallback(
+		( index?: number ) => {
+			// Get the current options block
+			const optionsBlock = getBlock( optionsClientId );
 
-		// If there is no options block, return
-		if ( ! optionsBlock ) {
-			return;
-		}
+			// If there is no options block, return
+			if ( ! optionsBlock ) {
+				return;
+			}
 
-		const { name, attributes } = newImageOption();
-		const newOptionBlock = createBlock( name, attributes );
+			const { name, attributes } = newImageOption();
+			const newOptionBlock = createBlock( name, attributes );
 
-		insertBlock( newOptionBlock, optionsBlock.innerBlocks.length, optionsClientId );
-	}, [ getBlock, optionsClientId, newImageOption, insertBlock ] );
+			if ( ! Number.isInteger( index ) || index < 0 || index > optionsBlock.innerBlocks.length ) {
+				index = optionsBlock.innerBlocks.length;
+			}
+
+			insertBlock( newOptionBlock, index, optionsClientId );
+		},
+		[ getBlock, optionsClientId, newImageOption, insertBlock ]
+	);
 
 	return { newImageOption, addOption };
 }
