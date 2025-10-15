@@ -24,6 +24,15 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
 	 */
 	textOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
+	 */
+	legendItemClassName?: string;
+	/**
+	 * Function for rendering a custom legend layout.
+	 */
+	render?: ( items: BaseLegendItem[] ) => ReactNode;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
@@ -38,8 +47,4 @@ export type BaseLegendItem = {
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	shapeStyle?: CSSProperties & LineStyles;
-	// Optional group info for dynamic color resolution
-	group?: string;
-	index?: number;
-	overrideColor?: string;
 };

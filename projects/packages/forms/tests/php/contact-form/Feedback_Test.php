@@ -1072,7 +1072,7 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
-		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
+		$this->assertEquals( '(deleted) ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
 	public function test_get_all_values() {
@@ -1179,6 +1179,64 @@ class Feedback_Test extends BaseTestCase {
 			$response_all_values['entry_permalink'],
 			'Entry permalink should contain the page number'
 		);
+	}
+
+	public function test_get_all_values_with_image_select() {
+		$current_post = Utility::create_post_context();
+		$form_id      = Utility::get_form_id();
+
+		// Create a form submission with two selected image choices
+		$_post_data = Utility::get_post_request(
+			array(
+				'images' => array(
+					'{"perceived":"B","selected":"B","label":"Test choice","showLabels":true,"image":{"id":null,"src":"https://www.example.com/test-choice.png"}}',
+					'{"perceived":"C","selected":"C","label":"Another test choice","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/another-test-choice.png"}}',
+				),
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
+		);
+
+		$expected_images = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'B',
+					'label'      => 'Test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://www.example.com/test-choice.png',
+					),
+				),
+				array(
+					'perceived'  => 'C',
+					'selected'   => 'C',
+					'label'      => 'Another test choice',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => 12346,
+						'src' => 'https://www.example.com/another-test-choice.png',
+					),
+				),
+			),
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		Utility::destroy_post_context( $current_post );
+
+		$this->assertEquals( $expected_images, $response->get_all_values( 'submit' )['1_Images'], 'Response all values should match the expected values' );
+		$this->assertEquals( $expected_images, $saved_response->get_all_values( 'submit' )['1_Images'], 'Saved response all values should match the expected values' );
 	}
 
 	public function test_get_all_values_with_file_upload() {
@@ -1332,8 +1390,10 @@ class Feedback_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Feedback::from_submission( $_post_data, $form, $current_post );
-		$post_id  = $response->save();
+		$response = Feedback::from_submission( $_post_data, $form );
+		$response->set_source( new Feedback_Source( $current_post->ID, $current_post->post_title, 1, 'single', home_url( '?p=' . $current_post->ID ) ) );
+
+		$post_id = $response->save();
 		Utility::destroy_post_context( $current_post ); // Destroy the post context to simulate a deleted post.
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEmpty( $saved_response->get_entry_permalink(), 'Post permalink should match the form submission' );
@@ -1688,6 +1748,17 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_legacy_get_all_legacy_values() {
+		// Setup the post context.
+		$holding_post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Cool Post Title',
+				'post_status' => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $holding_post_id );
+
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
@@ -1708,7 +1779,7 @@ class Feedback_Test extends BaseTestCase {
 				'2_field'                 => 'value2',
 				'email_marketing_consent' => 'no',
 				'entry_title'             => 'Cool Post Title',
-				'entry_permalink'         => '',
+				'entry_permalink'         => 'http://example.org/?p=' . $holding_post_id,
 				'feedback_id'             => 'skip',
 			),
 		);
@@ -2453,5 +2524,318 @@ class Feedback_Test extends BaseTestCase {
 
 		$this->assertEquals( 'こんにちは世界', $saved_response->get_field_value_by_label( 'Special' ), 'Special field value should match saved value' );
 		$this->assertEquals( '🙈', $saved_response->get_field_value_by_label( 'Message' ), 'Message field value should match saved value' );
+	}
+
+	public function test_mark_as_read() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // is_unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should start as unread' );
+
+		$result = $feedback->mark_as_read();
+		$this->assertTrue( $result, 'mark_as_read should return true on success' );
+		$this->assertFalse( $feedback->is_unread(), 'Feedback should be marked as read' );
+
+		// Then mark as unread
+		$result = $feedback->mark_as_unread();
+		$this->assertTrue( $result, 'mark_as_unread should return true on success' );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should be marked as unread' );
+	}
+
+	public function test_mark_as_read_without_post_id() {
+		$form     = new Contact_Form( array() );
+		$response = Feedback::from_submission( array(), $form );
+		$response->save();
+
+		// Should return false if not saved yet (no post_id)
+		$result = $response->mark_as_read();
+		$this->assertFalse( $result, 'mark_as_read should return false when post_id is not set' );
+	}
+
+	public function test_mark_as_unread_without_post_id() {
+		$form     = new Contact_Form( array() );
+		$response = Feedback::from_submission( array(), $form );
+
+		// Should return false if not saved yet (no post_id)
+		$result = $response->mark_as_unread();
+		$this->assertFalse( $result, 'mark_as_unread should return false when post_id is not set' );
+	}
+
+	public function test_unread_status_uses_constants() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Check the comment_status field directly
+		$post = get_post( $post_id );
+		$this->assertEquals( 'open', $post->comment_status, 'Unread feedback should have comment_status = open' );
+
+		$feedback->mark_as_read();
+		$post = get_post( $post_id );
+		$this->assertEquals( 'closed', $post->comment_status, 'Read feedback should have comment_status = closed' );
+
+		$feedback->mark_as_unread();
+		$post = get_post( $post_id );
+		$this->assertEquals( 'open', $post->comment_status, 'Unread feedback should have comment_status = open' );
+	}
+
+	public function test_mark_as_read_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_read();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_read should return false on DB failure' );
+		$this->assertTrue( $feedback->is_unread(), 'Feedback should remain unread' );
+	}
+
+	public function test_mark_as_unread_db_failure() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			false // unread
+		);
+
+		$feedback = Feedback::get( $post_id );
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		$result = $feedback->mark_as_unread();
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertFalse( $result, 'mark_as_unread should return false on DB failure' );
+		$this->assertFalse( $feedback->is_unread(), 'Feedback should remain read' );
+	}
+
+	/**
+	 * Test that notification recipients are stored and retrieved correctly.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_handling() {
+		// Create valid users with edit capabilities
+		$user_id_1 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_1',
+				'user_email' => 'user1@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$user_id_2 = wp_insert_user(
+			array(
+				'user_login' => 'test_user_2',
+				'user_email' => 'user2@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => '🙈',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array( (string) $user_id_1, (string) $user_id_2 ),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $response->get_notification_recipients(), 'Notification recipients should match for form submission' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array( (string) $user_id_1, (string) $user_id_2 ), $saved_response->get_notification_recipients(), 'Notification recipients should match for saved response' );
+
+		// Clean up
+		wp_delete_user( $user_id_1 );
+		wp_delete_user( $user_id_2 );
+	}
+
+	/**
+	 * Test that notification recipients default to empty array when not set.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_default_empty() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertEquals( array(), $response->get_notification_recipients(), 'Notification recipients should default to empty array' );
+		$feedback_post_id = $response->save();
+
+		// Check that the saved response returns the same thing.
+		$saved_response = Feedback::get( $feedback_post_id );
+		$this->assertEquals( array(), $saved_response->get_notification_recipients(), 'Saved notification recipients should default to empty array' );
+	}
+
+	/**
+	 * Test that notification recipients validates user capabilities.
+	 *
+	 * @since 6.10.0
+	 */
+	public function test_notification_recipients_validates_capabilities() {
+		// Create users with different capabilities
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_user',
+				'user_email' => 'admin@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'administrator',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor_user',
+				'user_email' => 'editor@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+
+		$author_id = wp_insert_user(
+			array(
+				'user_login' => 'author_user',
+				'user_email' => 'author@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'author',
+			)
+		);
+
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'subscriber_user',
+				'user_email' => 'subscriber@example.com',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		// Include admin, editor, author, subscriber, and a non-existent user ID
+		$form = new Contact_Form(
+			array(
+				'title'                  => 'Test Form',
+				'description'            => 'This is a test form.',
+				'notificationRecipients' => array(
+					(string) $admin_id,
+					(string) $editor_id,
+					(string) $author_id,
+					(string) $subscriber_id,
+					'999999', // Non-existent user
+				),
+			),
+			"[contact-field label='Message' type='textarea'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// Only admin, editor, and author should be included (they have edit_posts capability)
+		// Subscriber and non-existent user should be filtered out
+		$expected_recipients = array(
+			(string) $admin_id,
+			(string) $editor_id,
+			(string) $author_id,
+		);
+
+		$this->assertEquals( $expected_recipients, $response->get_notification_recipients(), 'Only users with edit capabilities should be included' );
+
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+		$this->assertEquals( $expected_recipients, $saved_response->get_notification_recipients(), 'Saved response should maintain validated recipients' );
+
+		// Clean up
+		wp_delete_user( $admin_id );
+		wp_delete_user( $editor_id );
+		wp_delete_user( $author_id );
+		wp_delete_user( $subscriber_id );
 	}
 }

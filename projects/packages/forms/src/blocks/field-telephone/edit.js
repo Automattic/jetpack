@@ -1,11 +1,10 @@
 import {
-	InspectorControls,
 	useBlockProps,
 	useInnerBlocksProps,
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { TextControl, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -14,6 +13,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
 import { countries } from './country-list';
 import { getTranslatedCountryName } from './country-names-translated';
 
@@ -32,7 +32,9 @@ export default function PhoneFieldEdit( props ) {
 		required,
 		requiredText,
 		placeholder,
+		searchPlaceholder,
 		default: defaultCountry,
+		requiredIndicator,
 	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
 
@@ -84,12 +86,21 @@ export default function PhoneFieldEdit( props ) {
 					placeholder,
 					required,
 					requiredText,
+					requiredIndicator,
 				},
 			],
 			[ 'jetpack/phone-input', {} ],
 		],
 		templateLock: 'all',
 		__experimentalCaptureToolbars: true,
+	} );
+
+	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
 	} );
 
 	// Handler is provided as context from edit as index.js can't pass it as a prop.
@@ -106,6 +117,7 @@ export default function PhoneFieldEdit( props ) {
 				value={ {
 					'jetpack/field-prefix-onChange': onChangeDefaultCountry,
 					'jetpack/field-prefix-options': countryList,
+					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
 				<div { ...innerBlocksProps } />
@@ -122,17 +134,6 @@ export default function PhoneFieldEdit( props ) {
 				</ToolbarGroup>
 			</BlockControls>
 
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<ToggleControl
-						label={ __( 'Show country selector', 'jetpack-forms' ) }
-						checked={ showCountrySelector || false }
-						onChange={ onChangeShowCountrySelector }
-						__nextHasNoMarginBottom={ true }
-					/>
-				</PanelBody>
-			</InspectorControls>
-
 			<JetpackFieldControls
 				clientId={ clientId }
 				id={ id }
@@ -140,6 +141,31 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<>
+								<ToggleControl
+									label={ __( 'Show country selector', 'jetpack-forms' ) }
+									checked={ showCountrySelector || false }
+									onChange={ onChangeShowCountrySelector }
+									__nextHasNoMarginBottom={ true }
+								/>
+								{ showCountrySelector && (
+									<TextControl
+										label={ __( 'Search placeholder', 'jetpack-forms' ) }
+										value={ searchPlaceholder }
+										placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
+										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
+										__nextHasNoMarginBottom={ true }
+										__next40pxDefaultSize={ true }
+									/>
+								) }
+							</>
+						),
+					},
+				] }
 			/>
 		</>
 	);

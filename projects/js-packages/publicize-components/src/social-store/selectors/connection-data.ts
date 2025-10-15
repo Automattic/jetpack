@@ -249,8 +249,6 @@ export const canUserManageConnection = createRegistrySelector(
 			const { getUser } = select( coreStore );
 
 			// The user has to be at least an editor to manage the connection.
-			// @ts-expect-error User object types are wrong, capabilities are boolean, not string.
-			// See https://github.com/WordPress/gutenberg/pull/68045
 			return getUser( current_user.id )?.capabilities?.edit_others_posts ?? false;
 		}
 );

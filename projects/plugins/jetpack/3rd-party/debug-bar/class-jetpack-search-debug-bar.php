@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Search as Jetpack_Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Singleton class instantiated by Jetpack_Searc_Debug_Bar::instance() that handles
  * rendering the Jetpack Search debug bar menu item and panel.

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2025-10-14
+### Changed
+- Update package dependencies. [#45173] [#45241] [#45334]
+
+## [1.0.7] - 2025-09-17
+### Changed
+- Update package dependencies. [#45097]
+- Update package dependencies. [#45127]
+
 ## [1.0.6] - 2025-08-21
 ### Added
 - Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
@@ -201,6 +210,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[1.0.8]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.3...v1.0.4

@@ -24,6 +24,7 @@ const defaultTheme: CompleteChartTheme = {
 	seriesLineStyles: [],
 	legendShapeStyles: [],
 	glyphs: [],
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
@@ -47,10 +48,10 @@ const defaultTheme: CompleteChartTheme = {
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#3858E9',
+		primaryColor: '#006DAB',
 		backgroundColor: '#F3F4F6',
-		positiveChangeColor: '#008A20',
-		negativeChangeColor: '#D63638',
+		positiveChangeColor: '#1F9828',
+		negativeChangeColor: '#FF8C8F',
 	},
 	lineChart: {
 		lineStyles: {
@@ -82,6 +83,7 @@ const jetpackTheme: ChartTheme = {
 	legendLabelStyles: {
 		color: 'var(--jp-gray-80, #2c3338)',
 	},
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
@@ -129,8 +131,8 @@ const wooTheme: ChartTheme = {
 	labelTextColor: '#FFFFFF', // label text color (white to match original behavior)
 	colors: [
 		'#3858E9', // WooCommerce brand blue
-		'#873EFF', // Purple
 		'#66BDFF', // Light blue
+		'#873EFF', // Purple
 		'#7B90FF', // Periwinkle blue
 		'#EB6594', // Pink/rose
 	],
@@ -141,6 +143,7 @@ const wooTheme: ChartTheme = {
 	tickLength: 4,
 	gridColor: '',
 	gridColorDark: '',
+	svgLabelSmall: { fill: '#757575' },
 	xTickLineStyles: { stroke: 'black' },
 	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 	legendLabelStyles: {

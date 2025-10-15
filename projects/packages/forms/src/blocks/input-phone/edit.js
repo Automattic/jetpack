@@ -52,6 +52,9 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 	// Prefix/Country selector
 	const defaultPrefix = context?.[ 'jetpack/field-prefix-default' ] || 'US';
 	const showCountrySelector = context?.[ 'jetpack/field-phone-country-toggle' ] || false;
+	const searchPlaceholder =
+		context?.[ 'jetpack/field-phone-search-placeholder' ] ||
+		__( 'Search countries…', 'jetpack-forms' );
 
 	const handleChangeDefaultPrefix = useCallback(
 		event => {
@@ -91,7 +94,7 @@ const PhoneInputEdit = ( { attributes, clientId, isSelected, name, setAttributes
 							onOptionChange={ handleChangeDefaultPrefix }
 							isOpen={ comboboxOpen }
 							onOpenChange={ setComboboxOpen }
-							placeholer={ __( 'Search countries…', 'jetpack-forms' ) }
+							placeholder={ searchPlaceholder }
 							parentStyle={ blockProps?.style }
 						/>
 					</div>

@@ -106,6 +106,11 @@ function load_assets( $attr, $content ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
+	/*
+	 * Add a fallback color to block styles.
+	 */
+	$content = add_css_fallback_values( $content );
+
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
@@ -172,3 +177,26 @@ function cookie_consent_register_settings() {
 }
 
 add_action( 'rest_api_init', __NAMESPACE__ . '\cookie_consent_register_settings' );
+
+/**
+ * Add a fallback color to block styles.
+ *
+ * @since 15.1
+ *
+ * @param string $content The block content.
+ * @return string The content with fallback values added to CSS custom properties.
+ */
+function add_css_fallback_values( $content ) {
+	// Define the CSS custom properties and their fallback values.
+	$css_fallbacks = array(
+		'var(--wp--preset--color--contrast)' => 'var(--wp--preset--color--contrast, #000000)',
+		'var(--wp--preset--color--tertiary)' => 'var(--wp--preset--color--tertiary, #f0f0f0)',
+	);
+
+	// Replace CSS custom properties with their fallback versions.
+	foreach ( $css_fallbacks as $original => $with_fallback ) {
+		$content = str_replace( $original, $with_fallback, $content );
+	}
+
+	return $content;
+}

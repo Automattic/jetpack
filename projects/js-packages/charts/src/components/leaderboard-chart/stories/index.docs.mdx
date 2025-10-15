@@ -25,6 +25,10 @@ The Leaderboard Chart component provides a clean, responsive visualization for d
 	/>` }
 />
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-types-leaderboard-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Simple Leaderboard Chart
@@ -79,6 +83,8 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 - **`loading`**: Whether the chart is in loading state - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
+
+For detailed prop information, type definitions, and examples, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-types-leaderboard-chart-api-reference--docs).
 
 ## Comparison Features
 
@@ -316,15 +322,12 @@ Customize legend labels with specific date ranges or descriptive text:
 	/>` }
 />
 
-**Legend Props:**
-- **`showLegend`**: Whether to display the legend - `false` by default
-- **`legendPosition`**: Position of the legend - `'top'` or `'bottom'` (default: `'bottom'`)
-- **`legendAlignment`**: Alignment within position - `'start'`, `'center'`, or `'end'` (default: `'center'`)
-- **`legendOrientation`**: Layout direction - `'horizontal'` or `'vertical'` (default: `'horizontal'`)
-- **`legendShape`**: Shape of legend markers - `'rect'`, `'circle'`, `'square'`, etc. (default: `'circle'`)
-- **`legendShapeWidth`**: Width of legend shapes in pixels (default: `8`)
-- **`legendShapeHeight`**: Height of legend shapes in pixels (default: `8`)
-- **`legendLabels`**: Custom labels for legend items - `{ primary?: string; comparison?: string }`
+**Legend Configuration Options:**
+- Control legend positioning, alignment, and visual appearance
+- Customize legend shapes and sizes
+- Add custom labels for different time periods or data series
+
+See the [API Reference](./?path=/docs/js-packages-charts-types-leaderboard-chart-api-reference--docs) for detailed prop information.
 
 ## Data States
 
@@ -491,57 +494,6 @@ Supports all modern browsers with CSS Grid and ES6+ features:
 - Internet Explorer not supported
 - Mobile-friendly with responsive design
 
-## API Reference
-
-### LeaderboardChart
-
-Main chart component for displaying ranked data with optional comparison values.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `LeaderboardEntry[]` | - | **Required.** Array of leaderboard entries to display |
-| `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
-| `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
-| `primaryColor` | `string` | theme default | Primary color for current period bars |
-| `secondaryColor` | `string` | theme default | Secondary color for comparison period bars |
-| `valueFormatter` | `(value: number) => string` | `defaultValueFormatter` | Custom formatter for values |
-| `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
-| `loading` | `boolean` | `false` | Whether the chart is in loading state |
-| `showLegend` | `boolean` | `false` | Whether to display the legend |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Position of the legend |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Alignment within position |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction of legend items |
-| `legendShape` | `LegendShape` | `'circle'` | Shape of legend markers |
-| `legendShapeWidth` | `number` | `8` | Width of legend shapes in pixels |
-| `legendShapeHeight` | `number` | `8` | Height of legend shapes in pixels |
-| `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
-| `className` | `string` | `undefined` | Additional CSS class name for the chart container |
-| `style` | `React.CSSProperties & CustomProperties` | `undefined` | Custom styling for the chart container |
-
-### LeaderboardEntry Type
-
-<Source language="tsx" code={ `
-	interface LeaderboardEntry {
-		id: string;                  // Unique identifier
-		label: string | JSX.Element; // Display name or React component
-		currentValue: number;        // Current period value
-		previousValue: number;       // Previous period value
-		currentShare: number;        // Current bar width (0-100)
-		previousShare: number;       // Previous bar width (0-100)
-		delta: number;               // Percentage change
-		imageColor?: string;         // Optional color for the entry's image/icon
-	}
-` } />
-
-### Custom Style Properties
-
-<Source language="tsx" code={ `
-	type CustomProperties = {
-		'--a8c--charts--leaderboard--bar--border-radius'?: string;
-	};
-` } />
 
 ## Examples
 

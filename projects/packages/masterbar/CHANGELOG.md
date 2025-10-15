@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2025-10-10
+### Removed
+- Admin Menu: Remove P2_Admin_Menu class [#45355]
+
+## [0.24.0] - 2025-10-06
+### Changed
+- Admin Menu: Use original menu order for self-hosted Jetpack sites in Calypso. [#45336]
+- Clean up the code for quick switcher after RDV. [#45353]
+- Update package dependencies. [#45334]
+
+### Removed
+- Admin Menu: Remove unused menu registrations. [#45351]
+
+## [0.23.3] - 2025-09-29
+### Changed
+- Internal updates.
+
+## [0.23.2] - 2025-09-22
+### Changed
+- Update dependencies. [#44736]
+
+## [0.23.1] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
 ## [0.23.0] - 2025-09-15
 ### Changed
 - Update package dependencies. [#45127] [#45128]
@@ -437,6 +462,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.25.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.3...v0.24.0
+[0.23.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.2...v0.23.3
+[0.23.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.3...v0.23.0
 [0.22.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.2...v0.22.3
 [0.22.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.1...v0.22.2

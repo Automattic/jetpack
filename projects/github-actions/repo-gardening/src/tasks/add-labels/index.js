@@ -176,12 +176,6 @@ async function getFileDerivedLabels( octokit, owner, repo, number, isDraft, isRe
 			keywords.add( '[Feature] Masterbar' );
 		}
 
-		// The Calypsoify feature now lives in both a package and a Jetpack module.
-		const calypsoify = file.match( /^projects\/packages\/calypsoify\// );
-		if ( calypsoify !== null ) {
-			keywords.add( '[Feature] Calypsoify' );
-		}
-
 		// Social Previews are now developed in a separate package.
 		const socialPreviews = file.match(
 			/^projects\/js-packages\/publicize-components\/src\/components\/social-previews\//

@@ -34,6 +34,13 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
+export const ManySeries: StoryObj< typeof LineChart > = Template.bind( {} );
+ManySeries.args = {
+	...lineChartStoryArgs,
+	data: sampleData,
+	showLegend: true,
+};
+
 export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithLegend.args = {
 	...lineChartStoryArgs,
@@ -42,7 +49,7 @@ WithLegend.args = {
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomLegendPositioning.args = {
-	data: sampleData,
+	...lineChartStoryArgs,
 	showLegend: true,
 	height: 400,
 	legendAlignment: 'start',
@@ -93,17 +100,17 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 };
 
 // Add after existing stories
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 	withTooltips: true,
 };
 
@@ -118,13 +125,89 @@ FixedDimensions.parameters = {
 // Story with gradient filled line chart
 export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GradientFilled.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	margin: undefined,
 	data: webTrafficData,
 	withGradientFill: true,
 	options: {
 		axis: { y: { orientation: 'right' } },
 	},
+};
+
+// Story with custom gradient colors per series
+export const GradientCustomColors: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientCustomColors.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Revenue',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 45000 },
+				{ date: new Date( '2024-02-01' ), value: 52000 },
+				{ date: new Date( '2024-03-01' ), value: 48000 },
+				{ date: new Date( '2024-04-01' ), value: 61000 },
+				{ date: new Date( '2024-05-01' ), value: 68000 },
+				{ date: new Date( '2024-06-01' ), value: 72000 },
+			],
+			options: {
+				gradient: {
+					fromOpacity: 0.8,
+					toOpacity: 0,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 28000 },
+				{ date: new Date( '2024-02-01' ), value: 31000 },
+				{ date: new Date( '2024-03-01' ), value: 29000 },
+				{ date: new Date( '2024-04-01' ), value: 33000 },
+				{ date: new Date( '2024-05-01' ), value: 35000 },
+				{ date: new Date( '2024-06-01' ), value: 38000 },
+			],
+			options: {
+				gradient: {
+					from: 'var(--jp-red)',
+					to: 'var(--jp-red)',
+					fromOpacity: 0.6,
+					toOpacity: 0,
+				},
+			},
+		},
+	],
+	withGradientFill: true,
+};
+
+// Story with transparent gradient sections
+export const GradientTransparent: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientTransparent.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Temperature (°C)',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 15 },
+				{ date: new Date( '2024-02-01' ), value: 18 },
+				{ date: new Date( '2024-03-01' ), value: 22 },
+				{ date: new Date( '2024-04-01' ), value: 26 },
+				{ date: new Date( '2024-05-01' ), value: 30 },
+				{ date: new Date( '2024-06-01' ), value: 28 },
+			],
+			options: {
+				gradient: {
+					stops: [
+						{ offset: '0%', opacity: 0.7 },
+						{ offset: '20%', opacity: 0 },
+						{ offset: '100%', opacity: 0 },
+					],
+				},
+			},
+		},
+	],
+	withGradientFill: true,
 };
 
 export const ErrorStates: StoryObj< typeof LineChart > = {
@@ -207,13 +290,13 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 
 export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
 WithoutSmoothing.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	smoothing: false,
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
 WithPointerEvents.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	// eslint-disable-next-line no-alert
 	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
 };
@@ -318,7 +401,7 @@ const DASHED_LINE_OFFSET = 100;
 
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	data: [
 		{
 			...webTrafficData[ 0 ],

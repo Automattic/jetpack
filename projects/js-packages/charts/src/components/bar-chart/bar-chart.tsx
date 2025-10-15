@@ -84,6 +84,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendAlignment = 'center',
 	legendMaxWidth,
 	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -126,24 +127,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { resolveGroupColor } = useGlobalChartsContext();
-
-	const getColor = useCallback(
-		( seriesData: SeriesData, index: number ) =>
-			resolveGroupColor( {
-				group: seriesData.group,
-				index,
-				overrideColor: seriesData.options?.stroke,
-			} ),
-		[ resolveGroupColor ]
-	);
+	const { getElementStyles } = useGlobalChartsContext();
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, chartId ]
+				: getElementStyles( { data: dataSorted[ index ], index } ).color,
+		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -341,12 +332,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						<>
 							<defs data-testid="bar-chart-patterns">
 								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getColor( seriesData, index ) )
+									renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
 								) }
 							</defs>
 							<style>
 								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle( index, getColor( seriesData, index ) )
+									createPatternBorderStyle(
+										index,
+										getElementStyles( { data: seriesData, index } ).color
+									)
 								) }
 							</style>
 						</>
@@ -392,6 +386,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						alignment={ legendAlignment }
 						maxWidth={ legendMaxWidth }
 						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'bar-chart__legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }

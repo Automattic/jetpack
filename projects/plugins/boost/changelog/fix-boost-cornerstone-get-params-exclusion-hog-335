@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list.

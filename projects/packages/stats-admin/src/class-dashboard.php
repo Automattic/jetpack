@@ -49,6 +49,37 @@ class Dashboard {
 		self::$initialized = true;
 		// Jetpack uses 998 and 'Admin_Menu' uses 1000.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->menu_priority );
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), $this->menu_priority );
+	}
+
+	/**
+	 * Add a "Stats" top-level admin menu.
+	 *
+	 * @return void
+	 */
+	public function add_wp_admin_menu() {
+		/**
+		 * Disable this menu for dashboard.wordpress.com because older versions of Jetpack need to fetch the old Stats UI.
+		 *
+		 * If this menu is registered, it will conflict with the back-end and break non-odyssey Stats.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && 120742 === get_current_blog_id() ) {
+			return;
+		}
+
+		$page_suffix = add_menu_page(
+			__( 'Stats', 'jetpack-stats-admin' ),
+			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
+			'view_stats',
+			'stats',
+			array( $this, 'render' ),
+			'dashicons-chart-bar',
+			2
+		);
+
+		if ( $page_suffix ) {
+			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		}
 	}
 
 	/**
@@ -59,13 +90,29 @@ class Dashboard {
 			__( 'Stats', 'jetpack-stats-admin' ),
 			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
 			'view_stats',
-			'stats',
-			array( $this, 'render' )
+			'callout-stats',
+			array( $this, 'render_callout' )
 		);
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 		}
+	}
+
+	/**
+	 * Add the render callout function. We need to pass the location.hash to the stats moved page.
+	 *
+	 * This code is temporary and will be removed after a month.
+	 *
+	 * @return void
+	 */
+	public function render_callout() {
+		?>
+		<script>
+			location.hash = '#!/stats/moved?page=callout-stats';
+		</script>
+		<?php
+		$this->render();
 	}
 
 	/**

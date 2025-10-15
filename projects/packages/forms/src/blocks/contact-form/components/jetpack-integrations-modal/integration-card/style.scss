@@ -156,4 +156,8 @@
 	&__service-icon--mailpoet {
 		border-radius: 0 !important;
 	}
+
+	&:last-child {
+		border-bottom: none;
+	}
 }

@@ -22,6 +22,7 @@ const settings = {
 		'jetpack/field-prefix-default',
 		'jetpack/field-prefix-onChange',
 		'jetpack/field-phone-country-toggle',
+		'jetpack/field-phone-search-placeholder',
 	],
 	supports: {
 		reusable: false,

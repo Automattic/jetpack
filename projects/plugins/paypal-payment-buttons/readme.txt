@@ -4,11 +4,11 @@ Tags: paypal, payments, ecommerce, blocks, checkout
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.8
-Stable tag: 0.1.0
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Accept PayPal payments from any post or page on your website.
+Easily showcase products/services, upload images, manage variants, set pricing options, and simplify checkout with shipping and taxes.
 
 == Description ==
 
@@ -80,11 +80,8 @@ By repeating the process above, you can add as many PayPal Payment Buttons block
 It is possible to perform test payments with the PayPal Payment Buttons block. To get started you would need to create a [PayPal Developer account](https://developer.paypal.com/home/). Once you are logged into your PayPal developer account, you can access or create new sandbox accounts. You will need to make note of your sandbox business account and personal account email addresses and passwords. Once you have this information, you would login to the [PayPal Sandbox site](https://www.sandbox.paypal.com/) with the sandbox business account. Create a [payment button on the PayPal sandbox site](https://www.sandbox.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp). Follow the instructions above to add the payment button code to your PayPal Payment Buttons block. Publish the post or page that contains the block. Then use the sandbox personal account to complete the purchase. All successful test payments will show up in the business sandbox account on the PayPal Sandbox.
 
 == Changelog ==
+### 0.3.1 - 2025-10-09
+#### Changed
+- Update package dependencies.
+- Update short description for plugin
 
-= 0.1.0 =
-* Initial release of PayPal Payment Buttons plugin
-* PayPal Payment Buttons block for WordPress block editor
-* Support for customizable button styles and layouts
-* Secure payment processing through PayPal
-* Multi-currency support
-* Mobile-responsive design

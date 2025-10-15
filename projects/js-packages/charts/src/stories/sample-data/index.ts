@@ -212,6 +212,82 @@ export const temperatureData: SeriesData[] = [
 		],
 		options: {},
 	},
+	{
+		group: 'sydney',
+		label: 'Sydney',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 24 },
+			{ date: new Date( '2024-02-01' ), value: 24 },
+			{ date: new Date( '2024-03-01' ), value: 22 },
+			{ date: new Date( '2024-04-01' ), value: 19 },
+			{ date: new Date( '2024-05-01' ), value: 16 },
+			{ date: new Date( '2024-06-01' ), value: 13 },
+			{ date: new Date( '2024-07-01' ), value: 12 },
+			{ date: new Date( '2024-08-01' ), value: 14 },
+			{ date: new Date( '2024-09-01' ), value: 17 },
+			{ date: new Date( '2024-10-01' ), value: 20 },
+			{ date: new Date( '2024-11-01' ), value: 22 },
+			{ date: new Date( '2024-12-01' ), value: 24 },
+		],
+		options: {},
+	},
+	{
+		group: 'moscow',
+		label: 'Moscow',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: -8 },
+			{ date: new Date( '2024-02-01' ), value: -6 },
+			{ date: new Date( '2024-03-01' ), value: 0 },
+			{ date: new Date( '2024-04-01' ), value: 8 },
+			{ date: new Date( '2024-05-01' ), value: 16 },
+			{ date: new Date( '2024-06-01' ), value: 20 },
+			{ date: new Date( '2024-07-01' ), value: 23 },
+			{ date: new Date( '2024-08-01' ), value: 21 },
+			{ date: new Date( '2024-09-01' ), value: 15 },
+			{ date: new Date( '2024-10-01' ), value: 8 },
+			{ date: new Date( '2024-11-01' ), value: 2 },
+			{ date: new Date( '2024-12-01' ), value: -4 },
+		],
+		options: {},
+	},
+	{
+		group: 'cairo',
+		label: 'Cairo',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 15 },
+			{ date: new Date( '2024-02-01' ), value: 17 },
+			{ date: new Date( '2024-03-01' ), value: 21 },
+			{ date: new Date( '2024-04-01' ), value: 26 },
+			{ date: new Date( '2024-05-01' ), value: 30 },
+			{ date: new Date( '2024-06-01' ), value: 33 },
+			{ date: new Date( '2024-07-01' ), value: 35 },
+			{ date: new Date( '2024-08-01' ), value: 34 },
+			{ date: new Date( '2024-09-01' ), value: 31 },
+			{ date: new Date( '2024-10-01' ), value: 27 },
+			{ date: new Date( '2024-11-01' ), value: 22 },
+			{ date: new Date( '2024-12-01' ), value: 17 },
+		],
+		options: {},
+	},
+	{
+		group: 'vancouver',
+		label: 'Vancouver',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 4 },
+			{ date: new Date( '2024-02-01' ), value: 6 },
+			{ date: new Date( '2024-03-01' ), value: 8 },
+			{ date: new Date( '2024-04-01' ), value: 11 },
+			{ date: new Date( '2024-05-01' ), value: 15 },
+			{ date: new Date( '2024-06-01' ), value: 18 },
+			{ date: new Date( '2024-07-01' ), value: 21 },
+			{ date: new Date( '2024-08-01' ), value: 22 },
+			{ date: new Date( '2024-09-01' ), value: 18 },
+			{ date: new Date( '2024-10-01' ), value: 13 },
+			{ date: new Date( '2024-11-01' ), value: 8 },
+			{ date: new Date( '2024-12-01' ), value: 5 },
+		],
+		options: {},
+	},
 ];
 
 /**
@@ -805,5 +881,51 @@ export const globalMarketComparisonByCountry: SeriesData[] = [
 		options: {
 			type: 'comparison' as const,
 		},
+	},
+];
+
+/**
+ * Customer segmentation revenue data
+ *
+ * Revenue comparison between new and returning customers
+ * - Category: categorical
+ * - Data points: 2
+ * - Suitable for: PieChart, DonutChart
+ */
+export const customerRevenueData: DataPointPercentage[] = [
+	{
+		label: 'New',
+		value: 302331.27,
+		valueDisplay: '$302.33K',
+		percentage: 66.97,
+	},
+	{
+		label: 'Returning',
+		value: 149111.41,
+		valueDisplay: '$149.11K',
+		percentage: 33.03,
+	},
+];
+
+/**
+ * Customer segmentation legend data with comparison metrics
+ *
+ * Extended legend data for customer revenue with growth comparisons
+ * - Category: categorical with comparison
+ * - Data points: 2
+ * - Suitable for: Custom legends with PieChart, DonutChart
+ */
+export const customerRevenueLegendData = [
+	{
+		label: 'New',
+		value: 302331.27,
+		formattedValue: '$302.33K',
+		comparison: '14%',
+	},
+	{
+		label: 'Returning',
+		value: 149111.41,
+		formattedValue: '$149.11K',
+		comparison: '133%',
 	},
 ];

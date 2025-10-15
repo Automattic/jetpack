@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Page Cache: Fix fatal error when updating a page on multisite.

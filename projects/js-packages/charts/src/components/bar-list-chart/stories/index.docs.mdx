@@ -39,6 +39,10 @@ Key features:
 - Custom component rendering for advanced styling
 - Responsive design with automatic sizing
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Bar List Chart API Reference](./?path=/docs/js-packages-charts-types-bar-list-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Single Series Data
@@ -104,7 +108,7 @@ Compare data across different time periods or categories:
 
 - **`data`**: Array of SeriesData objects containing the chart data
 
-For detailed prop information and configuration options, see the [API Reference](#api-reference) section below.
+For detailed prop information and configuration options, see the [Bar List Chart API Reference](./?path=/docs/js-packages-charts-types-bar-list-chart-api-reference--docs).
 
 ## Chart Types
 
@@ -306,79 +310,6 @@ Override automatic positioning when needed:
 ## Accessibility
 
 BarListChart inherits accessibility features from the underlying BarChart component, including keyboard navigation support when tooltips are enabled and proper ARIA attributes for screen readers.
-
-## API Reference
-
-### BarListChart
-
-A horizontal bar chart component optimized for list-style data presentation.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `SeriesData[]` | - | **Required.** Array of series data objects |
-| `width` | `number` | - | Chart width in pixels |
-| `height` | `number` | `400` | Chart height in pixels |
-| `margin` | `ChartMargin` | `{ left: 0, right: 20, bottom: 0, top: 0 }` | Chart margins |
-| `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
-| `renderTooltip` | `Function` | - | Custom tooltip render function |
-| `options` | `BarListChartOptions` | `{}` | Chart configuration options |
-
-### SeriesData Type
-
-```typescript
-type SeriesData = {
-	group: string;
-	label: string;
-	data: Array<{
-		label: string;
-		value: number;
-	}>;
-};
-```
-
-### BarListChartOptions Type
-
-```typescript
-type BarListChartOptions = {
-	yScale?: Omit<ScaleOptions, 'type'>;
-	xScale?: Omit<ScaleOptions, 'type'>;
-	labelFormatter?: (value: string) => string;
-	valueFormatter?: (value: number) => string;
-	yOffset?: number;
-	labelPosition?: number;
-	valuePosition?: number;
-	labelComponent?: ComponentType<RenderLabelProps>;
-	valueComponent?: ComponentType<RenderValueProps>;
-};
-```
-
-### RenderLabelProps Type
-
-```typescript
-type RenderLabelProps = {
-	textProps: TextProps;
-	x: number;
-	y: number;
-	label: string;
-	formatter: (value: string) => string;
-};
-```
-
-### RenderValueProps Type
-
-```typescript
-type RenderValueProps = {
-	textProps: TextProps;
-	x: number;
-	y: number;
-	value: number;
-	data: SeriesData[];
-	index: number;
-	formatter: (value: number) => string;
-};
-```
 
 ## Migration from Bar Chart
 

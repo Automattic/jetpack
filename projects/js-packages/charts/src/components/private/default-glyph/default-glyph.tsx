@@ -1,11 +1,10 @@
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
-import type { RenderLineStartGlyphProps } from '../../line-chart';
+import type { RenderLineGlyphProps } from '../../line-chart';
 
-export const DefaultGlyph = < Datum extends object >(
-	props: RenderLineStartGlyphProps< Datum >
-) => {
+export const DefaultGlyph = < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => {
 	const { theme } = useContext( DataContext ) || {};
+	const position = props.position || 'start';
 
 	return (
 		<circle
@@ -16,7 +15,7 @@ export const DefaultGlyph = < Datum extends object >(
 			stroke={ theme?.backgroundColor }
 			strokeWidth={ 1.5 }
 			paintOrder="fill"
-			data-testid={ `start-glyph-${ props.index }` }
+			data-testid={ `${ position }-glyph-${ props.index }` }
 			{ ...props.glyphStyle }
 		/>
 	);

@@ -56,7 +56,6 @@
 			padding: 0;
 			min-width: unset;
 			min-height: unset;
-			height: var(--jetpack--contact-form--input-height, unset);
 
 			&:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
 				letter-spacing: inherit;

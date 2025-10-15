@@ -1,4 +1,10 @@
-import type { BaseChartProps, DataPointDate, SeriesData, AnnotationStyles } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointDate,
+	SeriesData,
+	AnnotationStyles,
+	DataPoint,
+} from '../../types';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { ReactNode, SVGProps, FC } from 'react';
@@ -16,8 +22,9 @@ export type LineChartAnnotationProps = {
 
 export type CurveType = 'smooth' | 'linear' | 'monotone';
 
-export type RenderLineStartGlyphProps< Datum extends object > = GlyphProps< Datum > & {
+export type RenderLineGlyphProps< Datum extends object > = GlyphProps< Datum > & {
 	glyphStyle?: SVGProps< SVGCircleElement >;
+	position?: 'start' | 'end';
 };
 
 export interface LineChartProps extends BaseChartProps< SeriesData[] > {
@@ -26,6 +33,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	curveType?: CurveType;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	withStartGlyphs?: boolean;
+	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
 	glyphStyle?: SVGProps< SVGCircleElement >;
 	withLegendGlyph?: boolean;
@@ -39,4 +47,17 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 export type TooltipDatum = {
 	key: string;
 	value: number;
+};
+
+export type LineChartGlyphProps = {
+	data: SeriesData;
+	index: number;
+	color: string;
+	renderGlyph: < Datum extends object >( props: RenderLineGlyphProps< Datum > ) => ReactNode;
+	accessors: {
+		xAccessor: ( d: DataPointDate | DataPoint ) => Date;
+		yAccessor: ( d: DataPointDate | DataPoint ) => number | null;
+	};
+	glyphStyle?: SVGProps< SVGCircleElement >;
+	position: 'start' | 'end';
 };

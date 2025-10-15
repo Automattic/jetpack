@@ -1,7 +1,17 @@
-import { getContext, store, withSyncEvent } from '@wordpress/interactivity';
+import {
+	getContext,
+	store,
+	withSyncEvent as originalWithSyncEvent,
+} from '@wordpress/interactivity';
 import { focusNextInput } from '../form/shared';
 
 const NAMESPACE = 'jetpack/form';
+
+const withSyncEvent =
+	originalWithSyncEvent ||
+	( cb =>
+		( ...args ) =>
+			cb( ...args ) );
 
 const { state } = store( NAMESPACE, {
 	state: {

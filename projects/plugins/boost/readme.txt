@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.8
 Requires PHP: 7.2
-Stable tag: 4.3.1
+Stable tag: 4.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,16 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.1 - 2025-08-25
+### 4.5.0-beta - 2025-10-14
+#### Added
+- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
+
 #### Changed
-- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
-- Cornerstone Pages: Improve behavior when running on WordPress MU installations.
-- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
-- My Jetpack: Fixed multisite availability check for restricted products and modules.
 - Update package dependencies.
 
 #### Fixed
-- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
 
 --------
 

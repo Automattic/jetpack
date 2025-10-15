@@ -47,8 +47,8 @@ return [
     // PhanRedefinedClassReference : 8 occurrences
     // PhanTypeMissingReturn : 8 occurrences
     // PhanTypeComparisonToArray : 7 occurrences
-    // PhanTypeInvalidLeftOperandOfNumericOp : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
+    // PhanTypeInvalidLeftOperandOfNumericOp : 6 occurrences
     // PhanDeprecatedClass : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
@@ -56,7 +56,6 @@ return [
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
-    // PhanTypeSuspiciousStringExpression : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
@@ -78,6 +77,7 @@ return [
     // PhanStaticCallToNonStatic : 1 occurrence
     // PhanTypeMismatchArgumentInternalProbablyReal : 1 occurrence
     // PhanTypeMismatchArgumentInternalReal : 1 occurrence
+    // PhanTypeSuspiciousStringExpression : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
 
@@ -142,7 +142,7 @@ return [
         'class.jetpack-admin.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgumentProbablyReal'],
         'class.jetpack-autoupdate.php' => ['PhanTypeMismatchArgument'],
         'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
-        'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeSuspiciousStringExpression'],
+        'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn'],
         'class.jetpack-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'class.jetpack-modules-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
         'class.jetpack-network-sites-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
@@ -300,7 +300,7 @@ return [
         'modules/post-by-email/class-jetpack-post-by-email.php' => ['PhanUndeclaredMethodInCallable'],
         'modules/publicize.php' => ['PhanRedefineFunction'],
         'modules/related-posts/class.related-posts-customize.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'modules/related-posts/jetpack-related-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousStringExpression', 'PhanUndeclaredFunction'],
+        'modules/related-posts/jetpack-related-posts.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredFunction'],
         'modules/scan/class-admin-bar-notice.php' => ['PhanRedundantCondition', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/search.php' => ['PhanTypeMismatchArgument'],
         'modules/seo-tools/class-jetpack-seo.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
@@ -349,7 +349,6 @@ return [
         'modules/sitemaps/sitemap-buffer-video.php' => ['PhanRedefineClass'],
         'modules/sitemaps/sitemap-buffer.php' => ['PhanTypeMismatchReturn'],
         'modules/sitemaps/sitemap-builder.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal'],
-        'modules/sitemaps/sitemap-constants.php' => ['PhanTypeSuspiciousStringExpression'],
         'modules/sitemaps/sitemap-librarian.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/sitemaps/sitemap-logger.php' => ['PhanTypeMismatchProperty'],
         'modules/sitemaps/sitemaps.php' => ['PhanTypeMismatchArgument'],

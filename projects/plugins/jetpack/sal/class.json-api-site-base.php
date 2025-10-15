@@ -1733,4 +1733,25 @@ abstract class SAL_Site {
 	public function garden_partner() {
 		return null;
 	}
+
+	/**
+	 * Detect whether the Garden site is provisioned.
+	 *
+	 * @return bool|null
+	 */
+	public function garden_is_provisioned() {
+		return null;
+	}
+
+	/**
+	 * Detect whether the site is a Flex site.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_flex() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'flex-cache-site' );
+		}
+		return false;
+	}
 }

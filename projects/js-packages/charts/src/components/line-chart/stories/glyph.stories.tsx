@@ -66,6 +66,13 @@ Start.args = {
 	...glyphStoryArgs,
 };
 
+export const End: StoryObj< StoryArgs > = Template.bind( {} );
+End.args = {
+	...glyphStoryArgs,
+	withStartGlyphs: false,
+	withEndGlyphs: true,
+};
+
 export const Custom: StoryObj< StoryArgs > = Template.bind( {} );
 Custom.args = {
 	...glyphStoryArgs,

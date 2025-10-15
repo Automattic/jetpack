@@ -9,16 +9,16 @@
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the Autoloader handler.
  *
- * @runClassInSeparateProcess
+ * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-#[RunClassInSeparateProcess]
+#[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class AutoloaderHandlerTest extends TestCase {
 

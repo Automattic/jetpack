@@ -12,7 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Request;
@@ -62,6 +62,9 @@ class Contact_Form_Block {
 	public static function register_feature( $features ) {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+
+		// Form notifications feature flag - can be controlled via filter
+		$features['form-notifications'] = apply_filters( 'jetpack_forms_enable_notifications', false );
 
 		return $features;
 	}
@@ -349,6 +352,10 @@ class Contact_Form_Block {
 						'type' => 'string',
 						'role' => 'content',
 					),
+					'searchPlaceholder'   => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
 				),
 				'supports'         => array(
 					'interactivity' => true,
@@ -358,6 +365,7 @@ class Contact_Form_Block {
 					'jetpack/field-required'             => 'required',
 					'jetpack/field-prefix-default'       => 'default',
 					'jetpack/field-phone-country-toggle' => 'showCountrySelector',
+					'jetpack/field-phone-search-placeholder' => 'searchPlaceholder',
 				),
 			)
 		);
@@ -765,20 +773,19 @@ class Contact_Form_Block {
 			'../../../dist/blocks/editor.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
+				'dependencies' => array( 'jetpack-blocks-editor' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
 				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'   => null,
+				'css_path'     => null,
 			)
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
+		$form_responses_url      = Forms_Dashboard::get_forms_admin_url();
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
-		$preferred_view          = $dashboard_view_switch->get_preferred_view();
 
 		$data = array(
 			'defaults' => array(
@@ -788,7 +795,6 @@ class Contact_Form_Block {
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'preferredView'        => $preferred_view,
 				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
 			),
 		);
@@ -804,7 +810,9 @@ class Contact_Form_Block {
 	 */
 	public static function preload_endpoints( $paths ) {
 		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/config?_locale=user', 'GET' );
 		$paths[] = array( '/wp/v2/feedback/integrations?version=2', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/integrations?version=2&_locale=user', 'GET' );
 		return $paths;
 	}
 

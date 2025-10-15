@@ -166,10 +166,10 @@ module.exports = [
 			} ),
 		},
 	},
-	// Build static.jsx (which produces pre-rendered HTML).
+	// Build generator.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,
-		entry: { static: path.join( __dirname, '../_inc/client', 'static.jsx' ) },
+		entry: { static: path.join( __dirname, '../_inc/client', 'generator.jsx' ) },
 		output: {
 			...sharedWebpackConfig.output,
 			libraryTarget: 'commonjs2',

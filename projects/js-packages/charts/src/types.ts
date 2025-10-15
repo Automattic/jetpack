@@ -5,6 +5,7 @@ import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubje
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
+import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 
@@ -89,8 +90,20 @@ export type LeaderboardEntry = {
 	imageColor?: string;
 };
 
+export type GradientStop = {
+	offset: string;
+	color?: string;
+	opacity?: number;
+};
+
 export type SeriesDataOptions = {
-	gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
+	gradient?: {
+		from: string;
+		to: string;
+		fromOpacity?: number;
+		toOpacity?: number;
+		stops?: GradientStop[];
+	};
 	stroke?: string;
 	seriesLineStyle?: LineStyles;
 	legendShapeStyle?: CSSProperties;
@@ -163,13 +176,15 @@ export type ChartTheme = {
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Styles for legend shapes */
-	legendShapeStyles?: ( CSSProperties & LineStyles )[];
+	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Styles for legend labels */
 	legendLabelStyles?: CSSProperties;
 	/** Styles for legend container */
 	legendContainerStyles?: CSSProperties;
+	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
+	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
@@ -343,6 +358,11 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
 	 */
 	legendTextOverflow?: 'ellipsis' | 'wrap';
+	/**
+	 * Additional CSS class name for legend items.
+	 * This allows consumers to customize individual legend item styling.
+	 */
+	legendItemClassName?: string;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

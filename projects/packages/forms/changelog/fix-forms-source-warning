@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix PHP warning for when a site doesn't have the JWT token yet

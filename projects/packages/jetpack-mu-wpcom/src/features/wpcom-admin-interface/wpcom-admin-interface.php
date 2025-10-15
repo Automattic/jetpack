@@ -138,6 +138,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'options-reading.php',
 	'options-discussion.php',
 	'upload.php',
+	'import.php',
 );
 
 /**
@@ -219,21 +220,6 @@ add_action(
 	},
 	PHP_INT_MAX
 );
-/**
- * Hides the "View" switcher on WP Admin screens that have been untangled.
- */
-function wpcom_duplicate_views_hide_view_switcher() {
-	$admin_menu_class = wpcom_get_custom_admin_menu_class();
-	if ( $admin_menu_class ) {
-		$admin_menu = $admin_menu_class::get_instance();
-
-		$current_screen = wpcom_admin_get_current_screen();
-		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
-			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
-		}
-	}
-}
-add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
 
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.

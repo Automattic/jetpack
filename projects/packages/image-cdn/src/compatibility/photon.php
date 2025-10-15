@@ -9,6 +9,10 @@
 
 namespace Automattic\Jetpack\Image_CDN\Compatibility;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Disable the unpackaged photon version living in Jetpack.
  *

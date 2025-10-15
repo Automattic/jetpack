@@ -183,3 +183,41 @@ function jetpack_wpcom_add_heif_mimes_to_supported_upload_types( $mimes ) {
 	return $mimes;
 }
 add_filter( 'upload_mimes', 'jetpack_wpcom_add_heif_mimes_to_supported_upload_types' );
+
+/**
+ * Prevent WordPress from blocking HEIF/HEIC uploads in REST API.
+ *
+ * This allows HEIF/HEIC files to pass through the REST API validation
+ * so they can be converted to JPEG by our conversion filter.
+ *
+ * @param bool        $check_mime Whether to check the mime type.
+ * @param string|null $mime_type  The mime type being uploaded.
+ * @return bool
+ */
+function jetpack_wpcom_allow_heif_uploads_in_rest_api( $check_mime, $mime_type ) {
+	if ( wp_is_heic_image_mime_type( $mime_type ) ) {
+		return false;
+	}
+
+	return $check_mime;
+}
+
+/**
+ * Add the HEIF/HEIC upload filter on REST API initialization.
+ */
+function jetpack_wpcom_add_heif_rest_api_filter() {
+	add_filter( 'wp_prevent_unsupported_mime_type_uploads', 'jetpack_wpcom_allow_heif_uploads_in_rest_api', 10, 2 );
+}
+add_action( 'rest_api_init', 'jetpack_wpcom_add_heif_rest_api_filter' );
+
+/**
+ * Disable HEIC upload error in plupload settings for WordPress.com.
+ *
+ * @param array $defaults The default plupload settings.
+ * @return array The modified settings.
+ */
+function jetpack_wpcom_disable_heic_plupload_error( $defaults ) {
+	$defaults['heic_upload_error'] = false;
+	return $defaults;
+}
+add_filter( 'plupload_default_settings', 'jetpack_wpcom_disable_heic_plupload_error' );

@@ -15,6 +15,8 @@ export interface Integration {
 	title?: string;
 	/** Default subtitle/description for the integration (server-provided, filterable). */
 	subtitle?: string;
+	/** Whether this integration should be enabled by default for new forms. */
+	enabledByDefault?: boolean;
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
@@ -94,6 +96,8 @@ export interface FormResponse {
 	entry_permalink: string;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
+	/** Whether the response is unread. */
+	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
 }
@@ -108,6 +112,10 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesSpamUrl?: string;
 	/** Whether MailPoet integration is enabled. */
 	isMailPoetEnabled?: boolean;
+	/** The default subject for the form. */
+	subject?: string;
+	/** The default recipient email address for the form. */
+	to?: string;
 }
 
 /**
@@ -212,8 +220,6 @@ export interface FormsConfigData {
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
 	canActivatePlugins?: boolean;
-	/** Whether to render the migration/announcement page instead of the main dashboard. */
-	renderMigrationPage?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
 	/** Whether AI Assist features are available for the site/user. */
@@ -234,4 +240,6 @@ export interface FormsConfigData {
 	exportNonce?: string;
 	/** Nonce for creating a new form (dashboard-only). */
 	newFormNonce?: string;
+	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
+	emptyTrashDays?: number;
 }

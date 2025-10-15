@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.22.1] - 2025-10-10
+### Changed
+- Handle lazy-loading of `WP_User` object properties. [#45450]
+
+## [4.22.0] - 2025-09-19
+### Added
+- Instant Search: Add additional WC attribute taxonomies for Sync. [#45211]
+
+### Changed
+- Jetpack Sync: Add 'is_connected' property to synced users. [#45210]
+
 ## [4.21.3] - 2025-09-15
 ### Changed
 - Jetpack Sync: Stop triggering 'jetpack_wp_login' actions with empty user ID. [#45132]
@@ -1552,6 +1563,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.22.1]: https://github.com/Automattic/jetpack-sync/compare/v4.22.0...v4.22.1
+[4.22.0]: https://github.com/Automattic/jetpack-sync/compare/v4.21.3...v4.22.0
 [4.21.3]: https://github.com/Automattic/jetpack-sync/compare/v4.21.2...v4.21.3
 [4.21.2]: https://github.com/Automattic/jetpack-sync/compare/v4.21.1...v4.21.2
 [4.21.1]: https://github.com/Automattic/jetpack-sync/compare/v4.21.0...v4.21.1

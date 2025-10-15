@@ -58,6 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'jetpack/button',
 		'jetpack/calendly',
 		'jetpack/contact-info',
+		'jetpack/email',
 		'jetpack/event-countdown',
 		'jetpack/eventbrite',
 		'jetpack/gif',
@@ -74,6 +75,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		'jetpack/payment-buttons',
 		'jetpack/payments-intro',
 		'jetpack/paypal-payment-buttons',
+		'jetpack/phone',
 		'jetpack/pinterest',
 		'jetpack/podcast-player',
 		'jetpack/rating-star',
@@ -257,6 +259,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Unregister disallowed plugin assets before proceeding with asset collection
 		$this->unregister_disallowed_plugin_assets();
 
+		add_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
+		add_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
+
 		ob_start();
 		wp_print_styles();
 		$styles = ob_get_clean();
@@ -269,6 +274,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		wp_print_head_scripts();
 		wp_print_footer_scripts();
 		$scripts = ob_get_clean();
+
+		remove_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10 );
+		remove_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10 );
 
 		$wp_styles  = $current_wp_styles;
 		$wp_scripts = $current_wp_scripts;
@@ -363,6 +371,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		return false;
+	}
+
+	/**
+	 * Convert relative URLs to absolute URLs.
+	 *
+	 * @param string $src The source URL.
+	 * @return string The absolute URL.
+	 */
+	public function make_url_absolute( $src ) {
+		if ( ! empty( $src ) && str_starts_with( $src, '/' ) && ! str_starts_with( $src, '//' ) ) {
+			return site_url( $src );
+		}
+		return $src;
 	}
 
 	/**

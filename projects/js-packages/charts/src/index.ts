@@ -7,13 +7,13 @@ export {
 	PieSemiCircleChartUnresponsive,
 } from './components/pie-semi-circle-chart';
 export { BarListChart, BarListChartUnresponsive } from './components/bar-list-chart';
-export { LeaderboardChart } from './components/leaderboard-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './components/leaderboard-chart';
 export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
-export type { LegendValueDisplay } from './components/legend';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 
 // Themes
 export { GlobalChartsProvider as ThemeProvider } from './providers';

@@ -1200,6 +1200,10 @@ class Jetpack_Widget_Conditions {
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 
+		if ( ! is_array( $sidebars_widgets ) ) {
+			return;
+		}
+
 		// Going through all sidebars and through inactive and orphaned widgets.
 		foreach ( $sidebars_widgets as $sidebar ) {
 			if ( ! is_array( $sidebar ) ) {
@@ -1229,8 +1233,8 @@ class Jetpack_Widget_Conditions {
 				foreach ( $instances as $number => $instance ) {
 					if (
 						! is_array( $instance ) ||
-						empty( $instance['conditions'] ) ||
-						empty( $instance['conditions']['rules'] )
+						empty( $instance['conditions']['rules'] ) ||
+						! is_array( $instance['conditions']['rules'] )
 					) {
 						continue;
 					}

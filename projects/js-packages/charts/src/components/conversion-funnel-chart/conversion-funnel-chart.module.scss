@@ -12,6 +12,7 @@
 	align-items: baseline;
 	gap: 8px;
 	margin-bottom: 24px;
+	height: 20px;
 }
 
 .main-rate {
@@ -28,7 +29,6 @@
 
 .change-indicator {
 	overflow: hidden;
-	color: var(--change-indicator-color, #008a20);
 	text-overflow: ellipsis;
 	font-family: var(--funnel-font-family, "SF Pro Text");
 	font-size: 13px;
@@ -91,16 +91,11 @@
 	flex: 1;
 	display: flex;
 	align-items: flex-end;
-	background-color: var(--light-background-color, rgba(79, 70, 229, 0.08));
 	border-radius: 4px;
 	position: relative;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
-
-	&.selected {
-		background-color: var(--light-background-color, rgba(79, 70, 229, 0.15));
-	}
 
 	&.disabled {
 		cursor: pointer;
@@ -112,8 +107,6 @@
 	min-height: 4px;
 	border-radius: 4px 4px 0 0;
 	transition: all 0.3s ease;
-	background-color: var(--primary-color, #4f46e5);
-
 
 	&.selected {
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);

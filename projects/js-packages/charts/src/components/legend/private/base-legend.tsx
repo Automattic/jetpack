@@ -2,16 +2,9 @@ import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
 import clsx from 'clsx';
-import {
-	type RefAttributes,
-	type ForwardRefExoticComponent,
-	forwardRef,
-	useCallback,
-	useMemo,
-	useContext,
-} from 'react';
+import { type RefAttributes, type ForwardRefExoticComponent, forwardRef, useCallback } from 'react';
 import { useTextTruncation } from '../../../hooks';
-import { useGlobalChartsTheme, GlobalChartsContext } from '../../../providers';
+import { useGlobalChartsTheme } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
@@ -85,45 +78,28 @@ export const BaseLegend: ForwardRefExoticComponent<
 			itemMargin = '0',
 			itemDirection = 'row',
 			legendLabelProps,
+			legendItemClassName,
+			render,
 			...legendItemProps
 		},
 		ref
 	) => {
 		const theme = useGlobalChartsTheme();
-		const context = useContext( GlobalChartsContext );
-		const resolveGroupColor = context?.resolveGroupColor;
-
-		// Resolve colors dynamically for items that have group info
-		const itemsWithResolvedColors = useMemo( () => {
-			return items.map( item => {
-				// If item has group info and we have a context, resolve color dynamically
-				if ( item.group !== undefined && item.index !== undefined && resolveGroupColor ) {
-					const resolvedColor = resolveGroupColor( {
-						group: item.group,
-						index: item.index,
-						overrideColor: item.overrideColor,
-					} );
-					return { ...item, color: resolvedColor };
-				}
-				// Otherwise use the static color
-				return item;
-			} );
-		}, [ items, resolveGroupColor ] );
 
 		const legendScale = scaleOrdinal( {
-			domain: itemsWithResolvedColors.map( item => item.label ),
-			range: itemsWithResolvedColors.map( item => item.color ),
+			domain: items.map( item => item.label ),
+			range: items.map( item => item.color ),
 		} );
 		const domain = legendScale.domain();
 
-		// For right-aligned vertical legends, use row-reverse to align text consistently
-
 		const getShapeStyle = useCallback(
-			( { index }: { index: number } ) => itemsWithResolvedColors[ index ]?.shapeStyle,
-			[ itemsWithResolvedColors ]
+			( { index }: { index: number } ) => items[ index ]?.shapeStyle,
+			[ items ]
 		);
 
-		return (
+		return render ? (
+			render( items )
+		) : (
 			<LegendOrdinal
 				scale={ legendScale }
 				labelFormat={ labelFormat }
@@ -148,7 +124,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 					>
 						{ labels.map( ( label, i ) => (
 							<LegendItem
-								className={ clsx( 'visx-legend-item', styles[ 'legend-item' ] ) }
+								className={ clsx(
+									'visx-legend-item',
+									styles[ 'legend-item' ],
+									legendItemClassName
+								) }
 								data-testid="legend-item"
 								key={ `legend-${ label.text }-${ i }` }
 								margin={ itemMargin }

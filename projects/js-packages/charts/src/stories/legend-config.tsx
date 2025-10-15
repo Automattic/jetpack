@@ -52,4 +52,10 @@ export const legendArgTypes = {
 		description:
 			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
 	},
+	legendItemClassName: {
+		control: { type: 'text' as const },
+		table: { category: 'Legend' },
+		description:
+			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
+	},
 };

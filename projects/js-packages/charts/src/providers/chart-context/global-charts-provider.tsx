@@ -1,5 +1,6 @@
-import { createContext, useCallback, useMemo, useState, useEffect, useRef } from 'react';
-import { mergeThemes } from '../../utils';
+import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
+import { getItemShapeStyles, getSeriesLineStyles, mergeThemes, hexToHsl } from '../../utils';
+import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
@@ -9,27 +10,54 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
-	/** Optional theme override. Considered static for provider lifecycle. */
 	theme?: Partial< ChartTheme >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
-	children,
-	theme = {},
-} ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 
-	const providerTheme: CompleteChartTheme = useMemo(
-		() => mergeThemes( defaultTheme, theme ),
-		[ theme ]
+	const providerTheme: CompleteChartTheme = useMemo( () => {
+		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
+	}, [ theme ] );
+
+	// Cache expensive color computations that only change when theme colors change
+	const colorCache: ColorCache = useMemo( () => {
+		const { colors } = providerTheme;
+		const hues: number[] = [];
+		const existingHslColors: Array< [ number, number, number ] > = [];
+		let minHue = 360;
+		let maxHue = 0;
+
+		// Process all colors once and cache the results
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
+					const hslColor = hexToHsl( color );
+					hues.push( hslColor[ 0 ] );
+					existingHslColors.push( hslColor );
+					minHue = Math.min( minHue, hslColor[ 0 ] );
+					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				}
+			}
+		}
+
+		return {
+			colors: colors || [],
+			hues,
+			existingHslColors,
+			minHue,
+			maxHue,
+		};
+	}, [ providerTheme ] );
+
+	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
+		() => new Map()
 	);
 
-	// Stable group -> color mapping for this provider lifecycle
-	const groupToColorMapRef = useRef< Map< string, string > >( new Map() );
-
-	// Reset group color mappings when theme changes
+	// Reset group color mappings when theme colors change
 	useEffect( () => {
-		groupToColorMapRef.current = new Map();
+		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
+		setGroupToColorMap( new Map() );
 	}, [ providerTheme.colors ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
@@ -51,33 +79,64 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const resolveGroupColor = useCallback< GlobalChartsContextValue[ 'resolveGroupColor' ] >(
-		( { group, index, overrideColor } ) => {
-			// Highest precedence: explicit series stroke
+	const resolveColor = useCallback(
+		( {
+			group,
+			index,
+			overrideColor,
+		}: {
+			group?: string;
+			index: number;
+			overrideColor?: string;
+		} ): string => {
+			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
 				return overrideColor;
 			}
 
-			const palette = providerTheme.colors ?? [];
-
 			// If group provided, maintain a stable assignment
 			if ( group ) {
-				const existing = groupToColorMapRef.current.get( group );
+				const existing = groupToColorMap.get( group );
+
 				if ( existing ) {
 					return existing;
 				}
-				// Assign next color from palette in a deterministic cycling manner
 
-				const assignedCount = groupToColorMapRef.current.size;
-				const color = palette.length > 0 ? palette[ assignedCount % palette.length ] : '#000000';
-				groupToColorMapRef.current.set( group, color );
+				const assignedCount = groupToColorMap.size;
+				const color =
+					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
+				groupToColorMap.set( group, color );
+
 				return color;
 			}
 
-			// Fallback: index-based color cycling
-			return palette.length > 0 ? palette[ ( index || 0 ) % palette.length ] : '#000000';
+			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
 		},
-		[ providerTheme.colors ]
+		[ colorCache, groupToColorMap ]
+	);
+
+	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
+		( { data, index, overrideColor, legendShape } ) => {
+			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
+			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
+
+			return {
+				color: resolveColor( {
+					group: data?.group,
+					index,
+					overrideColor:
+						overrideColor ||
+						( isSeriesData && data?.options?.stroke ) ||
+						( isPointPercentageData && data?.color ),
+				} ),
+				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
+				glyph: providerTheme.glyphs?.[ index ],
+				shapeStyles: isSeriesData
+					? getItemShapeStyles( data, index, providerTheme, legendShape )
+					: {},
+			};
+		},
+		[ providerTheme, resolveColor ]
 	);
 
 	const value: GlobalChartsContextValue = useMemo(
@@ -87,9 +146,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
-			resolveGroupColor,
+			getElementStyles,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme, resolveGroupColor ]
+		[ charts, registerChart, unregisterChart, getChartData, providerTheme, getElementStyles ]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;

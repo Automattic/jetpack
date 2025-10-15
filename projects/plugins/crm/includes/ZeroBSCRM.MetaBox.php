@@ -78,13 +78,16 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
                 // add save func, even if will be blank :)
                 // WP was using filters, I'll move to actions (makes more sense to me, having read actions vs filters)
                 //add_filter( 'zerobs_save_'.$this->postType, array( $this, 'save_meta_box' ), 10, 2 );
+			if ( $this->objType ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
                 add_action( 'zerobs_save_'.$this->objType, array( $this, 'save_meta_box' ), $this->saveOrder, 2 );
+			}
                 // This is fired by edit page do_action
 
                 // this is then set to fire after ALL other save funcs :)
                 // ... by way of a 999 priority
+			if ( $this->objType ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
                 add_action( 'zerobs_save_'.$this->objType, array( $this, 'post_save_meta_box' ), 999, 2 );
-
+			}
             }
 
 
@@ -167,8 +170,10 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
         public function print_meta_box( $obj, $metabox ) {
 
-            // nonce output by parent class
+					// nonce output by parent class
+		if ( $this->metaboxID ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
             wp_nonce_field( 'save_' . $this->metaboxID, $this->metaboxID . '_nonce' );
+		}
 
             $this->html($obj,$metabox);
 
@@ -179,7 +184,9 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
         public function save_meta_box( $objID, $obj ) {
 
             // metabox set?
-            if (!isset($_POST[$this->metaboxID . '_nonce']) || empty($_POST[$this->metaboxID . '_nonce'] )){ return; }
+		if ( ! $this->metaboxID || ! isset( $_POST[ $this->metaboxID . '_nonce' ] ) || empty( $_POST[ $this->metaboxID . '_nonce' ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			return;
+		}
             // autosave? (legacy, probswill never do as our own page now)
             if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ){ return; }
             // final nonce check

@@ -104,33 +104,18 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.1.0 - 2025-08-05
+### 7.2.0 - 2025-10-10
 #### Added
-- Social Image Generator: Add font option.
-- My Jetpack: Add analytics for empty product search results.
-- Social Notes: Add a fallback title that can be customized via the `jetpack_social_notes_default_title` filter.
+- Add typecheck support for E2E tests.
 
 #### Changed
-- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript.
-- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Sync: Ignore the ActivityPub Outbox CPT.
+- Remove CRM installation nudge for Complete plan users.
+- My Jetpack: Fix multisite availability check for restricted products and modules.
+- Update dependencies.
 - Update package dependencies.
 
 #### Fixed
-- Ensure images load in connections management when concatenating JS.
-- Fix image validation when images sizes are customised.
-- JITM: Fix ineffective caching due to expired plugin sync transient.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link in footer.
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
-- Social Notes: Update filter name to match recent changes in WordPress.
-- Social Previews: Fix a bug with text overflowing with Mastodon.
-- Update JITMs to remove jQuery dependency.
+- Fixes an issue with Social where default image id could not be cleared.
 
 == Upgrade Notice ==
 

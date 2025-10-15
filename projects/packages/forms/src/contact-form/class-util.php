@@ -35,6 +35,7 @@ class Util {
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
+		add_action( 'grunion_scheduled_delete_temp', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_temp_feedback' );
 		add_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
 	}
 
@@ -125,7 +126,10 @@ class Util {
                     <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very Bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} /-->
+                        <!-- wp:jetpack/field-rating {"required":true} -->
+							<div><!-- wp:jetpack/label {"label":"Please rate our website"} /-->
+						<!-- wp:jetpack/input-rating /--></div>
+						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
                         <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
                     </div>
@@ -277,6 +281,60 @@ class Util {
 		// if we hit the max then schedule another run
 		if ( count( $post_ids ) >= $grunion_delete_limit ) {
 			wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete' );
+		}
+	}
+
+	/**
+	 * Deletes old temp feedback to keep the posts table size under control.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function grunion_delete_old_temp_feedback() {
+		global $wpdb;
+
+		$grunion_delete_limit = 100;
+
+		$now_gmt = current_time( 'mysql', 1 );
+		$sql     = $wpdb->prepare(
+			"
+			SELECT `ID`
+			FROM $wpdb->posts
+			WHERE DATE_SUB( %s, INTERVAL 1 DAY ) > `post_date_gmt`
+				AND `post_type` = 'feedback'
+				AND `post_status` = 'jp-temp-feedback'
+			LIMIT %d
+		",
+			$now_gmt,
+			$grunion_delete_limit
+		);
+
+		// The SQL query is already prepared with $wpdb->prepare() above, and direct query is needed for performance-critical cleanup operation
+		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		foreach ( (array) $post_ids as $post_id ) {
+			// force a full delete, skip the trash
+			wp_delete_post( $post_id, true );
+		}
+
+		if (
+			/**
+			 * Filter if the module run OPTIMIZE TABLE on the core WP tables.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 6.5.0
+			 *
+			 * @param bool $filter Should Jetpack optimize the table, defaults to false.
+			 */
+			apply_filters( 'grunion_optimize_table', false )
+		) {
+			// OPTIMIZE TABLE is a MySQL-specific maintenance command that cannot be prepared and is only run when explicitly enabled via filter
+			$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		}
+
+		// if we hit the max then schedule another run
+		if ( count( $post_ids ) >= $grunion_delete_limit ) {
+			wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete_temp' );
 		}
 	}
 

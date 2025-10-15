@@ -61,7 +61,7 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 };
 
 export const lineChartStoryArgs = {
-	data: sampleData,
+	data: sampleData.slice( 0, 4 ),
 	withGradientFill: false,
 	withLegendGlyph: false,
 	smoothing: true,

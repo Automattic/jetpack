@@ -1,105 +1,24 @@
 import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
-import { type FC, useRef, useMemo, useEffect, useCallback } from 'react';
-import { useGlobalChartsTheme } from '../../providers';
+import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
+import {
+	GlobalChartsProvider,
+	GlobalChartsContext,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsTheme,
+} from '../../providers';
 import { hexToRgba, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
+import type { FunnelStep, ConversionFunnelChartProps } from './types';
 
 /**
- * Represents a single step in the conversion funnel
- */
-export interface FunnelStep {
-	/** Step identifier */
-	id: string;
-	/** Display label for the step */
-	label: string;
-	/** Conversion rate as percentage (0-100) */
-	rate: number;
-	/** Absolute count (optional, for tooltip/details) */
-	count?: number;
-}
-
-/**
- * Render prop for customizing step labels
- */
-export interface StepLabelRenderProps {
-	step: FunnelStep;
-	index: number;
-	className?: string;
-}
-
-/**
- * Render prop for customizing step rates
- */
-export interface StepRateRenderProps {
-	step: FunnelStep;
-	index: number;
-	className?: string;
-}
-
-/**
- * Render prop for customizing the entire main metric section
- */
-export interface MainMetricRenderProps {
-	mainRate: number;
-	changeIndicator?: string;
-	className?: string;
-	changeColor?: string;
-}
-
-/**
- * Render prop for customizing tooltip content
- */
-export interface TooltipRenderProps {
-	step: FunnelStep;
-	index: number;
-	top: number;
-	left: number;
-	className?: string;
-}
-
-/**
- * Props for the ConversionFunnelChart component
- */
-export interface ConversionFunnelChartProps {
-	/** Main conversion rate to highlight */
-	mainRate: number;
-	/** Change indicator (e.g., +2%, -1.5%) */
-	changeIndicator?: string;
-	/** Array of funnel steps */
-	steps: FunnelStep[];
-	/** Whether the chart is in loading state */
-	loading?: boolean;
-	/** Additional CSS class name */
-	className?: string;
-	/** Custom styling */
-	style?: React.CSSProperties;
-	/** Custom render function for step labels */
-	renderStepLabel?: ( props: StepLabelRenderProps ) => React.ReactNode;
-	/** Custom render function for step rates */
-	renderStepRate?: ( props: StepRateRenderProps ) => React.ReactNode;
-	/** Custom render function for the entire main metric section */
-	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
-	/** Custom render function for tooltip content */
-	renderTooltip?: ( props: TooltipRenderProps ) => React.ReactNode;
-}
-
-/**
- * Default settings for ConversionFunnelChart component
- */
-const DEFAULT_FUNNEL_SETTINGS = {
-	primaryColor: '#4F46E5',
-	backgroundColor: '#F3F4F6',
-	positiveChangeColor: '#10B981',
-	negativeChangeColor: '#EF4444',
-} as const;
-
-/**
- * ConversionFunnelChart component displays a conversion funnel with main metric and visualization
+ * Internal ConversionFunnelChart component with chart registration
  *
  * @param props                  - Component props
+ * @param props.chartId          - Optional unique identifier for the chart
  * @param props.mainRate         - Main conversion rate to highlight
  * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
  * @param props.steps            - Array of funnel steps
@@ -112,19 +31,21 @@ const DEFAULT_FUNNEL_SETTINGS = {
  * @param props.renderTooltip    - Custom render function for tooltip content
  * @return JSX element representing the conversion funnel chart
  */
-export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
+const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	mainRate,
 	changeIndicator,
 	steps,
 	loading = false,
 	className,
+	chartId: providedChartId,
 	style,
 	renderStepLabel,
 	renderStepRate,
 	renderMainMetric,
 	renderTooltip,
 } ) => {
-	const theme = useGlobalChartsTheme();
+	const chartId = useChartId( providedChartId );
+	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -282,33 +203,28 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
-	const funnelSettings = theme.conversionFunnelChart;
-	const primaryColor = funnelSettings?.primaryColor || DEFAULT_FUNNEL_SETTINGS.primaryColor;
-	const positiveChangeColor =
-		funnelSettings?.positiveChangeColor || DEFAULT_FUNNEL_SETTINGS.positiveChangeColor;
-	const negativeChangeColor =
-		funnelSettings?.negativeChangeColor || DEFAULT_FUNNEL_SETTINGS.negativeChangeColor;
+	const {
+		primaryColor: barColor,
+		backgroundColor,
+		positiveChangeColor,
+		negativeChangeColor,
+	} = conversionFunnelChartSettings;
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
 	const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
 
-	// Create light background version of primary color
-	const lightBackgroundColor = hexToRgba( primaryColor, 0.08 );
-
-	const chartStyle = {
-		'--primary-color': primaryColor,
-		'--light-background-color': lightBackgroundColor,
-		'--change-indicator-color': changeColor,
-		...style,
-	} as React.CSSProperties;
+	// Create light background version of primary color if not set
+	const barBackgroundColor = backgroundColor || hexToRgba( barColor, 0.08 );
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
 		<>
 			<span className={ styles[ 'main-rate' ] }>{ formatPercentage( mainRate ) }</span>
 			{ changeIndicator && (
-				<span className={ styles[ 'change-indicator' ] }>{ changeIndicator }</span>
+				<span className={ styles[ 'change-indicator' ] } style={ { color: changeColor } }>
+					{ changeIndicator }
+				</span>
 			) }
 		</>
 	);
@@ -324,12 +240,33 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 		</>
 	);
 
+	// Validate data
+	const isDataValid = Boolean( steps && steps.length > 0 );
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			mainRate,
+			changeIndicator,
+			stepsCount: steps?.length || 0,
+		} ),
+		[ mainRate, changeIndicator, steps?.length ]
+	);
+
+	useChartRegistration( {
+		chartId,
+		legendItems: [],
+		chartType: 'conversion-funnel',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
+
 	// Handle empty or undefined data
-	if ( ! steps || steps.length === 0 ) {
+	if ( ! isDataValid ) {
 		return (
 			<div
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+				style={ style }
 			>
 				<div className={ styles[ 'empty-state' ] }>
 					{ loading ? 'Loading...' : 'No data available' }
@@ -350,7 +287,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 					chartRef.current = node;
 				} }
 				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+				style={ style }
 			>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (
@@ -368,7 +305,7 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 				<div className={ styles[ 'funnel-container' ] }>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
-						const { isClicked, isBlurred } = getStepState( step.id );
+						const { isBlurred } = getStepState( step.id );
 
 						return (
 							<div
@@ -401,22 +338,19 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 
 								{ /* Funnel Bar */ }
 								<div
-									className={ clsx(
-										styles[ 'bar-container' ],
-										isClicked && styles.selected,
-										isBlurred && styles.disabled
-									) }
+									className={ clsx( styles[ 'bar-container' ], isBlurred && styles.disabled ) }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 									role="button"
 									tabIndex={ isBlurred ? -1 : 0 }
 									aria-label={ step.label }
+									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
-										className={ clsx( styles[ 'funnel-bar' ], isClicked && styles.selected ) }
+										className={ styles[ 'funnel-bar' ] }
 										style={ {
 											height: `${ barHeight }%`,
-											backgroundColor: primaryColor,
+											backgroundColor: barColor,
 										} }
 									/>
 								</div>
@@ -459,4 +393,28 @@ export const ConversionFunnelChart: FC< ConversionFunnelChartProps > = ( {
 	);
 };
 
-export default ConversionFunnelChart;
+/**
+ * ConversionFunnelChart component with provider wrapper
+ *
+ * @param props - Component props
+ * @return JSX element representing the conversion funnel chart
+ */
+const ConversionFunnelChartWithProvider: FC< ConversionFunnelChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <ConversionFunnelChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<ConversionFunnelChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+ConversionFunnelChartWithProvider.displayName = 'ConversionFunnelChart';
+
+export { ConversionFunnelChartWithProvider as default };

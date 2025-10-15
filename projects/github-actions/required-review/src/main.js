@@ -101,6 +101,8 @@ async function main() {
 				await requestReview( [ ...teamsNeededForReview ] );
 			}
 		}
+		core.setOutput( 'requirements-satisfied', teamsNeededForReview.size === 0 );
+		core.setOutput( 'teams-needed-for-review', [ ...teamsNeededForReview ] );
 	} catch ( error ) {
 		let err, state, description;
 		if ( error instanceof reporter.ReportError ) {
@@ -117,6 +119,8 @@ async function main() {
 		if ( core.getInput( 'token' ) && core.getInput( 'status' ) ) {
 			await reporter.status( state, description );
 		}
+		core.setOutput( 'requirements-satisfied', false );
+		core.setOutput( 'teams-needed-for-review', [] );
 	}
 }
 

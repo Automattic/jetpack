@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\External_Connections;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -47,6 +46,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-spam',
 				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'creative-mail-by-constant-contact' => array(
 				'type'                    => 'plugin',
@@ -55,6 +56,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'creative-mail',
 				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
 				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'zero-bs-crm'                       => array(
 				'type'                    => 'plugin',
@@ -63,6 +66,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => true,
 			),
 			'salesforce'                        => array(
 				'type'                    => 'service',
@@ -71,6 +76,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'google-drive'                      => array(
 				'type'                    => 'service',
@@ -79,6 +86,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 			'mailpoet'                          => array(
 				'type'                    => 'plugin',
@@ -87,6 +96,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-mailpoet',
 				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
 			),
 		);
 
@@ -243,6 +254,68 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'callback'            => array( $this, 'get_forms_config' ),
 			)
 		);
+
+		// Mark feedback as read/unread endpoint.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>\d+)/read',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_read_status' ),
+				'permission_callback' => array( $this, 'update_item_permissions_check' ),
+				'args'                => array(
+					'id'        => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'is_unread' => array(
+						'type'              => 'boolean',
+						'required'          => true,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+				),
+			)
+		);
+
+		// Get optimized status counts.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+				'args'                => array(
+					'search' => array(
+						'description'       => 'Limit results to those matching a string.',
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'parent' => array(
+						'description'       => 'Limit results to those of a specific parent ID.',
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'before' => array(
+						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'after'  => array(
+						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
+						'type'              => 'string',
+						'format'            => 'date-time',
+						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -292,12 +365,76 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves status counts for inbox, spam, and trash.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response Response object on success.
+	 */
+	public function get_status_counts( $request ) {
+		global $wpdb;
+
+		$search = $request->get_param( 'search' );
+		$parent = $request->get_param( 'parent' );
+		$before = $request->get_param( 'before' );
+		$after  = $request->get_param( 'after' );
+
+		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+
+		if ( ! empty( $search ) ) {
+			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
+			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+		}
+
+		if ( ! empty( $parent ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_parent = %d', $parent );
+		}
+
+		if ( ! empty( $before ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+		}
+
+		if ( ! empty( $after ) ) {
+			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+		}
+
+		$where_clause = implode( ' AND ', $where_conditions );
+
+		// Execute single query with CASE statements for all status counts.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$counts = $wpdb->get_row(
+			"SELECT
+			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM $wpdb->posts
+			WHERE $where_clause",
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$result = array(
+			'inbox' => (int) ( $counts['inbox'] ?? 0 ),
+			'spam'  => (int) ( $counts['spam'] ?? 0 ),
+			'trash' => (int) ( $counts['trash'] ?? 0 ),
+		);
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
 	 * Adds the additional fields to the item's schema.
 	 *
 	 * @return array Item schema as an array.
 	 */
 	public function get_item_schema() {
 		$schema = parent::get_item_schema();
+
+		// Remove fields that are not relevant to feedback.
+		foreach ( array( 'link', 'password', 'template', 'title', 'content', 'excerpt' ) as $key ) {
+			if ( isset( $schema['properties'][ $key ] ) ) {
+				unset( $schema['properties'][ $key ] );
+			}
+		}
 
 		$schema['properties']['parent'] = array(
 			'description' => __( 'The ID for the parent of the post. This refers to the post/page where the feedback was created.', 'jetpack-forms' ),
@@ -396,6 +533,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['edit_form_url'] = array(
+			'description' => __( 'The URL to edit the form.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['subject'] = array(
 			'description' => __( 'The subject line of the form submission.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -473,6 +620,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
 				'sanitize_callback' => 'booleanval',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['is_unread'] = array(
+			'description' => __( 'Whether the form response is unread.', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
 			'readonly'    => true,
 		);
@@ -576,50 +733,60 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$data     = $response->get_data();
 		$fields   = $this->get_fields_for_response( $request );
 
-		$response = Feedback::get( $item->ID );
-		if ( ! $response ) {
+		$feedback_response = Feedback::get( $item->ID );
+		if ( ! $feedback_response ) {
 			return rest_ensure_response( $data );
 		}
 
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
-			$data['uid'] = $response->get_feedback_id();
+			$data['uid'] = $feedback_response->get_feedback_id();
 		}
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $response->get_author();
+			$data['author_name'] = $feedback_response->get_author();
 		}
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
-			$data['author_email'] = $response->get_author_email();
+			$data['author_email'] = $feedback_response->get_author_email();
 		}
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
-			$data['author_url'] = $response->get_author_url();
+			$data['author_url'] = $feedback_response->get_author_url();
 		}
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
-			$data['author_avatar'] = $response->get_author_avatar();
+			$data['author_avatar'] = $feedback_response->get_author_avatar();
 		}
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
-			$data['email_marketing_consent'] = $response->has_consent() ? '1' : '';
+			$data['email_marketing_consent'] = $feedback_response->has_consent() ? '1' : '';
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
-			$data['ip'] = $response->get_ip_address();
+			$data['ip'] = $feedback_response->get_ip_address();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
-			$data['entry_title'] = $response->get_entry_title();
+			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
-			$data['entry_permalink'] = $response->get_entry_permalink();
+			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
+		}
+		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
+			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
 		if ( rest_is_field_included( 'subject', $fields ) ) {
-			$data['subject'] = $response->get_subject();
+			$data['subject'] = $feedback_response->get_subject();
 		}
 		if ( rest_is_field_included( 'fields', $fields ) ) {
-			$data['fields'] = $response->get_compiled_fields( 'api', 'label-value' );
+			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
 		}
 
 		if ( rest_is_field_included( 'has_file', $fields ) ) {
-			$data['has_file'] = $response->has_file();
+			$data['has_file'] = $feedback_response->has_file();
 		}
-		return rest_ensure_response( $data );
+
+		if ( rest_is_field_included( 'is_unread', $fields ) ) {
+			$data['is_unread'] = $feedback_response->is_unread();
+		}
+
+		$response->set_data( $data );
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -847,20 +1014,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		// Base shape for all integrations.
 		$base = array(
-			'id'              => $slug,
-			'slug'            => $slug,
-			'type'            => $type,
-			'title'           => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
-			'subtitle'        => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
-			'marketingUrl'    => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
-			'pluginFile'      => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
-			'isInstalled'     => false,
-			'isActive'        => false,
-			'needsConnection' => ( $type === 'service' ),
-			'isConnected'     => false,
-			'version'         => null,
-			'settingsUrl'     => null,
-			'details'         => array(),
+			'id'               => $slug,
+			'slug'             => $slug,
+			'type'             => $type,
+			'title'            => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
+			'subtitle'         => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
+			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
+			'pluginFile'       => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
+			'isInstalled'      => false,
+			'isActive'         => false,
+			'needsConnection'  => ( $type === 'service' ),
+			'isConnected'      => false,
+			'version'          => null,
+			'settingsUrl'      => null,
+			'details'          => array(),
+			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
 		);
 
 		// Override base shape based on integration type.
@@ -969,9 +1137,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Override base shape for specific plugins.
 		switch ( $plugin_slug ) {
 			case 'akismet':
-				$dashboard_view_switch                       = new Dashboard_View_Switch();
 				$status['isConnected']                       = class_exists( 'Jetpack' ) && \Jetpack::is_akismet_active();
-				$status['details']['formSubmissionsSpamUrl'] = $dashboard_view_switch->get_forms_admin_url( 'spam' );
+				$status['details']['formSubmissionsSpamUrl'] = Forms_Dashboard::get_forms_admin_url( 'spam' );
 				$status['needsConnection']                   = true;
 				break;
 			case 'zero-bs-crm':
@@ -1020,13 +1187,51 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Updates the read/unread status of a feedback item.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_read_status( $request ) {
+		$post_id   = $request->get_param( 'id' );
+		$is_unread = $request->get_param( 'is_unread' );
+
+		$feedback_response = Feedback::get( $post_id );
+		if ( ! $feedback_response ) {
+			return new WP_Error(
+				'rest_post_invalid_id',
+				__( 'Invalid feedback ID.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$success = $is_unread ? $feedback_response->mark_as_unread() : $feedback_response->mark_as_read();
+
+		Contact_Form_Plugin::recalculate_unread_count();
+		if ( ! $success ) {
+			return new WP_Error(
+				'rest_cannot_update',
+				__( 'Failed to update feedback read status.', 'jetpack-forms' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'id'        => $post_id,
+				'is_unread' => $feedback_response->is_unread(),
+				'count'     => Contact_Form_Plugin::get_unread_count(),
+			)
+		);
+	}
+
+	/**
 	 * Return consolidated Forms config payload.
 	 *
 	 * @param WP_REST_Request $request Request.
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$switch = new Dashboard_View_Switch();
 		$has_ai = false;
 		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
 			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
@@ -1035,8 +1240,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
-			'formsResponsesUrl'       => $switch->get_forms_admin_url(),
-			'preferredView'           => $switch->get_preferred_view(),
+			'formsResponsesUrl'       => Forms_Dashboard::get_forms_admin_url(),
 			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
 			// From config in class-dashboard.php.
 			'blogId'                  => get_current_blog_id(),
@@ -1046,13 +1250,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
 			'hasAI'                   => $has_ai,
 			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
-			'renderMigrationPage'     => $switch->is_jetpack_forms_announcing_new_menu(),
-			'dashboardURL'            => add_query_arg( 'jetpack_forms_migration_announcement_seen', 'yes', $switch->get_forms_admin_url() ),
+			'dashboardURL'            => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
 			'canInstallPlugins'       => current_user_can( 'install_plugins' ),
 			'canActivatePlugins'      => current_user_can( 'activate_plugins' ),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
 			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
+			'emptyTrashDays'          => defined( 'EMPTY_TRASH_DAYS' ) ? EMPTY_TRASH_DAYS : 0,
 		);
 
 		return rest_ensure_response( $config );
