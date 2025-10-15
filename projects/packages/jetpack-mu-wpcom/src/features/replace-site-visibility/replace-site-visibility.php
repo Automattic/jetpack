@@ -125,6 +125,7 @@ function replace_site_visibility_load_assets() {
 	if ( function_exists( '\Private_Site\site_is_private' )
 		&& ! $data['isUnlaunchedSite'] && ! $data['wpcomPublicComingSoon'] && ! $data['wpcomComingSoon'] && (string) $data['blogPublic'] !== '0'
 	) {
+		// @phan-suppress-next-line PhanUndeclaredFunction
 		$data['blogPublic'] = \Private_Site\site_is_private() ? '-1' : '1';
 	}
 
