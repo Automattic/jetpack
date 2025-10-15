@@ -256,6 +256,7 @@ class Contact_Form_Test extends BaseTestCase {
 				'user_email' => 'john@example.com',
 				'user_login' => 'test_user',
 				'user_pass'  => 'abc123',
+				'role'       => 'author',
 			)
 		);
 
@@ -2507,25 +2508,49 @@ EOT;
 	 * Tests get_default_to method with valid post author.
 	 */
 	public function test_get_default_to_with_valid_post_author() {
+		$email     = 'author@example.com';
 		$author_id = wp_insert_user(
 			array(
-				'user_email' => 'author@example.com',
+				'user_email' => $email,
 				'user_login' => 'test_author',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( $email, $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
+	/**
+	 * Helper function to create a Feedback_Source object from a post.
+	 */
+	public function get_source( $author_id ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'This is a test post.',
+				'post_status'  => 'publish',
+				'post_author'  => $author_id,
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
-
-		$this->assertEquals( 'author@example.com', $result );
-
-		wp_delete_user( $author_id );
+		return Feedback_Source::from_serialized(
+			array(
+				'source_id' => $post_id,
+				'title'     => 'Test Post',
+			)
+		);
 	}
 
 	/**
 	 * Tests get_default_to method with invalid post author ID.
 	 */
 	public function test_get_default_to_with_invalid_post_author() {
+
 		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
 
 		$this->assertEquals( get_option( 'admin_email' ), $result );
@@ -2552,11 +2577,14 @@ EOT;
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
+		$source = $this->get_source( $author_id );
+
+		$result = Contact_Form::get_default_to( $author_id, $source );
 
 		$this->assertEquals( get_option( 'admin_email' ), $result );
 
 		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
 	}
 
 	/**
