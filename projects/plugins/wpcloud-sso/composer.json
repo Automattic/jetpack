@@ -32,6 +32,8 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-wpcloud-sso",
 		"release-branch-prefix": "jetpack-wpcloud-sso",
 		"changelogger": {
