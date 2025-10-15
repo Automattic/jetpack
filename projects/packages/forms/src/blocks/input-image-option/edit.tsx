@@ -90,10 +90,11 @@ export default function ImageOptionInputEdit( props ) {
 				{
 					scale: 'cover',
 					aspectRatio: '1', // Square aspect ratio for uniform grid
+					sizeSlug: isSupersized ? 'full' : 'medium',
 				},
 			],
 		];
-	}, [] );
+	}, [ isSupersized ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-input-image-option__wrapper' },

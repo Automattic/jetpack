@@ -8,8 +8,9 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch, useSelect, select as globalSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
@@ -25,23 +26,51 @@ import './editor.scss';
  * Types
  */
 import type { Block, BlockEditorStoreSelect } from '../../types';
+import type { Attachment } from '@wordpress/core-data';
 
 export default function ImageSelectFieldEdit( props ) {
 	const { attributes, clientId, setAttributes, name } = props;
 	const { id, required, width } = attributes;
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
-	const { optionsBlock } = useSelect(
+	const { optionsBlock, imagesData } = useSelect(
 		select => {
 			const { getBlock } = select( blockEditorStore ) as BlockEditorStoreSelect;
 
+			const block = getBlock( clientId )?.innerBlocks.find(
+				( innerBlock: Block ) => innerBlock.name === 'jetpack/fieldset-image-options'
+			);
+
+			const images =
+				block?.innerBlocks?.[ 0 ]?.innerBlocks
+					// Filter out inner blocks that don't have a media id, i.e. external images.
+					?.filter( innerBlock => innerBlock.attributes?.id !== undefined )
+					// Map the inner blocks to an array of objects with the media id and client id.
+					?.map( innerBlock => ( {
+						clientId: innerBlock.clientId,
+						mediaId: innerBlock.attributes.id as number,
+					} ) ) ?? [];
+
 			return {
-				optionsBlock: getBlock( clientId )?.innerBlocks.find(
-					( block: Block ) => block.name === 'jetpack/fieldset-image-options'
-				),
+				optionsBlock: block,
+				imagesData: images,
 			};
 		},
 		[ clientId ]
+	);
+
+	// Preload the image entity records reactively, as they are not available on first load.
+	// This is necessary to ensure the image URLs can be updated correctly when the supersized attribute is changed.
+	useSelect(
+		select => {
+			return imagesData.map( image =>
+				select( coreStore ).getEntityRecord( 'postType', 'attachment', image.mediaId, {
+					context: 'view',
+				} )
+			);
+		},
+		[ imagesData ]
 	);
 
 	// This wraps the field in a form block if it is added directly to the editor.
@@ -83,6 +112,44 @@ export default function ImageSelectFieldEdit( props ) {
 		}
 	);
 
+	const updateSupersized = useCallback(
+		( value: boolean ) => {
+			setAttributes( { isSupersized: value } );
+
+			const inputImageOptions = optionsBlock?.innerBlocks;
+
+			if ( inputImageOptions && inputImageOptions.length > 0 ) {
+				const imageBlocks = inputImageOptions.map( ( block: Block ) => block.innerBlocks[ 0 ] );
+				const newSizeSlug = value ? 'full' : 'medium';
+
+				imageBlocks.forEach( imageBlock => {
+					updateBlockAttributes( imageBlock.clientId, {
+						sizeSlug: newSizeSlug,
+					} );
+
+					const record = globalSelect( coreStore ).getEntityRecord(
+						'postType',
+						'attachment',
+						imageBlock.attributes.id as number,
+						{
+							context: 'view',
+						}
+					);
+
+					const newUrl = ( record as Attachment )?.media_details?.sizes?.[ newSizeSlug ]
+						?.source_url;
+
+					if ( newUrl ) {
+						updateBlockAttributes( imageBlock.clientId, {
+							url: newUrl,
+						} );
+					}
+				} );
+			}
+		},
+		[ setAttributes, optionsBlock?.innerBlocks, updateBlockAttributes ]
+	);
+
 	return (
 		<div { ...blockProps }>
 			<div { ...innerBlocksProps } />
@@ -122,7 +189,7 @@ export default function ImageSelectFieldEdit( props ) {
 								key="is-supersized"
 								label={ __( 'Supersized', 'jetpack-forms' ) }
 								checked={ attributes?.isSupersized }
-								onChange={ ( value: boolean ) => setAttributes( { isSupersized: value } ) }
+								onChange={ ( value: boolean ) => updateSupersized( value ) }
 							/>
 						),
 					},
