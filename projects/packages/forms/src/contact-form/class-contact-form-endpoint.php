@@ -301,30 +301,36 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'callback'            => array( $this, 'get_status_counts' ),
 				'args'                => array(
-					'search' => array(
+					'search'    => array(
 						'description'       => 'Limit results to those matching a string.',
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'parent' => array(
+					'parent'    => array(
 						'description'       => 'Limit results to those of a specific parent ID.',
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'before' => array(
+					'before'    => array(
 						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'after'  => array(
+					'after'     => array(
 						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'is_unread' => array(
+						'description'       => 'Limit counts to read or unread feedback items.',
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -387,10 +393,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	public function get_status_counts( $request ) {
 		global $wpdb;
 
-		$search = $request->get_param( 'search' );
-		$parent = $request->get_param( 'parent' );
-		$before = $request->get_param( 'before' );
-		$after  = $request->get_param( 'after' );
+		$search    = $request->get_param( 'search' );
+		$parent    = $request->get_param( 'parent' );
+		$before    = $request->get_param( 'before' );
+		$after     = $request->get_param( 'after' );
+		$is_unread = $request->get_param( 'is_unread' );
 
 		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
 
@@ -409,6 +416,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( ! empty( $after ) ) {
 			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+		}
+
+		// Filter by read/unread status using comment_status field.
+		if ( null !== $is_unread ) {
+			$comment_status     = rest_sanitize_boolean( $is_unread ) ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+			$where_conditions[] = $wpdb->prepare( 'comment_status = %s', $comment_status );
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
