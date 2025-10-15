@@ -68,7 +68,7 @@ const HostingerReachCard = ( {
 				'jetpack-forms'
 			),
 			{
-				a: <ExternalLink href={ data?.marketingUrl || '' } />, // placeholder if we add marketingUrl later
+				a: <ExternalLink href={ data?.marketingUrl } />,
 			}
 		),
 		notActivatedMessage: __(

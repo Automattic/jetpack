@@ -54,7 +54,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 					acc.push( {
 						...integration,
 						icon: <HostingerReachIcon width={ 30 } height={ 30 } />,
-						tooltip: __( 'MailPoet is connected for this form', 'jetpack-forms' ),
+						tooltip: __( 'Hostinger Reach is connected for this form', 'jetpack-forms' ),
 					} );
 				}
 				break;
