@@ -13,7 +13,6 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-
 import useConfigValue from '../../../hooks/use-config-value';
 import { INTEGRATIONS_STORE } from '../../../store/integrations';
 import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
