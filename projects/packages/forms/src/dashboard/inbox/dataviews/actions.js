@@ -8,6 +8,32 @@ import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
+/**
+ * Helper function to extract count-relevant query params from the current query.
+ *
+ * @param {object} currentQuery - The current query from the store.
+ * @return {object} Query params relevant for count caching.
+ */
+const getCountQueryParams = currentQuery => {
+	const queryParams = {};
+	if ( currentQuery?.search ) {
+		queryParams.search = currentQuery.search;
+	}
+	if ( currentQuery?.parent ) {
+		queryParams.parent = currentQuery.parent;
+	}
+	if ( currentQuery?.before ) {
+		queryParams.before = currentQuery.before;
+	}
+	if ( currentQuery?.after ) {
+		queryParams.after = currentQuery.after;
+	}
+	if ( currentQuery?.is_unread !== undefined ) {
+		queryParams.is_unread = currentQuery.is_unread;
+	}
+	return queryParams;
+};
+
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
@@ -63,9 +89,12 @@ export const markAsSpamAction = {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { getCurrentQuery } = registry.select( dashboardStore );
+
+		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'spam', 1 );
+			updateCountsOptimistically( item.status, 'spam', 1, queryParams );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -125,9 +154,12 @@ export const markAsNotSpamAction = {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { getCurrentQuery } = registry.select( dashboardStore );
+
+		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( () => {
-			updateCountsOptimistically( 'spam', 'publish', 1 );
+			updateCountsOptimistically( 'spam', 'publish', 1, queryParams );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -189,9 +221,12 @@ export const restoreAction = {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { getCurrentQuery } = registry.select( dashboardStore );
+
+		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( () => {
-			updateCountsOptimistically( 'trash', 'publish', 1 );
+			updateCountsOptimistically( 'trash', 'publish', 1, queryParams );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -245,9 +280,12 @@ export const moveToTrashAction = {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { getCurrentQuery } = registry.select( dashboardStore );
+
+		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'trash', 1 );
+			updateCountsOptimistically( item.status, 'trash', 1, queryParams );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -299,10 +337,13 @@ export const deleteAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { getCurrentQuery } = registry.select( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 
+		const queryParams = getCountQueryParams( getCurrentQuery() );
+
 		items.forEach( () => {
-			updateCountsOptimistically( 'trash', 'deleted', 1 );
+			updateCountsOptimistically( 'trash', 'deleted', 1, queryParams );
 		} );
 
 		const promises = await Promise.allSettled(

@@ -41,7 +41,7 @@ export const getCounts =
 
 		const path = addQueryArgs( '/wp/v2/feedback/counts', params );
 		const response = await apiFetch( { path } );
-		dispatch.setCounts( response );
+		dispatch.setCounts( response, queryParams );
 	};
 
 getCounts.shouldInvalidate = action => action.type === INVALIDATE_COUNTS;

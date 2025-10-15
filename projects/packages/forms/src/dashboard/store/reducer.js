@@ -43,13 +43,33 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	return state;
 };
 
-const counts = ( state = { inbox: 0, spam: 0, trash: 0 }, action ) => {
+/**
+ * Generate a stable cache key from query parameters.
+ *
+ * @param {object} queryParams - Query parameters for filtering counts.
+ * @return {string} A stable key for caching.
+ */
+export const getCacheKey = ( queryParams = {} ) => {
+	const keys = [ 'search', 'parent', 'before', 'after', 'is_unread' ];
+	const parts = keys
+		.filter( key => queryParams[ key ] !== undefined )
+		.map( key => `${ key }:${ queryParams[ key ] }` );
+	return parts.length > 0 ? parts.join( '|' ) : 'default';
+};
+
+const counts = ( state = {}, action ) => {
 	if ( action.type === SET_COUNTS ) {
-		return action.counts;
+		const cacheKey = getCacheKey( action.queryParams );
+		return {
+			...state,
+			[ cacheKey ]: action.counts,
+		};
 	}
 	if ( action.type === UPDATE_COUNTS_OPTIMISTICALLY ) {
-		const { fromStatus, toStatus, count } = action;
-		const newCounts = { ...state };
+		const { fromStatus, toStatus, count, queryParams } = action;
+		const cacheKey = getCacheKey( queryParams );
+		const currentCounts = state[ cacheKey ] || { inbox: 0, spam: 0, trash: 0 };
+		const newCounts = { ...currentCounts };
 
 		// Decrease from status
 		if ( fromStatus === 'inbox' || fromStatus === 'publish' || fromStatus === 'draft' ) {
@@ -69,7 +89,10 @@ const counts = ( state = { inbox: 0, spam: 0, trash: 0 }, action ) => {
 			newCounts.trash += count;
 		}
 
-		return newCounts;
+		return {
+			...state,
+			[ cacheKey ]: newCounts,
+		};
 	}
 	return state;
 };

@@ -78,23 +78,12 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const {
-		selectedResponsesCount,
-		currentStatus,
-		currentQuery,
-		filterOptions,
-		totalItemsInbox,
-		totalItemsSpam,
-		totalItemsTrash,
-	} = useSelect(
+	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
 		select => ( {
 			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
 			currentStatus: select( dashboardStore ).getCurrentStatus(),
 			currentQuery: select( dashboardStore ).getCurrentQuery(),
 			filterOptions: select( dashboardStore ).getFilters(),
-			totalItemsInbox: select( dashboardStore ).getInboxCount(),
-			totalItemsSpam: select( dashboardStore ).getSpamCount(),
-			totalItemsTrash: select( dashboardStore ).getTrashCount(),
 		} ),
 		[]
 	);
@@ -159,11 +148,20 @@ export default function useInboxData(): UseInboxDataReturn {
 
 		return params;
 	}, [ currentQuery ] );
+
 	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
 	// The resolver ensures counts are only fetched once for the same query params across all hook instances
-	useSelect(
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useSelect(
 		select => {
+			// This will trigger the resolver if the counts for these queryParams aren't already cached
 			select( dashboardStore ).getCounts( countsQueryParams );
+
+			// Return the counts for the current query
+			return {
+				totalItemsInbox: select( dashboardStore ).getInboxCount( countsQueryParams ),
+				totalItemsSpam: select( dashboardStore ).getSpamCount( countsQueryParams ),
+				totalItemsTrash: select( dashboardStore ).getTrashCount( countsQueryParams ),
+			};
 		},
 		[ countsQueryParams ]
 	);

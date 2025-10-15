@@ -67,30 +67,34 @@ export function setCurrentQuery( currentQuery ) {
 /**
  * Set the status counts.
  *
- * @param {object} counts - The counts object with inbox, spam, and trash.
+ * @param {object} counts      - The counts object with inbox, spam, and trash.
+ * @param {object} queryParams - The query parameters used to fetch these counts.
  * @return {object} Action object.
  */
-export function setCounts( counts ) {
+export function setCounts( counts, queryParams = {} ) {
 	return {
 		type: SET_COUNTS,
 		counts,
+		queryParams,
 	};
 }
 
 /**
  * Optimistically update counts when status changes.
  *
- * @param {string} fromStatus - The status items are moving from.
- * @param {string} toStatus   - The status items are moving to.
- * @param {number} count      - Number of items being moved.
+ * @param {string} fromStatus  - The status items are moving from.
+ * @param {string} toStatus    - The status items are moving to.
+ * @param {number} count       - Number of items being moved.
+ * @param {object} queryParams - The query parameters for the current view.
  * @return {object} Action object.
  */
-export function updateCountsOptimistically( fromStatus, toStatus, count = 1 ) {
+export function updateCountsOptimistically( fromStatus, toStatus, count = 1, queryParams = {} ) {
 	return {
 		type: UPDATE_COUNTS_OPTIMISTICALLY,
 		fromStatus,
 		toStatus,
 		count,
+		queryParams,
 	};
 }
 
