@@ -1,14 +1,4 @@
-# Jetpack Jetpack Wpcloud Sso
-
-Jetpack Jetpack Wpcloud Sso plugin
-
-## How to install Jetpack Jetpack Wpcloud Sso
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+# Jetpack_WPCloud_SSO
 
 ## Security
 
@@ -16,5 +6,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Jetpack Wpcloud Sso is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Jetpack_WPCloud_SSO is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
