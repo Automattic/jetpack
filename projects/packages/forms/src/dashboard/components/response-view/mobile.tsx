@@ -2,53 +2,44 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
-import { useState, useMemo, useCallback } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getItemId } from '../../inbox/utils';
+import { FormResponse } from '../../../types';
+import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
-import ResponseView from './index';
+import { ResponseViewBody } from './index';
 
 /**
  * Component wrapper for InboxResponse in DataViews modal
  * Renders response with navigation in modal header for mobile view
- * @param {object}   props            - The props object.
- * @param {Array}    props.data       - The responses list array.
- * @param {object}   props.response   - The response item.
- * @param {Function} props.closeModal - Function to close the DataViews modal.
+ * @param {object}       props            - The props object.
+ * @param {FormResponse} props.response   - The response item.
+ * @param {Function}     props.closeModal - Function to close the DataViews modal.
  * @return {import('react').JSX.Element} The DataViews component.
  */
-const ResponseMobileView = ( { response, data, closeModal } ) => {
-	const [ currentResponse, setCurrentResponse ] = useState( response );
+const ResponseMobileView = ( { response, closeModal } ) => {
+	const [ currentResponseId, setCurrentResponseId ] = useState( response.id );
 
-	const currentIndex = useMemo(
-		() =>
-			currentResponse && data
-				? data.findIndex( item => getItemId( item ) === getItemId( currentResponse ) )
-				: -1,
-		[ currentResponse, data ]
+	const responseRecord = useSelect(
+		select =>
+			select( coreStore ).getEditedEntityRecord(
+				'postType',
+				'feedback',
+				currentResponseId
+			) as unknown as FormResponse,
+		[ currentResponseId ]
 	);
+	// Use the navigation hook
+	const navigation = useResponseNavigation( {
+		onChangeSelection: null,
+		record: responseRecord,
+		setRecord: record => setCurrentResponseId( record.id ),
+	} );
 
-	const hasNext = currentIndex >= 0 && currentIndex < ( data?.length ?? 0 ) - 1;
-	const hasPrevious = currentIndex > 0;
-
-	const handleNext = useCallback( () => {
-		if ( hasNext && data && currentIndex >= 0 ) {
-			const nextItem = data[ currentIndex + 1 ];
-			if ( nextItem ) {
-				setCurrentResponse( nextItem );
-			}
-		}
-	}, [ hasNext, data, currentIndex ] );
-
-	const handlePrevious = useCallback( () => {
-		if ( hasPrevious && data && currentIndex >= 0 ) {
-			const prevItem = data[ currentIndex - 1 ];
-			if ( prevItem ) {
-				setCurrentResponse( prevItem );
-			}
-		}
-	}, [ hasPrevious, data, currentIndex ] );
+	const { hasNext, hasPrevious, handleNext, handlePrevious } = navigation;
 
 	// Action complete handler is a bit different on mobile view.
 	// We don't close the modal if the response hasn't changed status (read/unread toggle)
@@ -56,7 +47,6 @@ const ResponseMobileView = ( { response, data, closeModal } ) => {
 	const handleActionComplete = useCallback(
 		actionedResponse => {
 			if ( actionedResponse && actionedResponse.status === response.status ) {
-				setCurrentResponse( actionedResponse );
 				return;
 			}
 			closeModal?.();
@@ -79,7 +69,7 @@ const ResponseMobileView = ( { response, data, closeModal } ) => {
 					justify="space-between"
 					className="jp-forms__inbox__response-mobile__header-actions"
 				>
-					<ResponseActions response={ currentResponse } onActionComplete={ handleActionComplete } />
+					<ResponseActions response={ responseRecord } onActionComplete={ handleActionComplete } />
 					<ResponseNavigation
 						hasNext={ hasNext }
 						hasPrevious={ hasPrevious }
@@ -89,7 +79,7 @@ const ResponseMobileView = ( { response, data, closeModal } ) => {
 					/>
 				</HStack>
 			</HStack>
-			<ResponseView isLoading={ false } response={ currentResponse } />
+			<ResponseViewBody isLoading={ false } response={ responseRecord } />
 		</div>
 	);
 };

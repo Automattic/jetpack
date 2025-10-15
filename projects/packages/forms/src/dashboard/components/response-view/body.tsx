@@ -24,13 +24,12 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../hooks/use-forms-config';
-import CopyClipboardButton from '../components/copy-clipboard-button';
-import Gravatar from '../components/gravatar';
-import ResponseActions from '../components/response-actions';
-import ResponseNavigation from '../components/response-navigation';
-import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from './utils';
+import useFormsConfig from '../../../hooks/use-forms-config';
+import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
+import CopyClipboardButton from '../copy-clipboard-button';
+import Gravatar from '../gravatar';
+import type { FormResponse } from '../../../types';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -176,31 +175,41 @@ const FileField = ( { file, onClick } ) => {
 	);
 };
 
-const InboxResponse = ( {
+export type ResponseViewBodyProps = {
+	response: FormResponse;
+	isLoading: boolean;
+	onModalStateChange?: ( toggleOpen: boolean ) => void;
+	isMobile?: boolean;
+};
+
+/**
+ * Renders the dashboard response view.
+ *
+ * @param {object}   props                    - The props object.
+ * @param {object}   props.response           - The response item.
+ * @param {boolean}  props.isLoading          - Whether the response is loading.
+ * @param {Function} props.onModalStateChange - Function to update the modal state.
+ * @return {import('react').JSX.Element} The dashboard response view.
+ */
+const ResponseViewBody = ( {
 	response,
-	loading,
+	isLoading,
 	onModalStateChange,
-	onClose,
-	onNext,
-	onPrevious,
-	hasNext,
-	hasPrevious,
-	onActionComplete,
-	isMobile,
-} ) => {
+}: ResponseViewBodyProps ): import('react').JSX.Element => {
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const [ previewFile, setPreviewFile ] = useState( null );
+	const [ previewFile, setPreviewFile ] = useState< null | object >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
-	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
+	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
 
 	const { editEntityRecord } = useDispatch( 'core' );
 
 	const formsConfig = useFormsConfig();
 	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
 
-	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
-	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
-		useMarkAsSpam( response );
+	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
+	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
+		response as FormResponse
+	);
 
 	const ref = useRef( undefined );
 
@@ -372,7 +381,7 @@ const InboxResponse = ( {
 		return setIsImageLoading( false );
 	}, [ setIsImageLoading ] );
 
-	if ( ! loading && ! response ) {
+	if ( ! isLoading && ! response ) {
 		return null;
 	}
 
@@ -390,22 +399,6 @@ const InboxResponse = ( {
 
 	return (
 		<>
-			{ ! isMobile && (
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ onActionComplete } response={ response } />
-					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation
-							hasNext={ hasNext }
-							hasPrevious={ hasPrevious }
-							onClose={ onClose }
-							onNext={ onNext }
-							onPrevious={ onPrevious }
-						/>
-					</HStack>
-				</HStack>
-			) }
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">
@@ -475,7 +468,7 @@ const InboxResponse = ( {
 
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
-						title={ decodeEntities( previewFile.name ) }
+						title={ decodeEntities( ( previewFile as { name: string } ).name ) }
 						onRequestClose={ closePreviewModal }
 						className="jp-forms__inbox-file-preview-modal"
 					>
@@ -516,4 +509,4 @@ const InboxResponse = ( {
 	);
 };
 
-export default InboxResponse;
+export default ResponseViewBody;

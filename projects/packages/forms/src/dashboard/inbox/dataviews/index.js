@@ -3,7 +3,6 @@
  */
 import {
 	ExternalLink,
-	Modal,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
@@ -19,11 +18,8 @@ import { useSearchParams } from 'react-router';
  * Internal dependencies
  */
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import ResponseActions from '../../components/response-actions';
-import ResponseNavigation from '../../components/response-navigation';
-import ResponseView, { ResponseMobileView } from '../../components/response-view';
+import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
-import useResponseNavigation from '../../hooks/use-response-navigation';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -308,9 +304,7 @@ export default function InboxView() {
 				...viewAction,
 				RenderModal: ( { items, closeModal } ) => {
 					const [ item ] = items;
-					return (
-						<ResponseMobileView response={ item } data={ records } closeModal={ closeModal } />
-					);
+					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 				},
 				hideModalHeader: true,
 			} );
@@ -326,7 +320,7 @@ export default function InboxView() {
 			} );
 		}
 		return _actions;
-	}, [ isMobile, onChangeSelection, selection, records ] );
+	}, [ isMobile, onChangeSelection, selection ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -357,7 +351,7 @@ export default function InboxView() {
 					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
-			<SingleResponse
+			<SingleResponseView
 				sidePanelItem={ sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
@@ -368,102 +362,3 @@ export default function InboxView() {
 		</HStack>
 	);
 }
-
-const SingleResponse = ( {
-	sidePanelItem,
-	setSidePanelItem,
-	isLoadingData,
-	isMobile,
-	onChangeSelection,
-	selection,
-} ) => {
-	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
-
-	const onRequestClose = useCallback( () => {
-		if ( ! isChildModalOpen ) {
-			onChangeSelection( [] );
-		}
-	}, [ onChangeSelection, isChildModalOpen ] );
-
-	const handleModalStateChange = useCallback(
-		isOpen => {
-			setIsChildModalOpen( isOpen );
-		},
-		[ setIsChildModalOpen ]
-	);
-
-	const handleActionComplete = useCallback(
-		actionedItem => {
-			// Remove only the actioned item from selection, keep the rest
-			if ( actionedItem?.id && selection ) {
-				const newSelection = selection.filter( id => id !== actionedItem.id );
-				onChangeSelection( newSelection );
-			}
-			// if the action is on current response and hasn't changed status,
-			// don't close the modal but update the side panel item
-			if ( actionedItem?.id === sidePanelItem.id && actionedItem.status === sidePanelItem.status ) {
-				setSidePanelItem( actionedItem );
-			}
-		},
-		[ onChangeSelection, selection, sidePanelItem, setSidePanelItem ]
-	);
-
-	// Use the navigation hook
-	const navigation = useResponseNavigation( {
-		onChangeSelection,
-		record: sidePanelItem,
-		setRecord: setSidePanelItem,
-	} );
-
-	if ( ! sidePanelItem ) {
-		return null;
-	}
-
-	// Navigation props to pass to InboxResponse and ResponseNavigation
-	const navigationProps = {
-		hasNext: navigation.hasNext,
-		hasPrevious: navigation.hasPrevious,
-		onNext: navigation.handleNext,
-		onPrevious: navigation.handlePrevious,
-	};
-
-	const contents = (
-		<ResponseView
-			response={ sidePanelItem }
-			isLoading={ isLoadingData }
-			onModalStateChange={ handleModalStateChange }
-		/>
-	);
-
-	if ( ! isMobile ) {
-		return (
-			<div className="jp-forms__inbox__dataviews-response">
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
-					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
-					</HStack>
-				</HStack>
-				{ contents }
-			</div>
-		);
-	}
-
-	return (
-		<Modal
-			title={ __( 'Response', 'jetpack-forms' ) }
-			size="medium"
-			onRequestClose={ onRequestClose }
-			headerActions={
-				<>
-					<ResponseActions response={ sidePanelItem } onActionComplete={ handleActionComplete } />
-					<ResponseNavigation { ...navigationProps } onClose={ null } />
-				</>
-			}
-		>
-			{ contents }
-		</Modal>
-	);
-};
