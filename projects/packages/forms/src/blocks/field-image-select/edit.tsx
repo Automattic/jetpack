@@ -178,6 +178,10 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Show labels', 'jetpack-forms' ) }
 								checked={ attributes?.showLabels }
 								onChange={ ( value: boolean ) => setAttributes( { showLabels: value } ) }
+								help={ __(
+									'Displays the labels for the images in the published form. They are always visible for you in the editor and in the responses.',
+									'jetpack-forms'
+								) }
 							/>
 						),
 					},
@@ -190,6 +194,7 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Supersized', 'jetpack-forms' ) }
 								checked={ attributes?.isSupersized }
 								onChange={ ( value: boolean ) => updateSupersized( value ) }
+								help={ __( 'Changes the size of the images.', 'jetpack-forms' ) }
 							/>
 						),
 					},
@@ -202,6 +207,7 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Multiple selection', 'jetpack-forms' ) }
 								checked={ attributes?.isMultiple }
 								onChange={ ( value: boolean ) => setAttributes( { isMultiple: value } ) }
+								help={ __( 'Allows visitors to select more than one image.', 'jetpack-forms' ) }
 							/>
 						),
 					},
@@ -214,6 +220,10 @@ export default function ImageSelectFieldEdit( props ) {
 								label={ __( 'Randomize', 'jetpack-forms' ) }
 								checked={ attributes?.randomizeOptions }
 								onChange={ ( value: boolean ) => setAttributes( { randomizeOptions: value } ) }
+								help={ __(
+									'Randomizes the order of the images in the published form to avoid order bias. This setting does not affect the order in the editor.',
+									'jetpack-forms'
+								) }
 							/>
 						),
 					},
