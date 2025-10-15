@@ -50,7 +50,6 @@ class Declarations extends PersistentList {
 		$inner_iterator = new \RecursiveDirectoryIterator( $root, \RecursiveDirectoryIterator::SKIP_DOTS );
 
 		$iterator = new \RecursiveIteratorIterator(
-			// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Phan is confused; resolved in Phan >5.5.1. $inner_iterator is RecursiveDirectoryIterator, which implements RecursiveIterator
 			new \RecursiveCallbackFilterIterator( $inner_iterator, $filter )
 		);
 

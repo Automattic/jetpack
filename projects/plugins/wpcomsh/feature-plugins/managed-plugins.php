@@ -462,7 +462,7 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 		}
 	}
 
-	if ( ! empty( $new_unmanaged_plugins ) ) {
+	if ( is_array( $auto_update_plugins ) && ! empty( $new_unmanaged_plugins ) ) {
 		$auto_update_plugins = array_unique( array_merge( $auto_update_plugins, $new_unmanaged_plugins ) );
 		update_option( 'auto_update_plugins', $auto_update_plugins );
 	}
