@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginMixedKeyNoKey : 20+ occurrences
+    // PhanPluginMixedKeyNoKey : 25+ occurrences
     // PhanUndeclaredStaticMethod : 15+ occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanRedundantCondition : 5 occurrences
