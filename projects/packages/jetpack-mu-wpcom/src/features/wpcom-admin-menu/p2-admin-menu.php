@@ -30,7 +30,7 @@ function wpcom_remove_menus_for_p2_sites() {
 	remove_menu_page( 'plugins.php' );
 	remove_menu_page( 'https://wordpress.com/plugins/' . $domain );
 	remove_submenu_page( 'tools.php', 'tools.php' );
-	remove_submenu_page( 'tools.php', 'https://wordpress.com/marketing/tools/' . $domain );
+	remove_submenu_page( 'tools.php', 'wpcom-marketing-tools' );
 	remove_submenu_page( 'tools.php', 'wpcom-site-health' );
 	remove_submenu_page( 'tools.php', 'wpcom-export-personal-data' );
 	remove_submenu_page( 'tools.php', 'wpcom-erase-personal-data' );

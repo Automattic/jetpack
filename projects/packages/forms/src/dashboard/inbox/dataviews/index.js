@@ -35,6 +35,7 @@ import {
 	restoreAction,
 	markAsReadAction,
 	markAsUnreadAction,
+	editFormAction,
 } from './actions';
 import { useView, defaultLayouts } from './views';
 
@@ -298,6 +299,7 @@ export default function InboxView() {
 			markAsSpamAction,
 			markAsNotSpamAction,
 			moveToTrashAction,
+			editFormAction,
 			restoreAction,
 			deleteAction,
 		];

@@ -580,17 +580,6 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Adds some Tools menus that are missing on Simple sites.
  */
 function wpcom_add_tools_menu() {
-	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
-	add_submenu_page(
-		'tools.php',
-		__( 'Marketing', 'jetpack-mu-wpcom' ),
-		__( 'Marketing', 'jetpack-mu-wpcom' ),
-		'publish_posts',
-		'https://wordpress.com/marketing/tools/' . $domain,
-		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		1
-	);
-
 	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	if ( $is_simple_site ) {
 		add_submenu_page(

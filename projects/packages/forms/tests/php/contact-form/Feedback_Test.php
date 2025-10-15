@@ -1072,7 +1072,7 @@ class Feedback_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 
 		$this->assertNotEmpty( $saved_response->get_entry_title(), 'Post Title should NOT be empty after the post is deleted' );
-		$this->assertEquals( $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
+		$this->assertEquals( '(deleted) ' . $current_post->post_title, $saved_response->get_entry_title(), 'Post Title should match the saved form submission Original post title' );
 	}
 
 	public function test_get_all_values() {
@@ -1390,8 +1390,10 @@ class Feedback_Test extends BaseTestCase {
 			"[contact-field label='Email' type='email' required='1'/]"
 		);
 
-		$response = Feedback::from_submission( $_post_data, $form, $current_post );
-		$post_id  = $response->save();
+		$response = Feedback::from_submission( $_post_data, $form );
+		$response->set_source( new Feedback_Source( $current_post->ID, $current_post->post_title, 1, 'single', home_url( '?p=' . $current_post->ID ) ) );
+
+		$post_id = $response->save();
 		Utility::destroy_post_context( $current_post ); // Destroy the post context to simulate a deleted post.
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEmpty( $saved_response->get_entry_permalink(), 'Post permalink should match the form submission' );
@@ -1746,6 +1748,17 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	public function test_legacy_get_all_legacy_values() {
+		// Setup the post context.
+		$holding_post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Cool Post Title',
+				'post_status' => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $holding_post_id );
+
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
@@ -1766,7 +1779,7 @@ class Feedback_Test extends BaseTestCase {
 				'2_field'                 => 'value2',
 				'email_marketing_consent' => 'no',
 				'entry_title'             => 'Cool Post Title',
-				'entry_permalink'         => '',
+				'entry_permalink'         => 'http://example.org/?p=' . $holding_post_id,
 				'feedback_id'             => 'skip',
 			),
 		);
