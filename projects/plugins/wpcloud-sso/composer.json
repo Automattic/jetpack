@@ -19,14 +19,7 @@
 			"src/"
 		]
 	},
-	"scripts": {
-		"build-development": [
-			"echo 'Nothing to build!'"
-		],
-		"build-production": [
-			"echo 'Nothing to build!'"
-		]
-	},
+	"scripts": {},
 	"repositories": [
 		{
 			"type": "path",
