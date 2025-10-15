@@ -392,6 +392,7 @@ export const markAsReadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
 
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
@@ -437,6 +438,9 @@ export const markAsReadAction = {
 			} )
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			// Invalidate counts cache to ensure counts are refetched and stay accurate
+			invalidateCounts();
+
 			const successMessage =
 				items.length === 1
 					? __( 'Response marked as read.', 'jetpack-forms' )
@@ -481,6 +485,8 @@ export const markAsUnreadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { invalidateCounts } = registry.dispatch( dashboardStore );
+
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
 				// Get current entity from store
@@ -525,6 +531,9 @@ export const markAsUnreadAction = {
 			} )
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			// Invalidate counts cache to ensure counts are refetched and stay accurate
+			invalidateCounts();
+
 			const successMessage =
 				items.length === 1
 					? __( 'Response marked as unread.', 'jetpack-forms' )

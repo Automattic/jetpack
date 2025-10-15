@@ -29,6 +29,7 @@ import CopyClipboardButton from '../../components/copy-clipboard-button';
 import Gravatar from '../../components/gravatar';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
+import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
 
 const getDisplayName = response => {
@@ -210,6 +211,8 @@ const ResponseViewBody = ( {
 		response as FormResponse
 	);
 
+	const { invalidateCounts } = useDispatch( dashboardStore );
+
 	const ref = useRef( undefined );
 
 	const openFilePreview = useCallback(
@@ -362,6 +365,7 @@ const ResponseViewBody = ( {
 			.then( ( { count } ) => {
 				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
+				invalidateCounts();
 			} )
 			.catch( () => {
 				// Revert the change in the store
@@ -374,7 +378,7 @@ const ResponseViewBody = ( {
 					updateMenuCounterOptimistically( 1 );
 				}
 			} );
-	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
+	}, [ response, editEntityRecord, hasMarkedSelfAsRead, invalidateCounts ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
