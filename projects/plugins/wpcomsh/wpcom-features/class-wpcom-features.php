@@ -409,6 +409,7 @@ class WPCOM_Features {
 	public const FIELD_FILE                        = 'field-file';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
+	public const GITHUB_DEPLOYMENTS                = 'github-deployments';
 	public const GLOBAL_STYLES                     = 'global-styles';
 	public const GOOGLE_ANALYTICS                  = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS                = 'google-my-business';
@@ -774,6 +775,13 @@ class WPCOM_Features {
 			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::GITHUB_DEPLOYMENTS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
 		),
 		self::GLOBAL_STYLES                     => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
