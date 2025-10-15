@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent fatal when chart response is invalid.
