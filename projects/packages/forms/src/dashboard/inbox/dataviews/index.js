@@ -339,6 +339,9 @@ export default function InboxView() {
 		view.page = 1;
 	}, [ view ] );
 
+	// Check if read_status filter is applied
+	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
+
 	return (
 		<HStack
 			spacing={ 0 }
@@ -361,7 +364,13 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
-					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
+					empty={
+						<EmptyResponses
+							status={ statusFilter }
+							isSearch={ !! view.search }
+							readStatusFilter={ readStatusFilter }
+						/>
+					}
 				/>
 			</div>
 			<SingleResponseView

@@ -19,17 +19,20 @@ const EmptyWrapper = ( { heading = '', body = '' } ) => (
 type EmptyResponsesProps = {
 	status: string;
 	isSearch: boolean;
+	readStatusFilter?: 'unread' | 'read';
 };
 
-const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
+const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
+	// Handle search and filter states first
+	const hasReadStatusFilter = !! readStatusFilter;
 	const searchHeading = __( 'No results found', 'jetpack-forms' );
 	const searchMessage = __(
 		"Try adjusting your search or filters to find what you're looking for.",
 		'jetpack-forms'
 	);
-	if ( isSearch ) {
+	if ( isSearch || hasReadStatusFilter ) {
 		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
 	}
 
