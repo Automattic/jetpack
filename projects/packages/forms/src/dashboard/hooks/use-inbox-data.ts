@@ -153,9 +153,12 @@ export default function useInboxData(): UseInboxDataReturn {
 		if ( currentQuery?.after ) {
 			params.after = currentQuery.after;
 		}
-		return params;
-	}, [ currentQuery?.search, currentQuery?.parent, currentQuery?.before, currentQuery?.after ] );
+		if ( currentQuery?.is_unread !== undefined ) {
+			params.is_unread = currentQuery.is_unread;
+		}
 
+		return params;
+	}, [ currentQuery ] );
 	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
 	// The resolver ensures counts are only fetched once for the same query params across all hook instances
 	useSelect(

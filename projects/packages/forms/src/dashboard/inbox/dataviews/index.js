@@ -115,6 +115,9 @@ export default function InboxView() {
 				accumulator.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
 				accumulator.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
 			}
+			if ( field === 'read_status' ) {
+				accumulator.is_unread = value === 'unread';
+			}
 			return accumulator;
 		}, {} );
 		const _queryArgs = {
@@ -280,6 +283,16 @@ export default function InboxView() {
 					value: source.id,
 					label: decodeEntities( source.title ) || getPath( { entry_permalink: source.url } ),
 				} ) ),
+				filterBy: { operators: [ 'is' ] },
+				enableSorting: false,
+			},
+			{
+				id: 'read_status',
+				label: __( 'Read status', 'jetpack-forms' ),
+				elements: [
+					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
+					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
+				],
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
