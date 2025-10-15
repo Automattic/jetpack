@@ -9,13 +9,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../hooks/use-config-value';
 import AkismetIcon from '../../icons/akismet';
 import CreativeMailIcon from '../../icons/creative-mail';
 import GoogleSheetsIcon from '../../icons/google-sheets';
 import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
 import Details from '../components/details';
-import { config } from '../index';
 import PatternCard from './pattern-card';
 import CheckSVG from './svg/check-svg';
 import CloseSVG from './svg/close-svg';
@@ -32,7 +32,7 @@ import './style.scss';
 import type { Pattern } from '../../types';
 
 const About = () => {
-	const ASSETS_URL = useMemo( () => config( 'pluginAssetsURL' ), [] );
+	const ASSETS_URL = useConfigValue( 'pluginAssetsURL' ); // Ensure config is loaded.
 
 	const patterns: Pattern[] = useMemo(
 		() => [

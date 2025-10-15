@@ -24,11 +24,11 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../../hooks/use-forms-config';
+import useConfigValue from '../../../hooks/use-config-value';
+import CopyClipboardButton from '../../components/copy-clipboard-button';
+import Gravatar from '../../components/gravatar';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
-import CopyClipboardButton from '../copy-clipboard-button';
-import Gravatar from '../gravatar';
 import type { FormResponse } from '../../../types';
 
 const getDisplayName = response => {
@@ -203,8 +203,7 @@ const ResponseViewBody = ( {
 
 	const { editEntityRecord } = useDispatch( 'core' );
 
-	const formsConfig = useFormsConfig();
-	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
 	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(

@@ -1,53 +1,62 @@
 import { UNKNOWN_ERROR_MESSAGE } from '../constants';
 import {
-	RECEIVE_INTEGRATIONS,
-	INVALIDATE_INTEGRATIONS,
-	SET_INTEGRATIONS_LOADING,
-	SET_INTEGRATIONS_ERROR,
+	RECEIVE_CONFIG,
+	RECEIVE_CONFIG_VALUE,
+	INVALIDATE_CONFIG,
+	SET_CONFIG_LOADING,
+	SET_CONFIG_ERROR,
 } from './action-types';
-import type { IntegrationsState, IntegrationsAction } from './types';
+import type { ConfigState, ConfigAction } from './types';
 
-const DEFAULT_STATE: IntegrationsState = {
-	items: null,
+const DEFAULT_STATE: ConfigState = {
+	config: null,
 	isLoading: false,
 	error: null,
 };
 
 /**
- * Integrations store reducer.
+ * Config store reducer.
  *
  * @param state  - Current state
  * @param action - Dispatched action
  * @return Updated state
  */
 export default function reducer(
-	state: IntegrationsState = DEFAULT_STATE,
-	action: IntegrationsAction
-): IntegrationsState {
+	state: ConfigState = DEFAULT_STATE,
+	action: ConfigAction
+): ConfigState {
 	switch ( action.type ) {
-		case SET_INTEGRATIONS_LOADING:
+		case SET_CONFIG_LOADING:
 			return {
 				...state,
 				isLoading: !! action.isLoading,
 				error: action.isLoading ? null : state.error,
 			};
-		case SET_INTEGRATIONS_ERROR:
+		case SET_CONFIG_ERROR:
 			return {
 				...state,
 				isLoading: false,
 				error: action.error ?? UNKNOWN_ERROR_MESSAGE,
 			};
-		case RECEIVE_INTEGRATIONS:
+		case RECEIVE_CONFIG:
 			return {
 				...state,
-				items: action.items,
+				config: action.config ?? null,
 				isLoading: false,
 				error: null,
 			};
-		case INVALIDATE_INTEGRATIONS:
+		case RECEIVE_CONFIG_VALUE:
 			return {
 				...state,
-				items: null,
+				config: {
+					...( state.config ?? {} ),
+					[ action.key as string ]: action.value,
+				},
+			};
+		case INVALIDATE_CONFIG:
+			return {
+				...state,
+				config: null,
 				isLoading: false,
 			};
 		default:

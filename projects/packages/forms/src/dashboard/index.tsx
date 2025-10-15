@@ -3,7 +3,7 @@
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createRoot } from '@wordpress/element';
-import { createHashRouter, Navigate } from 'react-router';
+import { createHashRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
@@ -15,15 +15,8 @@ import Integrations from './integrations';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
-let settings = {};
-
-export const config = ( key: string ) => settings?.[ key ];
-
 window.addEventListener( 'load', () => {
 	const container = document.getElementById( 'jp-forms-dashboard' );
-
-	settings = JSON.parse( decodeURIComponent( container.dataset.config ) );
-	delete container.dataset.config;
 
 	const router = createHashRouter( [
 		{
@@ -32,7 +25,7 @@ window.addEventListener( 'load', () => {
 			children: [
 				{
 					index: true,
-					element: <Navigate to={ config( 'hasFeedback' ) ? '/responses' : '/about' } />,
+					element: <Inbox />,
 				},
 				{
 					path: 'responses',

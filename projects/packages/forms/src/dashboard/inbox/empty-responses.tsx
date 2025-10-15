@@ -3,7 +3,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import useFormsConfig from '../../hooks/use-forms-config';
+import useConfigValue from '../../hooks/use-config-value';
 
 const EmptyWrapper = ( { heading = '', body = '' } ) => (
 	<VStack alignment="center" spacing="2">
@@ -22,8 +22,7 @@ type EmptyResponsesProps = {
 };
 
 const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
-	const formsConfig = useFormsConfig();
-	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
 	const searchHeading = __( 'No results found', 'jetpack-forms' );
 	const searchMessage = __(
