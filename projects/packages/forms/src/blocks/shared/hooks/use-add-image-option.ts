@@ -6,10 +6,6 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 /**
- * Internal dependencies
- */
-import { getImageOptionLabel } from '../../input-image-option/label';
-/**
  * Types
  */
 import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types';
@@ -28,20 +24,16 @@ export default function useAddImageOption( optionsClientId: string ): {
 	addOption: () => void;
 } {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
-	const { getBlock, getBlocks } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
-
-	const childBlocksCount = getBlocks( optionsClientId ).length;
+	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
 
 	const newImageOption = useCallback( () => {
-		const newIndex = childBlocksCount + 1;
-
 		return {
 			name: 'jetpack/input-image-option',
 			attributes: {
-				label: getImageOptionLabel( newIndex ),
+				label: '',
 			},
 		};
-	}, [ childBlocksCount ] );
+	}, [] );
 
 	const addOption = useCallback( () => {
 		// Get the current options block
