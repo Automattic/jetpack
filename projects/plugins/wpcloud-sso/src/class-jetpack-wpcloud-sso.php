@@ -49,11 +49,11 @@ class Jetpack_WPCloud_SSO {
 
 				// Read persisistent data and establish connection.
 				if ( class_exists( 'Atomic_Persistent_Data' ) ) {
-					$persistent_data = new Atomic_Persistent_Data();
+					$persistent_data = new Atomic_Persistent_Data(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- wrapped in a class_exists() check
 					$jetpack_config  = array(
-						'blog_id'            => $persistent_data->wpcom_blog_id,
-						'blog_token'         => $persistent_data->jetpack_blog_token,
-						'primary_user_token' => $persistent_data->jetpack_user_token,
+						'blog_id'            => $persistent_data->wpcom_blog_id, // @phan-suppress-current-line PhanUndeclaredClassProperty -- wrapped in a class_exists() check
+						'blog_token'         => $persistent_data->jetpack_blog_token, // @phan-suppress-current-line PhanUndeclaredClassProperty -- wrapped in a class_exists() check
+						'primary_user_token' => $persistent_data->jetpack_user_token, // @phan-suppress-current-line PhanUndeclaredClassProperty -- wrapped in a class_exists() check
 					);
 
 					if ( ! class_exists( 'Jetpack_Options' ) ) {
