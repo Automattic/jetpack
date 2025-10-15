@@ -10,7 +10,7 @@
  * 4. Optionally consolidating instructions using Claude AI
  * 5. Generating a markdown document with all PR numbers as clickable links
  *
- * Usage node gen-test-instructions.mjs --changelog <path> --output <file> [options]
+ * Usage: node gen-test-instructions.mjs --changelog <path> --output <file> [options]
  */
 
 import { execSync } from 'child_process';
@@ -146,18 +146,23 @@ function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
 	}
 
 	// Second pass: collect entries (changelog is reverse chronological)
+	// We collect entries from the top (newest) until we reach the startVersion (cutoff point)
+	// Example: If startVersion = "15.1", we collect 15.2-a.1, 15.1.1, etc. until we hit 15.1
 	for ( const line of lines ) {
 		const versionMatch = line.match( versionRegex );
 		if ( versionMatch ) {
 			currentVersion = versionMatch[ 1 ];
 			currentDate = versionMatch[ 2 ];
 
-			// Stop when we reach the cutoff version
+			// Stop when we reach the cutoff version (we want entries AFTER this version, not including it)
 			if ( startVersion && currentVersion === startVersion ) {
+				collectingEntries = false;
 				break;
 			} else if ( sinceDate && currentDate < sinceDate ) {
+				collectingEntries = false;
 				break;
 			} else {
+				// We're still in the "newer than cutoff" range, so collect entries
 				collectingEntries = true;
 			}
 
@@ -413,9 +418,8 @@ async function generateAIConsolidatedInstructions( entries, prDetails, apiKey, v
 	} );
 
 	// Construct the AI prompt
-	const prompt = `You are helping to create a consolidated testing guide for Jetpack plugin version ${
-		version || 'upcoming release'
-	}.
+	const releaseVersion = version || 'upcoming release';
+	const prompt = `You are helping to create a consolidated testing guide for Jetpack plugin version ${ releaseVersion }.
 
 I have changelog entries grouped by feature area/section. Each entry includes:
 - The PR number and title

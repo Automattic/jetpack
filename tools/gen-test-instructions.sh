@@ -156,7 +156,11 @@ if [[ -z "$OUTPUT_FILE" ]]; then
 
 	# Prompt for confirmation
 	info "Output file will be: $OUTPUT_FILE"
-	read -p "Press Enter to continue or provide a name, or press Ctrl+C to cancel:"
+	read -p "Press Enter to continue, provide a different name, or press Ctrl+C to cancel: " USER_INPUT
+	if [[ -n "$USER_INPUT" ]]; then
+		OUTPUT_FILE="$USER_INPUT"
+		info "Output file updated to: $OUTPUT_FILE"
+	fi
 fi
 
 # Build arguments for the Node.js script
