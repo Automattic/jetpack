@@ -37,6 +37,12 @@ class File {
 	public function __construct( $response ) {
 		$this->body = $response;
 	}
+	/**
+	 * @return string Cast $body to a string.
+	 */
+	public function get_body_content() {
+			return (string) $this->body;
+	}
 }
 
 class Item {
