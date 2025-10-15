@@ -804,6 +804,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Filters the query arguments for the feedback collection.
+	 *
+	 * @param array           $args    Key value array of query var to query value.
+	 * @param WP_REST_Request $request The request used.
+	 * @return array Modified query arguments.
+	 */
+	protected function prepare_items_query( $args = array(), $request = null ) {
+		$args = parent::prepare_items_query( $args, $request );
+
+		if ( isset( $request['is_unread'] ) ) {
+			$is_unread              = rest_sanitize_boolean( $request['is_unread'] );
+			$args['comment_status'] = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+		}
+
+		return $args;
+	}
+
+	/**
 	 * Retrieves the query params for the feedback collection.
 	 *
 	 * @return array Collection parameters.
@@ -828,6 +846,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'type' => 'integer',
 			),
 			'default'     => array(),
+		);
+		$query_params['is_unread']      = array(
+			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;
 	}
