@@ -30,8 +30,6 @@ import Gravatar from '../../components/gravatar';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
 import type { FormResponse } from '../../../types';
-// Update the import path if the utils file is located elsewhere, for example:
-// Or, if the file does not exist, create 'utils.ts' in the correct folder with the required exports.
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
