@@ -2,12 +2,15 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { FormResponse } from '../../../types';
 import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
-import ResponseView from './index';
+import { ResponseViewBody } from './index';
 
 /**
  * Component wrapper for InboxResponse in DataViews modal
@@ -18,13 +21,22 @@ import ResponseView from './index';
  * @return {import('react').JSX.Element} The DataViews component.
  */
 const ResponseMobileView = ( { response, closeModal } ) => {
-	const [ currentResponse, setCurrentResponse ] = useState( response );
+	const [ currentResponseId, setCurrentResponseId ] = useState( response.id );
 
+	const responseRecord = useSelect(
+		select =>
+			select( coreStore ).getEditedEntityRecord(
+				'postType',
+				'feedback',
+				currentResponseId
+			) as unknown as FormResponse,
+		[ currentResponseId ]
+	);
 	// Use the navigation hook
 	const navigation = useResponseNavigation( {
 		onChangeSelection: null,
-		record: currentResponse,
-		setRecord: setCurrentResponse,
+		record: responseRecord,
+		setRecord: record => setCurrentResponseId( record.id ),
 	} );
 
 	const { hasNext, hasPrevious, handleNext, handlePrevious } = navigation;
@@ -35,7 +47,6 @@ const ResponseMobileView = ( { response, closeModal } ) => {
 	const handleActionComplete = useCallback(
 		actionedResponse => {
 			if ( actionedResponse && actionedResponse.status === response.status ) {
-				setCurrentResponse( actionedResponse );
 				return;
 			}
 			closeModal?.();
@@ -58,7 +69,7 @@ const ResponseMobileView = ( { response, closeModal } ) => {
 					justify="space-between"
 					className="jp-forms__inbox__response-mobile__header-actions"
 				>
-					<ResponseActions response={ currentResponse } onActionComplete={ handleActionComplete } />
+					<ResponseActions response={ responseRecord } onActionComplete={ handleActionComplete } />
 					<ResponseNavigation
 						hasNext={ hasNext }
 						hasPrevious={ hasPrevious }
@@ -68,7 +79,7 @@ const ResponseMobileView = ( { response, closeModal } ) => {
 					/>
 				</HStack>
 			</HStack>
-			<ResponseView isLoading={ false } response={ currentResponse } />
+			<ResponseViewBody isLoading={ false } response={ responseRecord } />
 		</div>
 	);
 };
