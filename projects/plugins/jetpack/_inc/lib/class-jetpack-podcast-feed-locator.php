@@ -37,7 +37,7 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 			return true;
 		}
 
-		$feed_dom = $this->safely_load_xml( $file->get_body_content() );
+		$feed_dom = $this->safely_load_xml( (string) $file->body );
 
 		// Do this as either/or but prioritise the itunes namespace. It's pretty likely
 		// that it's a podcast feed we've found if that namespace is present.
