@@ -114,7 +114,7 @@ export default function ImageOptionInputEdit( props ) {
 					tagName="span"
 					className="jetpack-input-image-option__label"
 					value={ label }
-					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					placeholder={ __( 'Add label', 'jetpack-forms' ) }
 					__unstableDisableFormats
 					onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
 				/>
