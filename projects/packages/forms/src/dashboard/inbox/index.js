@@ -1,5 +1,5 @@
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect } from '@wordpress/element';
-import { useNavigate } from 'react-router';
 import useConfigValue from '../../hooks/use-config-value';
 import InboxView from './dataviews';
 import './style.scss';

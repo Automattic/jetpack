@@ -4,6 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -12,7 +13,6 @@ import {
 } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -40,8 +40,10 @@ type InboxStatusToggleProps = {
  * @return {JSX.Element} The status toggle component.
  */
 export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
-	const [ searchParams, setSearchParams ] = useSearchParams();
-	const status = searchParams.get( 'status' ) || 'inbox';
+	const navigate = useNavigate();
+	const routerState = useRouterState();
+	const searchParams = routerState?.location?.search || {};
+	const status = searchParams.status || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useInboxData();
@@ -63,16 +65,16 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 				previous_status: status,
 			} );
 
-			setSearchParams( prev => {
-				const params = new URLSearchParams( prev );
-				params.set( 'status', newStatus );
-
-				return params;
+			navigate( {
+				search: prev => ( {
+					...prev,
+					status: newStatus,
+				} ),
 			} );
 
 			onChange( newStatus );
 		},
-		[ isSm, status, setSearchParams, onChange ]
+		[ isSm, status, navigate, onChange ]
 	);
 
 	return (

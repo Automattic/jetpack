@@ -3,11 +3,11 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { Outlet, useLocation, useNavigate } from '@tanstack/react-router';
 import { TabPanel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -94,8 +94,8 @@ const Layout = () => {
 			}
 
 			navigate( {
-				pathname: `/${ tabName }`,
-				search: tabName === 'responses' ? location.search : '',
+				to: `/${ tabName }`,
+				search: tabName === 'responses' ? location.search : undefined,
 			} );
 		},
 		[ navigate, location.search, isSm, getCurrentTab, hasFeedback ]

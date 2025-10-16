@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -13,7 +14,6 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -74,10 +74,12 @@ const setupSidebarWidthObserver = () => {
  */
 export default function InboxView() {
 	const [ view, setView ] = useView();
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const navigate = useNavigate();
+	const routerState = useRouterState();
+	const searchParams = routerState?.location?.search || {};
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
-
 	const dateSettings = getDateSettings();
+
 	const containerRef = useResizeObserver(
 		resizeObserverEntries => {
 			setContainerWidth( resizeObserverEntries[ 0 ].borderBoxSize[ 0 ].inlineSize );
@@ -85,7 +87,7 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
-	const selectedResponses = searchParams.get( 'r' );
+	const selectedResponses = searchParams.r;
 
 	useEffect( () => {
 		return setupSidebarWidthObserver();
@@ -152,17 +154,19 @@ export default function InboxView() {
 						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
 				);
 			}
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( items.length ) {
-					_searchParams.set( 'r', items.join( ',' ) );
-				} else {
-					_searchParams.delete( 'r' );
-				}
-				return _searchParams;
+			navigate( {
+				search: prev => {
+					const updated = { ...prev };
+					if ( items.length ) {
+						updated.r = items.join( ',' );
+					} else {
+						delete updated.r;
+					}
+					return updated;
+				},
 			} );
 		},
-		[ records, setSearchParams, isMobile ]
+		[ records, navigate, isMobile ]
 	);
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)

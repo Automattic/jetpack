@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
+import { useRouterState } from '@tanstack/react-router';
 import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -73,9 +73,10 @@ interface UseInboxDataReturn {
  * @return {UseInboxDataReturn} The inbox related data.
  */
 export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+	const routerState = useRouterState();
+	const searchParams = routerState?.location?.search || {};
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
-	const urlStatus = searchParams.get( 'status' );
+	const urlStatus = searchParams.status;
 	const statusFilter = getStatusFilter( urlStatus );
 
 	const {
@@ -86,18 +87,15 @@ export default function useInboxData(): UseInboxDataReturn {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
-	} = useSelect(
-		select => ( {
-			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-			currentStatus: select( dashboardStore ).getCurrentStatus(),
-			currentQuery: select( dashboardStore ).getCurrentQuery(),
-			filterOptions: select( dashboardStore ).getFilters(),
-			totalItemsInbox: select( dashboardStore ).getInboxCount(),
-			totalItemsSpam: select( dashboardStore ).getSpamCount(),
-			totalItemsTrash: select( dashboardStore ).getTrashCount(),
-		} ),
-		[]
-	);
+	} = useSelect( select => ( {
+		selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+		currentStatus: select( dashboardStore ).getCurrentStatus(),
+		currentQuery: select( dashboardStore ).getCurrentQuery(),
+		filterOptions: select( dashboardStore ).getFilters(),
+		totalItemsInbox: select( dashboardStore ).getInboxCount(),
+		totalItemsSpam: select( dashboardStore ).getSpamCount(),
+		totalItemsTrash: select( dashboardStore ).getTrashCount(),
+	} ) );
 
 	const {
 		records: rawRecords,

@@ -1,9 +1,9 @@
 /**
  * WordPress dependencies
  */
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router';
 
 const LAYOUT_TABLE = 'table';
 
@@ -29,27 +29,34 @@ export const defaultLayouts = {
  * @return {Array} The [ state, setState ] tuple.
  */
 export function useView() {
-	const [ searchParams, setSearchParams ] = useSearchParams();
-	const urlSearch = searchParams.get( 'search' );
+	const navigate = useNavigate();
+	const routerState = useRouterState();
+	const searchParams = routerState?.location?.search || {};
+	const urlSearch = searchParams.search;
+
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
 		search: urlSearch ?? '',
 	} ) );
+
 	// When view changes, update the URL params if needed.
 	const setViewWithUrlUpdate = useEvent( newView => {
 		setView( newView );
 		if ( newView.search !== urlSearch ) {
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( newView.search ) {
-					_searchParams.set( 'search', newView.search );
-				} else {
-					_searchParams.delete( 'search' );
-				}
-				return _searchParams;
+			navigate( {
+				search: prev => {
+					const updated = { ...prev };
+					if ( newView.search ) {
+						updated.search = newView.search;
+					} else {
+						delete updated.search;
+					}
+					return updated;
+				},
 			} );
 		}
 	} );
+
 	// When search URL param changes, update the view's search filter
 	// without affecting any other config.
 	const onUrlSearchChange = useEvent( () => {
@@ -64,8 +71,10 @@ export function useView() {
 			};
 		} );
 	} );
+
 	useEffect( () => {
 		onUrlSearchChange();
 	}, [ onUrlSearchChange, urlSearch ] );
+
 	return [ view, setViewWithUrlUpdate ];
 }

@@ -2,11 +2,11 @@
  * External dependencies
  */
 import requestExternalAccess from '@automattic/request-external-access';
+import { useNavigate } from '@tanstack/react-router';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */

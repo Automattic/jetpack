@@ -2,9 +2,14 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
+import {
+	createRouter,
+	createHashHistory,
+	RouterProvider,
+	createRootRoute,
+	createRoute,
+} from '@tanstack/react-router';
 import { createRoot } from '@wordpress/element';
-import { createHashRouter } from 'react-router';
-import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
@@ -13,6 +18,7 @@ import Layout from './components/layout';
 import Inbox from './inbox';
 import Integrations from './integrations';
 import DashboardNotices from './notices-list';
+import './store'; // Register the store
 import './style.scss';
 
 declare global {
@@ -21,17 +27,57 @@ declare global {
 	}
 }
 
+// Export components for use in external apps
+export { Layout, Inbox, About, Integrations, DashboardNotices };
+
+// Create route tree for TanStack Router
+const rootRoute = createRootRoute( {
+	component: Layout,
+} );
+
+const indexRoute = createRoute( {
+	getParentRoute: () => rootRoute,
+	path: '/',
+	component: Inbox,
+} );
+
+const responsesRoute = createRoute( {
+	getParentRoute: () => rootRoute,
+	path: '/responses',
+	component: Inbox,
+} );
+
+const integrationsRoute = createRoute( {
+	getParentRoute: () => rootRoute,
+	path: '/integrations',
+	component: Integrations,
+} );
+
+const aboutRoute = createRoute( {
+	getParentRoute: () => rootRoute,
+	path: '/about',
+	component: About,
+} );
+
+const routeTree = rootRoute.addChildren( [
+	indexRoute,
+	responsesRoute,
+	integrationsRoute,
+	aboutRoute,
+] );
+
 let isInitialized = false;
 
 /**
- * Initialize the Forms dashboard
+ * Initialize Forms app - can be called externally or by standalone Jetpack
+ *
+ * @param {object}      options           - Configuration options
+ * @param {HTMLElement} options.container - DOM element to mount into
  */
-function initFormsDashboard() {
+export function initFormsApp( { container } ) {
 	if ( isInitialized ) {
 		return;
 	}
-
-	const container = document.getElementById( 'jp-forms-dashboard' );
 
 	if ( ! container ) {
 		return;
@@ -39,30 +85,11 @@ function initFormsDashboard() {
 
 	isInitialized = true;
 
-	const router = createHashRouter( [
-		{
-			path: '/',
-			element: <Layout />,
-			children: [
-				{
-					index: true,
-					element: <Inbox />,
-				},
-				{
-					path: 'responses',
-					element: <Inbox />,
-				},
-				{
-					path: 'integrations',
-					element: <Integrations />,
-				},
-				{
-					path: 'about',
-					element: <About />,
-				},
-			],
-		},
-	] );
+	// Create router with hash history
+	const router = createRouter( {
+		routeTree,
+		history: createHashHistory(),
+	} );
 
 	const root = createRoot( container );
 
@@ -74,5 +101,21 @@ function initFormsDashboard() {
 	);
 }
 
-window.jetpackFormsInit = initFormsDashboard;
-window.addEventListener( 'load', initFormsDashboard );
+/**
+ * Initialize the Forms dashboard
+ */
+function jetpackFormsInit() {
+	const container = document.getElementById( 'jp-forms-dashboard' );
+
+	if ( ! container ) {
+		return;
+	}
+
+	initFormsApp( { container } );
+}
+
+// Export for programmatic initialization
+window.jetpackFormsInit = jetpackFormsInit;
+
+// Standalone initialization
+window.addEventListener( 'load', jetpackFormsInit );

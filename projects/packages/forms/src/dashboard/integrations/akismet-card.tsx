@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { useNavigate } from '@tanstack/react-router';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
