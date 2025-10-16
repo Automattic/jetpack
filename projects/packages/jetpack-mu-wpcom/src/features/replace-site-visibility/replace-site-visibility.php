@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Load dependencies.
@@ -122,7 +123,7 @@ function replace_site_visibility_load_assets() {
 	);
 
 	// If the site is launched, replace the option value with the actual site visibility.
-	if ( function_exists( '\Private_Site\site_is_private' )
+	if ( ( new Host() )->is_woa_site() && function_exists( '\Private_Site\site_is_private' )
 		&& ! $data['isUnlaunchedSite'] && ! $data['wpcomPublicComingSoon'] && ! $data['wpcomComingSoon'] && (string) $data['blogPublic'] !== '0'
 	) {
 		// @phan-suppress-next-line PhanUndeclaredFunction
