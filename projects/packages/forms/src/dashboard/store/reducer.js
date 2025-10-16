@@ -43,6 +43,16 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	return state;
 };
 
+const normalizeValue = value => {
+	if ( Array.isArray( value ) ) {
+		return value.slice().sort().join( ',' );
+	}
+	if ( typeof value === 'boolean' ) {
+		return value ? '1' : '0';
+	}
+	return String( value );
+};
+
 /**
  * Generate a stable cache key from query parameters.
  *
@@ -53,7 +63,7 @@ export const getCacheKey = ( queryParams = {} ) => {
 	const keys = [ 'search', 'parent', 'before', 'after', 'is_unread' ];
 	const parts = keys
 		.filter( key => queryParams[ key ] !== undefined )
-		.map( key => `${ key }:${ queryParams[ key ] }` );
+		.map( key => `${ key }:${ normalizeValue( queryParams[ key ] ) }` );
 	return parts.length > 0 ? parts.join( '|' ) : 'default';
 };
 
