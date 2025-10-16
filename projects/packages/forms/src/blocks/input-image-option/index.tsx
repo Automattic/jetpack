@@ -90,6 +90,23 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
+		style: {
+			type: 'object',
+			default: {
+				border: {
+					radius: '4px',
+					width: '1px',
+				},
+				spacing: {
+					padding: {
+						top: '8px',
+						right: '8px',
+						bottom: '8px',
+						left: '8px',
+					},
+				},
+			},
+		},
 	},
 	save,
 };

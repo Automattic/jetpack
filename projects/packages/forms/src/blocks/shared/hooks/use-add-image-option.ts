@@ -6,10 +6,6 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 /**
- * Internal dependencies
- */
-import { getImageOptionLabel } from '../../input-image-option/label';
-/**
  * Types
  */
 import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types';
@@ -25,38 +21,41 @@ export default function useAddImageOption( optionsClientId: string ): {
 		name: string;
 		attributes: Record< string, unknown >;
 	};
-	addOption: () => void;
+	addOption: ( index?: number ) => void;
 } {
 	const { insertBlock } = useDispatch( blockEditorStore ) as BlockEditorStoreDispatch;
-	const { getBlock, getBlocks } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
-
-	const childBlocksCount = getBlocks( optionsClientId ).length;
+	const { getBlock } = useSelect( blockEditorStore, [] ) as BlockEditorStoreSelect;
 
 	const newImageOption = useCallback( () => {
-		const newIndex = childBlocksCount + 1;
-
 		return {
 			name: 'jetpack/input-image-option',
 			attributes: {
-				label: getImageOptionLabel( newIndex ),
+				label: '',
 			},
 		};
-	}, [ childBlocksCount ] );
+	}, [] );
 
-	const addOption = useCallback( () => {
-		// Get the current options block
-		const optionsBlock = getBlock( optionsClientId );
+	const addOption = useCallback(
+		( index?: number ) => {
+			// Get the current options block
+			const optionsBlock = getBlock( optionsClientId );
 
-		// If there is no options block, return
-		if ( ! optionsBlock ) {
-			return;
-		}
+			// If there is no options block, return
+			if ( ! optionsBlock ) {
+				return;
+			}
 
-		const { name, attributes } = newImageOption();
-		const newOptionBlock = createBlock( name, attributes );
+			const { name, attributes } = newImageOption();
+			const newOptionBlock = createBlock( name, attributes );
 
-		insertBlock( newOptionBlock, optionsBlock.innerBlocks.length, optionsClientId );
-	}, [ getBlock, optionsClientId, newImageOption, insertBlock ] );
+			if ( ! Number.isInteger( index ) || index < 0 || index > optionsBlock.innerBlocks.length ) {
+				index = optionsBlock.innerBlocks.length;
+			}
+
+			insertBlock( newOptionBlock, index, optionsClientId );
+		},
+		[ getBlock, optionsClientId, newImageOption, insertBlock ]
+	);
 
 	return { newImageOption, addOption };
 }
