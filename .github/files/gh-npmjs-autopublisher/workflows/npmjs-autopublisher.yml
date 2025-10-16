@@ -6,20 +6,15 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
 
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
     steps:
-      - name: Check that the secret is set
-        env:
-          TOKEN: ${{ secrets.NPMJS_AUTOMATION_TOKEN }}
-        run: |
-          if [[ -z "$TOKEN" ]]; then
-            echo '::error::The secret NPMJS_AUTOMATION_TOKEN must be set.'
-            exit 1
-          fi
-
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
@@ -29,6 +24,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMJS_AUTOMATION_TOKEN }}
-        run: npm publish --access public
+        run: |
+          npm install -g npm@latest
+          npm publish --access public
