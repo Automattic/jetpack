@@ -60,7 +60,7 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 * Make sure you're checked out to the branch you want.
 * Use the CLI command `jetpack generate` to start the process.
-* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+* The wizard will walk you through the steps of starting a new package, plugin, or GitHub action.
 
 ### Accepted Arguments
 
@@ -96,7 +96,7 @@ The Jetpack Generate Wizard includes the following for each project:
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
 
-#### Github Actions
+#### GitHub Actions
 
 - action.yml
 
@@ -182,7 +182,7 @@ The test environment will be set up with appropriate tools, including node, pnpm
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
-If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
+If your project has multiple logical groups of tests, feel free to make use of GitHub Actions [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
 The following environment variables are available for all tests:
 
@@ -369,8 +369,8 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
-   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
+1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
    3. In the repo's settings, turn off wikis, issues, projects, and so on.
@@ -379,7 +379,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.
-   2. If creating the package with your own account, make sure to link your Github account to Packagist so that you can sync the new package.
+   2. If creating the package with your own account, make sure to link your GitHub account to Packagist so that you can sync the new package.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -485,16 +485,16 @@ Comment: Update composer.lock, no need for a changelog entry
 
 The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
 
-Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
+Within a single project, changelogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
 
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-monorepo to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 
-Once we're sure that the project will be created and what its name will be, someone (you or the Crew team) does the following:
+Once we're sure that the project will be created and what its name will be, someone (you or the Monorepo team) does the following:
 * Create a GitHub repo in the Automattic repo to be the mirror repo for this project. The new repo follows the [mirror repo guidelines](#mirror-repositories).
 
 ### Creating a new Composer Package
