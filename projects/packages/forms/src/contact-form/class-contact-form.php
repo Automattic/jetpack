@@ -463,7 +463,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $default_to;
 		}
 
-		// check that source is of type Feedback_Source
+		// Check that source is of type Feedback_Source
 		if ( ! $source instanceof Feedback_Source ) {
 			return $default_to;
 		}
