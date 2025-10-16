@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Override so that garden sites have the DOMAIN_MAPPING feature

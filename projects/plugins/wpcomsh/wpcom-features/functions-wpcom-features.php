@@ -68,6 +68,13 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	}
 
 	/*
+	 * Override for garden sites. May remove this in the future if CIAB plans handle this.
+	 */
+	if ( $feature === WPCOM_Features::DOMAIN_MAPPING && function_exists( 'wpcom_is_garden_site' ) && wpcom_is_garden_site( $blog_id ) ) {
+		return true;
+	}
+
+	/*
 	 * A8C override for internal P2s
 	 */
 	if ( $feature === WPCOM_Features::AI_ASSISTANT && wpcom_is_automattic_p2_site( $blog_id ) ) {
