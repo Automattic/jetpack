@@ -453,6 +453,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $default_to;
 		}
 
+		// Check that source is of type Feedback_Source
+		if ( ! $source instanceof Feedback_Source ) {
+			return $default_to;
+		}
+
+		if ( absint( $source->get_id() ) === 0 ) {
+			return $default_to;
+		}
+
 		$post_author = get_userdata( $post_author_id );
 		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
 			return $default_to;
@@ -460,15 +469,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// Check that the user is still a member of the blog.
 		if ( ! is_user_member_of_blog( $post_author_id ) ) {
-			return $default_to;
-		}
-
-		// Check that source is of type Feedback_Source
-		if ( ! $source instanceof Feedback_Source ) {
-			return $default_to;
-		}
-
-		if ( absint( $source->get_id() ) === 0 ) {
 			return $default_to;
 		}
 

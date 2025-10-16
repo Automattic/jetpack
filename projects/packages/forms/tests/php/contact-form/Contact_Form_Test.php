@@ -2525,6 +2525,27 @@ EOT;
 		wp_delete_user( $author_id );
 		wp_delete_post( $source->get_id(), true );
 	}
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author_subscriber() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'subscriber@example.com',
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
 	/**
 	 * Helper function to create a Feedback_Source object from a post.
 	 */
@@ -2550,9 +2571,10 @@ EOT;
 	 * Tests get_default_to method with invalid post author ID.
 	 */
 	public function test_get_default_to_with_invalid_post_author() {
+		$source = $this->get_source( 99999 );
+		$result = Contact_Form::get_default_to( 99999, $source ); // Non-existent user ID
 
-		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
-
+		wp_delete_post( $source->get_id(), true );
 		$this->assertEquals( get_option( 'admin_email' ), $result );
 	}
 
@@ -2574,6 +2596,7 @@ EOT;
 				'user_email' => '',
 				'user_login' => 'test_author_no_email',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
 			)
 		);
 
