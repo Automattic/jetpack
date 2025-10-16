@@ -16,7 +16,6 @@ use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_AI_Helper;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -1269,12 +1268,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$has_ai = false;
-		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
-			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
-			$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
-		}
-
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
 			'formsResponsesUrl'       => Forms_Dashboard::get_forms_admin_url(),
@@ -1286,7 +1279,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
-			'hasAI'                   => $has_ai,
 			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
 			'dashboardURL'            => Forms_Dashboard::get_forms_admin_url(),
 			// New data.

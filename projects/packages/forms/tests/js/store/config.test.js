@@ -23,7 +23,6 @@ const mockConfigData = {
 	canInstallPlugins: true,
 	canActivatePlugins: true,
 	hasFeedback: true,
-	hasAI: false,
 	formsResponsesUrl: 'https://example.com/wp-admin/edit.php?post_type=feedback',
 	blogId: 12345,
 	gdriveConnectSupportURL: 'https://example.com/support',
@@ -38,7 +37,7 @@ const mockConfigData = {
 describe( 'Config Store', () => {
 	describe( 'actions', () => {
 		it( 'receiveConfig', () => {
-			const config = { isMailPoetEnabled: true, hasAI: false };
+			const config = { isMailPoetEnabled: true, isIntegrationsEnabled: true };
 			const action = actions.receiveConfig( config );
 
 			expect( action ).toEqual( {
@@ -48,11 +47,11 @@ describe( 'Config Store', () => {
 		} );
 
 		it( 'receiveConfigValue', () => {
-			const action = actions.receiveConfigValue( 'hasAI', true );
+			const action = actions.receiveConfigValue( 'isIntegrationsEnabled', true );
 
 			expect( action ).toEqual( {
 				type: 'RECEIVE_CONFIG_VALUE',
-				key: 'hasAI',
+				key: 'isIntegrationsEnabled',
 				value: true,
 			} );
 		} );
@@ -98,7 +97,7 @@ describe( 'Config Store', () => {
 		} );
 
 		it( 'should handle RECEIVE_CONFIG', () => {
-			const config = { isMailPoetEnabled: true, hasAI: false };
+			const config = { isMailPoetEnabled: true, isIntegrationsEnabled: true };
 			const state = reducer( DEFAULT_STATE, {
 				type: 'RECEIVE_CONFIG',
 				config,
@@ -120,13 +119,13 @@ describe( 'Config Store', () => {
 
 			const state = reducer( initialState, {
 				type: 'RECEIVE_CONFIG_VALUE',
-				key: 'hasAI',
+				key: 'isIntegrationsEnabled',
 				value: true,
 			} );
 
 			expect( state.config ).toEqual( {
 				isMailPoetEnabled: true,
-				hasAI: true,
+				isIntegrationsEnabled: true,
 			} );
 		} );
 
@@ -219,7 +218,7 @@ describe( 'Config Store', () => {
 				error: null,
 			};
 
-			expect( selectors.getConfigValue( state, 'hasAI' ) ).toBe( false );
+			expect( selectors.getConfigValue( state, 'isIntegrationsEnabled' ) ).toBe( true );
 			expect( selectors.getConfigValue( state, 'blogId' ) ).toBe( 12345 );
 			expect( selectors.getConfigValue( state, 'isMailPoetEnabled' ) ).toBe( true );
 		} );
@@ -231,7 +230,7 @@ describe( 'Config Store', () => {
 				error: null,
 			};
 
-			expect( selectors.getConfigValue( state, 'hasAI' ) ).toBeUndefined();
+			expect( selectors.getConfigValue( state, 'isIntegrationsEnabled' ) ).toBeUndefined();
 		} );
 
 		it( 'getConfigValue returns undefined when config is null', () => {
@@ -241,7 +240,7 @@ describe( 'Config Store', () => {
 				error: null,
 			};
 
-			expect( selectors.getConfigValue( state, 'hasAI' ) ).toBeUndefined();
+			expect( selectors.getConfigValue( state, 'isIntegrationsEnabled' ) ).toBeUndefined();
 		} );
 
 		it( 'isConfigLoading returns loading state', () => {
@@ -320,27 +319,27 @@ describe( 'Config Store', () => {
 		} );
 
 		it( 'should allow manual config update', () => {
-			const config = { isMailPoetEnabled: true, hasAI: false };
+			const config = { isMailPoetEnabled: true, isIntegrationsEnabled: true };
 			registry.dispatch( CONFIG_STORE ).receiveConfig( config );
 
 			expect( registry.select( CONFIG_STORE ).getConfig() ).toEqual( config );
 		} );
 
 		it( 'should allow updating individual config values', () => {
-			const initialConfig = { isMailPoetEnabled: true, hasAI: false };
+			const initialConfig = { isMailPoetEnabled: true, isIntegrationsEnabled: false };
 			registry.dispatch( CONFIG_STORE ).receiveConfig( initialConfig );
 
-			registry.dispatch( CONFIG_STORE ).receiveConfigValue( 'hasAI', true );
+			registry.dispatch( CONFIG_STORE ).receiveConfigValue( 'isIntegrationsEnabled', true );
 
 			const config = registry.select( CONFIG_STORE ).getConfig();
 			expect( config ).toEqual( {
 				isMailPoetEnabled: true,
-				hasAI: true,
+				isIntegrationsEnabled: true,
 			} );
 		} );
 
 		it( 'should invalidate config', () => {
-			const config = { isMailPoetEnabled: true, hasAI: false };
+			const config = { isMailPoetEnabled: true, isIntegrationsEnabled: true };
 			registry.dispatch( CONFIG_STORE ).receiveConfig( config );
 
 			expect( registry.select( CONFIG_STORE ).getConfig() ).toEqual( config );
@@ -375,14 +374,18 @@ describe( 'Config Store', () => {
 			registry.dispatch( CONFIG_STORE ).receiveConfig( mockConfigData );
 
 			expect( registry.select( CONFIG_STORE ).getConfigValue( 'blogId' ) ).toBe( 12345 );
-			expect( registry.select( CONFIG_STORE ).getConfigValue( 'hasAI' ) ).toBe( false );
+			expect( registry.select( CONFIG_STORE ).getConfigValue( 'isIntegrationsEnabled' ) ).toBe(
+				true
+			);
 			expect( registry.select( CONFIG_STORE ).getConfigValue( 'isMailPoetEnabled' ) ).toBe( true );
 		} );
 
 		it( 'should return undefined for non-existent config keys', () => {
 			registry.dispatch( CONFIG_STORE ).receiveConfig( { isMailPoetEnabled: true } );
 
-			expect( registry.select( CONFIG_STORE ).getConfigValue( 'hasAI' ) ).toBeUndefined();
+			expect(
+				registry.select( CONFIG_STORE ).getConfigValue( 'isIntegrationsEnabled' )
+			).toBeUndefined();
 		} );
 	} );
 } );
