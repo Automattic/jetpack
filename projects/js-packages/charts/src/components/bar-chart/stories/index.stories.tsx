@@ -11,7 +11,9 @@ import {
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
+	seriesCount?: 'single' | 'multiple' | 'many';
+};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
@@ -47,6 +49,21 @@ const meta: Meta< StoryArgs > = {
 			description: 'Use patterns for bars',
 			table: { category: 'Visual Style' },
 		},
+	},
+	render: args => {
+		const { seriesCount, ...chartProps } = args;
+
+		// Determine data based on seriesCount control
+		let data = chartProps.data;
+		if ( seriesCount === 'single' ) {
+			data = [ medalCountsData[ 0 ] ];
+		} else if ( seriesCount === 'multiple' ) {
+			data = [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ];
+		} else if ( seriesCount === 'many' ) {
+			data = medalCountsData;
+		}
+
+		return <BarChart { ...chartProps } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 

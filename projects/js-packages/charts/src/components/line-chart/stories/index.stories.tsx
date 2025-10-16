@@ -8,7 +8,10 @@ import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	seriesCount?: 'single' | 'multiple' | 'many';
+	dimensionMode?: 'responsive' | 'fixed';
+};
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
@@ -48,7 +51,27 @@ const meta: Meta< StoryArgs > = {
 
 export default meta;
 
-const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
+const Template: StoryFn< typeof LineChart > = args => {
+	const { seriesCount, dimensionMode, ...chartProps } = args;
+
+	// Determine data based on seriesCount control
+	let data = chartProps.data || lineChartStoryArgs.data;
+	if ( seriesCount === 'single' ) {
+		data = [ sampleData[ 0 ] ];
+	} else if ( seriesCount === 'multiple' ) {
+		data = sampleData.slice( 0, 4 );
+	} else if ( seriesCount === 'many' ) {
+		data = sampleData;
+	}
+
+	// Determine dimensions based on dimensionMode control
+	let dimensions = {};
+	if ( dimensionMode === 'fixed' ) {
+		dimensions = { width: 800, height: 400 };
+	}
+
+	return <LineChart { ...chartProps } { ...dimensions } data={ data } />;
+};
 
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
