@@ -15,7 +15,6 @@ import useConfigValue from '../hooks/use-config-value';
 
 function MyComponent() {
   const isMailPoetEnabled = useConfigValue('isMailPoetEnabled');
-  const hasAI = useConfigValue('hasAI');
   const blogId = useConfigValue('blogId');
 
   if (isMailPoetEnabled === undefined) {
@@ -35,7 +34,6 @@ The store provides access to the following configuration values (see `FormsConfi
 - `canInstallPlugins` - Whether the current user can install plugins
 - `canActivatePlugins` - Whether the current user can activate plugins
 - `hasFeedback` - Whether there are any form responses on the site
-- `hasAI` - Whether AI Assist features are available
 - `formsResponsesUrl` - URL of the Forms responses list in wp-admin
 - `blogId` - Current site blog ID
 - `gdriveConnectSupportURL` - Support URL for Google Drive connect guidance
@@ -54,9 +52,9 @@ The store provides access to the following configuration values (see `FormsConfi
 import useConfigValue from '../hooks/use-config-value';
 
 function ExampleComponent() {
-  const hasAI = useConfigValue('hasAI');
+  const hasFeedback = useConfigValue('hasFeedback');
 
-  return hasAI ? <AIFeature /> : <RegularFeature />;
+  return hasFeedback ? <ResponsesPanel /> : <EmptyState />;
 }
 ```
 
@@ -96,8 +94,8 @@ function AdvancedComponent() {
   );
 
   // Get a specific value
-  const hasAI = useSelect(
-    select => select(CONFIG_STORE).getConfigValue('hasAI'),
+  const canInstall = useSelect(
+    select => select(CONFIG_STORE).getConfigValue('canInstallPlugins'),
     []
   );
 
@@ -209,12 +207,12 @@ The config store has one resolver: `getConfig`
 
 **How `useConfigValue` works:**
 
-When you call `useConfigValue('hasAI')`:
+When you call `useConfigValue('blogId')`:
 1. The hook internally calls `getConfig()` selector to fetch the entire config object
 2. WordPress automatically triggers the `getConfig` resolver if config isn't loaded
 3. The resolver checks if config is already loaded or currently loading via `isFulfilled`
 4. If not loaded, it fetches from `/wp/v2/feedback/config`
-5. Once loaded, it returns the value for the specific key (`config.hasAI`)
+5. Once loaded, it returns the value for the specific key (`config.blogId`)
 6. Subsequent calls to `useConfigValue()` with any key use the cached config
 
 **Request Deduplication:**
@@ -222,7 +220,7 @@ When you call `useConfigValue('hasAI')`:
 Multiple components calling different config values simultaneously:
 ```typescript
 // Component A
-const hasAI = useConfigValue('hasAI');
+const siteURL = useConfigValue('siteURL');
 
 // Component B
 const blogId = useConfigValue('blogId');
@@ -284,7 +282,6 @@ First, add your new config value to the REST API endpoint response. In the Forms
 public function get_config() {
     return array(
         'isMailPoetEnabled' => $this->is_mailpoet_enabled(),
-        'hasAI' => $this->has_ai(),
         // Add your new key here
         'myNewFeature' => $this->check_my_new_feature(),
     );
@@ -300,8 +297,7 @@ export interface FormsConfigData {
     /** Whether MailPoet integration is enabled across contexts. */
     isMailPoetEnabled?: boolean;
 
-    /** Whether AI Assist features are available for the site/user. */
-    hasAI?: boolean;
+    // Add your new key here with appropriate doc
 
     /** Whether my new feature is enabled. */
     myNewFeature?: boolean; // Add your new key with proper JSDoc

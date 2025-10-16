@@ -463,7 +463,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			'pluginAssetsURL',
 			'siteURL',
 			'hasFeedback',
-			'hasAI',
 			'isIntegrationsEnabled',
 			'dashboardURL',
 			'canInstallPlugins',

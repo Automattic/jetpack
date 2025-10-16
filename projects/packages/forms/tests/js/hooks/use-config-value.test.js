@@ -43,7 +43,7 @@ describe( 'useConfigValue', () => {
 	} );
 
 	it( 'returns undefined when config is not loaded', () => {
-		const { result } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), { wrapper } );
 
 		expect( result.current ).toBeUndefined();
 	} );
@@ -52,9 +52,9 @@ describe( 'useConfigValue', () => {
 		// Populate the store with config data
 		registry.dispatch( CONFIG_STORE ).receiveConfig( mockConfigData );
 
-		const { result } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), { wrapper } );
 
-		expect( result.current ).toBe( false );
+		expect( result.current ).toBe( true );
 	} );
 
 	it( 'returns boolean values correctly', () => {
@@ -63,14 +63,12 @@ describe( 'useConfigValue', () => {
 		const { result: mailpoetResult } = renderHook( () => useConfigValue( 'isMailPoetEnabled' ), {
 			wrapper,
 		} );
-		const { result: aiResult } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
 		const { result: integrationsResult } = renderHook(
 			() => useConfigValue( 'isIntegrationsEnabled' ),
 			{ wrapper }
 		);
 
 		expect( mailpoetResult.current ).toBe( true );
-		expect( aiResult.current ).toBe( false );
 		expect( integrationsResult.current ).toBe( true );
 	} );
 
@@ -101,21 +99,23 @@ describe( 'useConfigValue', () => {
 	it( 'returns undefined for non-existent keys', () => {
 		registry.dispatch( CONFIG_STORE ).receiveConfig( { isMailPoetEnabled: true } );
 
-		const { result } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), { wrapper } );
 
 		expect( result.current ).toBeUndefined();
 	} );
 
 	it( 'updates when config value changes', () => {
-		registry.dispatch( CONFIG_STORE ).receiveConfig( { hasAI: false } );
+		registry.dispatch( CONFIG_STORE ).receiveConfig( { isIntegrationsEnabled: false } );
 
-		const { result, rerender } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result, rerender } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), {
+			wrapper,
+		} );
 
 		expect( result.current ).toBe( false );
 
 		// Update the config
 		act( () => {
-			registry.dispatch( CONFIG_STORE ).receiveConfigValue( 'hasAI', true );
+			registry.dispatch( CONFIG_STORE ).receiveConfigValue( 'isIntegrationsEnabled', true );
 		} );
 		rerender();
 
@@ -125,13 +125,16 @@ describe( 'useConfigValue', () => {
 	it( 'multiple hooks can read different config values', () => {
 		registry.dispatch( CONFIG_STORE ).receiveConfig( mockConfigData );
 
-		const { result: hasAI } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result: isIntegrations } = renderHook(
+			() => useConfigValue( 'isIntegrationsEnabled' ),
+			{ wrapper }
+		);
 		const { result: blogId } = renderHook( () => useConfigValue( 'blogId' ), { wrapper } );
 		const { result: isMailPoet } = renderHook( () => useConfigValue( 'isMailPoetEnabled' ), {
 			wrapper,
 		} );
 
-		expect( hasAI.current ).toBe( false );
+		expect( isIntegrations.current ).toBe( true );
 		expect( blogId.current ).toBe( 12345 );
 		expect( isMailPoet.current ).toBe( true );
 	} );
@@ -139,9 +142,11 @@ describe( 'useConfigValue', () => {
 	it( 'returns undefined when config is invalidated', () => {
 		registry.dispatch( CONFIG_STORE ).receiveConfig( mockConfigData );
 
-		const { result, rerender } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result, rerender } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), {
+			wrapper,
+		} );
 
-		expect( result.current ).toBe( false );
+		expect( result.current ).toBe( true );
 
 		// Invalidate the config
 		act( () => {
@@ -156,30 +161,35 @@ describe( 'useConfigValue', () => {
 		// Only set a few config values
 		registry.dispatch( CONFIG_STORE ).receiveConfig( {
 			isMailPoetEnabled: true,
-			hasAI: false,
+			isIntegrationsEnabled: false,
 		} );
 
 		const { result: mailpoetResult } = renderHook( () => useConfigValue( 'isMailPoetEnabled' ), {
 			wrapper,
 		} );
-		const { result: aiResult } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result: integrationsResult } = renderHook(
+			() => useConfigValue( 'isIntegrationsEnabled' ),
+			{ wrapper }
+		);
 		const { result: blogIdResult } = renderHook( () => useConfigValue( 'blogId' ), { wrapper } );
 
 		expect( mailpoetResult.current ).toBe( true );
-		expect( aiResult.current ).toBe( false );
+		expect( integrationsResult.current ).toBe( false );
 		expect( blogIdResult.current ).toBeUndefined();
 	} );
 
 	it( 'works with different config keys in the same component', () => {
 		registry.dispatch( CONFIG_STORE ).receiveConfig( mockConfigData );
 
-		const { result: result1 } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result: result1 } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), {
+			wrapper,
+		} );
 		const { result: result2 } = renderHook( () => useConfigValue( 'blogId' ), { wrapper } );
 		const { result: result3 } = renderHook( () => useConfigValue( 'canInstallPlugins' ), {
 			wrapper,
 		} );
 
-		expect( result1.current ).toBe( false );
+		expect( result1.current ).toBe( true );
 		expect( result2.current ).toBe( 12345 );
 		expect( result3.current ).toBe( false );
 	} );
@@ -187,7 +197,7 @@ describe( 'useConfigValue', () => {
 	it( 'handles empty config object', () => {
 		registry.dispatch( CONFIG_STORE ).receiveConfig( {} );
 
-		const { result } = renderHook( () => useConfigValue( 'hasAI' ), { wrapper } );
+		const { result } = renderHook( () => useConfigValue( 'isIntegrationsEnabled' ), { wrapper } );
 
 		expect( result.current ).toBeUndefined();
 	} );
