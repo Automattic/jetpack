@@ -145,12 +145,14 @@ add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
-	$user_id     = get_current_user_id();
-	$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
-	if ( empty( $preferences ) ) {
-		$preferences = array();
-	}
-	$hosting_dashboard = ! empty( $preferences['hosting-dashboard-opt-in'] ) && $preferences['hosting-dashboard-opt-in']['value'] === 'opt-in';
+	$user_id           = get_current_user_id();
+	$preferences       = get_user_attribute( $user_id, 'calypso_preferences' );
+	$hosting_dashboard = (
+		! empty( $preferences ) &&
+		! empty( $preferences['hosting-dashboard-opt-in'] ) &&
+		! empty( $preferences['hosting-dashboard-opt-in']['value'] ) &&
+		$preferences['hosting-dashboard-opt-in']['value'] === 'opt-in'
+	);
 
 	$about_node      = $wp_admin_bar->get_node( 'about' );
 	$contribute_node = $wp_admin_bar->get_node( 'contribute' );
