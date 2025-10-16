@@ -437,10 +437,14 @@ export const markAsReadAction = {
 					} );
 			} )
 		);
-		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			// Invalidate counts cache to ensure counts are refetched and stay accurate
-			invalidateCounts();
 
+		// If there is at least one successful update, invalidate the cache for counts.
+		if ( promises.some( ( { status } ) => status === 'fulfilled' ) ) {
+			invalidateCounts();
+		}
+
+		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+			// Every request was successful.
 			const successMessage =
 				items.length === 1
 					? __( 'Response marked as read.', 'jetpack-forms' )
