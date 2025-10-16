@@ -15,7 +15,6 @@ const mockConfigData = {
 	canInstallPlugins: false,
 	canActivatePlugins: true,
 	hasFeedback: true,
-	hasAI: false,
 	formsResponsesUrl: 'https://example.com/wp-admin/edit.php?post_type=feedback',
 	blogId: 12345,
 	gdriveConnectSupportURL: 'https://example.com/support',

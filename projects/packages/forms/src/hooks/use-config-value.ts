@@ -13,7 +13,6 @@ import type { FormsConfigData } from '../types';
  *
  * @example
  * const isMailPoetEnabled = useConfigValue( 'isMailPoetEnabled' );
- * const hasAI = useConfigValue( 'hasAI' );
  */
 export default function useConfigValue< K extends keyof FormsConfigData >(
 	key: K
