@@ -418,9 +418,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
 		}
 
-		// Filter by read/unread status using comment_status field.
 		if ( null !== $is_unread ) {
-			$comment_status     = rest_sanitize_boolean( $is_unread ) ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+			$comment_status     = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 			$where_conditions[] = $wpdb->prepare( 'comment_status = %s', $comment_status );
 		}
 
@@ -827,8 +826,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$args = parent::prepare_items_query( $args, $request );
 
 		if ( isset( $request['is_unread'] ) ) {
-			$is_unread              = rest_sanitize_boolean( $request['is_unread'] );
-			$args['comment_status'] = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 		}
 
 		return $args;
