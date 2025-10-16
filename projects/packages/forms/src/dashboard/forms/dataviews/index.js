@@ -61,7 +61,7 @@ export default function FormsView() {
 		() => [
 			{
 				id: 'title',
-				label: __( 'Form Title', 'jetpack-forms' ),
+				label: __( 'Form', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					const title =
 						decodeEntities( item.title.rendered ) || __( '(Untitled)', 'jetpack-forms' );
@@ -76,7 +76,7 @@ export default function FormsView() {
 					return decodeEntities( item.title.rendered ) || __( '(Untitled)', 'jetpack-forms' );
 				},
 				enableSorting: false,
-				enableHiding: false,
+				enableHiding: true,
 			},
 			{
 				id: 'responses',

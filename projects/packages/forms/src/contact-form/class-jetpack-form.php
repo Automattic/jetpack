@@ -20,7 +20,7 @@ class Jetpack_Form {
 	 *
 	 * @var string
 	 */
-	const POST_TYPE = 'jetpack_form';
+	const POST_TYPE = 'jetpack-form';
 
 	/**
 	 * Meta key for form settings.
@@ -121,7 +121,7 @@ class Jetpack_Form {
 			'public'             => false,
 			'publicly_queryable' => false,
 			'show_ui'            => true,
-			'show_in_menu'       => true,
+			'show_in_menu'       => false,
 			'show_in_rest'       => true,
 			'rest_base'          => 'jetpack-forms',
 			'query_var'          => true,
@@ -145,6 +145,8 @@ class Jetpack_Form {
 				array( 'jetpack/contact-form' ),
 			),
 			'template_lock'      => 'all',
+			'can_export'         => true,
+			'delete_with_user'   => false,
 		);
 
 		/**
@@ -201,7 +203,7 @@ class Jetpack_Form {
 					'schema' => array(
 						'type'       => 'object',
 						'properties' => array(
-							'jetpackCRM'    => array( 'type' => 'boolean' ),
+							'jetpackCRM'     => array( 'type' => 'boolean' ),
 							'salesforceData' => array(
 								'type'       => 'object',
 								'properties' => array(
