@@ -47,10 +47,14 @@ import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
 import { CORE_BLOCKS } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
+import FormSelector from './components/form-selector.js';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
+import useFormLoader from './hooks/use-form-loader.ts';
+import useFormRef from './hooks/use-form-ref.ts';
+import useFormSync from './hooks/use-form-sync.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
@@ -128,6 +132,7 @@ type Webhook = {
 };
 
 type JetpackContactFormAttributes = {
+	formRef: number;
 	to: string;
 	subject: string;
 	// Legacy support for the customThankyou attribute
@@ -164,6 +169,7 @@ function JetpackContactFormEdit( {
 	useFormBlockDefaults( { attributes, setAttributes } );
 
 	const {
+		formRef,
 		to,
 		subject,
 		customThankyou,
@@ -179,7 +185,39 @@ function JetpackContactFormEdit( {
 		notificationRecipients,
 		webhooks,
 	} = attributes;
+
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+
+	// Create jetpack_form CPT reference if needed
+	const { isCreating: isCreatingForm, error: formCreationError } = useFormRef( {
+		formRef,
+		setAttributes,
+		attributes,
+	} );
+
+	// Sync form blocks and settings to CPT
+	useFormSync( {
+		formRef,
+		clientId,
+		attributes,
+	} );
+
+	// Load form data when switching forms
+	const { loadForm } = useFormLoader( {
+		clientId,
+		setAttributes,
+	} );
+
+	// Handler for form selection
+	const handleFormSelect = useCallback(
+		( selectedFormId: number ) => {
+			if ( selectedFormId !== formRef ) {
+				loadForm( selectedFormId );
+			}
+		},
+		[ formRef, loadForm ]
+	);
+
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
@@ -832,6 +870,17 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					<PanelBody
+						title={ __( 'Form Selection', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel jetpack-contact-form__form-selector-panel"
+						initialOpen={ true }
+					>
+						<FormSelector
+							formRef={ formRef }
+							onFormSelect={ handleFormSelect }
+							currentFormTitle={ formTitle }
+						/>
+					</PanelBody>
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }

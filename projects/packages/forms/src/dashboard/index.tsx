@@ -9,8 +9,10 @@ import { RouterProvider } from 'react-router/dom';
  * Internal dependencies
  */
 import Layout from './components/layout/index.tsx';
+import Forms from './forms/index.js';
 import Inbox from './inbox/index.js';
 import DashboardNotices from './notices-list.tsx';
+
 import './style.scss';
 
 declare global {
@@ -43,6 +45,10 @@ function initFormsDashboard() {
 				{
 					path: 'responses',
 					element: <Inbox />,
+				},
+				{
+					path: 'forms',
+					element: <Forms />,
 				},
 				{
 					path: 'integrations',
