@@ -10,6 +10,7 @@ import { RouterProvider } from 'react-router/dom';
  */
 import About from './about';
 import Layout from './components/layout';
+import Forms from './forms';
 import Inbox from './inbox';
 import Integrations from './integrations';
 import DashboardNotices from './notices-list';
@@ -30,6 +31,10 @@ window.addEventListener( 'load', () => {
 				{
 					path: 'responses',
 					element: <Inbox />,
+				},
+				{
+					path: 'forms',
+					element: <Forms />,
 				},
 				{
 					path: 'integrations',

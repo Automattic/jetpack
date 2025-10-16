@@ -47,10 +47,14 @@ import useFormSteps from '../shared/hooks/use-form-steps';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes';
 import { CORE_BLOCKS } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
+import FormSelector from './components/form-selector';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import NotificationsSettings from './components/notifications-settings';
+import useFormLoader from './hooks/use-form-loader';
+import useFormRef from './hooks/use-form-ref';
+import useFormSync from './hooks/use-form-sync';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
@@ -120,6 +124,7 @@ type CustomThankyouType =
 	| 'redirect'; // redirect to a new URL
 
 type JetpackContactFormAttributes = {
+	formRef: number;
 	to: string;
 	subject: string;
 	// Legacy support for the customThankyou attribute
@@ -134,6 +139,12 @@ type JetpackContactFormAttributes = {
 	disableGoBack: boolean;
 	disableSummary: boolean;
 	notificationRecipients: string[];
+	jetpackCRM?: boolean;
+	salesforceData?: Record< string, unknown >;
+	mailpoet?: Record< string, unknown >;
+	hostingerReach?: Record< string, unknown >;
+	saveResponses?: boolean;
+	formNotifications?: boolean;
 };
 type JetpackContactFormEditProps = {
 	name: string;
@@ -154,6 +165,7 @@ function JetpackContactFormEdit( {
 	useFormBlockDefaults( { attributes, setAttributes } );
 
 	const {
+		formRef,
 		to,
 		subject,
 		customThankyou,
@@ -168,6 +180,37 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 	} = attributes;
+
+	// Create jetpack_form CPT reference if needed
+	const { isCreating: isCreatingForm, error: formCreationError } = useFormRef( {
+		formRef,
+		setAttributes,
+		attributes,
+	} );
+
+	// Sync form blocks and settings to CPT
+	useFormSync( {
+		formRef,
+		clientId,
+		attributes,
+	} );
+
+	// Load form data when switching forms
+	const { loadForm } = useFormLoader( {
+		clientId,
+		setAttributes,
+	} );
+
+	// Handler for form selection
+	const handleFormSelect = useCallback(
+		( selectedFormId: number ) => {
+			if ( selectedFormId !== formRef ) {
+				loadForm( selectedFormId );
+			}
+		},
+		[ formRef, loadForm ]
+	);
+
 	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
@@ -804,6 +847,17 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					<PanelBody
+						title={ __( 'Form Selection', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel jetpack-contact-form__form-selector-panel"
+						initialOpen={ true }
+					>
+						<FormSelector
+							formRef={ formRef }
+							onFormSelect={ handleFormSelect }
+							currentFormTitle={ formTitle }
+						/>
+					</PanelBody>
 					<PanelBody
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
 						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"

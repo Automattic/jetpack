@@ -101,6 +101,12 @@ class Contact_Form_Plugin {
 		if ( ! $instance ) {
 			$instance = new Contact_Form_Plugin();
 
+			// Initialize the Jetpack Form custom post type
+			Jetpack_Form::init();
+
+			// Initialize the Jetpack Form REST API endpoints
+			Jetpack_Form_Endpoint::init();
+
 			// Schedule our daily cleanup
 			add_action( 'wp_scheduled_delete', array( $instance, 'daily_akismet_meta_cleanup' ) );
 		}

@@ -53,6 +53,10 @@ const Layout = () => {
 				name: 'responses',
 				title: __( 'Responses', 'jetpack-forms' ),
 			},
+			{
+				name: 'forms',
+				title: __( 'Forms', 'jetpack-forms' ),
+			},
 			...( enableIntegrationsTab
 				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
 				: [] ),
@@ -76,6 +80,7 @@ const Layout = () => {
 	}, [ location.pathname, tabs, hasFeedback ] );
 
 	const isResponsesTab = getCurrentTab() === 'responses';
+	const isFormsTab = getCurrentTab() === 'forms';
 
 	const handleTabSelect = useCallback(
 		( tabName: string ) => {
@@ -118,7 +123,7 @@ const Layout = () => {
 						{ isResponsesTab && <ExportResponsesButton /> }
 						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
 						{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
-						{ ! isResponsesTrashView && ! isResponsesSpamView && (
+						{ ( isFormsTab || ( ! isResponsesTrashView && ! isResponsesSpamView ) ) && (
 							<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
 						) }
 					</div>
