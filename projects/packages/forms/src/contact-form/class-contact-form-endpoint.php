@@ -328,7 +328,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 					'is_unread' => array(
-						'description'       => 'Limit counts to read or unread feedback items.',
+						'description'       => 'Limit results to read or unread feedback items.',
 						'type'              => 'boolean',
 						'sanitize_callback' => 'rest_sanitize_boolean',
 						'validate_callback' => 'rest_validate_request_arg',
