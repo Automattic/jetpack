@@ -558,7 +558,7 @@ if (
 								$attributes['width'] = $content_width;
 							}
 
-							if ( ! $attributes['width'] ) {
+							if ( empty( $attributes['width'] ) ) {
 								$attributes['width'] = '100%';
 							} else {
 								$attributes['width'] = (int) $attributes['width'];

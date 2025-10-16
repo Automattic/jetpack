@@ -15,11 +15,11 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
+    // PhanPluginRedundantAssignment : 2 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanDeprecatedClass : 1 occurrence
     // PhanPluginMixedKeyNoKey : 1 occurrence
-    // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
     // PhanTypeArraySuspiciousNullable : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
