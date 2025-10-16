@@ -37,3 +37,24 @@ export const getTrashCount = ( state, queryParams = {} ) => {
 	const counts = getCounts( state, queryParams );
 	return counts.trash;
 };
+
+/**
+ * Get set of invalid record IDs.
+ *
+ * @param {object} state - Store state.
+ * @return {Set<number>} Set of invalid record IDs.
+ */
+export const getInvalidRecords = state => {
+	return state.invalidRecords || new Set();
+};
+
+/**
+ * Check if a specific record is marked as invalid.
+ *
+ * @param {object} state    - Store state.
+ * @param {number} recordId - Record ID to check.
+ * @return {boolean} Whether the record is invalid.
+ */
+export const isRecordInvalid = ( state, recordId ) => {
+	return state.invalidRecords?.has( recordId ) || false;
+};

@@ -10,6 +10,8 @@ import {
 	SET_COUNTS,
 	UPDATE_COUNTS_OPTIMISTICALLY,
 	INVALIDATE_COUNTS,
+	MARK_RECORDS_AS_INVALID,
+	CLEAR_INVALID_RECORDS,
 } from './action-types';
 
 /**
@@ -53,14 +55,36 @@ export const setSelectedResponses = selectedResponses => ( {
 
 /**
  * Set the current DataViews query.
+ * If filters have changed, clears invalid records and invalidates entity records resolution.
  *
  * @param {object} currentQuery - The current DataViews query.
- * @return {object} Action object.
+ * @return {Function} Thunk action.
  */
 export function setCurrentQuery( currentQuery ) {
-	return {
-		type: SET_CURRENT_QUERY,
-		currentQuery,
+	return ( { dispatch, select, registry } ) => {
+		const previousQuery = select.getCurrentQuery();
+
+		// Check if filters changed (not just pagination)
+		const filtersChanged =
+			previousQuery.status !== currentQuery.status ||
+			previousQuery.search !== currentQuery.search ||
+			previousQuery.is_unread !== currentQuery.is_unread ||
+			previousQuery.parent !== currentQuery.parent ||
+			previousQuery.before !== currentQuery.before ||
+			previousQuery.after !== currentQuery.after;
+
+		// If filters changed, clear invalid records and refetch
+		if ( filtersChanged ) {
+			dispatch( clearInvalidRecords() );
+			registry
+				.dispatch( 'core' )
+				.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
+		}
+
+		dispatch( {
+			type: SET_CURRENT_QUERY,
+			currentQuery,
+		} );
 	};
 }
 
@@ -95,6 +119,30 @@ export function updateCountsOptimistically( fromStatus, toStatus, count = 1, que
 		toStatus,
 		count,
 		queryParams,
+	};
+}
+
+/**
+ * Mark records as invalid/stale without removing them from view.
+ *
+ * @param {number[]} recordIds - IDs of records to mark as invalid.
+ * @return {object} Action object.
+ */
+export function markRecordsAsInvalid( recordIds ) {
+	return {
+		type: MARK_RECORDS_AS_INVALID,
+		recordIds,
+	};
+}
+
+/**
+ * Clear all invalid record markers.
+ *
+ * @return {object} Action object.
+ */
+export function clearInvalidRecords() {
+	return {
+		type: CLEAR_INVALID_RECORDS,
 	};
 }
 

@@ -11,6 +11,8 @@ import {
 	SET_CURRENT_QUERY,
 	SET_COUNTS,
 	UPDATE_COUNTS_OPTIMISTICALLY,
+	MARK_RECORDS_AS_INVALID,
+	CLEAR_INVALID_RECORDS,
 } from './action-types';
 
 const filters = ( state = {}, action ) => {
@@ -107,9 +109,20 @@ const counts = ( state = {}, action ) => {
 	return state;
 };
 
+const invalidRecords = ( state = new Set(), action ) => {
+	if ( action.type === MARK_RECORDS_AS_INVALID ) {
+		return new Set( [ ...state, ...action.recordIds ] );
+	}
+	if ( action.type === CLEAR_INVALID_RECORDS ) {
+		return new Set();
+	}
+	return state;
+};
+
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
 	currentQuery,
 	counts,
+	invalidRecords,
 } );

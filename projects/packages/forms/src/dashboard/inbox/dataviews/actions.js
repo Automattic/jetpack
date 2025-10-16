@@ -392,7 +392,7 @@ export const markAsReadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
+		const { invalidateCounts, markRecordsAsInvalid } = registry.dispatch( dashboardStore );
 
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
@@ -441,6 +441,11 @@ export const markAsReadAction = {
 		// If there is at least one successful update, invalidate the cache for counts.
 		if ( promises.some( ( { status } ) => status === 'fulfilled' ) ) {
 			invalidateCounts();
+			// Mark successfully updated records as invalid instead of removing from view
+			const updatedIds = items
+				.filter( ( _, index ) => promises[ index ]?.status === 'fulfilled' )
+				.map( item => item.id );
+			markRecordsAsInvalid( updatedIds );
 		}
 
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
@@ -489,7 +494,7 @@ export const markAsUnreadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts } = registry.dispatch( dashboardStore );
+		const { invalidateCounts, markRecordsAsInvalid } = registry.dispatch( dashboardStore );
 
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
@@ -537,6 +542,9 @@ export const markAsUnreadAction = {
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
 			// Invalidate counts cache to ensure counts are refetched and stay accurate
 			invalidateCounts();
+			// Mark successfully updated records as invalid instead of removing from view
+			const updatedIds = items.map( item => item.id );
+			markRecordsAsInvalid( updatedIds );
 
 			const successMessage =
 				items.length === 1
