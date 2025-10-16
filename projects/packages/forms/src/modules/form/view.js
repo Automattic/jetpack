@@ -103,8 +103,10 @@ const maybeAddColonToLabel = label => {
 	if ( ! formattedLabel ) {
 		return null;
 	}
-
-	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+	// Special case for the Terms consent field block which has a period at the end of the text.
+	return formattedLabel.endsWith( '?' )
+		? formattedLabel
+		: formattedLabel.replace( /[.:]$/, '' ) + ':';
 };
 
 const maybeTransformValue = value => {
