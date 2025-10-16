@@ -76,9 +76,12 @@ export function setCurrentQuery( currentQuery ) {
 		// If filters changed, clear invalid records and refetch
 		if ( filtersChanged ) {
 			dispatch( clearInvalidRecords() );
-			registry
-				.dispatch( 'core' )
-				.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
+			// Only invalidate resolution if core store is available (it won't be in tests)
+			if ( registry && registry.dispatch( 'core' ) ) {
+				registry
+					.dispatch( 'core' )
+					.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
+			}
 		}
 
 		dispatch( {
