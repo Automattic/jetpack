@@ -2063,7 +2063,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					}
 				} else {
-					$rendered_image_block = '<figure class="wp-block-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
+					$rendered_image_block = '<figure class="wp-block-image jetpack-input-image-option__empty-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
 				}
 
 				$option_value                = wp_json_encode(

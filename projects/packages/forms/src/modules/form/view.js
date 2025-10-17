@@ -135,7 +135,7 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.filter( choice => choice.image?.src ).map( choice => choice.image?.src );
+		return value.choices.map( choice => choice.image?.src );
 	}
 
 	return null;
