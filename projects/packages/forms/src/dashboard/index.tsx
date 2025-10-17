@@ -21,23 +21,17 @@ declare global {
 	}
 }
 
-let isInitialized = false;
-
 /**
  * Initialize the Forms dashboard
  */
 function initFormsDashboard() {
-	if ( isInitialized ) {
-		return;
-	}
-
 	const container = document.getElementById( 'jp-forms-dashboard' );
 
-	if ( ! container ) {
+	if ( ! container || container.dataset.formsInitialized ) {
 		return;
 	}
 
-	isInitialized = true;
+	container.dataset.formsInitialized = 'true';
 
 	const router = createHashRouter( [
 		{
