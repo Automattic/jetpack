@@ -2020,138 +2020,136 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$used_html_ids = array();
 
-		if ( ! empty( $options_data ) ) {
-			// Create a separate array of original letters in sequence (A, B, C...)
-			$perceived_letters = array();
+		// Create a separate array of original letters in sequence (A, B, C...)
+		$perceived_letters = array();
 
-			foreach ( $options_data as $option ) {
-				$perceived_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
-			}
+		foreach ( $options_data as $option ) {
+			$perceived_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
+		}
 
-			// Create a working copy of options for potential randomization
-			$working_options = $options_data;
+		// Create a working copy of options for potential randomization
+		$working_options = $options_data;
 
-			// Randomize options if requested, but preserve original letter values
-			if ( $randomize_options ) {
-				shuffle( $working_options );
+		// Randomize options if requested, but preserve original letter values
+		if ( $randomize_options ) {
+			shuffle( $working_options );
 
-				// Trims options after randomization to ensure the last option has a label or image.
-				$working_options = $this->trim_image_select_options( $working_options );
-			}
+			// Trims options after randomization to ensure the last option has a label or image.
+			$working_options = $this->trim_image_select_options( $working_options );
+		}
 
-			// Calculate row options count for CSS variable
-			$total_options_count = count( $options_data );
-			// Those values are halved on mobile via CSS media query
-			$max_images_per_row = $is_supersized ? 2 : 4;
-			$row_options_count  = min( $total_options_count, $max_images_per_row );
+		// Calculate row options count for CSS variable
+		$total_options_count = count( $working_options );
+		// Those values are halved on mobile via CSS media query
+		$max_images_per_row = $is_supersized ? 2 : 4;
+		$row_options_count  = min( $total_options_count, $max_images_per_row );
 
-			foreach ( $working_options as $option_index => $option ) {
-				$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
-				$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
-				$image_block   = $option['image'];
+		foreach ( $working_options as $option_index => $option ) {
+			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
+			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
+			$image_block   = $option['image'];
 
-				// Extract image src from rendered block
-				$rendered_image_block = render_block( $image_block );
-				$image_src            = '';
+			// Extract image src from rendered block
+			$rendered_image_block = render_block( $image_block );
+			$image_src            = '';
 
-				if ( ! empty( $rendered_image_block ) ) {
-					if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
-						$extracted_src = $matches[1];
+			if ( ! empty( $rendered_image_block ) ) {
+				if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
+					$extracted_src = $matches[1];
 
-						if ( filter_var( $extracted_src, FILTER_VALIDATE_URL ) || str_starts_with( $extracted_src, 'data:' ) ) {
-							$image_src = $extracted_src;
-						}
-					}
-				} else {
-					$rendered_image_block = '<figure class="wp-block-image jetpack-input-image-option__empty-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
-				}
-
-				$option_value                = wp_json_encode(
-					array(
-						'perceived'  => $perceived_letters[ $option_index ],
-						'selected'   => $option_letter,
-						'label'      => $option_label,
-						'showLabels' => $show_labels,
-						'image'      => array(
-							'id'  => $image_block['attrs']['id'] ?? null,
-							'src' => $image_src ?? null,
-						),
-					)
-				);
-				$option_id                   = $id . '-' . $option_letter;
-				$used_html_ids[ $option_id ] = true;
-
-				// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
-				// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
-				$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
-
-				if ( $is_supersized ) {
-					$option_outer_classes .= ' is-supersized';
-				}
-
-				$border_styles = '';
-				if ( ! empty( $option['style'] ) ) {
-					preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
-					preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
-
-					if ( ! empty( $radius_match[1] ) ) {
-						$radius_value = trim( $radius_match[1] );
-
-						if ( ! empty( $width_match[1] ) ) {
-								$width_value   = trim( $width_match[1] );
-								$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
-						} else {
-								$border_styles = "border-radius:{$radius_value};";
-						}
+					if ( filter_var( $extracted_src, FILTER_VALIDATE_URL ) || str_starts_with( $extracted_src, 'data:' ) ) {
+						$image_src = $extracted_src;
 					}
 				}
-
-				$option_outer_styles  = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
-				$option_outer_styles .= "--row-options-count: {$row_options_count};";
-				$option_outer_styles  = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
-
-				$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
-
-				$default_classes = 'jetpack-field jetpack-input-image-option';
-				$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
-				$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
-
-				$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
-
-				$input_id = esc_attr( $option_id );
-
-				$context             = array(
-					'inputId' => $input_id,
-				);
-				$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
-
-				$field .= "<div class='jetpack-input-image-option__wrapper'>";
-				$field .= "<input
-				id='" . $input_id . "'
-				class='jetpack-input-image-option__input'
-				type='" . esc_attr( $input_type ) . "'
-				name='" . esc_attr( $input_name ) . "'
-				value='" . esc_attr( $option_value ) . "'
-				" . $interactivity_attrs . "
-				data-wp-init='callbacks.setImageOptionCheckColor'
-				data-wp-on--keydown='actions.onKeyDownImageOption'
-				data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
-				. $class
-				. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
-				. ( $required ? "required aria-required='true'" : '' )
-				. '/> ';
-
-				$field .= $rendered_image_block;
-				$field .= '</div>';
-
-				$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
-				$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $perceived_letters[ $option_index ] ) . '</div>';
-
-				$label_classes  = 'jetpack-input-image-option__label';
-				$label_classes .= $show_labels ? '' : ' visually-hidden';
-				$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
-				$field         .= '</div></div></div>';
+			} else {
+				$rendered_image_block = '<figure class="wp-block-image jetpack-input-image-option__empty-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
 			}
+
+			$option_value                = wp_json_encode(
+				array(
+					'perceived'  => $perceived_letters[ $option_index ],
+					'selected'   => $option_letter,
+					'label'      => $option_label,
+					'showLabels' => $show_labels,
+					'image'      => array(
+						'id'  => $image_block['attrs']['id'] ?? null,
+						'src' => $image_src ?? null,
+					),
+				)
+			);
+			$option_id                   = $id . '-' . $option_letter;
+			$used_html_ids[ $option_id ] = true;
+
+			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
+			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
+			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
+
+			if ( $is_supersized ) {
+				$option_outer_classes .= ' is-supersized';
+			}
+
+			$border_styles = '';
+			if ( ! empty( $option['style'] ) ) {
+				preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+				preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+
+				if ( ! empty( $radius_match[1] ) ) {
+					$radius_value = trim( $radius_match[1] );
+
+					if ( ! empty( $width_match[1] ) ) {
+							$width_value   = trim( $width_match[1] );
+							$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+					} else {
+							$border_styles = "border-radius:{$radius_value};";
+					}
+				}
+			}
+
+			$option_outer_styles  = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+			$option_outer_styles .= "--row-options-count: {$row_options_count};";
+			$option_outer_styles  = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+
+			$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
+
+			$default_classes = 'jetpack-field jetpack-input-image-option';
+			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+
+			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
+
+			$input_id = esc_attr( $option_id );
+
+			$context             = array(
+				'inputId' => $input_id,
+			);
+			$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
+			$field .= "<div class='jetpack-input-image-option__wrapper'>";
+			$field .= "<input
+			id='" . $input_id . "'
+			class='jetpack-input-image-option__input'
+			type='" . esc_attr( $input_type ) . "'
+			name='" . esc_attr( $input_name ) . "'
+			value='" . esc_attr( $option_value ) . "'
+			" . $interactivity_attrs . "
+			data-wp-init='callbacks.setImageOptionCheckColor'
+			data-wp-on--keydown='actions.onKeyDownImageOption'
+			data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
+			. $class
+			. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
+			. ( $required ? "required aria-required='true'" : '' )
+			. '/> ';
+
+			$field .= $rendered_image_block;
+			$field .= '</div>';
+
+			$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
+			$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $perceived_letters[ $option_index ] ) . '</div>';
+
+			$label_classes  = 'jetpack-input-image-option__label';
+			$label_classes .= $show_labels ? '' : ' visually-hidden';
+			$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+			$field         .= '</div></div></div>';
 		}
 
 		$field .= '</div></div>';
@@ -2637,7 +2635,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function is_field_renderable( $type ) {
 		// Check that radio, select, multiple choice, and image select
 		// fields have at least one valid option.
-		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' || $type === 'image-select' ) {
+		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' ) {
 			$options           = (array) $this->get_attribute( 'options' );
 			$non_empty_options = array_filter(
 				$options,
@@ -2648,16 +2646,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return count( $non_empty_options ) > 0;
 		}
 
-		// File field requires Jetpack to be active
-		if ( $type === 'file' ) {
-			/**
-			 * Check if Jetpack is active for file uploads.
-			 *
-			 * @since 5.3.0
-			 *
-			 * @return bool
-			 */
-			return apply_filters( 'jetpack_forms_is_file_field_renderable', defined( 'JETPACK__PLUGIN_DIR' ) );
+		if ( $type === 'image-select' ) {
+			$options_data         = (array) $this->get_attribute( 'optionsdata' );
+			$trimmed_options_data = $this->trim_image_select_options( $options_data );
+
+			return ! empty( $trimmed_options_data );
 		}
 
 		return true;
