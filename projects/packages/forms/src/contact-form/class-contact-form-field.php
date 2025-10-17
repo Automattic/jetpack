@@ -2013,7 +2013,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= "<div class='" . esc_attr( $options_classes ) . " jetpack-field jetpack-fieldset-image-options' style='" . esc_attr( $options_styles ) . "'>";
 		$field .= "<div class='jetpack-fieldset-image-options__wrapper'>";
 
-		$options_data  = $this->get_attribute( 'optionsdata' );
+		$options_data = $this->get_attribute( 'optionsdata' );
+
+		// Filter out empty options from the end
+		$options_data = $this->trim_image_select_options( $options_data );
+
 		$used_html_ids = array();
 
 		if ( ! empty( $options_data ) ) {
@@ -2030,6 +2034,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// Randomize options if requested, but preserve original letter values
 			if ( $randomize_options ) {
 				shuffle( $working_options );
+
+				// Trims options after randomization to ensure the last option has a label or image.
+				$working_options = $this->trim_image_select_options( $working_options );
 			}
 
 			// Calculate row options count for CSS variable
@@ -2056,7 +2063,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						}
 					}
 				} else {
-					$rendered_image_block = '<figure class="wp-block-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
+					$rendered_image_block = '<figure class="wp-block-image jetpack-input-image-option__empty-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
 				}
 
 				$option_value                = wp_json_encode(
@@ -3218,5 +3225,45 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array( '@wordpress/interactivity' ),
 			$version
 		);
+	}
+
+	/**
+	 * Trims the image select options from the end of the array if they are empty.
+	 *
+	 * @param array $options The options to trim.
+	 *
+	 * @return array The trimmed options array.
+	 */
+	private function trim_image_select_options( $options ) {
+		if ( empty( $options ) ) {
+			return $options;
+		}
+
+		// Work backwards through the array to find the last valid option
+		$last_valid_index = -1;
+
+		for ( $i = count( $options ) - 1; $i >= 0; $i-- ) {
+			$option = $options[ $i ];
+
+			// Check if option has a label
+			$has_label = ! empty( $option['label'] );
+
+			// Check if option has an image with src
+			$has_image = false;
+
+			if ( isset( $option['image']['innerHTML'] ) ) {
+				// Extract src from innerHTML using regex
+				preg_match( '/src="([^"]*)"/', $option['image']['innerHTML'], $matches );
+				$has_image = ! empty( $matches[1] );
+			}
+
+			// If this option has either a label or an image, it's valid
+			if ( $has_label || $has_image ) {
+				$last_valid_index = $i;
+				break;
+			}
+		}
+
+		return array_slice( $options, 0, $last_valid_index + 1 );
 	}
 }

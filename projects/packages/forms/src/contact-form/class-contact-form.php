@@ -1094,7 +1094,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 						<div class="field-value" data-wp-text="context.submission.value"></div>
 						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
 							<template data-wp-each--image="context.submission.images">
-								<img class="field-image" data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image"/>
+								<figure class="field-image" data-wp-class--is-empty="!context.image">
+									<img data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image" />
+									<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image" />
+								</figure>
 							</template>
 						</div>
 					</div>
@@ -1109,7 +1112,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 					if ( ! empty( $submission['images'] ) ) {
 						foreach ( $submission['images'] as $image ) {
-							$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image" ' . ( empty( $image ) ? 'hidden' : '' ) . ' />';
+							$html .= '<figure data-wp-each-child class="field-image ' . ( empty( $image ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image">';
+							$html .= '<img data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image"' . ( empty( $image ) ? 'hidden' : '' ) . '/>';
+							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image"' . ( empty( $image ) ? '' : 'hidden' ) . '/>';
+							$html .= '</figure>';
 						}
 					} else {
 						$html .= '<template data-wp-each--image="context.submission.images"></template>';

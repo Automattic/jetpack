@@ -1,0 +1,24 @@
+%empty-image-option-icon {
+	content: "";
+	$mask-url: "data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 19 18' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M16.5 0H2.5C1.4 0 0.5 0.9 0.5 2V16C0.5 17.1 1.4 18 2.5 18H16.5C17.6 18 18.5 17.1 18.5 16V2C18.5 0.9 17.6 0 16.5 0ZM2.5 1.5H16.5C16.8 1.5 17 1.7 17 2V10.4L14 7.5C13.7 7.2 13.2 7.2 13 7.5L9.4 11L6.5 9C6.2 8.8 5.9 8.8 5.7 9L2.1 11.6V2C2 1.7 2.2 1.5 2.5 1.5ZM16.5 16.5H2.5C2.2 16.5 2 16.3 2 16V13.6L6.1 10.6L9.1 12.5C9.4 12.7 9.8 12.7 10 12.4L13.5 9L17 12.4V16C17 16.3 16.8 16.5 16.5 16.5Z' fill='%233858E9'/%3E%3C/svg%3E";
+	mask-image: url(#{$mask-url});
+	mask-size: contain;
+	mask-repeat: no-repeat;
+	position: absolute;
+	top: calc(50% - 10px);
+	left: calc(50% - 10px);
+	width: 20px;
+	height: 20px;
+	background-color: var(--jetpack--contact-form--primary-color);
+}
+
+%empty-image-option-background {
+	content: "";
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	opacity: 0.1;
+	background: currentColor;
+}

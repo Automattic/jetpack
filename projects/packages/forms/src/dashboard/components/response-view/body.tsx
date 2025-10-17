@@ -265,16 +265,25 @@ const ResponseViewBody = ( {
 							</div>
 							<div className="image-select-field-images">
 								{ value.choices.map( choice => {
+									const imageSrc =
+										choice.image?.src ||
+										'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
 									return (
-										<img
+										<figure
 											key={ choice.selected }
-											className="image-select-field-image"
-											src={
-												choice.image.src ||
-												'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
-											}
-											alt={ choice.selected }
-										/>
+											className={ clsx( 'image-select-field-image', {
+												'is-empty': ! choice.image?.src,
+											} ) }
+										>
+											<img
+												className={ clsx( 'image-select-field-image', {
+													'is-empty': ! choice.image?.src,
+												} ) }
+												src={ imageSrc }
+												alt={ choice.selected }
+											/>
+										</figure>
 									);
 								} ) }
 							</div>
@@ -364,7 +373,7 @@ const ResponseViewBody = ( {
 			method: 'POST',
 			data: { is_unread: false },
 		} )
-			.then( ( { count } ) => {
+			.then( ( { count }: { count: number } ) => {
 				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
 				// Mark record as invalid instead of removing from view

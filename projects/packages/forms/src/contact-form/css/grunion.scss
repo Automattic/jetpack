@@ -1,5 +1,6 @@
 /* Import shared visually-hidden utility so editor and frontend match */
 @use "../../blocks/shared/styles/visually-hidden" as *;
+@use "../../blocks/shared/styles/empty_image_option" as *;
 
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;
@@ -271,9 +272,28 @@ that needs to mimic the input element styles */
 	}
 
 	.field-image {
-		width: 200px;
-		aspect-ratio: 1/1;
-		object-fit: cover;
+		width: 196px;
+		height: 196px;
+
+		&.is-empty {
+			position: relative;
+
+			&::before {
+
+				@extend %empty-image-option-background;
+			}
+
+			&::after {
+
+				@extend %empty-image-option-icon;
+			}
+		}
+
+		img {
+			width: 100%;
+			aspect-ratio: 1/1;
+			object-fit: cover;
+		}
 	}
 }
 
