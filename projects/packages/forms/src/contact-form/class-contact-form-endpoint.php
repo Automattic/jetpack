@@ -816,6 +816,64 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves a collection of feedback items.
+	 * Overrides parent to support invalid_ids with OR logic.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_items( $request ) {
+		$invalid_ids = $request->get_param( 'invalid_ids' );
+
+		// If we have invalid_ids, we need to modify the query with a WHERE clause
+		if ( ! empty( $invalid_ids ) ) {
+			add_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10, 2 );
+			// Store invalid_ids temporarily so the filter can access them
+			$this->temp_invalid_ids = $invalid_ids;
+		}
+
+		$response = parent::get_items( $request );
+
+		// Clean up
+		if ( ! empty( $invalid_ids ) ) {
+			remove_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10 );
+			unset( $this->temp_invalid_ids );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Modify the WHERE clause to include invalid_ids with OR logic.
+	 *
+	 * @param string   $where The WHERE clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified WHERE clause.
+	 */
+	public function modify_query_for_invalid_ids( $where, $query ) {
+		global $wpdb;
+
+		// Only modify our feedback queries
+		if ( ! isset( $this->temp_invalid_ids ) || empty( $this->temp_invalid_ids ) ) {
+			return $where;
+		}
+
+		// Only modify if this is a feedback query
+		$post_type = $query->get( 'post_type' );
+		if ( $post_type !== 'feedback' ) {
+			return $where;
+		}
+
+		$invalid_ids_sql = implode( ',', array_map( 'absint', $this->temp_invalid_ids ) );
+
+		// Add OR condition for invalid_ids at the end of the WHERE clause
+		// Keep the AND at the beginning since WordPress WHERE clauses start with "AND"
+		$where .= " OR {$wpdb->posts}.ID IN ({$invalid_ids_sql})";
+
+		return $where;
+	}
+
+	/**
 	 * Filters the query arguments for the feedback collection.
 	 *
 	 * @param array           $args    Key value array of query var to query value.
@@ -862,6 +920,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
 			'type'              => 'boolean',
 			'sanitize_callback' => 'rest_sanitize_boolean',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['invalid_ids']    = array(
+			'description'       => __( 'List of item IDs to include in results regardless of filters.', 'jetpack-forms' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => function ( $param ) {
+				return array_map( 'absint', (array) $param );
+			},
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;
