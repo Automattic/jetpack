@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: Migrate dashboard routing from React Router to TanStack Router
