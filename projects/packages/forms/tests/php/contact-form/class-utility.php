@@ -81,7 +81,7 @@ class Utility {
 				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
 				'post_content'   => $content, // so that search will pick up this data
 				'post_name'      => $feedback_id,
-				'comment_status' => $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ,
+				'comment_status' => $is_unread ? 'open' : 'closed',
 			)
 		);
 	}

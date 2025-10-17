@@ -10,8 +10,6 @@ import {
 	SET_COUNTS,
 	UPDATE_COUNTS_OPTIMISTICALLY,
 	INVALIDATE_COUNTS,
-	MARK_RECORDS_AS_INVALID,
-	CLEAR_INVALID_RECORDS,
 } from './action-types';
 
 /**
@@ -55,97 +53,44 @@ export const setSelectedResponses = selectedResponses => ( {
 
 /**
  * Set the current DataViews query.
- * If filters have changed, clears invalid records and invalidates entity records resolution.
  *
  * @param {object} currentQuery - The current DataViews query.
- * @return {Function} Thunk action.
+ * @return {object} Action object.
  */
 export function setCurrentQuery( currentQuery ) {
-	return ( { dispatch, select, registry } ) => {
-		const previousQuery = select.getCurrentQuery();
-
-		// Check if filters changed (not just pagination)
-		const filtersChanged =
-			previousQuery.status !== currentQuery.status ||
-			previousQuery.search !== currentQuery.search ||
-			previousQuery.is_unread !== currentQuery.is_unread ||
-			previousQuery.parent !== currentQuery.parent ||
-			previousQuery.before !== currentQuery.before ||
-			previousQuery.after !== currentQuery.after;
-
-		// If filters changed, clear invalid records and refetch
-		if ( filtersChanged ) {
-			dispatch( clearInvalidRecords() );
-			// Only invalidate resolution if core store is available (it won't be in tests)
-			if ( registry && registry.dispatch( 'core' ) ) {
-				registry
-					.dispatch( 'core' )
-					.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
-			}
-		}
-
-		dispatch( {
-			type: SET_CURRENT_QUERY,
-			currentQuery,
-		} );
+	return {
+		type: SET_CURRENT_QUERY,
+		currentQuery,
 	};
 }
 
 /**
  * Set the status counts.
  *
- * @param {object} counts      - The counts object with inbox, spam, and trash.
- * @param {object} queryParams - The query parameters used to fetch these counts.
+ * @param {object} counts - The counts object with inbox, spam, and trash.
  * @return {object} Action object.
  */
-export function setCounts( counts, queryParams = {} ) {
+export function setCounts( counts ) {
 	return {
 		type: SET_COUNTS,
 		counts,
-		queryParams,
 	};
 }
 
 /**
  * Optimistically update counts when status changes.
  *
- * @param {string} fromStatus  - The status items are moving from.
- * @param {string} toStatus    - The status items are moving to.
- * @param {number} count       - Number of items being moved.
- * @param {object} queryParams - The query parameters for the current view.
+ * @param {string} fromStatus - The status items are moving from.
+ * @param {string} toStatus   - The status items are moving to.
+ * @param {number} count      - Number of items being moved.
  * @return {object} Action object.
  */
-export function updateCountsOptimistically( fromStatus, toStatus, count = 1, queryParams = {} ) {
+export function updateCountsOptimistically( fromStatus, toStatus, count = 1 ) {
 	return {
 		type: UPDATE_COUNTS_OPTIMISTICALLY,
 		fromStatus,
 		toStatus,
 		count,
-		queryParams,
-	};
-}
-
-/**
- * Mark records as invalid/stale without removing them from view.
- *
- * @param {number[]} recordIds - IDs of records to mark as invalid.
- * @return {object} Action object.
- */
-export function markRecordsAsInvalid( recordIds ) {
-	return {
-		type: MARK_RECORDS_AS_INVALID,
-		recordIds,
-	};
-}
-
-/**
- * Clear all invalid record markers.
- *
- * @return {object} Action object.
- */
-export function clearInvalidRecords() {
-	return {
-		type: CLEAR_INVALID_RECORDS,
 	};
 }
 

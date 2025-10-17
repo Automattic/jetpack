@@ -88,7 +88,6 @@ jest.mock( '@wordpress/data', () => {
 		getInboxCount: jest.fn().mockReturnValue( 0 ),
 		getSpamCount: jest.fn().mockReturnValue( 1 ),
 		getTrashCount: jest.fn().mockReturnValue( 0 ),
-		getInvalidRecords: jest.fn().mockReturnValue( new Set() ),
 	};
 
 	return {
@@ -105,7 +104,6 @@ jest.mock( '@wordpress/data', () => {
 					setCurrentQuery: mockDispatch.setCurrentQuery,
 					setSelectedResponses: mockDispatch.setSelectedResponses,
 					invalidateCounts: mockDispatch.invalidateCounts,
-					markRecordsAsInvalid: jest.fn(),
 				};
 			}
 			return {};

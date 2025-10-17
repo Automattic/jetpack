@@ -27,10 +27,8 @@ import clsx from 'clsx';
 import useConfigValue from '../../../hooks/use-config-value';
 import CopyClipboardButton from '../../components/copy-clipboard-button';
 import Gravatar from '../../components/gravatar';
-import useInboxData from '../../hooks/use-inbox-data';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
-import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
 
 const getDisplayName = response => {
@@ -198,7 +196,6 @@ const ResponseViewBody = ( {
 	isLoading,
 	onModalStateChange,
 }: ResponseViewBodyProps ): import('react').JSX.Element => {
-	const { currentQuery } = useInboxData();
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
 	const [ previewFile, setPreviewFile ] = useState< null | object >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
@@ -212,8 +209,6 @@ const ResponseViewBody = ( {
 	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
 		response as FormResponse
 	);
-
-	const { invalidateCounts, markRecordsAsInvalid } = useDispatch( dashboardStore );
 
 	const ref = useRef( undefined );
 
@@ -376,10 +371,6 @@ const ResponseViewBody = ( {
 			.then( ( { count }: { count: number } ) => {
 				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
-				// Mark record as invalid instead of removing from view
-				markRecordsAsInvalid( [ response.id ] );
-				// invalidate counts to refresh the counts across all status tabs
-				invalidateCounts();
 			} )
 			.catch( () => {
 				// Revert the change in the store
@@ -392,14 +383,7 @@ const ResponseViewBody = ( {
 					updateMenuCounterOptimistically( 1 );
 				}
 			} );
-	}, [
-		response,
-		editEntityRecord,
-		hasMarkedSelfAsRead,
-		invalidateCounts,
-		markRecordsAsInvalid,
-		currentQuery,
-	] );
+	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );

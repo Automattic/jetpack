@@ -35,13 +35,9 @@ export const getCounts =
 		if ( queryParams?.after ) {
 			params.after = queryParams.after;
 		}
-		if ( queryParams?.is_unread !== undefined ) {
-			params.is_unread = queryParams.is_unread;
-		}
-
 		const path = addQueryArgs( '/wp/v2/feedback/counts', params );
 		const response = await apiFetch( { path } );
-		dispatch.setCounts( response, queryParams );
+		dispatch.setCounts( response );
 	};
 
 getCounts.shouldInvalidate = action => action.type === INVALIDATE_COUNTS;

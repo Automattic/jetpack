@@ -8,32 +8,6 @@ import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 
-/**
- * Helper function to extract count-relevant query params from the current query.
- *
- * @param {object} currentQuery - The current query from the store.
- * @return {object} Query params relevant for count caching.
- */
-const getCountQueryParams = currentQuery => {
-	const queryParams = {};
-	if ( currentQuery?.search ) {
-		queryParams.search = currentQuery.search;
-	}
-	if ( currentQuery?.parent ) {
-		queryParams.parent = currentQuery.parent;
-	}
-	if ( currentQuery?.before ) {
-		queryParams.before = currentQuery.before;
-	}
-	if ( currentQuery?.after ) {
-		queryParams.after = currentQuery.after;
-	}
-	if ( currentQuery?.is_unread !== undefined ) {
-		queryParams.is_unread = currentQuery.is_unread;
-	}
-	return queryParams;
-};
-
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
@@ -89,12 +63,9 @@ export const markAsSpamAction = {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
-		const { getCurrentQuery } = registry.select( dashboardStore );
-
-		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'spam', 1, queryParams );
+			updateCountsOptimistically( item.status, 'spam', 1 );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -154,12 +125,9 @@ export const markAsNotSpamAction = {
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
-		const { getCurrentQuery } = registry.select( dashboardStore );
-
-		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( () => {
-			updateCountsOptimistically( 'spam', 'publish', 1, queryParams );
+			updateCountsOptimistically( 'spam', 'publish', 1 );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -221,12 +189,9 @@ export const restoreAction = {
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
-		const { getCurrentQuery } = registry.select( dashboardStore );
-
-		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( () => {
-			updateCountsOptimistically( 'trash', 'publish', 1, queryParams );
+			updateCountsOptimistically( 'trash', 'publish', 1 );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -280,12 +245,9 @@ export const moveToTrashAction = {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
-		const { getCurrentQuery } = registry.select( dashboardStore );
-
-		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'trash', 1, queryParams );
+			updateCountsOptimistically( item.status, 'trash', 1 );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -337,13 +299,10 @@ export const deleteAction = {
 	async callback( items, { registry } ) {
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
-		const { getCurrentQuery } = registry.select( dashboardStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 
-		const queryParams = getCountQueryParams( getCurrentQuery() );
-
 		items.forEach( () => {
-			updateCountsOptimistically( 'trash', 'deleted', 1, queryParams );
+			updateCountsOptimistically( 'trash', 'deleted', 1 );
 		} );
 
 		const promises = await Promise.allSettled(
@@ -392,7 +351,6 @@ export const markAsReadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts, markRecordsAsInvalid } = registry.dispatch( dashboardStore );
 
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
@@ -437,19 +395,7 @@ export const markAsReadAction = {
 					} );
 			} )
 		);
-
-		// If there is at least one successful update, invalidate the cache for counts.
-		if ( promises.some( ( { status } ) => status === 'fulfilled' ) ) {
-			invalidateCounts();
-			// Mark successfully updated records as invalid instead of removing from view
-			const updatedIds = items
-				.filter( ( _, index ) => promises[ index ]?.status === 'fulfilled' )
-				.map( item => item.id );
-			markRecordsAsInvalid( updatedIds );
-		}
-
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			// Every request was successful.
 			const successMessage =
 				items.length === 1
 					? __( 'Response marked as read.', 'jetpack-forms' )
@@ -494,8 +440,6 @@ export const markAsUnreadAction = {
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { invalidateCounts, markRecordsAsInvalid } = registry.dispatch( dashboardStore );
-
 		const promises = await Promise.allSettled(
 			items.map( async ( { id, status } ) => {
 				// Get current entity from store
@@ -540,12 +484,6 @@ export const markAsUnreadAction = {
 			} )
 		);
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
-			// Invalidate counts cache to ensure counts are refetched and stay accurate
-			invalidateCounts();
-			// Mark successfully updated records as invalid instead of removing from view
-			const updatedIds = items.map( item => item.id );
-			markRecordsAsInvalid( updatedIds );
-
 			const successMessage =
 				items.length === 1
 					? __( 'Response marked as unread.', 'jetpack-forms' )

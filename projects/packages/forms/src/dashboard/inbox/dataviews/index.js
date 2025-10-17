@@ -115,9 +115,6 @@ export default function InboxView() {
 				accumulator.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
 				accumulator.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
 			}
-			if ( field === 'read_status' ) {
-				accumulator.is_unread = value === 'unread';
-			}
 			return accumulator;
 		}, {} );
 		const _queryArgs = {
@@ -286,16 +283,6 @@ export default function InboxView() {
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
-			{
-				id: 'read_status',
-				label: __( 'Read status', 'jetpack-forms' ),
-				elements: [
-					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
-					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
-				],
-				filterBy: { operators: [ 'is' ] },
-				enableSorting: false,
-			},
 			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
 		],
 		[ filterOptions, dateSettings.formats.date ]
@@ -339,9 +326,6 @@ export default function InboxView() {
 		view.page = 1;
 	}, [ view ] );
 
-	// Check if read_status filter is applied
-	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
-
 	return (
 		<HStack
 			spacing={ 0 }
@@ -364,13 +348,7 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
-					empty={
-						<EmptyResponses
-							status={ statusFilter }
-							isSearch={ !! view.search }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
+					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
 				/>
 			</div>
 			<SingleResponseView
