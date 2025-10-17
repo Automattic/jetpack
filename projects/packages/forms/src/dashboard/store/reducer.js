@@ -11,6 +11,8 @@ import {
 	SET_CURRENT_QUERY,
 	SET_COUNTS,
 	UPDATE_COUNTS_OPTIMISTICALLY,
+	MARK_RECORDS_AS_INVALID,
+	CLEAR_INVALID_RECORDS,
 } from './action-types';
 
 const filters = ( state = {}, action ) => {
@@ -43,13 +45,43 @@ const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	return state;
 };
 
-const counts = ( state = { inbox: 0, spam: 0, trash: 0 }, action ) => {
+const normalizeValue = value => {
+	if ( Array.isArray( value ) ) {
+		return value.slice().sort().join( ',' );
+	}
+	if ( typeof value === 'boolean' ) {
+		return value ? '1' : '0';
+	}
+	return String( value );
+};
+
+/**
+ * Generate a stable cache key from query parameters.
+ *
+ * @param {object} queryParams - Query parameters for filtering counts.
+ * @return {string} A stable key for caching.
+ */
+export const getCacheKey = ( queryParams = {} ) => {
+	const keys = [ 'search', 'parent', 'before', 'after', 'is_unread' ];
+	const parts = keys
+		.filter( key => queryParams[ key ] !== undefined )
+		.map( key => `${ key }:${ normalizeValue( queryParams[ key ] ) }` );
+	return parts.length > 0 ? parts.join( '|' ) : 'default';
+};
+
+const counts = ( state = {}, action ) => {
 	if ( action.type === SET_COUNTS ) {
-		return action.counts;
+		const cacheKey = getCacheKey( action.queryParams );
+		return {
+			...state,
+			[ cacheKey ]: action.counts,
+		};
 	}
 	if ( action.type === UPDATE_COUNTS_OPTIMISTICALLY ) {
-		const { fromStatus, toStatus, count } = action;
-		const newCounts = { ...state };
+		const { fromStatus, toStatus, count, queryParams } = action;
+		const cacheKey = getCacheKey( queryParams );
+		const currentCounts = state[ cacheKey ] || { inbox: 0, spam: 0, trash: 0 };
+		const newCounts = { ...currentCounts };
 
 		// Decrease from status
 		if ( fromStatus === 'inbox' || fromStatus === 'publish' || fromStatus === 'draft' ) {
@@ -69,7 +101,20 @@ const counts = ( state = { inbox: 0, spam: 0, trash: 0 }, action ) => {
 			newCounts.trash += count;
 		}
 
-		return newCounts;
+		return {
+			...state,
+			[ cacheKey ]: newCounts,
+		};
+	}
+	return state;
+};
+
+const invalidRecords = ( state = new Set(), action ) => {
+	if ( action.type === MARK_RECORDS_AS_INVALID ) {
+		return new Set( [ ...state, ...action.recordIds ] );
+	}
+	if ( action.type === CLEAR_INVALID_RECORDS ) {
+		return new Set();
 	}
 	return state;
 };
@@ -79,4 +124,5 @@ export default combineReducers( {
 	filters,
 	currentQuery,
 	counts,
+	invalidRecords,
 } );

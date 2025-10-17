@@ -563,9 +563,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		$this->assertArrayHasKey( 'parent', $params );
 		$this->assertArrayHasKey( 'parent_exclude', $params );
+		$this->assertArrayHasKey( 'is_unread', $params );
 
 		$this->assertEquals( 'array', $params['parent']['type'] );
 		$this->assertEquals( 'array', $params['parent_exclude']['type'] );
+		$this->assertEquals( 'boolean', $params['is_unread']['type'] );
 
 		$this->assertEquals( 'integer', $params['parent']['items']['type'] );
 		$this->assertEquals( 'integer', $params['parent_exclude']['items']['type'] );
