@@ -235,6 +235,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
+			interactive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -563,6 +564,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
+							interactive={ interactive }
 							ref={ legendRef }
 						/>
 					) }
