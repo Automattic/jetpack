@@ -18,6 +18,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_AI_Helper;
 use WP_Error;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 
