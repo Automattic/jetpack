@@ -108,7 +108,8 @@ const Layout = () => {
 		<div className="jp-forms__layout">
 			<div className="jp-forms__layout-header">
 				<Heading level={ 1 } size="15px" lineHeight="32px">
-					{ __( 'Forms', 'jetpack-forms' ) }
+					Forms
+					{ /** "Forms" is a product name, do not translate. */ }
 				</Heading>
 				{ isSm ? (
 					<>
