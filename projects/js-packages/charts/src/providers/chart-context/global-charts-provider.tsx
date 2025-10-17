@@ -175,8 +175,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	);
 
 	const getHiddenSeries = useCallback(
-		( chartId: string ) => {
-			return hiddenSeries.get( chartId ) || new Set();
+		( chartId: string ): Set< string > => {
+			const set = hiddenSeries.get( chartId );
+			return set ? new Set( set ) : new Set< string >();
 		},
 		[ hiddenSeries ]
 	);
