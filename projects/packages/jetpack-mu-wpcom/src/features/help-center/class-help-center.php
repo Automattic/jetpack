@@ -205,32 +205,34 @@ class Help_Center {
 				'before'
 			);
 
-			$user_id       = get_current_user_id();
-			$user_data     = get_userdata( $user_id );
-			$username      = $user_data->user_login;
-			$user_email    = $user_data->user_email;
-			$display_name  = $user_data->display_name;
-			$avatar_url    = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
-			$is_next_admin = (bool) did_action( 'next_admin_init' );
+			$user_id        = get_current_user_id();
+			$user_data      = get_userdata( $user_id );
+			$username       = $user_data->user_login;
+			$user_email     = $user_data->user_email;
+			$display_name   = $user_data->display_name;
+			$avatar_url     = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$is_next_admin  = (bool) did_action( 'next_admin_init' );
+			$is_ciab_garden = (bool) did_action( 'ciab_garden_init' );
 
 			wp_add_inline_script(
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'   => boolval( self::is_proxied() ),
-						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'       => isset( $_COOKIE['ssp'] ),
-						'sectionName' => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin' => $is_next_admin,
-						'currentUser' => array(
+						'isProxied'    => boolval( self::is_proxied() ),
+						'isSU'         => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'        => isset( $_COOKIE['ssp'] ),
+						'sectionName'  => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin'  => $is_next_admin,
+						'isCIABGarden' => $is_ciab_garden,
+						'currentUser'  => array(
 							'ID'           => $user_id,
 							'username'     => $username,
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
 						),
-						'site'        => $this->get_current_site(),
-						'locale'      => self::determine_iso_639_locale(),
+						'site'         => $this->get_current_site(),
+						'locale'       => self::determine_iso_639_locale(),
 					)
 				),
 				'before'
