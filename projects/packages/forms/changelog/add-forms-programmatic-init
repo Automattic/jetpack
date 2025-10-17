@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add programmatic initialization support via window.jetpackFormsInit()
