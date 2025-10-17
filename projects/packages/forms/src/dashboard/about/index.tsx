@@ -11,7 +11,6 @@ import { __ } from '@wordpress/i18n';
  */
 import useConfigValue from '../../hooks/use-config-value';
 import AkismetIcon from '../../icons/akismet';
-import CreativeMailIcon from '../../icons/creative-mail';
 import GoogleSheetsIcon from '../../icons/google-sheets';
 import SalesforceIcon from '../../icons/salesforce';
 import CreateFormButton from '../components/create-form-button';
@@ -124,7 +123,6 @@ const About = () => {
 							<div className="app-icons-wrapper feature-header">
 								<AkismetIcon width={ 32 } height={ 32 } className="icon-round" />
 								<JetpackIcon size={ 32 } className="jetpack-icon" />
-								<CreativeMailIcon width={ 32 } height={ 32 } className="icon-round" />
 								<GoogleSheetsIcon
 									width={ 32 }
 									height={ 32 }

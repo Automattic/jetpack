@@ -10,7 +10,6 @@ import { useState, useCallback } from 'react';
  */
 import { INTEGRATIONS_STORE } from '../../store/integrations';
 import AkismetDashboardCard from './akismet-card';
-import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
 import HostingerReachDashboardCard from './hostinger-reach-card';
 import JetpackCRMDashboardCard from './jetpack-crm-card';
@@ -35,7 +34,6 @@ const Integrations = () => {
 		akismet: false,
 		googleSheets: false,
 		crm: false,
-		creativemail: false,
 		salesforce: false,
 		mailpoet: false,
 		hostingerReach: false,
@@ -66,10 +64,6 @@ const Integrations = () => {
 	);
 	const handleToggleCRM = useCallback( () => toggleCard( 'crm' ), [ toggleCard ] );
 	const handleToggleSalesforce = useCallback( () => toggleCard( 'salesforce' ), [ toggleCard ] );
-	const handleToggleCreativeMail = useCallback(
-		() => toggleCard( 'creativemail' ),
-		[ toggleCard ]
-	);
 	const handleToggleMailPoet = useCallback( () => toggleCard( 'mailpoet' ), [ toggleCard ] );
 	const handleToggleHostingerReach = useCallback(
 		() => toggleCard( 'hostingerReach' ),
@@ -85,7 +79,6 @@ const Integrations = () => {
 	const crmData = findIntegrationById( 'zero-bs-crm' );
 	const mailpoetData = findIntegrationById( 'mailpoet' );
 	const salesforceData = findIntegrationById( 'salesforce' );
-	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
 	const hostingerReachData = findIntegrationById( 'hostinger-reach' );
 
 	return (
@@ -148,14 +141,6 @@ const Integrations = () => {
 							isExpanded={ expandedCards.hostingerReach }
 							onToggle={ handleToggleHostingerReach }
 							data={ hostingerReachData }
-							refreshStatus={ refreshIntegrations }
-						/>
-					) }
-					{ creativeMailData && (
-						<CreativeMailDashboardCard
-							isExpanded={ expandedCards.creativemail }
-							onToggle={ handleToggleCreativeMail }
-							data={ creativeMailData }
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }

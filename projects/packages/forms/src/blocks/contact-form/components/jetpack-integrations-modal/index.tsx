@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import AkismetCard from './akismet-card';
-import CreativeMailCard from './creative-mail-card';
 import GoogleSheetsCard from './google-sheets-card';
 import HostingerReachCard from './hostinger-reach-card';
 import JetpackCRMCard from './jetpack-crm-card';
@@ -33,7 +32,6 @@ const IntegrationsModal = ( {
 		akismet: false,
 		googleSheets: false,
 		crm: false,
-		creativemail: false,
 		salesforce: false,
 		mailpoet: false,
 		hostingerReach: false,
@@ -52,7 +50,6 @@ const IntegrationsModal = ( {
 	const crmData = findIntegrationById( 'zero-bs-crm' );
 	const mailpoetData = findIntegrationById( 'mailpoet' );
 	const salesforceData = findIntegrationById( 'salesforce' );
-	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
 	const hostingerReachData = findIntegrationById( 'hostinger-reach' );
 
 	const toggleCard = ( cardId: string ) => {
@@ -135,15 +132,6 @@ const IntegrationsModal = ( {
 						refreshStatus={ refreshIntegrations }
 						hostingerReach={ attributes.hostingerReach }
 						setAttributes={ setAttributes }
-					/>
-				) }
-				{ creativeMailData && (
-					<CreativeMailCard
-						isExpanded={ expandedCards.creativemail }
-						onToggle={ () => toggleCard( 'creativemail' ) }
-						data={ creativeMailData }
-						refreshStatus={ refreshIntegrations }
-						borderBottom={ false }
 					/>
 				) }
 			</VStack>

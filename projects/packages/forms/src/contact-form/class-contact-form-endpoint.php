@@ -38,7 +38,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private function get_supported_integrations() {
 		$supported_integrations = array(
-			'akismet'                           => array(
+			'akismet'      => array(
 				'type'                    => 'plugin',
 				'file'                    => 'akismet/akismet.php',
 				'settings_url'            => 'admin.php?page=akismet-key-config',
@@ -48,17 +48,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'creative-mail-by-constant-contact' => array(
-				'type'                    => 'plugin',
-				'file'                    => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-				'settings_url'            => 'admin.php?page=creativemail',
-				'marketing_redirect_slug' => 'creative-mail',
-				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
-				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-			),
-			'zero-bs-crm'                       => array(
+			'zero-bs-crm'  => array(
 				'type'                    => 'plugin',
 				'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
 				'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
@@ -68,7 +58,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => true,
 			),
-			'salesforce'                        => array(
+			'salesforce'   => array(
 				'type'                    => 'service',
 				'file'                    => null,
 				'settings_url'            => null,
@@ -78,7 +68,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'google-drive'                      => array(
+			'google-drive' => array(
 				'type'                    => 'service',
 				'file'                    => null,
 				'settings_url'            => null,
@@ -88,7 +78,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'mailpoet'                          => array(
+			'mailpoet'     => array(
 				'type'                    => 'plugin',
 				'file'                    => 'mailpoet/mailpoet.php',
 				'settings_url'            => 'admin.php?page=mailpoet-homepage',

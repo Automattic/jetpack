@@ -193,7 +193,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		// Verify required integrations exist
 		$this->assertArrayHasKey( 'akismet', $data );
-		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
 		$this->assertArrayHasKey( 'mailpoet', $data );
@@ -235,7 +234,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		// Verify core integrations are present (by id)
 		$integration_ids = array_column( $data, 'id' );
 		$this->assertContains( 'akismet', $integration_ids );
-		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
 		$this->assertContains( 'mailpoet', $integration_ids );
