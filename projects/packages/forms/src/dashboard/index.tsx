@@ -15,6 +15,12 @@ import Integrations from './integrations';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
+declare global {
+	interface Window {
+		jetpackFormsInit?: () => void;
+	}
+}
+
 let isInitialized = false;
 
 /**
