@@ -15,8 +15,29 @@ import Integrations from './integrations';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
-window.addEventListener( 'load', () => {
+declare global {
+	interface Window {
+		jetpackFormsInit?: () => void;
+	}
+}
+
+let isInitialized = false;
+
+/**
+ * Initialize the Forms dashboard
+ */
+function initFormsDashboard() {
+	if ( isInitialized ) {
+		return;
+	}
+
 	const container = document.getElementById( 'jp-forms-dashboard' );
+
+	if ( ! container ) {
+		return;
+	}
+
+	isInitialized = true;
 
 	const router = createHashRouter( [
 		{
@@ -51,4 +72,7 @@ window.addEventListener( 'load', () => {
 			<DashboardNotices />
 		</ThemeProvider>
 	);
-} );
+}
+
+window.jetpackFormsInit = initFormsDashboard;
+window.addEventListener( 'load', initFormsDashboard );
