@@ -5,7 +5,7 @@ import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { differenceInHours } from 'date-fns';
+import { differenceInHours, differenceInYears } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
 	useXYChartTheme,
@@ -101,6 +101,13 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 	);
 };
 
+const formatYearTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleDateString( undefined, {
+		year: 'numeric',
+	} );
+};
+
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -115,6 +122,23 @@ const formatHourTick = ( timestamp: number ) => {
 		hour: 'numeric',
 		hour12: true,
 	} );
+};
+
+const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
+	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
+
+	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
+	if ( diffInHours <= 24 ) {
+		return formatHourTick;
+	}
+
+	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
+	if ( diffInYears <= 1 ) {
+		return formatDateTick;
+	}
+
+	return formatYearTick;
 };
 
 const guessOptimalNumTicks = (
@@ -146,8 +170,13 @@ const guessOptimalNumTicks = (
 			return 1;
 		}
 
-		const hasDuplicate = uniqueTicks.length < ticks.length;
-		if ( hasDuplicate ) {
+		// Example: OCT 1 JAN 1 APR 1 JUL 1 OCT 1
+		// Here, the two OCTs are not duplicates as they represent October of two different years.
+		const hasConsecutiveDuplicate = ticks.some(
+			( tick, idx ) => idx > 0 && tick === ticks[ idx - 1 ]
+		);
+
+		if ( hasConsecutiveDuplicate ) {
 			continue;
 		}
 
@@ -278,12 +307,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const minX = Math.min( ...dataSorted.map( datom => datom.data.at( 0 )?.date ) );
-			const maxX = Math.max( ...dataSorted.map( datom => datom.data.at( -1 )?.date ) );
-			const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-
-			// Show the difference in hours if less than 24 hours; otherwise, display the date.
-			const formatter = diffInHours <= 24 ? formatHourTick : formatDateTick;
+			const formatter = getFormatter( dataSorted );
 
 			return {
 				axis: {
