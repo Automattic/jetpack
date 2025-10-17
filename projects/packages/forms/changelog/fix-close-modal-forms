@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix bug where the responsvie modal is not able to be closed. 
