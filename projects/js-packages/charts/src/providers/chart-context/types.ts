@@ -31,4 +31,8 @@ export interface GlobalChartsContextValue {
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	theme: CompleteChartTheme;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
+	// Series visibility management for interactive legends
+	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;
+	isSeriesVisible: ( chartId: string, seriesLabel: string ) => boolean;
+	getHiddenSeries: ( chartId: string ) => Set< string >;
 }
