@@ -65,6 +65,8 @@ class Help_Center {
 		$language = get_user_locale();
 		$language = strtolower( $language );
 
+		l($language);
+
 		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
 			$language = str_replace( '_', '-', $language );
 		} else {
@@ -210,18 +212,20 @@ class Help_Center {
 			$username      = $user_data->user_login;
 			$user_email    = $user_data->user_email;
 			$display_name  = $user_data->display_name;
-			$avatar_url    = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
-			$is_next_admin = (bool) did_action( 'next_admin_init' );
+			$avatar_url      = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$is_next_admin   = (bool) did_action( 'next_admin_init' );
+			$is_ciab_garden  = (bool) did_action( 'ciab_garden_init' );
 
 			wp_add_inline_script(
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'   => boolval( self::is_proxied() ),
-						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'       => isset( $_COOKIE['ssp'] ),
-						'sectionName' => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin' => $is_next_admin,
+						'isProxied'     => boolval( self::is_proxied() ),
+						'isSU'          => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'         => isset( $_COOKIE['ssp'] ),
+						'sectionName'   => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin'   => $is_next_admin,
+						'isCIABGarden'  => $is_ciab_garden,
 						'currentUser' => array(
 							'ID'           => $user_id,
 							'username'     => $username,
@@ -470,7 +474,8 @@ class Help_Center {
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
-		$is_next_admin = (bool) did_action( 'next_admin_init' );
+		$is_next_admin  = (bool) did_action( 'next_admin_init' );
+		$is_ciab_garden = (bool) did_action( 'ciab_garden_init' );
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
@@ -490,7 +495,7 @@ class Help_Center {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || $is_next_admin ) {
+		} elseif ( $this->is_block_editor() || $is_next_admin || $is_ciab_garden ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
