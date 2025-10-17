@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import {
 	type RefAttributes,
 	type ForwardRefExoticComponent,
+	type KeyboardEvent,
 	forwardRef,
 	useCallback,
 	useContext,
@@ -143,7 +144,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 				if ( ! interactive ) {
 					return undefined;
 				}
-				return ( event: React.KeyboardEvent ) => {
+				return ( event: KeyboardEvent ) => {
 					if ( event.key === 'Enter' || event.key === ' ' ) {
 						event.preventDefault();
 						handleLegendClick( labelText );
