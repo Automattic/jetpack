@@ -296,7 +296,11 @@ class Error_Handler {
 	 */
 	protected function should_allow_error_filtering() {
 		$host = new \Automattic\Jetpack\Status\Host();
-		return $host->is_woa_site();
+		if ( $host->is_woa_site() || $host->is_vip_site() || $host->is_newspack_site() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
