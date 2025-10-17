@@ -254,7 +254,7 @@ class WPCOM_Features {
 	// Unlock Business-gated features for sites with the flex-cache-site sticker via the free plan.
 	private const WPCOM_FLEX_CACHE_SITE_FREE_PLANS = array(
 		'required_sticker' => 'flex-cache-site',
-		self::WPCOM_ALL_SITES,
+		self::JETPACK_ALL_SITES,
 	);
 
 	// WPCOM "Level 3" A: Groups of level 2s.
