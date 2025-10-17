@@ -25,17 +25,23 @@ const ALLOWED_MEDIA_TYPES = [ 'image' ];
 
 export const pickRelevantMediaFiles = ( image, sizeSlug ) => {
 	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
-	imageProps.url =
-		image?.sizes?.[ sizeSlug ]?.url ||
-		image?.media_details?.sizes?.[ sizeSlug ]?.source_url ||
-		image.url;
-	const imageSize =
-		image?.sizes?.[ sizeSlug ] || image?.media_details?.sizes?.[ sizeSlug ] || image;
+	// Prefer the requested size, fallback to 'full' if missing
+	const chosenSize =
+		image?.sizes?.[ sizeSlug ] ||
+		image?.media_details?.sizes?.[ sizeSlug ] ||
+		image?.sizes?.full ||
+		image?.media_details?.sizes?.full ||
+		image;
 
-	imageProps.width = imageSize?.width || null;
-	imageProps.height = imageSize?.height || null;
+	imageProps.url = chosenSize?.url || chosenSize?.source_url || image.url;
+
+	imageProps.width = chosenSize?.width || null;
+	imageProps.height = chosenSize?.height || null;
 	imageProps.aspectRatio =
-		imageSize?.width && imageSize?.height ? `${ imageSize.width } / ${ imageSize.height }` : null;
+		chosenSize?.width && chosenSize?.height
+			? `${ chosenSize.width } / ${ chosenSize.height }`
+			: null;
+
 	return imageProps;
 };
 
@@ -104,7 +110,13 @@ export const SlideshowEdit = ( {
 			const resizedImage = resizedImages.find(
 				( { id } ) => parseInt( id, 10 ) === parseInt( image.id, 10 )
 			);
-			const url = resizedImage?.sizes?.[ slug ]?.source_url;
+			const sizeObj =
+				resizedImage?.sizes?.[ slug ] ||
+				resizedImage?.media_details?.sizes?.[ slug ] ||
+				resizedImage?.sizes?.full ||
+				resizedImage?.media_details?.sizes?.full;
+
+			const url = sizeObj?.source_url || sizeObj?.url || image.url;
 			return {
 				...image,
 				...( url && { url } ),
