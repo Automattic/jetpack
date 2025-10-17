@@ -7,8 +7,14 @@ import type { DataPointDate } from '../../../types';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how glyphs are rendered in stories.
+ */
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	/** Type of glyph to render: 'default' (circle), 'star', or 'heart' (custom) */
 	glyphType?: 'default' | 'star' | 'heart';
+	/** Size of the glyph in pixels (radius for circle glyphs) */
 	glyphSize?: number;
 };
 

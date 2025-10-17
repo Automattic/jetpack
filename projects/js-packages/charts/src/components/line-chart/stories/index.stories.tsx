@@ -8,9 +8,16 @@ import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how data/state is manipulated in stories.
+ */
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	/** Controls how many data series to display: 'single' (1 series), 'multiple' (4 series), or 'many' (all series) */
 	seriesCount?: 'single' | 'multiple' | 'many';
+	/** Chart sizing mode: 'responsive' (uses maxWidth/aspectRatio) or 'fixed' (uses width/height) */
 	dimensionMode?: 'responsive' | 'fixed';
+	/** Crosshair visibility on tooltip hover: 'none', 'vertical', 'horizontal', or 'both' */
 	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
 };
 

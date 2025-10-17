@@ -11,7 +11,12 @@ import {
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how data/state is manipulated in stories.
+ */
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
+	/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
 	seriesCount?: 'single' | 'multiple' | 'many';
 };
 
