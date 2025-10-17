@@ -11,7 +11,7 @@ export const tooltipArgTypes = {
 	renderTooltip: {
 		control: false,
 		description: 'Custom render function for tooltip content',
-		table: { category: 'Tooltips' },
+		table: { disable: true }, // Hide from Storybook - function props aren't useful to show
 	},
 };
 
@@ -20,9 +20,14 @@ export const tooltipArgTypes = {
  */
 export const lineChartTooltipArgTypes = {
 	...tooltipArgTypes,
+	crosshairMode: {
+		control: { type: 'select' as const },
+		options: [ 'none', 'vertical', 'horizontal', 'both' ],
+		description: 'Show crosshair lines on tooltip hover',
+		table: { category: 'Tooltips' },
+	},
 	withTooltipCrosshairs: {
 		control: false,
-		description: 'Configuration for tooltip crosshairs (vertical/horizontal lines)',
-		table: { category: 'Tooltips' },
+		table: { disable: true }, // Hidden - use crosshairMode instead
 	},
 };

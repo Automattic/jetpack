@@ -11,6 +11,7 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
 	seriesCount?: 'single' | 'multiple' | 'many';
 	dimensionMode?: 'responsive' | 'fixed';
+	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
 };
 
 const meta: Meta< StoryArgs > = {
@@ -52,7 +53,8 @@ const meta: Meta< StoryArgs > = {
 export default meta;
 
 const Template: StoryFn< typeof LineChart > = args => {
-	const { seriesCount, dimensionMode, ...chartProps } = args;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
 
 	// Determine data based on seriesCount control
 	let data = chartProps.data || lineChartStoryArgs.data;
@@ -70,7 +72,24 @@ const Template: StoryFn< typeof LineChart > = args => {
 		dimensions = { width: 800, height: 400 };
 	}
 
-	return <LineChart { ...chartProps } { ...dimensions } data={ data } />;
+	// Map crosshairMode to withTooltipCrosshairs
+	let crosshairConfig;
+	if ( crosshairMode === 'vertical' ) {
+		crosshairConfig = { showVertical: true };
+	} else if ( crosshairMode === 'horizontal' ) {
+		crosshairConfig = { showHorizontal: true };
+	} else if ( crosshairMode === 'both' ) {
+		crosshairConfig = { showVertical: true, showHorizontal: true };
+	}
+
+	return (
+		<LineChart
+			{ ...chartProps }
+			{ ...dimensions }
+			data={ data }
+			withTooltipCrosshairs={ crosshairConfig }
+		/>
+	);
 };
 
 // Default story with multiple series
