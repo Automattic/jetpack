@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Waf\Blocked_Login_Page;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Brute Force Protection Blocked Login Page class.
  */

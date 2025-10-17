@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class-wpcom-user-profile-fields-revert.php';
 
 /**
