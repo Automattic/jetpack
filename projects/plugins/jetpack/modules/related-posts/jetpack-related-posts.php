@@ -931,7 +931,7 @@ EOT;
 		}
 
 		if (
-			! $options['enabled']
+			empty( $options['enabled'] )
 			|| 0 === (int) $post_id
 			|| empty( $options['size'] )
 		) {
@@ -1305,15 +1305,15 @@ EOT;
 
 		$response = array(
 			'version'         => self::VERSION,
-			'show_thumbnails' => (bool) $options['show_thumbnails'],
-			'show_date'       => (bool) $options['show_date'],
-			'show_context'    => (bool) $options['show_context'],
-			'layout'          => (string) $options['layout'],
-			'headline'        => (string) $options['headline'],
+			'show_thumbnails' => (bool) ( $options['show_thumbnails'] ?? false ),
+			'show_date'       => (bool) ( $options['show_date'] ?? true ),
+			'show_context'    => (bool) ( $options['show_context'] ?? true ),
+			'layout'          => (string) ( $options['layout'] ?? 'grid' ),
+			'headline'        => (string) $options['headline'] ?? '',
 			'items'           => array(),
 		);
 
-		if ( count( $related_posts ) === $options['size'] ) {
+		if ( ! empty( $options['size'] ) && count( $related_posts ) === $options['size'] ) {
 			$response['items'] = $related_posts;
 		}
 
