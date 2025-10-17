@@ -208,7 +208,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 									aria-pressed={ interactive ? visible : undefined }
 									aria-label={
 										interactive
-											? `${ label.text }${ visible ? ', visible' : ', hidden' }. Click to toggle.`
+											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
 									{ ...legendItemProps }
