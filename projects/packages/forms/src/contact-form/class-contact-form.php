@@ -150,9 +150,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', true );
 
+		// Initialize the source before setting defaults
+		if ( ! $this->source ) {
+			$attributes   = is_array( $attributes ) ? $attributes : array();
+			$this->source = Feedback_Source::get_current( $attributes );
+		}
+
 		// Set up the default subject and recipient for this form.
 		$post_author_id  = self::get_post_property( $this->current_post, 'post_author' );
-		$default_to      = self::get_default_to( $post_author_id );
+		$default_to      = self::get_default_to( $post_author_id, $this->source );
 		$default_subject = self::get_default_subject( $attributes, $this->current_post );
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
@@ -434,19 +440,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Get the default recipient email address for the contact form.
 	 *
-	 * @param int|null $post_author_id The ID of the post author. If provided, will return the author's email.
+	 * @param int|null             $post_author_id The ID of the post author. If provided, will return the author's email.
+	 * @param Feedback_Source|null $source The source of the feedback entry. Optional, not used currently.
 	 *
 	 * @return string The default recipient email address.
 	 */
-	public static function get_default_to( $post_author_id = null ) {
-		if ( $post_author_id ) {
-			$post_author = get_userdata( $post_author_id );
-			if ( ! empty( $post_author->user_email ) ) {
-				return $post_author->user_email;
-			}
-		}
+	public static function get_default_to( $post_author_id = null, $source = null ) {
 		// Get the default recipient email address.
 		$default_to = get_option( 'admin_email' );
+		// Check that the user has edit permissions for this blog and has an email address
+		if ( ! $post_author_id ) {
+			return $default_to;
+		}
+
+		// Check that source is of type Feedback_Source
+		if ( ! $source instanceof Feedback_Source ) {
+			return $default_to;
+		}
+
+		if ( absint( $source->get_id() ) === 0 ) {
+			return $default_to;
+		}
+
+		$post_author = get_userdata( $post_author_id );
+		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
+			return $default_to;
+		}
+
+		// Check that the user is still a member of the blog.
+		if ( ! is_user_member_of_blog( $post_author_id ) ) {
+			return $default_to;
+		}
+
+		// Check that the author can still edit the post or page.
+		if ( user_can( $post_author_id, 'edit_post', $source->get_id() ) ) {
+			return $post_author->user_email;
+		}
 
 		return $default_to;
 	}
