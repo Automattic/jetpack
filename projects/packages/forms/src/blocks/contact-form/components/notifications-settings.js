@@ -4,7 +4,6 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import InspectorHint from '../../shared/components/inspector-hint';
 
 const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 	const [ localNotificationRecipients, setLocalNotificationRecipients ] =
@@ -50,7 +49,8 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 	return (
 		<>
 			<ToggleControl
-				label={ __( 'Enable form response notifications', 'jetpack-forms' ) }
+				label={ __( 'Enable notifications for responses', 'jetpack-forms' ) }
+				help={ __( 'Receive notifications when someone fills out your form.', 'jetpack-forms' ) }
 				checked={ localFormNotifications }
 				onChange={ value => {
 					if ( value ) {
@@ -77,9 +77,6 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 			/>
 			{ localFormNotifications && (
 				<>
-					<InspectorHint>
-						{ __( 'Select users who can receive form response notifications:', 'jetpack-forms' ) }
-					</InspectorHint>
 					<FormTokenField
 						label={ __( 'Send notifications to', 'jetpack-forms' ) }
 						value={ selectedUserNames }
