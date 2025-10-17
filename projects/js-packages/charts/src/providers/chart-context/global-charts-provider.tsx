@@ -15,6 +15,10 @@ export interface GlobalChartsProviderProps {
 
 export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
+	// Track hidden series per chart: chartId -> Set<seriesLabel>
+	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
+		() => new Map()
+	);
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
@@ -139,6 +143,44 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ providerTheme, resolveColor ]
 	);
 
+	// Series visibility management methods
+	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
+		setHiddenSeries( prev => {
+			const newMap = new Map( prev );
+			const chartHidden = newMap.get( chartId ) || new Set();
+			const newSet = new Set( chartHidden );
+
+			if ( newSet.has( seriesLabel ) ) {
+				newSet.delete( seriesLabel );
+			} else {
+				newSet.add( seriesLabel );
+			}
+
+			if ( newSet.size === 0 ) {
+				newMap.delete( chartId );
+			} else {
+				newMap.set( chartId, newSet );
+			}
+
+			return newMap;
+		} );
+	}, [] );
+
+	const isSeriesVisible = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			const chartHidden = hiddenSeries.get( chartId );
+			return ! chartHidden || ! chartHidden.has( seriesLabel );
+		},
+		[ hiddenSeries ]
+	);
+
+	const getHiddenSeries = useCallback(
+		( chartId: string ) => {
+			return hiddenSeries.get( chartId ) || new Set();
+		},
+		[ hiddenSeries ]
+	);
+
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
@@ -147,8 +189,21 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			getChartData,
 			theme: providerTheme,
 			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme, getElementStyles ]
+		[
+			charts,
+			registerChart,
+			unregisterChart,
+			getChartData,
+			providerTheme,
+			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
+		]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
