@@ -87,15 +87,18 @@ export default function useInboxData(): UseInboxDataReturn {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
-	} = useSelect( select => ( {
-		selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-		currentStatus: select( dashboardStore ).getCurrentStatus(),
-		currentQuery: select( dashboardStore ).getCurrentQuery(),
-		filterOptions: select( dashboardStore ).getFilters(),
-		totalItemsInbox: select( dashboardStore ).getInboxCount(),
-		totalItemsSpam: select( dashboardStore ).getSpamCount(),
-		totalItemsTrash: select( dashboardStore ).getTrashCount(),
-	} ) );
+	} = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+			currentQuery: select( dashboardStore ).getCurrentQuery(),
+			filterOptions: select( dashboardStore ).getFilters(),
+			totalItemsInbox: select( dashboardStore ).getInboxCount(),
+			totalItemsSpam: select( dashboardStore ).getSpamCount(),
+			totalItemsTrash: select( dashboardStore ).getTrashCount(),
+		} ),
+		[]
+	);
 
 	const {
 		records: rawRecords,

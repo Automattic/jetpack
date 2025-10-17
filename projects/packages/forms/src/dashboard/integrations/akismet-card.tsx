@@ -51,7 +51,8 @@ const AkismetDashboardCard = ( {
 	};
 
 	const handleViewSpamClick = useCallback( () => {
-		navigate( '/responses?status=spam' );
+		// @ts-expect-error - TanStack Router types require strictNullChecks
+		navigate( { to: '/responses', search: { status: 'spam' } } );
 	}, [ navigate ] );
 
 	return (

@@ -55,7 +55,7 @@ const GoogleSheetsDashboardCard = ( {
 	}, [ settingsUrl, refreshStatus ] );
 
 	const handleViewResponsesClick = useCallback( () => {
-		navigate( '/responses' );
+		navigate( { to: '/responses' } );
 	}, [ navigate ] );
 
 	const handleDisconnectClick = useCallback( () => {

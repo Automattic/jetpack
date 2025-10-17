@@ -86,6 +86,7 @@ export function initFormsApp( { container } ) {
 	isInitialized = true;
 
 	// Create router with hash history
+	// @ts-expect-error - TanStack Router requires strictNullChecks but we can't enable it yet due to shared package errors
 	const router = createRouter( {
 		routeTree,
 		history: createHashHistory(),

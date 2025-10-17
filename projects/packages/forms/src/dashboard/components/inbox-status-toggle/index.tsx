@@ -66,6 +66,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 			} );
 
 			navigate( {
+				// @ts-expect-error - TanStack Router types require strictNullChecks
 				search: prev => ( {
 					...prev,
 					status: newStatus,
