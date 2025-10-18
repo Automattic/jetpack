@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: reset the selection on tab switch in dashboard
