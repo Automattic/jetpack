@@ -19,43 +19,62 @@ class Jetpack_AI_POC_Ability_Site_Security {
 	/**
 	 * Execute the site security ability.
 	 *
-	 * @param array $args Arguments (action: 'enable' or 'disable').
-	 * @return array Result with success status and data.
+	 * This method is called by the WordPress Abilities API.
+	 * Input has already been validated against the input_schema.
+	 *
+	 * @param array $input Input parameters from the Abilities API (contains 'action' key).
+	 * @return array|WP_Error Result matching the output schema, or WP_Error on failure.
 	 */
-	public static function execute( $args = array() ) {
-		$action = isset( $args['action'] ) ? $args['action'] : 'enable';
+	public static function execute( $input ) {
+		$action = isset( $input['action'] ) ? $input['action'] : 'enable';
 
-		// Validate action
+		// Input validation is already done by Abilities API, but add safety check.
 		if ( ! in_array( $action, array( 'enable', 'disable' ), true ) ) {
-			return array(
-				'success' => false,
-				'message' => 'Invalid action. Use "enable" or "disable".',
+			return new WP_Error(
+				'invalid_action',
+				__( 'Invalid action. Use "enable" or "disable".', 'jetpack-ai-poc' )
 			);
 		}
 
-		$results = array();
+		$modules_status  = array();
 		$overall_success = true;
+		$messages        = array();
 
-		// Toggle Account Protection module
-		$account_protection_result = self::toggle_module( 'account-protection', $action );
-		$results['account_protection'] = $account_protection_result;
-		if ( ! $account_protection_result['success'] ) {
-			$overall_success = false;
+		// Toggle Protect module (formerly Account Protection).
+		$protect_result = self::toggle_module( 'protect', $action );
+		if ( is_wp_error( $protect_result ) ) {
+			$overall_success           = false;
+			$modules_status['protect'] = false;
+			$messages[]                = $protect_result->get_error_message();
+		} else {
+			$modules_status['protect'] = ( 'enable' === $action );
 		}
 
-		// Toggle Downtime Monitor module
-		$downtime_monitor_result = self::toggle_module( 'monitor', $action );
-		$results['downtime_monitor'] = $downtime_monitor_result;
-		if ( ! $downtime_monitor_result['success'] ) {
-			$overall_success = false;
+		// Toggle Monitor module (Downtime Monitor).
+		$monitor_result = self::toggle_module( 'monitor', $action );
+		if ( is_wp_error( $monitor_result ) ) {
+			$overall_success           = false;
+			$modules_status['monitor'] = false;
+			$messages[]                = $monitor_result->get_error_message();
+		} else {
+			$modules_status['monitor'] = ( 'enable' === $action );
+		}
+
+		if ( ! $overall_success ) {
+			return new WP_Error(
+				'module_toggle_failed',
+				implode( '. ', $messages )
+			);
 		}
 
 		return array(
-			'success' => $overall_success,
-			'message' => $overall_success
-				? sprintf( 'Successfully %sd site security modules', $action )
-				: 'Some modules failed to toggle',
-			'data'    => $results,
+			'success' => true,
+			'message' => sprintf(
+				/* translators: %s: action performed (enabled or disabled) */
+				__( 'Successfully %s security modules', 'jetpack-ai-poc' ),
+				'enable' === $action ? __( 'enabled', 'jetpack-ai-poc' ) : __( 'disabled', 'jetpack-ai-poc' )
+			),
+			'modules' => $modules_status,
 		);
 	}
 
@@ -64,15 +83,18 @@ class Jetpack_AI_POC_Ability_Site_Security {
 	 *
 	 * @param string $module Module slug.
 	 * @param string $action Action to perform ('enable' or 'disable').
-	 * @return array Result with success status.
+	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */
 	private static function toggle_module( $module, $action ) {
-		// Check if Jetpack is available
+		// Check if Jetpack is available.
 		if ( ! class_exists( 'Jetpack' ) ) {
-			return array(
-				'success' => false,
-				'message' => 'Jetpack is not available',
-				'module'  => $module,
+			return new WP_Error(
+				'jetpack_not_available',
+				sprintf(
+					/* translators: %s: module name */
+					__( 'Cannot toggle module %s: Jetpack is not available', 'jetpack-ai-poc' ),
+					$module
+				)
 			);
 		}
 
@@ -81,42 +103,28 @@ class Jetpack_AI_POC_Ability_Site_Security {
 				$result = Jetpack::activate_module( $module, false, false );
 
 				if ( is_wp_error( $result ) ) {
-					return array(
-						'success' => false,
-						'message' => $result->get_error_message(),
-						'module'  => $module,
-					);
+					return $result;
 				}
 
-				return array(
-					'success' => true,
-					'message' => sprintf( 'Module %s enabled successfully', $module ),
-					'module'  => $module,
-					'status'  => 'enabled',
-				);
+				return true;
 			} else {
 				$result = Jetpack::deactivate_module( $module );
 
 				if ( is_wp_error( $result ) ) {
-					return array(
-						'success' => false,
-						'message' => $result->get_error_message(),
-						'module'  => $module,
-					);
+					return $result;
 				}
 
-				return array(
-					'success' => true,
-					'message' => sprintf( 'Module %s disabled successfully', $module ),
-					'module'  => $module,
-					'status'  => 'disabled',
-				);
+				return true;
 			}
 		} catch ( Exception $e ) {
-			return array(
-				'success' => false,
-				'message' => 'Error toggling module: ' . $e->getMessage(),
-				'module'  => $module,
+			return new WP_Error(
+				'module_toggle_exception',
+				sprintf(
+					/* translators: 1: module name, 2: error message */
+					__( 'Error toggling module %1$s: %2$s', 'jetpack-ai-poc' ),
+					$module,
+					$e->getMessage()
+				)
 			);
 		}
 	}

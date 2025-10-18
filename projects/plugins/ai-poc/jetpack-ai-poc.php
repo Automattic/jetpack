@@ -8,6 +8,7 @@
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  * Text Domain: jetpack-ai-poc
+ * Requires Plugins: abilities-api
  *
  * @package automattic/jetpack-ai-poc
  */
@@ -93,6 +94,37 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		}
 	);
 
+	return;
+}
+
+// Check for WordPress Abilities API.
+if ( ! class_exists( 'WP_Ability' ) ) {
+	add_action(
+		'admin_notices',
+		function () {
+			$message = sprintf(
+				wp_kses(
+					/* translators: %s: URL to the Abilities API plugin */
+					__( 'Jetpack AI POC requires the <a href="%s" target="_blank" rel="noopener noreferrer">WordPress Abilities API</a> plugin to be installed and activated. Please install it to use this plugin.', 'jetpack-ai-poc' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/WordPress/abilities-api'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
+		}
+	);
 	return;
 }
 

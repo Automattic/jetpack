@@ -12,118 +12,94 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Class Jetpack_AI_POC_Abilities_Registry
  *
- * Manages registration and execution of WordPress abilities.
+ * Manages registration and execution of WordPress abilities using the official WordPress Abilities API.
  */
 class Jetpack_AI_POC_Abilities_Registry {
-
-	/**
-	 * Registered abilities.
-	 *
-	 * @var array
-	 */
-	private static $abilities = array();
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->register_core_abilities();
+		add_action( 'abilities_api_init', array( $this, 'register_ability_categories' ) );
+		add_action( 'abilities_api_init', array( $this, 'register_core_abilities' ) );
 	}
 
 	/**
-	 * Register core abilities.
+	 * Register ability categories.
 	 */
-	private function register_core_abilities() {
-		// Register site-security ability
-		$this->register_ability(
-			'jetpack-ai-poc/site-security',
+	public function register_ability_categories() {
+		wp_register_ability_category(
+			'jetpack-security',
 			array(
-				'name'        => 'Site Security',
-				'description' => 'Toggle Account Protection and Downtime Monitor modules for enhanced site security',
-				'callback'    => array( 'Jetpack_AI_POC_Ability_Site_Security', 'execute' ),
-				'capability'  => 'manage_options', // Only admins
+				'label'       => __( 'Jetpack Security', 'jetpack-ai-poc' ),
+				'description' => __( 'Security-related abilities for Jetpack', 'jetpack-ai-poc' ),
 			)
 		);
 	}
 
 	/**
-	 * Register an ability.
-	 *
-	 * @param string $name Ability name (namespaced).
-	 * @param array  $args Ability arguments.
-	 * @return bool
+	 * Register core abilities.
 	 */
-	public function register_ability( $name, $args ) {
-		$defaults = array(
-			'name'        => '',
-			'description' => '',
-			'callback'    => null,
-			'capability'  => 'manage_options',
+	public function register_core_abilities() {
+		// Register site-security ability using official WordPress Abilities API
+		wp_register_ability(
+			'jetpack-ai-poc/site-security',
+			array(
+				'label'               => __( 'Site Security', 'jetpack-ai-poc' ),
+				'description'         => __( 'Toggle Jetpack Protect and Monitor modules for enhanced site security. Use "enable" action to activate security features or "disable" to deactivate them.', 'jetpack-ai-poc' ),
+				'category'            => 'jetpack-security',
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'properties'           => array(
+						'action' => array(
+							'type'        => 'string',
+							'description' => 'Action to perform: enable or disable',
+							'enum'        => array( 'enable', 'disable' ),
+						),
+					),
+					'required'             => array( 'action' ),
+					'additionalProperties' => false,
+				),
+				'output_schema'       => array(
+					'type'       => 'object',
+					'properties' => array(
+						'success' => array(
+							'type'        => 'boolean',
+							'description' => 'Whether the operation succeeded',
+						),
+						'message' => array(
+							'type'        => 'string',
+							'description' => 'Result message',
+						),
+						'modules' => array(
+							'type'        => 'object',
+							'description' => 'Status of affected modules',
+							'properties'  => array(
+								'protect' => array(
+									'type'        => 'boolean',
+									'description' => 'Whether Protect module is active',
+								),
+								'monitor' => array(
+									'type'        => 'boolean',
+									'description' => 'Whether Monitor module is active',
+								),
+							),
+						),
+					),
+				),
+				'execute_callback'    => array( 'Jetpack_AI_POC_Ability_Site_Security', 'execute' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
+			)
 		);
-
-		$ability = wp_parse_args( $args, $defaults );
-
-		if ( ! is_callable( $ability['callback'] ) ) {
-			return false;
-		}
-
-		self::$abilities[ $name ] = $ability;
-		return true;
-	}
-
-	/**
-	 * Execute an ability.
-	 *
-	 * @param string $name Ability name.
-	 * @param array  $args Arguments to pass to the ability.
-	 * @return array Result with success status and data.
-	 */
-	public static function execute_ability( $name, $args = array() ) {
-		if ( ! isset( self::$abilities[ $name ] ) ) {
-			return array(
-				'success' => false,
-				'message' => 'Ability not found: ' . $name,
-			);
-		}
-
-		$ability = self::$abilities[ $name ];
-
-		// Check capability
-		if ( ! current_user_can( $ability['capability'] ) ) {
-			return array(
-				'success' => false,
-				'message' => 'Insufficient permissions to execute this ability',
-			);
-		}
-
-		// Execute the ability
-		try {
-			$result = call_user_func( $ability['callback'], $args );
-			return $result;
-		} catch ( Exception $e ) {
-			return array(
-				'success' => false,
-				'message' => 'Error executing ability: ' . $e->getMessage(),
-			);
-		}
-	}
-
-	/**
-	 * Get all registered abilities.
-	 *
-	 * @return array
-	 */
-	public static function get_abilities() {
-		return self::$abilities;
-	}
-
-	/**
-	 * Get a specific ability.
-	 *
-	 * @param string $name Ability name.
-	 * @return array|null
-	 */
-	public static function get_ability( $name ) {
-		return isset( self::$abilities[ $name ] ) ? self::$abilities[ $name ] : null;
 	}
 }

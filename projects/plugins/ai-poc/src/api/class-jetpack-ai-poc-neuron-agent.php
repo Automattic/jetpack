@@ -184,27 +184,20 @@ class Jetpack_AI_POC_Neuron_Agent {
 	/**
 	 * Get available tools (WordPress abilities).
 	 *
-	 * @return array Tools array.
+	 * Uses the official WordPress Abilities API to retrieve registered abilities.
+	 *
+	 * @return array Tools array formatted for Claude API.
 	 */
 	private function get_tools() {
-		$abilities = Jetpack_AI_POC_Abilities_Registry::get_abilities();
-		$tools = array();
+		// Use the official WordPress Abilities API.
+		$abilities = wp_get_abilities();
+		$tools     = array();
 
-		foreach ( $abilities as $name => $ability ) {
+		foreach ( $abilities as $ability ) {
 			$tools[] = array(
-				'name'        => str_replace( '/', '_', $name ),
-				'description' => $ability['description'],
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
-						'action' => array(
-							'type'        => 'string',
-							'description' => 'Action to perform: enable or disable',
-							'enum'        => array( 'enable', 'disable' ),
-						),
-					),
-					'required'   => array( 'action' ),
-				),
+				'name'         => str_replace( '/', '_', $ability->get_name() ),
+				'description'  => $ability->get_description(),
+				'input_schema' => $ability->get_input_schema(),
 			);
 		}
 
@@ -214,16 +207,38 @@ class Jetpack_AI_POC_Neuron_Agent {
 	/**
 	 * Execute a tool (WordPress ability).
 	 *
+	 * Uses the official WordPress Abilities API to execute abilities.
+	 *
 	 * @param string $tool_name Tool name.
 	 * @param array  $input Tool input.
 	 * @return array Result.
 	 */
 	private function execute_tool( $tool_name, $input ) {
-		// Convert tool name back to ability name
+		// Convert tool name back to ability name.
 		$ability_name = str_replace( '_', '/', $tool_name );
 
-		// Execute the ability
-		return Jetpack_AI_POC_Abilities_Registry::execute_ability( $ability_name, $input );
+		// Get the ability using official API.
+		$ability = wp_get_ability( $ability_name );
+
+		if ( ! $ability ) {
+			return array(
+				'success' => false,
+				'message' => 'Ability not found: ' . $ability_name,
+			);
+		}
+
+		// Execute the ability.
+		$result = $ability->execute( $input );
+
+		// Handle WP_Error.
+		if ( is_wp_error( $result ) ) {
+			return array(
+				'success' => false,
+				'message' => $result->get_error_message(),
+			);
+		}
+
+		return $result;
 	}
 
 	/**
