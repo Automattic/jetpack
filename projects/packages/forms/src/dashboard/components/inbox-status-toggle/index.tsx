@@ -66,7 +66,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
-				params.delete( 'r' ); // Reset to first page on status change.
+				params.delete( 'r' ); // Clear selected responses when changing tabs.
 				return params;
 			} );
 			setSelectedResponses( [] );
