@@ -1,0 +1,135 @@
+.jetpack-ai-poc-popup-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000000;
+	backdrop-filter: blur(4px);
+}
+
+.jetpack-ai-poc-popup {
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+	width: 90%;
+	max-width: 500px;
+	max-height: 80vh;
+	overflow: auto;
+
+	&__header {
+		padding: 20px 24px;
+		border-bottom: 1px solid #e0e0e0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+
+		h2 {
+			margin: 0;
+			font-size: 20px;
+			font-weight: 600;
+			color: #1e1e1e;
+		}
+	}
+
+	&__close {
+		background: none;
+		border: none;
+		font-size: 28px;
+		line-height: 1;
+		color: #666;
+		cursor: pointer;
+		padding: 0;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		transition: background 0.2s ease, color 0.2s ease;
+
+		&:hover {
+			background: #f0f0f0;
+			color: #000;
+		}
+	}
+
+	&__content {
+		padding: 24px;
+
+		> p {
+			margin: 0 0 20px;
+			color: #646970;
+		}
+	}
+
+	&__actions {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		margin-bottom: 20px;
+
+		.components-button {
+			justify-content: center;
+			padding: 12px 20px;
+			height: auto;
+		}
+	}
+
+	&__loading {
+		text-align: center;
+		padding: 30px 20px;
+		background: #f7f7f7;
+		border-radius: 8px;
+
+		.components-spinner {
+			margin: 0 auto 12px;
+		}
+
+		p {
+			margin: 0;
+			color: #646970;
+		}
+	}
+
+	&__response {
+		padding: 16px;
+		border-radius: 8px;
+		margin-top: 20px;
+
+		h3 {
+			margin: 0 0 10px;
+			font-size: 16px;
+			font-weight: 600;
+		}
+
+		p {
+			margin: 0;
+			line-height: 1.6;
+		}
+
+		&--success {
+			background: #e7f5e9;
+			border: 1px solid #4caf50;
+			color: #1b5e20;
+
+			h3 {
+				color: #2e7d32;
+			}
+		}
+
+		&--error {
+			background: #fdecea;
+			border: 1px solid #f44336;
+			color: #c62828;
+
+			h3 {
+				color: #d32f2f;
+			}
+		}
+	}
+}

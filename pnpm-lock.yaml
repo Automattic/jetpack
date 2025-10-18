@@ -4033,6 +4033,103 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.101.3)
 
+  projects/plugins/ai-poc:
+    dependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
+      '@wordpress/data':
+        specifier: 10.31.0
+        version: 10.31.0(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.31.0
+        version: 5.31.0
+      '@wordpress/element':
+        specifier: 6.31.0
+        version: 6.31.0
+      '@wordpress/i18n':
+        specifier: 6.4.0
+        version: 6.4.0
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.28.4
+        version: 7.28.4
+      '@babel/preset-env':
+        specifier: 7.28.3
+        version: 7.28.3(@babel/core@7.28.4)
+      '@babel/runtime':
+        specifier: 7.28.4
+        version: 7.28.4
+      '@testing-library/dom':
+        specifier: 10.4.0
+        version: 10.4.0
+      '@testing-library/react':
+        specifier: 16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/browserslist-config':
+        specifier: 6.31.0
+        version: 6.31.0
+      concurrently:
+        specifier: 7.6.0
+        version: 7.6.0
+      jest:
+        specifier: 30.0.4
+        version: 30.0.4
+      jest-environment-jsdom:
+        specifier: 30.0.4
+        version: 30.0.4
+      sass-embedded:
+        specifier: 1.87.0
+        version: 1.87.0
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.87.0)(webpack@5.101.3)
+      webpack:
+        specifier: 5.101.3
+        version: 5.101.3(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.101.3)
+
+  projects/plugins/ai-poc/tests/e2e:
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.55.1
+        version: 1.55.1
+      '@types/node':
+        specifier: ^20.4.2
+        version: 20.19.21
+      _jetpack-e2e-commons:
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
+      allure-playwright:
+        specifier: 2.15.1
+        version: 2.15.1
+      config:
+        specifier: 3.3.12
+        version: 3.3.12
+      typescript:
+        specifier: 5.9.2
+        version: 5.9.2
+
   projects/plugins/automattic-for-agencies-client:
     dependencies:
       '@automattic/color-studio':

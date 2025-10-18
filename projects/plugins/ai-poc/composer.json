@@ -1,0 +1,74 @@
+{
+	"name": "automattic/jetpack-starter-plugin",
+	"description": "plugin--description",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-starter-plugin",
+		"release-branch-prefix": "starter-plugin",
+		"beta-plugin-slug": "jetpack-starter-plugin"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_starter_pluginⓥ0_8_0"
+	}
+}

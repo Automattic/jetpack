@@ -1,0 +1,57 @@
+{
+	"private": true,
+	"description": "plugin--description.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Starter Plugin"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/starter-plugin"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"test": "jest",
+		"test-coverage": "pnpm run test --coverage",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@wordpress/data": "10.31.0",
+		"@wordpress/date": "5.31.0",
+		"@wordpress/element": "6.31.0",
+		"@wordpress/i18n": "6.4.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.28.4",
+		"@babel/preset-env": "7.28.3",
+		"@babel/runtime": "7.28.4",
+		"@testing-library/dom": "10.4.0",
+		"@testing-library/react": "16.3.0",
+		"@wordpress/browserslist-config": "6.31.0",
+		"concurrently": "7.6.0",
+		"jest": "30.0.4",
+		"jest-environment-jsdom": "30.0.4",
+		"sass-embedded": "1.87.0",
+		"sass-loader": "16.0.5",
+		"webpack": "5.101.3",
+		"webpack-cli": "6.0.1"
+	}
+}
