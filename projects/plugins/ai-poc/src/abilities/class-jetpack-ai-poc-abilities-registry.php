@@ -20,34 +20,19 @@ class Jetpack_AI_POC_Abilities_Registry {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'abilities_api_init', array( $this, 'register_ability_categories' ) );
 		add_action( 'abilities_api_init', array( $this, 'register_core_abilities' ) );
-	}
-
-	/**
-	 * Register ability categories.
-	 */
-	public function register_ability_categories() {
-		wp_register_ability_category(
-			'jetpack-security',
-			array(
-				'label'       => __( 'Jetpack Security', 'jetpack-ai-poc' ),
-				'description' => __( 'Security-related abilities for Jetpack', 'jetpack-ai-poc' ),
-			)
-		);
 	}
 
 	/**
 	 * Register core abilities.
 	 */
 	public function register_core_abilities() {
-		// Register site-security ability using official WordPress Abilities API
+		// Register site-security ability using official WordPress Abilities API.
 		wp_register_ability(
 			'jetpack-ai-poc/site-security',
 			array(
 				'label'               => __( 'Site Security', 'jetpack-ai-poc' ),
-				'description'         => __( 'Toggle Jetpack Protect and Monitor modules for enhanced site security. Use "enable" action to activate security features or "disable" to deactivate them.', 'jetpack-ai-poc' ),
-				'category'            => 'jetpack-security',
+				'description'         => __( 'Toggle Jetpack Account Protection and Monitor modules for enhanced site security. Use "enable" action to activate security features or "disable" to deactivate them.', 'jetpack-ai-poc' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
@@ -74,16 +59,6 @@ class Jetpack_AI_POC_Abilities_Registry {
 						'modules' => array(
 							'type'        => 'object',
 							'description' => 'Status of affected modules',
-							'properties'  => array(
-								'protect' => array(
-									'type'        => 'boolean',
-									'description' => 'Whether Protect module is active',
-								),
-								'monitor' => array(
-									'type'        => 'boolean',
-									'description' => 'Whether Monitor module is active',
-								),
-							),
 						),
 					),
 				),

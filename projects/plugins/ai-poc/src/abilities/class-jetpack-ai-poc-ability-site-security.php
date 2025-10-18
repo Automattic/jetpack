@@ -40,14 +40,14 @@ class Jetpack_AI_POC_Ability_Site_Security {
 		$overall_success = true;
 		$messages        = array();
 
-		// Toggle Protect module (formerly Account Protection).
-		$protect_result = self::toggle_module( 'protect', $action );
-		if ( is_wp_error( $protect_result ) ) {
-			$overall_success           = false;
-			$modules_status['protect'] = false;
-			$messages[]                = $protect_result->get_error_message();
+		// Toggle Account Protection module.
+		$account_protection_result = self::toggle_module( 'account-protection', $action );
+		if ( is_wp_error( $account_protection_result ) ) {
+			$overall_success                      = false;
+			$modules_status['account-protection'] = false;
+			$messages[]                           = $account_protection_result->get_error_message();
 		} else {
-			$modules_status['protect'] = ( 'enable' === $action );
+			$modules_status['account-protection'] = ( 'enable' === $action );
 		}
 
 		// Toggle Monitor module (Downtime Monitor).
