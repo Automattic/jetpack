@@ -161,7 +161,8 @@ export default function InboxView() {
 				const _searchParams = new URLSearchParams( previousSearchParams );
 				const currentURLSelection = _searchParams.get( 'r' )?.split( ',' ) || [];
 
-				// remove all the currentURLSelection items ID that are duplicates and are also in the records list
+				// Filter out IDs from the current URL selection that are either already selected in the current view
+				// or already present in the current records, to avoid duplication when merging selections across pages.
 				const currentSelection = currentURLSelection.filter(
 					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
 				);
