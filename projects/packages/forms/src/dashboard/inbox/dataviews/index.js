@@ -166,7 +166,7 @@ export default function InboxView() {
 					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
 				);
 
-				// merge items with the current url
+				// merge items with the current URL
 				const mergedItems = [ ...new Set( [ ...currentSelection, ...items ] ) ];
 				if ( mergedItems.length ) {
 					_searchParams.set( 'r', mergedItems.join( ',' ) );
