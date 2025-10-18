@@ -1189,19 +1189,58 @@ class Feedback_Test extends BaseTestCase {
 		$_post_data = Utility::get_post_request(
 			array(
 				'images' => array(
-					'{"perceived":"B","selected":"B","label":"Test choice","showLabels":true,"image":{"id":null,"src":"https://www.example.com/test-choice.png"}}',
-					'{"perceived":"C","selected":"C","label":"Another test choice","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/another-test-choice.png"}}',
+					'{"perceived":"B","selected":"B","label":"Choice B","showLabels":true,"image":{"id":null,"src":"https://www.example.com/choice-b.png"}}',
+					'{"perceived":"C","selected":"C","label":"Choice C","showLabels":true,"image":{"id":12346,"src":"https://www.example.com/choice-c.png"}}',
 				),
 			),
 			'g' . $form_id
 		);
+
+		// Helper function to create image block data for optionsdata
+		$create_image_block = function ( $url, $alt ) {
+			return array(
+				'blockName'    => 'core/image',
+				'attrs'        => array(
+					'url'         => $url,
+					'alt'         => $alt,
+					'scale'       => 'cover',
+					'aspectRatio' => '1',
+				),
+				'innerHTML'    => "<img src=\"{$url}\" alt=\"{$alt}\" />",
+				'innerContent' => array( "<img src=\"{$url}\" alt=\"{$alt}\" />" ),
+			);
+		};
+
+		$optionsdata = Contact_Form::esc_shortcode_val(
+			wp_json_encode(
+				array(
+					array(
+						'letter' => 'A',
+						'label'  => 'Choice A',
+						'image'  => $create_image_block( 'https://www.example.com/choice-a.png', 'Choice A' ),
+					),
+					array(
+						'letter' => 'B',
+						'label'  => 'Choice B',
+						'image'  => $create_image_block( 'https://www.example.com/choice-b.png', 'Choice B' ),
+					),
+					array(
+						'letter' => 'C',
+						'label'  => 'Choice C',
+						'image'  => $create_image_block( 'https://www.example.com/choice-c.png', 'Choice C' ),
+					),
+				)
+			)
+		);
+
+		$shortcode = "[contact-field type=\"image-select\" label=\"Images\" isMultiple=\"1\" options=\"A,B,C\" showLabels=\"1\" optionsdata=\"{$optionsdata}\" /]";
 
 		$form = new Contact_Form(
 			array(
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field type='image-select' label='Images' isMultiple='1' options='A,B,C' showLabels='1' /]"
+			$shortcode
 		);
 
 		$expected_images = array(
@@ -1210,21 +1249,21 @@ class Feedback_Test extends BaseTestCase {
 				array(
 					'perceived'  => 'B',
 					'selected'   => 'B',
-					'label'      => 'Test choice',
+					'label'      => 'Choice B',
 					'showLabels' => true,
 					'image'      => array(
 						'id'  => null,
-						'src' => 'https://www.example.com/test-choice.png',
+						'src' => 'https://www.example.com/choice-b.png',
 					),
 				),
 				array(
 					'perceived'  => 'C',
 					'selected'   => 'C',
-					'label'      => 'Another test choice',
+					'label'      => 'Choice C',
 					'showLabels' => true,
 					'image'      => array(
 						'id'  => 12346,
-						'src' => 'https://www.example.com/another-test-choice.png',
+						'src' => 'https://www.example.com/choice-c.png',
 					),
 				),
 			),
