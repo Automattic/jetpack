@@ -1309,7 +1309,7 @@ EOT;
 			'show_date'       => (bool) ( $options['show_date'] ?? true ),
 			'show_context'    => (bool) ( $options['show_context'] ?? true ),
 			'layout'          => (string) ( $options['layout'] ?? 'grid' ),
-			'headline'        => (string) $options['headline'] ?? '',
+			'headline'        => (string) ( $options['headline'] ?? '' ),
 			'items'           => array(),
 		);
 
