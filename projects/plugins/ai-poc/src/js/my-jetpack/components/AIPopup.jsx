@@ -1,109 +1,167 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { Button, Spinner, TextControl } from '@wordpress/components';
+import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './AIPopup.scss';
 
 const AIPopup = ( { onClose } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ response, setResponse ] = useState( null );
-	const [ error, setError ] = useState( null );
+	const [ chatInput, setChatInput ] = useState( '' );
+	const [ conversation, setConversation ] = useState( [] );
+	const chatEndRef = useRef( null );
 
-	const handleAction = async action => {
+	// Auto-scroll to bottom when new messages are added
+	useEffect( () => {
+		chatEndRef.current?.scrollIntoView( { behavior: 'smooth' } );
+	}, [ conversation ] );
+
+	const sendMessage = async prompt => {
+		if ( ! prompt.trim() ) {
+			return;
+		}
+
+		// Add user message to conversation
+		setConversation( prev => [ ...prev, { type: 'user', message: prompt } ] );
 		setIsLoading( true );
-		setResponse( null );
-		setError( null );
-
-		const prompts = {
-			'enable-security': 'Enable site security features (Account Protection and Downtime Monitor)',
-			'disable-security':
-				'Disable site security features (Account Protection and Downtime Monitor)',
-		};
+		setChatInput( '' );
 
 		try {
 			const result = await apiFetch( {
 				path: '/jetpack-ai-poc/v1/agent',
 				method: 'POST',
 				data: {
-					prompt: prompts[ action ],
+					prompt,
 				},
 			} );
 
+			// Add AI response to conversation
 			if ( result.success ) {
-				setResponse( result.message );
+				setConversation( prev => [ ...prev, { type: 'assistant', message: result.message } ] );
 			} else {
-				setError( result.message || __( 'Failed to execute action', 'jetpack-starter-plugin' ) );
+				setConversation( prev => [
+					...prev,
+					{
+						type: 'error',
+						message: result.message || __( 'Failed to execute action', 'jetpack-ai-poc' ),
+					},
+				] );
 			}
 		} catch ( err ) {
-			setError(
-				err.message ||
-					__( 'An error occurred while processing your request', 'jetpack-starter-plugin' )
-			);
+			setConversation( prev => [
+				...prev,
+				{
+					type: 'error',
+					message:
+						err.message ||
+						__( 'An error occurred while processing your request', 'jetpack-ai-poc' ),
+				},
+			] );
 		} finally {
 			setIsLoading( false );
 		}
 	};
 
+	const handlePredefinedAction = prompt => {
+		sendMessage( prompt );
+	};
+
+	const handleChatSubmit = e => {
+		e.preventDefault();
+		sendMessage( chatInput );
+	};
+
 	return (
 		<div className="jetpack-ai-poc-popup-overlay" onClick={ onClose }>
-			<div className="jetpack-ai-poc-popup" onClick={ e => e.stopPropagation() }>
+			<div className="jetpack-ai-poc-popup jetpack-ai-poc-chat" onClick={ e => e.stopPropagation() }>
 				<div className="jetpack-ai-poc-popup__header">
-					<h2>{ __( 'AI Assistant', 'jetpack-starter-plugin' ) }</h2>
+					<h2>{ __( 'AI Assistant', 'jetpack-ai-poc' ) }</h2>
 					<button
 						className="jetpack-ai-poc-popup__close"
 						onClick={ onClose }
-						aria-label={ __( 'Close', 'jetpack-starter-plugin' ) }
+						aria-label={ __( 'Close', 'jetpack-ai-poc' ) }
 					>
 						×
 					</button>
 				</div>
 
 				<div className="jetpack-ai-poc-popup__content">
-					<p>
-						{ __(
-							'Use AI to perform actions on your site. Choose an action below:',
-							'jetpack-starter-plugin'
-						) }
-					</p>
+					<h3 className="jetpack-ai-poc-chat__title">
+						{ __( 'What would you like to do today?', 'jetpack-ai-poc' ) }
+					</h3>
 
 					<div className="jetpack-ai-poc-popup__actions">
 						<Button
-							variant="primary"
-							onClick={ () => handleAction( 'enable-security' ) }
+							variant="secondary"
+							onClick={ () =>
+								handlePredefinedAction(
+									'Enable site security features (Account Protection and Downtime Monitor)'
+								)
+							}
 							disabled={ isLoading }
 						>
-							{ __( 'Enable Site Security', 'jetpack-starter-plugin' ) }
+							{ __( 'Enable Site Security', 'jetpack-ai-poc' ) }
 						</Button>
 
 						<Button
 							variant="secondary"
-							onClick={ () => handleAction( 'disable-security' ) }
+							onClick={ () =>
+								handlePredefinedAction(
+									'Disable site security features (Account Protection and Downtime Monitor)'
+								)
+							}
 							disabled={ isLoading }
 						>
-							{ __( 'Disable Site Security', 'jetpack-starter-plugin' ) }
+							{ __( 'Disable Site Security', 'jetpack-ai-poc' ) }
+						</Button>
+
+						<Button variant="secondary" disabled={ true }>
+							{ __( 'Generate Site Report', 'jetpack-ai-poc' ) }
 						</Button>
 					</div>
 
-					{ isLoading && (
-						<div className="jetpack-ai-poc-popup__loading">
-							<Spinner />
-							<p>{ __( 'Processing your request…', 'jetpack-starter-plugin' ) }</p>
-						</div>
-					) }
+					<div className="jetpack-ai-poc-chat__conversation">
+						{ conversation.length > 0 && (
+							<div className="jetpack-ai-poc-chat__messages">
+								{ conversation.map( ( msg, index ) => (
+									<div key={ index } className={ `jetpack-ai-poc-chat__message jetpack-ai-poc-chat__message--${ msg.type }` }>
+										<div className="jetpack-ai-poc-chat__message-content">{ msg.message }</div>
+									</div>
+								) ) }
+								{ isLoading && (
+									<div className="jetpack-ai-poc-chat__message jetpack-ai-poc-chat__message--assistant">
+										<div className="jetpack-ai-poc-chat__message-content">
+											<Spinner />
+											<span>{ __( 'Thinking…', 'jetpack-ai-poc' ) }</span>
+										</div>
+									</div>
+								) }
+								<div ref={ chatEndRef } />
+							</div>
+						) }
+					</div>
 
-					{ response && (
-						<div className="jetpack-ai-poc-popup__response jetpack-ai-poc-popup__response--success">
-							<h3>{ __( 'Response:', 'jetpack-starter-plugin' ) }</h3>
-							<p>{ response }</p>
-						</div>
-					) }
-
-					{ error && (
-						<div className="jetpack-ai-poc-popup__response jetpack-ai-poc-popup__response--error">
-							<h3>{ __( 'Error:', 'jetpack-starter-plugin' ) }</h3>
-							<p>{ error }</p>
-						</div>
-					) }
+					<div className="jetpack-ai-poc-chat__input-section">
+						<p className="jetpack-ai-poc-chat__input-label">
+							{ __( 'Or ask for anything', 'jetpack-ai-poc' ) }
+						</p>
+						<form onSubmit={ handleChatSubmit } className="jetpack-ai-poc-chat__input-form">
+							<TextControl
+								value={ chatInput }
+								onChange={ setChatInput }
+								placeholder={ __( 'Type your message here…', 'jetpack-ai-poc' ) }
+								disabled={ isLoading }
+								className="jetpack-ai-poc-chat__input"
+							/>
+							<Button
+								type="submit"
+								variant="primary"
+								disabled={ isLoading || ! chatInput.trim() }
+								className="jetpack-ai-poc-chat__send-button"
+							>
+								{ __( 'Send', 'jetpack-ai-poc' ) }
+							</Button>
+						</form>
+					</div>
 				</div>
 			</div>
 		</div>
