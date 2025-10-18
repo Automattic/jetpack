@@ -60,13 +60,14 @@ class Jetpack_AI_POC_Ability_Tool extends Tool {
 			$type        = isset( $prop_schema['type'] ) ? $this->map_json_schema_type_to_neuron( $prop_schema['type'] ) : PropertyType::STRING;
 			$description = isset( $prop_schema['description'] ) ? $prop_schema['description'] : '';
 			$enum        = isset( $prop_schema['enum'] ) ? $prop_schema['enum'] : array();
+			$is_required = in_array( $name, $required, true );
 
-			$property = ToolProperty::make(
-				$name,
-				$type,
-				$description,
-				in_array( $name, $required, true ),
-				$enum
+			$property = new ToolProperty(
+				name: $name,
+				type: $type,
+				description: $description,
+				required: $is_required,
+				enum: $enum
 			);
 
 			$properties[] = $property;

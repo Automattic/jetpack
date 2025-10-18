@@ -66,19 +66,26 @@ class Jetpack_AI_POC_Agent extends Agent {
 	 * @return string
 	 */
 	public function instructions(): string {
-		$background = array(
-			'You are a helpful WordPress assistant powered by Jetpack.',
-			'You have access to WordPress abilities that allow you to perform various tasks.',
-			'You can enable or disable security features, and perform other WordPress-related actions.',
+		return (string) new SystemPrompt(
+			background: array(
+				'You are a helpful WordPress assistant powered by Jetpack.',
+				'You have access to WordPress abilities that allow you to perform various tasks on the WordPress site.',
+				'When users ask you to perform actions, you MUST use the available tools to actually execute those actions.',
+				'Never pretend or simulate actions - always use the provided tools to make real changes.',
+			),
+			steps: array(
+				'1. Understand what the user is asking you to do',
+				'2. Identify which tool(s) can accomplish the task',
+				'3. Use the appropriate tool(s) with the correct parameters',
+				'4. Report back to the user with the actual results from the tool execution',
+			),
+			toolsUsage: array(
+				'ALWAYS use the available tools when users ask you to perform actions',
+				'NEVER say you have done something without actually calling the tool',
+				'If a tool returns an error, report the actual error to the user',
+				'Only respond with success after the tool has been executed successfully',
+			)
 		);
-
-		$capabilities = array(
-			'Manage Jetpack security modules (Account Protection and Monitor)',
-			'Provide information about WordPress site configuration',
-			'Help users understand and configure their WordPress site',
-		);
-
-		return (string) new SystemPrompt( $background, $capabilities );
 	}
 
 	/**

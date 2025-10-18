@@ -42,7 +42,7 @@ const AIPopup = ( { onClose } ) => {
 					...prev,
 					{
 						type: 'error',
-						message: result.message || __( 'Failed to execute action', 'jetpack-ai-poc' ),
+						message: result.message || __( 'Failed to execute action', 'jetpack-starter-plugin' ),
 					},
 				] );
 			}
@@ -53,7 +53,7 @@ const AIPopup = ( { onClose } ) => {
 					type: 'error',
 					message:
 						err.message ||
-						__( 'An error occurred while processing your request', 'jetpack-ai-poc' ),
+						__( 'An error occurred while processing your request', 'jetpack-starter-plugin' ),
 				},
 			] );
 		} finally {
@@ -72,13 +72,16 @@ const AIPopup = ( { onClose } ) => {
 
 	return (
 		<div className="jetpack-ai-poc-popup-overlay" onClick={ onClose }>
-			<div className="jetpack-ai-poc-popup jetpack-ai-poc-chat" onClick={ e => e.stopPropagation() }>
+			<div
+				className="jetpack-ai-poc-popup jetpack-ai-poc-chat"
+				onClick={ e => e.stopPropagation() }
+			>
 				<div className="jetpack-ai-poc-popup__header">
-					<h2>{ __( 'AI Assistant', 'jetpack-ai-poc' ) }</h2>
+					<h2>{ __( 'AI Assistant', 'jetpack-starter-plugin' ) }</h2>
 					<button
 						className="jetpack-ai-poc-popup__close"
 						onClick={ onClose }
-						aria-label={ __( 'Close', 'jetpack-ai-poc' ) }
+						aria-label={ __( 'Close', 'jetpack-starter-plugin' ) }
 					>
 						×
 					</button>
@@ -86,7 +89,7 @@ const AIPopup = ( { onClose } ) => {
 
 				<div className="jetpack-ai-poc-popup__content">
 					<h3 className="jetpack-ai-poc-chat__title">
-						{ __( 'What would you like to do today?', 'jetpack-ai-poc' ) }
+						{ __( 'What would you like to do today?', 'jetpack-starter-plugin' ) }
 					</h3>
 
 					<div className="jetpack-ai-poc-popup__actions">
@@ -99,7 +102,7 @@ const AIPopup = ( { onClose } ) => {
 							}
 							disabled={ isLoading }
 						>
-							{ __( 'Enable Site Security', 'jetpack-ai-poc' ) }
+							{ __( 'Enable Site Security', 'jetpack-starter-plugin' ) }
 						</Button>
 
 						<Button
@@ -111,11 +114,17 @@ const AIPopup = ( { onClose } ) => {
 							}
 							disabled={ isLoading }
 						>
-							{ __( 'Disable Site Security', 'jetpack-ai-poc' ) }
+							{ __( 'Disable Site Security', 'jetpack-starter-plugin' ) }
 						</Button>
 
-						<Button variant="secondary" disabled={ true }>
-							{ __( 'Generate Site Report', 'jetpack-ai-poc' ) }
+						<Button
+							variant="secondary"
+							onClick={ () =>
+								handlePredefinedAction( 'Show me the latest Jetpack Stats for the last 7 days' )
+							}
+							disabled={ isLoading }
+						>
+							{ __( 'Show Latest Stats', 'jetpack-starter-plugin' ) }
 						</Button>
 					</div>
 
@@ -123,7 +132,10 @@ const AIPopup = ( { onClose } ) => {
 						{ conversation.length > 0 && (
 							<div className="jetpack-ai-poc-chat__messages">
 								{ conversation.map( ( msg, index ) => (
-									<div key={ index } className={ `jetpack-ai-poc-chat__message jetpack-ai-poc-chat__message--${ msg.type }` }>
+									<div
+										key={ index }
+										className={ `jetpack-ai-poc-chat__message jetpack-ai-poc-chat__message--${ msg.type }` }
+									>
 										<div className="jetpack-ai-poc-chat__message-content">{ msg.message }</div>
 									</div>
 								) ) }
@@ -131,7 +143,7 @@ const AIPopup = ( { onClose } ) => {
 									<div className="jetpack-ai-poc-chat__message jetpack-ai-poc-chat__message--assistant">
 										<div className="jetpack-ai-poc-chat__message-content">
 											<Spinner />
-											<span>{ __( 'Thinking…', 'jetpack-ai-poc' ) }</span>
+											<span>{ __( 'Thinking…', 'jetpack-starter-plugin' ) }</span>
 										</div>
 									</div>
 								) }
@@ -142,13 +154,13 @@ const AIPopup = ( { onClose } ) => {
 
 					<div className="jetpack-ai-poc-chat__input-section">
 						<p className="jetpack-ai-poc-chat__input-label">
-							{ __( 'Or ask for anything', 'jetpack-ai-poc' ) }
+							{ __( 'Or ask for anything', 'jetpack-starter-plugin' ) }
 						</p>
 						<form onSubmit={ handleChatSubmit } className="jetpack-ai-poc-chat__input-form">
 							<TextControl
 								value={ chatInput }
 								onChange={ setChatInput }
-								placeholder={ __( 'Type your message here…', 'jetpack-ai-poc' ) }
+								placeholder={ __( 'Type your message here…', 'jetpack-starter-plugin' ) }
 								disabled={ isLoading }
 								className="jetpack-ai-poc-chat__input"
 							/>
@@ -158,7 +170,7 @@ const AIPopup = ( { onClose } ) => {
 								disabled={ isLoading || ! chatInput.trim() }
 								className="jetpack-ai-poc-chat__send-button"
 							>
-								{ __( 'Send', 'jetpack-ai-poc' ) }
+								{ __( 'Send', 'jetpack-starter-plugin' ) }
 							</Button>
 						</form>
 					</div>

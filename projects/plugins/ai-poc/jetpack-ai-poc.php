@@ -97,35 +97,49 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	return;
 }
 
-// Check for WordPress Abilities API.
+// Load WordPress Abilities API from vendor if not already loaded.
 if ( ! class_exists( 'WP_Ability' ) ) {
-	add_action(
-		'admin_notices',
-		function () {
-			$message = sprintf(
-				wp_kses(
-					/* translators: %s: URL to the Abilities API plugin */
-					__( 'Jetpack AI POC requires the <a href="%s" target="_blank" rel="noopener noreferrer">WordPress Abilities API</a> plugin to be installed and activated. Please install it to use this plugin.', 'jetpack-ai-poc' ),
-					array(
-						'a' => array(
-							'href'   => array(),
-							'target' => array(),
-							'rel'    => array(),
-						),
-					)
-				),
-				'https://github.com/WordPress/abilities-api'
-			);
-			wp_admin_notice(
-				$message,
-				array(
-					'type'        => 'error',
-					'dismissible' => true,
-				)
-			);
+	$abilities_api_file = JETPACK_AI_POC_DIR . 'vendor/wordpress/abilities-api/abilities-api.php';
+
+	if ( file_exists( $abilities_api_file ) ) {
+		// Load the Abilities API from our vendor directory.
+		require_once $abilities_api_file;
+
+		// Ensure the abilities_api_init hook is triggered by accessing the registry.
+		// This initializes the registry and fires the hook for other plugins to register abilities.
+		if ( class_exists( 'WP_Abilities_Registry' ) ) {
+			WP_Abilities_Registry::get_instance();
 		}
-	);
-	return;
+	} else {
+		// Show error if Abilities API is not available.
+		add_action(
+			'admin_notices',
+			function () {
+				$message = sprintf(
+					wp_kses(
+						/* translators: %s: URL to the Abilities API plugin */
+						__( 'Jetpack AI POC requires the <a href="%s" target="_blank" rel="noopener noreferrer">WordPress Abilities API</a>. Please run composer install in the plugin directory.', 'jetpack-ai-poc' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'target' => array(),
+								'rel'    => array(),
+							),
+						)
+					),
+					'https://github.com/WordPress/abilities-api'
+				);
+				wp_admin_notice(
+					$message,
+					array(
+						'type'        => 'error',
+						'dismissible' => true,
+					)
+				);
+			}
+		);
+		return;
+	}
 }
 
 // Add "Settings" link to plugins page.
