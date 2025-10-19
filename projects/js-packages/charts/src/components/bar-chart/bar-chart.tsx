@@ -34,7 +34,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
-	interactive?: boolean;
 	children?: ReactNode;
 }
 
@@ -93,7 +92,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
-	interactive = false,
 	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
@@ -393,7 +391,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
-						interactive={ interactive }
 					/>
 				) }
 

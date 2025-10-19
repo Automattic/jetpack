@@ -84,11 +84,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * Vertical offset for tooltip positioning in pixels (default: -15)
 	 */
 	tooltipOffsetY?: number;
-
-	/**
-	 * Enable interactive legend items that can toggle series visibility
-	 */
-	interactive?: boolean;
 }
 
 // Base props type with optional responsive properties
@@ -152,7 +147,6 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
-	interactive = false,
 	children = null,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
@@ -379,7 +373,6 @@ const PieChartInternal = ( {
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
-						interactive={ interactive }
 					/>
 				) }
 

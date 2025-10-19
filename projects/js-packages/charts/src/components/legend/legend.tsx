@@ -28,6 +28,6 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 			return null;
 		}
 
-		return <BaseLegend ref={ ref } items={ legendItems } chartId={ contextChartId } { ...props } />;
+		return <BaseLegend ref={ ref } items={ legendItems } { ...props } chartId={ contextChartId } />;
 	}
 );

@@ -270,13 +270,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		// Filter out hidden series when using interactive legends, preserving original index
 		const visibleData = useMemo( () => {
-			if ( ! chartId ) {
+			if ( ! chartId || ! interactive ) {
 				return dataSorted.map( ( series, index ) => ( { series, originalIndex: index } ) );
 			}
 			return dataSorted
 				.map( ( series, index ) => ( { series, originalIndex: index } ) )
 				.filter( ( { series } ) => isSeriesVisible( chartId, series.label ) );
-		}, [ dataSorted, chartId, isSeriesVisible ] );
+		}, [ dataSorted, chartId, isSeriesVisible, interactive ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
