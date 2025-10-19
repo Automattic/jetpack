@@ -35,7 +35,7 @@ class Jetpack_AI_POC_Neuron_Agent {
 	 *
 	 * @var string
 	 */
-	private $model = 'claude-3-5-sonnet-20241022';
+	private $model = 'claude-sonnet-4-5-20250929';
 
 	/**
 	 * Constructor.
@@ -65,10 +65,10 @@ class Jetpack_AI_POC_Neuron_Agent {
 		);
 
 		$max_iterations = 5;
-		$iteration = 0;
+		$iteration      = 0;
 
 		while ( $iteration < $max_iterations ) {
-			$iteration++;
+			++$iteration;
 
 			// Make API request to Claude
 			$response = $this->call_claude_api( $messages, $tools );
@@ -104,11 +104,11 @@ class Jetpack_AI_POC_Neuron_Agent {
 				// Execute tools and collect results
 				$tool_results = array();
 				foreach ( $tool_calls as $tool_call ) {
-					$result = $this->execute_tool( $tool_call['name'], $tool_call['input'] );
+					$result         = $this->execute_tool( $tool_call['name'], $tool_call['input'] );
 					$tool_results[] = array(
-						'type'       => 'tool_result',
+						'type'        => 'tool_result',
 						'tool_use_id' => $tool_call['id'],
-						'content'    => wp_json_encode( $result ),
+						'content'     => wp_json_encode( $result ),
 					);
 				}
 
@@ -153,9 +153,9 @@ class Jetpack_AI_POC_Neuron_Agent {
 			$this->api_endpoint,
 			array(
 				'headers' => array(
-					'Content-Type'         => 'application/json',
-					'x-api-key'            => $this->api_key,
-					'anthropic-version'    => '2023-06-01',
+					'Content-Type'      => 'application/json',
+					'x-api-key'         => $this->api_key,
+					'anthropic-version' => '2023-06-01',
 				),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 60,
@@ -167,8 +167,8 @@ class Jetpack_AI_POC_Neuron_Agent {
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+		$body        = wp_remote_retrieve_body( $response );
+		$data        = json_decode( $body, true );
 
 		if ( 200 !== $status_code ) {
 			return new WP_Error(
