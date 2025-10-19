@@ -1103,4 +1103,65 @@ describe( 'LineChart', () => {
 			expect( customTooltipRenderer ).toHaveBeenCalled();
 		} );
 	} );
+
+	describe( 'Interactive Legend', () => {
+		it( 'filters series when interactive legend is enabled and series is toggled', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						showLegend={ true }
+						interactive={ true }
+						chartId="test-interactive-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// Click on first legend item to hide it
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+
+			// The series should now be hidden (aria-pressed = false)
+			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'does not filter series when interactive is false', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						showLegend={ true }
+						interactive={ false }
+						chartId="test-non-interactive-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// Legend items should not be interactive
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+		} );
+
+		it( 'shows all series when chartId is missing even if interactive is true', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						showLegend={ true }
+						interactive={ true }
+						// No chartId provided
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// All legend items should be visible (not hidden)
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems.forEach( item => {
+				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
+			} );
+		} );
+	} );
 } );
