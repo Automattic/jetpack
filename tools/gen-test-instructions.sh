@@ -3,9 +3,16 @@
 ##
 ## Generate test instructions from changelog for Jetpack releases.
 ##
-## This script automates the creation of consolidated test instructions
-## by parsing the CHANGELOG.md, fetching PR details from GitHub, and
-## optionally using AI to consolidate the instructions.
+## This bash script serves as a user-friendly wrapper around the Node.js
+## implementation at tools/js-tools/gen-test-instructions.mjs. It provides:
+## - Prerequisite checking (gh CLI, Node.js, authentication)
+## - Path resolution and validation
+## - User-friendly prompts and error messages
+## - Integration with standard Jetpack tooling (chalk-lite, etc.)
+##
+## The actual logic for parsing, fetching, and generating test instructions
+## is in the JavaScript module, while this script handles the CLI interface
+## and environment setup.
 ##
 
 set -eo pipefail

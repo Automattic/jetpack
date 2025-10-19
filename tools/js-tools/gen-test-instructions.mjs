@@ -10,7 +10,18 @@
  * 4. Optionally consolidating instructions using Claude AI
  * 5. Generating a markdown document with all PR numbers as clickable links
  *
- * Usage: node gen-test-instructions.mjs --changelog <path> --output <file> [options]
+ * Usage: node gen-test-instructions.mjs [options]
+ *
+ * Required Options:
+ *   --changelog <path>    Path to CHANGELOG.md file
+ *   --output <file>       Output file path for generated test instructions
+ *
+ * Optional:
+ *   --version <version>   Start from this version (e.g., 15.1). Defaults to last stable release
+ *   --since-date <date>   Include entries since this date (YYYY-MM-DD format)
+ *   --api-key <key>       Anthropic API key for AI consolidation (or use ANTHROPIC_API_KEY env var)
+ *   --skip-ai             Skip AI consolidation and output raw format
+ *   --verbose             Enable verbose output for debugging
  */
 
 import { execSync } from 'child_process';
@@ -43,6 +54,7 @@ function parseArguments() {
 		sinceDate: null,
 		apiKey: process.env.ANTHROPIC_API_KEY || null,
 		skipAi: false,
+		verbose: false,
 	};
 
 	for ( let i = 0; i < args.length; i++ ) {
@@ -64,6 +76,9 @@ function parseArguments() {
 				break;
 			case '--skip-ai':
 				options.skipAi = true;
+				break;
+			case '--verbose':
+				options.verbose = true;
 				break;
 			default:
 				throw new Error( `Unknown option: ${ args[ i ] }` );
@@ -111,7 +126,9 @@ function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
 	// Regular expressions for matching changelog format
 	const versionRegex = /^## ([\d.]+(?:-[a-z]+\.\d+)?)\s*-\s*(\d{4}-\d{2}-\d{2})/i;
 	const sectionRegex = /^### (.+)/;
-	const entryRegex = /^- (.+?) \[#(\d+)\]/;
+	// Match the entry text and extract all PR numbers (handles single or multiple PRs)
+	const entryRegex = /^- (.+?)(?:\s+\[#\d+\])+/;
+	const prNumberRegex = /\[#(\d+)\]/g;
 
 	// First pass: collect all versions and find last stable
 	for ( const line of lines ) {
@@ -179,12 +196,25 @@ function parseChangelog( changelogPath, sinceVersion, sinceDate ) {
 		if ( collectingEntries && currentVersion ) {
 			const entryMatch = line.match( entryRegex );
 			if ( entryMatch ) {
-				entries.push( {
-					text: entryMatch[ 1 ],
-					prNumber: entryMatch[ 2 ],
-					section: currentSection,
-					version: currentVersion,
-					date: currentDate,
+				const text = entryMatch[ 1 ].trim();
+
+				// Extract all PR numbers from the line (handles single or multiple PRs)
+				const prNumbers = [];
+				let prMatch;
+				while ( ( prMatch = prNumberRegex.exec( line ) ) !== null ) {
+					prNumbers.push( prMatch[ 1 ] );
+				}
+
+				// Create an entry for each PR number
+				// This allows us to fetch details for all related PRs
+				prNumbers.forEach( prNumber => {
+					entries.push( {
+						text,
+						prNumber,
+						section: currentSection,
+						version: currentVersion,
+						date: currentDate,
+					} );
 				} );
 			}
 		}
@@ -363,16 +393,18 @@ function generateRawTestInstructions( entries, prDetails ) {
 				output += `### [${ pr.title }](https://github.com/${ GITHUB_REPO }/pull/${ pr.number }) (#${ pr.number })\n\n`;
 
 				if ( pr.testingInstructions ) {
+					// We have explicit testing instructions
 					const linkedInstructions = convertPRNumbersToLinks( pr.testingInstructions );
 					output += `${ linkedInstructions }\n\n`;
+				} else if ( pr.body ) {
+					// No explicit testing instructions, include full PR description for context
+					output +=
+						'_No specific testing instructions section found. Full PR description below:_\n\n';
+					const linkedBody = convertPRNumbersToLinks( pr.body );
+					output += `${ linkedBody }\n\n`;
 				} else {
-					output += '_No specific testing instructions provided._\n\n';
-					if ( pr.body ) {
-						const linkedBody = convertPRNumbersToLinks( pr.body.substring( 0, 300 ) + '...' );
-						output += `**PR Description:**\n${ linkedBody }\n\n`;
-					} else {
-						output += '**PR Description:** N/A\n\n';
-					}
+					// No PR description at all
+					output += '_No testing instructions or PR description available._\n\n';
 				}
 
 				output += '---\n\n';
@@ -466,7 +498,9 @@ Generate the consolidated test guide now. Remember to format ALL PR numbers as m
 			},
 			body: JSON.stringify( {
 				model: CLAUDE_MODEL,
-				max_tokens: 4096,
+				// Max tokens for the response. 8192 allows for comprehensive test guides
+				// with many PRs. Can be increased if needed for very large releases.
+				max_tokens: 8192,
 				messages: [ { role: 'user', content: prompt } ],
 			} ),
 		} );
@@ -520,9 +554,15 @@ async function main() {
 		// Parse command line arguments
 		const options = parseArguments();
 
+		console.log( '🧪 Generating Test Instructions Guide...\n' );
+
+		if ( options.verbose ) {
+			console.log( 'Options:', JSON.stringify( options, null, 2 ) );
+		}
+
 		// Step 1: Parse changelog
 		const relativeChangelogPath = path.relative( process.cwd(), options.changelog );
-		console.log( `\n📖 Reading changelog from: ${ relativeChangelogPath }` );
+		console.log( `📖 Reading changelog from: ${ relativeChangelogPath }` );
 
 		const parseResult = parseChangelog( options.changelog, options.version, options.sinceDate );
 		const entries = parseResult.entries;
@@ -534,6 +574,14 @@ async function main() {
 		console.log(
 			`✓ Found ${ entries.length } changelog entries since version ${ parseResult.startVersion }\n`
 		);
+
+		if ( options.verbose ) {
+			console.log(
+				`Available versions in changelog: ${ parseResult.versions
+					.map( v => v.version )
+					.join( ', ' ) }`
+			);
+		}
 
 		// Step 2: Extract PR numbers
 		const prNumbers = extractPRNumbers( entries );
