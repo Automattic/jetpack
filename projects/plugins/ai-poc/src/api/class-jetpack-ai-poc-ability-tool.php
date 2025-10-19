@@ -5,9 +5,9 @@
  * @package automattic/jetpack-ai-poc
  */
 
+use NeuronAI\Tools\PropertyType;
 use NeuronAI\Tools\Tool;
 use NeuronAI\Tools\ToolProperty;
-use NeuronAI\Tools\PropertyType;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -103,18 +103,28 @@ class Jetpack_AI_POC_Ability_Tool extends Tool {
 	 * @return string Result of the ability execution.
 	 */
 	public function __invoke( ...$parameters ): string {
+		// Start tool span for tracing.
+		$tool_name = str_replace( '/', '_', $this->ability->get_name() );
+		$tool_span = Jetpack_AI_POC_Langfuse_Tracer::start_tool_span( $tool_name, $parameters );
+
 		// Execute the WordPress Ability with the provided parameters.
 		$result = $this->ability->execute( $parameters );
 
 		// Handle WP_Error.
 		if ( is_wp_error( $result ) ) {
+			$error_message = $result->get_error_message();
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $tool_span, $error_message );
+
 			return wp_json_encode(
 				array(
 					'success' => false,
-					'error'   => $result->get_error_message(),
+					'error'   => $error_message,
 				)
 			);
 		}
+
+		// End tool span with success.
+		Jetpack_AI_POC_Langfuse_Tracer::end_span_success( $tool_span, $result );
 
 		// Return the result as JSON.
 		return is_string( $result ) ? $result : wp_json_encode( $result );

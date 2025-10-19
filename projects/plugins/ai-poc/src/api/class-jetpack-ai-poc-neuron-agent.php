@@ -53,6 +53,9 @@ class Jetpack_AI_POC_Neuron_Agent {
 	 * @return array|WP_Error Result or error.
 	 */
 	public function execute( $prompt ) {
+		// Start LLM span for tracing.
+		$llm_span = Jetpack_AI_POC_Langfuse_Tracer::start_llm_span( $prompt, $this->model );
+
 		// Get available tools (WordPress abilities)
 		$tools = $this->get_tools();
 
@@ -74,6 +77,7 @@ class Jetpack_AI_POC_Neuron_Agent {
 			$response = $this->call_claude_api( $messages, $tools );
 
 			if ( is_wp_error( $response ) ) {
+				Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $llm_span, $response->get_error_message() );
 				return $response;
 			}
 
@@ -81,6 +85,10 @@ class Jetpack_AI_POC_Neuron_Agent {
 			if ( 'end_turn' === $response['stop_reason'] ) {
 				// Extract text response
 				$text_response = $this->extract_text_from_content( $response['content'] );
+
+				// End LLM span with success.
+				Jetpack_AI_POC_Langfuse_Tracer::end_span_success( $llm_span, $text_response );
+
 				return array(
 					'success' => true,
 					'message' => $text_response,
@@ -122,16 +130,20 @@ class Jetpack_AI_POC_Neuron_Agent {
 			}
 
 			// Unexpected stop reason
-			return new WP_Error(
+			$error = new WP_Error(
 				'unexpected_stop_reason',
 				'Unexpected stop reason: ' . $response['stop_reason']
 			);
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $llm_span, $error->get_error_message() );
+			return $error;
 		}
 
-		return new WP_Error(
+		$error = new WP_Error(
 			'max_iterations_exceeded',
 			'Maximum iterations exceeded'
 		);
+		Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $llm_span, $error->get_error_message() );
+		return $error;
 	}
 
 	/**
@@ -214,6 +226,9 @@ class Jetpack_AI_POC_Neuron_Agent {
 	 * @return array Result.
 	 */
 	private function execute_tool( $tool_name, $input ) {
+		// Start tool span for tracing.
+		$tool_span = Jetpack_AI_POC_Langfuse_Tracer::start_tool_span( $tool_name, $input );
+
 		// Convert tool name back to ability name.
 		$ability_name = str_replace( '_', '/', $tool_name );
 
@@ -221,10 +236,12 @@ class Jetpack_AI_POC_Neuron_Agent {
 		$ability = wp_get_ability( $ability_name );
 
 		if ( ! $ability ) {
-			return array(
+			$error_result = array(
 				'success' => false,
 				'message' => 'Ability not found: ' . $ability_name,
 			);
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $tool_span, 'Ability not found: ' . $ability_name );
+			return $error_result;
 		}
 
 		// Execute the ability.
@@ -232,11 +249,16 @@ class Jetpack_AI_POC_Neuron_Agent {
 
 		// Handle WP_Error.
 		if ( is_wp_error( $result ) ) {
-			return array(
+			$error_result = array(
 				'success' => false,
 				'message' => $result->get_error_message(),
 			);
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $tool_span, $result->get_error_message() );
+			return $error_result;
 		}
+
+		// End tool span with success.
+		Jetpack_AI_POC_Langfuse_Tracer::end_span_success( $tool_span, $result );
 
 		return $result;
 	}

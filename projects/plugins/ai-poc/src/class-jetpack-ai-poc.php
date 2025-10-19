@@ -9,9 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -31,6 +29,9 @@ class Jetpack_AI_POC {
 		// Initialize My Jetpack
 		My_Jetpack_Initializer::init();
 
+		// Initialize Langfuse tracer for observability.
+		$this->init_langfuse_tracer();
+
 		// Initialize abilities system
 		new Jetpack_AI_POC_Abilities_Registry();
 
@@ -42,6 +43,9 @@ class Jetpack_AI_POC {
 
 		// Enqueue scripts on My Jetpack page
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_my_jetpack_scripts' ) );
+
+		// Shutdown Langfuse tracer on plugin shutdown.
+		add_action( 'shutdown', array( $this, 'shutdown_langfuse_tracer' ) );
 
 		// Init Jetpack packages
 		add_action(
@@ -107,6 +111,35 @@ class Jetpack_AI_POC {
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'hasApiKey'         => ! empty( get_option( 'jetpack_ai_poc_anthropic_api_key' ) ),
 		);
+	}
+
+	/**
+	 * Initialize Langfuse tracer for observability.
+	 */
+	private function init_langfuse_tracer() {
+		// Check if the tracer class exists.
+		if ( ! class_exists( 'Jetpack_AI_POC_Langfuse_Tracer' ) ) {
+			return;
+		}
+
+		// Get Langfuse configuration from options.
+		$public_key = get_option( Jetpack_AI_POC_Admin_Settings::OPTION_LANGFUSE_PUBLIC_KEY, '' );
+		$secret_key = get_option( Jetpack_AI_POC_Admin_Settings::OPTION_LANGFUSE_SECRET_KEY, '' );
+		$host       = get_option( Jetpack_AI_POC_Admin_Settings::OPTION_LANGFUSE_HOST, 'https://cloud.langfuse.com' );
+
+		// Only initialize if both keys are configured.
+		if ( ! empty( $public_key ) && ! empty( $secret_key ) ) {
+			Jetpack_AI_POC_Langfuse_Tracer::init( $public_key, $secret_key, $host );
+		}
+	}
+
+	/**
+	 * Shutdown Langfuse tracer to flush all spans.
+	 */
+	public function shutdown_langfuse_tracer() {
+		if ( class_exists( 'Jetpack_AI_POC_Langfuse_Tracer' ) ) {
+			Jetpack_AI_POC_Langfuse_Tracer::shutdown();
+		}
 	}
 
 	/**

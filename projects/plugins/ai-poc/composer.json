@@ -14,7 +14,10 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"wordpress/abilities-api": "dev-trunk",
-		"neuron-core/neuron-ai": "^1.0"
+		"neuron-core/neuron-ai": "^1.0",
+		"open-telemetry/api": "^1.0",
+		"open-telemetry/sdk": "^1.0",
+		"open-telemetry/exporter-otlp": "^1.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
@@ -73,7 +76,9 @@
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true,
 			"automattic/jetpack-autoloader": true,
-			"automattic/jetpack-composer-plugin": true
+			"automattic/jetpack-composer-plugin": true,
+			"php-http/discovery": true,
+			"tbachert/spi": true
 		},
 		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_starter_pluginⓥ0_8_0"
 	}

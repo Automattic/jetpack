@@ -16,7 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Jetpack_AI_POC_Admin_Settings {
 
-	const OPTION_API_KEY = 'jetpack_ai_poc_anthropic_api_key';
+	const OPTION_API_KEY             = 'jetpack_ai_poc_anthropic_api_key';
+	const OPTION_LANGFUSE_PUBLIC_KEY = 'jetpack_ai_poc_langfuse_public_key';
+	const OPTION_LANGFUSE_SECRET_KEY = 'jetpack_ai_poc_langfuse_secret_key';
+	const OPTION_LANGFUSE_HOST       = 'jetpack_ai_poc_langfuse_host';
 
 	/**
 	 * Constructor.
@@ -30,7 +33,7 @@ class Jetpack_AI_POC_Admin_Settings {
 	 * Register plugin settings.
 	 */
 	public function register_settings() {
-		// Register the setting
+		// Register Anthropic API key setting.
 		register_setting(
 			'general',
 			self::OPTION_API_KEY,
@@ -38,6 +41,37 @@ class Jetpack_AI_POC_Admin_Settings {
 				'type'              => 'string',
 				'sanitize_callback' => array( $this, 'sanitize_api_key' ),
 				'default'           => '',
+			)
+		);
+
+		// Register Langfuse settings.
+		register_setting(
+			'general',
+			self::OPTION_LANGFUSE_PUBLIC_KEY,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'general',
+			self::OPTION_LANGFUSE_SECRET_KEY,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default'           => '',
+			)
+		);
+
+		register_setting(
+			'general',
+			self::OPTION_LANGFUSE_HOST,
+			array(
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+				'default'           => 'https://cloud.langfuse.com',
 			)
 		);
 
@@ -49,11 +83,36 @@ class Jetpack_AI_POC_Admin_Settings {
 			'general'
 		);
 
-		// Add settings field
+		// Add Anthropic API key field.
 		add_settings_field(
 			self::OPTION_API_KEY,
 			__( 'Anthropic API Key', 'jetpack-ai-poc' ),
 			array( $this, 'render_api_key_field' ),
+			'general',
+			'jetpack_ai_poc_section'
+		);
+
+		// Add Langfuse fields.
+		add_settings_field(
+			self::OPTION_LANGFUSE_PUBLIC_KEY,
+			__( 'Langfuse Public Key', 'jetpack-ai-poc' ),
+			array( $this, 'render_langfuse_public_key_field' ),
+			'general',
+			'jetpack_ai_poc_section'
+		);
+
+		add_settings_field(
+			self::OPTION_LANGFUSE_SECRET_KEY,
+			__( 'Langfuse Secret Key', 'jetpack-ai-poc' ),
+			array( $this, 'render_langfuse_secret_key_field' ),
+			'general',
+			'jetpack_ai_poc_section'
+		);
+
+		add_settings_field(
+			self::OPTION_LANGFUSE_HOST,
+			__( 'Langfuse Host', 'jetpack-ai-poc' ),
+			array( $this, 'render_langfuse_host_field' ),
 			'general',
 			'jetpack_ai_poc_section'
 		);
@@ -63,7 +122,7 @@ class Jetpack_AI_POC_Admin_Settings {
 	 * Render section description.
 	 */
 	public function render_section_description() {
-		echo '<p>' . esc_html__( 'Configure the Anthropic API key for AI-powered WordPress actions.', 'jetpack-ai-poc' ) . '</p>';
+		echo '<p>' . esc_html__( 'Configure the Anthropic API key for AI-powered WordPress actions and Langfuse for tracing and observability.', 'jetpack-ai-poc' ) . '</p>';
 	}
 
 	/**
@@ -85,6 +144,66 @@ class Jetpack_AI_POC_Admin_Settings {
 			<?php if ( ! empty( $api_key ) ) : ?>
 				<br><span style="color: #00a32a;">✓ <?php echo esc_html__( 'API key is configured', 'jetpack-ai-poc' ); ?></span>
 			<?php endif; ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render Langfuse public key field.
+	 */
+	public function render_langfuse_public_key_field() {
+		$public_key = get_option( self::OPTION_LANGFUSE_PUBLIC_KEY, '' );
+		?>
+		<input
+			type="text"
+			id="<?php echo esc_attr( self::OPTION_LANGFUSE_PUBLIC_KEY ); ?>"
+			name="<?php echo esc_attr( self::OPTION_LANGFUSE_PUBLIC_KEY ); ?>"
+			value="<?php echo esc_attr( $public_key ); ?>"
+			class="regular-text"
+			placeholder="pk-lf-..."
+		/>
+		<p class="description">
+			<?php echo esc_html__( 'Enter your Langfuse public key for tracing.', 'jetpack-ai-poc' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render Langfuse secret key field.
+	 */
+	public function render_langfuse_secret_key_field() {
+		$secret_key = get_option( self::OPTION_LANGFUSE_SECRET_KEY, '' );
+		?>
+		<input
+			type="password"
+			id="<?php echo esc_attr( self::OPTION_LANGFUSE_SECRET_KEY ); ?>"
+			name="<?php echo esc_attr( self::OPTION_LANGFUSE_SECRET_KEY ); ?>"
+			value="<?php echo esc_attr( $secret_key ); ?>"
+			class="regular-text"
+			placeholder="sk-lf-..."
+		/>
+		<p class="description">
+			<?php echo esc_html__( 'Enter your Langfuse secret key for tracing.', 'jetpack-ai-poc' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render Langfuse host field.
+	 */
+	public function render_langfuse_host_field() {
+		$host = get_option( self::OPTION_LANGFUSE_HOST, 'https://cloud.langfuse.com' );
+		?>
+		<input
+			type="url"
+			id="<?php echo esc_attr( self::OPTION_LANGFUSE_HOST ); ?>"
+			name="<?php echo esc_attr( self::OPTION_LANGFUSE_HOST ); ?>"
+			value="<?php echo esc_attr( $host ); ?>"
+			class="regular-text"
+			placeholder="https://cloud.langfuse.com"
+		/>
+		<p class="description">
+			<?php echo esc_html__( 'Langfuse host URL (default: https://cloud.langfuse.com).', 'jetpack-ai-poc' ); ?>
 		</p>
 		<?php
 	}

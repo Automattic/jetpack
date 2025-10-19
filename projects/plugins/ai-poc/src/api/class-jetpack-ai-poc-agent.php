@@ -107,4 +107,38 @@ class Jetpack_AI_POC_Agent extends Agent {
 
 		return $tools;
 	}
+
+	/**
+	 * Override chat method to add Langfuse tracing.
+	 *
+	 * @param \NeuronAI\Chat\Messages\Message|array $messages User message or messages array.
+	 * @return \NeuronAI\Chat\Messages\Message
+	 */
+	public function chat( \NeuronAI\Chat\Messages\Message|array $messages ): \NeuronAI\Chat\Messages\Message {
+		// Extract prompt for tracing.
+		if ( is_array( $messages ) ) {
+			$last_message = end( $messages );
+			$prompt       = is_object( $last_message ) && method_exists( $last_message, 'getContent' ) ? $last_message->getContent() : '';
+		} else {
+			$prompt = is_object( $messages ) && method_exists( $messages, 'getContent' ) ? $messages->getContent() : '';
+		}
+
+		$model    = $this->model_name ? $this->model_name : 'claude-3-5-sonnet-20241022';
+		$llm_span = Jetpack_AI_POC_Langfuse_Tracer::start_llm_span( $prompt, $model );
+
+		try {
+			// Call parent chat method.
+			$response = parent::chat( $messages );
+
+			// End LLM span with success.
+			$response_content = method_exists( $response, 'getContent' ) ? $response->getContent() : '';
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_success( $llm_span, $response_content );
+
+			return $response;
+		} catch ( \Exception $e ) {
+			// End LLM span with error.
+			Jetpack_AI_POC_Langfuse_Tracer::end_span_error( $llm_span, $e->getMessage() );
+			throw $e;
+		}
+	}
 }
