@@ -290,6 +290,73 @@ Custom glyphs should be centered at the provided `x` and `y` coordinates. The gl
 - Text overflow features require both `maxWidth` and `textOverflow` props to be set
 - The component uses visx LegendOrdinal internally but provides a simplified, more flexible API
 
+## Interactive Legends
+
+Interactive legends allow users to toggle series visibility by clicking or using keyboard navigation. This feature is currently supported for LineChart only.
+
+### Basic Interactive Legend
+
+Enable interactive legends by setting the `interactive` prop on the chart. The Legend component will automatically become interactive when connected via `chartId`:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart, Legend } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<LineChart
+			chartId="sales-chart"
+			data={ salesData }
+			showLegend={ true }
+			interactive={ true }
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+### Standalone Interactive Legend
+
+Interactive legends also work with standalone Legend components when using `chartId`:
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider>
+		<LineChart
+			chartId="sales-chart"
+			data={ salesData }
+			showLegend={ false }
+			interactive={ true }
+		/>
+
+		<Legend
+			chartId="sales-chart"
+			interactive={ true }
+			orientation="horizontal"
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+### Features
+
+- **Click/Tap Interaction**: Toggle series visibility by clicking on legend items
+- **Keyboard Support**: Use Tab to focus items, Enter or Space to toggle
+- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
+- **Color Stability**: Series colors remain consistent when toggling visibility
+- **Accessibility**: Full ARIA support with `role="button"`, `aria-pressed`, and descriptive `aria-label`
+
+### Requirements
+
+Interactive legends require:
+
+1. **GlobalChartsProvider**: Must wrap both chart and legend
+2. **chartId**: A unique identifier to connect chart and legend
+3. **interactive prop**: Set to `true` on the chart component
+4. **Chart Support**: Currently only LineChart supports interactive legends
+
+### Current Limitations
+
+- Interactive legends are only supported for LineChart
+- Support for other chart types (BarChart, PieChart, etc.) will be added in future releases
+- The `render` prop is not compatible with interactive legends (interactive mode will be disabled)
+
 ## Accessibility
 
 ### Semantic HTML
@@ -302,4 +369,8 @@ When using ellipsis mode, truncated text automatically includes a `title` attrib
 
 ### Keyboard Navigation
 
-Legend items are rendered as standard DOM elements and follow native accessibility patterns. For interactive legends (future feature), keyboard navigation will follow ARIA best practices.
+Legend items are rendered as standard DOM elements and follow native accessibility patterns. When using interactive legends, keyboard navigation follows ARIA best practices:
+
+- **Tab**: Focus individual legend items
+- **Enter/Space**: Toggle series visibility
+- **Screen Reader**: Announces current visibility state ("visible" or "hidden")
