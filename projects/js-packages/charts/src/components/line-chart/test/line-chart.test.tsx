@@ -1112,6 +1112,7 @@ describe( 'LineChart', () => {
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
 						{ ...defaultProps }
+						withGradientFill={ false }
 						showLegend={ true }
 						interactive={ true }
 						chartId="test-interactive-chart"
@@ -1133,6 +1134,7 @@ describe( 'LineChart', () => {
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
 						{ ...defaultProps }
+						withGradientFill={ false }
 						showLegend={ true }
 						interactive={ false }
 						chartId="test-non-interactive-chart"
@@ -1150,6 +1152,7 @@ describe( 'LineChart', () => {
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
 						{ ...defaultProps }
+						withGradientFill={ false }
 						showLegend={ true }
 						interactive={ true }
 						// No chartId provided
