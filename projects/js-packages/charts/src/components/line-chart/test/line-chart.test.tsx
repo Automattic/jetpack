@@ -388,6 +388,48 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
+		test( 'renders ticks in short date format.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-04-01' ), value: 20 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+							{ date: new Date( '2024-10-01' ), value: 40 },
+							{ date: new Date( '2025-03-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders ticks in year format.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2023-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2025-01-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^202\d$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
 		test( 'renders optimal number of ticks.', () => {
 			renderWithTheme( {
 				width: 400,
