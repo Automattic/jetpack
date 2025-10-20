@@ -2112,6 +2112,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					} else {
 							$border_styles = "border-radius:{$radius_value};";
 					}
+				} else {
+					// Handle individual border radius properties when border-radius is not present
+					preg_match( '/border-top-left-radius:([^;]+)/', $option['style'], $top_left_match );
+					preg_match( '/border-top-right-radius:([^;]+)/', $option['style'], $top_right_match );
+					preg_match( '/border-bottom-right-radius:([^;]+)/', $option['style'], $bottom_right_match );
+					preg_match( '/border-bottom-left-radius:([^;]+)/', $option['style'], $bottom_left_match );
+
+					if ( ! empty( $top_left_match[1] ) || ! empty( $top_right_match[1] ) || ! empty( $bottom_right_match[1] ) || ! empty( $bottom_left_match[1] ) ) {
+						$width_value = ! empty( $width_match[1] ) ? trim( $width_match[1] ) : '1px';
+
+						$top_left     = ! empty( $top_left_match[1] ) ? trim( $top_left_match[1] ) : '4px';
+						$top_right    = ! empty( $top_right_match[1] ) ? trim( $top_right_match[1] ) : '4px';
+						$bottom_right = ! empty( $bottom_right_match[1] ) ? trim( $bottom_right_match[1] ) : '4px';
+						$bottom_left  = ! empty( $bottom_left_match[1] ) ? trim( $bottom_left_match[1] ) : '4px';
+
+						$border_styles = "border-radius:calc({$top_left} + {$width_value}) calc({$top_right} + {$width_value}) calc({$bottom_right} + {$width_value}) calc({$bottom_left} + {$width_value});";
+					}
 				}
 			}
 
