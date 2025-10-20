@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { COOKIE_NAME } from './constants';
+import { getCookie } from './utils';
 import type { SessionCookieData } from './types/shared';
 
 /**
@@ -24,24 +25,9 @@ export default class SessionManager {
 			return;
 		}
 
-		this.maybeSetAnonId();
 		this.loadOrCreateSession();
 		this.isInitialized = true;
 	};
-
-	/**
-	 * Set anonymous ID if not already set
-	 */
-	maybeSetAnonId() {
-		const anonId = this.getCookie( 'tk_ai' );
-
-		if ( ! anonId ) {
-			// Set a first-party cookie (same domain only, 1 year)
-			const randomToken = this.generateRandomToken( 18 );
-			const expires = new Date( Date.now() + 1 * 365 * 24 * 60 * 60 * 1000 ).toUTCString();
-			document.cookie = `tk_ai=${ randomToken }; path=/; secure; samesite=strict; expires=${ expires }`;
-		}
-	}
 
 	/**
 	 * Load existing session or create new one
@@ -86,7 +72,7 @@ export default class SessionManager {
 	 * @return SessionCookieData | null
 	 */
 	getSessionCookie(): SessionCookieData | null {
-		const rawCookie = this.getCookie( COOKIE_NAME );
+		const rawCookie = getCookie( COOKIE_NAME );
 		if ( ! rawCookie ) {
 			return null;
 		}
@@ -97,21 +83,6 @@ export default class SessionManager {
 			console.error( 'Error parsing session cookie', _error );
 			return null;
 		}
-	}
-
-	/**
-	 * Get cookie value by name
-	 *
-	 * @param name - Cookie name
-	 * @return string | null
-	 */
-	getCookie( name: string ): string | null {
-		const value = `; ${ document.cookie }`;
-		const parts = value.split( `; ${ name }=` );
-		if ( parts.length === 2 ) {
-			return parts.pop()?.split( ';' ).shift() || null;
-		}
-		return null;
 	}
 
 	/**
@@ -126,7 +97,7 @@ export default class SessionManager {
 
 		document.cookie = `${ COOKIE_NAME }=${ encoded }; expires=${ expires }; path=/; secure; samesite=strict`;
 
-		const isCookieSet = this.getCookie( COOKIE_NAME ) === encoded;
+		const isCookieSet = getCookie( COOKIE_NAME ) === encoded;
 		return isCookieSet;
 	}
 
@@ -144,27 +115,6 @@ export default class SessionManager {
 
 		const expirationTime = Math.min( thirtyMinutesFromNow, midnightUTC.getTime() );
 		return new Date( expirationTime ).toUTCString();
-	}
-
-	/**
-	 * Generate a random token
-	 *
-	 * @param randomBytesLength - Length of the random bytes
-	 * @return string
-	 */
-	generateRandomToken( randomBytesLength: number ): string {
-		let randomBytes: Uint8Array | number[];
-
-		if ( window.crypto && window.crypto.getRandomValues ) {
-			randomBytes = new Uint8Array( randomBytesLength );
-			window.crypto.getRandomValues( randomBytes );
-		} else {
-			for ( let i = 0; i < randomBytesLength; ++i ) {
-				randomBytes[ i ] = Math.floor( Math.random() * 256 );
-			}
-		}
-
-		return btoa( String.fromCharCode( ...randomBytes ) );
 	}
 
 	/**
