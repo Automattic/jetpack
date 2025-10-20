@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Domain_Only_Admin_Menu.
  */

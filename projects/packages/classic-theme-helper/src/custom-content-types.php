@@ -18,6 +18,10 @@ use Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	/**
 	 * Load Portfolio, Testimonial, and Nova CPT.
