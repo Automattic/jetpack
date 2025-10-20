@@ -1,12 +1,22 @@
-import { FormTokenField, ToggleControl } from '@wordpress/components';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import { FormTokenField, ToggleControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import InspectorHint from '../../shared/components/inspector-hint';
+import JetpackEmailConnectionSettings from './jetpack-email-connection-settings';
 
-const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
+const NotificationsSettings = ( {
+	setAttributes,
+	notificationRecipients,
+	emailAddress,
+	emailSubject,
+	emailNotifications,
+	instanceId,
+	postAuthorEmail,
+} ) => {
 	const [ localNotificationRecipients, setLocalNotificationRecipients ] =
 		useState( notificationRecipients );
 	const [ localFormNotifications, setLocalFormNotifications ] = useState(
@@ -47,57 +57,79 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 	// All available user names for suggestions
 	const allUserNames = eligibleUsers.map( user => user.name || user.slug );
 
+	const supportNotificationsLink = isWpcomPlatformSite()
+		? 'https://jetpack.com/support/notifications/'
+		: 'https://wordpress.com/support/notifications/';
+
 	return (
 		<>
-			<ToggleControl
-				label={ __( 'Enable form response notifications', 'jetpack-forms' ) }
-				checked={ localFormNotifications }
-				onChange={ value => {
-					if ( value ) {
-						// Auto-select post author when enabling notifications
-						const authorIdStr = postAuthorId?.toString();
-						let recipientsToSet = localNotificationRecipients;
-
-						if (
-							recipientsToSet.length === 0 &&
-							authorIdStr &&
-							eligibleUsers.some( user => user.id === postAuthorId )
-						) {
-							recipientsToSet = [ authorIdStr ];
-						}
-
-						setLocalNotificationRecipients( recipientsToSet );
-						setAttributes( { notificationRecipients: recipientsToSet } );
-					} else {
-						setAttributes( { notificationRecipients: [] } );
-					}
-					setLocalFormNotifications( value );
-				} }
-				__nextHasNoMarginBottom={ true }
+			<JetpackEmailConnectionSettings
+				emailAddress={ emailAddress }
+				emailSubject={ emailSubject }
+				emailNotifications={ emailNotifications }
+				instanceId={ instanceId }
+				postAuthorEmail={ postAuthorEmail }
+				setAttributes={ setAttributes }
 			/>
-			{ localFormNotifications && (
+			{ hasFeatureFlag( 'form-notifications' ) && (
 				<>
-					<InspectorHint>
-						{ __( 'Select users who can receive form response notifications:', 'jetpack-forms' ) }
-					</InspectorHint>
-					<FormTokenField
-						label={ __( 'Send notifications to', 'jetpack-forms' ) }
-						value={ selectedUserNames }
-						suggestions={ allUserNames }
-						onChange={ selectedNames => {
-							// Convert user names back to IDs
-							const newRecipients = selectedNames
-								.map( name => {
-									const user = eligibleUsers.find( u => ( u.name || u.slug ) === name );
-									return user ? user.id.toString() : null;
-								} )
-								.filter( Boolean );
-							setLocalNotificationRecipients( newRecipients );
-							setAttributes( { notificationRecipients: newRecipients } );
+					<ToggleControl
+						label={ __( 'Enable notifications for responses', 'jetpack-forms' ) }
+						help={ createInterpolateElement(
+							__(
+								'Receive push notifications when someone fills out your form. <pushNotificationsLink>Learn more.</pushNotificationsLink>',
+								'jetpack-forms'
+							),
+							{
+								pushNotificationsLink: <ExternalLink href={ supportNotificationsLink } />,
+							}
+						) }
+						checked={ localFormNotifications }
+						onChange={ value => {
+							if ( value ) {
+								// Auto-select post author when enabling notifications
+								const authorIdStr = postAuthorId?.toString();
+								let recipientsToSet = localNotificationRecipients;
+
+								if (
+									recipientsToSet.length === 0 &&
+									authorIdStr &&
+									eligibleUsers.some( user => user.id === postAuthorId )
+								) {
+									recipientsToSet = [ authorIdStr ];
+								}
+
+								setLocalNotificationRecipients( recipientsToSet );
+								setAttributes( { notificationRecipients: recipientsToSet } );
+							} else {
+								setAttributes( { notificationRecipients: [] } );
+							}
+							setLocalFormNotifications( value );
 						} }
 						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
 					/>
+					{ localFormNotifications && (
+						<>
+							<FormTokenField
+								label={ __( 'Send notifications to', 'jetpack-forms' ) }
+								value={ selectedUserNames }
+								suggestions={ allUserNames }
+								onChange={ selectedNames => {
+									// Convert user names back to IDs
+									const newRecipients = selectedNames
+										.map( name => {
+											const user = eligibleUsers.find( u => ( u.name || u.slug ) === name );
+											return user ? user.id.toString() : null;
+										} )
+										.filter( Boolean );
+									setLocalNotificationRecipients( newRecipients );
+									setAttributes( { notificationRecipients: newRecipients } );
+								} }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
+							/>
+						</>
+					) }
 				</>
 			) }
 		</>
