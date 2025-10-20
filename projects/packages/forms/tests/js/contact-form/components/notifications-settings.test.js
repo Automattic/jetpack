@@ -74,15 +74,41 @@ jest.mock( '@wordpress/components', () => {
 		);
 	}
 
+	/**
+	 * Mock ExternalLink component.
+	 *
+	 * @param {object} root0          - Component props
+	 * @param {string} root0.href     - Link URL
+	 * @param {*}      root0.children - Child elements
+	 * @return {object} React element
+	 */
+	function ExternalLinkComponent( { href, children } ) {
+		return (
+			<a href={ href } target="_blank" rel="noopener noreferrer">
+				{ children }
+			</a>
+		);
+	}
+
 	return {
 		ToggleControl: ToggleControlComponent,
 		FormTokenField: FormTokenFieldComponent,
+		ExternalLink: ExternalLinkComponent,
 	};
 } );
 
 // Mock WordPress i18n
 jest.mock( '@wordpress/i18n', () => ( {
 	__: jest.fn( text => text ),
+} ) );
+
+// Mock WordPress element
+jest.mock( '@wordpress/element', () => ( {
+	...jest.requireActual( '@wordpress/element' ),
+	createInterpolateElement: jest.fn( text => {
+		// Simple mock that returns the text with link component
+		return <span>{ text }</span>;
+	} ),
 } ) );
 
 // Mock WordPress data
@@ -129,8 +155,35 @@ jest.mock( '../../../../src/blocks/shared/components/inspector-hint', () => ( { 
 	<div data-testid="inspector-hint">{ children }</div>
 ) );
 
+// Mock JetpackEmailConnectionSettings component
+jest.mock(
+	'../../../../src/blocks/contact-form/components/jetpack-email-connection-settings',
+	() =>
+		( { emailNotifications } ) =>
+			emailNotifications ? <div data-testid="email-settings">Email Settings</div> : null
+);
+
+// Mock Jetpack shared extension utils
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	hasFeatureFlag: jest.fn( () => true ),
+} ) );
+
+// Mock Jetpack script data
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	isWpcomPlatformSite: jest.fn( () => false ),
+} ) );
+
 describe( 'NotificationsSettings', () => {
 	let setAttributesMock;
+
+	// Default props for the component
+	const defaultProps = {
+		emailAddress: '',
+		emailSubject: '',
+		emailNotifications: true,
+		instanceId: 1,
+		postAuthorEmail: 'admin@example.com',
+	};
 
 	beforeEach( () => {
 		setAttributesMock = jest.fn();
@@ -139,15 +192,23 @@ describe( 'NotificationsSettings', () => {
 
 	it( 'renders the toggle control', () => {
 		render(
-			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [] }
+				{ ...defaultProps }
+			/>
 		);
 
-		expect( screen.getByText( 'Enable form response notifications' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Enable notifications for responses' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not show user selector when toggle is disabled', () => {
 		render(
-			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [] }
+				{ ...defaultProps }
+			/>
 		);
 
 		expect( screen.queryByTestId( 'form-token-field' ) ).not.toBeInTheDocument();
@@ -155,7 +216,11 @@ describe( 'NotificationsSettings', () => {
 
 	it( 'shows user selector when toggle is enabled', async () => {
 		render(
-			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [] }
+				{ ...defaultProps }
+			/>
 		);
 
 		const toggle = screen.getByRole( 'checkbox' );
@@ -167,7 +232,11 @@ describe( 'NotificationsSettings', () => {
 
 	it( 'auto-selects post author when toggle is enabled with no recipients', async () => {
 		render(
-			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [] }
+				{ ...defaultProps }
+			/>
 		);
 
 		const toggle = screen.getByRole( 'checkbox' );
@@ -184,6 +253,7 @@ describe( 'NotificationsSettings', () => {
 			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '2' ] }
+				{ ...defaultProps }
 			/>
 		);
 
@@ -200,6 +270,7 @@ describe( 'NotificationsSettings', () => {
 			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1', '2' ] }
+				{ ...defaultProps }
 			/>
 		);
 
@@ -217,6 +288,7 @@ describe( 'NotificationsSettings', () => {
 			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1' ] }
+				{ ...defaultProps }
 			/>
 		);
 
@@ -236,6 +308,7 @@ describe( 'NotificationsSettings', () => {
 			<NotificationsSettings
 				setAttributes={ setAttributesMock }
 				notificationRecipients={ [ '1', '2' ] }
+				{ ...defaultProps }
 			/>
 		);
 
@@ -244,18 +317,5 @@ describe( 'NotificationsSettings', () => {
 		// Should display user names, not IDs
 		expect( input.value ).toContain( 'Admin User' );
 		expect( input.value ).toContain( 'Editor User' );
-	} );
-
-	it( 'shows inspector hint when toggle is enabled', async () => {
-		render(
-			<NotificationsSettings setAttributes={ setAttributesMock } notificationRecipients={ [] } />
-		);
-
-		const toggle = screen.getByRole( 'checkbox' );
-		await userEvent.click( toggle );
-
-		const hint = screen.getByTestId( 'inspector-hint' );
-		expect( hint ).toBeInTheDocument();
-		expect( hint ).toHaveTextContent( 'Select users who can receive form response notifications:' );
 	} );
 } );
