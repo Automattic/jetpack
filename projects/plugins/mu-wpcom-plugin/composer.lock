@@ -393,7 +393,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "7cbfea8ece39f6ceee45f8cfa0930d89ec0446c3"
+                "reference": "245b0788ebc25d34c567b3918f2262f9dddc3b6b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -411,7 +411,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -556,7 +556,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d088808e20090e05e1d5b9a4f74f1ed798a356b0"
+                "reference": "f2bf3fcef034009a61977b928d7f144e8a2e5551"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -592,7 +592,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "6.18.x-dev"
+                    "dev-trunk": "6.19.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1007,7 +1007,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "eed145198312ded8a36970cc45aed446b2804fa8"
+                "reference": "9cfc90d779410bb79284fa67b18964d915799d0d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1037,7 +1037,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.25.x-dev"
+                    "dev-trunk": "0.26.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Maps Block: fix compatibility with MapKit JS version 5.80.0+.

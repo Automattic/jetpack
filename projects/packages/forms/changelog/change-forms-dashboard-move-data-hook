@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-De-clutter InboxView component, move data processing to hook
