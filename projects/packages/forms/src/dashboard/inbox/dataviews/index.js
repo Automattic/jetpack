@@ -395,7 +395,7 @@ export default function InboxView() {
 				/>
 			</div>
 			<SingleResponseView
-				sidePanelItem={ sidePanelItem }
+				sidePanelItem={ selection.length && sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
