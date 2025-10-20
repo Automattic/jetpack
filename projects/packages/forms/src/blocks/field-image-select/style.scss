@@ -57,6 +57,7 @@ figure.wp-block-image {
 	}
 
 	.jetpack-input-image-option {
+		--outline-color: var(--jetpack-input-image-option--outline-color, var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color)));
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
@@ -67,10 +68,11 @@ figure.wp-block-image {
 		&.is-checked {
 			backdrop-filter: contrast(0.9) saturate(1.2);
 			cursor: pointer;
+			outline: 1px solid var(--outline-color);
 		}
 
 		&:not(.wp-block):focus-within {
-			outline: 2px solid var(--wp--preset--color--primary, var(--jetpack--contact-form--button-outline--background-color));
+			outline: 2px solid var(--outline-color);
 		}
 
 		.jetpack-input-image-option__wrapper {
