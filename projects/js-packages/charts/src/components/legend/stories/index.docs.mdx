@@ -314,7 +314,7 @@ Enable interactive legends by setting the `legendInteractive` prop on the chart.
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components when using `chartId`:
+Interactive legends also work with standalone Legend components when using `chartId`. The Legend automatically inherits the interactive state from the chart component via the `GlobalChartsProvider` - you only need to set `legendInteractive` on the chart itself:
 
 <Source
 	language="tsx"
@@ -332,6 +332,8 @@ Interactive legends also work with standalone Legend components when using `char
 		/>
 	</GlobalChartsProvider>` }
 />
+
+**Note**: The standalone `Legend` component does not need an `legendInteractive` prop. When connected to a chart via `chartId`, it automatically becomes interactive if the chart has `legendInteractive={true}`.
 
 ### Features
 
