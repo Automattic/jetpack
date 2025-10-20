@@ -212,7 +212,7 @@ class Help_Center {
 			$display_name       = $user_data->display_name;
 			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 			$is_next_admin      = (bool) did_action( 'next_admin_init' );
-			$is_commerce_garden = (bool) is_defined( 'IS_COMMERCE_GARDEN' );
+			$is_commerce_garden = (bool) defined( 'IS_COMMERCE_GARDEN' );
 
 			wp_add_inline_script(
 				'help-center',
