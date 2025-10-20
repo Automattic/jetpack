@@ -377,6 +377,10 @@
 			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 		}
 	}
+
+	.dataviews-view-table__cell-content-wrapper {
+		gap: 16px;
+	}
 }
 
 /*
@@ -560,4 +564,5 @@ body.jetpack_page_jetpack-forms-admin {
 	margin-right: 4.5px;
 	margin-left: -12px;
 	vertical-align: middle;
+	position: absolute;
 }
