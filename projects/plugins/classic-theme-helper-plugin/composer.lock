@@ -206,7 +206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "7cbfea8ece39f6ceee45f8cfa0930d89ec0446c3"
+                "reference": "245b0788ebc25d34c567b3918f2262f9dddc3b6b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -224,7 +224,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"

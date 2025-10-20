@@ -12,5 +12,5 @@ namespace Automattic\Jetpack;
  */
 class PayPal_Payments {
 
-	const PACKAGE_VERSION = '0.5.8';
+	const PACKAGE_VERSION = '0.5.9';
 }

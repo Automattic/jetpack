@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: do not send emails to the author of the form if they are no longer able to edit it
