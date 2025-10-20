@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+External media: Prevent site editor performance issues by bringing back previous script enqueue approach.
