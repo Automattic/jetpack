@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix renderable status of image select field
