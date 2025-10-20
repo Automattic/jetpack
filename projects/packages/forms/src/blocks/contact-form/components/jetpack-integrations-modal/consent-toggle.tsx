@@ -26,11 +26,14 @@ const ConsentToggle = ( { className }: ConsentToggleProps ) => {
 			await removeBlock( consentBlock.clientId, false );
 			return;
 		}
-		const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-			( { name }: { name: string } ) => name === 'jetpack/button'
+		// Insert after the email field, or at the end if not found
+		const emailBlockIndex = selectedBlock.innerBlocks.findIndex(
+			( { name }: { name: string } ) => name === 'jetpack/field-email'
 		);
-		const newConsentBlock = await createBlock( 'jetpack/field-consent' );
-		await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
+		const insertIndex =
+			emailBlockIndex === -1 ? selectedBlock.innerBlocks.length : emailBlockIndex + 1;
+		const newConsentBlock = createBlock( 'jetpack/field-consent', { consentType: 'explicit' } );
+		await insertBlock( newConsentBlock, insertIndex, selectedBlock.clientId, false );
 	};
 
 	if ( ! hasEmailBlock ) {
@@ -40,7 +43,7 @@ const ConsentToggle = ( { className }: ConsentToggleProps ) => {
 	return (
 		<div className={ className ?? 'integration-card__section' }>
 			<ToggleControl
-				label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
+				label={ __( 'Add email permission request after the email field', 'jetpack-forms' ) }
 				checked={ !! consentBlock }
 				onChange={ toggleConsent }
 				__nextHasNoMarginBottom
