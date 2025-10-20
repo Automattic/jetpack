@@ -250,7 +250,6 @@ class WPCOM_Features {
 		'required_sticker' => 'summer-special-2025',
 		self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 	);
-
 	// Unlock Business-gated features for sites with the flex-cache-site sticker via the free plan.
 	private const WPCOM_FLEX_CACHE_SITE_FREE_PLANS = array(
 		'required_sticker' => 'flex-cache-site',
