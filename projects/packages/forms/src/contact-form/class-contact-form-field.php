@@ -2083,6 +2083,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_id                   = $id . '-' . $option_letter;
 			$used_html_ids[ $option_id ] = true;
 
+			$figcaption_id = esc_attr( $option_id . '-figcaption' );
+
+			// Add id attribute to figcaption for accessibility
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$rendered_image_block = preg_replace( '/(<figcaption[^>]*)(>)/', '$1 id="' . $figcaption_id . '"$2', $rendered_image_block );
+			}
+
 			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
 			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
@@ -2121,6 +2128,25 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
 			$input_id = esc_attr( $option_id );
+			$label_id = esc_attr( $option_id . '-label' );
+
+			/* translators: %s is the letter associated with the option, e.g. "Option A" */
+			$aria_label_parts = array( sprintf( __( 'Option %s', 'jetpack-forms' ), $perceived_letters[ $option_index ] ) );
+
+			if ( ! empty( $option_label ) ) {
+				$aria_label_parts[] = $option_label;
+			}
+
+			$aria_label = implode( ': ', $aria_label_parts );
+
+			// Build aria-describedby to reference label and figcaption
+			$aria_describedby_parts = array( $label_id );
+
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$aria_describedby_parts[] = $figcaption_id;
+			}
+
+			$aria_describedby = implode( ' ', $aria_describedby_parts );
 
 			$field .= "<div class='jetpack-input-image-option__wrapper'>";
 			$field .= "<input
@@ -2129,6 +2155,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			type='" . esc_attr( $input_type ) . "'
 			name='" . esc_attr( $input_name ) . "'
 			value='" . esc_attr( $option_value ) . "'
+			aria-label='" . esc_attr( $aria_label ) . "'
+			aria-describedby='" . esc_attr( $aria_describedby ) . "'
 			data-wp-init='callbacks.setImageOptionCheckColor'
 			data-wp-on--keydown='actions.onKeyDownImageOption'
 			data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
@@ -2145,7 +2173,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$label_classes  = 'jetpack-input-image-option__label';
 			$label_classes .= $show_labels ? '' : ' visually-hidden';
-			$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+			$field         .= "<span id='{$label_id}' class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
 			$field         .= '</div></div></div>';
 		}
 
