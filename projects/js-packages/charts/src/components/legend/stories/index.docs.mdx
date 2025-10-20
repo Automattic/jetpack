@@ -296,7 +296,7 @@ Interactive legends allow users to toggle series visibility by clicking or using
 
 ### Basic Interactive Legend
 
-Enable interactive legends by setting the `interactive` prop on the chart. The Legend component will automatically become interactive when connected via `chartId`:
+Enable interactive legends by setting the `legendInteractive` prop on the chart. The Legend component will automatically become interactive when connected via `chartId`:
 
 <Source
 	language="tsx"
@@ -307,7 +307,7 @@ Enable interactive legends by setting the `interactive` prop on the chart. The L
 			chartId="sales-chart"
 			data={ salesData }
 			showLegend={ true }
-			interactive={ true }
+			legendInteractive={ true }
 		/>
 	</GlobalChartsProvider>` }
 />
@@ -323,12 +323,12 @@ Interactive legends also work with standalone Legend components when using `char
 			chartId="sales-chart"
 			data={ salesData }
 			showLegend={ false }
-			interactive={ true }
+			legendInteractive={ true }
 		/>
 
 		<Legend
 			chartId="sales-chart"
-			interactive={ true }
+			legendInteractive={ true }
 			orientation="horizontal"
 		/>
 	</GlobalChartsProvider>` }
@@ -348,14 +348,14 @@ Interactive legends require:
 
 1. **GlobalChartsProvider**: Must wrap both chart and legend
 2. **chartId**: A unique identifier to connect chart and legend
-3. **interactive prop**: Set to `true` on the chart component
+3. **legendInteractive prop**: Set to `true` on the chart component
 4. **Chart Support**: Currently only LineChart supports interactive legends
 
 ### Current Limitations
 
 - Interactive legends are only supported for LineChart
 - Support for other chart types (BarChart, PieChart, etc.) will be added in future releases
-- The `render` prop is not compatible with interactive legends (interactive mode will be disabled)
+- The `render` prop is not compatible with interactive legends (legendInteractive mode will be disabled)
 
 ## Accessibility
 

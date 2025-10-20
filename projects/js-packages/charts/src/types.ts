@@ -364,6 +364,11 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendItemClassName?: string;
 	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Currently only supported for LineChart. Requires chartId and GlobalChartsProvider.
+	 */
+	legendInteractive?: boolean;
+	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';

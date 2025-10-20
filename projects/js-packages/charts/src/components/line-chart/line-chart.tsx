@@ -264,7 +264,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
-			interactive = false,
+			legendInteractive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -299,13 +299,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		// Filter out hidden series when using interactive legends, preserving original index
 		const visibleData = useMemo( () => {
-			if ( ! chartId || ! interactive ) {
+			if ( ! chartId || ! legendInteractive ) {
 				return dataSorted.map( ( series, index ) => ( { series, originalIndex: index } ) );
 			}
 			return dataSorted
 				.map( ( series, index ) => ( { series, originalIndex: index } ) )
 				.filter( ( { series } ) => isSeriesVisible( chartId, series.label ) );
-		}, [ dataSorted, chartId, isSeriesVisible, interactive ] );
+		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -588,7 +588,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
-							interactive={ interactive }
+							interactive={ legendInteractive }
 							ref={ legendRef }
 						/>
 					) }
