@@ -3,7 +3,11 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { TabPanel } from '@wordpress/components';
+import {
+	TabPanel,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -18,7 +22,6 @@ import ExportResponsesButton from '../../inbox/export-responses';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
-import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
@@ -104,9 +107,10 @@ const Layout = () => {
 	return (
 		<div className="jp-forms__layout">
 			<div className="jp-forms__layout-header">
-				<div className="jp-forms__logo-wrapper">
-					<JetpackFormsLogo />
-				</div>
+				<Heading level={ 1 } size="15px" lineHeight="32px">
+					Forms
+					{ /** "Forms" is a product name, do not translate. */ }
+				</Heading>
 				{ isSm ? (
 					<>
 						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
