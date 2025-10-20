@@ -86,6 +86,11 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return true; // Skip recording.
 		}
 
+		// Skip recording if the request is coming from a bot.
+		if ( self::is_bot() ) {
+			return true;
+		}
+
 		$prefixed_event_name = self::PREFIX . $event_name;
 		$properties          = self::get_properties( $prefixed_event_name, $event_properties );
 
@@ -120,7 +125,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	/**
 	 * Queue an event in the event queue which will be processed on the page load in client-side analytics.
 	 *
-	 * @param string $event_name The name of the event.
+	 * @param string $event_name Thie name of the event.
 	 * @param array  $properties The event properties.
 	 */
 	public static function add_event_to_queue( $event_name, $properties = array() ) {
@@ -407,5 +412,25 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		update_option( self::DAILY_SALT_OPTION, $salt_data );
 		return $new_salt;
+	}
+
+	/**
+	 * Determines if the current request is coming from a bot.
+	 *
+	 * Attempts to detect bots/crawlers based on user agent matching (from ua-parser list).
+	 *
+	 * @return bool True if the request appears to be from a bot, false otherwise.
+	 */
+	private static function is_bot() {
+		if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) || empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+		// https://github.com/tobie/ua-parser/blob/master/regexes.yaml
+		$bot_regex = '/wp-e2e-tests|bingbot|bot|borg|google(\^tv)?|yahoo|slurp|msnbot|msrbot|openbot|archiver|netresearch|lycos|scooter|altavista|teoma|gigabot|baiduspider|blitzbot|oegp|charlotte|furlbot|http%20client|polybot|htdig|ichiro|mogimogi|larbin|pompos|scrubby|searchsight|seekbot|semanticdiscovery|silk|snappy|speedy|spider|voila|vortex|voyager|zao|zeal|fast\-webcrawler|converacrawler|dataparksearch|findlinks|crawler|Netvibes|Sogou Pic Spider|ICC\-Crawler|Innovazion Crawler|Daumoa|EtaoSpider|A6\-Indexer|YisouSpider|Riddler|DBot|wsr\-agent|Xenu|SeznamBot|PaperLiBot|SputnikBot|CCBot|ProoXiBot|Scrapy|Genieo|Screaming Frog|YahooCacheSystem|CiBra|Nutch|GPTBot|BLEXBot|ClaudeBot|Googlebot|DotBot/i';
+
+		return (bool) preg_match( $bot_regex, $user_agent );
 	}
 }
