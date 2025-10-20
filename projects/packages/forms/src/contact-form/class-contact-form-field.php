@@ -2049,9 +2049,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
 			$image_block   = $option['image'];
 
-			// Extract image src from rendered block
 			$rendered_image_block = render_block( $image_block );
-			$image_src            = '';
+			// Remove any links from the rendered block
+			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
+
+			// Extract image src from rendered block
+			$image_src = '';
 
 			if ( ! empty( $rendered_image_block ) ) {
 				if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
