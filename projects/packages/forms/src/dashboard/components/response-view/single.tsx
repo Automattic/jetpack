@@ -31,12 +31,17 @@ const SingleResponseView = ( {
 	selection,
 } ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
+	const [ isModalOpen, setIsModalOpen ] = useState( true );
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
 			onChangeSelection?.( [] );
 		}
-	}, [ onChangeSelection, isChildModalOpen ] );
+
+		if ( isMobile ) {
+			setIsModalOpen( false );
+		}
+	}, [ onChangeSelection, isChildModalOpen, setIsModalOpen, isMobile ] );
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
@@ -102,6 +107,10 @@ const SingleResponseView = ( {
 				{ contents }
 			</div>
 		);
+	}
+
+	if ( ! isModalOpen ) {
+		return null;
 	}
 
 	return (
