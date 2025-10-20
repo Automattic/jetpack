@@ -297,8 +297,20 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return self::$cached_visitor_id;
 		}
 
-		self::$cached_visitor_id = null;
-		return null;
+		// Generate anonymous ID
+		self::$cached_visitor_id = wp_generate_password( 24 );
+		setcookie(
+			'tk_ai',
+			self::$cached_visitor_id,
+			array(
+				'expires'  => time() + ( 365 * 24 * 60 * 60 ), // 1 year
+				'path'     => '/',
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => is_ssl(),
+				'httponly' => true,
+				'samesite' => 'Strict',
+			)
+		);
 	}
 
 	/**
