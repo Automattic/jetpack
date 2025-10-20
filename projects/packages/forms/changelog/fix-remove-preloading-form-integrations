@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Forms: stop preloading the intergrations endpoint 
+Forms: stop preloading the integrations endpoint 
