@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms stop preloading the intergrations endpoint
