@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
@@ -230,6 +231,14 @@ export default function InboxView() {
 								>
 									●
 								</span>
+							) }
+							{ item.author_email && (
+								<Gravatar
+									email={ item.author_email }
+									displayName={ authorInfo }
+									key={ decodeEntities( item.author_email ) }
+									size={ 32 }
+								/>
 							) }
 							{ wrapperUnread( item.is_unread, authorInfo ) }
 						</>
