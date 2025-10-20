@@ -265,7 +265,8 @@ class Jetpack_Media_Summary {
 					++$number_of_paragraphs;
 				}
 
-				if ( isset( $extract['image'][0]['url'] ) ) {
+				// @phan-suppress-next-line PhanTypeMismatchDimFetch -- Phan is understandably confused, as $extract has many forms, including this one.
+				if ( ! empty( $extract['image'][0]['url'] ) ) {
 					$return['image']           = $extract['image'][0]['url'];
 					$return['secure']['image'] = self::ssl_img( $return['image'] );
 					++$return['count']['image'];

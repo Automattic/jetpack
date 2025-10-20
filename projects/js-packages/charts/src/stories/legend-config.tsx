@@ -5,26 +5,31 @@
 export const legendArgTypes = {
 	showLegend: {
 		control: { type: 'boolean' as const },
+		description: 'Show or hide the legend',
 		table: { category: 'Legend' },
 	},
 	legendPosition: {
 		control: { type: 'select' as const },
 		options: [ 'top', 'bottom' ],
+		description: 'Position of the legend relative to the chart',
 		table: { category: 'Legend' },
 	},
 	legendAlignment: {
 		control: { type: 'select' as const },
 		options: [ 'start', 'center', 'end' ],
+		description: 'Horizontal alignment of the legend within its position',
 		table: { category: 'Legend' },
 	},
 	legendOrientation: {
 		control: { type: 'select' as const },
 		options: [ 'horizontal', 'vertical' ],
+		description: 'Layout direction of legend items',
 		table: { category: 'Legend' },
 	},
 	legendShape: {
 		control: { type: 'select' as const },
 		options: [ 'circle', 'rect' ],
+		description: 'Shape of the legend marker icon',
 		table: { category: 'Legend' },
 	},
 	withLegendGlyph: {
@@ -57,5 +62,11 @@ export const legendArgTypes = {
 		table: { category: 'Legend' },
 		description:
 			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
+	},
+	interactive: {
+		control: { type: 'boolean' as const },
+		table: { category: 'Legend' },
+		description:
+			'Enable interactive legend items that can toggle series visibility. Requires GlobalChartsProvider and chartId to be set.',
 	},
 };

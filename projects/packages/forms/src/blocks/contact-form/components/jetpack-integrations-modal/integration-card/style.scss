@@ -143,17 +143,14 @@
 		padding-right: 0;
 	}
 
-	.jetpack-forms-creative-mail-settings-button {
-		margin-top: 12px;
-	}
-
 	p {
 		text-wrap: balance; // TODO: remove this fallback once `pretty` is globally supported.
 		text-wrap: pretty;
 	}
 
 	&__service-icon--google-sheets,
-	&__service-icon--mailpoet {
+	&__service-icon--mailpoet,
+	&__service-icon--hostinger-reach {
 		border-radius: 0 !important;
 	}
 

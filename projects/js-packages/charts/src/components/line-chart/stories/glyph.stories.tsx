@@ -7,7 +7,16 @@ import type { DataPointDate } from '../../../types';
 import type { Meta, StoryFn, StoryObj, Decorator } from '@storybook/react';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how glyphs are rendered in stories.
+ */
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	/** Type of glyph to render: 'default' (circle), 'star', or 'heart' (custom) */
+	glyphType?: 'default' | 'star' | 'heart';
+	/** Size of the glyph in pixels (radius for circle glyphs) */
+	glyphSize?: number;
+};
 
 // Add the glyph theme to the theme map for glyph stories only
 const GLYPH_THEME_MAP = {
@@ -49,12 +58,83 @@ const meta: Meta< StoryArgs > = {
 			...themeArgTypes.themeName,
 			options: [ 'default', 'jetpack', 'woo', 'custom', 'glyph' ],
 		},
+		withStartGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line start',
+			table: { category: 'Glyphs' },
+		},
+		withEndGlyphs: {
+			control: 'boolean',
+			description: 'Show glyphs at line end',
+			table: { category: 'Glyphs' },
+		},
+		withLegendGlyph: {
+			control: 'boolean',
+			description: 'Show glyphs in legend',
+			table: { category: 'Glyphs' },
+		},
+		glyphType: {
+			control: 'radio',
+			options: [ 'default', 'star', 'heart' ],
+			description: 'Glyph shape',
+			table: { category: 'Glyphs' },
+		},
+		glyphSize: {
+			control: { type: 'range', min: 4, max: 16, step: 1 },
+			description: 'Glyph size (radius)',
+			table: { category: 'Glyphs' },
+		},
 	},
 };
 
 export default meta;
 
-const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
+const CustomHeartGlyph = ( { color, size, x, y } ) => {
+	const hasXY = typeof x === 'number' && typeof y === 'number' && ( x !== 0 || y !== 0 );
+	const groupProps = hasXY ? { transform: `translate(${ x }, ${ y })` } : {};
+	return (
+		<g { ...groupProps }>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width={ size * 2 }
+				height={ size * 2 }
+				viewBox="0 0 24 24"
+				style={ { overflow: 'visible', pointerEvents: 'none' } }
+			>
+				<path
+					d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+					fill={ color }
+					stroke={ color }
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					transform="translate(-12, -12)"
+				/>
+			</svg>
+		</g>
+	);
+};
+
+const Template: StoryFn< typeof LineChart > = args => {
+	const { glyphType, glyphSize, ...chartProps } = args;
+
+	// Determine renderGlyph based on glyphType control
+	let renderGlyph = chartProps.renderGlyph;
+	if ( glyphType === 'star' ) {
+		renderGlyph = ( { color, size, x, y } ) => (
+			<GlyphStar top={ y } left={ x } size={ size * size } fill={ color } />
+		);
+	} else if ( glyphType === 'heart' ) {
+		renderGlyph = ( { color, size, x, y } ) => (
+			<CustomHeartGlyph color={ color } size={ size } x={ x } y={ y } />
+		);
+	}
+
+	// Determine glyphStyle based on glyphSize control
+	const glyphStyle = glyphSize ? { radius: glyphSize } : chartProps.glyphStyle;
+
+	return <LineChart { ...chartProps } renderGlyph={ renderGlyph } glyphStyle={ glyphStyle } />;
+};
 
 const glyphStoryArgs = {
 	...lineChartStoryArgs,

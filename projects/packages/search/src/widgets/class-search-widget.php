@@ -657,47 +657,47 @@ class Search_Widget extends \WP_Widget {
 		$filters = array();
 		if ( isset( $new_instance['filter_type'] ) ) {
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
-				$count = (int) $new_instance['num_filters'][ $index ];
+				$count = (int) ( $new_instance['num_filters'][ $index ] ?? 1 );
 				$count = min( 50, $count ); // Set max boundary at 50.
 				$count = max( 1, $count );  // Set min boundary at 1.
 
 				switch ( $type ) {
 					case 'taxonomy':
 						$filters[] = array(
-							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
 							'type'     => 'taxonomy',
-							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
+							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ?? '' ),
 							'count'    => $count,
 						);
 						break;
 					case 'post_type':
 						$filters[] = array(
-							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
 							'type'  => 'post_type',
 							'count' => $count,
 						);
 						break;
 					case 'author':
 						$filters[] = array(
-							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
 							'type'  => 'author',
 							'count' => $count,
 						);
 						break;
 					case 'blog_id':
 						$filters[] = array(
-							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
 							'type'  => 'blog_id',
 							'count' => $count,
 						);
 						break;
 					case 'date_histogram':
 						$filters[] = array(
-							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
 							'type'     => 'date_histogram',
 							'count'    => $count,
-							'field'    => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
-							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
+							'field'    => sanitize_key( $new_instance['date_histogram_field'][ $index ] ?? '' ),
+							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ?? '' ),
 						);
 						break;
 				}

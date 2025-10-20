@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Make dashboard initialization idempotent for SPA environments by using data attribute to track state

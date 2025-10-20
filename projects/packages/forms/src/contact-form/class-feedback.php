@@ -22,14 +22,14 @@ class Feedback {
 	 *
 	 * @var string
 	 */
-	private const STATUS_UNREAD = 'open';
+	public const STATUS_UNREAD = 'open';
 
 	/**
 	 * Comment status for read feedback.
 	 *
 	 * @var string
 	 */
-	private const STATUS_READ = 'closed';
+	public const STATUS_READ = 'closed';
 
 	/**
 	 * The form field values.

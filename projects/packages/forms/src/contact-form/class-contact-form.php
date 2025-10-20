@@ -150,9 +150,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$this->is_response_without_reload_enabled = apply_filters( 'jetpack_forms_enable_ajax_submission', true );
 
+		// Initialize the source before setting defaults
+		if ( ! $this->source ) {
+			$attributes   = is_array( $attributes ) ? $attributes : array();
+			$this->source = Feedback_Source::get_current( $attributes );
+		}
+
 		// Set up the default subject and recipient for this form.
 		$post_author_id  = self::get_post_property( $this->current_post, 'post_author' );
-		$default_to      = self::get_default_to( $post_author_id );
+		$default_to      = self::get_default_to( $post_author_id, $this->source );
 		$default_subject = self::get_default_subject( $attributes, $this->current_post );
 
 		if ( ! isset( $attributes ) || ! is_array( $attributes ) ) {
@@ -182,12 +188,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'id'                     => null, // Not exposed to the user. Set above.
 			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
-			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
+			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'noSummary' to disable the summary, 'message' for a custom message, 'redirect' to redirect to a new URL. Deprecated.
 			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
-			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
-			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
+			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
+			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
+			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 			'mailpoet'               => null,
+			'hostingerReach'         => null,
 			'className'              => null,
 			'postToUrl'              => null,
 			'salesforceData'         => null,
@@ -197,6 +205,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'emailNotifications'     => 'yes',
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
+			'disableSummary'         => $attributes['disableSummary'] ?? false,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -431,19 +440,42 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Get the default recipient email address for the contact form.
 	 *
-	 * @param int|null $post_author_id The ID of the post author. If provided, will return the author's email.
+	 * @param int|null             $post_author_id The ID of the post author. If provided, will return the author's email.
+	 * @param Feedback_Source|null $source The source of the feedback entry. Optional, not used currently.
 	 *
 	 * @return string The default recipient email address.
 	 */
-	public static function get_default_to( $post_author_id = null ) {
-		if ( $post_author_id ) {
-			$post_author = get_userdata( $post_author_id );
-			if ( ! empty( $post_author->user_email ) ) {
-				return $post_author->user_email;
-			}
-		}
+	public static function get_default_to( $post_author_id = null, $source = null ) {
 		// Get the default recipient email address.
 		$default_to = get_option( 'admin_email' );
+		// Check that the user has edit permissions for this blog and has an email address
+		if ( ! $post_author_id ) {
+			return $default_to;
+		}
+
+		// Check that source is of type Feedback_Source
+		if ( ! $source instanceof Feedback_Source ) {
+			return $default_to;
+		}
+
+		if ( absint( $source->get_id() ) === 0 ) {
+			return $default_to;
+		}
+
+		$post_author = get_userdata( $post_author_id );
+		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
+			return $default_to;
+		}
+
+		// Check that the user is still a member of the blog.
+		if ( ! is_user_member_of_blog( $post_author_id ) ) {
+			return $default_to;
+		}
+
+		// Check that the author can still edit the post or page.
+		if ( user_can( $post_author_id, 'edit_post', $source->get_id() ) ) {
+			return $post_author->user_email;
+		}
 
 		return $default_to;
 	}
@@ -1009,9 +1041,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$classes .= ' submission-success';
 		}
 
-		$back_url        = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
-		$disable_go_back = $form->get_attribute( 'disableGoBack' );
-		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
+		$back_url          = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce', 'contact-form-hash' ) );
+		$disable_go_back   = $form->get_attribute( 'disableGoBack' );
+		$disable_summary   = $form->get_disable_summary();
+		$confirmation_type = $form->get_confirmation_type();
+
+		if ( $confirmation_type === 'redirect' ) {
+			return '';
+		}
 
 		$html = '<div class="' . esc_attr( $classes ) . '" data-wp-class--submission-success="context.submissionSuccess">';
 
@@ -1025,57 +1062,67 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
 			"</h4>\n\n";
 
-		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
+		if ( 'text' === $confirmation_type ) {
 			$raw_message = $form->get_attribute( 'customThankyouMessage' );
 
-			// Add more allowed HTML elements for file download links
-			$allowed_html = array(
-				'br'         => array(),
-				'blockquote' => array( 'class' => array() ),
-				'p'          => array(),
-				'div'        => array(
-					'class' => array(),
-					'style' => array(),
-				),
-				'span'       => array(
-					'class' => array(),
-					'style' => array(),
-				),
-			);
+			if ( $raw_message !== '' ) {
+				// Add more allowed HTML elements for file download links
+				$allowed_html = array(
+					'br'         => array(),
+					'blockquote' => array( 'class' => array() ),
+					'p'          => array(),
+					'div'        => array(
+						'class' => array(),
+						'style' => array(),
+					),
+					'span'       => array(
+						'class' => array(),
+						'style' => array(),
+					),
+				);
 
-			$message = wp_kses( $raw_message, $allowed_html );
-			$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
+				$message = wp_kses( $raw_message, $allowed_html );
+				$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
 
-			$html .= $message;
-		} elseif ( ! $disable_summary ) {
-			$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
-				<div>
-					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
-					<div class="field-value" data-wp-text="context.submission.value"></div>
-					<div class="field-images" data-wp-bind--hidden="!context.submission.images">
-						<template data-wp-each--image="context.submission.images">
-							<img class="field-image" data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image"/>
-						</template>
+				$html .= $message;
+			}
+
+			if ( ! $disable_summary ) {
+				$html .= '<template data-wp-each--submission="context.formattedSubmissionData">
+					<div class="jetpack_forms_contact-form-success-summary">
+						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label"></div>
+						<div class="field-value" data-wp-text="context.submission.value"></div>
+						<div class="field-images" data-wp-bind--hidden="!context.submission.images">
+							<template data-wp-each--image="context.submission.images">
+								<figure class="field-image" data-wp-class--is-empty="!context.image">
+									<img data-wp-bind--src="context.image" data-wp-bind--hidden="!context.image" />
+									<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image" />
+								</figure>
+							</template>
+						</div>
 					</div>
-				</div>
-			</template>';
+				</template>';
 
-			// For each entry in the submission data array, render a div with the label and value.
-			foreach ( $formatted_submission_data as $submission ) {
-				$html .= '<div data-wp-each-child>
-					<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
-					<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
-					<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
+				// For each entry in the submission data array, render a div with the label and value.
+				foreach ( $formatted_submission_data as $submission ) {
+					$html .= '<div data-wp-each-child class="jetpack_forms_contact-form-success-summary">
+						<div class="field-name" data-wp-text="context.submission.label" data-wp-bind--hidden="!context.submission.label">' . $submission['label'] . '</div>
+						<div class="field-value" data-wp-text="context.submission.value">' . $submission['value'] . '</div>
+						<div class="field-images" data-wp-bind--hidden="!context.submission.images">';
 
-				if ( ! empty( $submission['images'] ) ) {
-					foreach ( $submission['images'] as $image ) {
-						$html .= '<img data-wp-each-child class="field-image" data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image" ' . ( empty( $image ) ? 'hidden' : '' ) . ' />';
+					if ( ! empty( $submission['images'] ) ) {
+						foreach ( $submission['images'] as $image ) {
+							$html .= '<figure data-wp-each-child class="field-image ' . ( empty( $image ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image">';
+							$html .= '<img data-wp-bind--src="context.image" src="' . $image . '" data-wp-bind--hidden="!context.image"' . ( empty( $image ) ? 'hidden' : '' ) . '/>';
+							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image"' . ( empty( $image ) ? '' : 'hidden' ) . '/>';
+							$html .= '</figure>';
+						}
+					} else {
+						$html .= '<template data-wp-each--image="context.submission.images"></template>';
 					}
-				} else {
-					$html .= '<template data-wp-each--image="context.submission.images"></template>';
-				}
 
-				$html .= '</div></div>';
+					$html .= '</div></div>';
+				}
 			}
 		}
 
@@ -1092,32 +1139,38 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string $message
 	 */
 	public static function success_message( $feedback_id, $form ) {
-		$message         = '';
-		$disable_summary = 'noSummary' === $form->get_attribute( 'customThankyou' );
+		$message           = '';
+		$disable_summary   = $form->get_disable_summary();
+		$confirmation_type = $form->get_confirmation_type();
 
-		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
+		if ( 'text' === $confirmation_type ) {
 			$raw_message = $form->get_attribute( 'customThankyouMessage' );
 
-			// Add more allowed HTML elements for file download links
-			$allowed_html = array(
-				'br'         => array(),
-				'blockquote' => array( 'class' => array() ),
-				'p'          => array(),
-				'div'        => array(
-					'class' => array(),
-					'style' => array(),
-				),
-				'span'       => array(
-					'class' => array(),
-					'style' => array(),
-				),
-			);
+			if ( $raw_message !== '' ) {
+				// Add more allowed HTML elements for file download links
+				$allowed_html = array(
+					'br'         => array(),
+					'blockquote' => array( 'class' => array() ),
+					'p'          => array(),
+					'div'        => array(
+						'class' => array(),
+						'style' => array(),
+					),
+					'span'       => array(
+						'class' => array(),
+						'style' => array(),
+					),
+				);
 
-			$message = wp_kses( $raw_message, $allowed_html );
-			$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
-		} elseif ( ! $disable_summary ) {
-			$compiled_form = self::get_compiled_form( $feedback_id );
-			$message       = '<p>' . implode( '</p><p>', $compiled_form ) . '</p>';
+				$message = wp_kses( $raw_message, $allowed_html );
+				$message = '<div class="jetpack_forms_contact-form-custom-success-message">' . $message . '</div>';
+			}
+
+			if ( ! $disable_summary ) {
+				$compiled_form = self::get_compiled_form( $feedback_id );
+
+				$message .= '<div class="jetpack_forms_contact-form-success-summary"><p>' . implode( '</p><p>', $compiled_form ) . '</p></div>';
+			}
 		}
 
 		return $message;
@@ -2250,7 +2303,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return bool True if the contact form has a custom redirect, false otherwise.
 	 */
 	public function has_custom_redirect() {
-		if ( ! empty( $this->get_attribute( 'customThankyouRedirect' ) ) && 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+		$confirmation_type = $this->get_confirmation_type();
+
+		if ( ! empty( $this->get_attribute( 'customThankyouRedirect' ) ) && 'redirect' === $confirmation_type ) {
 			return true;
 		}
 		/**
@@ -2275,9 +2330,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The redirect URL.
 	 */
 	public function get_redirect_url( $refresh_args, $id, $post_id ) {
-		$redirect        = '';
-		$custom_redirect = false;
-		if ( 'redirect' === $this->get_attribute( 'customThankyou' ) ) {
+		$confirmation_type = $this->get_confirmation_type();
+		$redirect          = '';
+		$custom_redirect   = false;
+
+		if ( 'redirect' === $confirmation_type ) {
 			$custom_redirect = true;
 			$redirect        = esc_url_raw( $this->get_attribute( 'customThankyouRedirect' ) );
 		}
@@ -2578,7 +2635,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 */
 	private static function maybe_add_colon_to_label( $label ) {
 		$formatted_label = $label ? $label : '';
-		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':' ) . ':';
+		// Special case for the Terms consent field block which a period after the label.
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
 
 		return $formatted_label;
 	}
@@ -2803,5 +2861,36 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		$id = $this->get_attribute( 'id' );
 		return self::$static_errors[ $id ]->get_error_messages();
+	}
+
+	/**
+	 * Get the confirmation type of the contact form from the deprecated customThankyou attribute.
+	 *
+	 * @return string The confirmation type of the contact form.
+	 */
+	public function get_confirmation_type() {
+		$confirmation_type = $this->get_attribute( 'confirmationType' );
+
+		if ( '' === $confirmation_type ) {
+			$confirmation_type = 'redirect' === $this->get_attribute( 'customThankyou' ) ? 'redirect' : 'text';
+		}
+
+		return $confirmation_type;
+	}
+
+	/**
+	 * Get the disable summary of the contact form from the deprecated customThankyou attribute.
+	 *
+	 * @return string The disable summary of the contact form.
+	 */
+	public function get_disable_summary() {
+		$disable_summary = $this->get_attribute( 'disableSummary' );
+		$custom_thankyou = $this->get_attribute( 'customThankyou' );
+
+		if ( '' === $disable_summary ) {
+			$disable_summary = 'noSummary' === $custom_thankyou || 'message' === $custom_thankyou;
+		}
+
+		return $disable_summary;
 	}
 }

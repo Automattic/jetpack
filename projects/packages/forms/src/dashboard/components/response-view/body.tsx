@@ -24,13 +24,14 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useFormsConfig from '../../hooks/use-forms-config';
-import CopyClipboardButton from '../components/copy-clipboard-button';
-import Gravatar from '../components/gravatar';
-import ResponseActions from '../components/response-actions';
-import ResponseNavigation from '../components/response-navigation';
-import { useMarkAsSpam } from '../hooks/use-mark-as-spam';
-import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from './utils';
+import useConfigValue from '../../../hooks/use-config-value';
+import CopyClipboardButton from '../../components/copy-clipboard-button';
+import Gravatar from '../../components/gravatar';
+import useInboxData from '../../hooks/use-inbox-data';
+import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
+import { store as dashboardStore } from '../../store';
+import type { FormResponse } from '../../../types';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -176,31 +177,43 @@ const FileField = ( { file, onClick } ) => {
 	);
 };
 
-const InboxResponse = ( {
+export type ResponseViewBodyProps = {
+	response: FormResponse;
+	isLoading: boolean;
+	onModalStateChange?: ( toggleOpen: boolean ) => void;
+	isMobile?: boolean;
+};
+
+/**
+ * Renders the dashboard response view.
+ *
+ * @param {object}   props                    - The props object.
+ * @param {object}   props.response           - The response item.
+ * @param {boolean}  props.isLoading          - Whether the response is loading.
+ * @param {Function} props.onModalStateChange - Function to update the modal state.
+ * @return {import('react').JSX.Element} The dashboard response view.
+ */
+const ResponseViewBody = ( {
 	response,
-	loading,
+	isLoading,
 	onModalStateChange,
-	onClose,
-	onNext,
-	onPrevious,
-	hasNext,
-	hasPrevious,
-	onActionComplete,
-	isMobile,
-} ) => {
+}: ResponseViewBodyProps ): import('react').JSX.Element => {
+	const { currentQuery } = useInboxData();
 	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
-	const [ previewFile, setPreviewFile ] = useState( null );
+	const [ previewFile, setPreviewFile ] = useState< null | object >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
-	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( false );
+	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
 
 	const { editEntityRecord } = useDispatch( 'core' );
 
-	const formsConfig = useFormsConfig();
-	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
-	// When opening a "Mark as spam" link from the email, the InboxResponse component is rendered, so we use a hook here to handle it.
-	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } =
-		useMarkAsSpam( response );
+	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
+	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
+		response as FormResponse
+	);
+
+	const { invalidateCounts, markRecordsAsInvalid } = useDispatch( dashboardStore );
 
 	const ref = useRef( undefined );
 
@@ -252,16 +265,25 @@ const InboxResponse = ( {
 							</div>
 							<div className="image-select-field-images">
 								{ value.choices.map( choice => {
+									const imageSrc =
+										choice.image?.src ||
+										'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
 									return (
-										<img
+										<figure
 											key={ choice.selected }
-											className="image-select-field-image"
-											src={
-												choice.image.src ||
-												'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='
-											}
-											alt={ choice.selected }
-										/>
+											className={ clsx( 'image-select-field-image', {
+												'is-empty': ! choice.image?.src,
+											} ) }
+										>
+											<img
+												className={ clsx( 'image-select-field-image', {
+													'is-empty': ! choice.image?.src,
+												} ) }
+												src={ imageSrc }
+												alt={ choice.selected }
+											/>
+										</figure>
 									);
 								} ) }
 							</div>
@@ -351,9 +373,13 @@ const InboxResponse = ( {
 			method: 'POST',
 			data: { is_unread: false },
 		} )
-			.then( ( { count } ) => {
+			.then( ( { count }: { count: number } ) => {
 				// Update menu counter with accurate count from server
 				updateMenuCounter( count );
+				// Mark record as invalid instead of removing from view
+				markRecordsAsInvalid( [ response.id ] );
+				// invalidate counts to refresh the counts across all status tabs
+				invalidateCounts();
 			} )
 			.catch( () => {
 				// Revert the change in the store
@@ -366,13 +392,20 @@ const InboxResponse = ( {
 					updateMenuCounterOptimistically( 1 );
 				}
 			} );
-	}, [ response, editEntityRecord, hasMarkedSelfAsRead ] );
+	}, [
+		response,
+		editEntityRecord,
+		hasMarkedSelfAsRead,
+		invalidateCounts,
+		markRecordsAsInvalid,
+		currentQuery,
+	] );
 
 	const handelImageLoaded = useCallback( () => {
 		return setIsImageLoading( false );
 	}, [ setIsImageLoading ] );
 
-	if ( ! loading && ! response ) {
+	if ( ! isLoading && ! response ) {
 		return null;
 	}
 
@@ -390,22 +423,6 @@ const InboxResponse = ( {
 
 	return (
 		<>
-			{ ! isMobile && (
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ onActionComplete } response={ response } />
-					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation
-							hasNext={ hasNext }
-							hasPrevious={ hasPrevious }
-							onClose={ onClose }
-							onNext={ onNext }
-							onPrevious={ onPrevious }
-						/>
-					</HStack>
-				</HStack>
-			) }
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">
@@ -475,7 +492,7 @@ const InboxResponse = ( {
 
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
-						title={ decodeEntities( previewFile.name ) }
+						title={ decodeEntities( ( previewFile as { name: string } ).name ) }
 						onRequestClose={ closePreviewModal }
 						className="jp-forms__inbox-file-preview-modal"
 					>
@@ -516,4 +533,4 @@ const InboxResponse = ( {
 	);
 };
 
-export default InboxResponse;
+export default ResponseViewBody;

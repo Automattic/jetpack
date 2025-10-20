@@ -17,7 +17,7 @@ class WPCOMSH_Sitemap_Sticker_Handlers {
 	 */
 	public static function init() {
 		add_filter( 'jetpack_sitemap_suspend_cache_addition', array( __CLASS__, 'handle_cache_suspension' ), 10, 1 );
-		add_filter( 'jetpack_sitemap_use_xmlwriter', array( __CLASS__, 'handle_xmlwriter_usage' ), 10, 1 );
+		add_filter( 'jetpack_sitemap_use_xmlwriter', '__return_true', 10, 1 ); // Remove once Atomic has updated Jetpack.
 	}
 
 	/**
@@ -28,16 +28,6 @@ class WPCOMSH_Sitemap_Sticker_Handlers {
 	 */
 	public static function handle_cache_suspension( $suspend_cache_addition ) {
 		return self::check_sticker_activation( 'jetpack-sitemaps-suspend-cache-addition', $suspend_cache_addition );
-	}
-
-	/**
-	 * Handle XMLWriter usage based on stickers.
-	 *
-	 * @param mixed $use_xmlwriter Current XMLWriter usage state.
-	 * @return bool Whether to use XMLWriter.
-	 */
-	public static function handle_xmlwriter_usage( $use_xmlwriter ) {
-		return self::check_sticker_activation( 'jetpack-sitemaps-use-xmlwriter', $use_xmlwriter );
 	}
 
 	/**

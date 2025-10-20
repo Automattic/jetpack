@@ -1,5 +1,7 @@
 /* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { GlobalChartsProvider } from '../../../providers';
 import { BaseLegend } from '../private/base-legend';
 import type { LegendProps } from '../types';
 
@@ -324,6 +326,123 @@ describe( 'BaseLegend', () => {
 
 			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
 			expect( screen.queryByTestId( 'legend-vertical' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Interactive legend', () => {
+		it( 'renders interactive legend items with proper attributes', () => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			expect( legendItems ).toHaveLength( 2 );
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'tabIndex', '0' );
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'handles click events to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+
+			// Click to toggle
+			await user.click( legendItems[ 0 ] );
+
+			// After click, the aria-pressed should change
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'handles Enter key to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 0 ].focus();
+
+			// Press Enter
+			await user.keyboard( '{Enter}' );
+
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'handles Space key to toggle visibility', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 1 ].focus();
+
+			// Press Space
+			await user.keyboard( ' ' );
+
+			expect( legendItems[ 1 ] ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'does not toggle on non-action keys', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems[ 0 ].focus();
+
+			// Press a random key
+			await user.keyboard( 'a' );
+
+			// Should remain pressed (visible)
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
+		} );
+
+		it( 'renders non-interactive legend when interactive is false', () => {
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ false } chartId="test-chart" />
+				</GlobalChartsProvider>
+			);
+
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+		} );
+
+		it( 'works without chartId but does not toggle', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<BaseLegend items={ defaultItems } interactive={ true } />
+				</GlobalChartsProvider>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+
+			// Click should not change state without chartId
+			await user.click( legendItems[ 0 ] );
+
+			// Should still be visible (pressed)
+			expect( legendItems[ 0 ] ).toHaveAttribute( 'aria-pressed', 'true' );
 		} );
 	} );
 } );

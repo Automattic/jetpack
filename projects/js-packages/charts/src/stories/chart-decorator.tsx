@@ -74,6 +74,8 @@ export const sharedChartArgTypes = {
 			min: 100,
 			max: 1200,
 		},
+		description: 'Maximum width of the chart in pixels (responsive mode)',
+		table: { category: 'Dimensions' },
 	},
 	aspectRatio: {
 		control: {
@@ -81,6 +83,8 @@ export const sharedChartArgTypes = {
 			min: 0,
 			max: 1,
 		},
+		description: 'Height as a ratio of width (0-1, responsive mode)',
+		table: { category: 'Dimensions' },
 	},
 	resizeDebounceTime: {
 		control: {
@@ -88,6 +92,8 @@ export const sharedChartArgTypes = {
 			min: 0,
 			max: 10000,
 		},
+		description: 'Debounce time in ms for resize events (performance)',
+		table: { category: 'Performance' },
 	},
 	containerWidth: {
 		control: { type: 'text' },

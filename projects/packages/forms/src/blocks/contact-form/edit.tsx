@@ -18,10 +18,10 @@ import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
-	SelectControl,
 	TextareaControl,
 	TextControl,
 	ToggleControl,
+	RadioControl,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -33,7 +33,7 @@ import clsx from 'clsx';
 /*
  * Internal dependencies
  */
-import useFormsConfig from '../../hooks/use-forms-config';
+import useConfigValue from '../../hooks/use-config-value';
 import { store as singleStepStore } from '../../store/form-step-preview';
 import {
 	PREVIOUS_BUTTON_TEMPLATE,
@@ -41,7 +41,6 @@ import {
 	NAVIGATION_TEMPLATE,
 } from '../form-step-navigation/edit';
 import StepControls from '../shared/components/form-step-controls';
-import InspectorHint from '../shared/components/inspector-hint';
 import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-responses-settings';
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively';
 import useFormSteps from '../shared/hooks/use-form-steps';
@@ -114,7 +113,43 @@ const isInputWithRequiredField = ( fullName?: string ): boolean => {
 	return hasRequired && ! isHidden;
 };
 
-function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, className } ) {
+type CustomThankyouType =
+	| '' // default message
+	| 'noSummary' // default message without a summary
+	| 'message' // custom message
+	| 'redirect'; // redirect to a new URL
+
+type JetpackContactFormAttributes = {
+	to: string;
+	subject: string;
+	// Legacy support for the customThankyou attribute
+	customThankyou: CustomThankyouType;
+	customThankyouHeading: string;
+	customThankyouMessage: string;
+	customThankyouRedirect: string;
+	confirmationType: 'text' | 'redirect';
+	formTitle: string;
+	variationName: string;
+	emailNotifications: boolean;
+	disableGoBack: boolean;
+	disableSummary: boolean;
+	notificationRecipients: string[];
+};
+type JetpackContactFormEditProps = {
+	name: string;
+	attributes: JetpackContactFormAttributes;
+	setAttributes: ( attributes: Partial< JetpackContactFormAttributes > ) => void;
+	clientId: string;
+	className: string;
+};
+
+function JetpackContactFormEdit( {
+	name,
+	attributes,
+	setAttributes,
+	clientId,
+	className,
+}: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
 
@@ -125,15 +160,35 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 		customThankyouHeading,
 		customThankyouMessage,
 		customThankyouRedirect,
+		confirmationType,
 		formTitle,
 		variationName,
 		emailNotifications,
 		disableGoBack,
+		disableSummary,
 		notificationRecipients,
 	} = attributes;
-	const formsConfig = useFormsConfig();
-	const showFormIntegrations = Boolean( formsConfig?.isIntegrationsEnabled );
+	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Backward compatibility for the deprecated customThankyou attribute.
+	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
+	// and not a disableSummary attribute, so we need to set it here.
+	useEffect( () => {
+		if ( confirmationType ) {
+			return;
+		}
+
+		if ( customThankyou === 'redirect' ) {
+			setAttributes( { confirmationType: 'redirect' } );
+		} else {
+			setAttributes( { confirmationType: 'text' } );
+
+			if ( [ 'noSummary', 'message' ].includes( customThankyou ) ) {
+				setAttributes( { disableSummary: true } );
+			}
+		}
+	}, [ confirmationType, customThankyou, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
 
@@ -764,41 +819,20 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 						initialOpen={ false }
 						className="jetpack-contact-form__panel"
 					>
-						<InspectorHint>
-							{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
-						</InspectorHint>
-						<SelectControl
-							label={ __( 'On submission', 'jetpack-forms' ) }
-							value={ customThankyou }
+						<RadioControl
+							label={ __( 'Confirmation type', 'jetpack-forms' ) }
+							selected={ confirmationType }
 							options={ [
-								{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
-								{
-									label: __( 'Show the default text message without a summary', 'jetpack-forms' ),
-									value: 'noSummary',
-								},
-								{ label: __( 'Show a custom text message', 'jetpack-forms' ), value: 'message' },
-								{
-									label: __( 'Redirect to another webpage', 'jetpack-forms' ),
-									value: 'redirect',
-								},
+								{ label: __( 'Text', 'jetpack-forms' ), value: 'text' },
+								{ label: __( 'Redirect link', 'jetpack-forms' ), value: 'redirect' },
 							] }
-							onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
-							__nextHasNoMarginBottom={ true }
-							__next40pxDefaultSize={ true }
+							onChange={ ( newValue: 'text' | 'redirect' ) =>
+								setAttributes( { confirmationType: newValue } )
+							}
 						/>
 
-						{ 'redirect' !== customThankyou && (
+						{ 'text' === confirmationType && (
 							<>
-								<ToggleControl
-									label={ __( 'Show "Go back" link', 'jetpack-forms' ) }
-									checked={ ! disableGoBack }
-									onChange={ ( newDisableGoBack: boolean ) =>
-										setAttributes( { disableGoBack: ! newDisableGoBack } )
-									}
-									__nextHasNoMarginBottom={ true }
-									__next40pxDefaultSize={ true }
-								/>
-
 								<TextControl
 									label={ __( 'Message heading', 'jetpack-forms' ) }
 									value={ customThankyouHeading }
@@ -809,22 +843,40 @@ function JetpackContactFormEdit( { name, attributes, setAttributes, clientId, cl
 									__nextHasNoMarginBottom={ true }
 									__next40pxDefaultSize={ true }
 								/>
+
+								<TextareaControl
+									label={ __( 'Message text', 'jetpack-forms' ) }
+									value={ customThankyouMessage }
+									placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
+									onChange={ ( newMessage: string ) =>
+										setAttributes( { customThankyouMessage: newMessage } )
+									}
+									__nextHasNoMarginBottom={ true }
+								/>
+
+								<ToggleControl
+									label={ __( 'Show summary', 'jetpack-forms' ) }
+									checked={ ! disableSummary }
+									onChange={ ( newDisableSummary: boolean ) =>
+										setAttributes( { disableSummary: ! newDisableSummary } )
+									}
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+
+								<ToggleControl
+									label={ __( 'Show "Go back" link', 'jetpack-forms' ) }
+									checked={ ! disableGoBack }
+									onChange={ ( newDisableGoBack: boolean ) =>
+										setAttributes( { disableGoBack: ! newDisableGoBack } )
+									}
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
 							</>
 						) }
 
-						{ 'message' === customThankyou && (
-							<TextareaControl
-								label={ __( 'Message text', 'jetpack-forms' ) }
-								value={ customThankyouMessage }
-								placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
-								onChange={ ( newMessage: string ) =>
-									setAttributes( { customThankyouMessage: newMessage } )
-								}
-								__nextHasNoMarginBottom={ true }
-							/>
-						) }
-
-						{ 'redirect' === customThankyou && (
+						{ 'redirect' === confirmationType && (
 							<div>
 								<URLInput
 									label={ __( 'Redirect address', 'jetpack-forms' ) }

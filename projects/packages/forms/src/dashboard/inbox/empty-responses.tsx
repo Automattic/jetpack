@@ -3,7 +3,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import useFormsConfig from '../../hooks/use-forms-config';
+import useConfigValue from '../../hooks/use-config-value';
 
 const EmptyWrapper = ( { heading = '', body = '' } ) => (
 	<VStack alignment="center" spacing="2">
@@ -19,18 +19,20 @@ const EmptyWrapper = ( { heading = '', body = '' } ) => (
 type EmptyResponsesProps = {
 	status: string;
 	isSearch: boolean;
+	readStatusFilter?: 'unread' | 'read';
 };
 
-const EmptyResponses = ( { status, isSearch }: EmptyResponsesProps ) => {
-	const formsConfig = useFormsConfig();
-	const emptyTrashDays = formsConfig?.emptyTrashDays ?? 0;
+const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
+	// Handle search and filter states first
+	const hasReadStatusFilter = !! readStatusFilter;
 	const searchHeading = __( 'No results found', 'jetpack-forms' );
 	const searchMessage = __(
 		"Try adjusting your search or filters to find what you're looking for.",
 		'jetpack-forms'
 	);
-	if ( isSearch ) {
+	if ( isSearch || hasReadStatusFilter ) {
 		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
 	}
 

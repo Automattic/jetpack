@@ -103,8 +103,10 @@ const maybeAddColonToLabel = label => {
 	if ( ! formattedLabel ) {
 		return null;
 	}
-
-	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+	// Special case for the Terms consent field block which has a period at the end of the text.
+	return formattedLabel.endsWith( '?' )
+		? formattedLabel
+		: formattedLabel.replace( /[.:]$/, '' ) + ':';
 };
 
 const maybeTransformValue = value => {
@@ -133,7 +135,7 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.filter( choice => choice.image?.src ).map( choice => choice.image?.src );
+		return value.choices.map( choice => choice.image?.src );
 	}
 
 	return null;

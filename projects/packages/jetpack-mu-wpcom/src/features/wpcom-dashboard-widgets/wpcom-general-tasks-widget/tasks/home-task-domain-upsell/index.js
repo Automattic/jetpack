@@ -29,9 +29,8 @@ export default ( { siteDomain, sitePlan } ) => {
 	}
 
 	const getLink = `http://wordpress.com/checkout/${ siteDomain }/${ cart.join( ',' ) }`;
-	const searchLink = addQueryArgs( `https://wordpress.com/domains/add/${ siteDomain }`, {
-		domainAndPlanPackage: true,
-		domain: true,
+	const searchLink = addQueryArgs( 'https://wordpress.com/setup/domain-and-plan', {
+		siteSlug: siteDomain,
 	} );
 
 	return (

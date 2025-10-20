@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: add new useConfigValue hook and start using it on the dashboard

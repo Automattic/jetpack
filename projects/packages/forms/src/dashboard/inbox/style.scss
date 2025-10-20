@@ -1,5 +1,6 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
+@use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox {
@@ -280,9 +281,29 @@
 	}
 
 	.image-select-field-image {
+		margin: 0;
 		width: 200px;
-		aspect-ratio: 1/1;
-		object-fit: cover;
+		height: 200px;
+
+		&.is-empty {
+			position: relative;
+
+			&::before {
+
+				@extend %empty-image-option-background;
+			}
+
+			&::after {
+
+				@extend %empty-image-option-icon;
+				background-color: #000;
+			}
+		}
+
+		img {
+			aspect-ratio: 1/1;
+			object-fit: cover;
+		}
 	}
 }
 

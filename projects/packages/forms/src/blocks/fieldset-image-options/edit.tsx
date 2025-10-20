@@ -9,7 +9,6 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import { getImageOptionLabel } from '../input-image-option/label';
 import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 
@@ -26,9 +25,9 @@ export default function ImageOptionsFieldsetEdit( props ) {
 
 	// Starts with 3 empty options.
 	const template = [
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 1 ) } ],
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 2 ) } ],
-		[ 'jetpack/input-image-option', { label: getImageOptionLabel( 3 ) } ],
+		[ 'jetpack/input-image-option' ],
+		[ 'jetpack/input-image-option' ],
+		[ 'jetpack/input-image-option' ],
 	];
 
 	const defaultBlock = useMemo( () => newImageOption(), [ newImageOption ] );

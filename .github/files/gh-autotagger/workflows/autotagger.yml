@@ -6,6 +6,7 @@ on:
       - trunk
       - prerelease
       - '*/branch-*'
+  workflow_dispatch:
 
 jobs:
   tag:

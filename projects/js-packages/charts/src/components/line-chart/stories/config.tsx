@@ -10,6 +10,7 @@ import {
 import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
 import { themeArgTypes } from '../../../stories/theme-config';
+import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
 import type { Meta } from '@storybook/react';
@@ -57,6 +58,7 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 		...legendArgTypes,
 		...themeArgTypes,
 		...sharedChartArgTypes,
+		...lineChartTooltipArgTypes,
 	},
 };
 

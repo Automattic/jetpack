@@ -9,10 +9,10 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions

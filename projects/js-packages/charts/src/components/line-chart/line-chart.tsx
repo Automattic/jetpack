@@ -5,7 +5,7 @@ import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { differenceInHours } from 'date-fns';
+import { differenceInHours, differenceInYears } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
 	useXYChartTheme,
@@ -101,6 +101,13 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 	);
 };
 
+const formatYearTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleDateString( undefined, {
+		year: 'numeric',
+	} );
+};
+
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -115,6 +122,23 @@ const formatHourTick = ( timestamp: number ) => {
 		hour: 'numeric',
 		hour12: true,
 	} );
+};
+
+const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
+	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
+
+	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
+	if ( diffInHours <= 24 ) {
+		return formatHourTick;
+	}
+
+	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
+	if ( diffInYears <= 1 ) {
+		return formatDateTick;
+	}
+
+	return formatYearTick;
 };
 
 const guessOptimalNumTicks = (
@@ -146,8 +170,13 @@ const guessOptimalNumTicks = (
 			return 1;
 		}
 
-		const hasDuplicate = uniqueTicks.length < ticks.length;
-		if ( hasDuplicate ) {
+		// Example: OCT 1 JAN 1 APR 1 JUL 1 OCT 1
+		// Here, the two OCTs are not duplicates as they represent October of two different years.
+		const hasConsecutiveDuplicate = ticks.some(
+			( tick, idx ) => idx > 0 && tick === ticks[ idx - 1 ]
+		);
+
+		if ( hasConsecutiveDuplicate ) {
 			continue;
 		}
 
@@ -235,6 +264,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
+			interactive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -265,7 +295,17 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles } = useGlobalChartsContext();
+		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+		// Filter out hidden series when using interactive legends, preserving original index
+		const visibleData = useMemo( () => {
+			if ( ! chartId || ! interactive ) {
+				return dataSorted.map( ( series, index ) => ( { series, originalIndex: index } ) );
+			}
+			return dataSorted
+				.map( ( series, index ) => ( { series, originalIndex: index } ) )
+				.filter( ( { series } ) => isSeriesVisible( chartId, series.label ) );
+		}, [ dataSorted, chartId, isSeriesVisible, interactive ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -278,12 +318,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const minX = Math.min( ...dataSorted.map( datom => datom.data.at( 0 )?.date ) );
-			const maxX = Math.max( ...dataSorted.map( datom => datom.data.at( -1 )?.date ) );
-			const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
-
-			// Show the difference in hours if less than 24 hours; otherwise, display the date.
-			const formatter = diffInHours <= 24 ? formatHourTick : formatDateTick;
+			const formatter = getFormatter( dataSorted );
 
 			return {
 				axis: {
@@ -438,10 +473,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.x } />
 							<Axis { ...chartOptions.axis.y } />
 
-							{ dataSorted.map( ( seriesData, index ) => {
+							{ visibleData.map( ( { series: seriesData, originalIndex } ) => {
 								const { color, lineStyles, glyph } = getElementStyles( {
 									data: seriesData,
-									index,
+									index: originalIndex,
 								} );
 
 								const lineProps = {
@@ -450,10 +485,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								};
 
 								return (
-									<g key={ seriesData?.label || index }>
+									<g key={ seriesData?.label || originalIndex }>
 										{ withGradientFill && (
 											<LinearGradient
-												id={ `area-gradient-${ chartId }-${ index + 1 }` }
+												id={ `area-gradient-${ chartId }-${ originalIndex + 1 }` }
 												from={ color }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
@@ -467,7 +502,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 														offset={ stop.offset }
 														stopColor={ stop.color || color }
 														stopOpacity={ stop.opacity ?? 1 }
-														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+														data-testid={ `line-gradient-stop-${ chartId }-${ originalIndex }-${ stopIndex }` }
 													/>
 												) ) }
 											</LinearGradient>
@@ -479,7 +514,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											{ ...accessors }
 											fill={
 												withGradientFill
-													? `url(#area-gradient-${ chartId }-${ index + 1 })`
+													? `url(#area-gradient-${ chartId }-${ originalIndex + 1 })`
 													: 'transparent'
 											}
 											renderLine={ true }
@@ -489,7 +524,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withStartGlyphs && (
 											<LineChartGlyph
-												index={ index }
+												index={ originalIndex }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -501,7 +536,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withEndGlyphs && (
 											<LineChartGlyph
-												index={ index }
+												index={ originalIndex }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -553,6 +588,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
+							interactive={ interactive }
 							ref={ legendRef }
 						/>
 					) }

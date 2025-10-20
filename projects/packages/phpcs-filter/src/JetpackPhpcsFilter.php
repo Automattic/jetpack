@@ -89,7 +89,6 @@ class JetpackPhpcsFilter extends Filter {
 	 * @throws DeepExitException On error.
 	 */
 	public function __construct( $iterator, $basedir, Config $config, Ruleset $ruleset, ?JetpackPhpcsFilter $copyFrom = null ) {
-		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Phan is confused; resolved in Phan >5.5.1.
 		parent::__construct( $iterator, $basedir, $config, $ruleset );
 
 		if ( $copyFrom ) {

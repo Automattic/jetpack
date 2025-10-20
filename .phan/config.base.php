@@ -196,10 +196,6 @@ function make_phan_config( $dir, $options = array() ) {
 				array(
 					// WordPress coding standards do not allow the `?:` operator.
 					'PhanPluginDuplicateConditionalTernaryDuplication',
-					// These two generate hundreds of false positives: https://github.com/phan/phan/issues/5070
-					// @todo: Remove these suppressions when Phan >5.5.1 is released
-					'PhanAccessMethodProtected',
-					'PhanAccessPropertyProtected',
 				),
 				$options['unsuppress_issue_types']
 			),

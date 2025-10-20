@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { config } from '../index';
+import useConfigValue from '../../hooks/use-config-value';
 
 type ClickHandlerProps = {
 	formPattern?: string;
@@ -24,30 +24,34 @@ type CreateFormReturn = {
  * @return {CreateFormReturn} The createForm and openNewForm functions.
  */
 export default function useCreateForm(): CreateFormReturn {
-	const createForm = useCallback( async ( formPattern: string ) => {
-		const data = new FormData();
+	const newFormNonce = useConfigValue( 'newFormNonce' );
+	const createForm = useCallback(
+		async ( formPattern: string ) => {
+			const data = new FormData();
 
-		data.append( 'action', 'create_new_form' );
-		data.append( 'newFormNonce', config( 'newFormNonce' ) );
+			data.append( 'action', 'create_new_form' );
+			data.append( 'newFormNonce', newFormNonce );
 
-		if ( formPattern ) {
-			data.append( 'pattern', formPattern );
-		}
+			if ( formPattern ) {
+				data.append( 'pattern', formPattern );
+			}
 
-		const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
+			const response = await fetch( window.ajaxurl, { method: 'POST', body: data } );
 
-		const {
-			success,
-			post_url: postUrl,
-			data: message,
-		}: { success?: boolean; data?: string; post_url?: string } = await response.json();
+			const {
+				success,
+				post_url: postUrl,
+				data: message,
+			}: { success?: boolean; data?: string; post_url?: string } = await response.json();
 
-		if ( success === false ) {
-			throw new Error( message );
-		}
+			if ( success === false ) {
+				throw new Error( message );
+			}
 
-		return postUrl;
-	}, [] );
+			return postUrl;
+		},
+		[ newFormNonce ]
+	);
 
 	const openNewForm = useCallback(
 		async ( { formPattern, showPatterns, analyticsEvent }: ClickHandlerProps ) => {

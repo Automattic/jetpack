@@ -16,8 +16,8 @@ use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Jetpack_AI_Helper;
 use WP_Error;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -39,7 +39,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private function get_supported_integrations() {
 		$supported_integrations = array(
-			'akismet'                           => array(
+			'akismet'      => array(
 				'type'                    => 'plugin',
 				'file'                    => 'akismet/akismet.php',
 				'settings_url'            => 'admin.php?page=akismet-key-config',
@@ -49,17 +49,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'creative-mail-by-constant-contact' => array(
-				'type'                    => 'plugin',
-				'file'                    => 'creative-mail-by-constant-contact/creative-mail-plugin.php',
-				'settings_url'            => 'admin.php?page=creativemail',
-				'marketing_redirect_slug' => 'creative-mail',
-				'title'                   => __( 'Creative Mail', 'jetpack-forms' ),
-				'subtitle'                => __( 'Manage email contacts and campaigns', 'jetpack-forms' ),
-				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => false,
-			),
-			'zero-bs-crm'                       => array(
+			'zero-bs-crm'  => array(
 				'type'                    => 'plugin',
 				'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
 				'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
@@ -69,7 +59,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => true,
 			),
-			'salesforce'                        => array(
+			'salesforce'   => array(
 				'type'                    => 'service',
 				'file'                    => null,
 				'settings_url'            => null,
@@ -79,7 +69,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'google-drive'                      => array(
+			'google-drive' => array(
 				'type'                    => 'service',
 				'file'                    => null,
 				'settings_url'            => null,
@@ -89,7 +79,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 			),
-			'mailpoet'                          => array(
+			'mailpoet'     => array(
 				'type'                    => 'plugin',
 				'file'                    => 'mailpoet/mailpoet.php',
 				'settings_url'            => 'admin.php?page=mailpoet-homepage',
@@ -100,6 +90,20 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'enabled_by_default'      => false,
 			),
 		);
+
+		// Conditionally add Hostinger Reach integration behind feature flag.
+		if ( Jetpack_Forms::is_hostinger_reach_enabled() ) {
+			$supported_integrations['hostinger-reach'] = array(
+				'type'                    => 'plugin',
+				'file'                    => 'hostinger-reach/hostinger-reach.php',
+				'settings_url'            => 'admin.php?page=hostinger-reach#/home',
+				'marketing_redirect_slug' => 'hostinger-reach',
+				'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
+				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
+				// Overriding this may automatically enable/disable the integration when editing a form.
+				'enabled_by_default'      => false,
+			);
+		}
 
 		/**
 		 * Filters the list of supported integrations available in Jetpack Forms.
@@ -287,30 +291,36 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'permission_callback' => array( $this, 'get_items_permissions_check' ),
 				'callback'            => array( $this, 'get_status_counts' ),
 				'args'                => array(
-					'search' => array(
+					'search'    => array(
 						'description'       => 'Limit results to those matching a string.',
 						'type'              => 'string',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'parent' => array(
+					'parent'    => array(
 						'description'       => 'Limit results to those of a specific parent ID.',
 						'type'              => 'integer',
 						'sanitize_callback' => 'absint',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'before' => array(
+					'before'    => array(
 						'description'       => 'Limit results to feedback published before a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'after'  => array(
+					'after'     => array(
 						'description'       => 'Limit results to feedback published after a given ISO8601 compliant date.',
 						'type'              => 'string',
 						'format'            => 'date-time',
 						'sanitize_callback' => 'sanitize_text_field',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+					'is_unread' => array(
+						'description'       => 'Limit results to read or unread feedback items.',
+						'type'              => 'boolean',
+						'sanitize_callback' => 'rest_sanitize_boolean',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
 				),
@@ -373,10 +383,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	public function get_status_counts( $request ) {
 		global $wpdb;
 
-		$search = $request->get_param( 'search' );
-		$parent = $request->get_param( 'parent' );
-		$before = $request->get_param( 'before' );
-		$after  = $request->get_param( 'after' );
+		$search    = $request->get_param( 'search' );
+		$parent    = $request->get_param( 'parent' );
+		$before    = $request->get_param( 'before' );
+		$after     = $request->get_param( 'after' );
+		$is_unread = $request->get_param( 'is_unread' );
 
 		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
 
@@ -395,6 +406,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( ! empty( $after ) ) {
 			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+		}
+
+		if ( null !== $is_unread ) {
+			$comment_status     = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+			$where_conditions[] = $wpdb->prepare( 'comment_status = %s', $comment_status );
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
@@ -790,6 +806,81 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Retrieves a collection of feedback items.
+	 * Overrides parent to support invalid_ids with OR logic.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_items( $request ) {
+		$invalid_ids = $request->get_param( 'invalid_ids' );
+
+		// If we have invalid_ids, we need to modify the query with a WHERE clause
+		if ( ! empty( $invalid_ids ) ) {
+			add_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10, 2 );
+			// Store invalid_ids temporarily so the filter can access them
+			$this->temp_invalid_ids = $invalid_ids;
+		}
+
+		$response = parent::get_items( $request );
+
+		// Clean up
+		if ( ! empty( $invalid_ids ) ) {
+			remove_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10 );
+			unset( $this->temp_invalid_ids );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Modify the WHERE clause to include invalid_ids with OR logic.
+	 *
+	 * @param string   $where The WHERE clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified WHERE clause.
+	 */
+	public function modify_query_for_invalid_ids( $where, $query ) {
+		global $wpdb;
+
+		// Only modify our feedback queries
+		if ( ! isset( $this->temp_invalid_ids ) || empty( $this->temp_invalid_ids ) ) {
+			return $where;
+		}
+
+		// Only modify if this is a feedback query
+		$post_type = $query->get( 'post_type' );
+		if ( $post_type !== 'feedback' ) {
+			return $where;
+		}
+
+		$invalid_ids_sql = implode( ',', array_map( 'absint', $this->temp_invalid_ids ) );
+
+		// Add OR condition for invalid_ids at the end of the WHERE clause
+		// Keep the AND at the beginning since WordPress WHERE clauses start with "AND"
+		$where .= " OR {$wpdb->posts}.ID IN ({$invalid_ids_sql})";
+
+		return $where;
+	}
+
+	/**
+	 * Filters the query arguments for the feedback collection.
+	 *
+	 * @param array           $args    Key value array of query var to query value.
+	 * @param WP_REST_Request $request The request used.
+	 * @return array Modified query arguments.
+	 */
+	protected function prepare_items_query( $args = array(), $request = null ) {
+		$args = parent::prepare_items_query( $args, $request );
+
+		if ( isset( $request['is_unread'] ) ) {
+			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
+		}
+
+		return $args;
+	}
+
+	/**
 	 * Retrieves the query params for the feedback collection.
 	 *
 	 * @return array Collection parameters.
@@ -814,6 +905,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'type' => 'integer',
 			),
 			'default'     => array(),
+		);
+		$query_params['is_unread']      = array(
+			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
+			'type'              => 'boolean',
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['invalid_ids']    = array(
+			'description'       => __( 'List of item IDs to include in results regardless of filters.', 'jetpack-forms' ),
+			'type'              => 'array',
+			'items'             => array(
+				'type' => 'integer',
+			),
+			'default'           => array(),
+			'sanitize_callback' => function ( $param ) {
+				return array_map( 'absint', (array) $param );
+			},
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;
 	}
@@ -1162,6 +1271,29 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				// Add MailPoet lists to details
 				$status['details']['lists'] = MailPoet_Integration::get_all_lists();
 				break;
+			case 'hostinger-reach':
+				// Hostinger Reach is a plugin that requires additional setup/connection.
+				$status['needsConnection'] = true;
+				$status['isConnected']     = false;
+				// Determine if Hostinger Reach is connected using its public handler.
+				if ( $is_active
+					// @phan-suppress-next-line PhanUndeclaredClassReference
+					&& class_exists( \Hostinger\Reach\Api\Handlers\ReachApiHandler::class )
+					// @phan-suppress-next-line PhanUndeclaredClassReference
+					&& class_exists( \Hostinger\Reach\Functions::class )
+					// @phan-suppress-next-line PhanUndeclaredClassReference
+					&& class_exists( \Hostinger\Reach\Api\ApiKeyManager::class )
+				) {
+					$reach_handler = new \Hostinger\Reach\Api\Handlers\ReachApiHandler( // @phan-suppress-current-line PhanUndeclaredClassMethod
+						new \Hostinger\Reach\Functions(), // @phan-suppress-current-line PhanUndeclaredClassMethod
+						new \Hostinger\Reach\Api\ApiKeyManager() // @phan-suppress-current-line PhanUndeclaredClassMethod
+					);
+					if ( method_exists( $reach_handler, 'is_connected' ) ) {
+						// @phan-suppress-next-line PhanUndeclaredClassMethod
+						$status['isConnected'] = (bool) $reach_handler->is_connected();
+					}
+				}
+				break;
 		}
 
 		return $status;
@@ -1232,23 +1364,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_forms_config( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$has_ai = false;
-		if ( class_exists( 'Jetpack_AI_Helper' ) ) {
-			$feature = Jetpack_AI_Helper::get_ai_assistance_feature();
-			$has_ai  = ! is_wp_error( $feature ) ? ( $feature['has-feature'] ?? false ) : false;
-		}
-
 		$config = array(
 			// From jpFormsBlocks in class-contact-form-block.php.
 			'formsResponsesUrl'       => Forms_Dashboard::get_forms_admin_url(),
 			'isMailPoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
+			'isHostingerReachEnabled' => Jetpack_Forms::is_hostinger_reach_enabled(),
 			// From config in class-dashboard.php.
 			'blogId'                  => get_current_blog_id(),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
 			'siteURL'                 => ( new Status() )->get_site_suffix(),
 			'hasFeedback'             => ( new Forms_Dashboard() )->has_feedback(),
-			'hasAI'                   => $has_ai,
 			'isIntegrationsEnabled'   => Jetpack_Forms::is_integrations_enabled(),
 			'dashboardURL'            => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
