@@ -24,9 +24,24 @@ export default class SessionManager {
 			return;
 		}
 
+		this.maybeSetAnonId();
 		this.loadOrCreateSession();
 		this.isInitialized = true;
 	};
+
+	/**
+	 * Set anonymous ID if not already set
+	 */
+	maybeSetAnonId() {
+		const anonId = this.getCookie( 'tk_ai' );
+
+		if ( ! anonId ) {
+			// Set a first-party cookie (same domain only, 1 year)
+			const randomToken = this.generateRandomToken( 18 );
+			const expires = new Date( Date.now() + 1 * 365 * 24 * 60 * 60 * 1000 ).toUTCString();
+			document.cookie = `tk_ai=${ randomToken }; path=/; secure; samesite=strict; expires=${ expires }`;
+		}
+	}
 
 	/**
 	 * Load existing session or create new one
@@ -129,6 +144,27 @@ export default class SessionManager {
 
 		const expirationTime = Math.min( thirtyMinutesFromNow, midnightUTC.getTime() );
 		return new Date( expirationTime ).toUTCString();
+	}
+
+	/**
+	 * Generate a random token
+	 *
+	 * @param randomBytesLength - Length of the random bytes
+	 * @return string
+	 */
+	generateRandomToken( randomBytesLength: number ): string {
+		let randomBytes: Uint8Array | number[];
+
+		if ( window.crypto && window.crypto.getRandomValues ) {
+			randomBytes = new Uint8Array( randomBytesLength );
+			window.crypto.getRandomValues( randomBytes );
+		} else {
+			for ( let i = 0; i < randomBytesLength; ++i ) {
+				randomBytes[ i ] = Math.floor( Math.random() * 256 );
+			}
+		}
+
+		return btoa( String.fromCharCode( ...randomBytes ) );
 	}
 
 	/**
