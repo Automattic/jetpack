@@ -311,6 +311,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 				'samesite' => 'Strict',
 			)
 		);
+		return self::$cached_visitor_id;
 	}
 
 	/**
