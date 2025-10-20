@@ -264,6 +264,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
+			interactive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -294,7 +295,17 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles } = useGlobalChartsContext();
+		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+		// Filter out hidden series when using interactive legends, preserving original index
+		const visibleData = useMemo( () => {
+			if ( ! chartId || ! interactive ) {
+				return dataSorted.map( ( series, index ) => ( { series, originalIndex: index } ) );
+			}
+			return dataSorted
+				.map( ( series, index ) => ( { series, originalIndex: index } ) )
+				.filter( ( { series } ) => isSeriesVisible( chartId, series.label ) );
+		}, [ dataSorted, chartId, isSeriesVisible, interactive ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -462,10 +473,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.x } />
 							<Axis { ...chartOptions.axis.y } />
 
-							{ dataSorted.map( ( seriesData, index ) => {
+							{ visibleData.map( ( { series: seriesData, originalIndex } ) => {
 								const { color, lineStyles, glyph } = getElementStyles( {
 									data: seriesData,
-									index,
+									index: originalIndex,
 								} );
 
 								const lineProps = {
@@ -474,10 +485,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								};
 
 								return (
-									<g key={ seriesData?.label || index }>
+									<g key={ seriesData?.label || originalIndex }>
 										{ withGradientFill && (
 											<LinearGradient
-												id={ `area-gradient-${ chartId }-${ index + 1 }` }
+												id={ `area-gradient-${ chartId }-${ originalIndex + 1 }` }
 												from={ color }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
@@ -491,7 +502,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 														offset={ stop.offset }
 														stopColor={ stop.color || color }
 														stopOpacity={ stop.opacity ?? 1 }
-														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
+														data-testid={ `line-gradient-stop-${ chartId }-${ originalIndex }-${ stopIndex }` }
 													/>
 												) ) }
 											</LinearGradient>
@@ -503,7 +514,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											{ ...accessors }
 											fill={
 												withGradientFill
-													? `url(#area-gradient-${ chartId }-${ index + 1 })`
+													? `url(#area-gradient-${ chartId }-${ originalIndex + 1 })`
 													: 'transparent'
 											}
 											renderLine={ true }
@@ -513,7 +524,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withStartGlyphs && (
 											<LineChartGlyph
-												index={ index }
+												index={ originalIndex }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -525,7 +536,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withEndGlyphs && (
 											<LineChartGlyph
-												index={ index }
+												index={ originalIndex }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -577,6 +588,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
+							interactive={ interactive }
 							ref={ legendRef }
 						/>
 					) }

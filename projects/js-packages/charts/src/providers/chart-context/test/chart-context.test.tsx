@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { useMemo } from 'react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
@@ -1434,6 +1434,274 @@ describe( 'ChartContext', () => {
 			} );
 
 			expect( styles.color ).toBe( '#series-stroke' );
+		} );
+	} );
+
+	describe( 'Series visibility management', () => {
+		it( 'toggleSeriesVisibility hides a visible series', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Initially, series should be visible
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+
+			// Toggle to hide
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+
+			// Rerender to apply state change
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Now should be hidden
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+		} );
+
+		it( 'toggleSeriesVisibility shows a hidden series', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide series first
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+
+			// Toggle to show
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Now should be visible again
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( true );
+		} );
+
+		it( 'manages hidden series independently per chart', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide series in chart1
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'chart1', 'Series A' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Series A should be hidden in chart1 but visible in chart2
+			expect( contextValue.isSeriesVisible( 'chart1', 'Series A' ) ).toBe( false );
+			expect( contextValue.isSeriesVisible( 'chart2', 'Series A' ) ).toBe( true );
+		} );
+
+		it( 'manages multiple hidden series in same chart', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide multiple series
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 2' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Both should be hidden
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 1' ) ).toBe( false );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 2' ) ).toBe( false );
+
+			// Series 3 should still be visible
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 3' ) ).toBe( true );
+		} );
+
+		it( 'getHiddenSeries returns set of hidden series labels', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide some series
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 3' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const hidden = contextValue.getHiddenSeries( 'test-chart' );
+
+			expect( hidden ).toBeInstanceOf( Set );
+			expect( hidden.size ).toBe( 2 );
+			expect( hidden.has( 'Series 1' ) ).toBe( true );
+			expect( hidden.has( 'Series 3' ) ).toBe( true );
+			expect( hidden.has( 'Series 2' ) ).toBe( false );
+		} );
+
+		it( 'getHiddenSeries returns empty set for chart with no hidden series', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const hidden = contextValue.getHiddenSeries( 'test-chart' );
+
+			expect( hidden ).toBeInstanceOf( Set );
+			expect( hidden.size ).toBe( 0 );
+		} );
+
+		it( 'getHiddenSeries returns defensive copy of set', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide a series
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const hidden1 = contextValue.getHiddenSeries( 'test-chart' );
+			const hidden2 = contextValue.getHiddenSeries( 'test-chart' );
+
+			// Should be different Set instances (defensive copy)
+			expect( hidden1 ).not.toBe( hidden2 );
+
+			// But with same contents
+			expect( hidden1.size ).toBe( hidden2.size );
+			expect( hidden1.has( 'Series 1' ) ).toBe( hidden2.has( 'Series 1' ) );
+
+			// Modifying returned set should not affect internal state
+			hidden1.add( 'Series 2' );
+			expect( contextValue.isSeriesVisible( 'test-chart', 'Series 2' ) ).toBe( true );
+		} );
+
+		it( 'removes chart entry when all series become visible again', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// Hide and then show a series
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			act( () => {
+				contextValue.toggleSeriesVisibility( 'test-chart', 'Series 1' );
+			} );
+			rerender(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			const hidden = contextValue.getHiddenSeries( 'test-chart' );
+
+			// Should have empty set after all series are visible
+			expect( hidden.size ).toBe( 0 );
 		} );
 	} );
 } );

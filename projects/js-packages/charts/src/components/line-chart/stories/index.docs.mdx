@@ -95,6 +95,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
 - **`legendShape`**: Shape used in legend markers (`'line'` by default)
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
+- **`interactive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -454,6 +455,38 @@ Use different shapes and custom glyphs in legends:
 	/>` }
 />
 
+### Interactive Legends
+
+Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation. This feature requires wrapping your chart in `GlobalChartsProvider` and providing a unique `chartId`:
+
+<Source
+	language="jsx"
+	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<LineChart
+			data={data}
+			chartId="sales-chart"
+			showLegend={true}
+			interactive={true}
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+**Interactive Legend Features:**
+- **Click or Tap**: Toggle series visibility by clicking on legend items
+- **Keyboard Navigation**: Use Tab to focus legend items, then Enter or Space to toggle
+- **Accessibility**: Full ARIA support with screen reader announcements
+- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
+- **Color Stability**: Series colors remain consistent when toggling visibility
+
+**Requirements:**
+- Must be wrapped in `GlobalChartsProvider`
+- Must provide a unique `chartId` prop
+- Set `interactive={true}` and `showLegend={true}`
+
+**Note:** Interactive legends are currently supported for LineChart only. Support for other chart types will be added in future releases.
+
 ## Advanced Customization
 
 ### Axis Configuration
@@ -590,9 +623,9 @@ The chart gracefully handles various error states and edge cases:
 
 ### Keyboard Navigation
 
-- **Tab**: Focus the chart
+- **Tab**: Focus the chart or legend items (if interactive legends are enabled)
 - **Arrow Keys**: Navigate between data points
-- **Enter/Space**: Activate tooltips or interactive elements
+- **Enter/Space**: Activate tooltips or toggle legend items (if interactive legends are enabled)
 - **Escape**: Close active tooltips
 
 ### Screen Reader Support
@@ -600,6 +633,7 @@ The chart gracefully handles various error states and edge cases:
 - Chart container has `role="grid"` with descriptive `aria-label`
 - Data points are navigable and announced with values
 - Interactive elements have appropriate ARIA attributes
+- Interactive legend items announce their current visibility state ("visible" or "hidden")
 - Color information is supplemented with patterns and labels
 
 ### Focus Management

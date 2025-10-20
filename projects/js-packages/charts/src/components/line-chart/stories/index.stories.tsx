@@ -118,10 +118,21 @@ ManySeries.args = {
 	showLegend: true,
 };
 
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
+export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithInteractiveLegend.args = {
 	...lineChartStoryArgs,
+	chartId: 'interactive-legend-demo',
 	showLegend: true,
+	interactive: true,
+};
+
+WithInteractiveLegend.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
+		},
+	},
 };
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );

@@ -63,4 +63,10 @@ export const legendArgTypes = {
 		description:
 			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
 	},
+	interactive: {
+		control: { type: 'boolean' as const },
+		table: { category: 'Legend' },
+		description:
+			'Enable interactive legend items that can toggle series visibility. Requires GlobalChartsProvider and chartId to be set.',
+	},
 };

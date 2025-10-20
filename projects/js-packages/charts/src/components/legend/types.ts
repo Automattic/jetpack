@@ -33,6 +33,15 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * Function for rendering a custom legend layout.
 	 */
 	render?: ( items: BaseLegendItem[] ) => ReactNode;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Requires GlobalChartsProvider and chartId to be set.
+	 */
+	interactive?: boolean;
+	/**
+	 * Chart ID for series visibility tracking when interactive mode is enabled.
+	 */
+	chartId?: string;
 };
 
 export type LegendProps = Omit< BaseLegendProps, 'items' > & {
