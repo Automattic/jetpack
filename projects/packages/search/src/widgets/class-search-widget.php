@@ -1017,9 +1017,11 @@ class Search_Widget extends \WP_Widget {
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
 						</option>
+						<!-- Don't show this option until Search has been rebuilt.
 						<option value="product_attribute" <?php $this->render_widget_option_selected( 'type', $args['type'], 'product_attribute', $is_template ); ?>>
 							<?php esc_html_e( 'Product Attributes', 'jetpack-search-pkg' ); ?>
 						</option>
+						-->
 					</select>
 				</label>
 			</p>
