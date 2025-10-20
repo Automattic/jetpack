@@ -1,11 +1,20 @@
-import { FormTokenField, ToggleControl } from '@wordpress/components';
+import { FormTokenField, ToggleControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import JetpackEmailConnectionSettings from './jetpack-email-connection-settings';
 
-const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
+const NotificationsSettings = ( {
+	setAttributes,
+	notificationRecipients,
+	emailAddress,
+	emailSubject,
+	emailNotifications,
+	instanceId,
+	postAuthorEmail,
+} ) => {
 	const [ localNotificationRecipients, setLocalNotificationRecipients ] =
 		useState( notificationRecipients );
 	const [ localFormNotifications, setLocalFormNotifications ] = useState(
@@ -48,9 +57,27 @@ const NotificationsSettings = ( { setAttributes, notificationRecipients } ) => {
 
 	return (
 		<>
+			<JetpackEmailConnectionSettings
+				emailAddress={ emailAddress }
+				emailSubject={ emailSubject }
+				emailNotifications={ emailNotifications }
+				instanceId={ instanceId }
+				postAuthorEmail={ postAuthorEmail }
+				setAttributes={ setAttributes }
+			/>
 			<ToggleControl
 				label={ __( 'Enable notifications for responses', 'jetpack-forms' ) }
-				help={ __( 'Receive notifications when someone fills out your form.', 'jetpack-forms' ) }
+				help={ createInterpolateElement(
+					__(
+						'Receive push notifications when someone fills out your form. <pushNotificationsLink>Learn more.</pushNotificationsLink>',
+						'jetpack-forms'
+					),
+					{
+						pushNotificationsLink: (
+							<ExternalLink href="https://jetpack.com/support/notifications/" />
+						),
+					}
+				) }
 				checked={ localFormNotifications }
 				onChange={ value => {
 					if ( value ) {
