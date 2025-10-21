@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Only show the sidebar if only one response is selected
