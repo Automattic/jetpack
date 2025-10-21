@@ -60,8 +60,8 @@ class Help_Center {
 	/**
 	 * Update the calypso preferences.
 	 *
-	 * @param array $preferences The preferences.
-	 * @return array The preferences.
+	 * @param stdClass $preferences The preferences.
+	 * @return stdClass The preferences.
 	 */
 	public function calypso_preferences_update( $preferences ) {
 		if ( isset( $preferences->help_center_router_history ) ) {
@@ -69,7 +69,7 @@ class Help_Center {
 			$entries        = &$router_history['entries'];
 
 			// Limit entries to 50 to prevent spamming entries in the router history.
-			if ( count( $entries ) > 5 ) {
+			if ( count( $entries ) > 50 ) {
 				// Keep only the last 49 entries and add the root entry at the beginning.
 				$entries = array_slice( $entries, -4 );
 				// Keep the start at root so the back button always works.
@@ -83,7 +83,7 @@ class Help_Center {
 						'state'    => null,
 					)
 				);
-				$router_history['index'] = 4;
+				$router_history['index'] = 49;
 			}
 		}
 		return $preferences;
