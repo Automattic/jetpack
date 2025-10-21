@@ -64,7 +64,7 @@ class Help_Center {
 	 * @return \stdClass The preferences.
 	 */
 	public function calypso_preferences_update( $preferences ) {
-		if ( isset( $preferences->help_center_router_history ) ) {
+		if ( isset( $preferences->help_center_router_history ) && ! empty( $preferences->help_center_router_history['entries'] ) ) {
 			$router_history = &$preferences->help_center_router_history;
 			$entries        = &$router_history['entries'];
 
