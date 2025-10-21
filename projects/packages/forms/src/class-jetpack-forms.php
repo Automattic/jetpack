@@ -27,6 +27,10 @@ class Jetpack_Forms {
 			$dashboard->init();
 		}
 
+		// Initialize Abilities API integration
+		require_once __DIR__ . '/contact-form/class-abilities.php';
+		ContactForm\Abilities::init();
+
 		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 		}
