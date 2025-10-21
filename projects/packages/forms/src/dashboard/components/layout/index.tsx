@@ -4,13 +4,16 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import {
+	Button,
 	TabPanel,
+	Icon,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { arrowLeft } from '@wordpress/icons';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -50,21 +53,22 @@ const Layout = () => {
 		} );
 	}, [ isSm ] );
 
+	const isIntegrationsTab = location.pathname.includes( 'integrations' );
+
 	const tabs = useMemo(
 		() => [
 			{
 				name: 'responses',
 				title: __( 'Responses', 'jetpack-forms' ),
+				disabled: isIntegrationsTab,
 			},
-			...( enableIntegrationsTab
-				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
-				: [] ),
 			{
 				name: 'about',
 				title: _x( 'About', 'About Forms', 'jetpack-forms' ),
+				disabled: isIntegrationsTab,
 			},
 		],
-		[ enableIntegrationsTab ]
+		[ isIntegrationsTab ]
 	);
 
 	const getCurrentTab = useCallback( () => {
@@ -76,7 +80,7 @@ const Layout = () => {
 		}
 
 		return hasFeedback ? 'responses' : 'about';
-	}, [ location.pathname, tabs, hasFeedback ] );
+	}, [ location.pathname, hasFeedback, tabs ] );
 
 	const isResponsesTab = getCurrentTab() === 'responses';
 
@@ -104,6 +108,14 @@ const Layout = () => {
 		[ navigate, location.search, isSm, getCurrentTab, hasFeedback ]
 	);
 
+	const integrationsLabel = __( 'Integrations', 'jetpack-forms' );
+	const navigateToIntegrations = useCallback( () => {
+		navigate( '/integrations' );
+	}, [ navigate ] );
+	const navigateBack = useCallback( () => navigate( -1 ), [ navigate ] );
+	const navigateBackLabel = __( 'Back', 'jetpack-forms' );
+	const navigateBackIcon = <Icon icon={ arrowLeft } />;
+
 	return (
 		<div className="jp-forms__layout">
 			<div className="jp-forms__layout-header">
@@ -119,6 +131,17 @@ const Layout = () => {
 					</>
 				) : (
 					<div className="jp-forms__layout-header-actions">
+						{ enableIntegrationsTab && (
+							<Button
+								icon={ isIntegrationsTab ? navigateBackIcon : undefined }
+								__next40pxDefaultSize
+								className="jp-forms__export-button--large-greenXX"
+								variant="secondary"
+								onClick={ isIntegrationsTab ? navigateBack : navigateToIntegrations }
+							>
+								{ isIntegrationsTab ? navigateBackLabel : integrationsLabel }
+							</Button>
+						) }
 						{ isResponsesTab && <ExportResponsesButton /> }
 						{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
 						{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
