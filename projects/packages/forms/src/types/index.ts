@@ -44,7 +44,7 @@ export interface Integration extends IntegrationMetadata {
 	/** Additional details about the integration. */
 	details: Record< string, unknown >;
 	/** Whether this is partial data (metadata only) or full status data. */
-	__isPartialData?: boolean;
+	__isPartial?: boolean;
 }
 
 /**

@@ -38,7 +38,7 @@ const fetchIntegrationsMetadata =
 			version: null,
 			settingsUrl: null,
 			details: {},
-			__isPartialData: true, // Flag to indicate this is metadata-only
+			__isPartial: true, // Flag to indicate this is metadata-only
 		} ) );
 
 		// Dispatch partial data immediately for fast UI rendering

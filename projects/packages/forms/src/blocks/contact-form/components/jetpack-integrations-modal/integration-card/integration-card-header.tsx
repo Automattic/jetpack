@@ -45,17 +45,15 @@ const IntegrationCardHeader = ( {
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
 		setupBadge,
-		__isPartialData,
+		__isPartial,
 	} = cardData;
 
-	// Hide status badges/actions when we only have partial data (metadata only)
-	const hasFullData = ! __isPartialData;
-	const showPluginAction = hasFullData && type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = hasFullData && ( isConnected || ( isActive && ! needsConnection ) );
+	const showPluginAction = ! __isPartial && type === 'plugin' && ( ! isInstalled || ! isActive );
+	const showConnectedBadge = ! __isPartial && ( isConnected || ( isActive && ! needsConnection ) );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = hasFullData && ! showPluginAction && ! isConnected && needsConnection;
+	const showPendingBadge = ! __isPartial && ! showPluginAction && ! isConnected && needsConnection;
 
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
@@ -113,7 +111,7 @@ const IntegrationCardHeader = ( {
 							<span className="integration-card__description">{ description }</span>
 						) }
 						{ /* Show skeleton badge while loading status */ }
-						{ __isPartialData && (
+						{ __isPartial && (
 							<Animate type="loading">
 								{ ( { className } ) => (
 									<Badge
