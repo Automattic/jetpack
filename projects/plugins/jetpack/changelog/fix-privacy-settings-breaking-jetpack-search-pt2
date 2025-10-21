@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Instant Search: Use event as fallback to Search input React ref.
