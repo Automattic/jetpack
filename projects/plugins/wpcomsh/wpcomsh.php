@@ -26,9 +26,6 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
 
-// Sitemaps sticker functionality for Jetpack Sitemaps
-require_once __DIR__ . '/sitemaps/class-wpcomsh-sitemap-sticker-handlers.php';
-
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';
