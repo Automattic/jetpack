@@ -71,7 +71,7 @@ class Help_Center {
 			// Limit entries to 50 to prevent spamming entries in the router history.
 			if ( count( $entries ) > 50 ) {
 				// Keep only the last 49 entries and add the root entry at the beginning.
-				$entries = array_slice( $entries, -4 );
+				$entries = array_slice( $entries, -49 );
 				// Keep the start at root so the back button always works.
 				array_unshift(
 					$entries,
