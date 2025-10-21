@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix Sync test that broke on WP 6.9 beta.
+
+

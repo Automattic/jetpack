@@ -22,11 +22,13 @@ import './style.scss';
 import type { SelectIntegrations, IntegrationsDispatch } from '../../store/integrations';
 import type { Integration } from '../../types';
 
+const EMPTY_ARRAY: Integration[] = [];
+
 const Integrations = () => {
 	const { integrations } = useSelect( ( select: SelectIntegrations ) => {
 		const store = select( INTEGRATIONS_STORE );
 		return {
-			integrations: store.getIntegrations() || [],
+			integrations: store.getIntegrations() ?? EMPTY_ARRAY,
 		};
 	}, [] ) as { integrations: Integration[] };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;

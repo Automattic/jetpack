@@ -794,8 +794,14 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			if ( isset( $post_type_object->revisions_rest_controller_class ) ) {
 				$post_type_object->revisions_rest_controller_class = false;
 			}
+			if ( isset( $post_type_object->revisions_rest_controller ) ) {
+				$post_type_object->revisions_rest_controller = null;
+			}
 			if ( isset( $post_type_object->autosave_rest_controller_class ) ) {
 				$post_type_object->autosave_rest_controller_class = false;
+			}
+			if ( isset( $post_type_object->autosave_rest_controller ) ) {
+				$post_type_object->autosave_rest_controller = null;
 			}
 			if ( isset( $post_type_object->late_route_registration ) ) {
 				$post_type_object->late_route_registration = false;

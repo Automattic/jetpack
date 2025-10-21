@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.44.0] - 2025-10-21
+### Changed
+- Improve legends toggling. [#45545]
+
 ## [0.43.0] - 2025-10-20
 ### Added
 - Add legend interactivity. [#45506]
@@ -519,6 +523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.44.0]: https://github.com/Automattic/charts/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/charts/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/Automattic/charts/compare/v0.41.1...v0.42.0
 [0.41.1]: https://github.com/Automattic/charts/compare/v0.41.0...v0.41.1

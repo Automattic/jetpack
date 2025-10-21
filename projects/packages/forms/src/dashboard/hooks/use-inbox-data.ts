@@ -131,7 +131,7 @@ export default function useInboxData(): UseInboxDataReturn {
 		totalPages,
 	} = useEntityRecords( 'postType', 'feedback', queryWithInvalidIds );
 
-	const records = useSelect(
+	const editedRecords = useSelect(
 		select => {
 			return ( rawRecords || [] ).map( record => {
 				// Get the edited version of this record if it exists
@@ -140,26 +140,33 @@ export default function useInboxData(): UseInboxDataReturn {
 					'feedback',
 					( record as FormResponse ).id
 				);
-				return {
-					...( ( editedRecord || record ) as FormResponse ),
-					fields: Object.entries( ( record as FormResponse ).fields || {} ).reduce(
-						( accumulator, [ key, value ] ) => {
-							let _key = formatFieldName( key );
-							let counter = 2;
-							while ( accumulator[ _key ] ) {
-								_key = `${ formatFieldName( key ) } (${ counter })`;
-								counter++;
-							}
-							accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
-							return accumulator;
-						},
-						{}
-					),
-				};
-			} ) as FormResponse[];
+				return editedRecord || record;
+			} );
 		},
 		[ rawRecords ]
 	);
+
+	const records = useMemo( () => {
+		return editedRecords.map( record => {
+			const formResponse = record as FormResponse;
+			return {
+				...formResponse,
+				fields: Object.entries( formResponse.fields || {} ).reduce(
+					( accumulator, [ key, value ] ) => {
+						let _key = formatFieldName( key );
+						let counter = 2;
+						while ( accumulator[ _key ] ) {
+							_key = `${ formatFieldName( key ) } (${ counter })`;
+							counter++;
+						}
+						accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
+						return accumulator;
+					},
+					{}
+				),
+			};
+		} ) as FormResponse[];
+	}, [ editedRecords ] );
 
 	// Prepare query params for counts resolver
 	const countsQueryParams = useMemo( () => {
