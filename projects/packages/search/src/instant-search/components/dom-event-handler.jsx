@@ -122,12 +122,19 @@ export default class DomEventHandler extends Component {
 	};
 
 	handleInput = debounce( event => {
-		// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.target.value,
-		// so we try event.currentTarget first, then event.target as fallback. Use optional chaining to handle null currentTarget.
-		let inputValue = event.currentTarget?.value ?? event.target?.value;
+		// Handle case where flush is called without an event (e.g., from handleSubmit)
+		// or where React synthetic events have been nullified
+		let inputValue;
 
-		// If both event properties are unavailable, try reading directly from the DOM
-		if ( inputValue === undefined || inputValue === null ) {
+		if ( event?.currentTarget?.value !== undefined && event?.currentTarget?.value !== null ) {
+			// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.target.value,
+			// so we try event.currentTarget first
+			inputValue = event.currentTarget.value;
+		} else if ( event?.target?.value !== undefined && event?.target?.value !== null ) {
+			// Fallback to event.target
+			inputValue = event.target.value;
+		} else {
+			// If event is unavailable or nullified, read directly from the DOM
 			const input = document.querySelector( this.props.themeOptions.searchInputSelector );
 			inputValue = input?.value;
 			// If we still can't get a value, skip processing
@@ -138,7 +145,7 @@ export default class DomEventHandler extends Component {
 
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
 		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
-		if ( event.inputType?.includes( 'format' ) || inputValue === '' ) {
+		if ( event?.inputType?.includes( 'format' ) || inputValue === '' ) {
 			return;
 		}
 
@@ -181,7 +188,9 @@ export default class DomEventHandler extends Component {
 
 	handleSubmit = event => {
 		event.preventDefault();
-		this.handleInput.flush();
+
+		// Cancel any pending debounced input handler since we're handling the submit directly
+		this.handleInput.cancel();
 
 		// Always read and set the current input value on form submission to ensure
 		// the search query is up-to-date, regardless of overlay visibility.
