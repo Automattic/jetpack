@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Temporarily disable test that broke on WP 6.9 beta.
+Comment: Fix Sync test that broke on WP 6.9 beta.
 
 
