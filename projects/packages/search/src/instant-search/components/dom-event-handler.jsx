@@ -124,12 +124,16 @@ export default class DomEventHandler extends Component {
 	handleInput = debounce( event => {
 		// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.target.value,
 		// so we try event.currentTarget first, then event.target as fallback. Use optional chaining to handle null currentTarget.
-		const inputValue = event.currentTarget?.value ?? event.target?.value;
+		let inputValue = event.currentTarget?.value ?? event.target?.value;
 
-		// If both event properties are unavailable (shouldn't happen in normal conditions),
-		// skip processing to avoid incorrect empty string behavior
+		// If both event properties are unavailable, try reading directly from the DOM
 		if ( inputValue === undefined || inputValue === null ) {
-			return;
+			const input = document.querySelector( this.props.themeOptions.searchInputSelector );
+			inputValue = input?.value;
+			// If we still can't get a value, skip processing
+			if ( inputValue === undefined || inputValue === null ) {
+				return;
+			}
 		}
 
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
@@ -179,13 +183,17 @@ export default class DomEventHandler extends Component {
 		event.preventDefault();
 		this.handleInput.flush();
 
-		// handleInput didn't respawn the overlay. Do it manually -- form submission must spawn an overlay.
+		// Always read and set the current input value on form submission to ensure
+		// the search query is up-to-date, regardless of overlay visibility.
+		const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )?.value;
+
+		// Don't do a falsy check; empty string is an allowed value.
+		if ( typeof value === 'string' ) {
+			this.props.setSearchQuery( value );
+		}
+
+		// Show results if not already visible
 		if ( ! this.props.isVisible ) {
-			const value = event.target.querySelector(
-				this.props.themeOptions.searchInputSelector
-			)?.value;
-			// Don't do a falsy check; empty string is an allowed value.
-			typeof value === 'string' && this.props.setSearchQuery( value );
 			this.props.showResults();
 		}
 	};
