@@ -7,6 +7,14 @@ import type { IntegrationsAction } from './types';
 import type { Integration, IntegrationMetadata } from '../../types';
 
 let hasLoadedMeta = false;
+
+/**
+ * Resets the metadata loaded flag (for testing purposes).
+ */
+export const resetMetadataFlag = () => {
+	hasLoadedMeta = false;
+};
+
 /**
  * Fetches metadata for integrations (fast, preloaded endpoint).
  *

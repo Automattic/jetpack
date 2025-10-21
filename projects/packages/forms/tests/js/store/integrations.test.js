@@ -6,6 +6,7 @@ import { createRegistry } from '@wordpress/data';
 import { store, INTEGRATIONS_STORE } from '../../../src/store/integrations';
 import * as actions from '../../../src/store/integrations/actions';
 import reducer from '../../../src/store/integrations/reducer';
+import { resetMetadataFlag } from '../../../src/store/integrations/resolvers';
 import * as selectors from '../../../src/store/integrations/selectors';
 
 // Mock apiFetch
@@ -264,6 +265,7 @@ describe( 'Integrations Store', () => {
 		beforeEach( () => {
 			registry = createRegistryWithStores();
 			apiFetch.mockClear();
+			resetMetadataFlag();
 		} );
 
 		it( 'should fetch metadata first, then full integrations', async () => {
@@ -398,32 +400,28 @@ describe( 'Integrations Store', () => {
 		} );
 
 		it( 'should allow manual refresh of integrations', async () => {
-			// Initial fetch - use resolvedValue for all subsequent calls
-			apiFetch.mockResolvedValue( mockMetadataResponse );
+			// Initial fetch - metadata + full integrations
+			apiFetch
+				.mockResolvedValueOnce( mockMetadataResponse )
+				.mockResolvedValueOnce( mockFullIntegrationsResponse );
 
 			registry.select( INTEGRATIONS_STORE ).getIntegrations();
 
-			await new Promise( resolve => setTimeout( resolve, 10 ) );
+			await new Promise( resolve => setTimeout( resolve, 50 ) );
 
 			// Clear mock to start fresh
 			apiFetch.mockClear();
 
-			// Refresh with updated data
+			// Refresh with updated data - should only call full integrations endpoint
 			const updatedIntegrations = [ { ...mockFullIntegrationsResponse[ 0 ], isActive: false } ];
-			apiFetch
-				.mockResolvedValueOnce( mockMetadataResponse )
-				.mockResolvedValueOnce( updatedIntegrations );
+			apiFetch.mockResolvedValueOnce( updatedIntegrations );
 
 			registry.dispatch( INTEGRATIONS_STORE ).refreshIntegrations();
 
-			await new Promise( resolve => setTimeout( resolve, 10 ) );
-			await new Promise( resolve => setTimeout( resolve, 10 ) );
+			await new Promise( resolve => setTimeout( resolve, 50 ) );
 
-			// Should have made two calls for refresh
-			expect( apiFetch ).toHaveBeenCalledTimes( 2 );
-			expect( apiFetch ).toHaveBeenCalledWith( {
-				path: '/wp/v2/feedback/integrations-metadata',
-			} );
+			// Should have made only 1 call for refresh (metadata is cached via hasLoadedMeta flag)
+			expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 			expect( apiFetch ).toHaveBeenCalledWith( {
 				path: '/wp/v2/feedback/integrations?version=2',
 			} );
