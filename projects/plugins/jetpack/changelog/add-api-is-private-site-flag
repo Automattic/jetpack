@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+JSON API: Add 'is_private_site' flag for '/sites/%s' endpoint.

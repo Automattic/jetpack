@@ -64,7 +64,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'icon'                        => '(array) An array of icon formats for the site',
 		'logo'                        => '(array) The site logo, set in the Customizer',
 		'visible'                     => '(bool) If this site is visible in the user\'s site list',
-		'is_private'                  => '(bool) If the site is a private site or not',
+		'is_private'                  => '(bool) Deprecated. Use is_private_site instead.',
+		'is_private_site'             => '(bool) If the site is a private site or not (relies on the Atomic privacy model).',
 		'is_coming_soon'              => '(bool) If the site is marked as "coming soon" or not',
 		'single_user_site'            => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'                      => '(bool) If the site is a VIP site or not.',
@@ -122,6 +123,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo',
 		'visible',
 		'is_private',
+		'is_private_site',
 		'is_coming_soon',
 		'is_following',
 		'organization_id',
@@ -502,6 +504,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// fall through is intentional.
 			case 'is_private':
 				$response[ $key ] = $this->site->is_private();
+				break;
+			case 'is_private_site':
+				// Temporary compatibility fix, to be removed once `is_private_site()` is deployed on both Jetpack and WPCOM sides.
+				$response[ $key ] = method_exists( $this->site, 'is_private_site' ) ? $this->site->is_private_site() : $this->site->is_private();
 				break;
 			case 'is_coming_soon':
 				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php.
@@ -1030,6 +1036,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->is_vip );
 			unset( $response->single_user_site );
 			unset( $response->is_private );
+			unset( $response->is_private_site );
 			unset( $response->is_coming_soon );
 			unset( $response->capabilities );
 			unset( $response->lang );

@@ -353,11 +353,25 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	/**
 	 * Return site's privacy status.
+	 * The method and the `is_private` property are being phased out, use `is_private_site()` instead.
 	 *
 	 * @return bool  Is site private?
 	 */
 	public function is_private() {
 		return (int) $this->get_atomic_cloud_site_option( 'blog_public' ) === -1;
+	}
+
+	/**
+	 * Return site's privacy status using the Atomic privacy model.
+	 *
+	 * @return bool  Is site private?
+	 */
+	public function is_private_site() {
+		if ( ( new Host() )->is_woa_site() ) {
+			return defined( 'AT_PRIVACY_MODEL' ) && AT_PRIVACY_MODEL === 'wp_uploads';
+		}
+
+		return false;
 	}
 
 	/**
