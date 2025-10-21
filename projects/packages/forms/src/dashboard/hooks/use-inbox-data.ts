@@ -148,9 +148,10 @@ export default function useInboxData(): UseInboxDataReturn {
 
 	const records = useMemo( () => {
 		return editedRecords.map( record => {
+			const formResponse = record as FormResponse;
 			return {
-				...( record as FormResponse ),
-				fields: Object.entries( ( record as FormResponse ).fields || {} ).reduce(
+				...formResponse,
+				fields: Object.entries( formResponse.fields || {} ).reduce(
 					( accumulator, [ key, value ] ) => {
 						let _key = formatFieldName( key );
 						let counter = 2;
