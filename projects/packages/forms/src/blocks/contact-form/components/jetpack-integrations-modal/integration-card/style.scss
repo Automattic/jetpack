@@ -78,12 +78,17 @@
 
 	&__plugin-badge,
 	&__connected-badge,
-	&__setup-badge {
+	&__setup-badge,
+	&__loading-badge {
 		order: 2;
 
 		@media (max-width: 782px) {
 			order: 3;
 		}
+	}
+
+	&__loading-badge {
+		border-radius: 4px;
 	}
 
 	&__description {

@@ -43,6 +43,8 @@ export interface Integration extends IntegrationMetadata {
 	settingsUrl?: string | null;
 	/** Additional details about the integration. */
 	details: Record< string, unknown >;
+	/** Whether this is partial data (metadata only) or full status data. */
+	__isPartialData?: boolean;
 }
 
 /**

@@ -36,6 +36,7 @@ export const getIntegrations =
 				version: null,
 				settingsUrl: null,
 				details: {},
+				__isPartialData: true, // Flag to indicate this is metadata-only
 			} ) );
 
 			// Dispatch partial data immediately for fast UI rendering

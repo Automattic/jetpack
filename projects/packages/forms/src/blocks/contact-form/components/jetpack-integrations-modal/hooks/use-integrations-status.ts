@@ -53,6 +53,7 @@ export const useIntegrationsStatus = (): IntegrationsStatusReturn => {
 				version: null,
 				settingsUrl: null,
 				details: {},
+				__isPartialData: true, // Flag to indicate this is metadata-only
 			} ) );
 
 			// Update state immediately with metadata

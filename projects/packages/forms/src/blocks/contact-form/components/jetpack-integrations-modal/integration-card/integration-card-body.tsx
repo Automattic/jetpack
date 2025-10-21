@@ -21,14 +21,24 @@ const IntegrationCardBody = ( {
 		return null;
 	}
 
-	const { notInstalledMessage, notActivatedMessage, isInstalled, isActive, isLoading, type } =
-		cardData;
+	const {
+		notInstalledMessage,
+		notActivatedMessage,
+		isInstalled,
+		isActive,
+		isLoading,
+		type,
+		__isPartialData,
+	} = cardData;
 
 	const isPlugin = type === 'plugin';
 	const isService = type === 'service';
-	const showPluginInstallMessage = isPlugin && ! isInstalled;
-	const showPluginActivateMessage = isPlugin && isInstalled && ! isActive;
-	const showContent = ( isPlugin && isInstalled && isActive ) || isService;
+	const hasFullData = ! __isPartialData;
+
+	// Only show status messages when we have full data
+	const showPluginInstallMessage = hasFullData && isPlugin && ! isInstalled;
+	const showPluginActivateMessage = hasFullData && isPlugin && isInstalled && ! isActive;
+	const showContent = hasFullData && ( ( isPlugin && isInstalled && isActive ) || isService );
 
 	if ( isLoading ) {
 		return (

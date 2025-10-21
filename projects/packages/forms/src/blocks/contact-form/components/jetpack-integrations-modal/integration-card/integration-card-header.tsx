@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
@@ -44,13 +45,17 @@ const IntegrationCardHeader = ( {
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
 		setupBadge,
+		__isPartialData,
 	} = cardData;
-	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = isConnected || ( isActive && ! needsConnection );
+
+	// Hide status badges/actions when we only have partial data (metadata only)
+	const hasFullData = ! __isPartialData;
+	const showPluginAction = hasFullData && type === 'plugin' && ( ! isInstalled || ! isActive );
+	const showConnectedBadge = hasFullData && ( isConnected || ( isActive && ! needsConnection ) );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
+	const showPendingBadge = hasFullData && ! showPluginAction && ! isConnected && needsConnection;
 
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
@@ -106,6 +111,14 @@ const IntegrationCardHeader = ( {
 						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
+						) }
+						{ /* Show skeleton badge while loading status */ }
+						{ __isPartialData && (
+							<LoadingPlaceholder
+								width={ 80 }
+								height={ 22 }
+								className="integration-card__loading-badge"
+							/>
 						) }
 						{ showPluginAction && (
 							<Badge
