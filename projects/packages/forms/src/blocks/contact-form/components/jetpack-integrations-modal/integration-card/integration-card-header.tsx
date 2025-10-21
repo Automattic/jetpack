@@ -114,9 +114,9 @@ const IntegrationCardHeader = ( {
 						{ __isPartial && (
 							<Animate type="loading">
 								{ ( { className } ) => (
-									<Badge
-										className={ `integration-card__plugin-badge ${ className ?? '' }`.trim() }
-									></Badge>
+									<Badge className={ `integration-card__plugin-badge ${ className ?? '' }`.trim() }>
+										{ ' ' /* intentionally left blank */ }
+									</Badge>
 								) }
 							</Animate>
 						) }
