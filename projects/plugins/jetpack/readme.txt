@@ -326,26 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-a.3 - 2025-10-20
+### 15.2-a.5 - 2025-10-21
 #### Enhancements
-- Forms: Update "Action after submit" sidebar section.
-- Sharing Buttons block: Update Reddit logo to match updated design.
-- Sitemaps: Use XMLWriter by default for more performant sitemap generation.
-
-#### Improved compatibility
-- Custom post types: Ensure features remain available when theme support is added.
-- Forms: Remove Creative Mail promotion.
+- Forms: merged email and push notification settings panels.
 
 #### Bug fixes
-- Forms: Send emails to the author of the form only if they are able to edit it.
-- Forms: Prevent the required text from being removed from required fields when creating a form from a pattern.
-- Forms: Store the feedback source info with more context.
-- Maps Block: Fix compatibility with MapKit JS version 5.80.0+.
-- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin.
-- Podcast feed: Prevent fatals when content is empty.
-- Related Posts: Prevent PHP errors when settings are malformed.
-- Slideshow block: Ensure image size selection is correctly reflected in editor at all times.
-- Stats: Prevent fatal when chart response is invalid.
+- Forms: Fix a bug where ther responsive modal is not able to be closed.
+- Forms: Reset the selection on tab switch in dashboard.
+- Forms: Stop preloading the integrations endpoint.
+- Instant Search: Handle browser privacy settings stripping out the search query value.
 
 --------
 
