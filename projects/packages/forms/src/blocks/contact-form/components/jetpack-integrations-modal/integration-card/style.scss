@@ -78,18 +78,15 @@
 
 	&__plugin-badge,
 	&__connected-badge,
-	&__setup-badge,
-	&__loading-badge {
+	&__setup-badge {
 		order: 2;
+		min-width: 60px;
 
 		@media (max-width: 782px) {
 			order: 3;
 		}
 	}
 
-	&__loading-badge {
-		border-radius: 4px;
-	}
 
 	&__description {
 		color: var(--jp-gray-50);

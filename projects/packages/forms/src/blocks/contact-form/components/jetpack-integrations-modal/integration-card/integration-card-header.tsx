@@ -2,13 +2,13 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
 import {
+	Animate,
 	CardHeader,
 	Icon,
 	ToggleControl,
@@ -114,11 +114,13 @@ const IntegrationCardHeader = ( {
 						) }
 						{ /* Show skeleton badge while loading status */ }
 						{ __isPartialData && (
-							<LoadingPlaceholder
-								width={ 80 }
-								height={ 22 }
-								className="integration-card__loading-badge"
-							/>
+							<Animate type="loading">
+								{ ( { className } ) => (
+									<Badge
+										className={ `integration-card__plugin-badge ${ className ?? '' }`.trim() }
+									></Badge>
+								) }
+							</Animate>
 						) }
 						{ showPluginAction && (
 							<Badge
