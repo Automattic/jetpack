@@ -178,12 +178,14 @@ export default function InboxView() {
 
 	const onChangeSelection = useCallback(
 		items => {
-			// Set the side panel item only when we are not on mobile.
+			// Set the side panel item only when we are not on mobile and exactly one item is selected.
 			if ( ! isMobile ) {
-				setSidePanelItem(
-					!! items?.length &&
-						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
-				);
+				if ( items?.length === 1 ) {
+					setSidePanelItem( records?.find( record => getItemId( record ) === items[ 0 ] ) );
+				} else {
+					// Multiple or zero selections - clear sidebar
+					setSidePanelItem( undefined );
+				}
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
@@ -203,13 +205,10 @@ export default function InboxView() {
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.
 	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! records && !! selection.length ) {
-		// Find the last (most recently selected) valid selection instead of the first
-		const lastValidSelection = selection
-			.slice()
-			.reverse()
-			.find( id => records.some( record => getItemId( record ) === id ) );
-		const recordToShow = records?.find( record => getItemId( record ) === lastValidSelection );
+	if ( ! isMobile && !! records && selection.length === 1 ) {
+		// Only show sidebar when exactly one item is selected
+		const singleSelectedId = selection[ 0 ];
+		const recordToShow = records?.find( record => getItemId( record ) === singleSelectedId );
 		if ( ! sidePanelItem && recordToShow ) {
 			setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
@@ -231,6 +230,11 @@ export default function InboxView() {
 		) {
 			// Set side panel item when selecting a different item
 			setSidePanelItem( recordToShow );
+		}
+	} else if ( ! isMobile && !! records && selection.length > 1 ) {
+		// Multiple selections - hide sidebar
+		if ( sidePanelItem ) {
+			setSidePanelItem( undefined );
 		}
 	}
 	const paginationInfo = useMemo(
