@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Sitemaps: use XMLWriter by default for more performant sitemap generation

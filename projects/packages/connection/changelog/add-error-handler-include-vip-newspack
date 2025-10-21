@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added newspack and vip check to should_allow_error_filtering.

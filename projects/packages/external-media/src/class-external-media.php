@@ -18,7 +18,7 @@ use Jetpack_Options;
  * Class External_Media
  */
 class External_Media {
-	const PACKAGE_VERSION = '0.5.6';
+	const PACKAGE_VERSION = '0.5.7';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
@@ -33,13 +33,9 @@ class External_Media {
 			require_once __DIR__ . '/features/admin/external-media-import.php';
 		}
 
-		if ( is_admin() ) {
-			// This loads assets in the editor iframe (block content) context
-			add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
-		} else {
-			// This loads assets specific to the editing interface like the block toolbar, as well as a front-end fallback.
-			add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
-		}
+		// @todo this current approach results in a console warning in the editor related to adding the css to the iframe incorrectly.
+		// It has been temporarily added back to prevent performance issues in the site editor. See pdWQjU-1rA-p2 for more details.
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 
 		External_Connections::add_settings_for_service(
 			'media',

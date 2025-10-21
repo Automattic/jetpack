@@ -365,7 +365,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	legendItemClassName?: string;
 	/**
 	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for LineChart and BarChart. Requires chartId and GlobalChartsProvider.
+	 * Currently only supported for LineChart. Requires chartId and GlobalChartsProvider.
 	 */
 	legendInteractive?: boolean;
 	/**

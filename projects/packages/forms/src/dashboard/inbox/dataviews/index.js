@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
@@ -134,7 +135,8 @@ export default function InboxView() {
 		setCurrentQuery( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
 
-	const [ selection, setSelection ] = useState( selectedResponses?.split( ',' ) || EMPTY_ARRAY );
+	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
+
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
 	// do not exist at all or ids that are not in the current data set.
@@ -142,12 +144,13 @@ export default function InboxView() {
 		const validSelectedIds = ( selection || [] ).filter( id =>
 			records?.some( record => getItemId( record ) === id )
 		);
+
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
+
 	const [ sidePanelItem, setSidePanelItem ] = useState();
 	const onChangeSelection = useCallback(
 		items => {
-			setSelection( items );
 			// Set the side panel item only when we are not on mobile.
 			if ( ! isMobile ) {
 				setSidePanelItem(
@@ -157,8 +160,18 @@ export default function InboxView() {
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( items.length ) {
-					_searchParams.set( 'r', items.join( ',' ) );
+				const currentURLSelection = _searchParams.get( 'r' )?.split( ',' ) || [];
+
+				// Filter out IDs from the current URL selection that are either already selected in the current view
+				// or already present in the current records, to avoid duplication when merging selections across pages.
+				const currentSelection = currentURLSelection.filter(
+					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
+				);
+
+				// merge items with the current URL
+				const mergedItems = [ ...new Set( [ ...currentSelection, ...items ] ) ];
+				if ( mergedItems.length ) {
+					_searchParams.set( 'r', mergedItems.join( ',' ) );
 				} else {
 					_searchParams.delete( 'r' );
 				}
@@ -230,6 +243,14 @@ export default function InboxView() {
 								>
 									●
 								</span>
+							) }
+							{ item.author_email && (
+								<Gravatar
+									email={ item.author_email }
+									displayName={ authorInfo }
+									key={ decodeEntities( item.author_email ) }
+									size={ 32 }
+								/>
 							) }
 							{ wrapperUnread( item.is_unread, authorInfo ) }
 						</>
@@ -374,7 +395,7 @@ export default function InboxView() {
 				/>
 			</div>
 			<SingleResponseView
-				sidePanelItem={ sidePanelItem }
+				sidePanelItem={ selection.length && sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }

@@ -9,12 +9,16 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Classic Theme Helper Loader.
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.13.22';
+	const PACKAGE_VERSION = '0.14.0';
 
 	/**
 	 * Modules to include.
