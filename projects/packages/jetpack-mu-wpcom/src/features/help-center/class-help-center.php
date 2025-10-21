@@ -60,8 +60,8 @@ class Help_Center {
 	/**
 	 * Update the calypso preferences.
 	 *
-	 * @param stdClass $preferences The preferences.
-	 * @return stdClass The preferences.
+	 * @param \stdClass $preferences The preferences.
+	 * @return \stdClass The preferences.
 	 */
 	public function calypso_preferences_update( $preferences ) {
 		if ( isset( $preferences->help_center_router_history ) ) {
