@@ -1156,7 +1156,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						interactive={ true }
+						legendInteractive={ true }
 						chartId="test-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1171,14 +1171,14 @@ describe( 'LineChart', () => {
 			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
 		} );
 
-		it( 'does not filter series when interactive is false', () => {
+		it( 'does not filter series when legendInteractive is false', () => {
 			render(
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						interactive={ false }
+						legendInteractive={ false }
 						chartId="test-non-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1189,14 +1189,14 @@ describe( 'LineChart', () => {
 			expect( buttons ).toHaveLength( 0 );
 		} );
 
-		it( 'shows all series when chartId is missing even if interactive is true', () => {
+		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
 			render(
 				<GlobalChartsProvider>
 					<LineChartUnresponsive
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						interactive={ true }
+						legendInteractive={ true }
 						// No chartId provided
 					/>
 				</GlobalChartsProvider>

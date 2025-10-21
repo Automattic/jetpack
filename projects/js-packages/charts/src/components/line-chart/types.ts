@@ -41,7 +41,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
-	interactive?: boolean;
+	legendInteractive?: boolean;
 	children?: ReactNode;
 }
 

@@ -264,7 +264,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
-			interactive = false,
+			legendInteractive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -297,15 +297,22 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const dataSorted = useChartDataTransform( data );
 		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
-		// Filter out hidden series when using interactive legends, preserving original index
-		const visibleData = useMemo( () => {
-			if ( ! chartId || ! interactive ) {
-				return dataSorted.map( ( series, index ) => ( { series, originalIndex: index } ) );
+		// Add visibility information to series when using interactive legends
+		const seriesWithVisibility = useMemo( () => {
+			if ( ! chartId || ! legendInteractive ) {
+				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
 			}
-			return dataSorted
-				.map( ( series, index ) => ( { series, originalIndex: index } ) )
-				.filter( ( { series } ) => isSeriesVisible( chartId, series.label ) );
-		}, [ dataSorted, chartId, isSeriesVisible, interactive ] );
+			return dataSorted.map( ( series, index ) => ( {
+				series,
+				index,
+				isVisible: isSeriesVisible( chartId, series.label ),
+			} ) );
+		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+
+		// Check if all series are hidden
+		const allSeriesHidden = useMemo( () => {
+			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+		}, [ seriesWithVisibility ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -473,10 +480,31 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.x } />
 							<Axis { ...chartOptions.axis.y } />
 
-							{ visibleData.map( ( { series: seriesData, originalIndex } ) => {
+							{ allSeriesHidden ? (
+								<text
+									x={ width / 2 }
+									y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+									textAnchor="middle"
+									fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+									fontSize="14"
+									fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+								>
+									{ __(
+										'All series are hidden. Click legend items to show data.',
+										'jetpack-charts'
+									) }
+								</text>
+							) : null }
+
+							{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+								// Skip rendering invisible series
+								if ( ! isVisible ) {
+									return null;
+								}
+
 								const { color, lineStyles, glyph } = getElementStyles( {
 									data: seriesData,
-									index: originalIndex,
+									index,
 								} );
 
 								const lineProps = {
@@ -485,10 +513,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								};
 
 								return (
-									<g key={ seriesData?.label || originalIndex }>
+									<g key={ seriesData?.label || index }>
 										{ withGradientFill && (
 											<LinearGradient
-												id={ `area-gradient-${ chartId }-${ originalIndex + 1 }` }
+												id={ `area-gradient-${ chartId }-${ index + 1 }` }
 												from={ color }
 												fromOpacity={ 0.4 }
 												toOpacity={ 0.1 }
@@ -502,7 +530,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 														offset={ stop.offset }
 														stopColor={ stop.color || color }
 														stopOpacity={ stop.opacity ?? 1 }
-														data-testid={ `line-gradient-stop-${ chartId }-${ originalIndex }-${ stopIndex }` }
+														data-testid={ `line-gradient-stop-${ chartId }-${ index }-${ stopIndex }` }
 													/>
 												) ) }
 											</LinearGradient>
@@ -514,7 +542,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											{ ...accessors }
 											fill={
 												withGradientFill
-													? `url(#area-gradient-${ chartId }-${ originalIndex + 1 })`
+													? `url(#area-gradient-${ chartId }-${ index + 1 })`
 													: 'transparent'
 											}
 											renderLine={ true }
@@ -524,7 +552,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withStartGlyphs && (
 											<LineChartGlyph
-												index={ originalIndex }
+												index={ index }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -536,7 +564,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 										{ withEndGlyphs && (
 											<LineChartGlyph
-												index={ originalIndex }
+												index={ index }
 												data={ seriesData }
 												color={ color }
 												renderGlyph={ glyph ?? renderGlyph }
@@ -588,7 +616,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
-							interactive={ interactive }
+							interactive={ legendInteractive }
 							ref={ legendRef }
 						/>
 					) }

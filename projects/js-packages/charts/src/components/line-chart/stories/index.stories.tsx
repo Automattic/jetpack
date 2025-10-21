@@ -123,7 +123,7 @@ WithInteractiveLegend.args = {
 	...lineChartStoryArgs,
 	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	interactive: true,
+	legendInteractive: true,
 };
 
 WithInteractiveLegend.parameters = {
