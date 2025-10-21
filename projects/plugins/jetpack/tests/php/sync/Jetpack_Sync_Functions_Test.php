@@ -782,10 +782,6 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_get_post_types_method() {
-		// WP 6.9 beta broke this test, so disabling temporarily until a proper fix is in place.
-		// The commit that broke things is this:
-		// https://github.com/WordPress/WordPress/commit/82c917225c
-		$this->markTestSkipped( 'is temporarily skipped' );
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			$this->markTestSkipped( 'is temporarily skipped' );
 		}
