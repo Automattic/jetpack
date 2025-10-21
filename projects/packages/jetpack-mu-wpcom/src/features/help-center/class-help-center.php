@@ -64,24 +64,31 @@ class Help_Center {
 	 * @return \stdClass The preferences.
 	 */
 	public function calypso_preferences_update( $preferences ) {
-		$entries = &$preferences->help_center_router_history['entries'] ?? null;
-		$index   = &$preferences->help_center_router_history['index'] ?? null;
-		// Limit entries to 50 to prevent spamming entries in the router history.
-		if ( $entries && count( $entries ) > 50 ) {
-			// Keep only the last 49 entries and add the root entry at the beginning.
-			$entries = array_slice( $entries, -49 );
-			// Keep the start at root so the back button always works.
-			array_unshift(
-				$entries,
-				array(
-					'pathname' => '/',
-					'search'   => '',
-					'hash'     => '',
-					'key'      => 'default',
-					'state'    => null,
-				)
-			);
-			$index = 49;
+		if ( isset( $preferences->help_center_router_history ) &&
+			is_array( $preferences->help_center_router_history ) &&
+			isset( $preferences->help_center_router_history['entries'] ) &&
+			is_array( $preferences->help_center_router_history['entries'] ) ) {
+
+			$history = &$preferences->help_center_router_history;
+			$entries = &$history['entries'];
+
+			// Limit entries to 50 to prevent spamming entries in the router history.
+			if ( count( $entries ) > 50 ) {
+				// Keep only the last 49 entries and add the root entry at the beginning.
+				$entries = array_slice( $entries, -49 );
+				// Keep the start at root so the back button always works.
+				array_unshift(
+					$entries,
+					array(
+						'pathname' => '/',
+						'search'   => '',
+						'hash'     => '',
+						'key'      => 'default',
+						'state'    => null,
+					)
+				);
+				$history['index'] = 49;
+			}
 		}
 		return $preferences;
 	}
