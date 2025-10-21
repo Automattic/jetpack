@@ -244,12 +244,12 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithLegend: Story = {
+export const WithInteractiveLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
 		legendInteractive: true,
-		chartId: 'bar-chart-with-legend',
+		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
 		docs: {
