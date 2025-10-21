@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Forms: remove unused useFormsConfig hook.

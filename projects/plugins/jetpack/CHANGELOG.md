@@ -2,6 +2,19 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.2-a.5 - 2025-10-21
+### Enhancements
+- Forms: merged email and push notification settings panels. [#45548]
+
+### Bug fixes
+- Forms: Fix a bug where ther responsive modal is not able to be closed. [#45541] [#45557]
+- Forms: Reset the selection on tab switch in dashboard. [#45543]
+- Forms: Stop preloading the integrations endpoint. [#45558]
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Forms: Remove unused `useFormsConfig` hook. [#45554]
+
 ## 15.2-a.3 - 2025-10-20
 ### Enhancements
 - Forms: Update "Action after submit" sidebar section. [#45502]
