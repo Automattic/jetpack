@@ -2196,6 +2196,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$field .= '</div></div>';
 
+		$field .= $this->get_error_div( $id, 'image-select' );
+
 		$field .= '</fieldset>';
 
 		$field .= '</div>';
