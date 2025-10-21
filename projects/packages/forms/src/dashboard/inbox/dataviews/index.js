@@ -250,6 +250,7 @@ export default function InboxView() {
 									displayName={ authorInfo }
 									key={ decodeEntities( item.author_email ) }
 									size={ 32 }
+									useHovercard={ false }
 								/>
 							) }
 							{ wrapperUnread( item.is_unread, authorInfo ) }
