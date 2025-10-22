@@ -434,7 +434,7 @@ const PieChartInternal = ( {
 						) }
 
 						{ /* Render SVG children (like Group, Text) inside the SVG */ }
-						{ svgChildren }
+						{ ! allSegmentsHidden && svgChildren }
 					</Group>
 				</svg>
 

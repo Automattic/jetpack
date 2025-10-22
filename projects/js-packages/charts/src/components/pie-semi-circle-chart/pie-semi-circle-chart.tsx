@@ -414,7 +414,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 								</Group>
 
 								{ /* Render SVG children from composition API */ }
-								{ svgChildren }
+								{ ! allSegmentsHidden && svgChildren }
 							</>
 						) }
 					</Group>
