@@ -943,9 +943,12 @@ function should_override_editor_with_classic_editor() {
  * @return string The update login message text.
  */
 function add_login_message( $message ) {
+	error_log('add_login_message');
 	if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// If we have something to redirect to.
 		$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		error_log($url);
+		error_log(admin_url());
 
 		// Display message only if we're redirecting to the frontend.
 		if ( strpos( $url, admin_url() ) === false ) {
