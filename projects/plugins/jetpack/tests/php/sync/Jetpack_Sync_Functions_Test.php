@@ -787,33 +787,16 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		}
 
 		global $wp_post_types;
-		$synced = Functions::get_post_types();
+
+		$synced_post_types  = Functions::get_post_types();
+		$keys_we_care_about = array_keys( Defaults::$default_post_type_attributes );
+
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
-			$post_type_object->rest_controller_class = false;
-			$post_type_object->rest_controller       = null;
-			if ( isset( $post_type_object->revisions_rest_controller_class ) ) {
-				$post_type_object->revisions_rest_controller_class = false;
-			}
-			if ( isset( $post_type_object->revisions_rest_controller ) ) {
-				$post_type_object->revisions_rest_controller = null;
-			}
-			if ( isset( $post_type_object->autosave_rest_controller_class ) ) {
-				$post_type_object->autosave_rest_controller_class = false;
-			}
-			if ( isset( $post_type_object->autosave_rest_controller ) ) {
-				$post_type_object->autosave_rest_controller = null;
-			}
-			if ( isset( $post_type_object->late_route_registration ) ) {
-				$post_type_object->late_route_registration = false;
-			}
-			if ( ! isset( $post_type_object->supports ) ) {
-				$post_type_object->supports = array();
-			}
-			$synced_post_type = Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
-			if ( isset( $synced_post_type->labels->template_name ) ) {
-				$post_type_object->labels->template_name = $synced_post_type->labels->template_name;
-			}
-			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :' . $post_type . ' not equal' );
+			$post_type_arr    = array_filter( (array) $post_type_object, fn ( $item ) => null !== $item ); // remove 'null' elements.
+			$synced_post_type = (array) $synced_post_types[ $post_type ];
+			ksort( $post_type_arr );
+			ksort( $synced_post_type );
+			$this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys( $post_type_arr, $synced_post_type, $keys_we_care_about );
 		}
 	}
 
