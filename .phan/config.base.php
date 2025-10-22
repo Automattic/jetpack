@@ -114,6 +114,7 @@ function make_phan_config( $dir, $options = array() ) {
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/lib/require-lib.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/class-wpcom-features.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/functions-wpcom-features.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-themes/themes.php";
 				}
 				break;
 			default:
