@@ -839,14 +839,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
-			$has_flex_layout = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
-
-			if ( $has_submit_button_block && ! $has_flex_layout ) {
-				// why do we have a double container here. The form element carries the class
-				// and then the container carries the same class.
-				$form_classes .= ' wp-block-jetpack-contact-form';
-			}
-
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
 				method='post'
@@ -871,10 +863,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence.
 				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
-			}
-
-			if ( $has_flex_layout ) {
-				$r = preg_replace( '/<div class="wp-block-jetpack-contact-form"/', '<div class="wp-block-jetpack-contact-form jetpack-contact-form"', $r, 1 );
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -2597,6 +2585,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// confuses the layout support process, making it place the CSS classes on the container
 		// instead of the actual block.
 		$classes = array( 'jetpack-contact-form-container' );
+
+		if ( isset( $attributes['variationName'] ) && $attributes['variationName'] === 'multistep' ) {
+			$classes[] = 'is-multistep';
+		}
 
 		$classes[] = self::get_block_alignment_class( $attributes );
 
