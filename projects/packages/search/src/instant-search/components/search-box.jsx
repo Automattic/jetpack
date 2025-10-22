@@ -41,16 +41,7 @@ const SearchBox = props => {
 						inputMode="search"
 						// IE11 will immediately fire an onChange event when the placeholder contains a unicode character.
 						// Ensure that the search application is visible before invoking the onChange callback to guard against this.
-						// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.currentTarget.value,
-						// so we read from the ref first, then fallback to event.
-						onChange={
-							props.isVisible
-								? event => {
-										const value = inputRef.current?.value ?? event.currentTarget?.value ?? '';
-										props.onChange( value );
-								  }
-								: null
-						}
+						onChange={ props.isVisible ? props.onChange : null }
 						ref={ inputRef }
 						placeholder={ __( 'Search…', 'jetpack-search-pkg' ) }
 						type="search"

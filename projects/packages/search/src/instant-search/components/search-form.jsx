@@ -6,7 +6,7 @@ const noop = event => event.preventDefault();
 
 class SearchForm extends Component {
 	onClear = () => this.props.onChangeSearch( '' );
-	onChangeSearch = value => this.props.onChangeSearch( value );
+	onChangeSearch = event => this.props.onChangeSearch( event.currentTarget.value );
 
 	render() {
 		return (
