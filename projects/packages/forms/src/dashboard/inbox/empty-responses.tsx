@@ -4,8 +4,9 @@ import {
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import useConfigValue from '../../hooks/use-config-value';
+import CreateFormButton from '../components/create-form-button';
 
-const EmptyWrapper = ( { heading = '', body = '' } ) => (
+const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
 	<VStack alignment="center" spacing="2">
 		{ heading && (
 			<Text as="h3" weight="500" size="15">
@@ -13,6 +14,7 @@ const EmptyWrapper = ( { heading = '', body = '' } ) => (
 			</Text>
 		) }
 		{ body && <Text variant="muted">{ body }</Text> }
+		{ actions && <span style={ { marginBlockStart: '16px' } }>{ actions }</span> }
 	</VStack>
 );
 
@@ -66,6 +68,7 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 				'Share your form to start collecting responses. New items will appear here.',
 				'jetpack-forms'
 			) }
+			actions={ <CreateFormButton label={ __( 'Create a new form', 'jetpack-forms' ) } /> }
 		/>
 	);
 };
