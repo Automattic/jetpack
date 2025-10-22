@@ -178,4 +178,88 @@ describe( 'PieSemiCircleChart', () => {
 			).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Interactive Legend', () => {
+		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderPieChart( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-interactive-semi-circle-chart',
+			} );
+
+			// Initially both segments should be visible
+			let segments = screen.getAllByTestId( 'pie-segment' );
+			expect( segments ).toHaveLength( 2 );
+
+			// Click first legend item to hide segment A
+			const legendItem = screen.getByRole( 'button', { name: /Segment A/i } );
+			await user.click( legendItem );
+
+			// Only one segment should remain
+			await waitFor( () => {
+				segments = screen.getAllByTestId( 'pie-segment' );
+				expect( segments ).toHaveLength( 1 );
+			} );
+
+			// Legend item should be marked as hidden
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		test( 'shows empty state when all segments are hidden', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderPieChart( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-all-hidden-semi-circle-chart',
+			} );
+
+			// Hide both segments
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+			await user.click( legendItems[ 1 ] );
+
+			// Should show empty state message
+			await waitFor( () => {
+				expect( screen.getByText( /all segments are hidden/i ) ).toBeInTheDocument();
+			} );
+
+			// Should not render any segments
+			expect( screen.queryAllByTestId( 'pie-segment' ) ).toHaveLength( 0 );
+		} );
+
+		test( 'does not filter segments when legendInteractive is false', () => {
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderPieChart( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: false,
+				chartId: 'test-non-interactive-semi-circle-chart',
+			} );
+
+			// Legend items should not be buttons
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+
+			// All segments should be visible
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			expect( segments ).toHaveLength( 2 );
+		} );
+	} );
 } );
