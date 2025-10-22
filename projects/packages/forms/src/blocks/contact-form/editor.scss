@@ -58,6 +58,10 @@
 				flex: 1 1 100%;
 			}
 
+			&.is-nowrap {
+				flex-wrap: nowrap;
+			}
+
 			.wp-block-jetpack-button {
 				align-self: flex-end;
 			}
