@@ -25,7 +25,7 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 	$theme_data           = $wpcom_themes_service->get_theme( $theme->stylesheet );
 
 	if ( $prefix !== '' ) {
-		$prefix = $prefix . '_';
+		$prefix .= '_';
 	}
 
 	$props = array();
