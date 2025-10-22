@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Atomic: Auto-adjust 'blog_public' property to match privacy model.

@@ -9,6 +9,7 @@
 namespace Private_Site;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
+use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use WP_Error;
 use WP_REST_Request;
@@ -258,6 +259,30 @@ function is_launched() {
  */
 function site_is_private() {
 	return defined( 'AT_PRIVACY_MODEL' ) && AT_PRIVACY_MODEL === 'wp_uploads';
+}
+
+/**
+ * Update blog_private option to match the site's actual privacy status.
+ * Sets it to -1 for private sites, 1 for public sites.
+ */
+function maybe_fix_private_site_option() {
+	// Privacy model only applies to WordPress.com Atomic sites.
+	if ( ! ( new Host() )->is_woa_site() ) {
+		return;
+	}
+
+	// Coming soon sites are a special case of public and private sites, so we skip them here.
+	if ( site_is_coming_soon() || site_is_public_coming_soon() ) {
+		return;
+	}
+
+	$is_private     = site_is_private();
+	$expected_value = $is_private ? -1 : 1;
+	$current_value  = (int) get_option( 'blog_public' );
+
+	if ( $current_value !== $expected_value ) {
+		update_option( 'blog_public', $expected_value );
+	}
 }
 
 /**

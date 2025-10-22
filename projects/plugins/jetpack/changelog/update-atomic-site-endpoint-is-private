@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Atomic: Modify `/sites/%s` endpoint to rely on the privacy model, and auto-adjust local 'blog_public' option to match privacy model.
