@@ -792,7 +792,13 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$keys_we_care_about = array_keys( Defaults::$default_post_type_attributes );
 
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
-			$post_type_arr    = array_filter( (array) $post_type_object, fn ( $item ) => null !== $item ); // remove 'null' elements.
+			// remove 'null' elements.
+			$post_type_arr    = array_filter(
+				(array) $post_type_object,
+				function ( $item ) {
+					return null !== $item;
+				}
+			);
 			$synced_post_type = (array) $synced_post_types[ $post_type ];
 			ksort( $post_type_arr );
 			ksort( $synced_post_type );
