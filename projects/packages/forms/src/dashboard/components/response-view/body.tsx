@@ -21,6 +21,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
+import photon from 'photon';
 /**
  * Internal dependencies
  */
@@ -265,9 +266,9 @@ const ResponseViewBody = ( {
 							</div>
 							<div className="image-select-field-images">
 								{ value.choices.map( choice => {
-									const imageSrc =
-										choice.image?.src ||
-										'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+									const imageSrc = choice.image?.src
+										? photon( choice.image.src, { width: 120, height: 120 } )
+										: 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 									return (
 										<figure
@@ -281,6 +282,7 @@ const ResponseViewBody = ( {
 													'is-empty': ! choice.image?.src,
 												} ) }
 												src={ imageSrc }
+												loading="lazy"
 												alt={ choice.selected }
 											/>
 										</figure>
