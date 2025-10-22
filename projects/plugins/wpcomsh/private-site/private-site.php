@@ -705,8 +705,11 @@ function access_denied_template_path() {
 
 	if ( site_is_coming_soon() ) {
 		return __DIR__ . '/access-denied-coming-soon-template.php';
-	} else {
+	} elseif ( is_user_logged_in() ) {
 		return __DIR__ . '/access-denied-private-site-template.php';
+	} else {
+		wp_safe_redirect( wp_login_url( set_url_scheme( original_request_url() ) ) );
+		exit( 0 );
 	}
 }
 
