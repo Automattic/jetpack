@@ -10,6 +10,41 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
+ * Get theme properties for Tracks event.
+ *
+ * @param WP_Theme $theme  Theme object.
+ * @param string   $prefix Prefix for the property keys.
+ * @return array Associative array of theme properties.
+ */
+function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
+	if ( ! function_exists( 'wpcomsh_get_wpcom_themes_service_instance' ) ) {
+		return array();
+	}
+
+	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
+	$theme_data           = $wpcom_themes_service->get_theme( $theme->stylesheet );
+
+	if ( $prefix !== '' ) {
+		$prefix = $prefix . '_';
+	}
+
+	$props = array();
+	if ( $theme_data === null ) {
+		$props[ $prefix . 'theme' ]                = $theme->get( 'Name' );
+		$props[ $prefix . 'theme_stylesheet' ]     = $theme->get_stylesheet();
+		$props[ $prefix . 'theme_tier' ]           = 'community';
+		$props[ $prefix . 'theme_is_block_theme' ] = $theme->is_block_theme();
+	} else {
+		$props[ $prefix . 'theme' ]                = $theme_data->name;
+		$props[ $prefix . 'theme_stylesheet' ]     = $theme_data->slug;
+		$props[ $prefix . 'theme_tier' ]           = $theme_data->theme_tier;
+		$props[ $prefix . 'theme_is_block_theme' ] = $theme_data->block_theme;
+	}
+
+	return $props;
+}
+
+/**
  * Record a theme switch.
  *
  * @todo There is already a theme switch event for Simple sites. It should be removed in favor of this one.
@@ -23,21 +58,13 @@ function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_the
 		return;
 	}
 
-	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
+	$old_theme_props = wpcom_themes_tracks_get_theme_props( $old_theme, 'old' );
+	$new_theme_props = wpcom_themes_tracks_get_theme_props( $new_theme, 'new' );
 
-	$old = $wpcom_themes_service->get_theme( $old_theme->stylesheet );
-	$new = $wpcom_themes_service->get_theme( $new_theme->stylesheet );
-
-	$event_props = array(
-		'blog_id'                  => get_wpcom_blog_id(),
-		'new_theme'                => $new->name,
-		'new_theme_stylesheet'     => $new->slug,
-		'new_theme_tier'           => $new->theme_tier,
-		'new_theme_is_block_theme' => $new->block_theme,
-		'old_theme'                => $old->name,
-		'old_theme_stylesheet'     => $old->slug,
-		'old_theme_tier'           => $old->theme_tier,
-		'old_theme_is_block_theme' => $old->block_theme,
+	$event_props = array_merge(
+		array( 'blog_id' => get_wpcom_blog_id() ),
+		$old_theme_props,
+		$new_theme_props
 	);
 
 	Common\wpcom_record_tracks_event( 'wpcom_theme_switch', $event_props );
