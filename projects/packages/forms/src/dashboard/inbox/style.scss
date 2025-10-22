@@ -274,36 +274,9 @@
 
 .jp-forms__inbox-response-data-value .image-select-field {
 
-	.image-select-field-images {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 16px;
-	}
-
-	.image-select-field-image {
-		margin: 0;
-		width: 60px;
-		height: 60px;
-
-		&.is-empty {
-			position: relative;
-
-			&::before {
-
-				@extend %empty-image-option-background;
-			}
-
-			&::after {
-
-				@extend %empty-image-option-icon;
-				background-color: #000;
-			}
-		}
-
-		img {
-			aspect-ratio: 1/1;
-			object-fit: cover;
-		}
+	.image-select-field-button {
+		gap: variables.$grid-unit-10;
+		height: auto;
 	}
 }
 
