@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { hasFeatureFlag, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -22,12 +22,14 @@ import {
 	TextControl,
 	ToggleControl,
 	RadioControl,
+	ToolbarGroup,
+	ToolbarButton,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
@@ -53,6 +55,10 @@ import NotificationsSettings from './components/notifications-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
+/**
+ * Types
+ */
+import type { Block } from '../../types';
 
 const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls' ) );
 
@@ -92,6 +98,7 @@ const REMOVE_FIELDS_FROM_FORM = [
 	'jetpack/form-step-navigation',
 	'jetpack/form-progress-indicator',
 	'jetpack/form-step-container',
+	'jetpack/form-thank-you',
 ];
 
 const ALLOWED_FORM_BLOCKS = ALLOWED_BLOCKS.concat( CORE_BLOCKS ).filter(
@@ -151,6 +158,7 @@ function JetpackContactFormEdit( {
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
+	const [ isSubmitPreview, setIsSubmitPreview ] = useState( false );
 
 	const {
 		to,
@@ -199,7 +207,7 @@ function JetpackContactFormEdit( {
 
 	const submitButton = useFindBlockRecursively(
 		clientId,
-		block => block.name === 'jetpack/button'
+		( block: Block ) => block.name === 'jetpack/button'
 	);
 
 	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
@@ -220,7 +228,10 @@ function JetpackContactFormEdit( {
 				}
 
 				const { getUser } = select( coreStore );
-				const innerBlocksData = getBlocks( clientId );
+				const innerBlocksData = getBlocks( clientId ) as Block[];
+				const formBlocks = innerBlocksData.filter(
+					block => block.name !== 'jetpack/form-thank-you'
+				);
 
 				const title = getEditedPostAttribute( 'title' );
 				const authorId = getEditedPostAttribute( 'author' );
@@ -228,11 +239,10 @@ function JetpackContactFormEdit( {
 
 				return {
 					postTitle: title,
-					hasAnyInnerBlocks: innerBlocksData.length > 0,
+					hasAnyInnerBlocks: formBlocks.length > 0,
 					postAuthorEmail: authorEmail,
 					selectedBlockClientId: selectedStepBlockId,
-					onlySubmitBlock:
-						innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
+					onlySubmitBlock: formBlocks.length === 1 && formBlocks[ 0 ].name === 'jetpack/button',
 				};
 			},
 			[ clientId ]
@@ -269,7 +279,8 @@ function JetpackContactFormEdit( {
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
+		isSubmitPreview && 'is-submit-preview'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -287,22 +298,46 @@ function JetpackContactFormEdit( {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
-		useDispatch( blockEditorStore );
+	const {
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+		updateBlockAttributes,
+		insertBlock,
+	} = useDispatch( blockEditorStore );
 
 	const currentInnerBlocks = useSelect(
-		select => select( blockEditorStore ).getBlocks( clientId ),
+		select => select( blockEditorStore ).getBlocks( clientId ) as Block[],
 		[ clientId ]
 	);
+
+	const switchToSubmitPreview = useCallback( () => {
+		setIsSubmitPreview( true );
+
+		// Check if thank-you block exists, create if missing
+		const thankYouBlock = currentInnerBlocks.find(
+			block => block.name === 'jetpack/form-thank-you'
+		);
+
+		if ( ! thankYouBlock ) {
+			const thankYouBlockToInsert = createBlock( 'jetpack/form-thank-you', {}, [] );
+
+			__unstableMarkNextChangeAsNotPersistent();
+			insertBlock( thankYouBlockToInsert, currentInnerBlocks.length, clientId );
+		}
+	}, [ currentInnerBlocks, insertBlock, clientId, __unstableMarkNextChangeAsNotPersistent ] );
+
+	const switchToForm = useCallback( () => {
+		setIsSubmitPreview( false );
+	}, [ setIsSubmitPreview ] );
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
 
 	// Helper function to identify input field blocks
-	const getInputFieldBlocks = useCallback( blocks => {
+	const getInputFieldBlocks = useCallback( ( blocks: Block[] ) => {
 		const inputFields = [];
 
-		const findInputFields = blockList => {
+		const findInputFields = ( blockList: Block[] ) => {
 			blockList.forEach( block => {
 				if ( isInputWithRequiredField( block.name ) ) {
 					inputFields.push( block );
@@ -327,24 +362,45 @@ function JetpackContactFormEdit( {
 		const blockWasInserted = currentBlockCount > previousBlockCount;
 
 		if ( blockWasInserted && currentInnerBlocks.length > 1 ) {
-			// Find the submit button
+			// Find the submit button and thank-you block
 			const submitButtonIndex = currentInnerBlocks.findIndex(
 				block =>
 					block.name === 'jetpack/button' &&
 					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
 			);
+			const thankYouIndex = currentInnerBlocks.findIndex(
+				block => block.name === 'jetpack/form-thank-you'
+			);
 
-			// If there's a submit button and it's not the last block, reorder
-			if ( submitButtonIndex !== -1 && submitButtonIndex === currentInnerBlocks.length - 2 ) {
-				// Move the submit button to the end
-				const reorderedBlocks = [ ...currentInnerBlocks ];
-				const [ submitButtonBlock ] = reorderedBlocks.splice( submitButtonIndex, 1 );
-				reorderedBlocks.push( submitButtonBlock );
+			// Reorder blocks to ensure: form fields → submit button → thank-you block
+			const reorderedBlocks = [ ...currentInnerBlocks ];
+			const submitButtonBlock =
+				submitButtonIndex !== -1 ? reorderedBlocks[ submitButtonIndex ] : null;
+			const thankYouBlock = thankYouIndex !== -1 ? reorderedBlocks[ thankYouIndex ] : null;
 
-				// Update the blocks without creating an undo step
-				__unstableMarkNextChangeAsNotPersistent();
-				replaceInnerBlocks( clientId, reorderedBlocks, false );
+			// Remove submit button and thank-you block from their current positions
+			if ( submitButtonBlock ) {
+				reorderedBlocks.splice( submitButtonIndex, 1 );
 			}
+
+			if ( thankYouBlock && thankYouIndex !== submitButtonIndex ) {
+				const adjustedThankYouIndex =
+					thankYouIndex > submitButtonIndex ? thankYouIndex - 1 : thankYouIndex;
+				reorderedBlocks.splice( adjustedThankYouIndex, 1 );
+			}
+
+			// Add submit button and thank-you block at the end
+			if ( submitButtonBlock ) {
+				reorderedBlocks.push( submitButtonBlock );
+			}
+
+			if ( thankYouBlock ) {
+				reorderedBlocks.push( thankYouBlock );
+			}
+
+			// Update the blocks without creating an undo step
+			__unstableMarkNextChangeAsNotPersistent();
+			replaceInnerBlocks( clientId, reorderedBlocks, false );
 		}
 
 		// Update the previous block count
@@ -373,7 +429,7 @@ function JetpackContactFormEdit( {
 	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
-	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
+	const containsMultistepBlock = useCallback( function hasMultistep( blocks: Block[] ) {
 		return blocks.some(
 			b =>
 				b.name === 'jetpack/form-step' ||
@@ -430,9 +486,9 @@ function JetpackContactFormEdit( {
 		 * In all other cases we still need to normalise the tree (e.g. when the user
 		 * inserts a Step Container while other fields remain outside of it).
 		 */
-		const countBlocks = ( blocks, predicate ) =>
+		const countBlocks = ( blocks: Block[], predicate: ( block: Block ) => boolean ) =>
 			blocks.reduce(
-				( acc, b ) =>
+				( acc: number, b: Block ) =>
 					acc + ( predicate( b ) ? 1 : 0 ) + countBlocks( b.innerBlocks || [], predicate ),
 				0
 			);
@@ -443,7 +499,7 @@ function JetpackContactFormEdit( {
 		);
 
 		// Helper: detect any form-step that is NOT inside a step-container.
-		const hasStrayFormStep = ( blocks, insideContainer = false ) => {
+		const hasStrayFormStep = ( blocks: Block[], insideContainer = false ) => {
 			for ( const b of blocks ) {
 				const newInside = insideContainer || b.name === 'jetpack/form-step-container';
 				if ( b.name === 'jetpack/form-step' && ! newInside ) {
@@ -466,6 +522,7 @@ function JetpackContactFormEdit( {
 		// Helper functions
 		const findButtonBlock = () => {
 			const buttonIndex = currentInnerBlocks.findIndex( block => block.name === 'jetpack/button' );
+
 			return buttonIndex !== -1
 				? {
 						block: currentInnerBlocks[ buttonIndex ],
@@ -474,7 +531,20 @@ function JetpackContactFormEdit( {
 				: null;
 		};
 
-		const prepareSubmitButton = button => {
+		const findThankYouBlock = () => {
+			const thankYouIndex = currentInnerBlocks.findIndex(
+				block => block.name === 'jetpack/form-thank-you'
+			);
+
+			return thankYouIndex !== -1
+				? {
+						block: currentInnerBlocks[ thankYouIndex ],
+						index: thankYouIndex,
+				  }
+				: null;
+		};
+
+		const prepareSubmitButton = ( button: Block ) => {
 			if ( ! button ) return null;
 
 			const preparedButton = button;
@@ -484,7 +554,7 @@ function JetpackContactFormEdit( {
 			return preparedButton;
 		};
 
-		const createStepNavigation = button => {
+		const createStepNavigation = ( button: Block ) => {
 			// Find existing navigation block or create new one
 			const existingNavigation = currentInnerBlocks.find(
 				block => block.name === 'jetpack/form-step-navigation'
@@ -522,27 +592,29 @@ function JetpackContactFormEdit( {
 			return existingIndicator || createBlock( 'jetpack/form-progress-indicator', {}, [] );
 		};
 
-		// 1. Extract button if it exists
+		// 1. Extract button and thank-you block if they exist
 		const buttonData = findButtonBlock();
 		const buttonBlock = buttonData ? buttonData.block : null;
+		const thankYouData = findThankYouBlock();
+		const thankYouBlock = thankYouData ? thankYouData.block : null;
 
-		// 2. Get blocks excluding the button
-		const blocksWithoutButton = buttonData
-			? currentInnerBlocks.filter( ( _, index ) => index !== buttonData.index )
-			: currentInnerBlocks;
+		// 2. Get blocks excluding the button and thank-you block
+		const blocksWithoutSpecial = currentInnerBlocks.filter(
+			( _, index ) => ! [ buttonData?.index, thankYouData?.index ].includes( index )
+		);
 
 		// 3. Prepare step container based on current blocks
 		let stepBlocks = [];
 
-		const containerIndex = blocksWithoutButton.findIndex(
+		const containerIndex = blocksWithoutSpecial.findIndex(
 			block => block.name === 'jetpack/form-step-container'
 		);
 
 		if ( containerIndex !== -1 ) {
 			// Case A: Step container was inserted.
-			const beforeBlocks = blocksWithoutButton.slice( 0, containerIndex );
-			const afterBlocks = blocksWithoutButton.slice( containerIndex + 1 );
-			const existingStepContainer = blocksWithoutButton[ containerIndex ];
+			const beforeBlocks = blocksWithoutSpecial.slice( 0, containerIndex );
+			const afterBlocks = blocksWithoutSpecial.slice( containerIndex + 1 );
+			const existingStepContainer = blocksWithoutSpecial[ containerIndex ];
 
 			// Use existing steps if available, otherwise create new ones
 			if ( existingStepContainer.innerBlocks && existingStepContainer.innerBlocks.length > 0 ) {
@@ -561,34 +633,34 @@ function JetpackContactFormEdit( {
 			}
 		} else {
 			// Case B: Has form-step block but no container
-			const stepIndex = blocksWithoutButton.findIndex(
+			const stepIndex = blocksWithoutSpecial.findIndex(
 				block => block.name === 'jetpack/form-step'
 			);
 
 			if ( stepIndex !== -1 ) {
-				const beforeBlocks = blocksWithoutButton.slice( 0, stepIndex );
-				const afterBlocks = blocksWithoutButton.slice( stepIndex + 1 );
+				const beforeBlocks = blocksWithoutSpecial.slice( 0, stepIndex );
+				const afterBlocks = blocksWithoutSpecial.slice( stepIndex + 1 );
 
 				if ( beforeBlocks.length > 0 ) {
 					stepBlocks.push( createBlock( 'jetpack/form-step', {}, beforeBlocks ) );
 				}
 
-				stepBlocks.push( blocksWithoutButton[ stepIndex ] );
+				stepBlocks.push( blocksWithoutSpecial[ stepIndex ] );
 
 				if ( afterBlocks.length > 0 ) {
 					stepBlocks.push( createBlock( 'jetpack/form-step', {}, afterBlocks ) );
 				}
 			}
 			// Case C: No step blocks or containers — build steps based on divider markers.
-			else if ( blocksWithoutButton.length > 0 ) {
-				const hasDivider = blocksWithoutButton.some( b => b.name === 'jetpack/form-step-divider' );
+			else if ( blocksWithoutSpecial.length > 0 ) {
+				const hasDivider = blocksWithoutSpecial.some( b => b.name === 'jetpack/form-step-divider' );
 
 				if ( hasDivider ) {
 					// Split by divider markers into groups
 					const groups = [];
 					let currentGroup = [];
 
-					blocksWithoutButton.forEach( block => {
+					blocksWithoutSpecial.forEach( block => {
 						if ( block.name === 'jetpack/form-step-divider' ) {
 							// Commit current group (even empty to respect explicit divider)
 							groups.push( currentGroup );
@@ -604,7 +676,7 @@ function JetpackContactFormEdit( {
 					stepBlocks = groups.map( inner => createBlock( 'jetpack/form-step', {}, inner ) );
 				} else {
 					// Fallback: one step per top-level block
-					stepBlocks = blocksWithoutButton.map( block =>
+					stepBlocks = blocksWithoutSpecial.map( block =>
 						createBlock( 'jetpack/form-step', {}, [ block ] )
 					);
 				}
@@ -626,10 +698,17 @@ function JetpackContactFormEdit( {
 		const stepNavigation = createStepNavigation( preparedButton );
 		const progressIndicator = getProgressIndicator();
 
-		// 5. Replace all inner blocks with our structured form (no extra undo level),
+		// 5. Build final blocks array with thank-you block at the end
+		const finalBlocks = [ progressIndicator, stepContainer, stepNavigation ];
+
+		if ( thankYouBlock ) {
+			finalBlocks.push( thankYouBlock );
+		}
+
+		// 6. Replace all inner blocks with our structured form (no extra undo level),
 		//    then flip the variation which *does* create the single desired snapshot.
 		__unstableMarkNextChangeAsNotPersistent();
-		replaceInnerBlocks( clientId, [ progressIndicator, stepContainer, stepNavigation ], false );
+		replaceInnerBlocks( clientId, finalBlocks, false );
 
 		// Ensure we are marked as multistep – this records the undo level.
 		if ( variationName !== 'multistep' ) {
@@ -656,8 +735,9 @@ function JetpackContactFormEdit( {
 			return;
 		}
 
-		// Will hold a reference to the submit button that should remain after cleanup.
+		// Will hold a reference to the submit button and thank-you block that should remain after cleanup.
 		let finalSubmitButton = null;
+		let finalThankYouBlock = null;
 
 		// Flatten helper – collects blocks that should remain in the standard form.
 		const flattenBlocks = blocks => {
@@ -694,6 +774,13 @@ function JetpackContactFormEdit( {
 					return; // Omit multistep-specific blocks.
 				}
 
+				if ( block.name === 'jetpack/form-thank-you' ) {
+					// Capture thank-you block to preserve it
+					finalThankYouBlock = block;
+
+					return; // Don't add to flat array yet, we'll add it at the end
+				}
+
 				// For any other block, keep as-is.
 				flat.push( block );
 			} );
@@ -713,6 +800,10 @@ function JetpackContactFormEdit( {
 		}
 
 		const finalBlocks = [ ...flattenedInnerBlocks, finalSubmitButton ];
+
+		if ( finalThankYouBlock ) {
+			finalBlocks.push( finalThankYouBlock );
+		}
 
 		__unstableMarkNextChangeAsNotPersistent();
 		replaceInnerBlocks( clientId, finalBlocks, false );
@@ -738,11 +829,11 @@ function JetpackContactFormEdit( {
 	// Find the selected block and its parent step block
 	const selectedBlock = useFindBlockRecursively(
 		selectedBlockClientId,
-		block => block.clientId === selectedBlockClientId
+		( block: Block ) => block.clientId === selectedBlockClientId
 	);
 	const stepBlock = useFindBlockRecursively(
 		selectedBlock?.clientId || '',
-		block => block.name === 'jetpack/form-step'
+		( block: Block ) => block.name === 'jetpack/form-step'
 	);
 
 	useEffect( () => {
@@ -764,7 +855,7 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
-	let elt;
+	let elt: React.ReactNode;
 
 	if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
@@ -801,6 +892,16 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					{ hasFeatureFlag( 'form-custom-thank-you' ) && (
+						<ToolbarGroup>
+							<ToolbarButton isPressed={ ! isSubmitPreview } onClick={ switchToForm }>
+								{ __( 'Form', 'jetpack-forms' ) }
+							</ToolbarButton>
+							<ToolbarButton isPressed={ isSubmitPreview } onClick={ switchToSubmitPreview }>
+								{ __( 'Submit Preview', 'jetpack-forms' ) }
+							</ToolbarButton>
+						</ToolbarGroup>
+					) }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody

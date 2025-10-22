@@ -1212,3 +1212,19 @@
 		}
 	}
 }
+
+.wp-block-jetpack-form-thank-you {
+	display: none;
+}
+
+.is-submit-preview > *:not(.wp-block-jetpack-form-thank-you) {
+	display: none;
+}
+
+.is-submit-preview .wp-block-jetpack-form-thank-you {
+	display: unset;
+}
+
+.wp-block-jetpack-contact-form .jetpack-contact-form.is-submit-preview .wp-block {
+	margin: revert;
+}
