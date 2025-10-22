@@ -117,9 +117,6 @@ function init() {
 	// Robots requests are allowed via parse_request / maybe_print_robots_txt
 	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 
-	// Add info to login form.
-	add_filter( 'login_message', '\Private_Site\add_login_message' );
-
 	// @TODO pre_trackback_post maybe..?
 
 	// @TODO add "lock" toolbar item when private
@@ -706,13 +703,21 @@ function access_denied_template_path() {
 		return __DIR__ . '/access-denied-preview-login-template.php';
 	}
 
-	if ( site_is_coming_soon() ) {
-		return __DIR__ . '/access-denied-coming-soon-template.php';
-	} elseif ( is_user_logged_in() ) {
-		return __DIR__ . '/access-denied-private-site-template.php';
-	} else {
+	$calypso_domains = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	if ( in_array( wp_get_referer(), $calypso_domains, true ) ) {
+		// Redirect to the login page, so the SSO module can try to automatically log the user in.
 		wp_safe_redirect( wp_login_url( set_url_scheme( original_request_url() ) ) );
 		exit( 0 );
+	} elseif ( site_is_coming_soon() ) {
+		return __DIR__ . '/access-denied-coming-soon-template.php';
+	} else {
+		return __DIR__ . '/access-denied-private-site-template.php';
 	}
 }
 
@@ -933,27 +938,4 @@ function should_override_editor_with_classic_editor() {
 	}
 
 	return true;
-}
-
-/**
- * Display a message in the login form.
- *
- * @param string $message Login message text.
- *
- * @return string The update login message text.
- */
-function add_login_message( $message ) {
-	error_log('add_login_message');
-	if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// If we have something to redirect to.
-		$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		error_log($url);
-		error_log(admin_url());
-
-		// Display message only if we're redirecting to the frontend.
-		if ( strpos( $url, admin_url() ) === false ) {
-			$message .= sprintf( '<p class="message">%s</p>', __( 'You need to be logged in as a user who has permission to view this site.', 'wpcomsh' ) );
-		}
-	}
-	return $message;
 }
