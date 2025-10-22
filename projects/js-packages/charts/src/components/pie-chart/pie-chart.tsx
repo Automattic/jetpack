@@ -284,7 +284,7 @@ const PieChartInternal = ( {
 	const centerY = adjustedHeight / 2;
 
 	// Calculate the angle between each (use original data length for consistent spacing)
-	const padAngle = gapScale * ( ( 2 * Math.PI ) / visibleData.length );
+	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
 	const outerRadius = radius - padding;
 	const innerRadius = thickness === 0 ? 0 : outerRadius * ( 1 - thickness );
