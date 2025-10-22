@@ -283,7 +283,7 @@ const ResponseViewBody = ( {
 												image
 											)
 										}
-										iconSize={ hasImage ? 60 : 24 }
+										iconSize={ 60 }
 									>
 										{ label }
 									</Button>
