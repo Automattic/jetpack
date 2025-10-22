@@ -1,5 +1,6 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
+import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -8,7 +9,7 @@ import {
 	partialOsUsageData as data,
 	themeArgTypes,
 } from '../../../stories';
-import { PieSemiCircleChart } from '../index';
+import { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from '../index';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
@@ -132,6 +133,44 @@ export const WithCompositionLegend: Story = {
 			description: {
 				story:
 					'Demonstrates the semi-circle chart composition API, allowing flexible component composition with explicit legend placement.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	render: args => (
+		<GlobalChartsProvider>
+			<div style={ { padding: '20px' } }>
+				<h3>Interactive Semi-Circle Chart</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Click legend items to show/hide segments. Percentages adjust automatically.
+				</p>
+				<PieSemiCircleChartUnresponsive
+					chartId="interactive-semi-circle-chart"
+					width={ args.width || 400 }
+					data={ args.data }
+					label="Performance Metrics"
+					note="Click legend to filter"
+					showLegend={ true }
+					legendInteractive={ true }
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+				/>
+			</div>
+		</GlobalChartsProvider>
+	),
+	args: {
+		data,
+		width: 400,
+		containerHeight: '500px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive semi-circle chart with clickable legend items. Hidden segments are excluded and percentages recalculate. Requires chartId and GlobalChartsProvider.',
 			},
 		},
 	},
