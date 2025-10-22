@@ -299,6 +299,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		// Generate a new anonId and try to save it in the browser's cookies.
 		// Note that base64-encoding an 18 character string generates a 24-character anon id.
+		$binary = '';
 		for ( $i = 0; $i < 18; ++$i ) {
 			$binary .= chr( wp_rand( 0, 255 ) );
 		}
