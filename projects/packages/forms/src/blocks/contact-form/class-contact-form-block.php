@@ -60,6 +60,9 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
+		// Features under development.
+		$features['form-custom-thank-you'] = apply_filters( 'forms_alpha', false );
+
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
@@ -540,6 +543,18 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/form-step-container'
 		);
+
+		if ( apply_filters( 'forms_alpha', false ) ) {
+			Blocks::jetpack_register_block(
+				'jetpack/form-thank-you',
+				array(
+					'parent'   => array( 'jetpack/contact-form' ),
+					'supports' => array(
+						'inserter' => false,
+					),
+				)
+			);
+		}
 
 		if ( Blocks::get_variation() === 'beta' ) {
 			Blocks::jetpack_register_block(

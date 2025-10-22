@@ -30,6 +30,7 @@ import JetpackStep from '../form-step';
 import JetpackStepContainer from '../form-step-container';
 import JetpackStepDivider from '../form-step-divider';
 import JetpackStepNavigation from '../form-step-navigation';
+import JetpackFormThankYou from '../form-thank-you';
 import JetpackInput from '../input';
 import JetpackImageOptionInput from '../input-image-option';
 import JetpackPhoneInput from '../input-phone';
@@ -88,4 +89,5 @@ export const childBlocks = [
 				JetpackProgressIndicator,
 		  ]
 		: [] ),
+	...( hasFeatureFlag( 'form-custom-thank-you' ) ? [ JetpackFormThankYou ] : [] ),
 ];
