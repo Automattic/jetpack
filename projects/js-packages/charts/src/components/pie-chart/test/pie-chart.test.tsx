@@ -334,4 +334,178 @@ describe( 'PieChart', () => {
 			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Test: 42' );
 		} );
 	} );
+
+	describe( 'Interactive Legend', () => {
+		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-interactive-pie-chart',
+			} );
+
+			// Initially both segments should be visible
+			let segments = screen.getAllByTestId( 'pie-segment' );
+			expect( segments ).toHaveLength( 2 );
+
+			// Click first legend item to hide segment A
+			const legendItem = screen.getByRole( 'button', { name: /Segment A/i } );
+			await user.click( legendItem );
+
+			// Only one segment should remain
+			await waitFor( () => {
+				segments = screen.getAllByTestId( 'pie-segment' );
+				expect( segments ).toHaveLength( 1 );
+			} );
+
+			// Legend item should be marked as hidden
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		test( 'shows empty state when all segments are hidden', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-all-hidden-pie-chart',
+			} );
+
+			// Initially should have 2 segments
+			expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 2 );
+
+			// Hide both segments by clicking legend items
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+
+			// Wait for first segment to be hidden
+			await waitFor( () => {
+				expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 1 );
+			} );
+
+			await user.click( legendItems[ 1 ] );
+
+			// Wait for all segments to be hidden
+			await waitFor( () => {
+				expect( screen.queryAllByTestId( 'pie-segment' ) ).toHaveLength( 0 );
+			} );
+
+			// Empty state should appear
+			expect( screen.getByText( /all segments are hidden/i ) ).toBeInTheDocument();
+
+			// Legend items should still be present (just marked inactive)
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'does not filter segments when legendInteractive is false', () => {
+			const testData = [
+				{ label: 'Segment A', value: 50, percentage: 50 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+			];
+
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: false,
+				chartId: 'test-non-interactive-pie-chart',
+			} );
+
+			// Legend items should not be buttons
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+
+			// All segments should be visible
+			const segments = screen.getAllByTestId( 'pie-segment' );
+			expect( segments ).toHaveLength( 2 );
+		} );
+
+		test( 'maintains consistent colors when segments are hidden', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 30, percentage: 30 },
+				{ label: 'Segment B', value: 40, percentage: 40 },
+				{ label: 'Segment C', value: 30, percentage: 30 },
+			];
+
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-color-consistency-pie-chart',
+			} );
+
+			// Get initial segment colors
+			const initialSegments = screen.getAllByTestId( 'pie-segment' );
+			const segmentBColor = initialSegments[ 1 ].getAttribute( 'fill' );
+
+			// Hide Segment A
+			const legendItemA = screen.getByRole( 'button', { name: /Segment A/i } );
+			await user.click( legendItemA );
+
+			// Segment B should maintain its color (now it's the first visible segment)
+			await waitFor( () => {
+				expect( screen.getAllByTestId( 'pie-segment' ) ).toHaveLength( 2 );
+			} );
+
+			const remainingSegments = screen.getAllByTestId( 'pie-segment' );
+			expect( remainingSegments[ 0 ] ).toHaveAttribute( 'fill', segmentBColor );
+		} );
+
+		test( 'recalculates legend percentages when segments are hidden', async () => {
+			const user = userEvent.setup();
+			const testData = [
+				{ label: 'Segment A', value: 25, percentage: 25 },
+				{ label: 'Segment B', value: 50, percentage: 50 },
+				{ label: 'Segment C', value: 25, percentage: 25 },
+			];
+
+			renderWithTheme( {
+				data: testData,
+				showLegend: true,
+				legendInteractive: true,
+				legendValueDisplay: 'percentage',
+				chartId: 'test-percentage-recalc-pie-chart',
+			} );
+
+			// Initially, legend should show original percentages
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 3 );
+			expect( screen.getAllByText( '25%' ) ).toHaveLength( 2 ); // A and C both 25%
+			expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+
+			// Hide Segment A (25%)
+			const legendItemA = screen.getByRole( 'button', { name: /Segment A/i } );
+			await user.click( legendItemA );
+
+			// Now B and C should recalculate: B = 50/75 = 66.67%, C = 25/75 = 33.33%
+			await waitFor( () => {
+				expect( screen.getByText( /66\.6/ ) ).toBeInTheDocument();
+			} );
+
+			// All 3 legend items should remain (hidden items stay in legend)
+			const remainingItems = screen.getAllByTestId( 'legend-item' );
+			expect( remainingItems ).toHaveLength( 3 );
+
+			// Segment A should still show original 25% (hidden items don't recalculate)
+			expect( legendItemA ).toHaveAttribute( 'aria-pressed', 'false' );
+			expect( screen.getAllByText( '25%' ) ).toHaveLength( 1 ); // Only A shows 25%
+
+			// Segment B should now show ~67% (50 out of remaining 75)
+			expect( screen.getByText( /66\.6/ ) ).toBeInTheDocument();
+
+			// Segment C should now show ~33% (25 out of remaining 75)
+			expect( screen.getByText( /33\.3/ ) ).toBeInTheDocument();
+		} );
+	} );
 } );
