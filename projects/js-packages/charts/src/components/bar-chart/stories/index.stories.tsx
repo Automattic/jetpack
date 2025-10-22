@@ -244,10 +244,20 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithLegend: Story = {
+export const WithInteractiveLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		legendInteractive: true,
+		chartId: 'bar-chart-with-interactive-legend',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with interactive legend. Click on legend items to toggle series visibility. When all series are hidden, a message will be displayed prompting you to click legend items to show data again.',
+			},
+		},
 	},
 };
 

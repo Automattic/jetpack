@@ -314,7 +314,8 @@ Enable interactive legends by setting the `legendInteractive` prop on the chart.
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components when using `chartId`. The Legend automatically inherits the interactive state from the chart component via the `GlobalChartsProvider` - you only need to set `legendInteractive` on the chart itself:
+Interactive legends also work with standalone Legend components when using `chartId`.
+The Legend automatically inherits the interactive state from the chart component via the `GlobalChartsProvider`, so you only need to set `legendInteractive` on the chart itself:
 
 <Source
 	language="tsx"
@@ -350,12 +351,12 @@ Interactive legends require:
 1. **GlobalChartsProvider**: Must wrap both chart and legend
 2. **chartId**: A unique identifier to connect chart and legend
 3. **legendInteractive prop**: Set to `true` on the chart component
-4. **Chart Support**: Currently only LineChart supports interactive legends
+4. **Chart Support**: Currently LineChart and BarChart support interactive legends
 
 ### Current Limitations
 
-- Interactive legends are only supported for LineChart
-- Support for other chart types (BarChart, PieChart, etc.) will be added in future releases
+- Interactive legends are only supported for LineChart and BarChart
+- Support for other chart types (PieChart, etc.) will be added in future releases
 - The `render` prop is not compatible with interactive legends (legendInteractive mode will be disabled)
 
 ## Accessibility

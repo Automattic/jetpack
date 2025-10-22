@@ -2049,9 +2049,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
 			$image_block   = $option['image'];
 
-			// Extract image src from rendered block
 			$rendered_image_block = render_block( $image_block );
-			$image_src            = '';
+			// Remove any links from the rendered block
+			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
+
+			// Extract image src from rendered block
+			$image_src = '';
 
 			if ( ! empty( $rendered_image_block ) ) {
 				if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
@@ -2080,6 +2083,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_id                   = $id . '-' . $option_letter;
 			$used_html_ids[ $option_id ] = true;
 
+			$figcaption_id = esc_attr( $option_id . '-figcaption' );
+
+			// Add id attribute to figcaption for accessibility
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$rendered_image_block = preg_replace( '/(<figcaption[^>]*)(>)/', '$1 id="' . $figcaption_id . '"$2', $rendered_image_block );
+			}
+
 			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
 			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
 			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
@@ -2102,6 +2112,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					} else {
 							$border_styles = "border-radius:{$radius_value};";
 					}
+				} else {
+					// Handle individual border radius properties when border-radius is not present
+					preg_match( '/border-top-left-radius:([^;]+)/', $option['style'], $top_left_match );
+					preg_match( '/border-top-right-radius:([^;]+)/', $option['style'], $top_right_match );
+					preg_match( '/border-bottom-right-radius:([^;]+)/', $option['style'], $bottom_right_match );
+					preg_match( '/border-bottom-left-radius:([^;]+)/', $option['style'], $bottom_left_match );
+
+					if ( ! empty( $top_left_match[1] ) || ! empty( $top_right_match[1] ) || ! empty( $bottom_right_match[1] ) || ! empty( $bottom_left_match[1] ) ) {
+						$width_value = ! empty( $width_match[1] ) ? trim( $width_match[1] ) : '1px';
+
+						$top_left     = ! empty( $top_left_match[1] ) ? trim( $top_left_match[1] ) : '4px';
+						$top_right    = ! empty( $top_right_match[1] ) ? trim( $top_right_match[1] ) : '4px';
+						$bottom_right = ! empty( $bottom_right_match[1] ) ? trim( $bottom_right_match[1] ) : '4px';
+						$bottom_left  = ! empty( $bottom_left_match[1] ) ? trim( $bottom_left_match[1] ) : '4px';
+
+						$border_styles = "border-radius:calc({$top_left} + {$width_value}) calc({$top_right} + {$width_value}) calc({$bottom_right} + {$width_value}) calc({$bottom_left} + {$width_value});";
+					}
 				}
 			}
 
@@ -2115,14 +2142,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
 
-			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick'>";
+			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
 
 			$input_id = esc_attr( $option_id );
+			$label_id = esc_attr( $option_id . '-label' );
 
-			$context             = array(
-				'inputId' => $input_id,
-			);
-			$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+			/* translators: %s is the letter associated with the option, e.g. "Option A" */
+			$aria_label_parts = array( sprintf( __( 'Option %s', 'jetpack-forms' ), $perceived_letters[ $option_index ] ) );
+
+			if ( ! empty( $option_label ) ) {
+				$aria_label_parts[] = $option_label;
+			}
+
+			$aria_label = implode( ': ', $aria_label_parts );
+
+			// Build aria-describedby to reference label and figcaption
+			$aria_describedby_parts = array( $label_id );
+
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$aria_describedby_parts[] = $figcaption_id;
+			}
+
+			$aria_describedby = implode( ' ', $aria_describedby_parts );
 
 			$field .= "<div class='jetpack-input-image-option__wrapper'>";
 			$field .= "<input
@@ -2131,7 +2172,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			type='" . esc_attr( $input_type ) . "'
 			name='" . esc_attr( $input_name ) . "'
 			value='" . esc_attr( $option_value ) . "'
-			" . $interactivity_attrs . "
+			aria-label='" . esc_attr( $aria_label ) . "'
+			aria-describedby='" . esc_attr( $aria_describedby ) . "'
 			data-wp-init='callbacks.setImageOptionCheckColor'
 			data-wp-on--keydown='actions.onKeyDownImageOption'
 			data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
@@ -2148,11 +2190,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 			$label_classes  = 'jetpack-input-image-option__label';
 			$label_classes .= $show_labels ? '' : ' visually-hidden';
-			$field         .= "<span class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+			$field         .= "<span id='{$label_id}' class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
 			$field         .= '</div></div></div>';
 		}
 
 		$field .= '</div></div>';
+
+		$field .= $this->get_error_div( $id, 'image-select' );
 
 		$field .= '</fieldset>';
 
