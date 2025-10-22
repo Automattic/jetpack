@@ -563,4 +563,118 @@ describe( 'BarChart', () => {
 	} );
 
 	/* eslint-enable testing-library/no-node-access */
+
+	describe( 'Interactive Legend', () => {
+		it( 'filters series when interactive legend is enabled and series is toggled', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-interactive-bar-chart',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Click on first legend item to hide it
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+
+			// The series should now be hidden (aria-pressed = false)
+			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'does not filter series when legendInteractive is false', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendInteractive: false,
+				chartId: 'test-non-interactive-bar-chart',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Legend items should not be interactive
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+		} );
+
+		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendInteractive: true,
+				// No chartId provided
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// All legend items should be visible (not hidden)
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems.forEach( item => {
+				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
+			} );
+		} );
+
+		it( 'shows "All series are hidden" message when all series are toggled off', async () => {
+			const user = userEvent.setup();
+
+			renderWithTheme( {
+				showLegend: true,
+				legendInteractive: true,
+				chartId: 'test-all-hidden-bar-chart',
+				data: [
+					{
+						label: 'Series A',
+						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+						options: {},
+					},
+					{
+						label: 'Series B',
+						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+						options: {},
+					},
+				],
+			} );
+
+			// Hide all series
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+			await user.click( legendItems[ 1 ] );
+
+			// Check for the "all series hidden" message
+			expect(
+				screen.getByText( /all series are hidden.*click legend items to show data/i )
+			).toBeInTheDocument();
+		} );
+	} );
 } );
