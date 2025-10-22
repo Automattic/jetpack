@@ -1746,10 +1746,11 @@ class User_Agent_Info {
 			'gptbot', // https://platform.openai.com/docs/gptbot
 			'google-inspectiontool', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
 			'blexbot',
+			'dotbot', // https://darkvisitors.com/agents/dotbot
 			'claudebot', // https://support.anthropic.com/en/articles/8896518
-			'dotbot',
-			'whatsapp',
 			'wp-e2e-tests', // WordPress e2e tests
+			// https://github.com/ua-parser/uap-core/blob/432e95f6767cc8bab4c20c255784cd6f7e93bc15/regexes.yaml#L151
+			'whatsapp',
 			'linkedinbot',
 			'scrapy',
 			'mj12bot',
