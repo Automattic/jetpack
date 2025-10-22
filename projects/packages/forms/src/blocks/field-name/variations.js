@@ -10,34 +10,55 @@ const icon = {
 	),
 };
 
+export const FIRST_NAME_ID = 'first-name';
+export const LAST_NAME_ID = 'last-name';
+
+export const DEFAULT_FIRST_NAME_LABEL = __( 'First name', 'jetpack-forms' );
+export const DEFAULT_LAST_NAME_LABEL = __( 'Last name', 'jetpack-forms' );
+export const DEFAULT_NAME_LABEL = __( 'Name', 'jetpack-forms' );
+
 const variations = [
 	{
-		name: 'first-name',
-		title: __( 'First name', 'jetpack-forms' ),
+		name: 'name',
+		title: DEFAULT_NAME_LABEL,
+		description: __( 'Collect the visitor’s name.', 'jetpack-forms' ),
+		icon,
+		scope: [ 'transform' ],
+		attributes: {
+			id: '',
+		},
+		innerBlocks: [
+			[ 'jetpack/label', { label: DEFAULT_NAME_LABEL } ],
+			[ 'jetpack/input', { type: 'text' } ],
+		],
+	},
+	{
+		name: FIRST_NAME_ID,
+		title: DEFAULT_FIRST_NAME_LABEL,
 		description: __( 'Collect the visitor’s first name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
 		isActive: [ 'id' ],
 		attributes: {
-			id: 'first-name',
+			id: FIRST_NAME_ID,
 		},
 		innerBlocks: [
-			[ 'jetpack/label', { label: __( 'First name', 'jetpack-forms' ) } ],
+			[ 'jetpack/label', { label: DEFAULT_FIRST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
 	},
 	{
-		name: 'last-name',
-		title: __( 'Last name', 'jetpack-forms' ),
+		name: LAST_NAME_ID,
+		title: DEFAULT_LAST_NAME_LABEL,
 		description: __( 'Collect the visitor’s last name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
 		isActive: [ 'id' ],
 		attributes: {
-			id: 'last-name',
+			id: LAST_NAME_ID,
 		},
 		innerBlocks: [
-			[ 'jetpack/label', { label: __( 'Last name', 'jetpack-forms' ) } ],
+			[ 'jetpack/label', { label: DEFAULT_LAST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
 	},
