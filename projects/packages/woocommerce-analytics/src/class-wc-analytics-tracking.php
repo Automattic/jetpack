@@ -297,8 +297,14 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return self::$cached_visitor_id;
 		}
 
-		// Generate anonymous ID
-		self::$cached_visitor_id = wp_generate_password( 24 );
+		// Generate a new anonId and try to save it in the browser's cookies.
+		// Note that base64-encoding an 18 character string generates a 24-character anon id.
+		for ( $i = 0; $i < 18; ++$i ) {
+			$binary .= chr( wp_rand( 0, 255 ) );
+		}
+
+		self::$cached_visitor_id = base64_encode( $binary ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+
 
 		if ( ! headers_sent()
 			&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
