@@ -25281,7 +25281,7 @@ snapshots:
       '@babel/core': 7.28.4
       find-cache-dir: 3.3.2
       schema-utils: 4.3.3
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   babel-loader@9.2.1(@babel/core@7.28.4)(webpack@5.101.3):
     dependencies:
@@ -26086,7 +26086,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.1
     optionalDependencies:
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   css-minimizer-webpack-plugin@7.0.2(webpack@5.101.3):
     dependencies:
@@ -29951,7 +29951,7 @@ snapshots:
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.0
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
 
   minimalistic-assert@1.0.1: {}
 
@@ -30610,7 +30610,7 @@ snapshots:
       postcss: 8.5.6
       semver: 7.7.1
     optionalDependencies:
-      webpack: 5.101.3(webpack-cli@6.0.1)
+      webpack: 5.101.3(esbuild@0.25.9)(webpack-cli@6.0.1)
     transitivePeerDependencies:
       - typescript
 
