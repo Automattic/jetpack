@@ -117,6 +117,9 @@ function init() {
 	// Robots requests are allowed via parse_request / maybe_print_robots_txt
 	add_filter( 'robots_txt', '\Private_Site\private_robots_txt' );
 
+	// Add info to login form.
+	add_filter( 'login_message', '\Private_Site\add_login_message' );
+
 	// @TODO pre_trackback_post maybe..?
 
 	// @TODO add "lock" toolbar item when private
@@ -930,4 +933,16 @@ function should_override_editor_with_classic_editor() {
 	}
 
 	return true;
+}
+
+/**
+ * Display a message in the login form.
+ *
+ * @param string $message Login message text.
+ *
+ * @return string The update login message text.
+ */
+function add_login_message( $message ) {
+	$message .= sprintf( '<p class="message">%s</p>', __( 'You need to be logged in as a user who has permission to view this site.', 'wpcomsh' ) );
+	return $message;
 }
