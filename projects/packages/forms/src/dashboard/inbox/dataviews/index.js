@@ -23,7 +23,7 @@ import { useSearchParams } from 'react-router';
  */
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
+import { SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
@@ -116,6 +116,8 @@ export default function InboxView() {
 		}
 	}, [ isMobileViewport, closeResponseModal ] );
 
+	const viewResponseId = searchParams.get( 'v' );
+
 	useEffect( () => {
 		return setupSidebarWidthObserver();
 	}, [] );
@@ -176,6 +178,8 @@ export default function InboxView() {
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
 
+	const [ sidePanelItem, setSidePanelItem ] = useState();
+
 	const onChangeSelection = useCallback(
 		items => {
 			// Set the side panel item only when we are not on mobile and exactly one item is selected.
@@ -194,19 +198,74 @@ export default function InboxView() {
 				} else {
 					_searchParams.delete( 'r' );
 				}
+				// Clear the 'v' param when selection changes
+				_searchParams.delete( 'v' );
 				return _searchParams;
 			} );
 		},
 		[ records, setSearchParams, isMobile ]
 	);
 
-	const [ sidePanelItem, setSidePanelItem ] = useState();
+	// Create a navigation callback that updates the 'v' param when navigating in view mode
+	const onNavigateResponse = useCallback(
+		items => {
+			if ( viewResponseId && items?.length === 1 ) {
+				// If we're in view mode (v param exists), update the v param instead of selection
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					_searchParams.set( 'v', items[ 0 ] );
+					return _searchParams;
+				} );
+			} else if ( items?.length === 0 ) {
+				// Closing sidebar - clear v param and only clear selection if single item selected
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					_searchParams.delete( 'v' );
+					// Only clear 'r' param if there's exactly one selection
+					if ( selection?.length === 1 ) {
+						_searchParams.delete( 'r' );
+					}
+					return _searchParams;
+				} );
+			} else {
+				// Otherwise use normal selection logic
+				onChangeSelection( items );
+			}
+		},
+		[ viewResponseId, setSearchParams, onChangeSelection, selection ]
+	);
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.
-	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! records && selection.length === 1 ) {
-		// Only show sidebar when exactly one item is selected
+
+	// Priority 1: If 'v' query param exists, show that item in sidebar/modal (view action was clicked)
+	// This works for both mobile (modal) and desktop (sidebar)
+	if ( !! records && viewResponseId ) {
+		const recordToShow = records?.find( record => getItemId( record ) === viewResponseId );
+		if ( ! sidePanelItem && recordToShow ) {
+			setSidePanelItem( recordToShow );
+		} else if ( !! sidePanelItem && ! recordToShow ) {
+			// This case handles the case where we were having a side panel item
+			// visible but the data have changed and the item is not there anymore.
+			setSidePanelItem();
+		} else if (
+			!! sidePanelItem &&
+			!! recordToShow &&
+			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+			sidePanelItem !== recordToShow
+		) {
+			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
+			// This ensures the side panel shows the latest version of the same entity
+			setSidePanelItem( recordToShow );
+		} else if (
+			!! recordToShow &&
+			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
+		) {
+			// Set side panel item when selecting a different item
+			setSidePanelItem( recordToShow );
+		}
+	} else if ( ! isMobile && !! records && selection.length === 1 ) {
+		// Priority 2: Only show sidebar when exactly one item is selected (no 'v' param)
 		const singleSelectedId = selection[ 0 ];
 		const recordToShow = records?.find( record => getItemId( record ) === singleSelectedId );
 		if ( ! sidePanelItem && recordToShow ) {
@@ -231,8 +290,13 @@ export default function InboxView() {
 			// Set side panel item when selecting a different item
 			setSidePanelItem( recordToShow );
 		}
-	} else if ( ! isMobile && !! records && selection.length > 1 ) {
-		// Multiple selections - hide sidebar
+	} else if ( ! isMobile && !! records && selection.length > 1 && ! viewResponseId ) {
+		// Multiple selections without 'v' param - hide sidebar
+		if ( sidePanelItem ) {
+			setSidePanelItem( undefined );
+		}
+	} else if ( ! isMobile && ! viewResponseId && selection.length === 0 ) {
+		// No selections and no 'v' param - hide sidebar
 		if ( sidePanelItem ) {
 			setSidePanelItem( undefined );
 		}
@@ -500,12 +564,13 @@ export default function InboxView() {
 				) }
 			</div>
 			<SingleResponseView
-				sidePanelItem={ selection.length && sidePanelItem }
+				sidePanelItem={ selection.length || viewResponseId ? sidePanelItem : null }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
-				onChangeSelection={ onChangeSelection }
+				onChangeSelection={ onNavigateResponse }
 				selection={ selection }
+				viewResponseId={ viewResponseId }
 			/>
 		</HStack>
 	);

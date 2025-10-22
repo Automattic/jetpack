@@ -3,7 +3,7 @@ import {
 	__experimentalHStack as HStack,
 	Modal,
 } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
@@ -20,6 +20,7 @@ import { ResponseViewBody } from './index';
  * @param {boolean}      props.isMobile          - Whether the view is mobile.
  * @param {Function}     props.onChangeSelection - The function to change the selection.
  * @param {string[]}     props.selection         - The selection.
+ * @param {string}       props.viewResponseId    - The response ID from the 'v' query parameter.
  * @return {import('react').JSX.Element} The single response component.
  */
 const SingleResponseView = ( {
@@ -29,9 +30,18 @@ const SingleResponseView = ( {
 	isMobile,
 	onChangeSelection,
 	selection,
+	viewResponseId,
 } ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
 	const [ isModalOpen, setIsModalOpen ] = useState( true );
+
+	// Sync modal state with viewResponseId changes
+	// This ensures the modal opens when the 'v' URL parameter is set
+	useEffect( () => {
+		if ( isMobile && viewResponseId ) {
+			setIsModalOpen( true );
+		}
+	}, [ viewResponseId, isMobile ] );
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
