@@ -420,3 +420,25 @@ export const WithCompositionLegend: Story = {
 		},
 	},
 };
+
+export const InteractiveLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendInteractive: true,
+		legendLabels: {
+			primary: 'Current period',
+			comparison: 'Previous period',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive legend allows users to click legend items to toggle the visibility of current and previous period data. Click on the legend items to show/hide the corresponding bars and values. When all series are hidden, a message is displayed.',
+			},
+		},
+	},
+};

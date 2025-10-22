@@ -291,4 +291,52 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Interactive Legend', () => {
+		it( 'renders legend as interactive when legendInteractive is true', () => {
+			render(
+				<LeaderboardChart
+					data={ mockData }
+					withComparison={ true }
+					showLegend={ true }
+					legendInteractive={ true }
+				/>
+			);
+
+			const legendItems = screen.getAllByRole( 'button' );
+			expect( legendItems.length ).toBeGreaterThan( 0 );
+		} );
+
+		it( 'renders legend as non-interactive when legendInteractive is false', () => {
+			render(
+				<LeaderboardChart
+					data={ mockData }
+					withComparison={ true }
+					showLegend={ true }
+					legendInteractive={ false }
+				/>
+			);
+
+			// Legend items should not have button role when not interactive
+			const legendItems = screen.queryAllByRole( 'button' );
+			expect( legendItems ).toHaveLength( 0 );
+		} );
+
+		it( 'shows all data when all series are visible', () => {
+			render(
+				<LeaderboardChart
+					data={ mockData }
+					withComparison={ true }
+					showLegend={ true }
+					legendInteractive={ true }
+				/>
+			);
+
+			// All values should be visible
+			expect( screen.getByText( '12.5K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '8.8K' ) ).toBeInTheDocument();
+			expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
+			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		} );
+	} );
 } );
