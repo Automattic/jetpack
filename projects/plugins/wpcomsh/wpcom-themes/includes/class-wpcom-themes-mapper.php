@@ -71,6 +71,7 @@ class WPCom_Themes_Mapper {
 		$theme->creation_time        = $wpcom_theme->date_added;
 		$theme->is_wpcom_theme       = true;
 		$theme->tags                 = $this->build_theme_tags( $wpcom_theme );
+		$theme->theme_tier           = $wpcom_theme->theme_tier->slug ?? null;
 
 		return $theme;
 	}
