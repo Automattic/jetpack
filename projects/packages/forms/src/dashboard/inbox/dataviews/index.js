@@ -335,15 +335,17 @@ export default function InboxView() {
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( {
-				...viewAction,
-				RenderModal: ( { items, closeModal } ) => {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+			_actions.unshift(
+				{
+					...viewAction,
+					RenderModal: ( { items, closeModal } ) => {
+						jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+							action: 'view-response',
+							multiple: items.length > 1,
+						} );
+						const [ item ] = items;
+						return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+					},
 				},
 				{
 					...moveToTrashAction,
@@ -353,17 +355,19 @@ export default function InboxView() {
 				}
 			);
 		} else {
-			_actions.unshift( {
-				...viewAction,
-				callback( items ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					const selectedId = item.id.toString();
-					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
-					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+			_actions.unshift(
+				{
+					...viewAction,
+					callback( items ) {
+						jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+							action: 'view-response',
+							multiple: items.length > 1,
+						} );
+						const [ item ] = items;
+						const selectedId = item.id.toString();
+						const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+						onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+					},
 				},
 				moveToTrashAction
 			);
