@@ -2428,7 +2428,7 @@ class Contact_Form_Plugin {
 			);
 
 			$post_export_data[] = array(
-				'name'  => __( 'Country Code', 'jetpack-forms' ),
+				'name'  => __( 'Country code', 'jetpack-forms' ),
 				'value' => $feedback->get_country_code(),
 			);
 
@@ -2677,7 +2677,7 @@ class Contact_Form_Plugin {
 
 			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 			$results[ __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
-			$results[ __( 'Country Code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
+			$results[ __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
 
 		}
 		return $results;
@@ -2717,7 +2717,7 @@ class Contact_Form_Plugin {
 			'-3_response_date' => __( 'Response Date', 'jetpack-forms' ),
 			'90_consent'       => _x( 'Consent', 'noun', 'jetpack-forms' ),
 			'93_ip_address'    => __( 'IP Address', 'jetpack-forms' ),
-			'94_country_code'  => __( 'Country Code', 'jetpack-forms' ),
+			'94_country_code'  => __( 'Country code', 'jetpack-forms' ),
 		);
 	}
 

@@ -673,7 +673,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
 				'Consent'      => array( $default_consent, $default_consent ),
 				'IP Address'   => array( $ip, $ip ),
-				'Country Code' => array( $country_code, $country_code ),
+				'Country code' => array( $country_code, $country_code ),
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -837,7 +837,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
 				array(
-					'name'  => 'Country Code',
+					'name'  => 'Country code',
 					'value' => null,
 				), // no country code for legacy feedback
 			),
