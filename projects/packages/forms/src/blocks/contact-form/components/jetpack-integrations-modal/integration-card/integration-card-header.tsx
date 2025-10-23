@@ -17,12 +17,15 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
+import clsx from 'clsx';
 import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
 import type { IntegrationCardProps } from './index';
 import type { MouseEvent } from 'react';
+
+const noop = () => {};
 
 const IntegrationCardHeader = ( {
 	title,
@@ -92,8 +95,14 @@ const IntegrationCardHeader = ( {
 		onToggle();
 	};
 
+	const isHeaderToggleEnabledFinal = isHeaderToggleEnabled && ! __isPartial; // wait for the full data to load before allwing things to be exanded;
+	const showHeaderToggleFinal = showHeaderToggle && ! __isPartial;
+
 	return (
-		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
+		<CardHeader
+			onClick={ __isPartial ? noop : handleHeaderClick }
+			className={ clsx( 'integration-card__header', { 'is-clickable': ! __isPartial } ) }
+		>
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
 					<div className="integration-card__service-icon-container">
@@ -114,7 +123,7 @@ const IntegrationCardHeader = ( {
 						{ __isPartial && (
 							<Animate type="loading">
 								{ ( { className } ) => (
-									<Badge className={ `integration-card__plugin-badge ${ className ?? '' }`.trim() }>
+									<Badge className={ clsx( 'integration-card__plugin-badge', className ) }>
 										{ ' ' /* intentionally left blank */ }
 									</Badge>
 								) }
@@ -158,10 +167,10 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ! showPluginAction && showHeaderToggle && (
+					{ ! showPluginAction && showHeaderToggleFinal && (
 						<Tooltip
 							text={
-								! isHeaderToggleEnabled && toggleDisabledTooltip
+								! isHeaderToggleEnabledFinal && toggleDisabledTooltip
 									? toggleDisabledTooltip
 									: getTooltipText( headerToggleValue )
 							}
@@ -170,13 +179,13 @@ const IntegrationCardHeader = ( {
 								<ToggleControl
 									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
-									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
+									disabled={ ! isHeaderToggleEnabledFinal || ! ( isActive || isConnected ) }
 									__nextHasNoMarginBottom
 								/>
 							</span>
 						</Tooltip>
 					) }
-					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
+					{ ! __isPartial && <Icon icon={ isExpanded ? chevronUp : chevronDown } /> }
 				</HStack>
 			</div>
 		</CardHeader>
