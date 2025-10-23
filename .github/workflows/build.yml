@@ -30,7 +30,7 @@ jobs:
       changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -177,7 +177,7 @@ jobs:
     if: needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: monorepo
 
@@ -267,7 +267,7 @@ jobs:
 
     # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: monorepo
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
