@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.12
+ * Stubs automatically generated from PHPUnit 12.4.1
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11577,13 +11577,16 @@ final readonly class DataProvider
     /**
      * @param non-empty-string $methodName
      */
-    public function __construct(string $methodName)
+    public function __construct(string $methodName, bool $validateArgumentCount = true)
     {
     }
     /**
      * @return non-empty-string
      */
     public function methodName(): string
+    {
+    }
+    public function validateArgumentCount(): bool
     {
     }
 }
@@ -11599,7 +11602,7 @@ final readonly class DataProviderExternal
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
-    public function __construct(string $className, string $methodName)
+    public function __construct(string $className, string $methodName, bool $validateArgumentCount = true)
     {
     }
     /**
@@ -11612,6 +11615,9 @@ final readonly class DataProviderExternal
      * @return non-empty-string
      */
     public function methodName(): string
+    {
+    }
+    public function validateArgumentCount(): bool
     {
     }
 }
@@ -11921,6 +11927,18 @@ final readonly class Group
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class IgnoreDeprecations
 {
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public function __construct(null|string $messagePattern = null)
+    {
+    }
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
+    {
+    }
 }
 /**
  * @immutable
@@ -12249,6 +12267,8 @@ final readonly class RequiresSetting
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6284
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class RunClassInSeparateProcess
@@ -12772,6 +12792,16 @@ final class SameSize extends \PHPUnit\Framework\Constraint\Count
  */
 abstract class Constraint implements \Countable, \PHPUnit\Framework\SelfDescribing
 {
+    /**
+     * @template A
+     *
+     * @param A $actual
+     *
+     * @return A
+     */
+    final public function __invoke(mixed $actual): mixed
+    {
+    }
     /**
      * Evaluates the constraint for parameter $other.
      *
@@ -17375,6 +17405,9 @@ final readonly class DataProvider extends \PHPUnit\Metadata\Metadata
     public function methodName(): string
     {
     }
+    public function validateArgumentCount(): bool
+    {
+    }
 }
 /**
  * @immutable
@@ -17553,6 +17586,12 @@ final readonly class IgnoreDeprecations extends \PHPUnit\Metadata\Metadata
     public function isIgnoreDeprecations(): true
     {
     }
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
+    {
+    }
 }
 /**
  * @immutable
@@ -17577,7 +17616,10 @@ final readonly class IgnorePhpunitWarnings extends \PHPUnit\Metadata\Metadata
     public function isIgnorePhpunitWarnings(): true
     {
     }
-    public function shouldIgnore(string $message): bool
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
     {
     }
 }
@@ -17665,7 +17707,7 @@ abstract readonly class Metadata
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
-    public static function dataProvider(string $className, string $methodName): \PHPUnit\Metadata\DataProvider
+    public static function dataProvider(string $className, string $methodName, bool $validateArgumentCount): \PHPUnit\Metadata\DataProvider
     {
     }
     /**
@@ -17728,10 +17770,16 @@ abstract readonly class Metadata
     public static function groupOnMethod(string $groupName): \PHPUnit\Metadata\Group
     {
     }
-    public static function ignoreDeprecationsOnClass(): \PHPUnit\Metadata\IgnoreDeprecations
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public static function ignoreDeprecationsOnClass(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
     }
-    public static function ignoreDeprecationsOnMethod(): \PHPUnit\Metadata\IgnoreDeprecations
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public static function ignoreDeprecationsOnMethod(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
     }
     /**
@@ -19103,8 +19151,8 @@ final class CodeCoverage
 final readonly class DataProvider
 {
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @param class-string<\PHPUnit\Framework\TestCase> $className
+     * @param non-empty-string       $methodName
      *
      * @throws \PHPUnit\Framework\InvalidDataProviderException
      *

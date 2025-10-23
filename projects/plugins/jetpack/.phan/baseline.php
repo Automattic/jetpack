@@ -31,13 +31,13 @@ return [
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
-    // PhanTypeMismatchArgumentInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanTypeSuspiciousNonTraversableForeach : 15+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanPluginMixedKeyNoKey : 10+ occurrences
     // PhanPluginUnreachableCode : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
+    // PhanTypeMismatchArgumentInternal : 10+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
@@ -141,7 +141,7 @@ return [
         'class-jetpack-xmlrpc-methods.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         'class.jetpack-admin.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchArgumentProbablyReal'],
         'class.jetpack-autoupdate.php' => ['PhanTypeMismatchArgument'],
-        'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
+        'class.jetpack-cli.php' => ['PhanAccessMethodInternal', 'PhanParamTooManyCallable', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn'],
         'class.jetpack-gutenberg.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn'],
         'class.jetpack-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'class.jetpack-modules-list-table.php' => ['PhanCommentAbstractOnInheritedMethod'],
@@ -186,7 +186,6 @@ return [
         'extensions/plugins/sharing/sharing.php' => ['PhanRedundantCondition'],
         'functions.compat.php' => ['PhanRedefineFunction'],
         'functions.global.php' => ['PhanRedefineFunction', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument'],
-        'functions.opengraph.php' => ['PhanTypeArraySuspicious'],
         'json-endpoints/class.wpcom-json-api-add-widget-endpoint.php' => ['PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php' => ['PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-bulk-delete-post-endpoint.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
@@ -254,7 +253,7 @@ return [
         'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class.jetpack-json-api-check-capabilities-endpoint.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-core-modify-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'json-endpoints/jetpack/class.jetpack-json-api-cron-endpoint.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchArgument'],
+        'json-endpoints/jetpack/class.jetpack-json-api-cron-endpoint.php' => ['PhanTypeComparisonToArray'],
         'json-endpoints/jetpack/class.jetpack-json-api-endpoint.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-comment-backup-endpoint.php' => ['PhanParamSignatureMismatch'],
         'json-endpoints/jetpack/class.jetpack-json-api-get-database-object-backup-endpoint.php' => ['PhanTypeMismatchDimFetch'],
@@ -321,7 +320,6 @@ return [
         'modules/shortcodes/googleapps.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/shortcodes/gravatar.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturn'],
         'modules/shortcodes/inline-pdfs.php' => ['PhanTypeMismatchArgument'],
-        'modules/shortcodes/mixcloud.php' => ['PhanTypeMismatchArgumentInternal'],
         'modules/shortcodes/pinterest.php' => ['PhanTypeMismatchArgument'],
         'modules/shortcodes/presentations.php' => ['PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'modules/shortcodes/quiz.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyProbablyReal'],

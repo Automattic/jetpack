@@ -8,6 +8,7 @@ import StepControls from '../shared/components/form-step-controls';
 import useFormSteps from '../shared/hooks/use-form-steps';
 import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
 import { CORE_BLOCKS } from '../shared/util/constants';
+import { getStepLabel } from '../shared/util/step-labels';
 import AttributesControls from './attributes-controls';
 
 import './editor.scss';
@@ -64,24 +65,12 @@ function StepBreak( { stepLabel, currentIndex, setAttributes, clientId } ) {
 		[ clientId ]
 	);
 
+	const listViewLabel = getStepLabel( currentIndex, stepLabel );
 	const stepNumberString = sprintf(
 		// translators: %d is the step number (1, 2, 3, etc.)
 		__( 'Step %d', 'jetpack-forms' ),
 		currentIndex + 1
 	);
-
-	// Build the full label string that should appear in List View.
-	const listViewLabel =
-		stepLabel && stepLabel !== ''
-			? sprintf(
-					/* translators: %1$d is the step number, %2$s is the custom label */ __(
-						'Step %1$d – %2$s',
-						'jetpack-forms'
-					),
-					currentIndex + 1,
-					stepLabel
-			  )
-			: stepNumberString;
 
 	// Keep List View label in sync whenever the label or step order changes.
 	useEffect( () => {

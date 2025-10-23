@@ -23,6 +23,10 @@ module.exports = async () => {
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 				'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
+				marketing: [
+					'./src/features/marketing/marketing.js',
+					'./src/features/marketing/marketing.scss',
+				],
 				'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
 				'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
 				'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',

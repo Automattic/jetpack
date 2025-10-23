@@ -14,6 +14,10 @@ const INNER_BLOCKS_DEPRECATION = {
 		requiredText: {
 			type: 'string',
 		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
+		},
 		options: {
 			type: 'array',
 			default: [],
@@ -92,6 +96,7 @@ const INNER_BLOCKS_DEPRECATION = {
 			createBlock( 'jetpack/label', {
 				label: attributes.label,
 				requiredText: attributes.requiredText,
+				requiredIndicator: attributes.requiredIndicator,
 				style: labelStyles,
 			} ),
 			createBlock( 'jetpack/input', {

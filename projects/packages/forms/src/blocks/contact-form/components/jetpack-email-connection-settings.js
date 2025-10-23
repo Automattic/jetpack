@@ -2,7 +2,6 @@ import { TextControl, ToggleControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { validate as emailValidatorValidate } from 'email-validator';
-import InspectorHint from '../../shared/components/inspector-hint';
 import HelpMessage from '../components/help-message';
 
 const JetpackEmailConnectionSettings = ( {
@@ -91,14 +90,12 @@ const JetpackEmailConnectionSettings = ( {
 			<ToggleControl
 				label={ __( 'Send responses to email', 'jetpack-forms' ) }
 				checked={ emailNotifications }
+				help={ __( 'Get incoming form responses sent to your email inbox.', 'jetpack-forms' ) }
 				onChange={ value => setAttributes( { emailNotifications: value } ) }
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ emailNotifications && (
 				<>
-					<InspectorHint>
-						{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack-forms' ) }
-					</InspectorHint>
 					<TextControl
 						aria-describedby={ `contact-form-${ instanceId }-email-${
 							hasEmailErrors() ? 'error' : 'help'

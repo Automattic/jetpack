@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.27.8] - 2025-10-21
+### Changed
+- Update dependencies. [#45493]
+
+## [5.27.7] - 2025-10-20
+### Fixed
+- Prevent PHP errors when notification data is malformed. [#45385]
+
+## [5.27.6] - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [5.27.5] - 2025-10-13
+### Changed
+- Update dependencies. [#45466]
+
+## [5.27.4] - 2025-10-10
+### Changed
+- Update dependencies. [#45423]
+- Update package dependencies. [#45428]
+
+## [5.27.3] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
 ## [5.27.2] - 2025-09-29
 ### Changed
 - Update dependencies. [#45179]
@@ -2360,6 +2388,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.27.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.7...5.27.8
+[5.27.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.6...5.27.7
+[5.27.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.5...5.27.6
+[5.27.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.4...5.27.5
+[5.27.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.3...5.27.4
+[5.27.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.2...5.27.3
 [5.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.1...5.27.2
 [5.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.0...5.27.1
 [5.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.3...5.27.0

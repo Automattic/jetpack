@@ -8,6 +8,10 @@ export default {
 			type: 'boolean',
 			default: false,
 		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
+		},
 		width: {
 			type: 'number',
 			default: 100,

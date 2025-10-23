@@ -11,6 +11,8 @@ import './style.scss';
 type GravatarProps = {
 	displayName?: string;
 	email: string;
+	size?: number;
+	useHovercard?: boolean;
 };
 
 /**
@@ -22,12 +24,17 @@ type GravatarProps = {
  * @param {GravatarProps} props - The component props.
  * @return {JSX.Element} The Gravatar component
  */
-export default function Gravatar( { displayName, email }: GravatarProps ): JSX.Element | null {
+export default function Gravatar( {
+	displayName,
+	email,
+	size = 48,
+	useHovercard = true,
+}: GravatarProps ): JSX.Element | null {
 	const profileImageRef = useRef( null );
 	const hovercardRef = useRef( null );
 
 	useEffect( () => {
-		if ( profileImageRef.current ) {
+		if ( useHovercard && profileImageRef.current ) {
 			hovercardRef.current = new Hovercards( {
 				// Documented at https://github.com/Automattic/gravatar/tree/trunk/web/packages/hovercards#translations
 				i18n: {
@@ -54,7 +61,7 @@ export default function Gravatar( { displayName, email }: GravatarProps ): JSX.E
 			} );
 			hovercardRef.current.attach( profileImageRef.current );
 		}
-	}, [] );
+	}, [ useHovercard ] );
 
 	if ( ! email ) {
 		return null;
@@ -68,6 +75,8 @@ export default function Gravatar( { displayName, email }: GravatarProps ): JSX.E
 			className="jp-forms__gravatar"
 			ref={ profileImageRef }
 			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=initials&name=${ displayName }` }
+			width={ size }
+			height={ size }
 		/>
 	);
 }

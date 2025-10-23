@@ -5,6 +5,7 @@ import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { differenceInHours, differenceInYears } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
 import {
 	useXYChartTheme,
@@ -100,6 +101,13 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 	);
 };
 
+const formatYearTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleDateString( undefined, {
+		year: 'numeric',
+	} );
+};
+
 const formatDateTick = ( timestamp: number ) => {
 	const date = new Date( timestamp );
 	return date.toLocaleDateString( undefined, {
@@ -108,9 +116,35 @@ const formatDateTick = ( timestamp: number ) => {
 	} );
 };
 
+const formatHourTick = ( timestamp: number ) => {
+	const date = new Date( timestamp );
+	return date.toLocaleTimeString( undefined, {
+		hour: 'numeric',
+		hour12: true,
+	} );
+};
+
+const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	const minX = Math.min( ...sortedData.map( datom => datom.data.at( 0 )?.date ) );
+	const maxX = Math.max( ...sortedData.map( datom => datom.data.at( -1 )?.date ) );
+
+	const diffInHours = Math.abs( differenceInHours( maxX, minX ) );
+	if ( diffInHours <= 24 ) {
+		return formatHourTick;
+	}
+
+	const diffInYears = Math.abs( differenceInYears( maxX, minX ) );
+	if ( diffInYears <= 1 ) {
+		return formatDateTick;
+	}
+
+	return formatYearTick;
+};
+
 const guessOptimalNumTicks = (
 	data: ReturnType< typeof useChartDataTransform >,
-	chartWidth: number
+	chartWidth: number,
+	tickFormatter: ( timestamp: number ) => string
 ) => {
 	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
@@ -121,7 +155,7 @@ const guessOptimalNumTicks = (
 	let secondBestGuess = 1; // a tick number that's no greater than upperBound
 
 	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
-		const ticks = xScale.ticks( numTicks ).map( d => formatDateTick( d.getTime() ) );
+		const ticks = xScale.ticks( numTicks ).map( d => tickFormatter( d.getTime() ) );
 
 		// The .ticks() function doesn't properly respect the requested number of ticks, so we need to check the length
 		if ( ticks.length > upperBound ) {
@@ -136,8 +170,13 @@ const guessOptimalNumTicks = (
 			return 1;
 		}
 
-		const hasDuplicate = uniqueTicks.length < ticks.length;
-		if ( hasDuplicate ) {
+		// Example: OCT 1 JAN 1 APR 1 JUL 1 OCT 1
+		// Here, the two OCTs are not duplicates as they represent October of two different years.
+		const hasConsecutiveDuplicate = ticks.some(
+			( tick, idx ) => idx > 0 && tick === ticks[ idx - 1 ]
+		);
+
+		if ( hasConsecutiveDuplicate ) {
 			continue;
 		}
 
@@ -214,6 +253,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			legendPosition = 'bottom',
 			legendMaxWidth,
 			legendTextOverflow = 'wrap',
+			legendItemClassName,
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
 			legendShape = 'line',
@@ -224,6 +264,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
+			legendInteractive = false,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -254,7 +295,24 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles } = useGlobalChartsContext();
+		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+		// Add visibility information to series when using interactive legends
+		const seriesWithVisibility = useMemo( () => {
+			if ( ! chartId || ! legendInteractive ) {
+				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
+			}
+			return dataSorted.map( ( series, index ) => ( {
+				series,
+				index,
+				isVisible: isSeriesVisible( chartId, series.label ),
+			} ) );
+		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+
+		// Check if all series are hidden
+		const allSeriesHidden = useMemo( () => {
+			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+		}, [ seriesWithVisibility ] );
 
 		// Use the keyboard navigation hook
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
@@ -267,12 +325,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
+			const formatter = getFormatter( dataSorted );
+
 			return {
 				axis: {
 					x: {
 						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width ),
-						tickFormat: formatDateTick,
+						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
+						tickFormat: formatter,
 						...options?.axis?.x,
 					},
 					y: {
@@ -420,7 +480,28 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							<Axis { ...chartOptions.axis.x } />
 							<Axis { ...chartOptions.axis.y } />
 
-							{ dataSorted.map( ( seriesData, index ) => {
+							{ allSeriesHidden ? (
+								<text
+									x={ width / 2 }
+									y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+									textAnchor="middle"
+									fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+									fontSize="14"
+									fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+								>
+									{ __(
+										'All series are hidden. Click legend items to show data.',
+										'jetpack-charts'
+									) }
+								</text>
+							) : null }
+
+							{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+								// Skip rendering invisible series
+								if ( ! isVisible ) {
+									return null;
+								}
+
 								const { color, lineStyles, glyph } = getElementStyles( {
 									data: seriesData,
 									index,
@@ -531,9 +612,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							position={ legendPosition }
 							maxWidth={ legendMaxWidth }
 							textOverflow={ legendTextOverflow }
+							legendItemClassName={ legendItemClassName }
 							className={ styles[ 'line-chart-legend' ] }
 							shape={ legendShape }
 							chartId={ chartId }
+							interactive={ legendInteractive }
 							ref={ legendRef }
 						/>
 					) }

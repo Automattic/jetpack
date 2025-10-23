@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '6.7.0';
+	const PACKAGE_VERSION = '6.12.0';
 
 	/**
 	 * Load the contact form module.
@@ -92,6 +92,20 @@ class Jetpack_Forms {
 		 * @param bool false Whether MailPoet integration be enabled. Default is false.
 		 */
 		return apply_filters( 'jetpack_forms_mailpoet_enable', true );
+	}
+
+	/**
+	 * Returns true if Hostinger Reach integration is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_hostinger_reach_enabled() {
+		/**
+		 * Enable Hostinger Reach integration.
+		 *
+		 * @param bool false Whether Hostinger Reach integration be enabled. Default is false.
+		 */
+		return apply_filters( 'jetpack_forms_hostinger_reach_enable', false );
 	}
 
 	/**

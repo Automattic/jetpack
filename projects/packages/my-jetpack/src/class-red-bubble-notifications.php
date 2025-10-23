@@ -43,6 +43,9 @@ class Red_Bubble_Notifications {
 							'type' => 'string',
 						),
 						'sanitize_callback' => function ( $param ) {
+							if ( ! is_array( $param ) ) {
+								return array();
+							}
 							return array_map( 'sanitize_text_field', $param );
 						},
 					),

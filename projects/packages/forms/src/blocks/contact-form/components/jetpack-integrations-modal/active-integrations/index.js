@@ -3,6 +3,7 @@ import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet';
+import HostingerReachIcon from '../../../../../icons/hostinger-reach';
 import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange';
 import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
 import { isValidSalesforceOrgId } from '../salesforce-card';
@@ -41,6 +42,19 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 						...integration,
 						icon: <MailPoetOrangeIcon width={ 30 } height={ 30 } />,
 						tooltip: __( 'MailPoet is connected for this form', 'jetpack-forms' ),
+					} );
+				}
+				break;
+			case 'hostinger-reach':
+				if (
+					integration.isActive &&
+					integration.isConnected &&
+					attributes.hostingerReach?.enabledForForm
+				) {
+					acc.push( {
+						...integration,
+						icon: <HostingerReachIcon width={ 30 } height={ 30 } />,
+						tooltip: __( 'Hostinger Reach is connected for this form', 'jetpack-forms' ),
 					} );
 				}
 				break;

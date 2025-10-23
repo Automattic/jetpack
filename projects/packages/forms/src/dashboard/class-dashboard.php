@@ -11,9 +11,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Automattic\Jetpack\Forms\Jetpack_Forms;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -71,7 +68,7 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch' ),
+				'dependencies' => array( 'wp-api-fetch', 'wp-data', 'wp-core-data', 'wp-dom-ready' ),
 			)
 		);
 
@@ -83,14 +80,51 @@ class Dashboard {
 		Connection_Initial_State::render_script( self::SCRIPT_HANDLE );
 
 		// Preload Forms endpoints needed in dashboard context.
-		$preload_paths = array(
+		// Pre-fetch the first inbox page so the UI renders instantly on first load.
+		$preload_params = array(
+			'context'  => 'edit',
+			'order'    => 'desc',
+			'orderby'  => 'date',
+			'page'     => 1,
+			'per_page' => 20,
+			'status'   => 'draft,publish',
+		);
+		\ksort( $preload_params );
+		$initial_responses_path        = \add_query_arg( $preload_params, '/wp/v2/feedback' );
+		$initial_responses_locale_path = \add_query_arg(
+			\array_merge(
+				$preload_params,
+				array( '_locale' => 'user' )
+			),
+			'/wp/v2/feedback'
+		);
+		$filters_path                  = '/wp/v2/feedback/filters';
+		$filters_locale_path           = \add_query_arg( array( '_locale' => 'user' ), $filters_path );
+		$preload_paths                 = array(
+			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
 			'/wp/v2/feedback/integrations?version=2',
+			'/wp/v2/feedback/counts',
+			$filters_path,
+			$filters_locale_path,
+			$initial_responses_path,
+			$initial_responses_locale_path,
 		);
-		$preload_data  = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+
+		// Normalize keys to match what apiFetch will request (without domain).
+		$preload_data = array();
+		foreach ( $preload_data_raw as $key => $value ) {
+			$normalized_key                  = preg_replace( '#^https?://[^/]+/wp-json#', '', $key );
+			$preload_data[ $normalized_key ] = $value;
+		}
+
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( ' . wp_json_encode( $preload_data ) . ' ) );',
+			sprintf(
+				'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );',
+				wp_json_encode( $preload_data )
+			),
 			'before'
 		);
 	}
@@ -114,29 +148,8 @@ class Dashboard {
 	 * Render the dashboard.
 	 */
 	public function render_dashboard() {
-		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-		}
-
-		$ai_feature = \Jetpack_AI_Helper::get_ai_assistance_feature();
-		$has_ai     = ! is_wp_error( $ai_feature ) ? $ai_feature['has-feature'] : false;
-
-		$config = array(
-			'blogId'                  => get_current_blog_id(),
-			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
-			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
-			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
-			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
-			'siteURL'                 => ( new Status() )->get_site_suffix(),
-			'hasFeedback'             => $this->has_feedback(),
-			'hasAI'                   => $has_ai,
-			'dashboardURL'            => self::get_forms_admin_url(),
-			'isMailpoetEnabled'       => Jetpack_Forms::is_mailpoet_enabled(),
-		);
-
 		?>
-		<div id="jp-forms-dashboard" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
+		<div id="jp-forms-dashboard"></div>
 		<?php
 	}
 
@@ -148,12 +161,17 @@ class Dashboard {
 	public function has_feedback() {
 		$posts = new \WP_Query(
 			array(
-				'post_type'   => 'feedback',
-				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+				'post_type'              => 'feedback',
+				'post_status'            => array( 'publish', 'draft', 'spam', 'trash' ),
+				'posts_per_page'         => 1,
+				'fields'                 => 'ids',
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+				'suppress_filters'       => true,
 			)
 		);
-
-		return $posts->found_posts > 0;
+		return $posts->have_posts();
 	}
 
 	/**

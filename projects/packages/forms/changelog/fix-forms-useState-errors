@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: reduce re-renders in the dashboard 

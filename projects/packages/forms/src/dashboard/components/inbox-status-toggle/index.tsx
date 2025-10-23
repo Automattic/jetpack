@@ -44,7 +44,7 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useInboxData();
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash, setSelectedResponses } = useInboxData();
 
 	const statusTabs = [
 		{ label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ), value: 'inbox' },
@@ -66,13 +66,13 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
-
+				params.delete( 'r' ); // Clear selected responses when changing tabs.
 				return params;
 			} );
-
+			setSelectedResponses( [] );
 			onChange( newStatus );
 		},
-		[ isSm, status, setSearchParams, onChange ]
+		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);
 
 	return (

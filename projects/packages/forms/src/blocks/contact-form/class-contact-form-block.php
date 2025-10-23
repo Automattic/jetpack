@@ -63,6 +63,9 @@ class Contact_Form_Block {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
+		// Form notifications feature flag - can be controlled via filter
+		$features['form-notifications'] = apply_filters( 'jetpack_forms_enable_notifications', false );
+
 		return $features;
 	}
 
@@ -807,7 +810,7 @@ class Contact_Form_Block {
 	 */
 	public static function preload_endpoints( $paths ) {
 		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
-		$paths[] = array( '/wp/v2/feedback/integrations?version=2', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/config?_locale=user', 'GET' );
 		return $paths;
 	}
 

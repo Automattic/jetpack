@@ -21,12 +21,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function reregister_menu_items() {
 		$this->add_upgrades_menu();
-		$this->add_posts_menu();
-		$this->add_media_menu();
-		$this->add_page_menu();
-		$this->add_testimonials_menu();
-		$this->add_portfolio_menu();
-		$this->add_comments_menu();
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
@@ -94,14 +88,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds My Mailboxes menu.
-	 */
-	public function add_my_mailboxes_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', 4.64424 );
-	}
-
-	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
@@ -142,97 +128,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core.
 			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
-	}
-
-	/**
-	 * Adds Posts menu.
-	 */
-	public function add_posts_menu() {
-		$submenus_to_update = array();
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
-			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
-			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
-			$this->update_submenus( 'edit.php', $submenus_to_update );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
-			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain ) );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
-			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain ) );
-		}
-	}
-
-	/**
-	 * Adds Media menu.
-	 */
-	public function add_media_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'upload.php' ) ) {
-			return;
-		}
-
-		$this->hide_submenu_page( 'upload.php', 'media-new.php' );
-
-		$this->update_menu( 'upload.php', 'https://wordpress.com/media/' . $this->domain );
-	}
-
-	/**
-	 * Adds Page menu.
-	 */
-	public function add_page_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=page' ) ) {
-			return;
-		}
-
-		$submenus_to_update = array(
-			'edit.php?post_type=page'     => 'https://wordpress.com/pages/' . $this->domain,
-			'post-new.php?post_type=page' => 'https://wordpress.com/page/' . $this->domain,
-		);
-		$this->update_submenus( 'edit.php?post_type=page', $submenus_to_update );
-	}
-
-	/**
-	 * Adds Testimonials menu.
-	 */
-	public function add_testimonials_menu() {
-		$this->add_custom_post_type_menu( 'jetpack-testimonial' );
-	}
-
-	/**
-	 * Adds Portfolio menu.
-	 */
-	public function add_portfolio_menu() {
-		$this->add_custom_post_type_menu( 'jetpack-portfolio' );
-	}
-
-	/**
-	 * Adds a custom post type menu.
-	 *
-	 * @param string $post_type Custom post type.
-	 */
-	public function add_custom_post_type_menu( $post_type ) {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=' . $post_type ) ) {
-			return;
-		}
-
-		$submenus_to_update = array(
-			'edit.php?post_type=' . $post_type     => 'https://wordpress.com/types/' . $post_type . '/' . $this->domain,
-			'post-new.php?post_type=' . $post_type => 'https://wordpress.com/edit/' . $post_type . '/' . $this->domain,
-		);
-		$this->update_submenus( 'edit.php?post_type=' . $post_type, $submenus_to_update );
-	}
-
-	/**
-	 * Adds Comments menu.
-	 */
-	public function add_comments_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit-comments.php' ) ) {
-			return;
-		}
-
-		$this->update_menu( 'edit-comments.php', 'https://wordpress.com/comments/all/' . $this->domain );
 	}
 
 	/**

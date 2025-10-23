@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getImageOptionLabel } from '../input-image-option/label';
 import defaultSettings from '../shared/settings';
 import edit from './edit';
 import icon from './icon';
@@ -72,9 +71,6 @@ const settings = {
 				innerBlocks: [
 					{
 						name: 'jetpack/input-image-option',
-						attributes: {
-							label: getImageOptionLabel( 1 ),
-						},
 						innerBlocks: [
 							{
 								name: 'core/image',
@@ -88,9 +84,6 @@ const settings = {
 					},
 					{
 						name: 'jetpack/input-image-option',
-						attributes: {
-							label: getImageOptionLabel( 2 ),
-						},
 						innerBlocks: [
 							{
 								name: 'core/image',

@@ -367,7 +367,28 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'X-Axis Ticks', () => {
-		test( 'renders only one tick.', () => {
+		test( 'renders ticks in hours.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01:1:' ), value: 10 },
+							{ date: new Date( '2024-01-01:3:' ), value: 20 },
+							{ date: new Date( '2024-01-01:5:' ), value: 30 },
+							{ date: new Date( '2024-01-01:7:' ), value: 40 },
+							{ date: new Date( '2024-01-01:23:' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+ [AM|PM]/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders ticks in short date format.', () => {
 			renderWithTheme( {
 				width: 800,
 				data: [
@@ -375,17 +396,38 @@ describe( 'LineChart', () => {
 						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01' ), value: 10 },
-							{ date: new Date( '2024-01-01' ), value: 20 },
-							{ date: new Date( '2024-01-01' ), value: 30 },
-							{ date: new Date( '2024-01-01' ), value: 40 },
-							{ date: new Date( '2024-01-01' ), value: 50 },
+							{ date: new Date( '2024-04-01' ), value: 20 },
+							{ date: new Date( '2024-07-01' ), value: 30 },
+							{ date: new Date( '2024-10-01' ), value: 40 },
+							{ date: new Date( '2025-03-01' ), value: 50 },
 						],
 					},
 				],
 			} );
 
-			const ticks = screen.getAllByText( /Jan \d+/ );
-			expect( ticks ).toHaveLength( 1 );
+			const ticks = screen.getAllByText(
+				/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) \d+$/
+			);
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'renders ticks in year format.', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2023-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2025-01-01' ), value: 50 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /^202\d$/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
 		test( 'renders optimal number of ticks.', () => {
@@ -1101,6 +1143,70 @@ describe( 'LineChart', () => {
 			const customTooltip = screen.getByTestId( 'custom-tooltip' );
 			expect( customTooltip ).toBeInTheDocument();
 			expect( customTooltipRenderer ).toHaveBeenCalled();
+		} );
+	} );
+
+	describe( 'Interactive Legend', () => {
+		it( 'filters series when interactive legend is enabled and series is toggled', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						withGradientFill={ false }
+						showLegend={ true }
+						legendInteractive={ true }
+						chartId="test-interactive-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// Click on first legend item to hide it
+			const legendItems = screen.getAllByRole( 'button' );
+			await user.click( legendItems[ 0 ] );
+
+			// The series should now be hidden (aria-pressed = false)
+			const legendItem = screen.getAllByRole( 'button' )[ 0 ];
+			expect( legendItem ).toHaveAttribute( 'aria-pressed', 'false' );
+		} );
+
+		it( 'does not filter series when legendInteractive is false', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						withGradientFill={ false }
+						showLegend={ true }
+						legendInteractive={ false }
+						chartId="test-non-interactive-chart"
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// Legend items should not be interactive
+			const buttons = screen.queryAllByRole( 'button' );
+			expect( buttons ).toHaveLength( 0 );
+		} );
+
+		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
+			render(
+				<GlobalChartsProvider>
+					<LineChartUnresponsive
+						{ ...defaultProps }
+						withGradientFill={ false }
+						showLegend={ true }
+						legendInteractive={ true }
+						// No chartId provided
+					/>
+				</GlobalChartsProvider>
+			);
+
+			// All legend items should be visible (not hidden)
+			const legendItems = screen.getAllByRole( 'button' );
+			legendItems.forEach( item => {
+				expect( item ).toHaveAttribute( 'aria-pressed', 'true' );
+			} );
 		} );
 	} );
 } );

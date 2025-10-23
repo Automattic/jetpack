@@ -11,6 +11,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Checks whether the navigation customizations should be performed for the given class.
  *
@@ -75,13 +79,6 @@ function get_admin_menu_class() {
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
 			return Domain_Only_Admin_Menu::class;
-		}
-
-		// P2 sites.
-		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
-		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
-			require_once __DIR__ . '/class-p2-admin-menu.php';
-			return P2_Admin_Menu::class;
 		}
 
 		// Rest of simple sites.

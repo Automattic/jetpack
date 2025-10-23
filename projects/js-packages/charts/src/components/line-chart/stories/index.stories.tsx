@@ -8,19 +8,96 @@ import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how data/state is manipulated in stories.
+ */
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	/** Controls how many data series to display: 'single' (1 series), 'multiple' (4 series), or 'many' (all series) */
+	seriesCount?: 'single' | 'multiple' | 'many';
+	/** Chart sizing mode: 'responsive' (uses maxWidth/aspectRatio) or 'fixed' (uses width/height) */
+	dimensionMode?: 'responsive' | 'fixed';
+	/** Crosshair visibility on tooltip hover: 'none', 'vertical', 'horizontal', or 'both' */
+	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
+};
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts/Types/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+			table: { category: 'Data' },
+		},
+		dimensionMode: {
+			control: { type: 'radio' },
+			options: [ 'responsive', 'fixed' ],
+			description: 'Chart sizing mode',
+			table: { category: 'Dimensions' },
+		},
+		smoothing: {
+			control: 'boolean',
+			description: 'Enable line smoothing',
+			table: { category: 'Visual Style' },
+		},
+		curveType: {
+			control: { type: 'radio' },
+			options: [ 'linear', 'smooth', 'monotone' ],
+			description: 'Line curve type',
+			table: { category: 'Visual Style' },
+		},
+		withGradientFill: {
+			control: 'boolean',
+			description: 'Fill area under line with gradient',
+			table: { category: 'Visual Style' },
+		},
 	},
 };
 
 export default meta;
 
-const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
+const Template: StoryFn< typeof LineChart > = args => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+
+	// Determine data based on seriesCount control
+	let data = chartProps.data || lineChartStoryArgs.data;
+	if ( seriesCount === 'single' ) {
+		data = [ sampleData[ 0 ] ];
+	} else if ( seriesCount === 'multiple' ) {
+		data = sampleData.slice( 0, 4 );
+	} else if ( seriesCount === 'many' ) {
+		data = sampleData;
+	}
+
+	// Determine dimensions based on dimensionMode control
+	let dimensions = {};
+	if ( dimensionMode === 'fixed' ) {
+		dimensions = { width: 800, height: 400 };
+	}
+
+	// Map crosshairMode to withTooltipCrosshairs
+	let crosshairConfig;
+	if ( crosshairMode === 'vertical' ) {
+		crosshairConfig = { showVertical: true };
+	} else if ( crosshairMode === 'horizontal' ) {
+		crosshairConfig = { showHorizontal: true };
+	} else if ( crosshairMode === 'both' ) {
+		crosshairConfig = { showVertical: true, showHorizontal: true };
+	}
+
+	return (
+		<LineChart
+			{ ...chartProps }
+			{ ...dimensions }
+			data={ data }
+			withTooltipCrosshairs={ crosshairConfig }
+		/>
+	);
+};
 
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -41,10 +118,21 @@ ManySeries.args = {
 	showLegend: true,
 };
 
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
+export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithInteractiveLegend.args = {
 	...lineChartStoryArgs,
+	chartId: 'interactive-legend-demo',
 	showLegend: true,
+	legendInteractive: true,
+};
+
+WithInteractiveLegend.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
+		},
+	},
 };
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );

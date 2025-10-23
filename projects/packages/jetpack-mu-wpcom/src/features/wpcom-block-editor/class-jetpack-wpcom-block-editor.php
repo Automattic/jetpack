@@ -391,7 +391,6 @@ class Jetpack_WPCOM_Block_Editor {
 					? '//widgets.wp.com/wpcom-block-editor/calypso.editor.js?minify=false'
 					: '//widgets.wp.com/wpcom-block-editor/calypso.editor.min.js',
 				array(
-					'calypsoify_wpadminmods_js',
 					'jquery',
 					'lodash',
 					'react',

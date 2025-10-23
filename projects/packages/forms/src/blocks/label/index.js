@@ -66,6 +66,10 @@ const settings = {
 			type: 'string',
 			default: '',
 		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
+		},
 	},
 	usesContext: [
 		'jetpack/form-class-name',

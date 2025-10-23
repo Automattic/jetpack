@@ -99,6 +99,30 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/count
+	 */
+	public function test_get_feedbacks_count_returns_200() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 200, $response->get_status() );
+
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'inbox', $data );
+		$this->assertArrayHasKey( 'spam', $data );
+		$this->assertArrayHasKey( 'trash', $data );
+	}
+
+	/**
+	 * Test GET feedback/count unautorized.
+	 */
+	public function test_get_feedbacks_count_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
 	 * Test DELETE feedback/trash
 	 */
 	public function test_empty_trash_returns_200() {
@@ -140,6 +164,15 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
+		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+
+		// Also make sure that we don't have fields that are not relevant to feedback.
+		$this->assertArrayNotHasKey( 'link', $schema_properties );
+		$this->assertArrayNotHasKey( 'password', $schema_properties );
+		$this->assertArrayNotHasKey( 'template', $schema_properties );
+		$this->assertArrayNotHasKey( 'title', $schema_properties );
+		$this->assertArrayNotHasKey( 'content', $schema_properties );
+		$this->assertArrayNotHasKey( 'excerpt', $schema_properties );
 	}
 
 	/**
@@ -160,7 +193,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		// Verify required integrations exist
 		$this->assertArrayHasKey( 'akismet', $data );
-		$this->assertArrayHasKey( 'creative-mail-by-constant-contact', $data );
 		$this->assertArrayHasKey( 'zero-bs-crm', $data );
 		$this->assertArrayHasKey( 'google-drive', $data );
 		$this->assertArrayHasKey( 'mailpoet', $data );
@@ -202,7 +234,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		// Verify core integrations are present (by id)
 		$integration_ids = array_column( $data, 'id' );
 		$this->assertContains( 'akismet', $integration_ids );
-		$this->assertContains( 'creative-mail-by-constant-contact', $integration_ids );
 		$this->assertContains( 'zero-bs-crm', $integration_ids );
 		$this->assertContains( 'google-drive', $integration_ids );
 		$this->assertContains( 'mailpoet', $integration_ids );
@@ -430,7 +461,6 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			'pluginAssetsURL',
 			'siteURL',
 			'hasFeedback',
-			'hasAI',
 			'isIntegrationsEnabled',
 			'dashboardURL',
 			'canInstallPlugins',
@@ -533,9 +563,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 
 		$this->assertArrayHasKey( 'parent', $params );
 		$this->assertArrayHasKey( 'parent_exclude', $params );
+		$this->assertArrayHasKey( 'is_unread', $params );
 
 		$this->assertEquals( 'array', $params['parent']['type'] );
 		$this->assertEquals( 'array', $params['parent_exclude']['type'] );
+		$this->assertEquals( 'boolean', $params['is_unread']['type'] );
 
 		$this->assertEquals( 'integer', $params['parent']['items']['type'] );
 		$this->assertEquals( 'integer', $params['parent_exclude']['items']['type'] );
@@ -673,5 +705,235 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		$this->assertArrayHasKey( 'has_file', $data );
 		$this->assertFalse( $data['has_file'] );
+	}
+
+	/**
+	 * Test default unread state on new feedback
+	 */
+	public function test_feedback_is_unread_by_default() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'Test Subject',
+			'spam',
+			null,
+			true // is_unread
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'is_unread', $data );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			true // is_unread
+		);
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify the state persists
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$this->assertFalse( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertFalse( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_read_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	/**
+	 * Test marking feedback as read
+	 */
+	public function test_mark_feedback_as_unread_on_non_feedback() {
+
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/99999999/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+	}
+
+	public function test_bad_db_read_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			true // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	public function test_bad_db_unread_update() {
+
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com',
+			'',
+			'',
+			'',
+			'publish',
+			false,
+			false // is_unread
+		);
+
+		// Simulate DB error
+		add_filter( 'wp_checkdate', '__return_false' );
+		// Mark as read
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+		remove_filter( 'wp_checkdate', '__return_false' );
+
+		$this->assertEquals( 500, $response->get_status() );
+	}
+
+	/**
+	 * Test marking feedback as unread
+	 */
+	public function test_mark_feedback_as_unread() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		// First mark as read
+		wp_update_post(
+			array(
+				'ID'             => $post_id,
+				'comment_status' => 'closed',
+			)
+		);
+
+		// Then mark as unread
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', true );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( $post_id, $data['id'] );
+		$this->assertTrue( $data['is_unread'] );
+
+		// Verify Feedback class method
+		$feedback = \Automattic\Jetpack\Forms\ContactForm\Feedback::get( $post_id );
+		$this->assertTrue( $feedback->is_unread() );
+	}
+
+	/**
+	 * Test marking feedback with invalid ID
+	 */
+	public function test_mark_feedback_with_invalid_id() {
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/999999/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 404, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertEquals( 'rest_post_invalid_id', $data['code'] );
+	}
+
+	/**
+	 * Test unauthorized access to mark feedback
+	 */
+	public function test_mark_feedback_unauthorized() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'name'  => 'Test User',
+				'email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User',
+			'test@example.com'
+		);
+
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', '/wp/v2/feedback/' . $post_id . '/read' );
+		$request->set_param( 'is_unread', false );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 401, $response->get_status() );
 	}
 }

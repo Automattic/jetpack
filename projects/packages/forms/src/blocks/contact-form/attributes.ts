@@ -28,6 +28,9 @@ export default {
 		type: 'string',
 		default: '',
 	},
+	confirmationType: {
+		enum: [ 'text', 'redirect' ],
+	},
 	jetpackCRM: {
 		type: 'boolean',
 	},
@@ -52,6 +55,12 @@ export default {
 			listName: null,
 		},
 	},
+	hostingerReach: {
+		type: 'object',
+		default: {
+			groupName: '',
+		},
+	},
 	saveResponses: {
 		type: 'boolean',
 		default: true,
@@ -63,5 +72,17 @@ export default {
 	disableGoBack: {
 		type: 'boolean',
 		default: false,
+	},
+	disableSummary: {
+		type: 'boolean',
+		default: false,
+	},
+	formNotifications: {
+		type: 'boolean',
+		default: true,
+	},
+	notificationRecipients: {
+		type: 'array',
+		default: [],
 	},
 };

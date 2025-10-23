@@ -1,0 +1,44 @@
+# API Reference
+
+This document provides comprehensive API specifications for the [Component] [Feature].
+
+## [Component].[FeatureComponent]
+
+[Description of the container/wrapper component].
+
+**Props:**
+
+- `children`: [Description of expected children]
+
+## [Component].[SubComponent]
+
+[Description of the main feature component].
+
+**Props:**
+
+| Prop             | Type                          | Default     | Description                 |
+| ---------------- | ----------------------------- | ----------- | --------------------------- |
+| `[requiredProp]` | `[Type]`                      | -           | **Required.** [Description] |
+| `[optionalProp]` | `[Type] \| [AlternativeType]` | `[default]` | [Description]               |
+| `[anotherProp]`  | `[ComplexType]`               | -           | [Description]               |
+
+## [TypeName] Type
+
+[Brief description of what this type represents].
+
+```typescript
+type [TypeName] = {
+	[property]: [Type];
+	[optionalProperty]?: [Type];
+};
+```
+
+## [AnotherTypeName] Type
+
+[Brief description of what this type represents].
+
+```typescript
+type [AnotherTypeName] = {
+	[property]: [Type];
+};
+```

@@ -256,6 +256,7 @@ class Contact_Form_Test extends BaseTestCase {
 				'user_email' => 'john@example.com',
 				'user_login' => 'test_user',
 				'user_pass'  => 'abc123',
+				'role'       => 'author',
 			)
 		);
 
@@ -378,7 +379,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Create a contact form
 		$form = new Contact_Form(
 			array(
-				'customThankyou' => 'redirect', // Any value that's not 'message'
+				'customThankyou' => '',
 			),
 			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
 		);
@@ -2507,27 +2508,73 @@ EOT;
 	 * Tests get_default_to method with valid post author.
 	 */
 	public function test_get_default_to_with_valid_post_author() {
+		$email     = 'author@example.com';
 		$author_id = wp_insert_user(
 			array(
-				'user_email' => 'author@example.com',
+				'user_email' => $email,
 				'user_login' => 'test_author',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( $email, $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
+
+	/**
+	 * Tests get_default_to method with valid post author.
+	 */
+	public function test_get_default_to_with_valid_post_author_subscriber() {
+		$author_id = wp_insert_user(
+			array(
+				'user_email' => 'subscriber@example.com',
+				'user_login' => 'test_author',
+				'user_pass'  => 'password123',
+				'role'       => 'subscriber',
+			)
+		);
+		$source    = $this->get_source( $author_id );
+		$result    = Contact_Form::get_default_to( $author_id, $source );
+
+		$this->assertEquals( get_option( 'admin_email' ), $result );
+
+		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
+	}
+	/**
+	 * Helper function to create a Feedback_Source object from a post.
+	 */
+	public function get_source( $author_id ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'This is a test post.',
+				'post_status'  => 'publish',
+				'post_author'  => $author_id,
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
-
-		$this->assertEquals( 'author@example.com', $result );
-
-		wp_delete_user( $author_id );
+		return Feedback_Source::from_serialized(
+			array(
+				'source_id' => $post_id,
+				'title'     => 'Test Post',
+			)
+		);
 	}
 
 	/**
 	 * Tests get_default_to method with invalid post author ID.
 	 */
 	public function test_get_default_to_with_invalid_post_author() {
-		$result = Contact_Form::get_default_to( 99999 ); // Non-existent user ID
+		$source = $this->get_source( 99999 );
+		$result = Contact_Form::get_default_to( 99999, $source ); // Non-existent user ID
 
+		wp_delete_post( $source->get_id(), true );
 		$this->assertEquals( get_option( 'admin_email' ), $result );
 	}
 
@@ -2549,14 +2596,18 @@ EOT;
 				'user_email' => '',
 				'user_login' => 'test_author_no_email',
 				'user_pass'  => 'password123',
+				'role'       => 'editor',
 			)
 		);
 
-		$result = Contact_Form::get_default_to( $author_id );
+		$source = $this->get_source( $author_id );
+
+		$result = Contact_Form::get_default_to( $author_id, $source );
 
 		$this->assertEquals( get_option( 'admin_email' ), $result );
 
 		wp_delete_user( $author_id );
+		wp_delete_post( $source->get_id(), true );
 	}
 
 	/**
@@ -2724,12 +2775,17 @@ EOT;
 			'disableGoBack'          => false,
 		);
 		// Add a widget ID to the attributes for testing.
-		$expected_attributes                        = $attributes;
-		$expected_attributes['jetpackCRM']          = '1';
-		$expected_attributes['block_template']      = '';
-		$expected_attributes['block_template_part'] = '';
-		$expected_attributes['id']                  = 'widget-string';
-		$expected_attributes['saveResponses']       = 'yes';
+		$expected_attributes                           = $attributes;
+		$expected_attributes['jetpackCRM']             = '1';
+		$expected_attributes['block_template']         = '';
+		$expected_attributes['block_template_part']    = '';
+		$expected_attributes['id']                     = 'widget-string';
+		$expected_attributes['saveResponses']          = 'yes';
+		$expected_attributes['disableGoBack']          = '';
+		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['disableSummary']         = '';
+		$expected_attributes['confirmationType']       = '';
+		$expected_attributes['hostingerReach']         = '';
 
 		$form = new Contact_Form(
 			$attributes,
@@ -2750,6 +2806,8 @@ EOT;
 		$this->assertSame( '12345', $form_copy->get_attribute( 'salesforceData' )['organizationId'], 'organizationId should match' );
 
 		$this->assertEquals( $expected_attributes, $form_copy->get_attributes(), 'jetpackCRM should be true' );
+
+		$this->assertEquals( $form->get_source(), $form_copy->get_source(), 'Form sources should match' );
 	}
 
 	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {

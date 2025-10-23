@@ -3,7 +3,7 @@ Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur,
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
+Tested up to: 6.9
 Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -268,12 +268,16 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 3.0.1 - 2025-08-05
+### 3.0.2 - 2025-10-10
 #### Added
-- Caching: Ignore Yandex parameters so those visitors are served from the cache.
+- Add typecheck support for E2E tests.
 
 #### Changed
 - Update package dependencies.
+- Use `wp_rand()` instead of `rand()` and `mt_rand()`.
+
+#### Fixed
+- Code: Resolve PhanImpossibleCondition violations.
 
 --------
 

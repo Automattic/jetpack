@@ -2,15 +2,16 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import { useIntegrationsStatus } from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integrations-status';
+import { INTEGRATIONS_STORE } from '../../store/integrations';
 import AkismetDashboardCard from './akismet-card';
-import CreativeMailDashboardCard from './creative-mail-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
+import HostingerReachDashboardCard from './hostinger-reach-card';
 import JetpackCRMDashboardCard from './jetpack-crm-card';
 import MailPoetDashboardCard from './mailpoet-card';
 import SalesforceDashboardCard from './salesforce-card';
@@ -18,17 +19,26 @@ import './style.scss';
 /**
  * Types
  */
+import type { SelectIntegrations, IntegrationsDispatch } from '../../store/integrations';
 import type { Integration } from '../../types';
 
+const EMPTY_ARRAY: Integration[] = [];
+
 const Integrations = () => {
-	const { integrations, refreshIntegrations } = useIntegrationsStatus();
+	const { integrations } = useSelect( ( select: SelectIntegrations ) => {
+		const store = select( INTEGRATIONS_STORE );
+		return {
+			integrations: store.getIntegrations() ?? EMPTY_ARRAY,
+		};
+	}, [] ) as { integrations: Integration[] };
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
 		googleSheets: false,
 		crm: false,
-		creativemail: false,
 		salesforce: false,
 		mailpoet: false,
+		hostingerReach: false,
 	} );
 
 	const toggleCard = useCallback( ( cardId: keyof typeof expandedCards ) => {
@@ -56,14 +66,14 @@ const Integrations = () => {
 	);
 	const handleToggleCRM = useCallback( () => toggleCard( 'crm' ), [ toggleCard ] );
 	const handleToggleSalesforce = useCallback( () => toggleCard( 'salesforce' ), [ toggleCard ] );
-	const handleToggleCreativeMail = useCallback(
-		() => toggleCard( 'creativemail' ),
+	const handleToggleMailPoet = useCallback( () => toggleCard( 'mailpoet' ), [ toggleCard ] );
+	const handleToggleHostingerReach = useCallback(
+		() => toggleCard( 'hostingerReach' ),
 		[ toggleCard ]
 	);
-	const handleToggleMailPoet = useCallback( () => toggleCard( 'mailpoet' ), [ toggleCard ] );
 
 	const findIntegrationById = ( id: string ) =>
-		integrations?.find( ( integration: Integration ) => integration.id === id );
+		integrations.find( integration => integration.id === id );
 
 	// Only supported integrations will be returned from endpoint.
 	const akismetData = findIntegrationById( 'akismet' );
@@ -71,7 +81,7 @@ const Integrations = () => {
 	const crmData = findIntegrationById( 'zero-bs-crm' );
 	const mailpoetData = findIntegrationById( 'mailpoet' );
 	const salesforceData = findIntegrationById( 'salesforce' );
-	const creativeMailData = findIntegrationById( 'creative-mail-by-constant-contact' );
+	const hostingerReachData = findIntegrationById( 'hostinger-reach' );
 
 	return (
 		<div className="jp-forms__integrations">
@@ -128,13 +138,12 @@ const Integrations = () => {
 							refreshStatus={ refreshIntegrations }
 						/>
 					) }
-					{ creativeMailData && (
-						<CreativeMailDashboardCard
-							isExpanded={ expandedCards.creativemail }
-							onToggle={ handleToggleCreativeMail }
-							data={ creativeMailData }
+					{ hostingerReachData && (
+						<HostingerReachDashboardCard
+							isExpanded={ expandedCards.hostingerReach }
+							onToggle={ handleToggleHostingerReach }
+							data={ hostingerReachData }
 							refreshStatus={ refreshIntegrations }
-							borderBottom={ false }
 						/>
 					) }
 				</div>

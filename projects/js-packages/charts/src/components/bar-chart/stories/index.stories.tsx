@@ -11,7 +11,14 @@ import {
 import BarChart from '../bar-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > >;
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how data/state is manipulated in stories.
+ */
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
+	/** Controls how many data series to display: 'single' (1 series), 'multiple' (3 series), or 'many' (all series) */
+	seriesCount?: 'single' | 'multiple' | 'many';
+};
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar Chart',
@@ -24,6 +31,44 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		orientation: {
+			control: { type: 'radio' },
+			options: [ 'vertical', 'horizontal' ],
+			description: 'Bar orientation',
+			table: { category: 'Visual Style' },
+		},
+		gridVisibility: {
+			control: { type: 'radio' },
+			options: [ 'none', 'x', 'y', 'both' ],
+			description: 'Grid line visibility',
+			table: { category: 'Visual Style' },
+		},
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+			table: { category: 'Data' },
+		},
+		withPatterns: {
+			control: 'boolean',
+			description: 'Use patterns for bars',
+			table: { category: 'Visual Style' },
+		},
+	},
+	render: args => {
+		const { seriesCount, ...chartProps } = args;
+
+		// Determine data based on seriesCount control
+		let data = chartProps.data;
+		if ( seriesCount === 'single' ) {
+			data = [ medalCountsData[ 0 ] ];
+		} else if ( seriesCount === 'multiple' ) {
+			data = [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ];
+		} else if ( seriesCount === 'many' ) {
+			data = medalCountsData;
+		}
+
+		return <BarChart { ...chartProps } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -199,10 +244,20 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithLegend: Story = {
+export const WithInteractiveLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		legendInteractive: true,
+		chartId: 'bar-chart-with-interactive-legend',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Bar chart with interactive legend. Click on legend items to toggle series visibility. When all series are hidden, a message will be displayed prompting you to click legend items to show data again.',
+			},
+		},
 	},
 };
 

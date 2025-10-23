@@ -15,6 +15,7 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
+	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
@@ -34,6 +35,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
+	legendInteractive?: boolean;
 	children?: ReactNode;
 }
 
@@ -84,6 +86,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendAlignment = 'center',
 	legendMaxWidth,
 	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -91,6 +94,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	legendInteractive = false,
 	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
@@ -126,7 +130,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const providerTheme = useGlobalChartsTheme();
+
+	// Add visibility information to series when using interactive legends
+	const seriesWithVisibility = useMemo( () => {
+		if ( ! chartId || ! legendInteractive ) {
+			return dataWithVisibleZeros.map( ( series, index ) => ( {
+				series,
+				index,
+				isVisible: true,
+			} ) );
+		}
+		return dataWithVisibleZeros.map( ( series, index ) => ( {
+			series,
+			index,
+			isVisible: isSeriesVisible( chartId, series.label ),
+		} ) );
+	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+
+	// Check if all series are hidden
+	const allSeriesHidden = useMemo( () => {
+		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+	}, [ seriesWithVisibility ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
@@ -347,17 +373,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
+					{ allSeriesHidden ? (
+						<text
+							x={ width / 2 }
+							y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+							textAnchor="middle"
+							fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+							fontSize="14"
+							fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+						>
+							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+						</text>
+					) : null }
+
 					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
-							<BarSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ chartOptions.accessors.yAccessor }
-								xAccessor={ chartOptions.accessors.xAccessor }
-								colorAccessor={ getBarBackground( index ) }
-							/>
-						) ) }
+						{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+							// Skip rendering invisible series
+							if ( ! isVisible ) {
+								return null;
+							}
+
+							return (
+								<BarSeries
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] }
+									yAccessor={ chartOptions.accessors.yAccessor }
+									xAccessor={ chartOptions.accessors.xAccessor }
+									colorAccessor={ getBarBackground( index ) }
+								/>
+							);
+						} ) }
 					</BarGroup>
 
 					<Axis { ...chartOptions.axis.x } />
@@ -385,10 +431,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						alignment={ legendAlignment }
 						maxWidth={ legendMaxWidth }
 						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'bar-chart__legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 

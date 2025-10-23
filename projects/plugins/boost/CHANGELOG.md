@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.0] - 2025-10-15
+### Added
+- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders. [#45408]
+
+### Changed
+- Update package dependencies. [#45173] [#45229] [#45241] [#45298] [#45299] [#45334] [#45335] [#45478]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
 ## [4.4.0] - 2025-09-18
 ### Added
 - Cornerstone Pages: Add filter to allow the full list of pages to be changed. [#44907]
@@ -29,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
 - Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
 - Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
-- My Jetpack: Fixed multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
 - Update package dependencies. [#44677] [#44701] [#44725]
 
 ### Fixed
@@ -823,6 +833,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.4.0...4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
 [4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0

@@ -1,19 +1,25 @@
 import { useEffect } from '@wordpress/element';
 import { useNavigate } from 'react-router';
-import { config } from '../';
+import useConfigValue from '../../hooks/use-config-value';
 import InboxView from './dataviews';
 import './style.scss';
 
 const Inbox = () => {
 	const navigate = useNavigate();
 
+	const hasFeedback = useConfigValue( 'hasFeedback' );
+
 	// If a user has no responses yet, redirect them to the landing page.
 	useEffect( () => {
-		if ( config( 'hasFeedback' ) ) {
+		if ( hasFeedback !== false ) {
 			return;
 		}
-		navigate( '/landing' );
-	}, [ navigate ] );
+		navigate( '/about' );
+	}, [ navigate, hasFeedback ] );
+
+	if ( hasFeedback === undefined ) {
+		return null; // or a loading spinner, if you prefer
+	}
 
 	return <InboxView />;
 };

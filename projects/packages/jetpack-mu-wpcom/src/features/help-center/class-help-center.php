@@ -8,7 +8,6 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Class Help_Center
@@ -29,6 +28,13 @@ class Help_Center {
 	private $is_support_site = false;
 
 	/**
+	 * The purchases of the current site.
+	 *
+	 * @var array
+	 */
+	private $purchases = array();
+
+	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
@@ -38,16 +44,86 @@ class Help_Center {
 			return;
 		}
 
-		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			return;
+		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
+			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
+		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
 
 		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+	}
+
+	/**
+	 * Update the calypso preferences.
+	 *
+	 * @param \stdClass $preferences The preferences.
+	 * @return \stdClass The preferences.
+	 */
+	public function calypso_preferences_update( $preferences ) {
+		// Check if help_center_router_history exists and is a valid array structure
+		if ( ! isset( $preferences->help_center_router_history ) ||
+			! is_array( $preferences->help_center_router_history ) ) {
+			return $preferences;
+		}
+
+		$router_history = $preferences->help_center_router_history;
+
+		// Check if entries exist and is an array
+		if ( ! isset( $router_history['entries'] ) ||
+			! is_array( $router_history['entries'] ) ) {
+			return $preferences;
+		}
+
+		$entries = $router_history['entries'];
+
+		// Limit entries to 50 to prevent spamming entries in the router history.
+		if ( count( $entries ) > 50 ) {
+			// Keep only the last 49 entries and add the root entry at the beginning.
+			$entries = array_slice( $entries, -49 );
+			// Keep the start at root so the back button always works.
+			array_unshift(
+				$entries,
+				array(
+					'pathname' => '/',
+					'search'   => '',
+					'hash'     => '',
+					'key'      => 'default',
+					'state'    => null,
+				)
+			);
+
+			// Update the preferences object directly
+			$preferences->help_center_router_history['entries'] = $entries;
+			$preferences->help_center_router_history['index']   = 49;
+		}
+
+		return $preferences;
+	}
+
+	/**
+	 * Returns ISO 639 conforming locale string of the current user.
+	 *
+	 * @return string ISO 639 locale string e.g. "en"
+	 */
+	private static function determine_iso_639_locale() {
+		$language = get_user_locale();
+		$language = strtolower( $language );
+
+		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+			$language = str_replace( '_', '-', $language );
+		} else {
+			$language = preg_replace( '/([-_].*)$/i', '', $language );
+		}
+
+		if ( empty( $language ) ) {
+			return 'en';
+		}
+
+		return $language;
 	}
 
 	/**
@@ -131,7 +207,7 @@ class Help_Center {
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			$locale = Common\determine_iso_639_locale();
+			$locale = self::determine_iso_639_locale();
 
 			if ( 'en' !== $locale ) {
 				// Load translations directly from widgets.wp.com.
@@ -177,32 +253,34 @@ class Help_Center {
 				'before'
 			);
 
-			$user_id       = get_current_user_id();
-			$user_data     = get_userdata( $user_id );
-			$username      = $user_data->user_login;
-			$user_email    = $user_data->user_email;
-			$display_name  = $user_data->display_name;
-			$avatar_url    = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
-			$is_next_admin = (bool) did_action( 'next_admin_init' );
+			$user_id            = get_current_user_id();
+			$user_data          = get_userdata( $user_id );
+			$username           = $user_data->user_login;
+			$user_email         = $user_data->user_email;
+			$display_name       = $user_data->display_name;
+			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
+			$is_next_admin      = (bool) did_action( 'next_admin_init' );
 
 			wp_add_inline_script(
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'   => boolval( self::is_proxied() ),
-						'isSU'        => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'       => isset( $_COOKIE['ssp'] ),
-						'sectionName' => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin' => $is_next_admin,
-						'currentUser' => array(
+						'isProxied'        => boolval( self::is_proxied() ),
+						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'            => isset( $_COOKIE['ssp'] ),
+						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin'      => $is_next_admin,
+						'isCommerceGarden' => $is_commerce_garden,
+						'currentUser'      => array(
 							'ID'           => $user_id,
 							'username'     => $username,
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
 						),
-						'site'        => $this->get_current_site(),
-						'locale'      => Common\determine_iso_639_locale(),
+						'site'             => $this->get_current_site(),
+						'locale'           => self::determine_iso_639_locale(),
 					)
 				),
 				'before'
@@ -246,7 +324,7 @@ class Help_Center {
 		}
 
 		$logo_id = get_option( 'site_logo' );
-		$bundles = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
+		$bundles = $this->purchases;
 		$plan    = array_pop( $bundles );
 
 		$return_data = array(

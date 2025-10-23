@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
 use Automattic\Jetpack\Status;
@@ -332,6 +333,16 @@ class Contact_Form_Plugin {
 				'grunion_after_feedback_post_inserted',
 				array( MailPoet_Integration::class, 'handle_mailpoet_integration' ),
 				15,
+				4
+			);
+		}
+
+		// Register Hostinger Reach integration hook after the class is loaded.
+		if ( Jetpack_Forms::is_hostinger_reach_enabled() ) {
+			add_action(
+				'grunion_after_feedback_post_inserted',
+				array( Hostinger_Reach_Integration::class, 'handle_hostinger_reach_integration' ),
+				16,
 				4
 			);
 		}
@@ -1406,68 +1417,89 @@ class Contact_Form_Plugin {
 	 * Display the count of new feedback entries received. It's reset when user visits the Feedback screen.
 	 *
 	 * @since 4.1.0
-	 *
-	 * @param object $screen Information about the current screen.
 	 */
-	public function unread_count( $screen ) {
-		if ( isset( $screen->post_type ) && 'feedback' === $screen->post_type || $screen->id === 'jetpack_page_jetpack-forms-admin' ) {
-			update_option( 'feedback_unread_count', 0 );
-		} else {
-			global $submenu, $menu;
-			if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
-				// show the count on Jetpack and Jetpack → Forms
-				$unread = get_option( 'feedback_unread_count', 0 );
+	public function unread_count() {
 
-				if ( $unread > 0 && isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
-					$forms_unread_count_tag = " <span class='count-{$unread} awaiting-mod'><span>" . number_format_i18n( $unread ) . '</span></span>';
-					$jetpack_badge_count    = $unread;
+		global $submenu, $menu;
+		if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
+			// show the count on Jetpack and Jetpack → Forms
+			$unread = self::get_unread_count();
 
-					// Main menu entries
-					foreach ( $menu as $index => $main_menu_item ) {
-						if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
-							// Parse the menu item
-							$jetpack_menu_item = $this->parse_menu_item( $menu[ $index ][0] );
+			if ( isset( $submenu['jetpack'] ) && is_array( $submenu['jetpack'] ) && ! empty( $submenu['jetpack'] ) ) {
+				$forms_unread_count_tag = " <span class='jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $unread ) . '</span></span>';
+				$jetpack_badge_count    = $unread;
 
-							if ( isset( $jetpack_menu_item['badge'] ) && is_numeric( $jetpack_menu_item['badge'] ) && intval( $jetpack_menu_item['badge'] ) ) {
-								$jetpack_badge_count += intval( $jetpack_menu_item['badge'] );
-							}
+				// Main menu entries
+				foreach ( $menu as $index => $main_menu_item ) {
+					if ( isset( $main_menu_item[1] ) && 'jetpack_admin_page' === $main_menu_item[1] ) {
+						// Parse the menu item
+						$jetpack_menu_item = $this->parse_menu_item( $menu[ $index ][0] );
 
-							if ( isset( $jetpack_menu_item['count'] ) && is_numeric( $jetpack_menu_item['count'] ) && intval( $jetpack_menu_item['count'] ) ) {
-								$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
-							}
-
-							$jetpack_unread_tag = " <span class='count-{$jetpack_badge_count} awaiting-mod'><span>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
-
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+						if ( isset( $jetpack_menu_item['badge'] ) && is_numeric( $jetpack_menu_item['badge'] ) && intval( $jetpack_menu_item['badge'] ) ) {
+							$jetpack_badge_count += intval( $jetpack_menu_item['badge'] );
 						}
-					}
 
-					// Jetpack submenu entries
-					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-						if ( 'jetpack-forms-admin' === $menu_item[2] ) {
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+						if ( isset( $jetpack_menu_item['count'] ) && is_numeric( $jetpack_menu_item['count'] ) && intval( $jetpack_menu_item['count'] ) ) {
+							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
 						}
+
+						$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+
+						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
 					}
 				}
-				return;
-			}
-			if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
-				foreach ( $submenu['feedback'] as $index => $menu_item ) {
-					if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
-						$unread = get_option( 'feedback_unread_count', 0 );
-						if ( $unread > 0 ) {
-							$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
 
-							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-							$submenu['feedback'][ $index ][0] .= $unread_count;
-						}
-						break;
+				// Jetpack submenu entries
+				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
+					if ( 'jetpack-forms-admin' === $menu_item[2] ) {
+						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 					}
+				}
+			}
+			return;
+		}
+
+		if ( isset( $submenu['feedback'] ) && is_array( $submenu['feedback'] ) && ! empty( $submenu['feedback'] ) ) {
+			foreach ( $submenu['feedback'] as $index => $menu_item ) {
+				if ( 'edit.php?post_type=feedback' === $menu_item[2] ) {
+					$unread = self::get_unread_count();
+
+					if ( $unread > 0 ) {
+						$unread_count = current_user_can( 'publish_pages' ) ? " <span class='feedback-unread jp-feedback-unread-counter count-{$unread} awaiting-mod'><span class='feedback-unread-count'>" . number_format_i18n( $unread ) . '</span></span>' : '';
+
+						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+						$submenu['feedback'][ $index ][0] .= $unread_count;
+					}
+					break;
 				}
 			}
 		}
+	}
+
+	/**
+	 * Get the count of unread feedback entries.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @return int The count of unread feedback entries.
+	 */
+	public static function get_unread_count() {
+		return (int) get_option( 'jetpack_feedback_unread_count', 0 ); // previously defaulted named "feedback_unread_count".
+	}
+
+	/**
+	 * Recalculate the count of unread feedback entries.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @return int The count of unread feedback entries.
+	 */
+	public static function recalculate_unread_count() {
+		$count = Feedback::get_unread_count();
+		update_option( 'jetpack_feedback_unread_count', $count );
+		return $count;
 	}
 
 	/**

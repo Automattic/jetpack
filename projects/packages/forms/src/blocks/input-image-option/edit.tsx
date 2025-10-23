@@ -8,12 +8,13 @@ import {
 	RichText,
 } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import useAddImageOption from '../shared/hooks/use-add-image-option';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
 import { getImageOptionLetter } from './label';
@@ -40,7 +41,7 @@ export default function ImageOptionInputEdit( props ) {
 
 	const { 'jetpack/field-image-select-is-supersized': isSupersized } = context || {};
 
-	const { positionLetter, rowOptionsCount } = useSelect(
+	const { positionIndex, positionLetter, rowOptionsCount, parentId } = useSelect(
 		select => {
 			const blockEditor = select( blockEditorStore ) as BlockEditorStoreSelect;
 			const { getBlock } = blockEditor;
@@ -49,8 +50,8 @@ export default function ImageOptionInputEdit( props ) {
 				clientId,
 				'jetpack/fieldset-image-options'
 			);
-			const parentId = parentClientIds[ parentClientIds.length - 1 ];
-			const parentBlock = getBlock( parentId );
+			const parentBlockId = parentClientIds[ parentClientIds.length - 1 ];
+			const parentBlock = getBlock( parentBlockId );
 
 			// Find position within parent's inner blocks
 			const position =
@@ -63,11 +64,41 @@ export default function ImageOptionInputEdit( props ) {
 			const rowSiblingCount = Math.min( totalOptionsCount, maxImagesPerRow );
 
 			return {
+				positionIndex: position,
 				positionLetter: getImageOptionLetter( position ),
 				rowOptionsCount: rowSiblingCount,
+				parentId: parentBlockId,
 			};
 		},
 		[ clientId, isSupersized ]
+	);
+
+	const { addOption } = useAddImageOption( parentId );
+
+	// Handle key events to prevent newlines and add new option on Enter
+	const handleKeyDown = useCallback(
+		( event: KeyboardEvent ) => {
+			if ( event.key === 'Enter' ) {
+				event.preventDefault();
+				addOption( positionIndex );
+			}
+		},
+		[ addOption, positionIndex ]
+	);
+
+	// Filter pasted content to remove newlines
+	const handlePaste = useCallback(
+		( event: ClipboardEvent ) => {
+			event.preventDefault();
+
+			const pastedText = event.clipboardData?.getData( 'text/plain' ) || '';
+			const cleanText = pastedText.replace( /[\r\n]+/g, ' ' ).trim();
+
+			if ( cleanText ) {
+				setAttributes( { label: cleanText } );
+			}
+		},
+		[ setAttributes ]
 	);
 
 	// Use the block's own synced attributes for styling
@@ -90,10 +121,11 @@ export default function ImageOptionInputEdit( props ) {
 				{
 					scale: 'cover',
 					aspectRatio: '1', // Square aspect ratio for uniform grid
+					sizeSlug: isSupersized ? 'full' : 'medium',
 				},
 			],
 		];
-	}, [] );
+	}, [ isSupersized ] );
 
 	const innerBlocksProps = useInnerBlocksProps(
 		{ className: 'jetpack-input-image-option__wrapper' },
@@ -113,9 +145,11 @@ export default function ImageOptionInputEdit( props ) {
 					tagName="span"
 					className="jetpack-input-image-option__label"
 					value={ label }
-					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					placeholder={ __( 'Add label', 'jetpack-forms' ) }
 					__unstableDisableFormats
 					onChange={ ( newLabel: string ) => setAttributes( { label: newLabel } ) }
+					onKeyDown={ handleKeyDown }
+					onPaste={ handlePaste }
 				/>
 			</div>
 		</div>

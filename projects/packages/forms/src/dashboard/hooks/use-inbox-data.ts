@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { useEntityRecords } from '@wordpress/core-data';
+import { useEntityRecords, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
+import { isEmpty } from 'lodash';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
@@ -26,6 +29,23 @@ function getStatusFilter( urlStatus ) {
 	const statusFilter = [ 'inbox', 'spam', 'trash' ].includes( urlStatus ) ? urlStatus : 'inbox';
 	return statusFilter === 'inbox' ? 'draft,publish' : statusFilter;
 }
+
+const formatFieldName = fieldName => {
+	const match = fieldName.match( /^(\d+_)?(.*)/i );
+	if ( match ) {
+		return match[ 2 ];
+	}
+	return fieldName;
+};
+
+const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( Array.isArray( fieldValue ) ) {
+		return fieldValue.join( ', ' );
+	}
+	return fieldValue;
+};
 
 /**
  * Interface for the return value of the useInboxData hook.
@@ -58,71 +78,143 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions } = useSelect(
-		select => ( {
-			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-			currentStatus: select( dashboardStore ).getCurrentStatus(),
-			currentQuery: select( dashboardStore ).getCurrentQuery(),
-			filterOptions: select( dashboardStore ).getFilters(),
-		} ),
-		[]
-	);
+	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions, invalidRecords } =
+		useSelect(
+			select => ( {
+				selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+				currentStatus: select( dashboardStore ).getCurrentStatus(),
+				currentQuery: select( dashboardStore ).getCurrentQuery(),
+				filterOptions: select( dashboardStore ).getFilters(),
+				invalidRecords: select( dashboardStore ).getInvalidRecords(),
+			} ),
+			[]
+		);
 
+	// Track the frozen invalid_ids for the current page
+	// This prevents re-fetching when new items are marked as invalid
+	const [ frozenInvalidIds, setFrozenInvalidIds ] = useState< number[] >( [] );
+	const currentPageRef = useRef< number >( currentQuery?.page || 1 );
+
+	// When page changes, freeze the current invalid records for this page
+	useEffect( () => {
+		const newPage = currentQuery?.page || 1;
+		const hasUnreadFilter = currentQuery?.is_unread === true;
+
+		// If we're navigating to a new page
+		if ( newPage !== currentPageRef.current ) {
+			currentPageRef.current = newPage;
+
+			// Freeze invalid IDs when navigating to page 2+
+			if ( hasUnreadFilter ) {
+				setFrozenInvalidIds( Array.from( invalidRecords || new Set() ) );
+			} else {
+				// Clear frozen IDs on page 1 or when unread filter is off
+				setFrozenInvalidIds( [] );
+			}
+		}
+	}, [ currentQuery?.page, currentQuery?.is_unread, invalidRecords ] );
+
+	// Use frozen invalid_ids for the query
+	const queryWithInvalidIds = useMemo( () => {
+		if ( frozenInvalidIds.length > 0 ) {
+			return {
+				...currentQuery,
+				invalid_ids: frozenInvalidIds,
+			};
+		}
+		return currentQuery;
+	}, [ currentQuery, frozenInvalidIds ] );
 	const {
 		records: rawRecords,
-		isResolving: isLoadingRecordsData,
+		hasResolved,
 		totalItems,
 		totalPages,
-	} = useEntityRecords( 'postType', 'feedback', currentQuery );
+	} = useEntityRecords( 'postType', 'feedback', queryWithInvalidIds );
 
-	const records = ( rawRecords || [] ) as FormResponse[];
-
-	const { isResolving: isLoadingInboxData, totalItems: totalItemsInbox = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'publish,draft',
-			per_page: 1,
-			_fields: 'id',
-		}
+	const editedRecords = useSelect(
+		select => {
+			return ( rawRecords || [] ).map( record => {
+				// Get the edited version of this record if it exists
+				const editedRecord = select( coreDataStore ).getEditedEntityRecord(
+					'postType',
+					'feedback',
+					( record as FormResponse ).id
+				);
+				return editedRecord || record;
+			} );
+		},
+		[ rawRecords ]
 	);
 
-	const { isResolving: isLoadingSpamData, totalItems: totalItemsSpam = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'spam',
-			per_page: 1,
-			_fields: 'id',
+	const records = useMemo( () => {
+		return editedRecords.map( record => {
+			const formResponse = record as FormResponse;
+			return {
+				...formResponse,
+				fields: Object.entries( formResponse.fields || {} ).reduce(
+					( accumulator, [ key, value ] ) => {
+						let _key = formatFieldName( key );
+						let counter = 2;
+						while ( accumulator[ _key ] ) {
+							_key = `${ formatFieldName( key ) } (${ counter })`;
+							counter++;
+						}
+						accumulator[ _key ] = formatFieldValue( decodeEntities( value as string ) );
+						return accumulator;
+					},
+					{}
+				),
+			};
+		} ) as FormResponse[];
+	}, [ editedRecords ] );
+
+	// Prepare query params for counts resolver
+	const countsQueryParams = useMemo( () => {
+		const params: Record< string, unknown > = {};
+		if ( currentQuery?.search ) {
+			params.search = currentQuery.search;
 		}
+		if ( currentQuery?.parent ) {
+			params.parent = currentQuery.parent;
+		}
+		if ( currentQuery?.before ) {
+			params.before = currentQuery.before;
+		}
+		if ( currentQuery?.after ) {
+			params.after = currentQuery.after;
+		}
+		if ( currentQuery?.is_unread !== undefined ) {
+			params.is_unread = currentQuery.is_unread;
+		}
+
+		return params;
+	}, [ currentQuery ] );
+
+	// Use the getCounts selector with resolver - this will automatically fetch and cache counts
+	// The resolver ensures counts are only fetched once for the same query params across all hook instances
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useSelect(
+		select => {
+			// This will trigger the resolver if the counts for these queryParams aren't already cached
+			select( dashboardStore ).getCounts( countsQueryParams );
+
+			// Return the counts for the current query
+			return {
+				totalItemsInbox: select( dashboardStore ).getInboxCount( countsQueryParams ),
+				totalItemsSpam: select( dashboardStore ).getSpamCount( countsQueryParams ),
+				totalItemsTrash: select( dashboardStore ).getTrashCount( countsQueryParams ),
+			};
+		},
+		[ countsQueryParams ]
 	);
 
-	const { isResolving: isLoadingTrashData, totalItems: totalItemsTrash = 0 } = useEntityRecords(
-		'postType',
-		'feedback',
-		{
-			page: 1,
-			search: '',
-			...currentQuery,
-			status: 'trash',
-			per_page: 1,
-			_fields: 'id',
-		}
-	);
+	const isLoadingData = ! rawRecords?.length && ! hasResolved;
 
 	return {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
 		records,
-		isLoadingData:
-			isLoadingRecordsData || isLoadingInboxData || isLoadingSpamData || isLoadingTrashData,
+		isLoadingData,
 		totalItems,
 		totalPages,
 		selectedResponsesCount,

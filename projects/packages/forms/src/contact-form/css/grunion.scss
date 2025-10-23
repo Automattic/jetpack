@@ -1,5 +1,6 @@
 /* Import shared visually-hidden utility so editor and frontend match */
 @use "../../blocks/shared/styles/visually-hidden" as *;
+@use "../../blocks/shared/styles/empty_image_option" as *;
 
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;
@@ -225,6 +226,19 @@ that needs to mimic the input element styles */
 	word-wrap: break-word;
 }
 
+.contact-form-submission :where(.jetpack_forms_contact-form-custom-success-message) p {
+	margin: revert;
+}
+
+.contact-form-submission :where(.jetpack_forms_contact-form-custom-success-message) {
+	white-space: pre-wrap;
+	text-wrap: pretty;
+}
+
+.jetpack_forms_contact-form-custom-success-message + .jetpack_forms_contact-form-success-summary {
+	margin-top: 32px;
+}
+
 .contact-form-submission h4 {
 	margin-top: 32px;
 	margin-bottom: 32px;
@@ -258,9 +272,28 @@ that needs to mimic the input element styles */
 	}
 
 	.field-image {
-		width: 200px;
-		aspect-ratio: 1/1;
-		object-fit: cover;
+		width: 196px;
+		height: 196px;
+
+		&.is-empty {
+			position: relative;
+
+			&::before {
+
+				@extend %empty-image-option-background;
+			}
+
+			&::after {
+
+				@extend %empty-image-option-icon;
+			}
+		}
+
+		img {
+			width: 100%;
+			aspect-ratio: 1/1;
+			object-fit: cover;
+		}
 	}
 }
 

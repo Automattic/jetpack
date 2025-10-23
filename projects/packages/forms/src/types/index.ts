@@ -96,6 +96,8 @@ export interface FormResponse {
 	entry_permalink: string;
 	/** Whether the response has a file attached. */
 	has_file: boolean;
+	/** Whether the response is unread. */
+	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
 }
@@ -212,6 +214,8 @@ export type BlockEditorStoreSelect = {
 export interface FormsConfigData {
 	/** Whether MailPoet integration is enabled across contexts. */
 	isMailPoetEnabled?: boolean;
+	/** Whether Hostinger Reach integration is enabled across contexts. */
+	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
@@ -220,8 +224,6 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
-	/** Whether AI Assist features are available for the site/user. */
-	hasAI?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
 	formsResponsesUrl?: string;
 	/** Current site blog ID. */
@@ -238,4 +240,6 @@ export interface FormsConfigData {
 	exportNonce?: string;
 	/** Nonce for creating a new form (dashboard-only). */
 	newFormNonce?: string;
+	/** Number of days before WordPress permanently deletes trash. See https://developer.wordpress.org/advanced-administration/wordpress/wp-config/#empty-trash */
+	emptyTrashDays?: number;
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-config-target-es",
-	"version": "4.0.0",
+	"version": "4.0.1",
 	"description": "ESLint sharable config to activate eslint-plugin-es-x checks based on browserslist targets.",
 	"keywords": [
 		"eslint",

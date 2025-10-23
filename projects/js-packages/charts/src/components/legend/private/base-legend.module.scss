@@ -63,6 +63,34 @@
 	display: flex;
 	align-items: center;
 	font-size: 0.875rem;
+
+	&--interactive {
+		cursor: pointer;
+		user-select: none;
+		transition: opacity 0.2s ease;
+
+		&:hover {
+			opacity: 0.8;
+		}
+
+		&:focus {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+			border-radius: 4px;
+		}
+
+		&:focus:not(:focus-visible) {
+			outline: none;
+		}
+	}
+
+	&--inactive {
+		opacity: 0.4;
+
+		.legend-item-label {
+			text-decoration: line-through;
+		}
+	}
 }
 
 .legend-item-label {

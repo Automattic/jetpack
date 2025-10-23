@@ -604,7 +604,21 @@ class Functions {
 	 */
 	public static function json_wrap( &$any, $seen_nodes = array() ) {
 		if ( is_object( $any ) ) {
-			$input        = get_object_vars( $any );
+			$input = get_object_vars( $any );
+
+			// WordPress 6.9 introduced lazy-loading of WP_User `roles`, `caps`, and `allcaps` properties.
+			// It also made said properties protected, so we need to access them and set them as keys manually.
+			if ( $any instanceof \WP_User ) {
+				$roles   = $any->roles;
+				$caps    = $any->caps;
+				$allcaps = $any->allcaps;
+
+				// For WordPress <6.8 the below are redundant. :shrug:
+				$input['roles']   = $roles;
+				$input['caps']    = $caps;
+				$input['allcaps'] = $allcaps;
+			}
+
 			$input['__o'] = 1;
 		} else {
 			$input = &$any;

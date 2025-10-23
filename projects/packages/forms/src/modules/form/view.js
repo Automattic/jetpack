@@ -5,6 +5,7 @@ import {
 	getContext,
 	store,
 	getConfig,
+	getElement,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
 /*
@@ -65,6 +66,10 @@ const registerField = (
 ) => {
 	const context = getContext();
 
+	if ( ! context.fields ) {
+		context.fields = {};
+	}
+
 	if ( ! context.fields[ fieldId ] ) {
 		context.fields[ fieldId ] = {
 			id: fieldId,
@@ -99,8 +104,10 @@ const maybeAddColonToLabel = label => {
 	if ( ! formattedLabel ) {
 		return null;
 	}
-
-	return formattedLabel.endsWith( '?' ) ? formattedLabel : formattedLabel.replace( /:$/, '' ) + ':';
+	// Special case for the Terms consent field block which has a period at the end of the text.
+	return formattedLabel.endsWith( '?' )
+		? formattedLabel
+		: formattedLabel.replace( /[.:]$/, '' ) + ':';
 };
 
 const maybeTransformValue = value => {
@@ -129,7 +136,7 @@ const maybeTransformValue = value => {
 
 const getImages = value => {
 	if ( value?.type === 'image-select' ) {
-		return value.choices.filter( choice => choice.image?.src ).map( choice => choice.image?.src );
+		return value.choices.map( choice => choice.image?.src );
 	}
 
 	return null;
@@ -575,19 +582,36 @@ const { state, actions } = store( NAMESPACE, {
 		},
 
 		setImageOptionCheckColor() {
-			const context = getContext();
+			const { ref } = getElement();
 
-			const { inputId } = context;
-			const input = document.getElementById( inputId );
-
-			if ( ! input ) {
+			if ( ! ref ) {
 				return;
 			}
 
-			const color = window.getComputedStyle( input ).color;
+			const color = window.getComputedStyle( ref ).color;
 			const inverseColor = window.jetpackForms.getInverseReadableColor( color );
+			const style = ref.getAttribute( 'style' ) ?? '';
 
-			input.setAttribute( 'style', `--jetpack-input-image-option--check-color: ${ inverseColor }` );
+			ref.setAttribute(
+				'style',
+				style + `--jetpack-input-image-option--check-color: ${ inverseColor }`
+			);
+		},
+
+		setImageOptionOutlineColor() {
+			const { ref } = getElement();
+
+			if ( ! ref ) {
+				return;
+			}
+
+			const { borderColor } = window.getComputedStyle( ref );
+			const style = ref.getAttribute( 'style' ) ?? '';
+
+			ref.setAttribute(
+				'style',
+				style + `--jetpack-input-image-option--outline-color: ${ borderColor }`
+			);
 		},
 	},
 } );

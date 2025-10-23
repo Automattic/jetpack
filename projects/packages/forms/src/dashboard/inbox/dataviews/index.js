@@ -3,7 +3,6 @@
  */
 import {
 	ExternalLink,
-	Modal,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
@@ -13,48 +12,32 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { isEmpty } from 'lodash';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
+import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import InboxResponse from '../response';
-import { getPath } from '../utils.js';
+import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
-	viewActionModal,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
 	deleteAction,
 	restoreAction,
+	markAsReadAction,
+	markAsUnreadAction,
+	editFormAction,
 } from './actions';
 import { useView, defaultLayouts } from './views';
 
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;
-const getItemId = item => item.id.toString();
-
-const formatFieldName = fieldName => {
-	const match = fieldName.match( /^(\d+_)?(.*)/i );
-	if ( match ) {
-		return match[ 2 ];
-	}
-	return fieldName;
-};
-
-const formatFieldValue = fieldValue => {
-	if ( isEmpty( fieldValue ) ) {
-		return '-';
-	} else if ( Array.isArray( fieldValue ) ) {
-		return fieldValue.join( ', ' );
-	}
-	return fieldValue;
-};
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -133,12 +116,17 @@ export default function InboxView() {
 				accumulator.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
 				accumulator.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
 			}
+			if ( field === 'read_status' ) {
+				accumulator.is_unread = value === 'unread';
+			}
 			return accumulator;
 		}, {} );
 		const _queryArgs = {
+			order: 'desc',
+			orderby: 'date',
 			per_page: view.perPage,
 			page: view.page,
-			search: view.search,
+			...( view.search ? { search: view.search } : {} ),
 			..._filters,
 			status: statusFilter,
 		};
@@ -146,88 +134,129 @@ export default function InboxView() {
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
-	const data = useMemo(
-		() =>
-			records?.map( record => ( {
-				...record,
-				/**
-				 * We need to perform some operations to the fields:
-				 * 1. Decode the values.
-				 * 2. Remove the `number_` prefix from the keys. An example stored key is `1_Name: "Rigas"`.
-				 * 3. Normalize the values to handle the case where the value is an array or if is empty.
-				 */
-				fields: Object.entries( record.fields || {} ).reduce( ( accumulator, [ key, value ] ) => {
-					let _key = formatFieldName( key );
-					let counter = 2;
-					while ( accumulator[ _key ] ) {
-						_key = `${ formatFieldName( key ) } (${ counter })`;
-						counter++;
-					}
-					accumulator[ _key ] = formatFieldValue( decodeEntities( value ) );
-					return accumulator;
-				}, {} ),
-			} ) ),
-		[ records ]
-	);
-	const [ selection, setSelection ] = useState( selectedResponses?.split( ',' ) || EMPTY_ARRAY );
+
+	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
+
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
 	// do not exist at all or ids that are not in the current data set.
 	useEffect( () => {
 		const validSelectedIds = ( selection || [] ).filter( id =>
-			data?.some( record => getItemId( record ) === id )
+			records?.some( record => getItemId( record ) === id )
 		);
+
 		setSelectedResponses( validSelectedIds );
-	}, [ data, selection, setSelectedResponses ] );
+	}, [ records, selection, setSelectedResponses ] );
+
 	const [ sidePanelItem, setSidePanelItem ] = useState();
 	const onChangeSelection = useCallback(
 		items => {
-			setSelection( items );
 			// Set the side panel item only when we are not on mobile.
 			if ( ! isMobile ) {
 				setSidePanelItem(
 					!! items?.length &&
-						data?.find( record => getItemId( record ) === items[ items.length - 1 ] )
+						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
 				);
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( items.length ) {
-					_searchParams.set( 'r', items.join( ',' ) );
+				const currentURLSelection = _searchParams.get( 'r' )?.split( ',' ) || [];
+
+				// Filter out IDs from the current URL selection that are either already selected in the current view
+				// or already present in the current records, to avoid duplication when merging selections across pages.
+				const currentSelection = currentURLSelection.filter(
+					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
+				);
+
+				// merge items with the current URL
+				const mergedItems = [ ...new Set( [ ...currentSelection, ...items ] ) ];
+				if ( mergedItems.length ) {
+					_searchParams.set( 'r', mergedItems.join( ',' ) );
 				} else {
 					_searchParams.delete( 'r' );
 				}
 				return _searchParams;
 			} );
 		},
-		[ data, setSearchParams, isMobile ]
+		[ records, setSearchParams, isMobile ]
 	);
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.
 	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! data && !! selection.length ) {
-		const firstValidSelection = selection.find( id =>
-			data.some( record => getItemId( record ) === id )
-		);
-		const recordToShow = data?.find( record => getItemId( record ) === firstValidSelection );
+	if ( ! isMobile && !! records && !! selection.length ) {
+		// Find the last (most recently selected) valid selection instead of the first
+		const lastValidSelection = selection
+			.slice()
+			.reverse()
+			.find( id => records.some( record => getItemId( record ) === id ) );
+		const recordToShow = records?.find( record => getItemId( record ) === lastValidSelection );
 		if ( ! sidePanelItem && recordToShow ) {
 			setSidePanelItem( recordToShow );
 		} else if ( !! sidePanelItem && ! recordToShow ) {
 			// This case handles the case where we were having a side panel item
 			// visible but the data have changed and the item is not there anymore.
 			setSidePanelItem();
+		} else if (
+			!! sidePanelItem &&
+			!! recordToShow &&
+			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+			sidePanelItem !== recordToShow
+		) {
+			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
+			// This ensures the side panel shows the latest version of the same entity
+			setSidePanelItem( recordToShow );
+		} else if (
+			!! recordToShow &&
+			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
+		) {
+			// Set side panel item when selecting a different item
+			setSidePanelItem( recordToShow );
 		}
 	}
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
 	);
+
+	const wrapperUnread = ( isUnread, itemValue ) => {
+		if ( isUnread ) {
+			return <span className="jp-forms__inbox__unread">{ itemValue }</span>;
+		}
+		return itemValue;
+	};
 	const fields = useMemo(
 		() => [
 			{
 				id: 'from',
 				label: __( 'From', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const authorInfo = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip
+					);
+					return (
+						<div className="jp-forms__inbox__author-field">
+							{ item.is_unread && (
+								<span
+									className="jp-forms__inbox__unread-indicator"
+									aria-label={ __( '(Unread form response)', 'jetpack-forms' ) }
+								>
+									●
+								</span>
+							) }
+							{ item.author_email && (
+								<Gravatar
+									email={ item.author_email }
+									displayName={ authorInfo }
+									key={ decodeEntities( item.author_email ) }
+									size={ 32 }
+									useHovercard={ false }
+								/>
+							) }
+							{ wrapperUnread( item.is_unread, authorInfo ) }
+						</div>
+					);
+				},
 				getValue: ( { item } ) => {
 					return decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
@@ -239,7 +268,9 @@ export default function InboxView() {
 			{
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
-				render: ( { item } ) => dateI18n( dateSettings.formats.date, item.date ),
+				render: ( { item } ) => {
+					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
 					date.setDate( 1 );
@@ -263,7 +294,10 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<ExternalLink href={ item.entry_permalink }>
-							{ decodeEntities( item.entry_title ) || getPath( item ) }
+							{ wrapperUnread(
+								item.is_unread,
+								decodeEntities( item.entry_title ) || getPath( item )
+							) }
 						</ExternalLink>
 					);
 				},
@@ -274,6 +308,16 @@ export default function InboxView() {
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
+			{
+				id: 'read_status',
+				label: __( 'Read status', 'jetpack-forms' ),
+				elements: [
+					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
+					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
+				],
+				filterBy: { operators: [ 'is' ] },
+				enableSorting: false,
+			},
 			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
 		],
 		[ filterOptions, dateSettings.formats.date ]
@@ -281,14 +325,24 @@ export default function InboxView() {
 
 	const actions = useMemo( () => {
 		const _actions = [
+			markAsReadAction,
+			markAsUnreadAction,
 			markAsSpamAction,
 			markAsNotSpamAction,
 			moveToTrashAction,
+			editFormAction,
 			restoreAction,
 			deleteAction,
 		];
 		if ( isMobile ) {
-			_actions.unshift( viewActionModal );
+			_actions.unshift( {
+				...viewAction,
+				RenderModal: ( { items, closeModal } ) => {
+					const [ item ] = items;
+					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+				},
+				hideModalHeader: true,
+			} );
 		} else {
 			_actions.unshift( {
 				...viewAction,
@@ -307,6 +361,9 @@ export default function InboxView() {
 		view.page = 1;
 	}, [ view ] );
 
+	// Check if read_status filter is applied
+	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
+
 	return (
 		<HStack
 			spacing={ 0 }
@@ -320,7 +377,7 @@ export default function InboxView() {
 					paginationInfo={ paginationInfo }
 					fields={ fields }
 					actions={ actions }
-					data={ data || EMPTY_ARRAY }
+					data={ records || EMPTY_ARRAY }
 					isLoading={ isLoadingData }
 					view={ view }
 					onChangeView={ setView }
@@ -329,55 +386,23 @@ export default function InboxView() {
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
 					header={ <InboxStatusToggle onChange={ resetPage } /> }
-					empty={ <EmptyResponses status={ statusFilter } isSearch={ !! view.search } /> }
+					empty={
+						<EmptyResponses
+							status={ statusFilter }
+							isSearch={ !! view.search }
+							readStatusFilter={ readStatusFilter }
+						/>
+					}
 				/>
 			</div>
-			<SingleResponse
-				sidePanelItem={ sidePanelItem }
+			<SingleResponseView
+				sidePanelItem={ selection.length && sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
+				onChangeSelection={ onChangeSelection }
+				selection={ selection }
 			/>
 		</HStack>
 	);
 }
-
-const SingleResponse = ( { sidePanelItem, setSidePanelItem, isLoadingData, isMobile } ) => {
-	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
-
-	const onRequestClose = useCallback( () => {
-		if ( ! isChildModalOpen ) {
-			setSidePanelItem();
-		}
-	}, [ setSidePanelItem, isChildModalOpen ] );
-
-	const handleModalStateChange = useCallback(
-		isOpen => {
-			setIsChildModalOpen( isOpen );
-		},
-		[ setIsChildModalOpen ]
-	);
-
-	if ( ! sidePanelItem ) {
-		return null;
-	}
-	const contents = (
-		<InboxResponse
-			response={ sidePanelItem }
-			isLoading={ isLoadingData }
-			onModalStateChange={ handleModalStateChange }
-		/>
-	);
-	if ( ! isMobile ) {
-		return <div className="jp-forms__inbox__dataviews-response">{ contents }</div>;
-	}
-	return (
-		<Modal
-			title={ __( 'View response', 'jetpack-forms' ) }
-			size="medium"
-			onRequestClose={ onRequestClose }
-		>
-			{ contents }
-		</Modal>
-	);
-};

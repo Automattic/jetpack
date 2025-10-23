@@ -1742,6 +1742,7 @@ class User_Agent_Info {
 			'google-safety;', // https://www.google.com/bot.html
 			'mojeekbot', // https://www.mojeek.com/bot.html
 			'linkwalker', // https://www.linkwalker.com/
+			'dataforseobot', // https://www.dataforseo.com/dataforseo-bot
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {

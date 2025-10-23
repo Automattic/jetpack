@@ -162,7 +162,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel;font-size:24px" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -228,7 +228,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_text( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px;" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
+		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel;font-size:24px" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot;font-size:33rem;border-color:toot;border-width:1px" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -785,7 +785,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_interpersonal_data_exporter() {
-		global $post;
 
 		$post_id = Utility::create_legacy_feedback(
 			array(
@@ -809,11 +808,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source Title',
-					'value' => 'Cool Post Title', // the default value in the create_legacy_feedback
+					'value' => '(deleted) Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
 					'name'  => 'Source URL:',
-					'value' => get_permalink( $post->ID ),
+					'value' => '',
 				),
 				array(
 					'name'  => 'field',
@@ -843,5 +842,24 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$exporter[0]
 		);
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
+	}
+
+	public function test_get_unread_count_zero() {
+		delete_option( 'jetpack_feedback_unread_count' );
+		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
+		$this->assertGreaterThanOrEqual( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	public function test_get_unread_count_nonzero() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		delete_option( 'jetpack_feedback_unread_count' );
+	}
+
+	public function test_recalculate_unread_count() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		Contact_Form_Plugin::recalculate_unread_count();
+		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
 	}
 }
