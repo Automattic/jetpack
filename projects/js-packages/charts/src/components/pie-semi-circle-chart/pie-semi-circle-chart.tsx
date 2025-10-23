@@ -6,7 +6,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -195,32 +195,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// Filter and recalculate data for interactive legends
-	const visibleData = useMemo( () => {
-		if ( ! chartId || ! legendInteractive ) {
-			return data;
-		}
-
-		// Filter to only visible segments
-		const filtered = data.filter( segment => isSeriesVisible( chartId, segment.label ) );
-
-		// If no segments are visible, return empty array
-		if ( filtered.length === 0 ) {
-			return [];
-		}
-
-		// Recalculate percentages so they total 100%
-		const totalValue = filtered.reduce( ( sum, segment ) => sum + segment.value, 0 );
-
-		return filtered.map( segment => ( {
-			...segment,
-			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
-		} ) );
-	}, [ data, chartId, isSeriesVisible, legendInteractive ] );
-
-	// Check if all segments are hidden
-	const allSegmentsHidden = useMemo( () => {
-		return legendInteractive && visibleData.length === 0;
-	}, [ legendInteractive, visibleData ] );
+	const { visibleData, allSegmentsHidden } = useInteractiveLegendData( {
+		data,
+		chartId,
+		legendInteractive,
+		isSeriesVisible,
+	} );
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
