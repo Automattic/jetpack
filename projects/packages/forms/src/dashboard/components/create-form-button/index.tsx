@@ -50,7 +50,7 @@ export default function CreateFormButton( {
 			variant="primary"
 			onClick={ onButtonClickHandler }
 			icon={ plus }
-			className="create-form-button jp-forms__create-form-button--large-green"
+			className="create-form-button"
 		>
 			{ label }
 		</Button>
