@@ -35,6 +35,8 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 		$props[ $prefix . 'theme_tier' ] = WPCom_Themes::get_theme_tier( $theme->get_stylesheet() );
 		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		$props[ $prefix . 'theme_is_retired' ] = WPCom_Themes::is_retired( $theme->get_stylesheet() );
+
+		return $props;
 	}
 
 	// Atomic sites
