@@ -28,13 +28,7 @@ const ExportResponsesButton = () => {
 
 	return (
 		<>
-			<Button
-				__next40pxDefaultSize
-				className="export-button jp-forms__export-button--large-green"
-				variant="secondary"
-				icon={ download }
-				onClick={ openModal }
-			>
+			<Button __next40pxDefaultSize variant="secondary" icon={ download } onClick={ openModal }>
 				{ exportLabel }
 			</Button>
 
