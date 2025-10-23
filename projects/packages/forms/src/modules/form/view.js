@@ -12,7 +12,7 @@ import {
  * Internal dependencies
  */
 import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
-import { focusNextInput, dispatchSubmitEvent, submitForm } from './shared';
+import { focusNextInput, submitForm } from './shared';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -496,19 +496,6 @@ const { state, actions } = store( NAMESPACE, {
 
 				context.isSubmitting = false;
 			}
-		} ),
-
-		onKeyDownTextarea: withSyncEvent( event => {
-			if ( ! ( event.key === 'Enter' && event.shiftKey ) ) {
-				return;
-			}
-			// Prevent the default behavior of adding a new line.
-			event.preventDefault();
-			event.stopPropagation();
-
-			const context = getContext();
-
-			dispatchSubmitEvent( context.formHash );
 		} ),
 
 		scrollIntoView: withSyncEvent( event => {
