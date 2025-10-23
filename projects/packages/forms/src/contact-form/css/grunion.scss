@@ -1442,10 +1442,14 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form__error.show-errors {
 	display: inline-block;
-	min-width: 100%;
-	box-sizing: inherit;
+	width: 100%;
+	box-sizing: border-box;
 	margin-block-end: 0.5em;
 	text-wrap: pretty;
+
+	&.is-horizontal {
+		margin-top: var(--wp--style--block-gap, 1.5rem);
+	}
 }
 
 .contact-form__error ul {
