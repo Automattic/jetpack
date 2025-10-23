@@ -30,15 +30,16 @@
 			flex-wrap: wrap;
 		}
 
+
+		.jetpack-form-steps-wrapper {
+			width: 100%;
+		}
+
 		.wp-block-jetpack-form-progress-indicator {
 			align-self: normal;
 		}
 
 		&.is-vertical {
-
-			.jetpack-form-steps-wrapper {
-				width: 100%;
-			}
 
 			.wp-block-jetpack-form-step {
 				flex-direction: column;
@@ -49,14 +50,6 @@
 
 			.wp-block-jetpack-form-step {
 				flex-wrap: nowrap;
-			}
-		}
-
-		&.alignwide,
-		&.alignfull {
-
-			.jetpack-form-steps-wrapper {
-				width: 100%;
 			}
 		}
 	}
