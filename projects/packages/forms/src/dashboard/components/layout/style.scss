@@ -23,18 +23,6 @@ body.jetpack_page_jetpack-forms-admin {
 	width: 100%;
 	min-height: calc(100vh - var(--wp-admin--admin-bar--height));
 
-	.jp-forms__logo-wrapper,
-	.jp-forms__layout-header {
-		flex: 0 1 auto; /* Flex, but don't grow */
-	}
-
-	.jp-forms__logo-wrapper {
-
-		@include mobile {
-			width: 180px;
-		}
-	}
-
 	.jp-forms__layout-header-actions {
 		display: flex;
 		gap: 8px;
@@ -53,11 +41,7 @@ body.jetpack_page_jetpack-forms-admin {
 #jp-forms-dashboard .jp-forms__layout {
 	background: var(--wpds-color-bg-surface-neutral-strong, #f9f9f6);
 
-	.jp-forms__layout-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-
+	.admin-ui-page__header {
 		box-sizing: border-box;
 		margin: 0;
 		padding: 16px 48px 0;
@@ -115,5 +99,5 @@ body.jetpack_page_jetpack-forms-admin {
 			background: var(--jp-white);
 		}
 	}
-}
 
+}
