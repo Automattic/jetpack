@@ -10,7 +10,9 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 	/**
 	 * Atomic Persistent Data storage provider for Jetpack Connection data.
-	 * Stage 1: Read-only support for blog_token and id (blog_id).
+	 *
+	 * Provides connection credentials from Atomic Persistent Data (APD) for WordPress.com Atomic sites.
+	 * Supports blog_token, blog_id, master_user, and user_tokens from external storage.
 	 *
 	 * @since 8.0.0
 	 */
@@ -77,6 +79,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		/**
 		 * Get the master user id from email.
 		 *
+		 * @since $$next-version$$
+		 *
 		 * @param string $email The user email.
 		 * @return int|bool The master user id or false if not found.
 		 */
@@ -97,40 +101,60 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
-		 * Validates user tokens and removes conflicting token for the specific user.
+		 * Validates user tokens and removes conflicting tokens.
+		 *
+		 * Removes any tokens that:
+		 * 1. Belong to the current user but don't match the external storage token
+		 * 2. Have the same secret as external storage but belong to a different user (orphaned tokens)
+		 *
+		 * @since $$next-version$$
 		 *
 		 * @param string $normalized_token The normalized token from external storage (token_key.secret.user_id).
 		 * @param array  $existing_tokens The existing tokens from the database.
 		 * @param int    $user_id The user ID to validate tokens for.
-		 * @return array The tokens array with conflicting user token removed.
+		 * @return array The tokens array with conflicting tokens removed.
 		 */
 		private function validate_user_tokens( $normalized_token, $existing_tokens, $user_id ) {
-			// Check if there's an existing token for this user
-			if ( ! isset( $existing_tokens[ $user_id ] ) ) {
-				return $existing_tokens;
+			$has_conflicts = false;
+			$secret_prefix = substr( $normalized_token, 0, strrpos( $normalized_token, '.' ) );
+
+			// Check if current user has a mismatched token
+			if ( isset( $existing_tokens[ $user_id ] ) && ! hash_equals( $normalized_token, $existing_tokens[ $user_id ] ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "Removing conflicting token for user {$user_id}" );
+				unset( $existing_tokens[ $user_id ] );
+				$has_conflicts = true;
 			}
 
-			$existing_token = $existing_tokens[ $user_id ];
-
-			if ( hash_equals( $normalized_token, $existing_token ) ) {
-				return $existing_tokens;
+			// Check if any other user has a token with the same secret (orphaned token from previous owner)
+			foreach ( $existing_tokens as $token_user_id => $token ) {
+				if ( $token_user_id !== $user_id && strpos( $token, $secret_prefix . '.' ) === 0 ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( "Removing orphaned token with same secret for user {$token_user_id}" );
+					unset( $existing_tokens[ $token_user_id ] );
+					$has_conflicts = true;
+				}
 			}
 
-			// Token mismatch - remove only this user's conflicting token
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "Removing conflicting token for user {$user_id}" );
-			unset( $existing_tokens[ $user_id ] );
+			// Only persist changes if conflicts were found
+			if ( $has_conflicts ) {
+				// Persist the change to the database to prevent repeated error logging
+				$private_options                = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+				$private_options['user_tokens'] = $existing_tokens;
+				update_option( 'jetpack_private_options', $private_options );
 
-			// Persist the change to the database to prevent repeated error logging
-			$private_options                = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-			$private_options['user_tokens'] = $existing_tokens;
-			update_option( 'jetpack_private_options', $private_options );
+				// Also clear master_user from database since connection owner data has changed
+				// External storage will provide the correct value on next read
+				\Jetpack_Options::delete_option( 'master_user' );
+			}
 
 			return $existing_tokens;
 		}
 
 		/**
 		 * Get the user tokens by email and secret.
+		 *
+		 * @since $$next-version$$
 		 *
 		 * @param string $email The user email.
 		 * @param string $secret The token secret (format: token_key.secret).
