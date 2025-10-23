@@ -245,6 +245,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		$request_args = array_merge( $args, array( 'body' => $body ) );
 
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request_args );
 
 		if ( is_wp_error( $result ) ) {

@@ -3118,6 +3118,7 @@ p {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate.
 			$args = array();
+			// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
