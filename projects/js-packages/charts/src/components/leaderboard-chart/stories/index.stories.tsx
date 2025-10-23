@@ -411,6 +411,11 @@ export const WithCompositionLegend: Story = {
 			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
