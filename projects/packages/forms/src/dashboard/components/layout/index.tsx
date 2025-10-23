@@ -19,7 +19,7 @@ import ExportResponsesButton from '../../inbox/export-responses';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
-
+import JetpackFormsLogo from '../logo';
 import './style.scss';
 // eslint-disable-next-line import/no-unresolved -- aliased to the package's built asset in webpack config.
 import '@wordpress/admin-ui/build-style/style.css';
@@ -115,11 +115,7 @@ const Layout = () => {
 	);
 
 	return (
-		<Page
-			className="jp-forms__layout"
-			title={ __( 'Forms', 'jetpack-forms' ) }
-			actions={ headerActions }
-		>
+		<Page className="jp-forms__layout" title={ <JetpackFormsLogo /> } actions={ headerActions }>
 			<NavigableRegion
 				className="admin-ui-page__content"
 				ariaLabel={ __( 'Forms dashboard content', 'jetpack-forms' ) }

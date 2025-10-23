@@ -29,11 +29,12 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 
 	.jp-forms__logo {
-		margin: 20px 48px;
+		margin: 0 0 4px;
 		width: 200px;
+		vertical-align: middle;
 
 		@media (max-width: 660px) {
-			margin: 20px 24px;
+			margin: 0;
 		}
 	}
 }
