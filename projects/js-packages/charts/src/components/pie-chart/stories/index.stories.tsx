@@ -195,6 +195,11 @@ export const WithCompositionLegend: Story = {
 		data,
 		containerHeight: '500px',
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -372,6 +377,11 @@ export const CompositionAPI: Story = {
 	},
 	args: {
 		data,
+	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
 	},
 	parameters: {
 		docs: {

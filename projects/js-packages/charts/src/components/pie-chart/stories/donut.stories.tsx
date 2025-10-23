@@ -275,6 +275,11 @@ export const WithCompositionLegend: Story = {
 		thickness: 0.5,
 		containerHeight: '500px',
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {

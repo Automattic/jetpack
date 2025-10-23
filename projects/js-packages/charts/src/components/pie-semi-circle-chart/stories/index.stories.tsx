@@ -128,6 +128,11 @@ export const WithCompositionLegend: Story = {
 	args: {
 		data,
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -411,6 +416,11 @@ export const CompositionAPI: Story = {
 	),
 	args: {
 		data,
+	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
 	},
 	parameters: {
 		layout: 'fullscreen',
