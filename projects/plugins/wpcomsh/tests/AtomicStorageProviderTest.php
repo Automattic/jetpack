@@ -53,39 +53,25 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with valid token.
+	 * Test get_master_user_id with valid email.
 	 */
 	public function test_get_master_user_id_valid() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'test@example.com',
-				'secret'     => 'token.secret',
-			)
-		);
-
-		$result = $this->provider->get_master_user_id( $token_data );
+		$result = $this->provider->get_master_user_id( 'test@example.com' );
 		$this->assertSame( $user_id, $result );
 	}
 
 	/**
-	 * Test get_master_user_id with invalid user email in token.
+	 * Test get_master_user_id with invalid user email.
 	 */
 	public function test_get_master_user_id_invalid() {
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'nonexistent@example.com',
-				'secret'     => 'token.secret',
-			)
-		);
-
-		$result = $this->provider->get_master_user_id( $token_data );
+		$result = $this->provider->get_master_user_id( 'nonexistent@example.com' );
 		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Test get_master_user_id with empty token.
+	 * Test get_master_user_id with empty email.
 	 */
 	public function test_get_master_user_id_empty() {
 		$result = $this->provider->get_master_user_id( '' );
@@ -93,25 +79,10 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test get_master_user_id with invalid token format.
-	 */
-	public function test_get_master_user_id_invalid_format() {
-		$result = $this->provider->get_master_user_id( 'not-valid-json' );
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test get_master_user_id with invalid email format in token.
+	 * Test get_master_user_id with invalid email format.
 	 */
 	public function test_get_master_user_id_invalid_email_format() {
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'not-an-email',
-				'secret'     => 'token.secret',
-			)
-		);
-
-		$result = $this->provider->get_master_user_id( $token_data );
+		$result = $this->provider->get_master_user_id( 'not-an-email' );
 		$this->assertFalse( $result );
 	}
 
@@ -119,29 +90,24 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test get_user_tokens with invalid input.
 	 */
 	public function test_get_user_tokens_invalid_input() {
-		// Empty input
-		$this->assertFalse( $this->provider->get_user_tokens( '' ) );
+		// Empty email
+		$this->assertFalse( $this->provider->get_user_tokens( '', 'token.secret' ) );
 
-		// Invalid JSON
-		$this->assertFalse( $this->provider->get_user_tokens( 'invalid-json' ) );
+		// Empty secret
+		$this->assertFalse( $this->provider->get_user_tokens( 'test@example.com', '' ) );
 
-		// Missing properties
-		$this->assertFalse( $this->provider->get_user_tokens( '{"user_email":"test@example.com"}' ) );
-		$this->assertFalse( $this->provider->get_user_tokens( '{"secret":"token.secret"}' ) );
+		// Both empty
+		$this->assertFalse( $this->provider->get_user_tokens( '', '' ) );
+
+		// Invalid email format
+		$this->assertFalse( $this->provider->get_user_tokens( 'not-an-email', 'token.secret' ) );
 	}
 
 	/**
 	 * Test get_user_tokens with non-existent user.
 	 */
 	public function test_get_user_tokens_nonexistent_user() {
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'nonexistent@example.com',
-				'secret'     => 'token.secret',
-			)
-		);
-
-		$this->assertFalse( $this->provider->get_user_tokens( $token_data ) );
+		$this->assertFalse( $this->provider->get_user_tokens( 'nonexistent@example.com', 'token.secret' ) );
 	}
 
 	/**
@@ -150,15 +116,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	public function test_get_user_tokens_no_existing_tokens() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'test@example.com' ) );
 
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'test@example.com',
-				'secret'     => 'token.secret',
-			)
-		);
-
 		// Call get_user_tokens directly
-		$result = $this->provider->get_user_tokens( $token_data );
+		$result = $this->provider->get_user_tokens( 'test@example.com', 'token.secret' );
 
 		$expected = array( $user_id => 'token.secret.' . $user_id );
 		$this->assertSame( $expected, $result );
@@ -178,15 +137,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		);
 		update_option( 'jetpack_private_options', array( 'user_tokens' => $existing_tokens ) );
 
-		$token_data = wp_json_encode(
-			array(
-				'user_email' => 'test@example.com',
-				'secret'     => 'token.secret',
-			)
-		);
-
 		// Call get_user_tokens directly
-		$result = $this->provider->get_user_tokens( $token_data );
+		$result = $this->provider->get_user_tokens( 'test@example.com', 'token.secret' );
 
 		// Should return merged array with both tokens
 		$expected = array(

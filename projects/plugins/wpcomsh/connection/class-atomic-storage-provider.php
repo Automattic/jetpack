@@ -53,12 +53,13 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 					return intval( $persistent_data->JETPACK_BLOG_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'master_user':
-					$token = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					return $token ? $this->get_master_user_id( $token ) : false;
+					$email = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return $email ? $this->get_master_user_id( $email ) : false;
 
 				case 'user_tokens':
-					$token = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					return $token ? $this->get_user_tokens( $token ) : false;
+					$email  = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$secret = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN_SECRET; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return ( $email && $secret ) ? $this->get_user_tokens( $email, $secret ) : false;
 			}
 
 			return null;
@@ -74,27 +75,21 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
-		 * Get the master user id from token.
+		 * Get the master user id from email.
 		 *
-		 * @param string $email_token The email token JSON string.
+		 * @param string $email The user email.
 		 * @return int|bool The master user id or false if not found.
 		 */
-		public function get_master_user_id( $email_token ) {
-			// Extract email from token
-			if ( empty( $email_token ) ) {
+		public function get_master_user_id( $email ) {
+			if ( empty( $email ) ) {
 				return false;
 			}
 
-			$token = json_decode( $email_token );
-			if ( JSON_ERROR_NONE !== json_last_error() || ! $token || empty( $token->user_email ) ) {
+			if ( ! is_email( $email ) ) {
 				return false;
 			}
 
-			if ( ! is_email( $token->user_email ) ) {
-				return false;
-			}
-
-			$user = get_user_by( 'email', $token->user_email );
+			$user = get_user_by( 'email', $email );
 			if ( ! $user instanceof \WP_User ) {
 				return false;
 			}
@@ -130,25 +125,24 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
-		 * Get the user tokens by email.
+		 * Get the user tokens by email and secret.
 		 *
-		 * @param object|string $email_token The email token object or JSON encoded string.
+		 * @param string $email The user email.
+		 * @param string $secret The token secret (format: token_key.secret).
 		 * @return array|false The user tokens array or false if not found/invalid.
 		 */
-		public function get_user_tokens( $email_token ) {
+		public function get_user_tokens( $email, $secret ) {
 			// Validate input
-			if ( empty( $email_token ) ) {
+			if ( empty( $email ) || empty( $secret ) ) {
 				return false;
 			}
 
-			$token = json_decode( $email_token );
-
-			if ( JSON_ERROR_NONE !== json_last_error() || ! $token || empty( $token->user_email ) || empty( $token->secret ) ) {
+			if ( ! is_email( $email ) ) {
 				return false;
 			}
 
 			// Get user by email
-			$user = get_user_by( 'email', $token->user_email );
+			$user = get_user_by( 'email', $email );
 			if ( ! $user || ! $user->ID ) {
 				return false;
 			}
@@ -158,7 +152,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			// Create normalized token (format: token_key.secret.user_id)
 			// The secret from external storage should be token_key.secret (2 parts)
 			// We need to append LOCAL user_id to make it 3 parts for Jetpack validation
-			$normalized_token = $token->secret . '.' . $user_id;
+			$normalized_token = $secret . '.' . $user_id;
 
 			// Get existing tokens from database (bypass external storage to avoid circular dependency)
 			$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
