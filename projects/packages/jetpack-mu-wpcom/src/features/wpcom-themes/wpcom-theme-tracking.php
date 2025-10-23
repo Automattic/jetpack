@@ -93,12 +93,10 @@ function wpcom_themes_tracks_upload_theme( $upgrader, $options ) {
 	}
 
 	if ( $options['type'] === 'theme' && $options['action'] === 'install' ) {
-		// Trying to distinguish between an upload and a standard install, not security sensitive.
+		// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['action'] ) && $_GET['action'] === 'upload-theme' ) {
-			$theme_slug = isset( $upgrader->result['destination_name'] )
-				? $upgrader->result['destination_name']
-				: '';
+			$theme_slug = $upgrader->result['destination_name'] ?? '';
 
 			if ( $theme_slug ) {
 				$theme = wp_get_theme( $theme_slug );
