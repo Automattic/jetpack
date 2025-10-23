@@ -58,7 +58,7 @@ const SingleResponseView = ( {
 				setSidePanelItem( actionedItem );
 			} else if ( actionedItem?.id && selection ) {
 				// Remove only the actioned item from selection, keep the rest
-				const actionedItemId = String(actionedItem.id);
+				const actionedItemId = String( actionedItem.id );
 				const newSelection = selection.filter( id => id !== actionedItemId );
 				onChangeSelection?.( newSelection );
 			}
