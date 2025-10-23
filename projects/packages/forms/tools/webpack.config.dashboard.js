@@ -42,6 +42,15 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			'@wordpress/admin-ui/build-style/style.css': path.join(
+				__dirname,
+				'..',
+				'node_modules',
+				'@wordpress',
+				'admin-ui',
+				'build-style',
+				'style.css'
+			),
 		},
 	},
 	externals: {
@@ -97,7 +106,17 @@ module.exports = {
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				requestMap: {
+					// Bundle the package with our assets until WP core exposes wp-admin-ui.
+					'@wordpress/admin-ui': { external: false },
+					'@wordpress/admin-ui/build-style/style.css': { external: false },
+				},
+			},
+		} ),
+	],
 	watchOptions: {
 		...jetpackWebpackConfig.watchOptions,
 	},
