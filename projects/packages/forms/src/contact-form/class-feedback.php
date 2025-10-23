@@ -797,11 +797,12 @@ class Feedback {
 		if ( ! $ip_address ) {
 			return null;
 		}
-		// this filter allows site owners to disable IP address storage
-		// this filter is documented in src/contact-form/class-contact-form-plugin.php
+		// This filter allows site owners to disable IP address storage entirely as well as GeoIP lookups.
+		// This filter is documented in src/contact-form/class-contact-form-plugin.php
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false ) ) {
 			return null;
 		}
+
 		/**
 		 * Filter to get country code from IP address.
 		 *
@@ -812,7 +813,7 @@ class Feedback {
 		 * @param string      $context The context for the geolocation request.
 		 */
 		$country = apply_filters( 'jetpack_get_country_from_ip', null, $ip_address, 'form-response' );
-		if ( ! empty( $country ) ) {
+		if ( is_string( $country ) ) {
 			return strtoupper( $country );
 		}
 
@@ -848,7 +849,7 @@ class Feedback {
 			return strtoupper( $country );
 		}
 
-		return strtoupper( $country );
+		return empty( $country ) ? null : strtoupper( $country );
 	}
 
 	/**
@@ -877,7 +878,7 @@ class Feedback {
 			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
 				$data         = json_decode( $response['body'] );
 				$country_code = isset( $data->country_short ) ? $data->country_short : '';
-				$country_code = \sanitize_text_field( strtoupper( $country_code ) );
+				$country_code = \sanitize_text_field( $country_code );
 				// Share the transient with woocommerce to avoid multiple lookups.
 				\set_transient( 'geoip_' . $ip_address, $country_code, DAY_IN_SECONDS );
 			}
