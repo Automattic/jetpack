@@ -5,6 +5,7 @@ import {
 } from '@wordpress/components';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
+import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -274,11 +275,64 @@ export const WithCompositionLegend: Story = {
 		thickness: 0.5,
 		containerHeight: '500px',
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	render: args => (
+		<GlobalChartsProvider>
+			<div style={ { padding: '20px' } }>
+				<h3>Interactive Donut Chart</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Click legend items to show/hide segments. The total value updates dynamically.
+				</p>
+				<PieChartUnresponsive
+					chartId="interactive-donut-chart"
+					size={ args.size || 400 }
+					data={ args.data }
+					thickness={ 0.5 }
+					showLegend={ true }
+					legendInteractive={ true }
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendValueDisplay={ args.legendValueDisplay }
+				>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+				</PieChartUnresponsive>
+			</div>
+		</GlobalChartsProvider>
+	),
+	args: {
+		data,
+		size: 400,
+		thickness: 0.5,
+		containerHeight: '600px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive donut chart with clickable legend. Segments can be hidden/shown, and percentages recalculate automatically. Requires chartId and GlobalChartsProvider.',
 			},
 		},
 	},
