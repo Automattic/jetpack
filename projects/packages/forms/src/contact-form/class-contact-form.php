@@ -839,6 +839,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
+			$is_flex_layout     = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
+			$is_wrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] !== 'nowrap';
+			$is_vertical_layout = $is_flex_layout && isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] !== 'horizontal' && $is_wrap_layout;
+
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
 				method='post'
@@ -860,9 +864,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
 			} elseif ( $has_submit_button_block ) {
-				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
-				// Replace only the first occurrence.
-				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
+				if ( $is_vertical_layout ) {
+					// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
+					// Replace only the first occurrence.
+					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
+				} else {
+					$r .= self::render_error_wrapper( array( 'is-horizontal' ) );
+				}
 			}
 
 			// In new versions of the contact form block the button is an inner block
@@ -1022,10 +1030,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
+	 * @param array $classes - the classes to add to the error wrapper.
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper() {
-		$html  = '<div class="contact-form__error" data-wp-class--show-errors="state.showFormErrors">';
+	private static function render_error_wrapper( $classes = array() ) {
+		$html  = '<div class="contact-form__error ' . implode( ' ', $classes ) . '" data-wp-class--show-errors="state.showFormErrors">';
 		$html .= '<span class="contact-form__warning-icon"><span class="visually-hidden">' . __( 'Warning.', 'jetpack-forms' ) . '</span><i aria-hidden="true"></i></span>
 				<span data-wp-text="state.getFormErrorMessage"></span>
 				<ul>
