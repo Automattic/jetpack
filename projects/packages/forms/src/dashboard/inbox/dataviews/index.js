@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -338,6 +339,10 @@ export default function InboxView() {
 			_actions.unshift( {
 				...viewAction,
 				RenderModal: ( { items, closeModal } ) => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+						action: 'view-response',
+						multiple: items.length > 1,
+					} );
 					const [ item ] = items;
 					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 				},
@@ -347,6 +352,10 @@ export default function InboxView() {
 			_actions.unshift( {
 				...viewAction,
 				callback( items ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+						action: 'view-response',
+						multiple: items.length > 1,
+					} );
 					const [ item ] = items;
 					const selectedId = item.id.toString();
 					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
