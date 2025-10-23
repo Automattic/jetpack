@@ -31,7 +31,9 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 
 	// Simple sites
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && class_exists( 'WPCom_Themes' ) ) {
-		$props[ $prefix . 'theme_tier' ]       = WPCom_Themes::get_theme_tier( $theme->get_stylesheet() );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		$props[ $prefix . 'theme_tier' ] = WPCom_Themes::get_theme_tier( $theme->get_stylesheet() );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		$props[ $prefix . 'theme_is_retired' ] = WPCom_Themes::is_retired( $theme->get_stylesheet() );
 	}
 
@@ -43,8 +45,8 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 		$theme_data           = $wpcom_themes_service->get_theme( $theme->get_stylesheet() );
 
 		if ( $theme_data !== null ) {
-			$props[ $prefix . 'theme_tier' ]       = $theme_data->theme_tier;
-			$props[ $prefix . 'theme_is_retired' ] = $theme_data->is_retired;
+			$props[ $prefix . 'theme_tier' ]       = $theme_data->theme_tier ?? null;
+			$props[ $prefix . 'theme_is_retired' ] = $theme_data->is_retired ?? false;
 		}
 	}
 
