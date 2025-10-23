@@ -363,8 +363,8 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 		// Making sure wpcomsh plugin is available.
 		if ( function_exists( '\Private_Site\maybe_fix_private_site_option' ) && function_exists( '\Private_Site\site_is_private' ) ) {
-			Private_Site\maybe_fix_private_site_option();
-			return Private_Site\site_is_private();
+			\Private_Site\maybe_fix_private_site_option();
+			return \Private_Site\site_is_private();
 		}
 
 		return (int) $this->get_atomic_cloud_site_option( 'blog_public' ) === -1;
