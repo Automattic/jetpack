@@ -330,7 +330,6 @@ export default function InboxView() {
 			markAsUnreadAction,
 			markAsSpamAction,
 			markAsNotSpamAction,
-			moveToTrashAction,
 			editFormAction,
 			restoreAction,
 			deleteAction,
@@ -346,8 +345,13 @@ export default function InboxView() {
 					const [ item ] = items;
 					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 				},
-				hideModalHeader: true,
-			} );
+				{
+					...moveToTrashAction,
+					// Hide as primary action on mobile
+					// Can be removed after https://github.com/WordPress/gutenberg/pull/72597
+					isPrimary: false,
+				}
+			);
 		} else {
 			_actions.unshift( {
 				...viewAction,
@@ -361,7 +365,8 @@ export default function InboxView() {
 					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
 					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
 				},
-			} );
+				moveToTrashAction
+			);
 		}
 		return _actions;
 	}, [ isMobile, onChangeSelection, selection ] );
