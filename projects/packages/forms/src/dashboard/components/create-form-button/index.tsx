@@ -10,7 +10,6 @@ import { plus } from '@wordpress/icons';
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form';
-import './style.scss';
 
 type CreateFormButtonProps = {
 	label?: string;
