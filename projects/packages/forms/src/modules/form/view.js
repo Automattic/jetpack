@@ -235,6 +235,11 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
+			// when there is only one field, don't show errors until the user tries to submit the form.
+			// And even then, return false so we only show the general form error message.
+			if ( field && Object.keys( context.fields ).length === 1 ) {
+				return false;
+			}
 
 			// Don't show is_required untill the user first tries to submit the form.
 			if ( ! context.showErrors && field.error && field.error === 'is_required' ) {
