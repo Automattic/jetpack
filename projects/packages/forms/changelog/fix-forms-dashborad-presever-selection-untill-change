@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Simplfy the selection so that it changes everytime to only the valid set of items
