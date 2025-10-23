@@ -34,11 +34,13 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
 		$props[ $prefix . 'theme_stylesheet' ]     = $theme->get_stylesheet();
 		$props[ $prefix . 'theme_tier' ]           = 'community';
 		$props[ $prefix . 'theme_is_block_theme' ] = $theme->is_block_theme();
+		$props[ $prefix . 'theme_is_retired' ]     = false;
 	} else {
 		$props[ $prefix . 'theme' ]                = $theme_data->name;
 		$props[ $prefix . 'theme_stylesheet' ]     = $theme_data->slug;
 		$props[ $prefix . 'theme_tier' ]           = $theme_data->theme_tier;
 		$props[ $prefix . 'theme_is_block_theme' ] = $theme_data->block_theme;
+		$props[ $prefix . 'theme_is_retired' ]     = $theme_data->is_retired;
 	}
 
 	return $props;
