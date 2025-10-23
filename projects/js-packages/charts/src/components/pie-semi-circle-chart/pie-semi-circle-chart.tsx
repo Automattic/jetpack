@@ -3,9 +3,10 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -71,6 +72,13 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
+	 * Enable interactive legend items that can toggle segment visibility.
+	 * Requires chartId and GlobalChartsProvider.
+	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
+	 */
+	legendInteractive?: boolean;
+
+	/**
 	 * Horizontal offset for tooltip positioning in pixels (default: 0)
 	 */
 	tooltipOffsetX?: number;
@@ -133,6 +141,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendItemClassName,
 	legendShape = 'circle',
 	legendValueDisplay = 'percentage',
+	legendInteractive = false,
 	label,
 	note,
 	className,
@@ -183,7 +192,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
 
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+	// Filter and recalculate data for interactive legends
+	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
+		data,
+		chartId,
+		legendInteractive,
+		isSeriesVisible,
+	} );
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
@@ -205,8 +222,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		[ legendValueDisplay ]
 	);
 
-	// Create legend items using the reusable hook
-	const legendItems = useChartLegendItems( data, legendOptions );
+	// Create legend items using legendData (has recalculated percentages for visible items)
+	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
@@ -253,10 +270,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const innerRadius = radius * ( 1 - thickness );
 
 	// Map data with index for color assignment
-	const dataWithIndex = data.map( ( d, index ) => ( {
-		...d,
-		index,
-	} ) );
+	// When interactive, we need to find the original index to maintain consistent colors
+	const dataWithIndex = visibleData.map( d => {
+		const originalIndex = data.findIndex( item => item.label === d.label );
+		return {
+			...d,
+			index: originalIndex >= 0 ? originalIndex : 0,
+		};
+	} );
 
 	// Configure pie angles based on clockwise direction
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
@@ -287,57 +308,74 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				>
 					{ /* Main chart group centered horizontally and positioned at bottom */ }
 					<Group top={ chartHeight } left={ width / 2 }>
-						{ /* Pie chart */ }
-						<Pie< DataPointPercentage & { index: number } >
-							data={ dataWithIndex }
-							pieValue={ accessors.value }
-							outerRadius={ radius }
-							innerRadius={ innerRadius }
-							cornerRadius={ 3 }
-							padAngle={ PAD_ANGLE }
-							startAngle={ startAngle }
-							endAngle={ endAngle }
-							pieSort={ accessors.sort }
-						>
-							{ pie => {
-								return pie.arcs.map( arc => (
-									<g
-										key={ arc.data.label }
-										onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
-										onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+						{ allSegmentsHidden ? (
+							<text
+								textAnchor="middle"
+								y={ -radius / 2 }
+								fill="#ccc"
+								fontSize="14"
+								fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+							>
+								{ __(
+									'All segments are hidden. Click legend items to show data.',
+									'jetpack-charts'
+								) }
+							</text>
+						) : (
+							<>
+								{ /* Pie chart */ }
+								<Pie< DataPointPercentage & { index: number } >
+									data={ dataWithIndex }
+									pieValue={ accessors.value }
+									outerRadius={ radius }
+									innerRadius={ innerRadius }
+									cornerRadius={ 3 }
+									padAngle={ PAD_ANGLE }
+									startAngle={ startAngle }
+									endAngle={ endAngle }
+									pieSort={ accessors.sort }
+								>
+									{ pie => {
+										return pie.arcs.map( arc => (
+											<g
+												key={ arc.data.label }
+												onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+												onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+											>
+												<path
+													d={ pie.path( arc ) || '' }
+													fill={ accessors.fill( arc.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) );
+									} }
+								</Pie>
+
+								{ /* Label and note text */ }
+								<Group>
+									<Text
+										textAnchor="middle"
+										verticalAnchor="start"
+										y={ -40 } // Position above the chart with space for note
+										className={ styles.label }
 									>
-										<path
-											d={ pie.path( arc ) || '' }
-											fill={ accessors.fill( arc.data ) }
-											data-testid="pie-segment"
-										/>
-									</g>
-								) );
-							} }
-						</Pie>
+										{ label }
+									</Text>
+									<Text
+										textAnchor="middle"
+										verticalAnchor="start"
+										y={ -20 } // Position between label and chart
+										className={ styles.note }
+									>
+										{ note }
+									</Text>
+								</Group>
 
-						{ /* Label and note text */ }
-						<Group>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -40 } // Position above the chart with space for note
-								className={ styles.label }
-							>
-								{ label }
-							</Text>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -20 } // Position between label and chart
-								className={ styles.note }
-							>
-								{ note }
-							</Text>
-						</Group>
-
-						{ /* Render SVG children from composition API */ }
-						{ svgChildren }
+								{ /* Render SVG children from composition API */ }
+								{ ! allSegmentsHidden && svgChildren }
+							</>
+						) }
 					</Group>
 				</svg>
 
@@ -360,6 +398,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 

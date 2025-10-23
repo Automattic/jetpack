@@ -235,7 +235,7 @@ export default function InboxView() {
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
 					return (
-						<>
+						<div className="jp-forms__inbox__author-field">
 							{ item.is_unread && (
 								<span
 									className="jp-forms__inbox__unread-indicator"
@@ -250,10 +250,11 @@ export default function InboxView() {
 									displayName={ authorInfo }
 									key={ decodeEntities( item.author_email ) }
 									size={ 32 }
+									useHovercard={ false }
 								/>
 							) }
 							{ wrapperUnread( item.is_unread, authorInfo ) }
-						</>
+						</div>
 					);
 				},
 				getValue: ( { item } ) => {

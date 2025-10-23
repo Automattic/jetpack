@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 15.1.1
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
+Tested up to: 6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 

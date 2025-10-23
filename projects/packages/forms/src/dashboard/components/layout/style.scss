@@ -57,10 +57,14 @@ body.jetpack_page_jetpack-forms-admin {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 30px 30px 0 30px;
+
+		box-sizing: border-box;
+		margin: 0;
+		padding: 16px 48px 0;
+		width: 100%;
 
 		@media (max-width: 782px) {
-			padding-top: 8px;
+			padding: 8px 24px 0;
 		}
 	}
 
@@ -71,7 +75,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 		> .components-tab-panel__tabs {
 			margin: 0;
-			padding-inline: 20px;
+			padding-inline: 32px;
 			border-bottom: 1px solid var(--jp-gray-5);
 
 			.components-tab-panel__tabs-item {
@@ -96,7 +100,7 @@ body.jetpack_page_jetpack-forms-admin {
 			}
 
 			@media (max-width: 660px) {
-				padding: 0 24px;
+				padding: 0 8px;
 			}
 		}
 
@@ -113,18 +117,3 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 }
 
-.jp-forms__layout-header {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 16px 48px 0;
-	width: 100%;
-}
-
-.jp-forms__layout-title {
-	display: inline-flex;
-	font-size: 36px;
-	font-weight: 700;
-	height: 40px;
-	line-height: 40px;
-	margin: 0;
-}

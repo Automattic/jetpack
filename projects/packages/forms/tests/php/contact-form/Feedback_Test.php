@@ -266,6 +266,49 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the user agent is included in the serialized response.
+	 * It should be available when the response is created during the form submission.
+	 */
+	public function test_user_agent_included_in_serialized_response() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Set a test user agent
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36';
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// The user agent should be present.
+		$this->assertNotEmpty( $response->get_user_agent(), 'User agent should not be empty' );
+		$this->assertNotEmpty( $saved_response->get_user_agent(), 'User agent should not be empty' );
+		$this->assertEquals( $response->get_user_agent(), $saved_response->get_user_agent(), 'User agent should match' );
+		$this->assertEquals( $_SERVER['HTTP_USER_AGENT'], $saved_response->get_user_agent(), 'User agent should match server value' );
+
+		// Clean up
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+	}
+
+	/**
 	 * Test the subject line is computed for legacy correctly.
 	 */
 	public function test_computed_subject_legacy() {

@@ -122,13 +122,9 @@ export default class DomEventHandler extends Component {
 	};
 
 	handleInput = debounce( event => {
-		// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.target.value,
-		// so we read directly from the input element itself.
-		const inputValue = event.currentTarget.value;
-
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
 		// NOTE: inputType is not compatible with IE11, so we use optional chaining here. https://caniuse.com/mdn-api_inputevent_inputtype
-		if ( event.inputType?.includes( 'format' ) || inputValue === '' ) {
+		if ( event.inputType?.includes( 'format' ) || event.target.value === '' ) {
 			return;
 		}
 
@@ -144,7 +140,7 @@ export default class DomEventHandler extends Component {
 			return;
 		}
 
-		this.props.setSearchQuery( inputValue );
+		this.props.setSearchQuery( event.target.value );
 
 		if ( [ 'immediate', 'results' ].includes( this.props.overlayOptions.overlayTrigger ) ) {
 			this.props.showResults();
@@ -154,9 +150,7 @@ export default class DomEventHandler extends Component {
 	handleKeyup = event => {
 		// If user presses enter, propagate the query value and immediately show the results.
 		if ( event.key === 'Enter' ) {
-			// Safari's Advanced Tracking and Fingerprinting Protection blocks reading event.target.value,
-			// so we read directly from the input element itself.
-			this.props.setSearchQuery( event.currentTarget.value );
+			this.props.setSearchQuery( event.target.value );
 			this.props.showResults();
 		}
 	};

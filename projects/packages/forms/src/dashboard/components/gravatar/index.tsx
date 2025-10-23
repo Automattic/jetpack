@@ -12,6 +12,7 @@ type GravatarProps = {
 	displayName?: string;
 	email: string;
 	size?: number;
+	useHovercard?: boolean;
 };
 
 /**
@@ -27,12 +28,13 @@ export default function Gravatar( {
 	displayName,
 	email,
 	size = 48,
+	useHovercard = true,
 }: GravatarProps ): JSX.Element | null {
 	const profileImageRef = useRef( null );
 	const hovercardRef = useRef( null );
 
 	useEffect( () => {
-		if ( profileImageRef.current ) {
+		if ( useHovercard && profileImageRef.current ) {
 			hovercardRef.current = new Hovercards( {
 				// Documented at https://github.com/Automattic/gravatar/tree/trunk/web/packages/hovercards#translations
 				i18n: {
@@ -59,7 +61,7 @@ export default function Gravatar( {
 			} );
 			hovercardRef.current.attach( profileImageRef.current );
 		}
-	}, [] );
+	}, [ useHovercard ] );
 
 	if ( ! email ) {
 		return null;

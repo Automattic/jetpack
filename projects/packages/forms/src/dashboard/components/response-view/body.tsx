@@ -19,8 +19,9 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
+import { download, image } from '@wordpress/icons';
 import clsx from 'clsx';
+import photon from 'photon';
 /**
  * Internal dependencies
  */
@@ -249,45 +250,46 @@ const ResponseViewBody = ( {
 				<div className="image-select-field">
 					{ ( value.choices?.length ?? 0 ) === 0 && '-' }
 					{ ( value.choices?.length ?? 0 ) > 0 && (
-						<>
-							<div className="image-select-field-choices">
-								{ value.choices
-									.map( choice => {
-										let transformedValue = choice.selected;
-
-										if ( choice.label != null && choice.label !== '' ) {
-											transformedValue += ' - ' + choice.label;
+						<VStack spacing="1">
+							{ value.choices.map( choice => {
+								const label = choice.label
+									? `${ choice.selected }: ${ choice.label }`
+									: choice.selected;
+								const hasImage = choice.image?.src;
+								return (
+									<Button
+										__next40pxDefaultSize
+										key={ choice.selected }
+										variant="tertiary"
+										onClick={
+											hasImage
+												? handleFilePreview( {
+														file_id: choice.image.id,
+														name: label,
+														url: choice.image.src,
+												  } )
+												: undefined
 										}
-
-										return transformedValue;
-									} )
-									.join( ', ' ) }
-							</div>
-							<div className="image-select-field-images">
-								{ value.choices.map( choice => {
-									const imageSrc =
-										choice.image?.src ||
-										'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-
-									return (
-										<figure
-											key={ choice.selected }
-											className={ clsx( 'image-select-field-image', {
-												'is-empty': ! choice.image?.src,
-											} ) }
-										>
-											<img
-												className={ clsx( 'image-select-field-image', {
-													'is-empty': ! choice.image?.src,
-												} ) }
-												src={ imageSrc }
-												alt={ choice.selected }
-											/>
-										</figure>
-									);
-								} ) }
-							</div>
-						</>
+										className="image-select-field-button"
+										icon={
+											hasImage ? (
+												<img
+													alt={ choice.selected }
+													className="image-select-field-image"
+													loading="lazy"
+													src={ photon( choice.image.src, { width: 120, height: 120 } ) }
+												/>
+											) : (
+												image
+											)
+										}
+										iconSize={ 60 }
+									>
+										{ label }
+									</Button>
+								);
+							} ) }
+						</VStack>
 					) }
 				</div>
 			);

@@ -71,6 +71,15 @@ class Feedback {
 	protected $ip_address = null;
 
 	/**
+	 * The user agent of the user who submitted the feedback.
+	 *
+	 * This is only available on form submissions, and might not be available when retrieving existing feedback posts.
+	 *
+	 * @var string|null
+	 */
+	protected $user_agent = null;
+
+	/**
 	 * The subject of the feedback entry.
 	 *
 	 * @var string
@@ -215,6 +224,7 @@ class Feedback {
 		);
 
 		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->user_agent = $parsed_content['user_agent'] ?? null;
 		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
@@ -270,6 +280,7 @@ class Feedback {
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
+		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
@@ -744,6 +755,15 @@ class Feedback {
 	}
 
 	/**
+	 * Get the user agent of the submitted feedback request.
+	 *
+	 * @return string|null
+	 */
+	public function get_user_agent() {
+		return $this->user_agent;
+	}
+
+	/**
 	 * Get the email subject.
 	 *
 	 * @return string
@@ -995,6 +1015,7 @@ class Feedback {
 			array(
 				'subject'                 => $this->subject,
 				'ip'                      => $this->ip_address,
+				'user_agent'              => $this->user_agent,
 				'notification_recipients' => $this->notification_recipients,
 			),
 			$this->source->serialize()
