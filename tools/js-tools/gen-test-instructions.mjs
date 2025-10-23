@@ -475,11 +475,13 @@ IMPORTANT REQUIREMENTS FOR PR REFERENCES:
 - When combining multiple PRs into one testing section, list ALL PR numbers involved as links
 
 Output format should be a well-structured markdown document with:
+- Start with ### (heading level 3) for all top-level sections
 - A summary section highlighting key areas to test
 - Each feature area as a heading with PR numbers listed as clickable links
 - Consolidated test steps (not just copying individual PR instructions)
 - All PR number references formatted as: [#12345](https://github.com/${ GITHUB_REPO }/pull/12345)
 - A section for changes without specific test instructions (with PR links)
+- Do NOT use # (heading level 1) or ## (heading level 2) - all headings should be ### (level 3) or deeper
 
 Here is the data:
 
@@ -513,7 +515,7 @@ Generate the consolidated test guide now. Remember to format ALL PR numbers as m
 		const consolidatedGuide = data.content[ 0 ].text;
 
 		// Add metadata header
-		let output = `# Test Instructions for Jetpack ${ version || 'Release' }\n\n`;
+		let output = `## Test Instructions for Jetpack ${ version || 'Release' }\n\n`;
 		output += `Generated on: ${ new Date().toISOString().split( 'T' )[ 0 ] }\n`;
 		output += `Total PRs: ${ prDetails.length }\n\n`;
 		output += '---\n\n';
