@@ -57,7 +57,7 @@ export const editFormAction = {
 	async callback( items ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'edit-form',
-			multiple: items.length > 1,
+			multiple: false,
 		} );
 		const [ item ] = items;
 		if ( item?.edit_form_url ) {
