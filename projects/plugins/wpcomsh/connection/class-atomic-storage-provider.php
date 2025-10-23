@@ -121,6 +121,11 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			error_log( "Removing conflicting token for user {$user_id}" );
 			unset( $existing_tokens[ $user_id ] );
 
+			// Persist the change to the database to prevent repeated error logging
+			$private_options                = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+			$private_options['user_tokens'] = $existing_tokens;
+			update_option( 'jetpack_private_options', $private_options );
+
 			return $existing_tokens;
 		}
 
