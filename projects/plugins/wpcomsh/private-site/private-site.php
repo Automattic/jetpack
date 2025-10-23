@@ -282,7 +282,35 @@ function maybe_fix_private_site_option() {
 
 	if ( $current_value !== $expected_value ) {
 		update_option( 'blog_public', $expected_value );
+		register_shutdown_function( __NAMESPACE__ . '\private_site_log_option_adjusted', $current_value, $expected_value );
 	}
+}
+
+/**
+ * Save a log entry when the blog_public option is adjusted.
+ *
+ * @param int $current_value Current option value.
+ * @param int $new_value New option value.
+ *
+ * @return void
+ */
+function private_site_log_option_adjusted( $current_value, $new_value ) {
+	$jetpack_options = get_option( 'jetpack_options' );
+	$blog_id         = ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) ? $jetpack_options['id'] : 0;
+
+	$data = wp_json_encode(
+		array(
+			'feature'    => 'atomic_private_site_blog_public_adjusted',
+			'message'    => 'Value of blog_public option adjusted according to the privacy model.',
+			'blog_id'    => $blog_id,
+			'properties' => array(
+				'current_value' => $current_value,
+				'new_value'     => $new_value,
+			),
+		)
+	);
+
+	wp_remote_post( 'https://public-api.wordpress.com/rest/v1.1/logstash', array( 'body' => array( 'params' => $data ) ) );
 }
 
 /**
