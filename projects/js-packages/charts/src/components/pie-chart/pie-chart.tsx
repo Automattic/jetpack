@@ -183,7 +183,7 @@ const PieChartInternal = ( {
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// Filter and recalculate data for interactive legends
-	const { visibleData, allSegmentsHidden } = useInteractiveLegendData( {
+	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
 		data,
 		chartId,
 		legendInteractive,
@@ -196,28 +196,7 @@ const PieChartInternal = ( {
 		[ legendValueDisplay ]
 	);
 
-	// Create legend items using the reusable hook
-	// Always use original data for legend - the Legend component handles visibility styling
-	// For interactive legends, we need to show recalculated percentages for visible items only
-	const legendData = useMemo( () => {
-		if ( ! legendInteractive || ! chartId ) {
-			return data;
-		}
-
-		// Map original data to show recalculated percentages for visible items
-		return data.map( segment => {
-			const isVisible = isSeriesVisible( chartId, segment.label );
-			if ( ! isVisible ) {
-				// Return original data for hidden items
-				return segment;
-			}
-
-			// For visible items, find the recalculated percentage from visibleData
-			const recalculated = visibleData.find( d => d.label === segment.label );
-			return recalculated || segment;
-		} );
-	}, [ data, visibleData, legendInteractive, chartId, isSeriesVisible ] );
-
+	// Create legend items using legendData (has recalculated percentages for visible items)
 	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	const { isValid, message } = validateData( data );

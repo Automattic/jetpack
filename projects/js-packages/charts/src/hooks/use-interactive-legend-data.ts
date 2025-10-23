@@ -32,6 +32,12 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
 	visibleData: T[];
 	/** Boolean indicating if all segments are hidden */
 	allSegmentsHidden: boolean;
+	/**
+	 * Legend data with recalculated percentages for visible items.
+	 * Uses original data for hidden items, but shows recalculated percentages for visible ones.
+	 * This ensures the legend displays accurate percentages while maintaining all entries.
+	 */
+	legendData: T[];
 }
 
 /**
@@ -47,17 +53,21 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
  *
  * @example
  * ```tsx
- * const { visibleData, allSegmentsHidden } = useInteractiveLegendData({
+ * const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData({
  *   data: chartData,
  *   chartId: 'my-pie-chart',
  *   legendInteractive: true,
  *   isSeriesVisible: (id, label) => context.isSeriesVisible(id, label),
  * });
  *
+ * // Use legendData for creating legend items (shows recalculated percentages)
+ * const legendItems = useChartLegendItems(legendData, legendOptions);
+ *
  * if (allSegmentsHidden) {
  *   return <EmptyState />;
  * }
  *
+ * // Use visibleData for rendering the chart (only visible segments)
  * return <PieChart data={visibleData} />;
  * ```
  *
@@ -66,7 +76,7 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
  * @param params.chartId           - Unique identifier for the chart (required for interactive mode)
  * @param params.legendInteractive - Whether to enable interactive filtering
  * @param params.isSeriesVisible   - Function to check series visibility
- * @return Object containing visibleData and allSegmentsHidden flag
+ * @return Object containing visibleData, allSegmentsHidden flag, and legendData with recalculated percentages
  */
 export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 	data,
@@ -103,5 +113,26 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 		return legendInteractive && visibleData.length === 0;
 	}, [ legendInteractive, visibleData ] );
 
-	return { visibleData, allSegmentsHidden };
+	// Prepare legend data with recalculated percentages for visible items
+	// This maintains all legend entries but shows updated percentages for visible segments
+	const legendData = useMemo( () => {
+		if ( ! legendInteractive || ! chartId ) {
+			return data;
+		}
+
+		// Map original data to show recalculated percentages for visible items
+		return data.map( segment => {
+			const isVisible = isSeriesVisible( chartId, segment.label );
+			if ( ! isVisible ) {
+				// Return original data for hidden items
+				return segment;
+			}
+
+			// For visible items, find the recalculated percentage from visibleData
+			const recalculated = visibleData.find( d => d.label === segment.label );
+			return recalculated || segment;
+		} );
+	}, [ data, visibleData, legendInteractive, chartId, isSeriesVisible ] );
+
+	return { visibleData, allSegmentsHidden, legendData };
 };
