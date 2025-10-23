@@ -852,13 +852,7 @@ class Feedback {
 	}
 
 	/**
-	 * Use APIs to Geolocate the user.
-	 *
-	 * Geolocation APIs can be added through the use of the woocommerce_geolocation_geoip_apis filter.
-	 * Provide a name=>value pair for service-slug=>endpoint.
-	 *
-	 * If APIs are defined, one will be chosen at random to fulfil the request. After completing, the result
-	 * will be cached in a transient.
+	 * Use APIs to Geolocate the IP address.
 	 *
 	 * @param  string $ip_address IP address.
 	 * @return string
