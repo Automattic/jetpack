@@ -355,6 +355,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * Return site's privacy status.
 	 *
 	 * @return bool  Is site private?
+	 * @phan-suppress PhanUndeclaredFunction
 	 */
 	public function is_private() {
 		if ( ! ( new Host() )->is_woa_site() ) {
