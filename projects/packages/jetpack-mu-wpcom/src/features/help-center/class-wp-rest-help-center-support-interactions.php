@@ -187,6 +187,10 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			$data['event_metadata'] = $request['event_metadata'];
 		}
 
+		if ( isset( $request['bot_slug'] ) ) {
+			$data['bot_slug'] = $request['bot_slug'];
+		}
+
 		$body = Client::wpcom_json_api_request_as_user(
 			'/support-interactions',
 			'2',
