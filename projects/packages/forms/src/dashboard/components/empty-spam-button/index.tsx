@@ -124,7 +124,6 @@ const EmptySpamButton = ( {
 			<Button
 				__next40pxDefaultSize
 				accessibleWhenDisabled
-				className="jp-forms__button--large-green"
 				disabled={ isEmpty || isEmptying }
 				icon={ trash }
 				isBusy={ isEmptying }

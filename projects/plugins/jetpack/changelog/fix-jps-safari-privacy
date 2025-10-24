@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.

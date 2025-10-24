@@ -21,7 +21,7 @@ jobs:
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -60,7 +60,7 @@ jobs:
       coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
@@ -318,7 +318,7 @@ jobs:
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get token
         id: get_token
@@ -351,7 +351,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-02-23 Wild guess
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -407,7 +407,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2 # 2022-09-08: Should only take a few seconds.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -444,7 +444,7 @@ jobs:
     name: Type checking
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
@@ -468,7 +468,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install

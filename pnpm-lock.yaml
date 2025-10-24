@@ -1283,8 +1283,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.0.0
-        version: 10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
+        specifier: 10.1.0
+        version: 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -1465,8 +1465,8 @@ importers:
         specifier: 30.4.0
         version: 30.4.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.0.0
-        version: 10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
+        specifier: 10.1.0
+        version: 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -2503,6 +2503,9 @@ importers:
       '@gravatar-com/hovercards':
         specifier: 0.15.0
         version: 0.15.0
+      '@wordpress/admin-ui':
+        specifier: 1.1.0
+        version: 1.1.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles':
         specifier: 6.7.0
         version: 6.7.0
@@ -2525,8 +2528,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.0.0
-        version: 10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
+        specifier: 10.1.0
+        version: 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
       '@wordpress/dom-ready':
         specifier: 4.31.0
         version: 4.31.0
@@ -3094,8 +3097,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.0.0
-        version: 10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
+        specifier: 10.1.0
+        version: 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)
       '@wordpress/date':
         specifier: 5.31.0
         version: 5.31.0
@@ -3653,8 +3656,8 @@ importers:
         specifier: 10.31.0
         version: 10.31.0(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.0.0
-        version: 10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)
+        specifier: 10.1.0
+        version: 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)
       '@wordpress/element':
         specifier: 6.31.0
         version: 6.31.0
@@ -5720,7 +5723,7 @@ importers:
         version: 4.4.4(eslint-plugin-import@2.32.0)(eslint@9.35.0)
       eslint-json-compat-utils:
         specifier: 0.2.1
-        version: 0.2.1(@eslint/json@0.13.2)(eslint@9.35.0)(jsonc-eslint-parser@2.4.0)
+        version: 0.2.1(@eslint/json@0.13.2)(eslint@9.35.0)(jsonc-eslint-parser@2.4.1)
       eslint-plugin-es-x:
         specifier: 9.1.0
         version: 9.1.0(eslint@9.35.0)
@@ -5747,7 +5750,7 @@ importers:
         version: 17.23.1(eslint@9.35.0)(typescript@5.9.2)
       eslint-plugin-package-json:
         specifier: 0.56.3
-        version: 0.56.3(eslint@9.35.0)(jsonc-eslint-parser@2.4.0)
+        version: 0.56.3(eslint@9.35.0)(jsonc-eslint-parser@2.4.1)
       eslint-plugin-playwright:
         specifier: 2.2.2
         version: 2.2.2(eslint@9.35.0)
@@ -5785,8 +5788,8 @@ importers:
         specifier: 30.0.4
         version: 30.0.4
       jsonc-eslint-parser:
-        specifier: 2.4.0
-        version: 2.4.0
+        specifier: 2.4.1
+        version: 2.4.1
       libsodium-wrappers:
         specifier: 0.7.10
         version: 0.7.10
@@ -9580,6 +9583,10 @@ packages:
     resolution: {integrity: sha512-LUFmuDkwKS15XkV8ziR2isSMvgLZjyRg0EQD4lfCywS9ycQzuzGFHDzUxpg0ECjYQfRrGDzMcPQe5ts8HuklOA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
+  '@wordpress/admin-ui@1.1.0':
+    resolution: {integrity: sha512-YhzlNXI8DT8u8N2idtE5mWwmnVvJAKZqw4QaGFT/TO5LLrPFEmfYFqhFMTwnYUFfocgjW2qP0FI1OtDw6KFjjQ==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
   '@wordpress/annotations@3.31.0':
     resolution: {integrity: sha512-wwcx0q9HDdDn9YawpNAvuITPkyGr4Ib7ZYberlxuLaWHTVy+SjMbqu9mrUUE0GbdbDtfSSfxSzwDFUQ2kEXt9Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -9755,8 +9762,8 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/dataviews@10.0.0':
-    resolution: {integrity: sha512-3pu8IuOygwPQ4lkF9MmNaxdQEXWVPTmy16HJeznWPzAvx4PxkhKlgz0H7QNIwdM/DBB8arMAo7lUvjPm7UN2Ag==}
+  '@wordpress/dataviews@10.1.0':
+    resolution: {integrity: sha512-RYjPsO56xayphKgGLWa1KDrDDx9YFlRlwcJH2EVppFzsu657wK8z7FfLF0lwDsRdnhPQ2sW+db6LmQrnfmK3yQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
@@ -13532,8 +13539,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
-  jsonc-eslint-parser@2.4.0:
-    resolution: {integrity: sha512-WYDyuc/uFcGp6YtM2H0uKmUwieOuzeE/5YocFJLnLfclZ4inf3mRn8ZVy1s7Hxji7Jxm6Ss8gqpexD/GlKoGgg==}
+  jsonc-eslint-parser@2.4.1:
+    resolution: {integrity: sha512-uuPNLJkKN8NXAlZlQ6kmUF9qO+T6Kyd7oV4+/7yy8Jz6+MZNyhPq8EdLpdfnPVzUC8qSf1b4j1azKaGnFsjmsw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   jsonc-parser@3.3.1:
@@ -22248,6 +22255,19 @@ snapshots:
       '@wordpress/dom-ready': 4.33.0
       '@wordpress/i18n': 6.6.0
 
+  '@wordpress/admin-ui@1.1.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@wordpress/base-styles': 6.9.0
+      '@wordpress/components': 30.6.0(@types/react@18.3.25)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element': 6.33.0
+      clsx: 2.1.1
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - react
+      - react-dom
+      - supports-color
+
   '@wordpress/annotations@3.31.0(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
@@ -23546,7 +23566,7 @@ snapshots:
       rememo: 4.0.2
       use-memo-one: 1.1.3(react@18.3.1)
 
-  '@wordpress/dataviews@10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)':
+  '@wordpress/dataviews@10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.25)(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 6.9.0
@@ -23593,7 +23613,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@wordpress/dataviews@10.0.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)':
+  '@wordpress/dataviews@10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(react@18.3.1)':
     dependencies:
       '@ariakit/react': 0.4.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/base-styles': 6.9.0
@@ -26929,11 +26949,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-json-compat-utils@0.2.1(@eslint/json@0.13.2)(eslint@9.35.0)(jsonc-eslint-parser@2.4.0):
+  eslint-json-compat-utils@0.2.1(@eslint/json@0.13.2)(eslint@9.35.0)(jsonc-eslint-parser@2.4.1):
     dependencies:
       eslint: 9.35.0
       esquery: 1.6.0
-      jsonc-eslint-parser: 2.4.0
+      jsonc-eslint-parser: 2.4.1
     optionalDependencies:
       '@eslint/json': 0.13.2
 
@@ -27059,7 +27079,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  eslint-plugin-package-json@0.56.3(eslint@9.35.0)(jsonc-eslint-parser@2.4.0):
+  eslint-plugin-package-json@0.56.3(eslint@9.35.0)(jsonc-eslint-parser@2.4.1):
     dependencies:
       '@altano/repository-tools': 2.0.1
       change-case: 5.4.4
@@ -27067,7 +27087,7 @@ snapshots:
       detect-newline: 4.0.1
       eslint: 9.35.0
       eslint-fix-utils: 0.4.0(eslint@9.35.0)
-      jsonc-eslint-parser: 2.4.0
+      jsonc-eslint-parser: 2.4.1
       package-json-validator: 0.30.1
       semver: 7.7.3
       sort-object-keys: 1.1.3
@@ -29251,7 +29271,7 @@ snapshots:
 
   json5@2.2.3: {}
 
-  jsonc-eslint-parser@2.4.0:
+  jsonc-eslint-parser@2.4.1:
     dependencies:
       acorn: 8.15.0
       eslint-visitor-keys: 3.4.3

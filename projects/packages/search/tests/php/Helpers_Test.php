@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/class-test-helpers-customize.php';
 require_once __DIR__ . '/class-test-helpers-query.php';
+require_once __DIR__ . '/woocommerce-mocks.php';
 
 /**
  * Helpers for Classic and Instant Search tests
@@ -1636,5 +1637,178 @@ class Helpers_Test extends TestCase {
 			'interval' => 'year',
 			'count'    => 10,
 		);
+	}
+
+	/**
+	 * Data provider for product attribute filter.
+	 */
+	public static function get_product_attribute_filter() {
+		return array(
+			'type'  => 'product_attribute',
+			'name'  => 'Product Attributes',
+			'count' => 10,
+		);
+	}
+
+	/**
+	 * Data provider for product attribute filter with specific attribute.
+	 */
+	public static function get_product_attribute_filter_with_attribute() {
+		return array(
+			'type'      => 'product_attribute',
+			'name'      => 'Color',
+			'attribute' => 'pa_color',
+			'count'     => 10,
+		);
+	}
+
+	/**
+	 * Test case for get_filters_from_widgets with product_attribute filters
+	 */
+	public function test_get_filters_from_widgets_with_product_attributes() {
+		$raw_option = static::get_sample_widgets_option();
+		// Add a product_attribute filter without specific attribute (should expand).
+		$raw_option[22]['filters'][] = array(
+			'type'  => 'product_attribute',
+			'name'  => 'Product Attributes',
+			'count' => 10,
+		);
+
+		// Add a product_attribute filter with specific attribute (should not expand).
+		$raw_option[22]['filters'][] = array(
+			'type'      => 'product_attribute',
+			'name'      => 'Color',
+			'attribute' => 'pa_color',
+			'count'     => 5,
+		);
+
+		update_option( Helper::get_widget_option_name(), $raw_option );
+		$this->register_fake_widgets();
+
+		$filters = Helper::get_filters_from_widgets();
+
+		// Collect product_attribute filters.
+		$product_attributes = array_filter(
+			$filters,
+			function ( $filter ) {
+				return isset( $filter['type'] ) && $filter['type'] === 'product_attribute';
+			}
+		);
+
+		// Should have 4 product_attribute filters total (3 expanded + 1 specific)
+		$this->assertCount( 4, $product_attributes, 'Should have 4 product attribute filters' );
+
+		// Find specific attributes and verify their properties
+		$found_pa_color         = 0;
+		$found_pa_size          = 0;
+		$found_pa_material      = 0;
+		$found_pa_color_count_5 = false;
+		$found_expanded_color   = false;
+
+		foreach ( $product_attributes as $filter ) {
+			$this->assertArrayHasKey( 'attribute', $filter, 'Filter should have attribute key' );
+			$this->assertArrayHasKey( 'widget_id', $filter, 'Filter should have widget_id' );
+			$this->assertSame( 'jetpack-search-filters-22', $filter['widget_id'], 'widget_id should be inherited' );
+
+			if ( $filter['attribute'] === 'pa_color' ) {
+				++$found_pa_color;
+				if ( isset( $filter['count'] ) && $filter['count'] === 5 ) {
+					$found_pa_color_count_5 = true;
+					// This is the specific filter, name should be preserved
+					$this->assertSame( 'Color', $filter['name'], 'Specific filter should preserve its name' );
+				} else {
+					// This is the expanded filter
+					$found_expanded_color = true;
+					$this->assertSame( 'Color', $filter['name'], 'Expanded filter should use attribute label' );
+					$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+				}
+			}
+			if ( $filter['attribute'] === 'pa_size' ) {
+				++$found_pa_size;
+				$this->assertSame( 'Size', $filter['name'], 'Expanded filter should use attribute label' );
+				$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+			}
+			if ( $filter['attribute'] === 'pa_material' ) {
+				++$found_pa_material;
+				$this->assertSame( 'Material', $filter['name'], 'Expanded filter should use attribute label' );
+				$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+			}
+		}
+
+		$this->assertSame( 2, $found_pa_color, 'Should have 2 pa_color filters (1 expanded, 1 specific)' );
+		$this->assertSame( 1, $found_pa_size, 'Should have 1 pa_size filter (expanded)' );
+		$this->assertSame( 1, $found_pa_material, 'Should have 1 pa_material filter (expanded)' );
+		$this->assertTrue( $found_pa_color_count_5, 'Should have pa_color filter with count=5' );
+		$this->assertTrue( $found_expanded_color, 'Should have expanded pa_color filter with count=10' );
+	}
+
+	/**
+	 * Test case for get_filters_from_widgets with product_attribute and included_attributes
+	 */
+	public function test_get_filters_from_widgets_with_product_attributes_inclusion() {
+		// WooCommerce functions are already mocked in the previous test
+
+		$raw_option = static::get_sample_widgets_option();
+		// Add a product_attribute filter with specific included attributes.
+		$raw_option[22]['filters'][] = array(
+			'type'                => 'product_attribute',
+			'name'                => 'Product Attributes',
+			'count'               => 10,
+			'included_attributes' => array( 'pa_color', 'pa_size' ),
+		);
+
+		update_option( Helper::get_widget_option_name(), $raw_option );
+		$this->register_fake_widgets();
+
+		$filters = Helper::get_filters_from_widgets();
+
+		// Collect product_attribute filters.
+		$product_attributes = array_filter(
+			$filters,
+			function ( $filter ) {
+				return isset( $filter['type'] ) && $filter['type'] === 'product_attribute';
+			}
+		);
+
+		// Should have 2 product_attribute filters (color and size from included_attributes)
+		$this->assertCount( 2, $product_attributes, 'Should have 2 product attribute filters' );
+
+		// Check that only included attributes are present and verify all properties
+		$found_pa_color    = false;
+		$found_pa_size     = false;
+		$found_pa_material = false;
+
+		foreach ( $product_attributes as $filter ) {
+			// Verify required keys exist
+			$this->assertArrayHasKey( 'attribute', $filter, 'Filter should have attribute key' );
+			$this->assertArrayHasKey( 'widget_id', $filter, 'Filter should have widget_id' );
+			$this->assertArrayHasKey( 'count', $filter, 'Filter should have count' );
+			$this->assertArrayHasKey( 'name', $filter, 'Filter should have name' );
+
+			// Verify inherited properties
+			$this->assertSame( 'jetpack-search-filters-22', $filter['widget_id'], 'widget_id should be inherited' );
+			$this->assertSame( 10, $filter['count'], 'count should be inherited from parent filter' );
+
+			// Verify included_attributes was removed from expanded filters
+			$this->assertArrayNotHasKey( 'included_attributes', $filter, 'included_attributes should be removed from expanded filters' );
+
+			// Track which attributes were found
+			if ( $filter['attribute'] === 'pa_color' ) {
+				$found_pa_color = true;
+				$this->assertSame( 'Color', $filter['name'], 'pa_color filter should use attribute label as name' );
+			}
+			if ( $filter['attribute'] === 'pa_size' ) {
+				$found_pa_size = true;
+				$this->assertSame( 'Size', $filter['name'], 'pa_size filter should use attribute label as name' );
+			}
+			if ( $filter['attribute'] === 'pa_material' ) {
+				$found_pa_material = true;
+			}
+		}
+
+		// Verify the inclusion filtering worked correctly
+		$this->assertTrue( $found_pa_color, 'Should have pa_color attribute (was in included_attributes)' );
+		$this->assertTrue( $found_pa_size, 'Should have pa_size attribute (was in included_attributes)' );
+		$this->assertFalse( $found_pa_material, 'Should NOT have pa_material attribute (was NOT in included_attributes)' );
 	}
 }
