@@ -152,7 +152,7 @@ class User_Agent_Info {
 		if ( $ua ) {
 			$this->useragent = $ua;
 		} elseif ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
+			$this->useragent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
 		}
 	}
 
@@ -249,17 +249,18 @@ class User_Agent_Info {
 			return false;
 		}
 
-		if ( strpos( $this->useragent, 'windows phone' ) !== false ) {
-				$this->platform = self::PLATFORM_WINDOWS;
-		} elseif ( strpos( $this->useragent, 'windows ce' ) !== false ) {
+		$ua = strtolower( $this->useragent );
+		if ( strpos( $ua, 'windows phone' ) !== false ) {
 			$this->platform = self::PLATFORM_WINDOWS;
-		} elseif ( strpos( $this->useragent, 'ipad' ) !== false ) {
+		} elseif ( strpos( $ua, 'windows ce' ) !== false ) {
+			$this->platform = self::PLATFORM_WINDOWS;
+		} elseif ( strpos( $ua, 'ipad' ) !== false ) {
 			$this->platform = self::PLATFORM_IPAD;
-		} elseif ( strpos( $this->useragent, 'ipod' ) !== false ) {
+		} elseif ( strpos( $ua, 'ipod' ) !== false ) {
 			$this->platform = self::PLATFORM_IPOD;
-		} elseif ( strpos( $this->useragent, 'iphone' ) !== false ) {
+		} elseif ( strpos( $ua, 'iphone' ) !== false ) {
 			$this->platform = self::PLATFORM_IPHONE;
-		} elseif ( strpos( $this->useragent, 'android' ) !== false ) {
+		} elseif ( strpos( $ua, 'android' ) !== false ) {
 			if ( static::is_android_tablet() ) {
 				$this->platform = self::PLATFORM_ANDROID_TABLET;
 			} else {
@@ -269,7 +270,7 @@ class User_Agent_Info {
 			$this->platform = self::PLATFORM_ANDROID_TABLET;
 		} elseif ( static::is_blackberry_10() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY_10;
-		} elseif ( strpos( $this->useragent, 'blackberry' ) !== false ) {
+		} elseif ( strpos( $ua, 'blackberry' ) !== false ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
 		} elseif ( static::is_blackberry_tablet() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
@@ -300,13 +301,13 @@ class User_Agent_Info {
 		}
 		$platform = self::OTHER;
 
-		if ( static::is_linux_desktop() ) {
+		if ( static::is_linux_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_LINUX;
-		} elseif ( static::is_mac_desktop() ) {
+		} elseif ( static::is_mac_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_MAC;
-		} elseif ( static::is_windows_desktop() ) {
+		} elseif ( static::is_windows_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_WINDOWS;
-		} elseif ( static::is_chrome_desktop() ) {
+		} elseif ( static::is_chrome_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_CHROME;
 		}
 		return $platform;
@@ -323,17 +324,17 @@ class User_Agent_Info {
 			return self::OTHER;
 		}
 
-		if ( static::is_opera_mini() || static::is_opera_mobile() || static::is_opera_desktop() || static::is_opera_mini_dumb() ) {
+		if ( static::is_opera_mini( $ua ) || static::is_opera_mobile( $ua ) || static::is_opera_desktop( $ua ) || static::is_opera_mini_dumb( $ua ) ) {
 			return self::BROWSER_OPERA;
-		} elseif ( static::is_edge_browser() ) {
+		} elseif ( static::is_edge_browser( $ua ) ) {
 			return self::BROWSER_EDGE;
-		} elseif ( static::is_chrome_desktop() || self::is_chrome_for_iOS() ) {
+		} elseif ( static::is_chrome_desktop( $ua ) || self::is_chrome_for_iOS( $ua ) ) {
 			return self::BROWSER_CHROME;
-		} elseif ( static::is_safari_browser() ) {
+		} elseif ( static::is_safari_browser( $ua ) ) {
 			return self::BROWSER_SAFARI;
-		} elseif ( static::is_firefox_mobile() || static::is_firefox_desktop() ) {
+		} elseif ( static::is_firefox_mobile( $ua ) || static::is_firefox_desktop( $ua ) ) {
 			return self::BROWSER_FIREFOX;
-		} elseif ( static::is_ie_browser() ) {
+		} elseif ( static::is_ie_browser( $ua ) ) {
 			return self::BROWSER_IE;
 		}
 		return self::OTHER;
