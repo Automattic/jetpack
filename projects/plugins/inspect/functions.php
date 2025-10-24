@@ -39,6 +39,7 @@ function jetpack_inspect_connection_request( $url, $args = array() ) {
 
 	return array(
 		'signature' => $signature,
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		'result'    => Client::_wp_remote_request( $signature['url'], $signature['request'] ),
 	);
 }
