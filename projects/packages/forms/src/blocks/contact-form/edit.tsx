@@ -27,7 +27,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, subscribe, select as globalSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -52,7 +52,9 @@ import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
 import NotificationsSettings from './components/notifications-settings';
+import { FormViewContext } from './shared/context/form-view-context';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
+import { isBlockOrDescendant } from './util/is-block-or-descendant';
 import VariationPicker from './variation-picker';
 import './util/form-styles.js';
 /**
@@ -133,7 +135,7 @@ type JetpackContactFormAttributes = {
 	customThankyouHeading: string;
 	customThankyouMessage: string;
 	customThankyouRedirect: string;
-	confirmationType: 'text' | 'redirect';
+	confirmationType: 'text' | 'redirect' | 'custom';
 	formTitle: string;
 	variationName: string;
 	emailNotifications: boolean;
@@ -158,7 +160,8 @@ function JetpackContactFormEdit( {
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
-	const [ isSubmitPreview, setIsSubmitPreview ] = useState( false );
+	const [ isPostSubmitView, setIsPostSubmitView ] = useState( false );
+	const previousSelectedBlockClientId = useRef< string | null >( null );
 
 	const {
 		to,
@@ -280,7 +283,8 @@ function JetpackContactFormEdit( {
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
 		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
-		isSubmitPreview && 'is-submit-preview'
+		isPostSubmitView && 'is-post-submit-view',
+		! isPostSubmitView && 'is-form-view'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -303,6 +307,7 @@ function JetpackContactFormEdit( {
 		__unstableMarkNextChangeAsNotPersistent,
 		updateBlockAttributes,
 		insertBlock,
+		selectBlock,
 	} = useDispatch( blockEditorStore );
 
 	const currentInnerBlocks = useSelect(
@@ -310,25 +315,52 @@ function JetpackContactFormEdit( {
 		[ clientId ]
 	);
 
-	const switchToSubmitPreview = useCallback( () => {
-		setIsSubmitPreview( true );
+	const switchToPostSubmitView = useCallback( () => {
+		setIsPostSubmitView( true );
 
 		// Check if thank-you block exists, create if missing
-		const thankYouBlock = currentInnerBlocks.find(
-			block => block.name === 'jetpack/form-thank-you'
-		);
+		let thankYouBlock = currentInnerBlocks.find( block => block.name === 'jetpack/form-thank-you' );
 
 		if ( ! thankYouBlock ) {
-			const thankYouBlockToInsert = createBlock( 'jetpack/form-thank-you', {}, [] );
+			thankYouBlock = createBlock( 'jetpack/form-thank-you', {}, [] );
 
 			__unstableMarkNextChangeAsNotPersistent();
-			insertBlock( thankYouBlockToInsert, currentInnerBlocks.length, clientId );
+			insertBlock( thankYouBlock, currentInnerBlocks.length, clientId );
 		}
-	}, [ currentInnerBlocks, insertBlock, clientId, __unstableMarkNextChangeAsNotPersistent ] );
 
-	const switchToForm = useCallback( () => {
-		setIsSubmitPreview( false );
-	}, [ setIsSubmitPreview ] );
+		selectBlock( thankYouBlock.clientId );
+	}, [
+		currentInnerBlocks,
+		selectBlock,
+		__unstableMarkNextChangeAsNotPersistent,
+		insertBlock,
+		clientId,
+	] );
+
+	const switchToFormView = useCallback( () => {
+		setIsPostSubmitView( false );
+
+		selectBlock( clientId );
+	}, [ clientId, selectBlock ] );
+
+	// Auto-switch between Form/Response views based on block selection
+	useEffect( () => {
+		const unsubscribe = subscribe( () => {
+			const id = globalSelect( 'core/block-editor' ).getSelectedBlockClientId();
+
+			if ( id !== previousSelectedBlockClientId.current ) {
+				previousSelectedBlockClientId.current = id;
+
+				if ( isBlockOrDescendant( id, 'jetpack/form-thank-you' ) ) {
+					setIsPostSubmitView( true );
+				} else if ( isBlockOrDescendant( id, 'jetpack/contact-form' ) ) {
+					setIsPostSubmitView( false );
+				}
+			}
+		} );
+
+		return () => unsubscribe();
+	}, [] );
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
@@ -855,6 +887,19 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
+	const handleConfirmationTypeChange = useCallback(
+		( newValue: 'text' | 'redirect' | 'custom' ) => {
+			setAttributes( { confirmationType: newValue } );
+
+			if ( newValue === 'custom' ) {
+				switchToPostSubmitView();
+			} else {
+				switchToFormView();
+			}
+		},
+		[ setAttributes, switchToPostSubmitView, switchToFormView ]
+	);
+
 	let elt: React.ReactNode;
 
 	if ( ! isModuleActive ) {
@@ -892,13 +937,13 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
-					{ hasFeatureFlag( 'form-custom-thank-you' ) && (
+					{ hasFeatureFlag( 'form-custom-thank-you' ) && 'custom' === confirmationType && (
 						<ToolbarGroup>
-							<ToolbarButton isPressed={ ! isSubmitPreview } onClick={ switchToForm }>
+							<ToolbarButton isPressed={ ! isPostSubmitView } onClick={ switchToFormView }>
 								{ __( 'Form', 'jetpack-forms' ) }
 							</ToolbarButton>
-							<ToolbarButton isPressed={ isSubmitPreview } onClick={ switchToSubmitPreview }>
-								{ __( 'Submit Preview', 'jetpack-forms' ) }
+							<ToolbarButton isPressed={ isPostSubmitView } onClick={ switchToPostSubmitView }>
+								{ __( 'Response', 'jetpack-forms' ) }
 							</ToolbarButton>
 						</ToolbarGroup>
 					) }
@@ -925,11 +970,16 @@ function JetpackContactFormEdit( {
 							options={ [
 								{ label: __( 'Text', 'jetpack-forms' ), value: 'text' },
 								{ label: __( 'Redirect link', 'jetpack-forms' ), value: 'redirect' },
+								{ label: __( 'Custom Thank You', 'jetpack-forms' ), value: 'custom' },
 							] }
-							onChange={ ( newValue: 'text' | 'redirect' ) =>
-								setAttributes( { confirmationType: newValue } )
-							}
+							onChange={ handleConfirmationTypeChange }
 						/>
+
+						{ 'custom' === confirmationType && (
+							<p className="jetpack-contact-form__custom-thankyou-help">
+								{ __( 'Customize your thank you message in the Response view.', 'jetpack-forms' ) }
+							</p>
+						) }
 
 						{ 'text' === confirmationType && (
 							<>
@@ -1033,7 +1083,16 @@ function JetpackContactFormEdit( {
 						'jetpack/form-current-step': currentStepInfo,
 					} }
 				>
-					<div { ...innerBlocksProps } />
+					<FormViewContext.Provider
+						value={ {
+							isPostSubmitView,
+							switchToFormView,
+							switchToPostSubmitView,
+							confirmationType,
+						} }
+					>
+						<div { ...innerBlocksProps } />
+					</FormViewContext.Provider>
 				</BlockContextProvider>
 			</>
 		);

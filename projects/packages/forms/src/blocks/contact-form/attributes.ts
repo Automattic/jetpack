@@ -29,7 +29,7 @@ export default {
 		default: '',
 	},
 	confirmationType: {
-		enum: [ 'text', 'redirect' ],
+		enum: [ 'text', 'redirect', 'custom' ],
 	},
 	jetpackCRM: {
 		type: 'boolean',

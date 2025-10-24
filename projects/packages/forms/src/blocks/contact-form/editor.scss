@@ -1213,18 +1213,21 @@
 	}
 }
 
-.wp-block-jetpack-form-thank-you {
+.is-form-view .wp-block-jetpack-form-thank-you,
+.is-form-view .jetpack-form-thank-you__warning {
 	display: none;
 }
 
-.is-submit-preview > *:not(.wp-block-jetpack-form-thank-you) {
+.is-post-submit-view > *:not(.wp-block-jetpack-form-thank-you),
+.is-post-submit-view > *:not(.jetpack-form-thank-you__warning) {
 	display: none;
 }
 
-.is-submit-preview .wp-block-jetpack-form-thank-you {
+.is-post-submit-view .wp-block-jetpack-form-thank-you,
+.is-post-submit-view .jetpack-form-thank-you__warning {
 	display: unset;
 }
 
-.wp-block-jetpack-contact-form .jetpack-contact-form.is-submit-preview .wp-block {
+.wp-block-jetpack-contact-form .jetpack-contact-form.is-post-submit-view .wp-block {
 	margin: revert;
 }
