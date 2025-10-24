@@ -653,7 +653,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
 
-		$this->assertNotNull( $screen_captured );
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertTrue( $screen_captured->is_block_editor(), 'Screen should be marked as block editor' );
 		$this->assertSame( 'post', $screen_captured->base, 'Screen base should be "post"' );
 	}
@@ -678,6 +678,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
 
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'post', $screen_captured->post_type, 'Default post type should be "post"' );
 	}
 
@@ -706,6 +707,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
 
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'custom_test_type', $screen_captured->post_type, 'Custom post type should be set on screen' );
 
 		// Cleanup
