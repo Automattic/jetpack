@@ -31,8 +31,7 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-
-		if ( ! $post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return $images;
 		}
 
@@ -150,8 +149,7 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
-
-		if ( ! $post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return $images;
 		}
 
@@ -246,6 +244,9 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post ) {
+			return $images;
+		}
 
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
@@ -319,6 +320,9 @@ class Jetpack_PostImages {
 		$images = array();
 
 		$post = get_post( $post_id );
+		if ( ! $post instanceof WP_Post ) {
+			return $images;
+		}
 
 		if ( ! empty( $post->post_password ) ) {
 			return $images;
@@ -724,12 +728,12 @@ class Jetpack_PostImages {
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	public static function from_gravatar( $post_id, $size = 96, $default = false ) {
-		$post      = get_post( $post_id );
-		$permalink = get_permalink( $post_id );
-
+		$post = get_post( $post_id );
 		if ( ! $post instanceof WP_Post ) {
 			return array();
 		}
+
+		$permalink = get_permalink( $post_id );
 
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
 			$url = wpcom_get_avatar_url( $post->post_author, $size, $default, true );
@@ -1009,8 +1013,7 @@ class Jetpack_PostImages {
 	public static function get_post_html( $html_or_id ) {
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
-
-			if ( empty( $post ) || ! empty( $post->post_password ) ) {
+			if ( ! $post instanceof WP_Post || ! empty( $post->post_password ) ) {
 				return '';
 			}
 
