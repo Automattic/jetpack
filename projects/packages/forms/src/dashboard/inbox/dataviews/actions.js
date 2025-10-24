@@ -44,7 +44,7 @@ export const viewAction = {
 	id: 'view-response',
 	icon: <Icon icon={ commentContent } />,
 	isPrimary: true,
-	label: __( 'View', 'jetpack-forms' ),
+	label: __( 'View response', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
@@ -288,7 +288,7 @@ export const restoreAction = {
 
 export const moveToTrashAction = {
 	id: 'move-to-trash',
-	label: __( 'Trash', 'jetpack-forms' ),
+	label: __( 'Move to trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	isPrimary: true,
 	supportsBulk: true,
