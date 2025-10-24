@@ -5,6 +5,7 @@ import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 import defaultAttributes from './attributes';
+import blockMetadata from './block.json';
 import deprecated from './deprecated';
 import edit from './edit';
 import transforms from './transforms';
@@ -34,7 +35,14 @@ const icon = renderMaterialIcon(
 	</>
 );
 
+// Extract only valid block registration properties from block.json
+// Exclude file-based properties like editorScript, style, etc.
+const { editorScript, style, name: blockName, $schema, ...validBlockMetadata } = blockMetadata;
+
 export const settings = {
+	// Import valid metadata from block.json to ensure consistency
+	...validBlockMetadata,
+	// Override/extend with JS-specific settings
 	apiVersion: 3,
 	title: __( 'Form', 'jetpack-forms' ),
 	description: __(
@@ -47,29 +55,6 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack-forms' ),
 		_x( 'contact form', 'block search term', 'jetpack-forms' ),
 	],
-	supports: {
-		color: {
-			link: true,
-			gradients: true,
-		},
-		html: false,
-		spacing: {
-			padding: true,
-			margin: true,
-		},
-		align: [ 'wide', 'full' ],
-		layout: {
-			default: {
-				type: 'flex',
-				flexWrap: 'wrap',
-			},
-			allowSwitching: false,
-			allowEditing: true,
-			allowOrientation: true,
-			allowVerticalAlignment: false,
-			allowJustification: false,
-		},
-	},
 	attributes: defaultAttributes,
 	providesContext: {
 		'jetpack/form-class-name': 'className',
