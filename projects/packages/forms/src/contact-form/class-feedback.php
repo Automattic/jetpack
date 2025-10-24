@@ -849,7 +849,7 @@ class Feedback {
 			return strtoupper( $country );
 		}
 
-		return empty( $country ) ? null : strtoupper( $country );
+		return null;
 	}
 
 	/**
@@ -871,7 +871,7 @@ class Feedback {
 
 			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
 				$data         = json_decode( $response['body'] );
-				$country_code = isset( $data->country_short ) ? $data->country_short : '';
+				$country_code = $data->country_short ?? '';
 				$country_code = \sanitize_text_field( $country_code );
 				// Share the transient with woocommerce to avoid multiple lookups.
 				\set_transient( 'geoip_' . $ip_address, $country_code, DAY_IN_SECONDS );
