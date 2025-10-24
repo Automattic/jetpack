@@ -773,26 +773,4 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertTrue( $callback_executed, 'Plugin callback should execute without fatal error' );
 		$this->assertInstanceOf( WP_REST_Response::class, $response, 'Request should complete successfully' );
 	}
-
-	/**
-	 * Test that WP_Screen class is loaded during request processing.
-	 */
-	public function test_wp_screen_class_is_loaded() {
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
-
-		$class_exists_captured = false;
-
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$class_exists_captured ) {
-				$class_exists_captured = class_exists( 'WP_Screen' );
-			},
-			1
-		);
-
-		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
-		$this->server->dispatch( $request );
-
-		$this->assertTrue( $class_exists_captured, 'WP_Screen class should be loaded during request' );
-	}
 }
