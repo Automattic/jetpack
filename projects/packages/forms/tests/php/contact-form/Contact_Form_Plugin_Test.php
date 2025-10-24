@@ -13,6 +13,9 @@ use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Error;
 
+// Load the Form_Submission_Error class for testing.
+require_once __DIR__ . '/../../../src/contact-form/class-form-submission-error.php';
+
 /**
  * Test class for Contact_Form_Plugin
  *
@@ -583,7 +586,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
-		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
+		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_error(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
