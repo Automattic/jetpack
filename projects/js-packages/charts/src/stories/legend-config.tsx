@@ -63,7 +63,7 @@ export const legendArgTypes = {
 		description:
 			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
 	},
-	interactive: {
+	legendInteractive: {
 		control: { type: 'boolean' as const },
 		table: { category: 'Legend' },
 		description:

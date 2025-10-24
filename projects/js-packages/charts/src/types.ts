@@ -364,6 +364,13 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	legendItemClassName?: string;
 	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	legendInteractive?: boolean;
+	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';

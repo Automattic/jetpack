@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove redundant style definition that Stylelint is complaining about.
+
+

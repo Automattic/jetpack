@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.27.6",
+	"version": "5.27.8",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
@@ -50,7 +50,7 @@
 		"@wordpress/components": "30.4.0",
 		"@wordpress/compose": "7.31.0",
 		"@wordpress/data": "10.31.0",
-		"@wordpress/dataviews": "9.1.0",
+		"@wordpress/dataviews": "10.1.0",
 		"@wordpress/date": "5.31.0",
 		"@wordpress/element": "6.31.0",
 		"@wordpress/i18n": "6.4.0",

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: integrate @wordpress/admin-ui Page component into dashboard layout

@@ -62,11 +62,7 @@ const SalesforceDashboardCard = ( {
 						'jetpack-forms'
 					) }
 				</p>
-				<Button
-					variant="primary"
-					onClick={ handleCreateSalesforceForm }
-					className="jp-forms__create-form-button--large-green"
-				>
+				<Button variant="primary" onClick={ handleCreateSalesforceForm }>
 					{ __( 'Create Salesforce lead form', 'jetpack-forms' ) }
 				</Button>
 			</div>

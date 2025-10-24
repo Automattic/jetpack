@@ -2,6 +2,49 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.2-a.5 - 2025-10-21
+### Enhancements
+- Forms: merged email and push notification settings panels. [#45548]
+
+### Bug fixes
+- Forms: Fix a bug where ther responsive modal is not able to be closed. [#45541] [#45557]
+- Forms: Reset the selection on tab switch in dashboard. [#45543]
+- Forms: Stop preloading the integrations endpoint. [#45558]
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Forms: Remove unused `useFormsConfig` hook. [#45554]
+
+## 15.2-a.3 - 2025-10-20
+### Enhancements
+- Forms: Update "Action after submit" sidebar section. [#45502]
+- Sharing Buttons block: Update Reddit logo to match updated design. [#45484]
+- Sitemaps: Use XMLWriter by default for more performant sitemap generation. [#45527]
+
+### Improved compatibility
+- Custom post types: Ensure features remain available when theme support is added. [#45407]
+- Forms: Remove Creative Mail promotion. [#45524]
+
+### Bug fixes
+- Forms: Send emails to the author of the form only if they are able to edit it. [#45515]
+- Forms: Prevent the required text from being removed from required fields when creating a form from a pattern. [#45495]
+- Forms: Store the feedback source info with more context. [#45231]
+- Maps Block: Fix compatibility with MapKit JS version 5.80.0+. [#45476]
+- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+- Podcast feed: Prevent fatals when content is empty. [#45498]
+- Related Posts: Prevent PHP errors when settings are malformed. [#45538]
+- Slideshow block: Ensure image size selection is correctly reflected in editor at all times. [#45500]
+- Stats: Prevent fatal when chart response is invalid. [#45496]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blaze: Hide module toggle on WordPress.com sites. [#45499]
+- Slideshow block: Fix sizing for lazy-loaded images. [#45164]
+- External media: Prevent site editor performance issues by bringing back previous script enqueue approach. [#45546]
+- Forms: Strip period from Terms submission label on the post-submission page. [#45509]
+- Forms: Fix plugin activation state. [#45471]
+- Forms: Remove unused `hasAI` from config. [#45522]
+- Update package dependencies. [#45478]
+
 ## 15.2-a.1 - 2025-10-13
 ### Enhancements
 - Forms: Add required indicator settings and make forms with a single input required by default. [#45300]

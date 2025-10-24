@@ -95,7 +95,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
 - **`legendShape`**: Shape used in legend markers (`'line'` by default)
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
-- **`interactive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
+- **`legendInteractive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -468,7 +468,7 @@ Enable interactive legends that allow users to toggle series visibility by click
 			data={data}
 			chartId="sales-chart"
 			showLegend={true}
-			interactive={true}
+			legendInteractive={true}
 		/>
 	</GlobalChartsProvider>` }
 />
@@ -483,9 +483,9 @@ Enable interactive legends that allow users to toggle series visibility by click
 **Requirements:**
 - Must be wrapped in `GlobalChartsProvider`
 - Must provide a unique `chartId` prop
-- Set `interactive={true}` and `showLegend={true}`
+- Set `legendInteractive={true}` and `showLegend={true}`
 
-**Note:** Interactive legends are currently supported for LineChart only. Support for other chart types will be added in future releases.
+**Note:** Interactive legends are currently supported for both LineChart and BarChart. Support for additional chart types will be added in future releases.
 
 ## Advanced Customization
 

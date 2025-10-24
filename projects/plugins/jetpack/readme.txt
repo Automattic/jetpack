@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 15.1.1
 Requires at least: 6.7
 Requires PHP: 7.2
-Tested up to: 6.8
+Tested up to: 6.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,20 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-a.1 - 2025-10-13
+### 15.2-a.5 - 2025-10-21
 #### Enhancements
-- Forms: Added required indicator settings, made forms with a sinble input required by default.
-- Forms: Add integrations store.
-- Forms: Add notification settings panel.
-- Forms: Add read and unread state for new form responses.
-- Forms: Avoid typographic orphans in Forms panels in editor.
-- Forms: Hide Google export card if disabled.
-- Forms: Remove Inbox view action for desktop and leave it just for mobile.
-- Forms: Update empty state notices.
-- Forms: Reorganize settings to a single panel for rating, slider and phone fields.
+- Forms: merged email and push notification settings panels.
 
 #### Bug fixes
-- Newsletter: Update wording to clarify how the reply-to settings can be used.
+- Forms: Fix a bug where ther responsive modal is not able to be closed.
+- Forms: Reset the selection on tab switch in dashboard.
+- Forms: Stop preloading the integrations endpoint.
+- Instant Search: Handle browser privacy settings stripping out the search query value.
 
 --------
 

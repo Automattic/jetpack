@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -43,7 +44,7 @@ export const viewAction = {
 	id: 'view-response',
 	icon: <Icon icon={ commentContent } />,
 	isPrimary: true,
-	label: __( 'View response', 'jetpack-forms' ),
+	label: __( 'View', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
@@ -54,6 +55,10 @@ export const editFormAction = {
 	isEligible: item => !! item?.edit_form_url,
 	supportsBulk: false,
 	async callback( items ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'edit-form',
+			multiple: false,
+		} );
 		const [ item ] = items;
 		if ( item?.edit_form_url ) {
 			const url = new URL( item.edit_form_url, window.location.origin );
@@ -86,6 +91,10 @@ export const markAsSpamAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ spam } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'mark-as-spam',
+			multiple: items.length > 1,
+		} );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -151,6 +160,10 @@ export const markAsNotSpamAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ notSpam } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'mark-as-not-spam',
+			multiple: items.length > 1,
+		} );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -218,6 +231,10 @@ export const restoreAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ backup } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'restore',
+			multiple: items.length > 1,
+		} );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -271,12 +288,16 @@ export const restoreAction = {
 
 export const moveToTrashAction = {
 	id: 'move-to-trash',
-	label: __( 'Move to trash', 'jetpack-forms' ),
+	label: __( 'Trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	isPrimary: true,
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'move-to-trash',
+			multiple: items.length > 1,
+		} );
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -335,6 +356,10 @@ export const deleteAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'delete',
+			multiple: items.length > 1,
+		} );
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
@@ -388,6 +413,10 @@ export const markAsReadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'mark-as-read',
+			multiple: items.length > 1,
+		} );
 		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
@@ -491,6 +520,10 @@ export const markAsUnreadAction = {
 	supportsBulk: true,
 	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'mark-as-unread',
+			multiple: items.length > 1,
+		} );
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );

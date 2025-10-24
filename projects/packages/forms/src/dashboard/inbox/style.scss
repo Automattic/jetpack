@@ -274,36 +274,9 @@
 
 .jp-forms__inbox-response-data-value .image-select-field {
 
-	.image-select-field-images {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 16px;
-	}
-
-	.image-select-field-image {
-		margin: 0;
-		width: 200px;
-		height: 200px;
-
-		&.is-empty {
-			position: relative;
-
-			&::before {
-
-				@extend %empty-image-option-background;
-			}
-
-			&::after {
-
-				@extend %empty-image-option-icon;
-				background-color: #000;
-			}
-		}
-
-		img {
-			aspect-ratio: 1/1;
-			object-fit: cover;
-		}
+	.image-select-field-button {
+		gap: variables.$grid-unit-10;
+		height: auto;
 	}
 }
 
@@ -377,6 +350,21 @@
 			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 		}
 	}
+
+	.jp-forms__inbox__author-field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.jp-forms__inbox__unread-indicator {
+		color: #d63638;
+		font-size: 8px;
+		position: absolute;
+		left: -12px;
+		cursor: pointer;
+	}
 }
 
 /*
@@ -412,6 +400,7 @@
 }
 
 .jp-forms__inbox__dataviews-response {
+	background: var(--jp-white);
 	min-width: 300px !important;
 	overflow: auto;
 	flex: 1 1 40%;
@@ -554,10 +543,3 @@ body.jetpack_page_jetpack-forms-admin {
 	font-weight: 600;
 }
 
-.jp-forms__inbox__unread-indicator {
-	color: #d63638;
-	font-size: 8px;
-	margin-right: 4.5px;
-	margin-left: -12px;
-	vertical-align: middle;
-}

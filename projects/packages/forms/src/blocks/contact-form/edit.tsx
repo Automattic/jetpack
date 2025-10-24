@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { hasFeatureFlag, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -49,7 +49,6 @@ import { CORE_BLOCKS } from '../shared/util/constants';
 import { childBlocks } from './child-blocks';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader';
-import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import NotificationsSettings from './components/notifications-settings';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults';
 import VariationPicker from './variation-picker';
@@ -890,11 +889,12 @@ function JetpackContactFormEdit( {
 						) }
 					</PanelBody>
 					<PanelBody
-						title={ __( 'Email responses', 'jetpack-forms' ) }
+						title={ __( 'Form notifications', 'jetpack-forms' ) }
 						initialOpen={ false }
 						className="jetpack-contact-form__panel"
 					>
-						<JetpackEmailConnectionSettings
+						<NotificationsSettings
+							notificationRecipients={ notificationRecipients }
 							emailAddress={ to }
 							emailSubject={ subject }
 							emailNotifications={ emailNotifications }
@@ -903,18 +903,6 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ hasFeatureFlag( 'form-notifications' ) && (
-						<PanelBody
-							title={ __( 'Form notifications', 'jetpack-forms' ) }
-							initialOpen={ false }
-							className="jetpack-contact-form__panel"
-						>
-							<NotificationsSettings
-								notificationRecipients={ notificationRecipients }
-								setAttributes={ setAttributes }
-							/>
-						</PanelBody>
-					) }
 					{ showFormIntegrations && (
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
