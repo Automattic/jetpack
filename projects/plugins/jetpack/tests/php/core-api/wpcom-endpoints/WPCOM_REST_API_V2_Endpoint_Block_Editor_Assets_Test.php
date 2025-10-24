@@ -737,6 +737,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
 
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'page', $screen_captured->post_type, 'First post type from array should be used' );
 
 		// Cleanup
