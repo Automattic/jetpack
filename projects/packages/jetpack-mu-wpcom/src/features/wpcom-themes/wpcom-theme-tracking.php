@@ -63,6 +63,7 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
  * @param string   $new_theme_name New theme name.
  * @param WP_Theme $new_theme      New theme object.
  * @param WP_Theme $old_theme      Old theme object.
+ * @return void
  */
 function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_theme ) {
 	$old_theme_props = wpcom_themes_tracks_get_theme_props( $old_theme, 'old' );
@@ -81,32 +82,64 @@ add_action( 'switch_theme', 'wpcom_themes_tracks_switch_theme', 12, 3 );
 /**
  * Record a theme upload via wp-admin.
  *
- * @param Theme_Upgrader $upgrader Upgrader instance.
- * @param array          $options  Array of upgrade options.
+ * @param Theme_Upgrader $upgrader   Upgrader instance.
+ * @param array          $hook_extra Upgrade data.
  * @return void
  */
-function wpcom_themes_tracks_upload_theme( $upgrader, $options ) {
+function wpcom_themes_tracks_upload_theme( $upgrader, $hook_extra ) {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		// Simple sites can't upload themes with wp-admin so should never reach here,
 		// but just in case, we exit early.
 		return;
 	}
 
-	if ( $options['type'] === 'theme' && $options['action'] === 'install' ) {
-		// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['action'] ) && $_GET['action'] === 'upload-theme' ) {
-			$theme_slug = $upgrader->result['destination_name'] ?? '';
-
-			if ( $theme_slug ) {
-				$theme = wp_get_theme( $theme_slug );
-
-				$theme_props            = wpcom_themes_tracks_get_theme_props( $theme );
-				$theme_props['blog_id'] = get_wpcom_blog_id();
-				$theme_props['source']  = 'wp-admin';
-				Common\wpcom_record_tracks_event( 'wpcom_theme_upload', $theme_props );
-			}
-		}
+	if ( ! isset( $hook_extra['type'] ) || $hook_extra['type'] !== 'theme' || ! isset( $hook_extra['action'] ) ) {
+		return;
 	}
+
+	$theme_slug = $upgrader->result['destination_name'] ?? '';
+
+	if ( ! $theme_slug ) {
+		return;
+	}
+
+	$theme        = wp_get_theme( $theme_slug );
+	$theme_props  = wpcom_themes_tracks_get_theme_props( $theme );
+	$upload_props = array(
+		'source' => '', // Intentionally left empty for debugging purposes.
+		'type'   => 'upload',
+	);
+
+	// Trying to distinguish between a manual upload vs a standard install or upgrade. It's not security sensitive.
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$action    = $_GET['action'] ?? '';
+	$overwrite = $_GET['overwrite'] ?? '';
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+	if ( $hook_extra['action'] === 'install' && ! $action ) {
+		// Install theme via wp-admin UI
+		$upload_props['source'] = 'wp-admin';
+		$upload_props['type']   = 'install';
+	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && ! $overwrite ) {
+		// Upload a theme via wp-admin (new theme)
+		$upload_props['source'] = 'wp-admin';
+		$upload_props['type']   = 'upload';
+	} elseif ( $hook_extra['action'] === 'install' && $action === 'upload-theme' && $overwrite === 'update-theme' ) {
+		// Upload a theme via wp-admin (existing theme)
+		$upload_props['source'] = 'wp-admin';
+		$upload_props['type']   = 'update';
+	} elseif ( $hook_extra['action'] === 'update' && $action === 'do-theme-upgrade' ) {
+		// Update theme via update-core.php
+		$upload_props['source'] = 'wp-admin';
+		$upload_props['type']   = 'bulk-update';
+	}
+
+	$event_props = array_merge(
+		array( 'blog_id' => get_wpcom_blog_id() ),
+		$theme_props,
+		$upload_props
+	);
+
+	Common\wpcom_record_tracks_event( 'wpcom_theme_upload', $event_props );
 }
 add_action( 'upgrader_process_complete', 'wpcom_themes_tracks_upload_theme', 10, 2 );
