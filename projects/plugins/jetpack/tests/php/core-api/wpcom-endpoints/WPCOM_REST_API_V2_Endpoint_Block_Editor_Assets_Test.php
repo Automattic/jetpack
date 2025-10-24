@@ -680,6 +680,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'post', $screen_captured->post_type, 'Default post type should be "post"' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
 	}
 
 	/**
@@ -709,6 +711,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'custom_test_type', $screen_captured->post_type, 'Custom post type should be set on screen' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
 
 		// Cleanup
 		unregister_post_type( 'custom_test_type' );
@@ -739,6 +743,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'page', $screen_captured->post_type, 'First post type from array should be used' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
 
 		// Cleanup
 		set_query_var( 'post_type', null );
