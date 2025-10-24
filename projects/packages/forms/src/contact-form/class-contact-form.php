@@ -17,6 +17,9 @@ use WP_Block;
 use WP_Error;
 use WP_Post;
 
+// Load the Form_Submission_Error class.
+require_once __DIR__ . '/class-form-submission-error.php';
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -1798,18 +1801,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Make sure we're processing the form we think we're processing... probably a redundant check.
 			if ( $widget ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new Form_Submission_Error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
 				}
 			} elseif ( $block_template ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new Form_Submission_Error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
 				}
 			} elseif ( $block_template_part ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return new Form_Submission_Error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
 				}
 			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || self::get_post_property( $this->current_post, 'ID' ) !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
+				return new Form_Submission_Error( 'form_id_mismatch', __( 'Form ID mismatch.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
 			}
 		}
 
