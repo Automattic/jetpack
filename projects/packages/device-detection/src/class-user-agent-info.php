@@ -87,6 +87,12 @@ class User_Agent_Info {
 	const BROWSER_EDGE             = 'edge';
 	const BROWSER_OPERA            = 'opera';
 	const BROWSER_IE               = 'ie';
+	const BROWSER_SAMSUNG          = 'samsung';
+	const BROWSER_UC               = 'uc';
+	const BROWSER_YANDEX           = 'yandex';
+	const BROWSER_VIVALDI          = 'vivaldi';
+	const BROWSER_MIUI             = 'miui';
+	const BROWSER_SILK             = 'silk';
 	const OTHER                    = 'other';
 
 	/**
@@ -324,7 +330,23 @@ class User_Agent_Info {
 			return self::OTHER;
 		}
 
-		if ( static::is_opera_mini( $ua ) || static::is_opera_mobile( $ua ) || static::is_opera_desktop( $ua ) || static::is_opera_mini_dumb( $ua ) ) {
+		// Check for browsers based on Chromium BEFORE checking for Chrome itself,
+		// as they all include "Chrome" in their user agent string.
+		// Order matters - most specific checks first!
+
+		if ( static::is_samsung_browser( $ua ) ) {
+			return self::BROWSER_SAMSUNG;
+		} elseif ( static::is_yandex_browser( $ua ) ) {
+			return self::BROWSER_YANDEX;
+		} elseif ( static::is_vivaldi_browser( $ua ) ) {
+			return self::BROWSER_VIVALDI;
+		} elseif ( static::is_uc_browser( $ua ) ) {
+			return self::BROWSER_UC;
+		} elseif ( static::is_miui_browser( $ua ) ) {
+			return self::BROWSER_MIUI;
+		} elseif ( static::is_silk_browser( $ua ) ) {
+			return self::BROWSER_SILK;
+		} elseif ( static::is_opera_mini( $ua ) || static::is_opera_mobile( $ua ) || static::is_opera_desktop( $ua ) || static::is_opera_mini_dumb( $ua ) ) {
 			return self::BROWSER_OPERA;
 		} elseif ( static::is_edge_browser( $ua ) ) {
 			return self::BROWSER_EDGE;
@@ -911,7 +933,10 @@ class User_Agent_Info {
 			return false;
 		}
 
-		if ( false === strpos( wp_unslash( $user_agent ), 'Edge' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = wp_unslash( $user_agent ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		// Check for both legacy Edge ("Edge/") and modern Chromium-based Edge ("Edg/")
+		if ( false === strpos( $ua, 'Edge' ) && false === strpos( $ua, 'Edg/' ) ) {
 			return false;
 		}
 		return true;
@@ -1070,6 +1095,150 @@ class User_Agent_Info {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Detects if the current browser is Samsung Internet for Android.
+	 *
+	 * Samsung Internet is the default browser on Samsung devices.
+	 * User agent contains: SamsungBrowser
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_samsung_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'SamsungBrowser' );
+	}
+
+	/**
+	 * Detects if the current browser is UC Browser.
+	 *
+	 * UC Browser is popular in Asia and emerging markets.
+	 * User agent contains: UCBrowser or UCWEB
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_uc_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'UCBrowser' ) || false !== stripos( $user_agent, 'UCWEB' );
+	}
+
+	/**
+	 * Detects if the current browser is Yandex Browser.
+	 *
+	 * Yandex Browser is popular in Russia and CIS countries.
+	 * User agent contains: YaBrowser
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_yandex_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'YaBrowser' );
+	}
+
+	/**
+	 * Detects if the current browser is Vivaldi.
+	 *
+	 * Vivaldi is a feature-rich browser for power users.
+	 * User agent contains: Vivaldi
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_vivaldi_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'Vivaldi' );
+	}
+
+	/**
+	 * Detects if the current browser is MIUI Browser.
+	 *
+	 * MIUI Browser is the default browser on Xiaomi devices.
+	 * User agent contains: MiuiBrowser or XiaoMi
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_miui_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'MiuiBrowser' ) || false !== stripos( $user_agent, 'XiaoMi' );
+	}
+
+	/**
+	 * Detects if the current browser is Amazon Silk.
+	 *
+	 * Amazon Silk is the browser on Kindle Fire and Echo devices.
+	 * User agent contains: Silk or Silk-Accelerated
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_silk_browser( $user_agent = null ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		}
+
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'Silk' );
 	}
 
 	/**
