@@ -116,10 +116,21 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 */
 		private function validate_user_tokens( $normalized_token, $existing_tokens, $user_id ) {
 			$has_conflicts = false;
-			$secret_prefix = substr( $normalized_token, 0, strrpos( $normalized_token, '.' ) );
+			$last_dot_pos  = strrpos( $normalized_token, '.' );
+
+			// Validate token format - it must contain a dot to separate secret from user_id
+			if ( false === $last_dot_pos ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "Invalid token format in validate_user_tokens: '{$normalized_token}'" );
+				return $existing_tokens;
+			}
+
+			$secret_prefix = substr( $normalized_token, 0, $last_dot_pos );
 
 			// Check if current user has a mismatched token
-			if ( isset( $existing_tokens[ $user_id ] ) && ! hash_equals( $normalized_token, $existing_tokens[ $user_id ] ) ) {
+			if ( isset( $existing_tokens[ $user_id ] )
+				&& is_string( $existing_tokens[ $user_id ] )
+				&& ! hash_equals( $normalized_token, $existing_tokens[ $user_id ] ) ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( "Removing conflicting token for user {$user_id}" );
 				unset( $existing_tokens[ $user_id ] );
@@ -172,7 +183,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 			// Get user by email
 			$user = get_user_by( 'email', $email );
-			if ( ! $user || ! $user->ID ) {
+			if ( ! $user instanceof \WP_User ) {
 				return false;
 			}
 
