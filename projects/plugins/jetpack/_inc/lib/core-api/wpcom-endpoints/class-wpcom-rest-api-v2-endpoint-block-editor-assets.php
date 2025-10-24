@@ -198,30 +198,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$wp_styles->registered[ $handle ] = $style;
 		}
 
-		// Ensure screen class and functions are available
-		if ( ! class_exists( 'WP_Screen' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
-		}
-		if ( ! function_exists( 'get_current_screen' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/screen.php';
-		}
-
 		// Set up a block editor screen context to prevent errors when
 		// plugins/themes call get_current_screen() during asset enqueueing
-		$post_type = get_query_var( 'post_type', 'post' );
-		if ( is_array( $post_type ) ) {
-			$post_type = reset( $post_type );
-		}
-
-		// Create a post editor screen context
-		set_current_screen( 'post' );
-
-		// Update the screen to indicate it's using the block editor
-		$current_screen = get_current_screen();
-		if ( $current_screen ) {
-			$current_screen->is_block_editor( true );
-			$current_screen->post_type = $post_type;
-		}
+		$this->setup_block_editor_screen();
 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
@@ -316,6 +295,39 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				'styles'              => $styles,
 			)
 		);
+	}
+
+	/**
+	 * Sets up a mock block editor screen context for the REST API request.
+	 *
+	 * This ensures get_current_screen() is available and returns a proper
+	 * block editor screen object, preventing fatal errors when plugins/themes
+	 * call get_current_screen() during the enqueue_block_editor_assets action.
+	 */
+	private function setup_block_editor_screen() {
+		// Ensure screen class and functions are available
+		if ( ! class_exists( 'WP_Screen' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		}
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/screen.php';
+		}
+
+		// Determine the post type for the screen context
+		$post_type = get_query_var( 'post_type', 'post' );
+		if ( is_array( $post_type ) ) {
+			$post_type = reset( $post_type );
+		}
+
+		// Create a post editor screen context
+		set_current_screen( 'post' );
+
+		// Update the screen to indicate it's using the block editor
+		$current_screen = get_current_screen();
+		if ( $current_screen ) {
+			$current_screen->is_block_editor( true );
+			$current_screen->post_type = $post_type;
+		}
 	}
 
 	/**
