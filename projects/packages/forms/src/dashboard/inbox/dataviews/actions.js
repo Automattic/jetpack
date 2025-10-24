@@ -397,6 +397,27 @@ export const deleteAction = {
 							items.length
 					  );
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+
+			// Update the URL to remove references to deleted items.
+			// Parse the hash to extract just the query params (e.g., #/responses?r=1,2,3)
+			const hash = window.location.hash;
+			const hashQueryIndex = hash.indexOf( '?' );
+			const hashBase = hashQueryIndex > 0 ? hash.substring( 0, hashQueryIndex ) : hash;
+			const hashQuery = hashQueryIndex > 0 ? hash.substring( hashQueryIndex + 1 ) : '';
+
+			const hashParams = new URLSearchParams( hashQuery );
+			const currentSelection = hashParams.get( 'r' )?.split( ',' ) || [];
+			const deletedIds = items.map( ( { id } ) => id.toString() );
+			const newSelection = currentSelection.filter( id => ! deletedIds.includes( id ) );
+
+			if ( newSelection.length ) {
+				hashParams.set( 'r', newSelection.join( ',' ) );
+			} else {
+				hashParams.delete( 'r' );
+			}
+
+			const hashString = hashParams.toString();
+			window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
 			return;
 		}
 		// There is at least one failure.
