@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -48,7 +47,6 @@ class Dashboard {
 	public function init_hooks() {
 		self::$initialized = true;
 		// Jetpack uses 998 and 'Admin_Menu' uses 1000.
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_submenu' ), $this->menu_priority );
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), $this->menu_priority );
 	}
 
@@ -80,39 +78,6 @@ class Dashboard {
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 		}
-	}
-
-	/**
-	 * The page to be added to submenu
-	 */
-	public function add_wp_admin_submenu() {
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Stats', 'jetpack-stats-admin' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			'view_stats',
-			'callout-stats',
-			array( $this, 'render_callout' )
-		);
-
-		if ( $page_suffix ) {
-			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-		}
-	}
-
-	/**
-	 * Add the render callout function. We need to pass the location.hash to the stats moved page.
-	 *
-	 * This code is temporary and will be removed after a month.
-	 *
-	 * @return void
-	 */
-	public function render_callout() {
-		?>
-		<script>
-			location.hash = '#!/stats/moved?page=callout-stats';
-		</script>
-		<?php
-		$this->render();
 	}
 
 	/**
