@@ -2835,9 +2835,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function add_error( $error_code, $error_message ) {
 		$id = $this->get_attribute( 'id' );
 		if ( ! isset( self::$static_errors[ $id ] ) ) {
-			self::$static_errors[ $id ] = new \WP_Error();
+			self::$static_errors[ $id ] = new Form_Submission_Error( $error_code, $error_message, Form_Submission_Error::TYPE_VALIDATION );
+		} else {
+			// If we already have errors, add this error to the existing Form_Submission_Error
+			self::$static_errors[ $id ]->add( $error_code, $error_message );
 		}
-		self::$static_errors[ $id ]->add( $error_code, $error_message );
 		$this->errors = self::$static_errors[ $id ];
 	}
 	/**

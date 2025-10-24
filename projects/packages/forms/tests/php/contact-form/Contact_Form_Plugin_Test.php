@@ -574,8 +574,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
-		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
-		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error code to be "check_spam".' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission.' );
+		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error message to be "Name field is required.".' );
+		$this->assertTrue( $result->is_validation_error(), 'Expected this to be a validation error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
