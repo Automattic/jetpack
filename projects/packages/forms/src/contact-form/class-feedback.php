@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Client;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -861,18 +861,12 @@ class Feedback {
 	private static function geolocate_via_api( $ip_address ) {
 		$country_code = \get_transient( 'geoip_' . $ip_address );
 		if ( false === $country_code ) {
-
-			$version = Constants::get_constant( 'JETPACK__VERSION' );
-			if ( empty( $version ) ) {
-				$version = '0.1';
-			}
-
-			$response = \wp_safe_remote_get(
-				sprintf( 'https://public-api.wordpress.com/geo/?ip=%s', $ip_address ),
-				array(
-					'timeout'    => 2,
-					'user-agent' => 'jetpack/' . $version,
-				)
+			$response = Client::wpcom_json_api_request_as_blog(
+				'/ip-to-geo/' . $ip_address,
+				'2',
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom'
 			);
 
 			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
