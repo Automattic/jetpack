@@ -13,6 +13,8 @@
 
 		.wp-block-jetpack-button {
 			align-self: flex-end;
+			// this is so button has the same style on editor and frontend.
+			flex: 0 0 auto;
 
 			.wp-block-button__link {
 				word-break: normal;
