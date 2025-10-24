@@ -242,7 +242,7 @@ class User_Agent_Info {
 	 */
 	public function get_platform() {
 		if ( isset( $this->platform ) ) {
-				return $this->platform;
+			return $this->platform;
 		}
 
 		if ( empty( $this->useragent ) ) {
@@ -484,13 +484,14 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public function is_tablet() {
+		$ua = $this->useragent;
 		return ( 0 // Never true, but makes it easier to manage our list of tablet conditions.
-				|| self::is_ipad()
-				|| self::is_android_tablet()
-				|| self::is_blackberry_tablet()
-				|| self::is_kindle_fire()
-				|| self::is_MaemoTablet()
-				|| self::is_TouchPad()
+				|| self::is_ipad( $ua )
+				|| self::is_android_tablet( $ua )
+				|| self::is_blackberry_tablet( $ua )
+				|| self::is_kindle_fire( $ua )
+				|| self::is_MaemoTablet( $ua )
+				|| self::is_TouchPad( $ua )
 		);
 	}
 
