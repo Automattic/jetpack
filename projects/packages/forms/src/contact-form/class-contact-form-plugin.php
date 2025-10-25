@@ -1521,7 +1521,7 @@ class Contact_Form_Plugin {
 		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
-			return new Form_Submission_Error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
+			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -1536,7 +1536,7 @@ class Contact_Form_Plugin {
 			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
 			if ( ! $form ) { // fail early if the JWT is invalid.
 				// If the JWT is invalid, we can't process the form.
-				return new Form_Submission_Error( 'invalid_jwt', __( 'Invalid JWT token.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
+				return Form_Submission_Error::system_error( 'invalid_jwt', __( 'Invalid JWT token.', 'jetpack-forms' ) );
 			}
 
 			$form->validate();
@@ -1648,12 +1648,12 @@ class Contact_Form_Plugin {
 
 			if ( ! is_post_publicly_viewable( $id ) && ! current_user_can( 'read_post', $id ) ) {
 				// The user can't see the post.
-				return new Form_Submission_Error( 'post_not_viewable', __( 'You do not have permission to view this form.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
+				return Form_Submission_Error::system_error( 'post_not_viewable', __( 'You do not have permission to view this form.', 'jetpack-forms' ) );
 			}
 
 			if ( post_password_required( $id ) ) {
 				// The post is password-protected and the password is not provided.
-				return new Form_Submission_Error( 'post_password_required', __( 'This form requires a password.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
+				return Form_Submission_Error::system_error( 'post_password_required', __( 'This form requires a password.', 'jetpack-forms' ) );
 			}
 
 			$post = get_post( $id );
@@ -1705,7 +1705,7 @@ class Contact_Form_Plugin {
 		}
 
 		if ( ! $form ) {
-			return new Form_Submission_Error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ), Form_Submission_Error::TYPE_SYSTEM );
+			return Form_Submission_Error::system_error( 'form_not_found', __( 'Form not found.', 'jetpack-forms' ) );
 		}
 
 		if ( $form->has_errors() ) {
@@ -1728,7 +1728,7 @@ class Contact_Form_Plugin {
 	public function ajax_request() {
 		$submission_result = self::process_form_submission();
 		$accepts_json      = isset( $_SERVER['HTTP_ACCEPT'] ) && false !== strpos( strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ) ), 'application/json' );
-		$is_system_error   = $submission_result instanceof Form_Submission_Error && $submission_result->is_system_error();
+		$is_system_error   = Form_Submission_Error::is_system_error( $submission_result );
 
 		if ( ! $submission_result || $is_system_error ) {
 			$error_code = $is_system_error ? $submission_result->get_error_code() : 'unknown';
