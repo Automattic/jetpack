@@ -1,16 +1,13 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	ToggleControl,
 	TextControl,
 } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import HostingerReachIcon from '../../../../icons/hostinger-reach';
+import ConsentToggle from './consent-toggle';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
@@ -30,27 +27,6 @@ const HostingerReachCard = ( {
 	refreshStatus,
 }: HostingerReachCardProps ) => {
 	const { isConnected = false, settingsUrl = '' } = data || {};
-
-	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
-	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
-	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
-		( { name }: { name: string } ) => name === 'jetpack/field-email'
-	);
-	const consentBlock = selectedBlock?.innerBlocks?.find(
-		( { name }: { name: string } ) => name === 'jetpack/field-consent'
-	);
-
-	const toggleConsent = async () => {
-		if ( consentBlock ) {
-			await removeBlock( consentBlock.clientId, false );
-		} else {
-			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-				( { name }: { name: string } ) => name === 'jetpack/button'
-			);
-			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
-			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
-		}
-	};
 
 	const cardData: IntegrationCardData = {
 		...data,
@@ -133,16 +109,7 @@ const HostingerReachCard = ( {
 							__nextHasNoMarginBottom
 						/>
 					</div>
-					{ hasEmailBlock && (
-						<div className="integration-card__section">
-							<ToggleControl
-								label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
-								checked={ !! consentBlock }
-								onChange={ toggleConsent }
-								__nextHasNoMarginBottom
-							/>
-						</div>
-					) }
+					<ConsentToggle />
 					<p className="integration-card__description">
 						<ExternalLink href={ settingsUrl }>
 							{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }

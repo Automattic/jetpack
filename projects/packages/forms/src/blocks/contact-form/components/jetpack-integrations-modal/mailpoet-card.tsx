@@ -1,16 +1,13 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	SelectControl,
-	ToggleControl,
 } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../icons/mailpoet';
+import ConsentToggle from './consent-toggle';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../../types';
 
@@ -45,26 +42,6 @@ const MailPoetCard = ( {
 		() => ( Array.isArray( data?.details?.lists ) ? ( data.details.lists as MailPoetList[] ) : [] ),
 		[ data?.details?.lists ]
 	);
-
-	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
-	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
-	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
-		( { name }: { name: string } ) => name === 'jetpack/field-email'
-	);
-	const consentBlock = selectedBlock?.innerBlocks?.find(
-		( { name }: { name: string } ) => name === 'jetpack/field-consent'
-	);
-	const toggleConsent = async () => {
-		if ( consentBlock ) {
-			await removeBlock( consentBlock.clientId, false );
-		} else {
-			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
-				( { name }: { name: string } ) => name === 'jetpack/button'
-			);
-			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
-			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
-		}
-	};
 
 	useEffect( () => {
 		if ( ! mailpoet.enabledForForm ) {
@@ -189,16 +166,7 @@ const MailPoetCard = ( {
 							) }
 						</p>
 					) }
-					{ hasEmailBlock && (
-						<div className="integration-card__section">
-							<ToggleControl
-								label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
-								checked={ !! consentBlock }
-								onChange={ toggleConsent }
-								__nextHasNoMarginBottom
-							/>
-						</div>
-					) }
+					<ConsentToggle />
 					<p className="integration-card__description">
 						<ExternalLink href={ settingsUrl }>
 							{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }

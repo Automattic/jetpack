@@ -25,7 +25,6 @@ return [
     // PhanUndeclaredMethod : 2 occurrences
     // PhanUndeclaredMethodInCallable : 2 occurrences
     // PhanUndeclaredTypeThrowsType : 2 occurrences
-    // PhanAccessMethodInternal : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPluginUnreachableCode : 1 occurrence
     // PhanTypeMismatchReturnNullable : 1 occurrence
@@ -46,7 +45,7 @@ return [
         'src/class-utils.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-videopresstoken.php' => ['PhanTypeMismatchReturn'],
         'src/class-wpcom-rest-api-v2-attachment-field-videopress.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanAccessMethodInternal', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-wpcom-rest-api-v2-endpoint-videopress.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-xmlrpc.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/tus/class-tus-client.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument'],
         'src/tus/class-tus-file.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],

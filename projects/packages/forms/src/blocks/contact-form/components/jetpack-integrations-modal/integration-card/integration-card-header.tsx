@@ -8,6 +8,7 @@ import '@automattic/ui/style.css';
  * Internal dependencies
  */
 import {
+	Animate,
 	CardHeader,
 	Icon,
 	ToggleControl,
@@ -16,12 +17,15 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
+import clsx from 'clsx';
 import PluginActionButton from './plugin-action-button';
 /**
  * Types
  */
 import type { IntegrationCardProps } from './index';
 import type { MouseEvent } from 'react';
+
+const noop = () => {};
 
 const IntegrationCardHeader = ( {
 	title,
@@ -44,13 +48,15 @@ const IntegrationCardHeader = ( {
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
 		setupBadge,
+		__isPartial,
 	} = cardData;
-	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = isConnected || ( isActive && ! needsConnection );
+
+	const showPluginAction = ! __isPartial && type === 'plugin' && ( ! isInstalled || ! isActive );
+	const showConnectedBadge = ! __isPartial && ( isConnected || ( isActive && ! needsConnection ) );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
+	const showPendingBadge = ! __isPartial && ! showPluginAction && ! isConnected && needsConnection;
 
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
@@ -89,8 +95,14 @@ const IntegrationCardHeader = ( {
 		onToggle();
 	};
 
+	const isHeaderToggleEnabledFinal = isHeaderToggleEnabled && ! __isPartial; // wait for the full data to load before allwing things to be exanded;
+	const showHeaderToggleFinal = showHeaderToggle && ! __isPartial;
+
 	return (
-		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
+		<CardHeader
+			onClick={ __isPartial ? noop : handleHeaderClick }
+			className={ clsx( 'integration-card__header', { 'is-clickable': ! __isPartial } ) }
+		>
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
 					<div className="integration-card__service-icon-container">
@@ -106,6 +118,16 @@ const IntegrationCardHeader = ( {
 						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
+						) }
+						{ /* Show skeleton badge while loading status */ }
+						{ __isPartial && (
+							<Animate type="loading">
+								{ ( { className } ) => (
+									<Badge className={ clsx( 'integration-card__plugin-badge', className ) }>
+										{ ' ' /* intentionally left blank */ }
+									</Badge>
+								) }
+							</Animate>
 						) }
 						{ showPluginAction && (
 							<Badge
@@ -145,10 +167,10 @@ const IntegrationCardHeader = ( {
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ! showPluginAction && showHeaderToggle && (
+					{ ! showPluginAction && showHeaderToggleFinal && (
 						<Tooltip
 							text={
-								! isHeaderToggleEnabled && toggleDisabledTooltip
+								! isHeaderToggleEnabledFinal && toggleDisabledTooltip
 									? toggleDisabledTooltip
 									: getTooltipText( headerToggleValue )
 							}
@@ -157,13 +179,13 @@ const IntegrationCardHeader = ( {
 								<ToggleControl
 									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
-									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
+									disabled={ ! isHeaderToggleEnabledFinal || ! ( isActive || isConnected ) }
 									__nextHasNoMarginBottom
 								/>
 							</span>
 						</Tooltip>
 					) }
-					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
+					{ ! __isPartial && <Icon icon={ isExpanded ? chevronUp : chevronDown } /> }
 				</HStack>
 			</div>
 		</CardHeader>

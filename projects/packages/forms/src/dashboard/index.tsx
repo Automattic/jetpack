@@ -8,7 +8,6 @@ import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
-import About from './about';
 import Layout from './components/layout';
 import Inbox from './inbox';
 import Integrations from './integrations';
@@ -49,10 +48,6 @@ function initFormsDashboard() {
 				{
 					path: 'integrations',
 					element: <Integrations />,
-				},
-				{
-					path: 'about',
-					element: <About />,
 				},
 			],
 		},

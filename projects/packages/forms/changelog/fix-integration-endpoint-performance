@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: Improve the performance of loading the form responsesn dashboard by breaking it up into two stages
