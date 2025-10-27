@@ -140,6 +140,6 @@ function wpcom_themes_tracks_upload_theme( $upgrader, $hook_extra ) {
 		$upload_props
 	);
 
-	Common\wpcom_record_tracks_event( 'wpcom_theme_upload', $event_props );
+	Common\wpcom_record_tracks_event( 'wpcom_theme_install', $event_props );
 }
 add_action( 'upgrader_process_complete', 'wpcom_themes_tracks_upload_theme', 10, 2 );
