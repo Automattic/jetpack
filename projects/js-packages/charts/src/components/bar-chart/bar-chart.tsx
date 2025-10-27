@@ -9,6 +9,7 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementHeight,
+	useLegendLayout,
 } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -18,6 +19,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../private/single-chart-context';
@@ -276,6 +278,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		return generatedStyles;
 	}, [ selectedIndex, data, chartId ] );
 
+	// Use the legend layout hook for consistent calculations
+	const { adjustedChartHeight, adjustedMargin, containerClassName } = useLegendLayout( {
+		height,
+		showLegend,
+		legendPosition,
+		legendHeight,
+		defaultMargin: { ...defaultMargin, ...margin },
+	} );
+
 	// Validate data first
 	const error = validateData( dataSorted );
 	const isDataValid = ! error;
@@ -310,19 +321,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: height - ( showLegend ? legendHeight : 0 ),
+				chartHeight: adjustedChartHeight,
 			} }
 		>
 			<div
-				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+				className={ clsx(
+					'bar-chart',
+					styles[ 'bar-chart' ],
+					containerStyles[ 'chart-container' ],
+					containerStyles[ containerClassName ],
+					className
+				) }
 				data-testid="bar-chart"
 				role="grid"
 				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 				style={ {
 					width,
 					height,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 				} }
 				tabIndex={ 0 }
 				onKeyDown={ onChartKeyDown }
@@ -334,14 +349,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				<XYChart
 					theme={ theme }
 					width={ width }
-					height={ height - ( showLegend ? legendHeight : 0 ) }
-					margin={ {
-						...defaultMargin,
-						...margin,
-						...( showLegend && legendPosition === 'top'
-							? { top: ( defaultMargin.top || 0 ) + legendHeight }
-							: {} ),
-					} }
+					height={ adjustedChartHeight }
+					margin={ adjustedMargin }
 					xScale={ chartOptions.xScale }
 					yScale={ chartOptions.yScale }
 					horizontal={ horizontal }
@@ -376,7 +385,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					{ allSeriesHidden ? (
 						<text
 							x={ width / 2 }
-							y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+							y={ adjustedChartHeight / 2 }
 							textAnchor="middle"
 							fill={ providerTheme.gridStyles?.stroke || '#ccc' }
 							fontSize="14"

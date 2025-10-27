@@ -1,12 +1,10 @@
 .bar-chart {
-	display: flex;
-	flex-direction: column;
 
 	svg {
 		overflow: visible;
 	}
 
-	&-legend {
+	&__legend {
 		margin-top: 1rem;
 	}
 }
