@@ -67,7 +67,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 						return null;
 					}
 					$tokens = $this->get_user_tokens( $email, $secret );
-					return $tokens ? $tokens : null;
+					return ( is_array( $tokens ) && ! empty( $tokens ) ) ? $tokens : null;
 			}
 
 			return null;
@@ -107,11 +107,70 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Remove conflicting tokens for a given normalized token and user.
+		 *
+		 * Conflicts are:
+		 * - Current user has a different token string than normalized token
+		 * - Any other user has a token sharing the same secret prefix
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array  $tokens           Tokens array keyed by user ID.
+		 * @param string $normalized_token Normalized token (token_key.secret.user_id).
+		 * @param int    $user_id          Local user ID for whom the token applies.
+		 * @return array { Updated tokens and whether any conflicts were removed }
+		 * @phpstan-return array{ tokens: array, had_conflicts: bool }
+		 */
+		private function remove_conflicting_tokens( $tokens, $normalized_token, $user_id ) {
+			$had_conflicts = false;
+			$last_dot_pos  = strrpos( $normalized_token, '.' );
+
+			// Validate token format - must contain a dot to separate secret from user_id.
+			if ( false === $last_dot_pos ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "Invalid token format in remove_conflicting_tokens: '{$normalized_token}'" );
+				return array(
+					'tokens'        => $tokens,
+					'had_conflicts' => false,
+				);
+			}
+
+			$secret_prefix = substr( $normalized_token, 0, $last_dot_pos );
+
+			// Remove mismatched token for the current user.
+			if ( isset( $tokens[ $user_id ] )
+			&& is_string( $tokens[ $user_id ] )
+			&& ! hash_equals( $normalized_token, $tokens[ $user_id ] ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( "Removing conflicting token for user {$user_id}" );
+				unset( $tokens[ $user_id ] );
+				$had_conflicts = true;
+			}
+
+			// Remove orphaned tokens (same secret, different user).
+			foreach ( $tokens as $token_user_id => $token ) {
+				if ( is_string( $token ) && (int) $token_user_id !== $user_id && strpos( $token, $secret_prefix . '.' ) === 0 ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log( "Removing orphaned token with same secret for user {$token_user_id}" );
+					unset( $tokens[ $token_user_id ] );
+					$had_conflicts = true;
+				}
+			}
+
+			return array(
+				'tokens'        => $tokens,
+				'had_conflicts' => $had_conflicts,
+			);
+		}
+
+		/**
 		 * Validates user tokens and removes conflicting tokens.
 		 *
 		 * Removes any tokens that:
 		 * 1. Belong to the current user but don't match the external storage token
 		 * 2. Have the same secret as external storage but belong to a different user (orphaned tokens)
+		 *
+		 * Re-reads the latest state before persisting to minimize race condition window.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -121,51 +180,34 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return array The tokens array with conflicting tokens removed.
 		 */
 		private function validate_user_tokens( $normalized_token, $existing_tokens, $user_id ) {
-			$has_conflicts = false;
-			$last_dot_pos  = strrpos( $normalized_token, '.' );
-
-			// Validate token format - it must contain a dot to separate secret from user_id
-			if ( false === $last_dot_pos ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "Invalid token format in validate_user_tokens: '{$normalized_token}'" );
-				return $existing_tokens;
-			}
-
-			$secret_prefix = substr( $normalized_token, 0, $last_dot_pos );
-
-			// Check if current user has a mismatched token
-			if ( isset( $existing_tokens[ $user_id ] )
-				&& is_string( $existing_tokens[ $user_id ] )
-				&& ! hash_equals( $normalized_token, $existing_tokens[ $user_id ] ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "Removing conflicting token for user {$user_id}" );
-				unset( $existing_tokens[ $user_id ] );
-				$has_conflicts = true;
-			}
-
-			// Check if any other user has a token with the same secret (orphaned token from previous owner)
-			foreach ( $existing_tokens as $token_user_id => $token ) {
-				if ( $token_user_id !== $user_id && strpos( $token, $secret_prefix . '.' ) === 0 ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( "Removing orphaned token with same secret for user {$token_user_id}" );
-					unset( $existing_tokens[ $token_user_id ] );
-					$has_conflicts = true;
-				}
-			}
+			$result        = $this->remove_conflicting_tokens( $existing_tokens, $normalized_token, $user_id );
+			$has_conflicts = $result['had_conflicts'];
 
 			// Only persist changes if conflicts were found
 			if ( $has_conflicts ) {
-				// Persist the change to the database to prevent repeated error logging
-				$private_options                = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-				$private_options['user_tokens'] = $existing_tokens;
-				update_option( 'jetpack_private_options', $private_options );
+				// Re-read latest state right before writing to minimize race window
+				$latest_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
+				$latest_tokens  = isset( $latest_options['user_tokens'] ) && is_array( $latest_options['user_tokens'] )
+				? $latest_options['user_tokens']
+				: array();
+
+				// Re-apply cleanup to latest tokens (might find no conflicts now if state changed)
+				$latest_result = $this->remove_conflicting_tokens( $latest_tokens, $normalized_token, $user_id );
+
+				// Write the cleaned latest state
+				$latest_options['user_tokens'] = $latest_result['tokens'];
+				\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
 
 				// Also clear master_user from database since connection owner data has changed
 				// External storage will provide the correct value on next read
 				\Jetpack_Options::delete_option( 'master_user' );
+
+				// Return what we actually wrote to the database
+				return $latest_result['tokens'];
 			}
 
-			return $existing_tokens;
+			// No conflicts, return cleaned tokens
+			return $result['tokens'];
 		}
 
 		/**
