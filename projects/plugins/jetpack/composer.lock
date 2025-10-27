@@ -3421,13 +3421,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-analytics",
-                "reference": "db865bc872cc04f8c7336dbbb5a25dd1e352c5df"
+                "reference": "de64e08cfec7e62019d1132b1030b391116c77d1"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

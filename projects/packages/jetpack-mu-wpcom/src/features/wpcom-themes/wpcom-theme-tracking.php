@@ -17,30 +17,39 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
  * @return array Associative array of theme properties.
  */
 function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
-	if ( ! function_exists( 'wpcomsh_get_wpcom_themes_service_instance' ) ) {
-		return array();
-	}
-
-	$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
-	$theme_data           = $wpcom_themes_service->get_theme( $theme->stylesheet );
-
 	if ( $prefix !== '' ) {
 		$prefix .= '_';
 	}
 
-	$props = array();
-	if ( $theme_data === null ) {
-		$props[ $prefix . 'theme' ]                = $theme->get( 'Name' );
-		$props[ $prefix . 'theme_stylesheet' ]     = $theme->get_stylesheet();
-		$props[ $prefix . 'theme_tier' ]           = 'community';
-		$props[ $prefix . 'theme_is_block_theme' ] = $theme->is_block_theme();
-		$props[ $prefix . 'theme_is_retired' ]     = false;
-	} else {
-		$props[ $prefix . 'theme' ]                = $theme_data->name;
-		$props[ $prefix . 'theme_stylesheet' ]     = $theme_data->slug;
-		$props[ $prefix . 'theme_tier' ]           = $theme_data->theme_tier;
-		$props[ $prefix . 'theme_is_block_theme' ] = $theme_data->block_theme;
-		$props[ $prefix . 'theme_is_retired' ]     = $theme_data->is_retired;
+	$props = array(
+		$prefix . 'theme'                => $theme->get( 'Name' ),
+		$prefix . 'theme_stylesheet'     => $theme->get_stylesheet(),
+		$prefix . 'theme_tier'           => null,
+		$prefix . 'theme_is_block_theme' => $theme->is_block_theme(),
+		$prefix . 'theme_is_retired'     => false,
+	);
+
+	// Simple sites
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && class_exists( 'WPCom_Themes' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		$props[ $prefix . 'theme_tier' ] = WPCom_Themes::get_theme_tier( $theme->get_stylesheet() );
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
+		$props[ $prefix . 'theme_is_retired' ] = WPCom_Themes::is_retired( $theme->get_stylesheet() );
+
+		return $props;
+	}
+
+	// Atomic sites
+	$props[ $prefix . 'theme_tier' ] = 'community';
+
+	if ( function_exists( 'wpcomsh_get_wpcom_themes_service_instance' ) ) {
+		$wpcom_themes_service = wpcomsh_get_wpcom_themes_service_instance();
+		$theme_data           = $wpcom_themes_service->get_theme( $theme->get_stylesheet() );
+
+		if ( $theme_data !== null ) {
+			$props[ $prefix . 'theme_tier' ]       = $theme_data->theme_tier ?? null;
+			$props[ $prefix . 'theme_is_retired' ] = $theme_data->is_retired ?? false;
+		}
 	}
 
 	return $props;
@@ -56,10 +65,6 @@ function wpcom_themes_tracks_get_theme_props( $theme, $prefix = '' ) {
  * @param WP_Theme $old_theme      Old theme object.
  */
 function wpcom_themes_tracks_switch_theme( $new_theme_name, $new_theme, $old_theme ) {
-	if ( ! function_exists( 'wpcomsh_get_wpcom_themes_service_instance' ) ) {
-		return;
-	}
-
 	$old_theme_props = wpcom_themes_tracks_get_theme_props( $old_theme, 'old' );
 	$new_theme_props = wpcom_themes_tracks_get_theme_props( $new_theme, 'new' );
 

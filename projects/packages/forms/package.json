@@ -43,6 +43,7 @@
 		"@automattic/request-external-access": "1.0.1",
 		"@automattic/ui": "1.0.2",
 		"@gravatar-com/hovercards": "0.15.0",
+		"@wordpress/admin-ui": "1.1.0",
 		"@wordpress/base-styles": "6.7.0",
 		"@wordpress/block-editor": "15.4.0",
 		"@wordpress/blocks": "15.4.0",

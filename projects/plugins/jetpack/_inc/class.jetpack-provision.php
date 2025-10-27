@@ -191,6 +191,7 @@ class Jetpack_Provision {
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
 
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
@@ -272,7 +273,8 @@ class Jetpack_Provision {
 			'body'    => '',
 		);
 
-		$url    = sprintf( '%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		$url = sprintf( '%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
