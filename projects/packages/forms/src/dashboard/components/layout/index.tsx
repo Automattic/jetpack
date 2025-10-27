@@ -2,7 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch, JetpackLogo } from '@automattic/jetpack-components';
 import { NavigableRegion, Page } from '@wordpress/admin-ui';
 import { TabPanel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -19,7 +19,7 @@ import ExportResponsesButton from '../../inbox/export-responses';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
-import JetpackFormsLogo from '../logo';
+
 import './style.scss';
 // eslint-disable-next-line import/no-unresolved -- aliased to the package's built asset in webpack config.
 import '@wordpress/admin-ui/build-style/style.css';
@@ -115,7 +115,15 @@ const Layout = () => {
 	);
 
 	return (
-		<Page className="jp-forms__layout" title={ <JetpackFormsLogo /> } actions={ headerActions }>
+		<Page
+			className="jp-forms__layout"
+			title={
+				<div className="jp-forms__layout-header-title">
+					<JetpackLogo showText={ false } width={ 24 } /> Forms
+				</div>
+			}
+			actions={ headerActions }
+		>
 			<NavigableRegion
 				className="admin-ui-page__content"
 				ariaLabel={ __( 'Forms dashboard content', 'jetpack-forms' ) }

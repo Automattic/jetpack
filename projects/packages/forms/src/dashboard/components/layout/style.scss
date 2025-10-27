@@ -28,6 +28,12 @@ body.jetpack_page_jetpack-forms-admin {
 		gap: 8px;
 	}
 
+	.jp-forms__layout-header-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
 	.jp-forms__logo {
 		margin: 0 0 4px;
 		width: 200px;
