@@ -282,6 +282,11 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 			</BarChart>
 		</div>
 	),
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
