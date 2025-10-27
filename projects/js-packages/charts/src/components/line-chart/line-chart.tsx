@@ -12,6 +12,7 @@ import {
 	useChartDataTransform,
 	useChartMargin,
 	useElementHeight,
+	useLegendLayout,
 } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -21,6 +22,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { DefaultGlyph } from '../private/default-glyph';
@@ -379,6 +381,15 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
+		// Use the legend layout hook for consistent calculations
+		const { adjustedChartHeight, adjustedMargin, containerClassName } = useLegendLayout( {
+			height,
+			showLegend,
+			legendPosition,
+			legendHeight,
+			defaultMargin: { ...defaultMargin, ...margin },
+		} );
+
 		const error = validateData( dataSorted );
 		const isDataValid = ! error;
 
@@ -433,17 +444,21 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					chartId,
 					chartRef: internalChartRef,
 					chartWidth: width,
-					chartHeight: height - ( showLegend ? legendHeight : 0 ),
+					chartHeight: adjustedChartHeight,
 				} }
 			>
 				<div
-					className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
+					className={ clsx(
+						'line-chart',
+						styles[ 'line-chart' ],
+						containerStyles[ 'chart-container' ],
+						containerStyles[ containerClassName ],
+						className
+					) }
 					data-testid="line-chart"
 					style={ {
 						width,
 						height,
-						display: 'flex',
-						flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 						position: 'relative',
 					} }
 				>
@@ -459,14 +474,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						<XYChart
 							theme={ theme }
 							width={ width }
-							height={ height - ( showLegend ? legendHeight : 0 ) }
-							margin={ {
-								...defaultMargin,
-								...margin,
-								...( showLegend && legendPosition === 'top'
-									? { top: ( defaultMargin.top || 0 ) + legendHeight }
-									: {} ),
-							} }
+							height={ adjustedChartHeight }
+							margin={ adjustedMargin }
 							// xScale and yScale could be set in Axis as well, but they are `scale` props there.
 							xScale={ chartOptions.xScale }
 							yScale={ chartOptions.yScale }
@@ -483,7 +492,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							{ allSeriesHidden ? (
 								<text
 									x={ width / 2 }
-									y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+									y={ adjustedChartHeight / 2 }
 									textAnchor="middle"
 									fill={ providerTheme.gridStyles?.stroke || '#ccc' }
 									fontSize="14"
