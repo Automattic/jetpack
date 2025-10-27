@@ -316,7 +316,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Determine the post type for the screen context
 		$post_type = get_query_var( 'post_type', 'post' );
 		if ( is_array( $post_type ) ) {
-			$post_type = reset( $post_type );
+			$post_type = $post_type[0];
 		}
 
 		// Create a post editor screen context
