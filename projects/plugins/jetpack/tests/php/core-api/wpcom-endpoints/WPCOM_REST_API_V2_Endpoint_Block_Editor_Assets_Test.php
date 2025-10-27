@@ -642,16 +642,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$screen_captured = null;
 
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$screen_captured ) {
-				$screen_captured = get_current_screen();
-			},
-			1
-		);
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertTrue( $screen_captured->is_block_editor(), 'Screen should be marked as block editor' );
@@ -666,17 +666,17 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$screen_captured = null;
 
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$screen_captured ) {
-				$screen_captured = get_current_screen();
-			},
-			1
-		);
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		// Test with default post type
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'post', $screen_captured->post_type, 'Default post type should be "post"' );
@@ -695,19 +695,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$screen_captured = null;
 
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$screen_captured ) {
-				$screen_captured = get_current_screen();
-			},
-			1
-		);
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		// Set the post_type query var
 		set_query_var( 'post_type', 'custom_test_type' );
 
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'custom_test_type', $screen_captured->post_type, 'Custom post type should be set on screen' );
@@ -727,19 +727,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		$screen_captured = null;
 
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$screen_captured ) {
-				$screen_captured = get_current_screen();
-			},
-			1
-		);
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		// Set the post_type query var as an array (edge case)
 		set_query_var( 'post_type', array( 'page', 'post' ) );
 
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
 
 		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
 		$this->assertSame( 'page', $screen_captured->post_type, 'First post type from array should be used' );
@@ -791,23 +791,24 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$callback_executed = false;
 
 		// Simulate a plugin/theme that calls get_current_screen() during enqueue
-		add_action(
-			'enqueue_block_editor_assets',
-			function () use ( &$callback_executed ) {
-				// This is what plugins do that was causing fatal errors
-				$screen = get_current_screen();
+		$action = function () use ( &$callback_executed ) {
+			// This is what plugins do that was causing fatal errors
+			$screen = get_current_screen();
 
-				// If we get here without fatal error, test passes
-				$callback_executed = true;
+			// If we get here without fatal error, test passes
+			$callback_executed = true;
 
-				// Verify we can actually use the screen object
-				$this->assertNotNull( $screen );
-				$this->assertIsString( $screen->base );
-			}
-		);
+			// Verify we can actually use the screen object
+			$this->assertNotNull( $screen );
+			$this->assertIsString( $screen->base );
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action );
 
 		$this->assertTrue( $callback_executed, 'Plugin callback should execute without fatal error' );
 		$this->assertInstanceOf( WP_REST_Response::class, $response, 'Request should complete successfully' );
