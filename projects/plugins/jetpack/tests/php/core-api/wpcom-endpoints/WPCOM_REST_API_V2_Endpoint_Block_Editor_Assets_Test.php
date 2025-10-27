@@ -209,6 +209,24 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that whitelisted core dependencies are included.
+	 */
+	public function test_core_dependencies_are_included() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify wp-edit-post script and style are in the output
+		$this->assertStringContainsString( 'wp-edit-post', $data['scripts'], 'wp-edit-post script should be included' );
+		$this->assertStringContainsString( 'wp-edit-post', $data['styles'], 'wp-edit-post style should be included' );
+
+		// Verify postbox script is in the output
+		$this->assertStringContainsString( 'postbox', $data['scripts'], 'postbox script should be included' );
+	}
+
+	/**
 	 * Test that required WordPress actions are triggered.
 	 */
 	public function test_required_wordpress_actions_are_triggered() {

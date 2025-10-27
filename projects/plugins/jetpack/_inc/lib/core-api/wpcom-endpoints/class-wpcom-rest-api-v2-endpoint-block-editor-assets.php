@@ -31,6 +31,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	);
 
 	/**
+	 * List of core handles that should be included as dependencies for plugins.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_CORE_HANDLES = array(
+		'postbox',
+		'wp-edit-post',
+	);
+
+	/**
 	 * List of allowed plugin-provided, non-core block types.
 	 *
 	 * @var array
@@ -195,6 +205,14 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
 
+		// Enqueue core dependencies that plugins often rely on
+		$suffix = wp_scripts_get_suffix();
+		wp_enqueue_script( 'postbox', "/wp-admin/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'wp-a11y' ), self::CACHE_BUSTER, true );
+
+		// Enqueue foundational post editor assets that plugins depend on
+		wp_enqueue_script( 'wp-edit-post' );
+		wp_enqueue_style( 'wp-edit-post' );
+
 		// Ensure the block editor scripts and styles are enqueued.
 		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
 		do_action( 'enqueue_block_assets' );
@@ -300,13 +318,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Unregisters all assets except those from allowed plugins.
+	 * Unregisters all assets except those from allowed plugins or whitelisted core handles.
 	 */
 	private function unregister_disallowed_plugin_assets() {
 		global $wp_scripts, $wp_styles;
 
+		// Build list of allowed core handles including their dependencies
+		$allowed_core_scripts = $this->get_allowed_core_handles_with_dependencies( $wp_scripts );
+		$allowed_core_styles  = $this->get_allowed_core_handles_with_dependencies( $wp_styles );
+
 		// Unregister all core/Gutenberg scripts and disallowed plugin scripts
 		foreach ( $wp_scripts->registered as $handle => $script ) {
+			// Keep if it's a whitelisted core handle or its dependency
+			if ( in_array( $handle, $allowed_core_scripts, true ) ) {
+				continue;
+			}
+
 			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
 			if ( $this->is_core_or_gutenberg_asset( $script->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_scripts->registered[ $handle ] );
@@ -315,9 +342,65 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		// Unregister all core/Gutenberg styles and disallowed plugin styles
 		foreach ( $wp_styles->registered as $handle => $style ) {
+			// Keep if it's a whitelisted core handle or its dependency
+			if ( in_array( $handle, $allowed_core_styles, true ) ) {
+				continue;
+			}
+
 			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
 			if ( $this->is_core_or_gutenberg_asset( $style->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_styles->registered[ $handle ] );
+			}
+		}
+	}
+
+	/**
+	 * Get all handles including dependencies for whitelisted core handles.
+	 *
+	 * @param WP_Scripts|WP_Styles $wp_dependencies The dependencies object.
+	 * @return array List of handles including dependencies.
+	 */
+	private function get_allowed_core_handles_with_dependencies( $wp_dependencies ) {
+		$allowed_handles = array();
+
+		foreach ( self::ALLOWED_CORE_HANDLES as $handle ) {
+			if ( ! isset( $wp_dependencies->registered[ $handle ] ) ) {
+				continue;
+			}
+
+			// Add the handle itself
+			$allowed_handles[] = $handle;
+
+			// Recursively add all dependencies
+			$this->add_dependencies_recursively( $handle, $wp_dependencies, $allowed_handles );
+		}
+
+		return array_unique( $allowed_handles );
+	}
+
+	/**
+	 * Recursively add dependencies of a handle to the allowed list.
+	 *
+	 * @param string               $handle The handle to process.
+	 * @param WP_Scripts|WP_Styles $wp_dependencies The dependencies object.
+	 * @param array                $allowed_handles List of allowed handles (passed by reference).
+	 */
+	private function add_dependencies_recursively( $handle, $wp_dependencies, &$allowed_handles ) {
+		if ( ! isset( $wp_dependencies->registered[ $handle ] ) ) {
+			return;
+		}
+
+		$deps = $wp_dependencies->registered[ $handle ]->deps;
+
+		if ( empty( $deps ) || ! is_array( $deps ) ) {
+			return;
+		}
+
+		foreach ( $deps as $dep ) {
+			if ( ! in_array( $dep, $allowed_handles, true ) ) {
+				$allowed_handles[] = $dep;
+				// Recursively add dependencies of this dependency
+				$this->add_dependencies_recursively( $dep, $wp_dependencies, $allowed_handles );
 			}
 		}
 	}
@@ -339,6 +422,16 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			strpos( $src, 'wp-admin/' ) !== false ||
 			strpos( $src, 'plugins/gutenberg/' ) !== false ||
 			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
+	}
+
+	/**
+	 * Check if a handle is a whitelisted core handle.
+	 *
+	 * @param string $handle The asset handle.
+	 * @return bool True if the handle is a whitelisted core handle, false otherwise.
+	 */
+	private function is_allowed_core_handle( $handle ) {
+		return in_array( $handle, self::ALLOWED_CORE_HANDLES, true );
 	}
 
 	/**
