@@ -2,21 +2,31 @@ import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
- * Describes an integration (plugin or service) available for Jetpack Forms.
+ * Static metadata for an integration (without status fields).
+ * This is a lightweight subset returned by the /integrations-metadata endpoint.
  */
-export interface Integration {
-	/** The type of integration: 'plugin' or 'service'. */
-	type: 'plugin' | 'service';
-	/** The unique slug for the integration. */
-	slug: string;
+export interface IntegrationMetadata {
 	/** The unique identifier for the integration. */
 	id: string;
+	/** The unique slug for the integration. */
+	slug: string;
+	/** The type of integration: 'plugin' or 'service'. */
+	type: 'plugin' | 'service';
 	/** Default title for displaying the integration (server-provided, filterable). */
 	title?: string;
 	/** Default subtitle/description for the integration (server-provided, filterable). */
 	subtitle?: string;
+	/** A URL to learn about the integration, if available. */
+	marketingUrl?: string | null;
 	/** Whether this integration should be enabled by default for new forms. */
 	enabledByDefault?: boolean;
+}
+
+/**
+ * Describes an integration (plugin or service) available for Jetpack Forms.
+ * This extends IntegrationMetadata with status fields.
+ */
+export interface Integration extends IntegrationMetadata {
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
@@ -31,10 +41,10 @@ export interface Integration {
 	version?: string | null;
 	/** The URL to the integration's settings page, if available. */
 	settingsUrl?: string | null;
-	/** A URL to learn about the integration, if available. */
-	marketingUrl?: string | null;
 	/** Additional details about the integration. */
 	details: Record< string, unknown >;
+	/** Whether this is partial data (metadata only) or full status data. */
+	__isPartial?: boolean;
 }
 
 /**

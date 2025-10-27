@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Post Images: Ensure type is WP_Post before treating it as a post.

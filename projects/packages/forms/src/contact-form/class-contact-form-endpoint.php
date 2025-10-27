@@ -167,6 +167,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/integrations-metadata',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_integrations_metadata' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/integrations/(?P<slug>[\w-]+)',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
@@ -1110,6 +1120,28 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Get static metadata for an integration (without status checks).
+	 *
+	 * @param string $slug Integration slug.
+	 * @param array  $config Integration configuration.
+	 * @return array Integration metadata.
+	 */
+	private function get_integration_metadata_fields( $slug, $config ) {
+		$type                    = $config['type'] ?? null;
+		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
+
+		return array(
+			'id'               => $slug,
+			'slug'             => $slug,
+			'type'             => $type,
+			'title'            => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
+			'subtitle'         => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
+			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
+			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
+		);
+	}
+
+	/**
 	 * Core logic for a single integration
 	 *
 	 * @param string $slug Integration slug.
@@ -1119,26 +1151,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$config = $this->get_supported_integrations()[ $slug ];
 		$type   = $config['type'] ?? null;
 
-		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
+		// Start with metadata fields
+		$base = $this->get_integration_metadata_fields( $slug, $config );
 
-		// Base shape for all integrations.
-		$base = array(
-			'id'               => $slug,
-			'slug'             => $slug,
-			'type'             => $type,
-			'title'            => isset( $config['title'] ) ? sanitize_text_field( $config['title'] ) : '',
-			'subtitle'         => isset( $config['subtitle'] ) ? sanitize_text_field( $config['subtitle'] ) : '',
-			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
-			'pluginFile'       => ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null,
-			'isInstalled'      => false,
-			'isActive'         => false,
-			'needsConnection'  => ( $type === 'service' ),
-			'isConnected'      => false,
-			'version'          => null,
-			'settingsUrl'      => null,
-			'details'          => array(),
-			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
-		);
+		// Add status fields that require checks
+		$base['pluginFile']      = ( $type === 'plugin' && ! empty( $config['file'] ) ) ? str_replace( '.php', '', $config['file'] ) : null;
+		$base['isInstalled']     = false;
+		$base['isActive']        = false;
+		$base['needsConnection'] = ( $type === 'service' );
+		$base['isConnected']     = false;
+		$base['version']         = null;
+		$base['settingsUrl']     = null;
+		$base['details']         = array();
 
 		// Override base shape based on integration type.
 		$status = $type === 'plugin'
@@ -1180,6 +1204,28 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			} else {
 				$integrations[] = $status;
 			}
+		}
+
+		return rest_ensure_response( $integrations );
+	}
+
+	/**
+	 * REST callback for /integrations-metadata
+	 *
+	 * Returns only static metadata (name, description, type, etc.) without making
+	 * expensive calls to check connection status or plugin installation status.
+	 * This endpoint is designed to be fast and suitable for preloading.
+	 *
+	 * Uses the same field generation logic as get_integration() to ensure consistency.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response object.
+	 */
+	public function get_integrations_metadata( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$integrations = array();
+
+		foreach ( $this->get_supported_integrations() as $slug => $config ) {
+			$integrations[] = $this->get_integration_metadata_fields( $slug, $config );
 		}
 
 		return rest_ensure_response( $integrations );
