@@ -108,7 +108,7 @@ class Jetpack_Sync_Queue_Dedicated_Table_Test extends Jetpack_Sync_Queue_TestBas
 		 */
 		$reflection_class    = new ReflectionClass( Queue_Storage_Table::class );
 		$create_table_method = $reflection_class->getMethod( 'create_table' );
-		$create_table_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $create_table_method );
 
 		// Reset the table
 		$table_storage = new Queue_Storage_Table( $test_queue_id );

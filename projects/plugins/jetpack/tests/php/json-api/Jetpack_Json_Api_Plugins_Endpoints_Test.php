@@ -71,10 +71,10 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $update_plugin_method );
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugin_property );
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -143,10 +143,10 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $update_plugin_method );
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugin_property );
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -225,10 +225,10 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $update_plugin_method );
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugin_property );
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -318,16 +318,16 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$class = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Install_Endpoint' );
 
 		$plugins_property = $class->getProperty( 'plugins' );
-		$plugins_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugins_property );
 		$plugins_property->setValue( $endpoint, array( $the_plugin_slug ) );
 
 		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
-		$validate_plugins_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $validate_plugins_method );
 		$result = $validate_plugins_method->invoke( $endpoint );
 		$this->assertTrue( $result );
 
 		$install_plugin_method = $class->getMethod( 'install' );
-		$install_plugin_method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $install_plugin_method );
 
 		$result = $install_plugin_method->invoke( $endpoint );
 

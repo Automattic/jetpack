@@ -17,7 +17,7 @@ class Dashboard_Test extends Stats_TestCase {
 		Dashboard::init();
 
 		$rp = new ReflectionProperty( Dashboard::class, 'initialized' );
-		$rp->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $rp );
 		$this->assertTrue( $rp->getValue() );
 	}
 

@@ -254,7 +254,7 @@ class Config_Test extends TestCase {
 
 		$reflection = new \ReflectionClass( Config::class );
 		$method     = $reflection->getMethod( 'get_custom_post_types' );
-		$method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $method );
 
 		$result = $method->invokeArgs( new Config(), array() );
 

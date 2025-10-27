@@ -212,7 +212,7 @@ class REST_Controller_Test extends Stats_TestCase {
 	 */
 	public function test_filter_and_build_query_string() {
 		$filter_and_build_query_string = new \ReflectionMethod( $this->rest_controller, 'filter_and_build_query_string' );
-		$filter_and_build_query_string->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $filter_and_build_query_string );
 
 		$this->assertEquals(
 			'c=d&e=f',
@@ -253,7 +253,7 @@ class REST_Controller_Test extends Stats_TestCase {
 	 */
 	public function test_get_wp_error() {
 		$get_wp_error = new \ReflectionMethod( WPCOM_Client::class, 'get_wp_error' );
-		$get_wp_error->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $get_wp_error );
 
 		$error = $get_wp_error->invoke(
 			$this->rest_controller,

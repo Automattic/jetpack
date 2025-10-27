@@ -329,7 +329,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			}
 			$online_subscription_service = new WPCOM_Online_Subscription_Service();
 			$ref_method                  = new ReflectionMethod( $online_subscription_service, 'user_can_view_content' );
-			$ref_method->setAccessible( true );
+			\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $ref_method );
 			$result = $ref_method->invoke( $online_subscription_service, array( $this->plan_id ), $post_access_level, $logged && $is_blog_subscriber, get_the_ID() );
 		}
 

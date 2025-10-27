@@ -52,12 +52,12 @@ class Main_Test extends StatsBaseTestCase {
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
-		$reflected_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $reflected_property );
 		$reflected_property = $reflected_property->setValue( null, null );
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC_Provider' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
-		$reflected_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $reflected_property );
 		$reflected_property = $reflected_property->setValue( null, null );
 	}
 

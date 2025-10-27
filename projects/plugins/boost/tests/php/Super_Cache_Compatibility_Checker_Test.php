@@ -86,7 +86,7 @@ class Super_Cache_Compatibility_Checker_Test extends Base_TestCase {
 	private function invoke_private_method( $method_name ) {
 		$class  = new ReflectionClass( Super_Cache_Config_Compatibility::class );
 		$method = $class->getMethod( $method_name );
-		$method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $method );
 		return $method->invoke( null );
 	}
 }

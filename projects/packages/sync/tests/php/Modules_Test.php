@@ -21,7 +21,7 @@ class Modules_Test extends BaseTestCase {
 			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
 		} catch ( \ReflectionException $e ) { // PHP 7 compat
 			$configured = $reflection_class->getProperty( 'initialized_modules' );
-			$configured->setAccessible( true );
+			\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $configured );
 			$configured->setValue( null );
 		}
 	}

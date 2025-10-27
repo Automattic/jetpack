@@ -24,7 +24,7 @@ class Dummy_Sync_Test_WP_Upgrader {
 		$instance = $reflection->newInstanceWithoutConstructor();
 
 		$prop = $reflection->getProperty( 'stylesheet' );
-		$prop->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $prop );
 		$prop->setValue( $instance, 'foobar-theme' );
 		return $instance;
 	}
