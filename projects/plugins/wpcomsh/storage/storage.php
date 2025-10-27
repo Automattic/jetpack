@@ -104,7 +104,7 @@ function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, 
 
 	$finfo     = finfo_open( FILEINFO_MIME_TYPE );
 	$real_mime = finfo_file( $finfo, $file );
-	finfo_close( $finfo );
+	finfo_close( $finfo ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.finfo_closeDeprecated
 
 	if ( empty( $real_mime ) ) {
 		return $file_data;
