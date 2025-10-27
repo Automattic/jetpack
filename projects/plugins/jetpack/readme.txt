@@ -326,15 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-a.5 - 2025-10-21
+### 15.2-a.7 - 2025-10-27
 #### Enhancements
-- Forms: merged email and push notification settings panels.
+- Forms: Add shared ConsentToggle component.
+- Forms: Improve the performance of loading the form responsesn dashboard by breaking it up into two stages.
+- Instant Search: Add global WooCommerce Product Attributes as filter options.
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.
+
+#### Improved compatibility
+- Tested up to WordPress 6.9
 
 #### Bug fixes
-- Forms: Fix a bug where ther responsive modal is not able to be closed.
-- Forms: Reset the selection on tab switch in dashboard.
-- Forms: Stop preloading the integrations endpoint.
-- Instant Search: Handle browser privacy settings stripping out the search query value.
+- Forms: Fix textarea submission on enter.
 
 --------
 
