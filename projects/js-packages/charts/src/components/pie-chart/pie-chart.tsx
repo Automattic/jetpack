@@ -5,7 +5,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, useLegendLayout } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -14,6 +14,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
@@ -223,6 +224,19 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
+	const width = size;
+	const height = size;
+
+	// Use the legend layout hook for consistent calculations
+	const { adjustedChartHeight, containerClassName } = useLegendLayout( {
+		height,
+		showLegend,
+		legendPosition,
+		legendHeight,
+	} );
+
+	const adjustedHeight = adjustedChartHeight;
+
 	if ( ! isValid ) {
 		return (
 			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -230,10 +244,6 @@ const PieChartInternal = ( {
 			</div>
 		);
 	}
-
-	const width = size;
-	const height = size;
-	const adjustedHeight = showLegend && legendPosition === 'top' ? height - legendHeight : height;
 
 	// Calculate radius based on width/height
 	const radius = Math.min( width, adjustedHeight ) / 2;
@@ -278,11 +288,13 @@ const PieChartInternal = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
+				className={ clsx(
+					'pie-chart',
+					styles[ 'pie-chart' ],
+					containerStyles[ 'chart-container' ],
+					containerStyles[ containerClassName ],
+					className
+				) }
 			>
 				<svg
 					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
