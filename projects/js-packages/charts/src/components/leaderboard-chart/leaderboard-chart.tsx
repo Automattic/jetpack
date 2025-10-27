@@ -16,6 +16,7 @@ import {
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { Legend } from '../legend';
 import { useChartChildren } from '../private/chart-composition';
@@ -234,11 +235,19 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+				className={ clsx(
+					styles.leaderboardChart,
+					containerStyles[ 'chart-container' ],
+					containerStyles[
+						showLegend && legendPosition === 'top'
+							? 'chart-container--legend-top'
+							: 'chart-container--legend-bottom'
+					],
+					loading && styles.loading,
+					className
+				) }
 				style={ {
 					...style,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 					gap: showLegend ? '16px' : '0',
 				} }
 			>
