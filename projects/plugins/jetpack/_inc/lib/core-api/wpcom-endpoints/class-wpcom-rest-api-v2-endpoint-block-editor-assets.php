@@ -31,16 +31,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	);
 
 	/**
-	 * List of core-provided handles that should never be unregistered.
-	 *
-	 * @var array
-	 */
-	const PROTECTED_HANDLES = array(
-		'jquery',
-		'mediaelement',
-	);
-
-	/**
 	 * List of allowed plugin-provided, non-core block types.
 	 *
 	 * @var array
@@ -205,32 +195,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Trigger an action frequently used by plugins to enqueue assets.
 		do_action( 'wp_loaded' );
 
-		// We generally do not need reset styles for the block editor. However, if
-		// it's a classic theme, margins will be added to every block, which is
-		// reset specifically for list items, so classic themes rely on these
-		// reset styles.
-		$wp_styles->done =
-			wp_theme_has_theme_json() ? array( 'wp-reset-editor-styles' ) : array();
-
-		wp_enqueue_script( 'wp-polyfill' );
-		// Enqueue the `editorStyle` handles for all core block, and dependencies.
-		wp_enqueue_style( 'wp-edit-blocks' );
-
-		if ( current_theme_supports( 'wp-block-styles' ) ) {
-			wp_enqueue_style( 'wp-block-library-theme' );
-		}
-
-		// Enqueue frequent dependent, admin-only `dashicon` asset.
-		wp_enqueue_style( 'dashicons' );
-
-		// Enqueue the admin-only `postbox` asset required for the block editor.
-		$suffix = wp_scripts_get_suffix();
-		wp_enqueue_script( 'postbox', "/wp-admin/js/postbox$suffix.js", array( 'jquery-ui-sortable', 'wp-a11y' ), self::CACHE_BUSTER, true );
-
-		// Enqueue foundational post editor assets.
-		wp_enqueue_script( 'wp-edit-post' );
-		wp_enqueue_style( 'wp-edit-post' );
-
 		// Ensure the block editor scripts and styles are enqueued.
 		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
 		do_action( 'enqueue_block_assets' );
@@ -336,31 +300,23 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Unregisters all assets except those from core or allowed plugins.
+	 * Unregisters all assets except those from allowed plugins.
 	 */
 	private function unregister_disallowed_plugin_assets() {
 		global $wp_scripts, $wp_styles;
 
-		// Unregister disallowed plugin scripts
+		// Unregister all core/Gutenberg scripts and disallowed plugin scripts
 		foreach ( $wp_scripts->registered as $handle => $script ) {
-			// Skip core scripts and protected handles
-			if ( $this->is_core_or_gutenberg_asset( $script->src ) || $this->is_protected_handle( $handle ) ) {
-				continue;
-			}
-
-			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
+			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
+			if ( $this->is_core_or_gutenberg_asset( $script->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_scripts->registered[ $handle ] );
 			}
 		}
 
-		// Unregister disallowed plugin styles
+		// Unregister all core/Gutenberg styles and disallowed plugin styles
 		foreach ( $wp_styles->registered as $handle => $style ) {
-			// Skip core styles and protected handles
-			if ( $this->is_core_or_gutenberg_asset( $style->src ) || $this->is_protected_handle( $handle ) ) {
-				continue;
-			}
-
-			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
+			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
+			if ( $this->is_core_or_gutenberg_asset( $style->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_styles->registered[ $handle ] );
 			}
 		}
@@ -383,16 +339,6 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			strpos( $src, 'wp-admin/' ) !== false ||
 			strpos( $src, 'plugins/gutenberg/' ) !== false ||
 			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
-	}
-
-	/**
-	 * Check if a handle should be protected.
-	 *
-	 * @param string $handle The asset handle.
-	 * @return bool True if the handle should be protected, false otherwise.
-	 */
-	private function is_protected_handle( $handle ) {
-		return in_array( $handle, self::PROTECTED_HANDLES, true );
 	}
 
 	/**
