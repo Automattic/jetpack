@@ -52,15 +52,15 @@ const SingleResponseView = ( {
 
 	const handleActionComplete = useCallback(
 		actionedItem => {
-			// Remove only the actioned item from selection, keep the rest
-			if ( actionedItem?.id && selection ) {
-				const newSelection = selection.filter( id => id !== actionedItem.id );
-				onChangeSelection?.( newSelection );
-			}
 			// if the action is on current response and hasn't changed status,
 			// don't close the modal but update the side panel item
 			if ( actionedItem?.id === sidePanelItem.id && actionedItem.status === sidePanelItem.status ) {
 				setSidePanelItem( actionedItem );
+			} else if ( actionedItem?.id && selection ) {
+				// Remove only the actioned item from selection, keep the rest
+				const actionedItemId = String( actionedItem.id );
+				const newSelection = selection.filter( id => id !== actionedItemId );
+				onChangeSelection?.( newSelection );
 			}
 		},
 		[ onChangeSelection, selection, sidePanelItem, setSidePanelItem ]
