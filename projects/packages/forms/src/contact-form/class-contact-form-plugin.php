@@ -1753,9 +1753,8 @@ class Contact_Form_Plugin {
 
 			$accepts_json && wp_send_json_error(
 				array(
-					'error'   => __( 'An error occurred. Please try again later.', 'jetpack-forms' ),
-					'code'    => $error_code,
-					'details' => $error_details,
+					'error' => __( 'An error occurred. Please try again later.', 'jetpack-forms' ),
+					'code'  => $error_code,
 				),
 				500
 			);
