@@ -540,6 +540,23 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * Retrieves the user agent from the server if not provided.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 * @return string|false The user agent string or false if not available.
+	 */
+	private static function maybe_get_user_agent_from_server( $user_agent = null ) {
+		if ( null !== $user_agent ) {
+			return $user_agent;
+		}
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		return wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+	}
+
+	/**
 	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
 	 *
 	 *  They type can check for any iPhone, an iPhone using Safari, or an iPhone using something other than Safari.
@@ -552,13 +569,8 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_iphone_or_ipod( $type = 'iphone-any', $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
 
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -585,13 +597,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_chrome_for_iOS( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -618,13 +624,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_twitter_for_iphone( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -651,13 +651,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_twitter_for_ipad( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -682,13 +676,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_facebook_for_iphone( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -719,13 +707,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_facebook_for_ipad( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -749,13 +731,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_wordpress_for_ios( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -780,13 +756,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_ipad( $type = 'ipad-any', $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -815,13 +785,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_firefox_mobile( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -845,13 +809,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_firefox_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -873,13 +831,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_firefox_os( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -899,13 +851,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_safari_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -922,13 +868,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_edge_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -948,13 +888,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_ie_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -976,13 +910,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_opera_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1009,13 +937,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_opera_mobile( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1045,13 +967,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_opera_mini( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1072,13 +988,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_opera_mini_dumb( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1107,13 +1017,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_samsung_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1131,13 +1035,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_uc_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1155,13 +1053,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_yandex_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1179,13 +1071,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_vivaldi_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1203,13 +1089,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_miui_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1227,13 +1107,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_silk_browser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1248,13 +1122,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_WindowsPhone7( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1277,13 +1145,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_windows_phone_8( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1305,13 +1167,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_PalmWebOS( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1336,13 +1192,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_TouchPad( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1371,13 +1221,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_S60_OSSBrowser( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1410,13 +1254,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_symbian_platform( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1452,13 +1290,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_symbian_s40_platform( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1482,13 +1314,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_J2ME_platform( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1509,13 +1335,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_MaemoTablet( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1545,13 +1365,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_MeeGo( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1573,13 +1387,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_webkit( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1603,13 +1411,7 @@ class User_Agent_Info {
 	 * @return boolean true if the browser is Android otherwise false
 	 */
 	public static function is_android( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1636,13 +1438,7 @@ class User_Agent_Info {
 	 * @return boolean true if the browser is Android and not 'mobile' otherwise false
 	 */
 	public static function is_android_tablet( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1675,13 +1471,7 @@ class User_Agent_Info {
 	 * @return boolean true if the browser is Kindle Fire Native browser otherwise false
 	 */
 	public static function is_kindle_fire( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1706,13 +1496,7 @@ class User_Agent_Info {
 	 * @return boolean true if the browser is Kindle monochrome Native browser otherwise false
 	 */
 	public static function is_kindle_touch( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1732,13 +1516,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_windows8_auth( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1758,13 +1536,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_wordpress_for_win8( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1784,13 +1556,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_wordpress_desktop_app( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1812,13 +1578,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_blackberry_tablet( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1841,13 +1601,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_blackbeberry( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1872,13 +1626,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_blackberry_10( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1895,13 +1643,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_linux_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1920,13 +1662,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_mac_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1945,13 +1681,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_windows_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -1970,13 +1700,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_chrome_desktop( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -2006,13 +1730,7 @@ class User_Agent_Info {
 	 * If version is not found, get_blackbeberry_OS_version will return boolean false.
 	 */
 	public static function get_blackbeberry_OS_version( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -2099,13 +1817,7 @@ class User_Agent_Info {
 	 * If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
 	 */
 	public static function detect_blackberry_browser_version( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -2161,13 +1873,7 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public static function is_mobile_app( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
@@ -2202,13 +1908,7 @@ class User_Agent_Info {
 	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
 	public static function is_Nintendo_3DS( $user_agent = null ) {
-		if ( null === $user_agent ) {
-			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				return false;
-			}
-			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
 		if ( empty( $user_agent ) ) {
 			return false;
 		}
