@@ -1,0 +1,16 @@
+/**
+ * Shared chart container styles for legend positioning
+ * Using BEM naming convention
+ */
+
+.chart-container {
+	display: flex;
+
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
+
+	&--legend-bottom {
+		flex-direction: column;
+	}
+}
