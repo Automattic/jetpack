@@ -48,6 +48,7 @@ class Plugin_Test extends TestCase {
 
 		$reflection       = new \ReflectionClass( Plugin_Storage::class );
 		$plugins_property = $reflection->getProperty( 'plugins' );
+		$plugins_property->setAccessible( true );
 		$plugins_property->setValue( null, array() );
 	}
 
@@ -116,6 +117,7 @@ class Plugin_Test extends TestCase {
 		// De-configuring the `Plugin_Storage` to trigger the error.
 		$reflection          = new \ReflectionClass( Plugin_Storage::class );
 		$configured_property = $reflection->getProperty( 'configured' );
+		$configured_property->setAccessible( true );
 		$configured_property->setValue( null, false );
 
 		set_error_handler(

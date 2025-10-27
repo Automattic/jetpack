@@ -48,7 +48,9 @@ class UI_Test extends TestCase {
 	private function reset_static_consumers() {
 		$reflection = new ReflectionClass( UI::class );
 		$property   = $reflection->getProperty( 'consumers' );
+		$property->setAccessible( true );
 		$property->setValue( null, null );
+		$property->setAccessible( false );
 	}
 
 	/**

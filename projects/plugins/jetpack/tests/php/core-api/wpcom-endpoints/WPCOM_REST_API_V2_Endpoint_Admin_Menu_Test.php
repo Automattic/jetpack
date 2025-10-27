@@ -149,6 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item = $class->getMethod( 'prepare_menu_item' );
+		$prepare_menu_item->setAccessible( true );
 
 		$this->assertEquals(
 			$expected,
@@ -245,6 +246,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_submenu_item = $class->getMethod( 'prepare_submenu_item' );
+		$prepare_submenu_item->setAccessible( true );
 
 		$this->assertSame(
 			$expected,
@@ -348,6 +350,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item = $class->getMethod( 'prepare_menu_item' );
+		$prepare_menu_item->setAccessible( true );
 
 		$expected = array(
 			'icon'  => 'dashicons-admin-generic',
@@ -377,6 +380,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item_icon = $class->getMethod( 'prepare_menu_item_icon' );
+		$prepare_menu_item_icon->setAccessible( true );
 
 		$this->assertEquals(
 			$expected,
@@ -444,6 +448,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item_url = $class->getMethod( 'prepare_menu_item_url' );
+		$prepare_menu_item_url->setAccessible( true );
 
 		if ( empty( $parent_slug ) ) {
 			add_menu_page( 'Title', 'Title', 'read', $url, $callback );
@@ -583,6 +588,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu_Test extends Jetpack_REST_TestCase {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
 
 		$prepare_menu_item_url = $class->getMethod( 'parse_menu_item' );
+		$prepare_menu_item_url->setAccessible( true );
 
 		$this->assertSame(
 			$expected,

@@ -53,6 +53,7 @@ class External_Storage_Test extends TestCase {
 		// Reset the provider using reflection
 		$reflection = new \ReflectionClass( External_Storage::class );
 		$property   = $reflection->getProperty( 'provider' );
+		$property->setAccessible( true );
 		$property->setValue( null, null );
 	}
 
@@ -66,7 +67,8 @@ class External_Storage_Test extends TestCase {
 		// Test that we can register a provider and it behaves as expected
 		$reflection        = new \ReflectionClass( External_Storage::class );
 		$provider_property = $reflection->getProperty( 'provider' );
-		$provider          = $provider_property->getValue();
+		$provider_property->setAccessible( true );
+		$provider = $provider_property->getValue();
 
 		// Verify provider is registered and behaves correctly
 		$this->assertNotNull( $provider );
@@ -166,6 +168,7 @@ class External_Storage_Test extends TestCase {
 		// Use reflection to access the private should_log_event method
 		$reflection = new \ReflectionClass( External_Storage::class );
 		$method     = $reflection->getMethod( 'should_log_event' );
+		$method->setAccessible( true );
 
 		// First call should return true (no rate limiting yet)
 		$result1 = $method->invoke( null, 'test_key' );
@@ -194,6 +197,7 @@ class External_Storage_Test extends TestCase {
 		// Use reflection to access the private should_report_empty_state method
 		$reflection = new \ReflectionClass( External_Storage::class );
 		$method     = $reflection->getMethod( 'should_report_empty_state' );
+		$method->setAccessible( true );
 
 		// First call should return false (sets delay, doesn't report yet)
 		$result1 = $method->invoke( null, 'test_key' );

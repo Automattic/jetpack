@@ -208,6 +208,7 @@ class Partner_Coupon_Test extends TestCase {
 		$instance = Partner_Coupon::get_instance();
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_added_date' );
+		$method->setAccessible( true );
 		$method->invoke( $instance );
 
 		// Confirm assertion.
@@ -275,7 +276,8 @@ class Partner_Coupon_Test extends TestCase {
 		$instance = new Partner_Coupon( $callback );
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );
-		$status   = $method->invoke( $instance );
+		$method->setAccessible( true );
+		$status = $method->invoke( $instance );
 
 		$this->assertSame( $status, $expectation );
 	}

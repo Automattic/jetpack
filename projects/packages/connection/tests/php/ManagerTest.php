@@ -59,6 +59,7 @@ class ManagerTest extends TestCase {
 		$manager    = new Manager();
 		$reflection = new \ReflectionClass( $manager );
 		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		$method->setAccessible( true );
 		$method->invoke( $manager );
 	}
 
