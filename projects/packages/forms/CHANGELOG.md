@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add 'create new form' CTA to inbox empty state. [#45589]
 - Add shared ConsentToggle component. [#45556]
 - Align layout grid/components with DataViews table grid. [#45559]
-- Improve the performance of loading the form responsesn dashboard by breaking it up into two stages. [#45565]
+- Improve the performance of loading the form responses dashboard. [#45565]
 - Integrate `@wordpress/admin-ui` Page component into dashboard layout. [#45610]
 - Record tracks events for inbox actions. [#45606]
 - Remove About page from dashboard. [#45615]
@@ -19,14 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#45551] [#45592] [#45598]
 
 ### Removed
-- Remove custom green buttons [#45613]
-- Remove hovercards from inbox list [#45572]
+- Remove custom green buttons. [#45613]
+- Remove hovercards from inbox list. [#45572]
 
 ### Fixed
 - Fix textarea submission on enter. [#45602]
-- Reduce re-renders in the dashboard. [#45567]
+- Reduce rerenders in the dashboard. [#45567]
 - Update feedback form screenshot. [#45578]
-- UX and accessibility fixes for image select field. [#45560]
+- Adjust UX and accessibility for image select field. [#45560]
 
 ## [6.12.0] - 2025-10-21
 ### Added
