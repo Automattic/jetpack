@@ -2,29 +2,10 @@ import { useMemo } from 'react';
 import type { LegendPosition } from '../types';
 
 interface UseLegendLayoutParams {
-	/**
-	 * Total height of the chart container
-	 */
 	height: number;
-
-	/**
-	 * Whether the legend is shown
-	 */
 	showLegend: boolean;
-
-	/**
-	 * Position of the legend
-	 */
 	legendPosition: LegendPosition;
-
-	/**
-	 * Measured height of the legend element
-	 */
 	legendHeight: number;
-
-	/**
-	 * Default margin for the chart
-	 */
 	defaultMargin?: {
 		top?: number;
 		right?: number;
@@ -34,42 +15,22 @@ interface UseLegendLayoutParams {
 }
 
 interface UseLegendLayoutReturn {
-	/**
-	 * Adjusted height for the chart area (excluding legend)
-	 */
 	adjustedChartHeight: number;
-
-	/**
-	 * Adjusted margin object for the chart
-	 */
 	adjustedMargin: {
 		top?: number;
 		right?: number;
 		bottom?: number;
 		left?: number;
 	};
-
-	/**
-	 * CSS class name for the chart container based on legend position
-	 */
 	containerClassName: string;
 }
 
 /**
- * Hook to calculate layout adjustments for charts with legends.
- * Abstracts the logic for adjusting chart height and margins based on legend position.
+ * Calculates layout adjustments for charts with legends.
+ * Handles chart height reduction and margin adjustments when legend is positioned at top.
  *
- * @param {UseLegendLayoutParams} params                      - Layout parameters
- * @param {number}                params.height               - Total height of the chart container
- * @param {boolean}               params.showLegend           - Whether the legend is shown
- * @param {LegendPosition}        params.legendPosition       - Position of the legend
- * @param {number}                params.legendHeight         - Measured height of the legend element
- * @param {object}                params.defaultMargin        - Default margin for the chart
- * @param {number}                params.defaultMargin.top    - Top margin
- * @param {number}                params.defaultMargin.right  - Right margin
- * @param {number}                params.defaultMargin.bottom - Bottom margin
- * @param {number}                params.defaultMargin.left   - Left margin
- * @return {UseLegendLayoutReturn} Layout adjustments for the chart
+ * @param {UseLegendLayoutParams} params - Layout parameters including height, legend position, and margins
+ * @return {UseLegendLayoutReturn} Adjusted height, margins, and CSS class name for container
  */
 export const useLegendLayout = ( {
 	height,
