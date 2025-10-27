@@ -751,6 +751,38 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that invalid post type falls back to default 'post'.
+	 */
+	public function test_screen_handles_invalid_post_type() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		// Set an invalid post type that doesn't exist
+		set_query_var( 'post_type', 'nonexistent_post_type' );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		// Should fall back to 'post' when invalid post type provided
+		$this->assertSame( 'post', $screen_captured->post_type, 'Should fall back to "post" for invalid post type' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base should be "post"' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID should be "post"' );
+
+		// Cleanup
+		set_query_var( 'post_type', null );
+	}
+
+	/**
 	 * Test that plugins calling get_current_screen() don't cause fatal errors.
 	 */
 	public function test_no_fatal_error_when_plugin_calls_get_current_screen() {
