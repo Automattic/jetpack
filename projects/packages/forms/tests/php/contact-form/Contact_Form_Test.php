@@ -2816,10 +2816,20 @@ EOT;
 		$this->expectException( \Exception::class );
 		$this->expectExceptionMessage( 'Failed to decode JWT token' );
 
-		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
+		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
+
+	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', false );
+		$this->assertNull( $form, 'Form should be null if decoding fails and $throw_exception is false' );
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
 	/**
 	 * Test compute_id method with basic attributes
 	 */

@@ -254,26 +254,31 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Get the instance of the contact form from a JWT token.
 	 *
 	 * @param string $jwt_token The JWT token.
+	 * @param bool   $throw_exception Whether to throw an exception if the JWT token is invalid or cannot be decoded.
 	 *
-	 * @return Contact_Form The contact form instance.
-	 * @throws \Exception If the JWT token is invalid or cannot be decoded.
+	 * @return Contact_Form|null The contact form instance, or null if decoding fails and $throw_exception is false.
+	 * @throws \Exception If the JWT token is invalid or cannot be decoded and $throw_exception is true.
 	 */
-	public static function get_instance_from_jwt( $jwt_token ) {
+	public static function get_instance_from_jwt( $jwt_token, $throw_exception = false ) {
 		$secret = self::get_secret();
 
 		try {
 			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
 		} catch ( \Exception $e ) {
 			// Re-throw with more context about the failure.
-			throw new \Exception(
-				sprintf(
-					/* translators: %s is the original exception message */
-					__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
-					$e->getMessage()
-				),
-				0,
-				$e
-			);
+			if ( $throw_exception ) {
+				throw new \Exception(
+					sprintf(
+						/* translators: %s is the original exception message */
+						__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
+						$e->getMessage()
+					),
+					0,
+					$e
+				);
+			}
+
+			return null;
 		}
 
 		$source = $data['source'] ?? array();

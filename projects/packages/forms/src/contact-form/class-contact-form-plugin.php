@@ -1536,7 +1536,7 @@ class Contact_Form_Plugin {
 			$jwt = sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) );
 
 			try {
-				$form = Contact_Form::get_instance_from_jwt( $jwt );
+				$form = Contact_Form::get_instance_from_jwt( $jwt, true );
 			} catch ( \Exception $e ) {
 				// Fail early if the JWT is invalid with detailed error information.
 				return Form_Submission_Error::system_error(
