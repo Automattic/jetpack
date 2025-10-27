@@ -57,7 +57,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 				case 'master_user':
 					$email = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$id    = $this->get_master_user_id( $email );
+					$id    = $this->get_master_user_id( $email ? $email : '' );
 					return $id ? $id : null;
 
 				case 'user_tokens':

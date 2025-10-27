@@ -90,7 +90,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test provider get('master_user') returns null when APD email is missing.
 	 */
 	public function test_get_master_user_returns_null_when_email_missing() {
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 		$this->assertNull( $this->provider->get( 'master_user' ) );
 	}
 
@@ -99,7 +99,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	public function test_get_master_user_returns_user_id_when_email_valid() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'owner@example.com' ) );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 		$this->assertSame( $user_id, $this->provider->get( 'master_user' ) );
 	}
 
@@ -220,8 +220,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test provider get('user_tokens') returns null when email missing.
 	 */
 	public function test_get_user_tokens_via_provider_returns_null_when_email_missing() {
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 
 		$this->assertNull( $this->provider->get( 'user_tokens' ) );
 	}
@@ -230,8 +230,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test provider get('user_tokens') returns null when secret missing.
 	 */
 	public function test_get_user_tokens_via_provider_returns_null_when_secret_missing() {
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
-		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 
 		$this->assertNull( $this->provider->get( 'user_tokens' ) );
 	}
@@ -240,8 +240,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test provider get('user_tokens') returns null when get_user_tokens returns false.
 	 */
 	public function test_get_user_tokens_via_provider_returns_null_for_invalid_user() {
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'nonexistent@example.com' );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'nonexistent@example.com' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 
 		$this->assertNull( $this->provider->get( 'user_tokens' ) );
 	}
@@ -251,8 +251,8 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	public function test_get_user_tokens_via_provider_returns_array_when_valid() {
 		$user_id = static::factory()->user->create( array( 'user_email' => 'owner@example.com' ) );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
-		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_TOKEN_SECRET', 'token.secret' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 
 		$result = $this->provider->get( 'user_tokens' );
 
@@ -284,7 +284,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test get('blog_token') returns null when empty.
 	 */
 	public function test_get_blog_token_returns_null_when_empty() {
-		\Atomic_Persistent_Data::delete( 'JETPACK_BLOG_TOKEN' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_BLOG_TOKEN' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 		$this->assertNull( $this->provider->get( 'blog_token' ) );
 	}
 
@@ -292,7 +292,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test get('blog_token') returns token when set.
 	 */
 	public function test_get_blog_token_returns_token_when_set() {
-		\Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'blog.token.value' );
+		\Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'blog.token.value' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 
 		$result = $this->provider->get( 'blog_token' );
 
@@ -309,7 +309,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test get('id') returns null when empty.
 	 */
 	public function test_get_id_returns_null_when_empty() {
-		\Atomic_Persistent_Data::delete( 'JETPACK_BLOG_ID' );
+		\Atomic_Persistent_Data::delete( 'JETPACK_BLOG_ID' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 		$this->assertNull( $this->provider->get( 'id' ) );
 	}
 
@@ -317,7 +317,7 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 * Test get('id') returns int when set.
 	 */
 	public function test_get_id_returns_int_when_set() {
-		\Atomic_Persistent_Data::set( 'JETPACK_BLOG_ID', '12345' );
+		\Atomic_Persistent_Data::set( 'JETPACK_BLOG_ID', '12345' ); // @phan-suppress-current-line PhanUndeclaredStaticMethod
 		$this->assertSame( 12345, $this->provider->get( 'id' ) );
 	}
 }
