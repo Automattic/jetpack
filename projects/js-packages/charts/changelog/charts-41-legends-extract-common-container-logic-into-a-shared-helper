@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: legends - extract common container logic to shared helper
