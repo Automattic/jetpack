@@ -189,7 +189,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "e17ebd5fdf1a5c46f2326c420ca2e9485384feff"
+                "reference": "27f84a0210d68b48d3f07e9e1b9ce279465a6589"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -198,6 +198,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
