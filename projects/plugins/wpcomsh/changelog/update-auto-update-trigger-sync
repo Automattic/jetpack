@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Trigger sync when `auto_update_plugins` option is updated
