@@ -48,6 +48,39 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	/**
 	 * Use the children prop to render additional elements on the chart.
 	 * Supports composition API with PieSemiCircleChart.SVG and PieSemiCircleChart.HTML components.
+	 *
+	 * @example
+	 * // Render title and note using Group and Text (direct approach)
+	 * <PieSemiCircleChart data={data}>
+	 *   <Group>
+	 *     <Text textAnchor="middle" y={-40} fontSize={16} fontWeight={600}>
+	 *       Chart Title
+	 *     </Text>
+	 *     <Text textAnchor="middle" y={-20} fontSize={14}>
+	 *       Subtitle or note
+	 *     </Text>
+	 *   </Group>
+	 * </PieSemiCircleChart>
+	 *
+	 * @example
+	 * // Using compound components for more explicit control
+	 * <PieSemiCircleChart data={data}>
+	 *   <PieSemiCircleChart.SVG>
+	 *     <Group>
+	 *       <Text textAnchor="middle" y={-40} fontSize={16} fontWeight={600}>
+	 *         Chart Title
+	 *       </Text>
+	 *       <Text textAnchor="middle" y={-20} fontSize={14}>
+	 *         Subtitle or note
+	 *       </Text>
+	 *     </Group>
+	 *   </PieSemiCircleChart.SVG>
+	 *   <PieSemiCircleChart.HTML>
+	 *     <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+	 *       Additional HTML content below the chart
+	 *     </div>
+	 *   </PieSemiCircleChart.HTML>
+	 * </PieSemiCircleChart>
 	 */
 	children?: ReactNode;
 
