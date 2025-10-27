@@ -42,11 +42,18 @@ const data = [
 	data={ data }
 	width={ 600 }
 	thickness={ 0.4 }
-	label="Operating Systems"
-	note="Windows +10%"
 	withTooltips={ true }
 	showLegend={ true }
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Operating Systems
+		</Text>
+		<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+			Windows +10%
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 The chart automatically validates data to ensure positive values and meaningful percentages, displaying error states for invalid data configurations.
@@ -106,9 +113,16 @@ Add `withTooltips` to enable hover interactions that display detailed informatio
 	data={ data }
 	width={ 600 }
 	withTooltips={ true }
-	label="OS Distribution"
-	note="Hover segments for details"
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			OS Distribution
+		</Text>
+		<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+			Hover segments for details
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 ### Counter-Clockwise Direction
@@ -121,8 +135,13 @@ Use the `clockwise` prop to control the rendering direction of segments:
 	data={ data }
 	width={ 600 }
 	clockwise={ false }
-	label="Counter-clockwise Rendering"
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Counter-clockwise Rendering
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 ### Different Thickness Values
@@ -136,16 +155,26 @@ Adjust the visual weight of the chart using the `thickness` prop:
 	data={ data }
 	width={ 400 }
 	thickness={ 0.2 }
-	label="Thin Ring"
-/>
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Thin Ring
+		</Text>
+	</Group>
+</PieSemiCircleChart>
 
 // Thick ring (thickness: 0.8)
 <PieSemiCircleChart
 	data={ data }
 	width={ 400 }
 	thickness={ 0.8 }
-	label="Thick Ring"
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Thick Ring
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 ## Responsive Behavior
@@ -162,9 +191,14 @@ The chart can be made responsive by omitting the `width` prop, allowing it to ad
 <PieSemiCircleChart
 	data={ data }
 	thickness={ 0.4 }
-	label="Responsive Chart"
 	withTooltips={ true }
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Responsive Chart
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 The responsive behavior maintains the 2:1 aspect ratio (width:height) and scales proportionally.
@@ -195,25 +229,36 @@ Segments automatically use theme colors, but you can override individual segment
 <PieSemiCircleChart
 	data={ customColorData }
 	width={ 400 }
-	label="Custom Colors"
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Custom Colors
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
-### Label and Note Styling
+### Custom Text Styling
 
-The chart includes built-in styling for labels and notes with appropriate typography hierarchy:
-
-- **Label**: 16px, font-weight 600, positioned above the chart
-- **Note**: 14px, positioned below the label
+You can add custom titles and notes using the composition API with full control over styling:
 
 <Source
 	language="jsx"
 	code={ `<PieSemiCircleChart
 	data={ data }
 	width={ 600 }
-	label="Primary Heading"
-	note="Secondary information or context"
-/>` }
+>
+	<Group>
+		{/* Primary heading - 16px, font-weight 600 */}
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Primary Heading
+		</Text>
+		{/* Secondary note - 14px */}
+		<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+			Secondary information or context
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 ### Theme Integration
@@ -293,8 +338,13 @@ The chart gracefully handles single data points, rendering a complete semi-circl
 <PieSemiCircleChart
 	data={ singlePointData }
 	width={ 400 }
-	label="Single Category"
-/>` }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Single Category
+		</Text>
+	</Group>
+</PieSemiCircleChart>` }
 />
 
 ## Advanced Features
@@ -385,4 +435,51 @@ const semiCircleData = [
 const partialData = [
 	{ label: 'Progress', value: 60, percentage: 60 }, // Shows 60% of semi-circle
 ];` }
+/>
+
+### Migrating from label/note Props (Breaking Change)
+
+The `label` and `note` props have been removed in favor of the more flexible composition API. Here's how to migrate:
+
+<Source
+	language="jsx"
+	code={ `// ❌ Old API (deprecated)
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+	label="Operating Systems"
+	note="Windows +10%"
+/>
+
+// ✅ New API - Direct Group usage
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+>
+	<Group>
+		<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+			Operating Systems
+		</Text>
+		<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+			Windows +10%
+		</Text>
+	</Group>
+</PieSemiCircleChart>
+
+// ✅ New API - Compound components (more explicit)
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+>
+	<PieSemiCircleChart.SVG>
+		<Group>
+			<Text textAnchor="middle" y={ -40 } fontSize={ 16 } fontWeight={ 600 }>
+				Operating Systems
+			</Text>
+			<Text textAnchor="middle" y={ -20 } fontSize={ 14 }>
+				Windows +10%
+			</Text>
+		</Group>
+	</PieSemiCircleChart.SVG>
+</PieSemiCircleChart>` }
 />
