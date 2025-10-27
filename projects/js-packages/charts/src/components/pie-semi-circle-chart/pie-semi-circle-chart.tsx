@@ -6,7 +6,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, useLegendLayout } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -14,6 +14,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import containerStyles from '../../styles/chart-container.module.scss';
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -249,6 +250,20 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	// Calculate chart dimensions
+	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
+	const height = width / 2;
+
+	// Use the legend layout hook for consistent calculations
+	const { adjustedChartHeight, containerClassName } = useLegendLayout( {
+		height,
+		showLegend,
+		legendPosition,
+		legendHeight,
+	} );
+
+	const chartHeight = adjustedChartHeight;
+
 	if ( ! isValid ) {
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
@@ -260,12 +275,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			</div>
 		);
 	}
-
-	// Calculate chart dimensions
-	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
-	const height = width / 2;
-	// The chart only takes the height minus the legend height.
-	const chartHeight = height - ( showLegend && legendPosition === 'top' ? legendHeight : 0 );
 	const radius = Math.min( width / 2, chartHeight );
 	const innerRadius = radius * ( 1 - thickness );
 
@@ -293,12 +302,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+				className={ clsx(
+					'pie-semi-circle-chart',
+					styles[ 'pie-semi-circle-chart' ],
+					containerStyles[ 'chart-container' ],
+					containerStyles[ containerClassName ],
+					className
+				) }
 				data-testid="pie-chart-container"
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
 			>
 				<svg
 					width={ width }
