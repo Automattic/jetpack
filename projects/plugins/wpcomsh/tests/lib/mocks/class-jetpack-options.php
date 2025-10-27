@@ -86,12 +86,13 @@ if ( ! class_exists( 'Jetpack_Options' ) ) {
 		/**
 		 * Update raw option (bypass external storage).
 		 *
-		 * @param string $option_name Option name.
-		 * @param mixed  $value       Option value.
+		 * @param string    $option_name Option name.
+		 * @param mixed     $value       Option value.
+		 * @param bool|null $autoload    Optional. Whether to autoload the option.
 		 * @return bool True if the option was updated, false otherwise.
 		 */
-		public static function update_raw_option( $option_name, $value ) {
-			return update_option( $option_name, $value );
+		public static function update_raw_option( $option_name, $value, $autoload = null ) {
+			return update_option( $option_name, $value, $autoload );
 		}
 	}
 }
