@@ -49,19 +49,25 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 			switch ( $option_name ) {
 				case 'blog_token':
-					return empty( $persistent_data->JETPACK_BLOG_TOKEN ) ? false : $persistent_data->JETPACK_BLOG_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return empty( $persistent_data->JETPACK_BLOG_TOKEN ) ? null : $persistent_data->JETPACK_BLOG_TOKEN; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				case 'id':
-					return intval( $persistent_data->JETPACK_BLOG_ID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$blog_id = $persistent_data->JETPACK_BLOG_ID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					return empty( $blog_id ) ? null : intval( $blog_id );
 
 				case 'master_user':
 					$email = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					return $email ? $this->get_master_user_id( $email ) : false;
+					$id    = $this->get_master_user_id( $email );
+					return $id ? $id : null;
 
 				case 'user_tokens':
 					$email  = $persistent_data->JETPACK_CONNECTION_OWNER_EMAIL; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$secret = $persistent_data->JETPACK_CONNECTION_OWNER_TOKEN_SECRET; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					return ( $email && $secret ) ? $this->get_user_tokens( $email, $secret ) : false;
+					if ( empty( $email ) || empty( $secret ) ) {
+						return null;
+					}
+					$tokens = $this->get_user_tokens( $email, $secret );
+					return $tokens ? $tokens : null;
 			}
 
 			return null;

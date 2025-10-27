@@ -87,6 +87,23 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test provider get('master_user') returns null when APD email is missing.
+	 */
+	public function test_get_master_user_returns_null_when_email_missing() {
+		\Atomic_Persistent_Data::delete( 'JETPACK_CONNECTION_OWNER_EMAIL' );
+		$this->assertNull( $this->provider->get( 'master_user' ) );
+	}
+
+	/**
+	 * Test provider get('master_user') returns the user ID when email is valid.
+	 */
+	public function test_get_master_user_returns_user_id_when_email_valid() {
+		$user_id = static::factory()->user->create( array( 'user_email' => 'owner@example.com' ) );
+		\Atomic_Persistent_Data::set( 'JETPACK_CONNECTION_OWNER_EMAIL', 'owner@example.com' );
+		$this->assertSame( $user_id, $this->provider->get( 'master_user' ) );
+	}
+
+	/**
 	 * Test get_user_tokens with invalid input.
 	 */
 	public function test_get_user_tokens_invalid_input() {
