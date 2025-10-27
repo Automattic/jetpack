@@ -100,4 +100,21 @@ class Test_Environment {
 		$options['cost'] = 4;
 		return $options;
 	}
+
+	/**
+	 * Helper function to avoid deprecation notices in PHP 8.5.
+	 * `ReflectionProperty::setAccessible()` and `ReflectionMethod::setAccessible()` are no-op methods from PHP 8.1 on.
+	 *
+	 * @todo Remove once we no longer need to support PHP <8.1.
+	 *
+	 * @param \ReflectionProperty|\ReflectionMethod $property_or_method The property or method.
+	 * @param bool                                  $is_accessible Whether to make it accessible.
+	 */
+	public static function maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $property_or_method, $is_accessible = true ) {
+		if ( PHP_VERSION_ID >= 80100 ) {
+			return;
+		}
+
+		$property_or_method->setAccessible( $is_accessible );
+	}
 }
