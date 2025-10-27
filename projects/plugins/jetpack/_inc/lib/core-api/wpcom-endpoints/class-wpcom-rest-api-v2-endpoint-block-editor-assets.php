@@ -319,6 +319,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$post_type = $post_type[0];
 		}
 
+		// Validate that the post type is registered
+		if ( ! post_type_exists( $post_type ) ) {
+			$post_type = 'post';
+		}
+
 		// Create a post editor screen context
 		set_current_screen( 'post' );
 
