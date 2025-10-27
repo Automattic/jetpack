@@ -208,68 +208,62 @@ describe( 'PieSemiCircleChart', () => {
 		} );
 
 		it( 'renders PieSemiCircleChart.SVG compound component', () => {
-			render(
-				<GlobalChartsProvider>
-					<PieSemiCircleChart data={ mockData }>
-						<PieSemiCircleChart.SVG>
-							<Group>
-								<Text textAnchor="middle" y={ -50 }>
-									SVG Component Title
-								</Text>
-							</Group>
-						</PieSemiCircleChart.SVG>
-					</PieSemiCircleChart>
-				</GlobalChartsProvider>
-			);
+			renderPieChart( {
+				data: mockData,
+				children: (
+					<PieSemiCircleChart.SVG>
+						<Group>
+							<Text textAnchor="middle" y={ -50 }>
+								SVG Component Title
+							</Text>
+						</Group>
+					</PieSemiCircleChart.SVG>
+				),
+			} );
 
 			expect( screen.getByText( 'SVG Component Title' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders PieSemiCircleChart.HTML compound component', () => {
-			render(
-				<GlobalChartsProvider>
-					<PieSemiCircleChart data={ mockData }>
-						<PieSemiCircleChart.HTML>
-							<div data-testid="html-content">HTML Content</div>
-						</PieSemiCircleChart.HTML>
-					</PieSemiCircleChart>
-				</GlobalChartsProvider>
-			);
+			renderPieChart( {
+				data: mockData,
+				children: (
+					<PieSemiCircleChart.HTML>
+						<div data-testid="html-content">HTML Content</div>
+					</PieSemiCircleChart.HTML>
+				),
+			} );
 
 			expect( screen.getByTestId( 'html-content' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'HTML Content' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders mixed SVG and HTML compound components', () => {
-			render(
-				<GlobalChartsProvider>
-					<PieSemiCircleChart data={ mockData }>
-						<PieSemiCircleChart.SVG>
-							<Group>
-								<Text textAnchor="middle" y={ -50 }>
-									SVG Title
-								</Text>
-							</Group>
-						</PieSemiCircleChart.SVG>
-						<PieSemiCircleChart.HTML>
-							<div data-testid="footer">Chart Footer</div>
-						</PieSemiCircleChart.HTML>
-					</PieSemiCircleChart>
-				</GlobalChartsProvider>
-			);
+			renderPieChart( {
+				data: mockData,
+				children: [
+					<PieSemiCircleChart.SVG key="svg">
+						<Group>
+							<Text textAnchor="middle" y={ -50 }>
+								SVG Title
+							</Text>
+						</Group>
+					</PieSemiCircleChart.SVG>,
+					<PieSemiCircleChart.HTML key="html">
+						<div data-testid="footer">Chart Footer</div>
+					</PieSemiCircleChart.HTML>,
+				],
+			} );
 
 			expect( screen.getByText( 'SVG Title' ) ).toBeInTheDocument();
 			expect( screen.getByTestId( 'footer' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders Legend as compound component', () => {
-			render(
-				<GlobalChartsProvider>
-					<PieSemiCircleChart data={ mockData }>
-						<PieSemiCircleChart.Legend orientation="horizontal" />
-					</PieSemiCircleChart>
-				</GlobalChartsProvider>
-			);
+			renderPieChart( {
+				data: mockData,
+				children: <PieSemiCircleChart.Legend orientation="horizontal" />,
+			} );
 
 			expect( screen.getByText( 'Category A' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Category B' ) ).toBeInTheDocument();
