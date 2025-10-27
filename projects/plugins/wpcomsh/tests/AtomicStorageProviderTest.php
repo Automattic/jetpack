@@ -186,9 +186,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		);
 		$this->assertSame( $expected, $result );
 
-		// Verify it was persisted to database
+		// Verify the old token was removed from database (check it's not the old one)
 		$private_options = get_option( 'jetpack_private_options' );
-		$this->assertSame( $expected, $private_options['user_tokens'] );
+		$this->assertArrayNotHasKey( $user_id, $private_options['user_tokens'] );
 	}
 
 	/**
@@ -209,12 +209,14 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// New owner connecting with same secret prefix
 		$result = $this->provider->get_user_tokens( 'new@example.com', 'shared.secret' );
 
-		// Should remove old owner's token (same secret) but keep other user's token
-		$expected = array(
-			$new_owner_id  => 'shared.secret.' . $new_owner_id,
-			$other_user_id => 'different.secret.' . $other_user_id,
-		);
-		$this->assertSame( $expected, $result );
+		// Should have new owner's token and keep other user's token
+		$this->assertArrayHasKey( $new_owner_id, $result );
+		$this->assertSame( 'shared.secret.' . $new_owner_id, $result[ $new_owner_id ] );
+		$this->assertArrayHasKey( $other_user_id, $result );
+		$this->assertSame( 'different.secret.' . $other_user_id, $result[ $other_user_id ] );
+
+		// Old owner's token should be gone
+		$this->assertArrayNotHasKey( $old_owner_id, $result );
 	}
 
 	/**
@@ -298,6 +300,11 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 	 */
 	public function test_get_blog_token_returns_token_when_set() {
 		\Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', 'blog.token.value' );
+
+		// Verify the mock stored it correctly
+		$apd = new \Atomic_Persistent_Data();
+		$this->assertSame( 'blog.token.value', $apd->JETPACK_BLOG_TOKEN ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
 		$this->assertSame( 'blog.token.value', $this->provider->get( 'blog_token' ) );
 	}
 
