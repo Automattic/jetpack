@@ -17,6 +17,9 @@ use WP_Block;
 use WP_Error;
 use WP_Post;
 
+// Load the Form_Submission_Error class.
+require_once __DIR__ . '/class-form-submission-error.php';
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -1798,18 +1801,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Make sure we're processing the form we think we're processing... probably a redundant check.
 			if ( $widget ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return Form_Submission_Error::system_error( 'form_id_mismatch_widget', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return Form_Submission_Error::system_error( 'form_id_mismatch_block_template', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template_part ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+						return Form_Submission_Error::system_error( 'form_id_mismatch_block_template_part', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || self::get_post_property( $this->current_post, 'ID' ) !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
+				return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 			}
 		}
 
@@ -2832,9 +2835,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function add_error( $error_code, $error_message ) {
 		$id = $this->get_attribute( 'id' );
 		if ( ! isset( self::$static_errors[ $id ] ) ) {
-			self::$static_errors[ $id ] = new \WP_Error();
+			self::$static_errors[ $id ] = Form_Submission_Error::validation_error( $error_code, $error_message );
+		} else {
+			// If we already have errors, add this error to the existing Form_Submission_Error
+			self::$static_errors[ $id ]->add( $error_code, $error_message );
 		}
-		self::$static_errors[ $id ]->add( $error_code, $error_message );
 		$this->errors = self::$static_errors[ $id ];
 	}
 	/**
