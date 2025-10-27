@@ -23,7 +23,7 @@ import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import { getPath, getItemId } from '../utils.js';
+import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -310,7 +310,21 @@ export default function InboxView() {
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
-			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
+			{
+				id: 'ip',
+				label: __( 'IP Address', 'jetpack-forms' ),
+				enableSorting: false,
+				render: ( { item } ) => {
+					return (
+						<>
+							<span className="response-country-flag">
+								{ getCountryFlagEmoji( item.country_code ) }
+							</span>
+							{ item.ip || '' }
+						</>
+					);
+				},
+			},
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);
