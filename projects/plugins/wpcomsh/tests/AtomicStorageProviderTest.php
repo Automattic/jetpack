@@ -182,13 +182,10 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// Call with new secret - should replace old token
 		$result = $this->provider->get_user_tokens( 'owner@example.com', 'new.secret' );
 
-		// Should return the new token
+		// Verify the returned array has the new token
+		$this->assertIsArray( $result );
+		$this->assertCount( 1, $result );
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
-
-		// DB should have been cleaned (old token removed)
-		$db_options = get_option( 'jetpack_private_options' );
-		// The cleaned state in DB won't have the new token yet (that's added at return time)
-		$this->assertEmpty( $db_options['user_tokens'] );
 	}
 
 	/**

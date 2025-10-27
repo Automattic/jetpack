@@ -127,8 +127,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 
 			// Validate token format - must contain a dot to separate secret from user_id.
 			if ( false === $last_dot_pos ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "Invalid token format in remove_conflicting_tokens: '{$normalized_token}'" );
 				return array(
 					'tokens'        => $tokens,
 					'had_conflicts' => false,
@@ -141,8 +139,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			if ( isset( $tokens[ $user_id ] )
 			&& is_string( $tokens[ $user_id ] )
 			&& ! hash_equals( $normalized_token, $tokens[ $user_id ] ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( "Removing conflicting token for user {$user_id}" );
 				unset( $tokens[ $user_id ] );
 				$had_conflicts = true;
 			}
@@ -150,8 +146,6 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			// Remove orphaned tokens (same secret, different user).
 			foreach ( $tokens as $token_user_id => $token ) {
 				if ( is_string( $token ) && (int) $token_user_id !== $user_id && strpos( $token, $secret_prefix . '.' ) === 0 ) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( "Removing orphaned token with same secret for user {$token_user_id}" );
 					unset( $tokens[ $token_user_id ] );
 					$had_conflicts = true;
 				}
