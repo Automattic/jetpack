@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.53.0] - 2025-10-27
+### Added
+- Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
+
+### Changed
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45588]
+- Instant Search: Revert Safari privacy settings fix due to E2E failure. [#45582]
+
 ## [0.52.24] - 2025-10-21
 ### Fixed
 - Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
@@ -1356,6 +1364,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.53.0]: https://github.com/Automattic/jetpack-search/compare/v0.52.24...v0.53.0
 [0.52.24]: https://github.com/Automattic/jetpack-search/compare/v0.52.23...v0.52.24
 [0.52.23]: https://github.com/Automattic/jetpack-search/compare/v0.52.22...v0.52.23
 [0.52.22]: https://github.com/Automattic/jetpack-search/compare/v0.52.21...v0.52.22

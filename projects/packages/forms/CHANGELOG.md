@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.13.0] - 2025-10-27
+### Changed
+- Add 'create new form' CTA to inbox empty state. [#45589]
+- Add shared ConsentToggle component. [#45556]
+- Align layout grid/components with DataViews table grid. [#45559]
+- Improve the performance of loading the form responsesn dashboard by breaking it up into two stages. [#45565]
+- Integrate `@wordpress/admin-ui` Page component into dashboard layout. [#45610]
+- Record tracks events for inbox actions. [#45606]
+- Remove About page from dashboard. [#45615]
+- Store the user agent used on form submissions. [#45586]
+- Update visual representation of "image select field" responses at inbox. [#45585]
+- Update package dependencies. [#45551] [#45592] [#45598]
+
+### Removed
+- Remove custom green buttons [#45613]
+- Remove hovercards from inbox list [#45572]
+
+### Fixed
+- Fix textarea submission on enter. [#45602]
+- Reduce re-renders in the dashboard. [#45567]
+- Update feedback form screenshot. [#45578]
+- UX and accessibility fixes for image select field. [#45560]
+
 ## [6.12.0] - 2025-10-21
 ### Added
 - Show gravatar on dataviews list. [#45555]
@@ -1730,6 +1753,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.13.0]: https://github.com/automattic/jetpack-forms/compare/v6.12.0...v6.13.0
 [6.12.0]: https://github.com/automattic/jetpack-forms/compare/v6.11.0...v6.12.0
 [6.11.0]: https://github.com/automattic/jetpack-forms/compare/v6.10.0...v6.11.0
 [6.10.0]: https://github.com/automattic/jetpack-forms/compare/v6.9.0...v6.10.0
