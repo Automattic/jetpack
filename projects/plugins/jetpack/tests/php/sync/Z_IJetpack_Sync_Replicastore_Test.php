@@ -49,8 +49,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 		}
 
 		// this is a hack so that our setUp method can access the $store instance and call reset()
-		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
-		$prop->setAccessible( true );
+		$prop      = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
 		$test_data = $prop->getValue( $this );
 
 		if ( isset( $test_data[0] ) && $test_data[0] ) {

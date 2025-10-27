@@ -36,7 +36,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Clear any cached data between tests
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$property   = $reflection->getProperty( 'cached_displayable_errors' );
-		$property->setAccessible( true );
 		$property->setValue( $this->error_handler, null );
 
 		// Clear any test data
@@ -728,7 +727,6 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_should_allow_error_filtering() {
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'should_allow_error_filtering' );
-		$method->setAccessible( true );
 
 		// This test will depend on the actual Host class implementation
 		// We'll just verify the method exists and returns a boolean
@@ -1293,7 +1291,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Use reflection to access protected method
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'has_external_filters' );
-		$method->setAccessible( true );
 
 		// Test without filters
 		$result = $method->invoke( $this->error_handler );
@@ -1319,7 +1316,6 @@ class Error_Handler_Test extends BaseTestCase {
 		// Use reflection to access protected method
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'invalidate_displayable_errors_cache' );
-		$method->setAccessible( true );
 
 		// Test that the method doesn't throw any errors
 		$method->invoke( $this->error_handler );

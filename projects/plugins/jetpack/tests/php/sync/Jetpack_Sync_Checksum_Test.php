@@ -121,7 +121,6 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$reflection = new ReflectionClass( 'Automattic\Jetpack\Sync\Modules' );
 
 		$prop = $reflection->getProperty( 'initialized_modules' );
-		$prop->setAccessible( true );
 		$prop->setValue( null, null );
 
 		$this->sync_enabled_modules = $enabled_modules;

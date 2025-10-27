@@ -23,7 +23,6 @@ class Options_Test extends StatsBaseTestCase {
 	public function tear_down() {
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Options' );
 		$reflected_property = $reflected_class->getProperty( 'options' );
-		$reflected_property->setAccessible( true );
 		$reflected_property = $reflected_property->setValue( null, array() );
 
 		parent::tear_down();

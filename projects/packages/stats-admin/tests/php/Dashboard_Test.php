@@ -17,7 +17,6 @@ class Dashboard_Test extends Stats_TestCase {
 		Dashboard::init();
 
 		$rp = new ReflectionProperty( Dashboard::class, 'initialized' );
-		$rp->setAccessible( true );
 		$this->assertTrue( $rp->getValue() );
 	}
 

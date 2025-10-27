@@ -987,7 +987,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $endpoint, $request, null, 'tier', '1 month' );
 		$this->assertNull( $result );
@@ -1002,7 +1001,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $endpoint, $request, 123, 'donation', '1 month' );
 		$this->assertNull( $result );
@@ -1017,7 +1015,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_tier_field' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $endpoint, $request, 123, 'tier', '1 month' );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -1033,7 +1030,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_yearly_tier' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $endpoint, $request, -1 );
 		$this->assertInstanceOf( WP_Error::class, $result );
@@ -1049,7 +1045,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships_Test extends Jetpack_REST_TestCase 
 
 		$reflection = new ReflectionClass( $endpoint );
 		$method     = $reflection->getMethod( 'validate_yearly_tier' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $endpoint, $request, 'invalid' );
 		$this->assertInstanceOf( WP_Error::class, $result );

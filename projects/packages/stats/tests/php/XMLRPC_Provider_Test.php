@@ -41,7 +41,6 @@ class XMLRPC_Provider_Test extends StatsBaseTestCase {
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC_Provider' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
-		$reflected_property->setAccessible( true );
 		$reflected_property = $reflected_property->setValue( null, null );
 	}
 

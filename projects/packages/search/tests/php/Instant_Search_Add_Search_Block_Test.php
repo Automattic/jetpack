@@ -228,7 +228,6 @@ EOT;
 	 */
 	public function test_wp_pattern_block_replace() {
 		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_patterns' );
-		$method->setAccessible( true );
 		Instant_Search::initialize( 1 );
 		WP_Block_Patterns_Registry::get_instance()->register(
 			'jetpack-search/footer',

@@ -291,7 +291,6 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$method = new \ReflectionMethod( Tracking_Pixel::class, 'get_amp_footer' );
-		$method->setAccessible( true );
 
 		$amp_footer_data = $method->invoke( new Tracking_Pixel(), $data );
 
@@ -324,8 +323,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'srv'  => 'example.org',
 		);
 
-		$method = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
-		$method->setAccessible( true );
+		$method        = new \ReflectionMethod( Tracking_Pixel::class, 'build_stats_details' );
 		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
 
 		$expected_pixel_details = '_stq = window._stq || [];

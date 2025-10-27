@@ -108,7 +108,6 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 	protected function get_cdn_asset_cache_buster_callable() {
 		$odyssey_assets             = new Odyssey_Assets();
 		$get_cdn_asset_cache_buster = new \ReflectionMethod( $odyssey_assets, 'get_cdn_asset_cache_buster' );
-		$get_cdn_asset_cache_buster->setAccessible( true );
 
 		return $get_cdn_asset_cache_buster->invoke( $odyssey_assets );
 	}

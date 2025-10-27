@@ -54,7 +54,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'build_error_data' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler, $raw_error );
 
@@ -223,7 +222,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 
@@ -245,7 +243,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 
@@ -268,7 +265,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 
@@ -296,7 +292,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 
@@ -311,7 +306,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 
@@ -341,7 +335,6 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
 
 		$result = $method->invoke( $this->handler );
 

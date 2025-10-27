@@ -541,7 +541,6 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	public function test_get_total_post_views_with_valid_post_ids_on_simple_sites() {
 		$reflection = new \ReflectionClass( $this->wpcom_stats );
 		$property   = $reflection->getProperty( 'is_wpcom_simple' );
-		$property->setAccessible( true );
 		$property->setValue( $this->wpcom_stats, true );
 
 		// Prepare mock data for the stats

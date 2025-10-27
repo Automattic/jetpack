@@ -161,7 +161,6 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	public function invoke_method( &$object, $method_name, array $parameters = array() ) {
 		$reflection = new \ReflectionClass( get_class( $object ) );
 		$method     = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
 
 		return $method->invokeArgs( $object, $parameters );
 	}

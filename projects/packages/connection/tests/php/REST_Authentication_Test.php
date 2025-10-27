@@ -39,7 +39,6 @@ class REST_Authentication_Test extends TestCase {
 	private static function clear_auth_singleton() {
 		$reflection_class  = new \ReflectionClass( Rest_Authentication::class );
 		$instance_property = $reflection_class->getProperty( 'instance' );
-		$instance_property->setAccessible( true );
 		$instance_property->setValue( null, null );
 	}
 
@@ -57,7 +56,6 @@ class REST_Authentication_Test extends TestCase {
 
 		$reflection_class = new \ReflectionClass( get_class( $this->rest_authentication ) );
 		$manager_property = $reflection_class->getProperty( 'connection_manager' );
-		$manager_property->setAccessible( true );
 		$manager_property->setValue( $this->rest_authentication, $this->manager );
 	}
 

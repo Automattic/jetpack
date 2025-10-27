@@ -254,7 +254,6 @@ class Config_Test extends TestCase {
 
 		$reflection = new \ReflectionClass( Config::class );
 		$method     = $reflection->getMethod( 'get_custom_post_types' );
-		$method->setAccessible( true );
 
 		$result = $method->invokeArgs( new Config(), array() );
 

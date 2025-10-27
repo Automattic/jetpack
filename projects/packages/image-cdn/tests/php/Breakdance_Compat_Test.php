@@ -62,11 +62,9 @@ class Breakdance_Compat_Test extends BaseTestCase {
 		// Reset the Image CDN instance to ensure it's disabled
 		$reflection        = new \ReflectionClass( Image_CDN::class );
 		$instance_property = $reflection->getProperty( 'instance' );
-		$instance_property->setAccessible( true );
 		$instance_property->setValue( null, null );
 
 		$enabled_property = $reflection->getProperty( 'is_enabled' );
-		$enabled_property->setAccessible( true );
 		$enabled_property->setValue( null, false );
 
 		$sample_content = '<p>Test content with <img src="http://example.com/image.jpg" alt="test"> image</p>';
