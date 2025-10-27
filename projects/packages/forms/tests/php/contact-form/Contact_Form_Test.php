@@ -2722,8 +2722,8 @@ EOT;
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
-	public function test_get_instance_from_jwt_returns_null_when_no_secret() {
-		// Ensure JETPACK_BLOG_TOKEN is not defined
+	public function test_get_instance_from_jwt_uses_default_secret_when_no_token_secret() {
+		// Ensure JETPACK_BLOG_TOKEN is not defined, so default secret is used
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 
 		$form = new Contact_Form(
@@ -2810,11 +2810,13 @@ EOT;
 		$this->assertEquals( $form->get_source(), $form_copy->get_source(), 'Form sources should match' );
 	}
 
-	public function test_get_instance_from_jwt_returns_null_for_invalid_jwt() {
+	public function test_get_instance_from_jwt_throws_exception_for_invalid_jwt() {
 		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
 
-		$form_copy = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
-		$this->assertNull( $form_copy, 'Should return null for invalid JWT token' );
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Failed to decode JWT token' );
+
+		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token' );
 
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
