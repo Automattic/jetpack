@@ -48,9 +48,9 @@ class UI_Test extends TestCase {
 	private function reset_static_consumers() {
 		$reflection = new ReflectionClass( UI::class );
 		$property   = $reflection->getProperty( 'consumers' );
-		$property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $property );
 		$property->setValue( null, null );
-		$property->setAccessible( false );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $property, false );
 	}
 
 	/**

@@ -105,7 +105,7 @@ class Test_Environment {
 	 * Helper function to avoid deprecation notices in PHP 8.5.
 	 * `ReflectionProperty::setAccessible()` and `ReflectionMethod::setAccessible()` are no-op methods from PHP 8.1 on.
 	 *
-	 * @todo Remove once we no longer need to support PHP <8.1.
+	 * @todo Remove this method and all calls to it once we no longer need to support PHP <8.1.
 	 *
 	 * @param \ReflectionProperty|\ReflectionMethod $property_or_method The property or method.
 	 * @param bool                                  $is_accessible Whether to make it accessible.

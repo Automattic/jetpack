@@ -19,7 +19,7 @@ class SecretsTest extends TestCase {
 	 */
 	public function call_private_secret_callable_method() {
 		$method = new \ReflectionMethod( 'Automattic\Jetpack\Connection\Secrets', 'secret_callable_method' );
-		$method->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $method );
 		return $method->invoke( new Secrets() );
 	}
 

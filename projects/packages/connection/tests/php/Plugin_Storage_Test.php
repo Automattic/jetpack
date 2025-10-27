@@ -56,11 +56,11 @@ class Plugin_Storage_Test extends TestCase {
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
 		} catch ( \ReflectionException $e ) { // PHP 7 compat
 			$configured = $reflection_class->getProperty( 'configured' );
-			$configured->setAccessible( true );
+			\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $configured );
 			$configured->setValue( false );
 
 			$plugins = $reflection_class->getProperty( 'plugins' );
-			$plugins->setAccessible( true );
+			\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugins );
 			$plugins->setValue( array() );
 		}
 		$this->reset_connection_status();

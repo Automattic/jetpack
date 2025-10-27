@@ -41,9 +41,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$reflection = new \ReflectionClass( $idc );
 		$instance   = $reflection->getProperty( 'instance' );
 
-		$instance->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $instance );
 		$instance->setValue( null, null );
-		$instance->setAccessible( false );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $instance, false );
 		$this->reset_connection_status();
 	}
 

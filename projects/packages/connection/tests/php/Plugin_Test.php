@@ -48,7 +48,7 @@ class Plugin_Test extends TestCase {
 
 		$reflection       = new \ReflectionClass( Plugin_Storage::class );
 		$plugins_property = $reflection->getProperty( 'plugins' );
-		$plugins_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $plugins_property );
 		$plugins_property->setValue( null, array() );
 	}
 
@@ -117,7 +117,7 @@ class Plugin_Test extends TestCase {
 		// De-configuring the `Plugin_Storage` to trigger the error.
 		$reflection          = new \ReflectionClass( Plugin_Storage::class );
 		$configured_property = $reflection->getProperty( 'configured' );
-		$configured_property->setAccessible( true );
+		\Automattic\Jetpack\Test_Environment::maybe_set_reflectionproperty_or_reflectionmethod_as_accessible( $configured_property );
 		$configured_property->setValue( null, false );
 
 		set_error_handler(
