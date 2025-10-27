@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Client;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -78,6 +79,15 @@ class Feedback {
 	 * @var string|null
 	 */
 	protected $user_agent = null;
+
+	/**
+	 * The country code derived from the IP address.
+	 *
+	 * This is derived from the IP address and stored for easier display.
+	 *
+	 * @var string|null
+	 */
+	protected $country_code = null;
 
 	/**
 	 * The subject of the feedback entry.
@@ -223,9 +233,10 @@ class Feedback {
 			$parsed_content['request_url'] ?? ''
 		);
 
-		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
-		$this->user_agent = $parsed_content['user_agent'] ?? null;
-		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->country_code = $parsed_content['country_code'] ?? null;
+		$this->user_agent   = $parsed_content['user_agent'] ?? null;
+		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
@@ -280,6 +291,7 @@ class Feedback {
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
+		$this->country_code    = $this->get_country_code_from_ip( $this->ip_address );
 		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
@@ -764,6 +776,111 @@ class Feedback {
 	}
 
 	/**
+	 * Get the country code derived from the IP address.
+	 *
+	 * @return string|null
+	 */
+	public function get_country_code() {
+		return $this->country_code;
+	}
+
+	/**
+	 * Get country code from IP address.
+	 *
+	 * This method uses a filter to allow custom implementations of GeoIP lookup.
+	 * The filter should return a country code (e.g., 'US', 'GB', 'DE') or null.
+	 *
+	 * @param string|null $ip_address The IP address.
+	 * @return string|null The country code or null if unavailable.
+	 */
+	private function get_country_code_from_ip( $ip_address ) {
+		if ( ! $ip_address ) {
+			return null;
+		}
+		// This filter allows site owners to disable IP address storage entirely as well as GeoIP lookups.
+		// This filter is documented in src/contact-form/class-contact-form-plugin.php
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter to get country code from IP address.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param string|null $country The country code (e.g., 'US', 'GB', 'DE') or null.
+		 * @param string      $ip_address The IP address to look up.
+		 * @param string      $context The context for the geolocation request.
+		 */
+		$country = apply_filters( 'jetpack_get_country_from_ip', null, $ip_address, 'form-response' );
+		if ( is_string( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		$headers = array(
+			'MM_COUNTRY_CODE',
+			'GEOIP_COUNTRY_CODE',
+			'HTTP_CF_IPCOUNTRY',
+			'HTTP_X_COUNTRY_CODE',
+			'HTTP_X_APPENGINE_COUNTRY',
+			'HTTP_X_FORWARDED_FOR_COUNTRY',
+			'HTTP_CLOUDFRONT_VIEWER_COUNTRY',
+		);
+
+		// Check for headers from the server.
+		foreach ( $headers as $header ) {
+			if ( isset( $_SERVER[ $header ] ) ) {
+				$country = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
+				if ( ! empty( $country ) ) {
+					return strtoupper( $country );
+				}
+			}
+		}
+
+		if ( function_exists( 'geoip_country_code_by_name' ) ) {
+			$country = geoip_country_code_by_name( $ip_address );
+			if ( ! empty( $country ) ) {
+				return strtoupper( $country );
+			}
+		}
+
+		$country = self::geolocate_via_api( $ip_address );
+		if ( ! empty( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Use APIs to Geolocate the IP address.
+	 *
+	 * @param  string $ip_address IP address.
+	 * @return string
+	 */
+	private static function geolocate_via_api( $ip_address ) {
+		$country_code = \get_transient( 'geoip_' . $ip_address );
+		if ( false === $country_code ) {
+			$response = Client::wpcom_json_api_request_as_blog(
+				'/ip-to-geo/' . $ip_address,
+				'2',
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom'
+			);
+
+			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
+				$data         = json_decode( $response['body'] );
+				$country_code = $data->country_short ?? '';
+				$country_code = \sanitize_text_field( $country_code );
+				// Share the transient with woocommerce to avoid multiple lookups.
+				\set_transient( 'geoip_' . $ip_address, $country_code, DAY_IN_SECONDS );
+			}
+		}
+		return $country_code;
+	}
+
+	/**
 	 * Get the email subject.
 	 *
 	 * @return string
@@ -1015,6 +1132,7 @@ class Feedback {
 			array(
 				'subject'                 => $this->subject,
 				'ip'                      => $this->ip_address,
+				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
 				'notification_recipients' => $this->notification_recipients,
 			),
@@ -1026,9 +1144,10 @@ class Feedback {
 			$fields_to_serialize['fields'][] = $field->serialize();
 		}
 
-		// Check if the IP should be included.
+		// Check if the IP and country_code should be included.
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $this->ip_address ) ) {
-			$fields_to_serialize['ip'] = null;
+			$fields_to_serialize['ip']           = null;
+			$fields_to_serialize['country_code'] = null;
 		}
 
 		return addslashes( wp_json_encode( $fields_to_serialize ) );

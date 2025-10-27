@@ -539,6 +539,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['country_code'] = array(
+			'description' => __( 'The country code derived from the IP address.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['entry_title'] = array(
 			'description' => __( 'The title of the page or post where the form was submitted.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -785,6 +795,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 		if ( rest_is_field_included( 'ip', $fields ) ) {
 			$data['ip'] = $feedback_response->get_ip_address();
+		}
+		if ( rest_is_field_included( 'country_code', $fields ) ) {
+			$data['country_code'] = $feedback_response->get_country_code();
 		}
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
 			$data['entry_title'] = $feedback_response->get_entry_title();

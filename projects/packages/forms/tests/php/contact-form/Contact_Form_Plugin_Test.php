@@ -659,19 +659,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
+		$country_code = null; // No country code for legacy feedback
+
 		$this->assertEquals(
 			array(
 
-				'ID'         => array( $post_id_1, $post_id_2 ),
-				'Date'       => array( $post_1->post_date, $post_2->post_date ),
-				'Title'      => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'    => array( 'value1', 'value1' ),
-				'field_B'    => array( 'value2', '' ),
-				'field_C'    => array( '', 'value2' ),
-				'Source'     => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'    => array( $default_consent, $default_consent ),
-				'IP Address' => array( $ip, $ip ),
-
+				'ID'           => array( $post_id_1, $post_id_2 ),
+				'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'      => array( 'value1', 'value1' ),
+				'field_B'      => array( 'value2', '' ),
+				'field_C'      => array( '', 'value2' ),
+				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				'Consent'      => array( $default_consent, $default_consent ),
+				'IP Address'   => array( $ip, $ip ),
+				'Country code' => array( $country_code, $country_code ),
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -834,6 +836,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'name'  => 'IP Address',
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
+				array(
+					'name'  => 'Country code',
+					'value' => null,
+				), // no country code for legacy feedback
 			),
 		);
 
