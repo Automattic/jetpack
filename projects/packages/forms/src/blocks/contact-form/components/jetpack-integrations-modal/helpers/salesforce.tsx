@@ -4,7 +4,7 @@ import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../../icons/salesforce';
 import HelpMessage from '../../help-message';
-import CreateSalesforceLeadFormButton from '../components/CreateSalesforceLeadFormButton';
+import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button';
 import type { CardItem, CardBuilderProps } from './types';
 
 export const isValidSalesforceOrgId = ( id: string | undefined ): boolean =>
