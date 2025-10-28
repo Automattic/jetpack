@@ -1303,8 +1303,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 						$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
 					}
 				} else {
-					// this was the case for is_single_input_form, now I don't know.
-					$r .= self::render_error_wrapper( array( 'is-horizontal' ) );
+					$r .= self::render_error_wrapper( 'is-horizontal' );
 				}
 			}
 
@@ -1599,11 +1598,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function that display the error wrapper.
 	 *
-	 * @param array $classes - the classes to add to the error wrapper.
+	 * @param string $classes - the class names to add to the error wrapper.
 	 * @return string HTML string for the error wrapper.
 	 */
-	private static function render_error_wrapper( $classes = array() ) {
-		$class_attr = ! empty( $classes ) ? ' ' . implode( ' ', array_map( 'esc_attr', $classes ) ) : '';
+	private static function render_error_wrapper( $classes = '' ) {
+		$class_attr = $classes ? ' ' . esc_attr( $classes ) : '';
 		$html       = '<div class="contact-form__error' . $class_attr . '" data-wp-class--show-errors="state.showFormErrors">';
 		$html      .= '<span class="contact-form__warning-icon" aria-hidden="true"><i></i></span>';
 		$html      .= '<span class="contact-form__error-message" tabindex="-1" data-wp-watch="callbacks.focusOnValidationError" data-wp-text="state.getFormErrorMessage"></span>';
