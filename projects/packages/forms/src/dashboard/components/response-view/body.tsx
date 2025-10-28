@@ -476,12 +476,14 @@ const ResponseViewBody = ( {
 						<span className="jp-forms__inbox-response-meta-key	">
 							{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
 						</span>
-						<ExternalLink
-							href={ getRedirectUrl( 'ip-lookup', { ip: response.ip } ) }
-							className="jp-forms__inbox-response-meta-value"
-						>
-							{ response.ip }
-						</ExternalLink>
+						<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
+							<ExternalLink
+								href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }
+								className="jp-forms__inbox-response-meta-value"
+							>
+								{ response.ip }
+							</ExternalLink>
+						</Tooltip>
 					</div>
 				</div>
 
