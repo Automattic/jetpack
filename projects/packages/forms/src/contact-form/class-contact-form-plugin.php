@@ -1533,10 +1533,16 @@ class Contact_Form_Plugin {
 		$is_block_template_part = str_starts_with( $id, 'block-template-part-' );
 
 		if ( isset( $_POST['jetpack_contact_form_jwt'] ) ) {
-			$form = Contact_Form::get_instance_from_jwt( sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) ) );
-			if ( ! $form ) { // fail early if the JWT is invalid.
-				// If the JWT is invalid, we can't process the form.
-				return Form_Submission_Error::system_error( 'invalid_jwt', __( 'Invalid JWT token.', 'jetpack-forms' ) );
+			$jwt = sanitize_text_field( wp_unslash( $_POST['jetpack_contact_form_jwt'] ) );
+
+			try {
+				$form = Contact_Form::get_instance_from_jwt( $jwt, true );
+			} catch ( \Exception $e ) {
+				// Fail early if the JWT is invalid with detailed error information.
+				return Form_Submission_Error::system_error(
+					'invalid_jwt',
+					$e->getMessage()
+				);
 			}
 
 			$form->validate();
@@ -1731,7 +1737,8 @@ class Contact_Form_Plugin {
 		$is_system_error   = Form_Submission_Error::is_system_error( $submission_result );
 
 		if ( ! $submission_result || $is_system_error ) {
-			$error_code = $is_system_error ? $submission_result->get_error_code() : 'unknown';
+			$error_code    = $is_system_error ? $submission_result->get_error_code() : 'unknown';
+			$error_details = $is_system_error ? $submission_result->get_error_message() : null;
 
 			/**
 			 * Action when we want to log a jetpack_forms event.
@@ -1740,8 +1747,9 @@ class Contact_Form_Plugin {
 			 *
 			 * @param string $log_message The log message.
 			 * @param string $error_code The error code (optional).
+			 * @param string $error_details The error details (optional).
 			 */
-			do_action( 'jetpack_forms_log', 'submission_failed', $error_code );
+			do_action( 'jetpack_forms_log', 'submission_failed', $error_code, $error_details );
 
 			$accepts_json && wp_send_json_error(
 				array(
