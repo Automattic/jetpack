@@ -37,8 +37,6 @@ export default function GoogleDriveConnectButton( {
 		<Button
 			variant="secondary"
 			onClick={ handleClick }
-			target="_blank"
-			rel="noopener noreferrer"
 			__next40pxDefaultSize={ true }
 			disabled={ ! settingsUrl || isToggling }
 		>
