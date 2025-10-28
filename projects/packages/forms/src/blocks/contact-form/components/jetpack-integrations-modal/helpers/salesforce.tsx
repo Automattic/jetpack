@@ -7,6 +7,9 @@ import HelpMessage from '../../help-message';
 import CreateSalesforceLeadFormButton from '../components/CreateSalesforceLeadFormButton';
 import type { CardItem, CardBuilderProps } from './types';
 
+export const isValidSalesforceOrgId = ( id: string | undefined ): boolean =>
+	typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
+
 export function buildSalesforceCard( {
 	integration,
 	refreshIntegrations,
@@ -17,8 +20,6 @@ export function buildSalesforceCard( {
 	const organizationId = attributes?.salesforceData?.organizationId ?? '';
 	const sendToSalesforce = !! attributes?.salesforceData?.sendToSalesforce;
 
-	const isValidSalesforceOrgId = ( id: string | undefined ): boolean =>
-		typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
 	const base: CardItem = {
 		id: integration.id,
 		title: integration.title,

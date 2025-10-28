@@ -6,7 +6,7 @@ import AkismetIcon from '../../../../../icons/akismet';
 import HostingerReachIcon from '../../../../../icons/hostinger-reach';
 import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange';
 import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
-import { isValidSalesforceOrgId } from '../salesforce-card';
+import { isValidSalesforceOrgId } from '../helpers/salesforce';
 import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
