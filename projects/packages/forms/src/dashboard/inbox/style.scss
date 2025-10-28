@@ -127,16 +127,23 @@
 .jp-forms__inbox-response-meta {
 	color: var(--jp-gray-80);
 	font-size: 12px;
-	padding: 12px 32px 24px;
-	text-align: left;
-	width: fit-content;
+	padding: 12px 30px 24px;
 
-	th {
-		font-weight: 400;
-		padding-left: 0;
-		padding-right: variables.$grid-unit-10;
-		vertical-align: top;
-		white-space: nowrap;
+	table {
+		text-align: left;
+		width: fit-content;
+
+		td,
+		th {
+			padding: 0;
+		}
+
+		th {
+			font-weight: 400;
+			padding-right: variables.$grid-unit-10;
+			vertical-align: top;
+			white-space: nowrap;
+		}
 	}
 }
 
