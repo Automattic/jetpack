@@ -468,7 +468,6 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 		update_option( 'auto_update_plugins', $auto_update_plugins );
 
 		// Trigger Jetpack sync for the auto_update_plugins option change.
-		// This ensures that Calypso gets the updated auto-update status for new plugins.
 		do_action( 'updated_option', 'auto_update_plugins', $old_auto_update_plugins, $auto_update_plugins );
 	}
 
