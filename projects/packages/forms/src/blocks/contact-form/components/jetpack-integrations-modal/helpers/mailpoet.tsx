@@ -70,12 +70,13 @@ export function buildMailPoetCard( {
 		body: ! isConnected ? (
 			<div>
 				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __(
-							'MailPoet is active. There is one step left. Please complete MailPoet setup.',
+					{ createInterpolateElement(
+						__(
+							'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 							'jetpack-forms'
-						) }
-					</ExternalLink>
+						),
+						{ a: <ExternalLink href={ settingsUrl } /> }
+					) }
 				</p>
 				<HStack spacing="3" justify="start">
 					<Button
