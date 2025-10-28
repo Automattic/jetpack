@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds Garden Storage Provider to handle token storage mechanisms for garden sites
