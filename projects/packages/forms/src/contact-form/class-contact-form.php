@@ -2077,11 +2077,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 		$footer_ip = null;
 		if ( $comment_author_ip ) {
-			$footer_ip = sprintf(
-				/* translators: %1$s placeholder is the IP address, %2$s is the country flag of the person who submitted a form. */
-				esc_html__( 'IP Address: %1$s %2$s', 'jetpack-forms' ),
-				$comment_author_ip,
-				$response->get_country_flag()
+			$comment_author_ip = $comment_author_ip . ' ' . $response->get_country_flag();
+			$footer_ip         = sprintf(
+				/* translators: Placeholder is the IP address of the person who submitted a form. */
+				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
+				$comment_author_ip
 			) . '<br />';
 		}
 
