@@ -1,7 +1,7 @@
 import requestExternalAccess from '@automattic/request-external-access';
 import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 type Props = {
 	settingsUrl?: string;
@@ -44,7 +44,7 @@ export default function GoogleDriveConnectButton( {
 		>
 			{ isToggling
 				? __( 'Connecting…', 'jetpack-forms' )
-				: _x( 'Connect to Google Drive', '', 'jetpack-forms' ) }
+				: __( 'Connect to Google Drive', 'jetpack-forms' ) }
 		</Button>
 	);
 }

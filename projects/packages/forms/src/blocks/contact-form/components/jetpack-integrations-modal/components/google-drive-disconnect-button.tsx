@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 type Props = {
 	onDisconnected: () => void;
@@ -34,7 +34,7 @@ export default function GoogleDriveDisconnectButton( { onDisconnected, isConnect
 		<Button variant="link" onClick={ handleClick } disabled={ isToggling }>
 			{ isToggling
 				? __( 'Disconnecting…', 'jetpack-forms' )
-				: _x( 'Disconnect Google Drive', '', 'jetpack-forms' ) }
+				: __( 'Disconnect Google Drive', 'jetpack-forms' ) }
 		</Button>
 	);
 }
