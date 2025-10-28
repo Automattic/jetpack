@@ -57,7 +57,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
-				'enabled_by_default'      => true,
+				'enabled_by_default'      => false,
 			),
 			'salesforce'   => array(
 				'type'                    => 'service',
