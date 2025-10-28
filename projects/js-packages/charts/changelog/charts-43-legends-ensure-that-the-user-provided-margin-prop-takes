@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: legends ensure user provided margin prop takes precedence
