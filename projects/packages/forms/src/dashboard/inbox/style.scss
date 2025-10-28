@@ -127,13 +127,13 @@
 .jp-forms__inbox-response-meta {
 	color: var(--jp-gray-80);
 	font-size: 12px;
-	line-height: 20px;
 	padding: 12px 32px 24px;
 	text-align: left;
 	width: fit-content;
 
 	th {
 		font-weight: 400;
+		padding-left: 0;
 		padding-right: variables.$grid-unit-10;
 		vertical-align: top;
 		white-space: nowrap;
