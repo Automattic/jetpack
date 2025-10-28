@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Improved user agent string parsing functionality and added browser detection for six more browsers (Samsung Internet, UC, Yandex, Vivaldi, MIUI, Amazon Silk)
