@@ -209,21 +209,24 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Test that whitelisted core dependencies are included.
+	 * Test that core dependencies are excluded from HTML output.
 	 */
-	public function test_core_dependencies_are_included() {
+	public function test_core_dependencies_excluded_from_output() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Verify wp-edit-post script and style are in the output
-		$this->assertStringContainsString( 'wp-edit-post', $data['scripts'], 'wp-edit-post script should be included' );
-		$this->assertStringContainsString( 'wp-edit-post', $data['styles'], 'wp-edit-post style should be included' );
+		// Verify wp-edit-post script and style are NOT in the output (filtered out)
+		$this->assertStringNotContainsString( 'wp-edit-post', $data['scripts'], 'wp-edit-post script should be excluded' );
+		$this->assertStringNotContainsString( 'wp-edit-post', $data['styles'], 'wp-edit-post style should be excluded' );
 
-		// Verify postbox script is in the output
-		$this->assertStringContainsString( 'postbox', $data['scripts'], 'postbox script should be included' );
+		// Verify postbox script is NOT in the output (filtered out)
+		$this->assertStringNotContainsString( 'postbox', $data['scripts'], 'postbox script should be excluded' );
+
+		// Verify jQuery is NOT in the output (filtered out)
+		$this->assertStringNotContainsString( 'jquery', $data['scripts'], 'jQuery should be excluded' );
 	}
 
 	/**

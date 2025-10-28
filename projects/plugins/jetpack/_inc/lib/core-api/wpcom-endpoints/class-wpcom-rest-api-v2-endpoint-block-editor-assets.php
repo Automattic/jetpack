@@ -31,13 +31,13 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	);
 
 	/**
-	 * List of core handles that should be included as dependencies for plugins.
+	 * List of core-provided handles that should never be unregistered.
 	 *
 	 * @var array
 	 */
-	const ALLOWED_CORE_HANDLES = array(
-		'postbox',
-		'wp-edit-post',
+	const PROTECTED_HANDLES = array(
+		'jquery',
+		'mediaelement',
 	);
 
 	/**
@@ -264,6 +264,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		remove_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10 );
 		remove_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10 );
 
+		// Filter out core and Gutenberg assets from the HTML output
+		$styles  = $this->filter_core_assets_from_html( $styles, 'link', 'href' );
+		$scripts = $this->filter_core_assets_from_html( $scripts, 'script', 'src' );
+
 		$wp_styles  = $current_wp_styles;
 		$wp_scripts = $current_wp_scripts;
 
@@ -318,89 +322,32 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Unregisters all assets except those from allowed plugins or whitelisted core handles.
+	 * Unregisters all assets except those from core or allowed plugins.
 	 */
 	private function unregister_disallowed_plugin_assets() {
 		global $wp_scripts, $wp_styles;
 
-		// Build list of allowed core handles including their dependencies
-		$allowed_core_scripts = $this->get_allowed_core_handles_with_dependencies( $wp_scripts );
-		$allowed_core_styles  = $this->get_allowed_core_handles_with_dependencies( $wp_styles );
-
-		// Unregister all core/Gutenberg scripts and disallowed plugin scripts
+		// Unregister disallowed plugin scripts
 		foreach ( $wp_scripts->registered as $handle => $script ) {
-			// Keep if it's a whitelisted core handle or its dependency
-			if ( in_array( $handle, $allowed_core_scripts, true ) ) {
+			// Skip core scripts and protected handles
+			if ( $this->is_core_or_gutenberg_asset( $script->src ) || $this->is_protected_handle( $handle ) ) {
 				continue;
 			}
 
-			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
-			if ( $this->is_core_or_gutenberg_asset( $script->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
+			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_scripts->registered[ $handle ] );
 			}
 		}
 
-		// Unregister all core/Gutenberg styles and disallowed plugin styles
+		// Unregister disallowed plugin styles
 		foreach ( $wp_styles->registered as $handle => $style ) {
-			// Keep if it's a whitelisted core handle or its dependency
-			if ( in_array( $handle, $allowed_core_styles, true ) ) {
+			// Skip core styles and protected handles
+			if ( $this->is_core_or_gutenberg_asset( $style->src ) || $this->is_protected_handle( $handle ) ) {
 				continue;
 			}
 
-			// Remove if it's a core/Gutenberg asset OR not from an allowed plugin
-			if ( $this->is_core_or_gutenberg_asset( $style->src ) || ! $this->is_allowed_plugin_handle( $handle ) ) {
+			if ( ! $this->is_allowed_plugin_handle( $handle ) ) {
 				unset( $wp_styles->registered[ $handle ] );
-			}
-		}
-	}
-
-	/**
-	 * Get all handles including dependencies for whitelisted core handles.
-	 *
-	 * @param WP_Scripts|WP_Styles $wp_dependencies The dependencies object.
-	 * @return array List of handles including dependencies.
-	 */
-	private function get_allowed_core_handles_with_dependencies( $wp_dependencies ) {
-		$allowed_handles = array();
-
-		foreach ( self::ALLOWED_CORE_HANDLES as $handle ) {
-			if ( ! isset( $wp_dependencies->registered[ $handle ] ) ) {
-				continue;
-			}
-
-			// Add the handle itself
-			$allowed_handles[] = $handle;
-
-			// Recursively add all dependencies
-			$this->add_dependencies_recursively( $handle, $wp_dependencies, $allowed_handles );
-		}
-
-		return array_unique( $allowed_handles );
-	}
-
-	/**
-	 * Recursively add dependencies of a handle to the allowed list.
-	 *
-	 * @param string               $handle The handle to process.
-	 * @param WP_Scripts|WP_Styles $wp_dependencies The dependencies object.
-	 * @param array                $allowed_handles List of allowed handles (passed by reference).
-	 */
-	private function add_dependencies_recursively( $handle, $wp_dependencies, &$allowed_handles ) {
-		if ( ! isset( $wp_dependencies->registered[ $handle ] ) ) {
-			return;
-		}
-
-		$deps = $wp_dependencies->registered[ $handle ]->deps;
-
-		if ( empty( $deps ) || ! is_array( $deps ) ) {
-			return;
-		}
-
-		foreach ( $deps as $dep ) {
-			if ( ! in_array( $dep, $allowed_handles, true ) ) {
-				$allowed_handles[] = $dep;
-				// Recursively add dependencies of this dependency
-				$this->add_dependencies_recursively( $dep, $wp_dependencies, $allowed_handles );
 			}
 		}
 	}
@@ -425,13 +372,13 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Check if a handle is a whitelisted core handle.
+	 * Check if a handle should be protected.
 	 *
 	 * @param string $handle The asset handle.
-	 * @return bool True if the handle is a whitelisted core handle, false otherwise.
+	 * @return bool True if the handle should be protected, false otherwise.
 	 */
-	private function is_allowed_core_handle( $handle ) {
-		return in_array( $handle, self::ALLOWED_CORE_HANDLES, true );
+	private function is_protected_handle( $handle ) {
+		return in_array( $handle, self::PROTECTED_HANDLES, true );
 	}
 
 	/**
@@ -465,6 +412,49 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return site_url( $src );
 		}
 		return $src;
+	}
+
+	/**
+	 * Filter out core and Gutenberg assets from HTML output.
+	 *
+	 * This method processes the HTML line-by-line and removes any script or link tags
+	 * that reference core or Gutenberg assets based on their URL.
+	 *
+	 * @param string $html The HTML string containing script or link tags.
+	 * @param string $tag_name The HTML tag name to process ('script' or 'link').
+	 * @param string $url_attribute The attribute name containing the URL ('src' or 'href').
+	 * @return string The filtered HTML with core/Gutenberg assets removed.
+	 */
+	private function filter_core_assets_from_html( $html, $tag_name, $url_attribute ) {
+		if ( empty( $html ) ) {
+			return $html;
+		}
+
+		$lines          = explode( "\n", $html );
+		$filtered_lines = array();
+
+		foreach ( $lines as $line ) {
+			$should_keep = true;
+
+			// Check if this line contains the tag we're looking for
+			if ( strpos( $line, '<' . $tag_name ) !== false ) {
+				// Extract the URL attribute
+				if ( preg_match( '/' . $url_attribute . '=["\']([^"\']+)["\']/', $line, $matches ) ) {
+					$url = $matches[1];
+
+					// Check if this is a core/Gutenberg asset
+					if ( $this->is_core_or_gutenberg_asset( $url ) ) {
+						$should_keep = false;
+					}
+				}
+			}
+
+			if ( $should_keep ) {
+				$filtered_lines[] = $line;
+			}
+		}
+
+		return implode( "\n", $filtered_lines );
 	}
 
 	/**
