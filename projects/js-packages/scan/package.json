@@ -58,7 +58,7 @@
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"storybook": "9.0.15",
-		"typescript": "5.9.2"
+		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"@wordpress/i18n": "6.4.0",
