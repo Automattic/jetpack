@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/contact-form",
 	"title": "Form",
-	"description": "Create forms with layout support to collect data from site visitors and manage their responses.",
+	"description": "Create forms to collect data from site visitors and manage their responses.",
 	"keywords": [ "email", "feedback", "contact form" ],
 	"version": "12.5.0",
 	"textdomain": "jetpack-forms",
