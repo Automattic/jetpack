@@ -88,12 +88,10 @@ export function buildSalesforceCard( {
 						</ExternalLink>
 					</p>
 					<div style={ { marginTop: '20px', marginBottom: '20px' } }>
-						<strong>
-							{ __(
-								'For integration with Salesforce to work, you must add specific fields with specific field IDs that match Salesforce.',
-								'jetpack-forms'
-							) }
-						</strong>
+						{ __(
+							'For integration with Salesforce to work, you must add specific fields with specific field IDs that match Salesforce.',
+							'jetpack-forms'
+						) }
 					</div>
 				</BaseControl>
 			) : (
