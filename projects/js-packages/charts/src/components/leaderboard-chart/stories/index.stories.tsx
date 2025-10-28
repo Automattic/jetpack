@@ -411,11 +411,38 @@ export const WithCompositionLegend: Story = {
 			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendInteractive: true,
+		legendLabels: {
+			primary: 'Current period',
+			comparison: 'Previous period',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive legend allows users to click legend items to toggle the visibility of current and previous period data. Click on the legend items to show/hide the corresponding bars and values. When all series are hidden, a message is displayed.',
 			},
 		},
 	},

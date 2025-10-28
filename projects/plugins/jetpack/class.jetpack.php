@@ -5122,7 +5122,7 @@ endif;
 	 * @return mixed
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
-		if ( ! str_contains( $src, '.min.css' ) ) {
+		if ( ! is_string( $src ) || ! str_contains( $src, '.min.css' ) ) {
 			return $src;
 		}
 

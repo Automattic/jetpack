@@ -1204,7 +1204,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
 						data-wp-bind--aria-invalid='state.fieldHasErrors'
-						data-wp-on--keydown='actions.onKeyDownTextarea'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						"
 						. $class

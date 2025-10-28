@@ -13,6 +13,9 @@ use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Error;
 
+// Load the Form_Submission_Error class for testing.
+require_once __DIR__ . '/../../../src/contact-form/class-form-submission-error.php';
+
 /**
  * Test class for Contact_Form_Plugin
  *
@@ -571,8 +574,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
-		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
-		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error code to be "check_spam".' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission.' );
+		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error message to be "Name field is required.".' );
+		$this->assertTrue( $result->is_validation_type(), 'Expected this to be a validation error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -583,7 +587,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
-		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
+		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -659,19 +665,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
+		$country_code = null; // No country code for legacy feedback
+
 		$this->assertEquals(
 			array(
 
-				'ID'         => array( $post_id_1, $post_id_2 ),
-				'Date'       => array( $post_1->post_date, $post_2->post_date ),
-				'Title'      => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'    => array( 'value1', 'value1' ),
-				'field_B'    => array( 'value2', '' ),
-				'field_C'    => array( '', 'value2' ),
-				'Source'     => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'    => array( $default_consent, $default_consent ),
-				'IP Address' => array( $ip, $ip ),
-
+				'ID'           => array( $post_id_1, $post_id_2 ),
+				'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'      => array( 'value1', 'value1' ),
+				'field_B'      => array( 'value2', '' ),
+				'field_C'      => array( '', 'value2' ),
+				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				'Consent'      => array( $default_consent, $default_consent ),
+				'IP Address'   => array( $ip, $ip ),
+				'Country code' => array( $country_code, $country_code ),
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -834,6 +842,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'name'  => 'IP Address',
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
+				array(
+					'name'  => 'Country code',
+					'value' => null,
+				), // no country code for legacy feedback
 			),
 		);
 

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.44.0",
+	"version": "0.45.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -231,7 +231,7 @@
 		"sass-loader": "^16.0.0",
 		"storybook": "9.0.15",
 		"tsup": "8.5.0",
-		"typescript": "5.9.2",
+		"typescript": "5.9.3",
 		"webpack": "^5.88.0",
 		"webpack-cli": "^6.0.0"
 	},

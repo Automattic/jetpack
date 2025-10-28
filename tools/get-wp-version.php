@@ -13,7 +13,7 @@ curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 
 // Get the response and close the channel.
 $response = curl_exec( $ch );
-curl_close( $ch );
+curl_close( $ch ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.curl_closeDeprecated
 
 $versions = json_decode( $response );
 $versions = $versions->offers;

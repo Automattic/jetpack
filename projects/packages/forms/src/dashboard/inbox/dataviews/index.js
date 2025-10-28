@@ -149,7 +149,6 @@ export default function InboxView() {
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
 
-	const [ sidePanelItem, setSidePanelItem ] = useState();
 	const onChangeSelection = useCallback(
 		items => {
 			// Set the side panel item only when we are not on mobile.
@@ -161,18 +160,8 @@ export default function InboxView() {
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
-				const currentURLSelection = _searchParams.get( 'r' )?.split( ',' ) || [];
-
-				// Filter out IDs from the current URL selection that are either already selected in the current view
-				// or already present in the current records, to avoid duplication when merging selections across pages.
-				const currentSelection = currentURLSelection.filter(
-					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
-				);
-
-				// merge items with the current URL
-				const mergedItems = [ ...new Set( [ ...currentSelection, ...items ] ) ];
-				if ( mergedItems.length ) {
-					_searchParams.set( 'r', mergedItems.join( ',' ) );
+				if ( items.length ) {
+					_searchParams.set( 'r', items.join( ',' ) );
 				} else {
 					_searchParams.delete( 'r' );
 				}
@@ -181,6 +170,8 @@ export default function InboxView() {
 		},
 		[ records, setSearchParams, isMobile ]
 	);
+
+	const [ sidePanelItem, setSidePanelItem ] = useState();
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.

@@ -24,6 +24,10 @@ const createTokenFieldHandler = ( onChange, value ) => {
 	};
 };
 
+const createClearHandler = onChange => {
+	return () => onChange( [] );
+};
+
 // Mock WordPress components
 jest.mock( '@wordpress/components', () => {
 	/**
@@ -70,6 +74,9 @@ jest.mock( '@wordpress/components', () => {
 					data-suggestions={ JSON.stringify( suggestions ) }
 					onChange={ createTokenFieldHandler( onChange, value ) }
 				/>
+				<button data-testid="clear-all-button" onClick={ createClearHandler( onChange ) }>
+					Clear All
+				</button>
 			</div>
 		);
 	}
@@ -317,5 +324,29 @@ describe( 'NotificationsSettings', () => {
 		// Should display user names, not IDs
 		expect( input.value ).toContain( 'Admin User' );
 		expect( input.value ).toContain( 'Editor User' );
+	} );
+
+	it( 'defaults to post author when all recipients are removed', async () => {
+		// Start with Editor User as recipient
+		render(
+			<NotificationsSettings
+				setAttributes={ setAttributesMock }
+				notificationRecipients={ [ '2' ] }
+				{ ...defaultProps }
+			/>
+		);
+
+		// User selector should be visible with Editor User selected
+		const input = screen.getByRole( 'textbox' );
+		expect( input.value ).toContain( 'Editor User' );
+
+		// Clear all recipients by clicking the clear button
+		const clearButton = screen.getByTestId( 'clear-all-button' );
+		await userEvent.click( clearButton );
+
+		// Should auto-select the post author (user ID 1) when field is cleared
+		expect( setAttributesMock ).toHaveBeenCalledWith( {
+			notificationRecipients: [ '1' ],
+		} );
 	} );
 } );

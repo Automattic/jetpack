@@ -145,7 +145,7 @@ export default function PhoneFieldEdit( props ) {
 					{
 						index: 1,
 						element: (
-							<>
+							<div key="phoneFieldControls">
 								<ToggleControl
 									label={ __( 'Show country selector', 'jetpack-forms' ) }
 									checked={ showCountrySelector || false }
@@ -162,7 +162,7 @@ export default function PhoneFieldEdit( props ) {
 										__next40pxDefaultSize={ true }
 									/>
 								) }
-							</>
+							</div>
 						),
 					},
 				] }
