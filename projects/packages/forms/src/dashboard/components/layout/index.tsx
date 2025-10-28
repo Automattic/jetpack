@@ -2,7 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch, JetpackLogo } from '@automattic/jetpack-components';
 import { NavigableRegion, Page } from '@wordpress/admin-ui';
 import { TabPanel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -117,7 +117,11 @@ const Layout = () => {
 	return (
 		<Page
 			className="jp-forms__layout"
-			title={ __( 'Forms', 'jetpack-forms' ) }
+			title={
+				<div className="jp-forms__layout-header-title">
+					<JetpackLogo showText={ false } width={ 24 } /> Forms
+				</div>
+			}
 			actions={ headerActions }
 		>
 			<NavigableRegion
