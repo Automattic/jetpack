@@ -58,7 +58,7 @@ export function buildHostingerReachCard( {
 		},
 		toggleTooltip: __( 'Grow your audience with Hostinger Reach', 'jetpack-forms' ),
 		body: ! isConnected ? (
-			<div>
+			<>
 				<p className="integration-card__description">
 					<ExternalLink href={ settingsUrl }>
 						{ __(
@@ -81,15 +81,15 @@ export function buildHostingerReachCard( {
 						{ __( 'Refresh status', 'jetpack-forms' ) }
 					</Button>
 				</HStack>
-			</div>
+			</>
 		) : (
-			<div>
+			<>
 				{ context === 'block-editor' && (
 					<div className="integration-card__section">
 						<TextControl
 							label={ __( 'Group name (optional)', 'jetpack-forms' ) }
 							help={ __(
-								"If empty, contacts will be added under 'Jetpack Forms'.",
+								'If empty, contacts will be added under "Jetpack Forms".',
 								'jetpack-forms'
 							) }
 							value={ groupName }
@@ -111,7 +111,7 @@ export function buildHostingerReachCard( {
 						{ __( 'View Hostinger Reach dashboard', 'jetpack-forms' ) }
 					</ExternalLink>
 				</p>
-			</div>
+			</>
 		),
 	};
 
