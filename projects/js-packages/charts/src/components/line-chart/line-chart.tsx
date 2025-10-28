@@ -464,7 +464,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								...defaultMargin,
 								...margin,
 								...( showLegend && legendPosition === 'top'
-									? { top: ( defaultMargin.top || 0 ) + legendHeight }
+									? { top: ( margin?.top ?? ( defaultMargin.top || 0 ) ) + legendHeight }
 									: {} ),
 							} }
 							// xScale and yScale could be set in Axis as well, but they are `scale` props there.
