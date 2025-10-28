@@ -49,7 +49,7 @@
 	"devDependencies": {
 		"@babel/core": "7.28.4",
 		"@babel/runtime": "7.28.4",
-		"typescript": "5.9.2",
+		"typescript": "5.9.3",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	},
