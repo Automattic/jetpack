@@ -15,6 +15,8 @@ export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
+export type LegendPosition = 'top' | 'bottom';
+
 export type AnnotationStyles = {
 	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
@@ -342,7 +344,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Legend position (where the legend appears)
 	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	legendPosition?: 'top' | 'bottom';
+	legendPosition?: LegendPosition;
 	/**
 	 * Legend alignment within its position
 	 */

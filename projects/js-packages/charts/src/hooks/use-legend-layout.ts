@@ -17,10 +17,10 @@ interface UseLegendLayoutParams {
 interface UseLegendLayoutReturn {
 	adjustedChartHeight: number;
 	adjustedMargin: {
-		top?: number;
-		right?: number;
-		bottom?: number;
-		left?: number;
+		top: number;
+		right: number;
+		bottom: number;
+		left: number;
 	};
 	containerClassName: string;
 }
@@ -44,14 +44,14 @@ export const useLegendLayout = ( {
 		const adjustedChartHeight =
 			showLegend && legendPosition === 'top' ? height - legendHeight : height;
 
-		// Calculate adjusted margin for top legend position
-		const adjustedMargin =
-			showLegend && legendPosition === 'top'
-				? {
-						...defaultMargin,
-						top: ( defaultMargin.top || 0 ) + legendHeight,
-				  }
-				: defaultMargin;
+		// Calculate adjusted margin for top legend position, ensuring all properties are defined
+		const adjustedMargin = {
+			top:
+				( defaultMargin.top || 0 ) + ( showLegend && legendPosition === 'top' ? legendHeight : 0 ),
+			right: defaultMargin.right || 0,
+			bottom: defaultMargin.bottom || 0,
+			left: defaultMargin.left || 0,
+		};
 
 		// Determine container class name
 		const containerClassName =
@@ -64,7 +64,6 @@ export const useLegendLayout = ( {
 			adjustedMargin,
 			containerClassName,
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual margin properties to avoid object reference changes
 	}, [
 		height,
 		showLegend,
