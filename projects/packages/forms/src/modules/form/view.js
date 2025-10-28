@@ -235,9 +235,10 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
-			// when there is only one field, don't show errors until the user tries to submit the form.
+			// when user forced a horizontal layout and there is only one field,
+			// don't show errors until the user tries to submit the form.
 			// And even then, return false so we only show the general form error message.
-			if ( field && Object.keys( context.fields ).length === 1 ) {
+			if ( state.isForcedHorizontal && field && Object.keys( context.fields ).length === 1 ) {
 				return false;
 			}
 
@@ -389,6 +390,10 @@ const { state, actions } = store( NAMESPACE, {
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ];
 			return field?.value || '';
+		},
+
+		get isForcedHorizontal() {
+			return getContext().isForcedHorizontal;
 		},
 	},
 
