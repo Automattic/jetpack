@@ -9,6 +9,8 @@ type Props = {
 };
 
 export default function GoogleDriveDisconnectButton( { onDisconnected, isConnected }: Props ) {
+	const disconnectingText = __( 'Disconnecting…', 'jetpack-forms' );
+	const disconnectText = __( 'Disconnect Google Drive', 'jetpack-forms' );
 	const [ isToggling, setIsToggling ] = useState( false );
 
 	useEffect( () => {
@@ -30,9 +32,7 @@ export default function GoogleDriveDisconnectButton( { onDisconnected, isConnect
 
 	return (
 		<Button variant="link" onClick={ handleClick } disabled={ isToggling }>
-			{ isToggling
-				? __( 'Disconnecting…', 'jetpack-forms' )
-				: __( 'Disconnect Google Drive', 'jetpack-forms' ) }
+			{ isToggling ? disconnectingText : disconnectText }
 		</Button>
 	);
 }

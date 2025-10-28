@@ -14,6 +14,8 @@ export default function GoogleDriveConnectButton( {
 	onConnected,
 	isConnected,
 }: Props ) {
+	const connectingText = __( 'Connecting…', 'jetpack-forms' );
+	const connectText = __( 'Connect to Google Drive', 'jetpack-forms' );
 	const [ isToggling, setIsToggling ] = useState( false );
 
 	useEffect( () => {
@@ -40,9 +42,7 @@ export default function GoogleDriveConnectButton( {
 			__next40pxDefaultSize={ true }
 			disabled={ ! settingsUrl || isToggling }
 		>
-			{ isToggling
-				? __( 'Connecting…', 'jetpack-forms' )
-				: __( 'Connect to Google Drive', 'jetpack-forms' ) }
+			{ isToggling ? connectingText : connectText }
 		</Button>
 	);
 }

@@ -23,6 +23,9 @@ export function buildJetpackCrmCard( {
 	const crmVersion = semver.coerce( version as string );
 	const isRecentVersion = crmVersion && semver.gte( crmVersion, '4.9.1' );
 
+	const connectedMsgEditor = __( 'This form is connected to Jetpack CRM.', 'jetpack-forms' );
+	const connectedMsgDashboard = __( 'Jetpack CRM is connected.', 'jetpack-forms' );
+
 	const renderBody = (): JSX.Element => {
 		if ( ! isRecentVersion ) {
 			return (
@@ -93,9 +96,7 @@ export function buildJetpackCrmCard( {
 		return (
 			<div>
 				<p className="integration-card__description">
-					{ context === 'block-editor'
-						? __( 'This form is connected to Jetpack CRM.', 'jetpack-forms' )
-						: __( 'Jetpack CRM is connected.', 'jetpack-forms' ) }
+					{ context === 'block-editor' ? connectedMsgEditor : connectedMsgDashboard }
 				</p>
 				<ExternalLink href={ settingsUrl }>
 					{ __( 'Open Jetpack CRM settings', 'jetpack-forms' ) }
