@@ -235,8 +235,6 @@ const PieChartInternal = ( {
 		legendHeight,
 	} );
 
-	const adjustedHeight = adjustedChartHeight;
-
 	if ( ! isValid ) {
 		return (
 			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -246,11 +244,11 @@ const PieChartInternal = ( {
 	}
 
 	// Calculate radius based on width/height
-	const radius = Math.min( width, adjustedHeight ) / 2;
+	const radius = Math.min( width, adjustedChartHeight ) / 2;
 
 	// Center the chart in the available space
 	const centerX = width / 2;
-	const centerY = adjustedHeight / 2;
+	const centerY = adjustedChartHeight / 2;
 
 	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
@@ -283,7 +281,7 @@ const PieChartInternal = ( {
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: adjustedHeight,
+				chartHeight: adjustedChartHeight,
 			} }
 		>
 			<div
@@ -297,10 +295,10 @@ const PieChartInternal = ( {
 				) }
 			>
 				<svg
-					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
+					viewBox={ `0 0 ${ width } ${ adjustedChartHeight }` }
 					preserveAspectRatio="xMidYMid meet"
 					width={ width }
-					height={ adjustedHeight }
+					height={ adjustedChartHeight }
 				>
 					<Group top={ centerY } left={ centerX }>
 						{ allSegmentsHidden ? (

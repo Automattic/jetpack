@@ -64,5 +64,15 @@ export const useLegendLayout = ( {
 			adjustedMargin,
 			containerClassName,
 		};
-	}, [ height, showLegend, legendPosition, legendHeight, defaultMargin ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual margin properties to avoid object reference changes
+	}, [
+		height,
+		showLegend,
+		legendPosition,
+		legendHeight,
+		defaultMargin.top,
+		defaultMargin.right,
+		defaultMargin.bottom,
+		defaultMargin.left,
+	] );
 };

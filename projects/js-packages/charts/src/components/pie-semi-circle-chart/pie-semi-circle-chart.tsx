@@ -262,8 +262,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		legendHeight,
 	} );
 
-	const chartHeight = adjustedChartHeight;
-
 	if ( ! isValid ) {
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
@@ -275,7 +273,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			</div>
 		);
 	}
-	const radius = Math.min( width / 2, chartHeight );
+	const radius = Math.min( width / 2, adjustedChartHeight );
 	const innerRadius = radius * ( 1 - thickness );
 
 	// Map data with index for color assignment
@@ -314,11 +312,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				<svg
 					width={ width }
 					height={ radius }
-					viewBox={ `0 0 ${ width } ${ chartHeight }` }
+					viewBox={ `0 0 ${ width } ${ adjustedChartHeight }` }
 					data-testid="pie-chart-svg"
 				>
 					{ /* Main chart group centered horizontally and positioned at bottom */ }
-					<Group top={ chartHeight } left={ width / 2 }>
+					<Group top={ adjustedChartHeight } left={ width / 2 }>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"
