@@ -1,6 +1,5 @@
-// this styles are common to both editor and frontend
 // Gutenberg versions will use different classname strategies
-// for layout flex support, cover both possibilities here: frontend and editor.
+// for layout flex support, make it backwards compatible using both.
 .wp-block-jetpack-contact-form.is-layout-flex,
 .wp-block-jetpack-contact-form-is-layout-flex {
 
