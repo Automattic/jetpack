@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	Button,
 	ExternalLink,
@@ -475,7 +476,12 @@ const ResponseViewBody = ( {
 						<span className="jp-forms__inbox-response-meta-key	">
 							{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
 						</span>
-						<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
+						<ExternalLink
+							href={ getRedirectUrl( 'ip-lookup', { ip: response.ip } ) }
+							className="jp-forms__inbox-response-meta-value"
+						>
+							{ response.ip }
+						</ExternalLink>
 					</div>
 				</div>
 
