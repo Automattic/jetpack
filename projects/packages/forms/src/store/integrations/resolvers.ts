@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { CONFIG_STORE } from '../config';
 import { UNKNOWN_ERROR_MESSAGE } from '../constants';
 import { INVALIDATE_INTEGRATIONS } from './action-types';
 import { receiveIntegrations, setIntegrationsError, setIntegrationsLoading } from './actions';
 import type { IntegrationsAction } from './types';
-import type { Integration, IntegrationMetadata } from '../../types';
+import type { FormsConfigData, Integration, IntegrationMetadata } from '../../types';
 
 let hasLoadedMeta = false;
 
@@ -71,9 +72,24 @@ const fetchFullIntegrations =
  */
 export const getIntegrations =
 	() =>
-	async ( { dispatch }: { dispatch: ( action: IntegrationsAction ) => void } ) => {
+	async ( {
+		dispatch,
+		resolveSelect,
+	}: {
+		dispatch: ( action: IntegrationsAction ) => void;
+		resolveSelect: ( store: typeof CONFIG_STORE ) => {
+			getConfig: () => Promise< Partial< FormsConfigData > | null >;
+		};
+	} ) => {
 		dispatch( setIntegrationsLoading( true ) );
 		try {
+			// Check config flag first; if disabled, avoid all API calls
+			const config = await resolveSelect( CONFIG_STORE ).getConfig();
+			if ( config?.isIntegrationsEnabled === false ) {
+				dispatch( receiveIntegrations( [] ) );
+				return;
+			}
+
 			if ( ! hasLoadedMeta ) {
 				await fetchIntegrationsMetadata()( { dispatch } );
 				hasLoadedMeta = true;

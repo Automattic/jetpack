@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -103,14 +104,16 @@ class Dashboard {
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
-			'/wp/v2/feedback/integrations-metadata',
 			'/wp/v2/feedback/counts',
 			$filters_path,
 			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
 		);
-		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
+		if ( Jetpack_Forms::is_integrations_enabled() ) {
+			$preload_paths[] = '/wp/v2/feedback/integrations-metadata';
+		}
+		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 
 		// Normalize keys to match what apiFetch will request (without domain).
 		$preload_data = array();
