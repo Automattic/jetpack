@@ -76,7 +76,7 @@ class Wpcom_Block_Patterns_From_Api {
 			 * @param array $pattern         The pattern data array.
 			 */
 			$should_register = apply_filters( 'jetpack_block_patterns_should_register', true, $pattern );
-			
+
 			if ( $should_register && $this->can_register_pattern( $pattern ) ) {
 				$is_premium = isset( $pattern['pattern_meta']['is_premium'] ) ? boolval( $pattern['pattern_meta']['is_premium'] ) : false;
 
