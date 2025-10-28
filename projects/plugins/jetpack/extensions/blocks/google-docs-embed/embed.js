@@ -5,7 +5,7 @@ import { ToolbarGroup, ToolbarButton, withNotices } from '@wordpress/components'
 import { compose } from '@wordpress/compose';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { edit } from '@wordpress/icons';
+import { pencil as edit } from '@wordpress/icons';
 import EmbedPlaceHolder from './embed-placeholder';
 import Preview from './preview';
 
