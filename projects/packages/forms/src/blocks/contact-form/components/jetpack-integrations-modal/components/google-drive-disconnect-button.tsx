@@ -21,11 +21,9 @@ export default function GoogleDriveDisconnectButton( { onDisconnected, isConnect
 			.then( ( response: { deleted: boolean } ) => {
 				if ( response.deleted ) {
 					onDisconnected();
-				} else {
-					setIsToggling( false );
 				}
 			} )
-			.catch( () => {
+			.finally( () => {
 				setIsToggling( false );
 			} );
 	};
