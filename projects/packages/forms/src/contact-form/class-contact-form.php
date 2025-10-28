@@ -196,7 +196,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouMessage'  => '', // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when confirmationType is set to 'redirect'.
 			'confirmationType'       => null, // The type of confirmation to show after submitting a form. 'text' for a text message, 'redirect' for a redirect link.
-			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'jetpackCRM'             => null, // Whether Jetpack CRM should store the form submission.
 			'mailpoet'               => null,
 			'hostingerReach'         => null,
 			'className'              => null,
