@@ -115,6 +115,17 @@ const NotificationsSettings = ( {
 								value={ selectedUserNames }
 								suggestions={ allUserNames }
 								onChange={ selectedNames => {
+									// If field is empty, default to post author
+									if ( selectedNames.length === 0 ) {
+										const authorIdStr = postAuthorId?.toString();
+										if ( authorIdStr && eligibleUsers.some( user => user.id === postAuthorId ) ) {
+											const defaultRecipients = [ authorIdStr ];
+											setLocalNotificationRecipients( defaultRecipients );
+											setAttributes( { notificationRecipients: defaultRecipients } );
+											return;
+										}
+									}
+
 									// Convert user names back to IDs
 									const newRecipients = selectedNames
 										.map( name => {
