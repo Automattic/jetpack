@@ -13,6 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Icon, globe } from '@wordpress/icons';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -318,7 +319,8 @@ export default function InboxView() {
 					return (
 						<>
 							<span className="response-country-flag">
-								{ getCountryFlagEmoji( item.country_code ) }
+								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
+								{ item.country_code && getCountryFlagEmoji( item.country_code ) }
 							</span>
 							{ item.ip || '' }
 						</>

@@ -82,7 +82,7 @@ export const getItemId = item => item?.id?.toString() ?? '';
  */
 export const getCountryFlagEmoji = countryCode => {
 	if ( ! countryCode ) {
-		return '🏳️'; // white flag. Since there is no unknown flag.
+		return '';
 	}
 	const upperCountryCode = countryCode.toUpperCase();
 	const offset = 127397;
