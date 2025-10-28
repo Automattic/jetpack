@@ -1164,6 +1164,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$submission_success        = $form->is_response_without_reload_enabled && $is_reload_after_success;
 		$has_custom_redirect       = $form->has_custom_redirect();
 
+		$is_flex_layout       = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
+		$is_nowrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] === 'nowrap';
+		$is_forced_horizontal = $is_flex_layout && $is_nowrap_layout
+			&& ( ! isset( $attributes['layout']['orientation'] ) || isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] === 'horizontal' );
+
 		$default_context = array(
 			'formId'                  => $id,
 			'formHash'                => $form->hash,
@@ -1178,6 +1183,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionError'         => null,
 			'elementId'               => $element_id,
 			'isSingleInputForm'       => $is_single_input_form,
+			'isForcedHorizontal'      => $is_forced_horizontal,
 		);
 
 		if ( $is_multistep ) {
@@ -1266,10 +1272,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$form_accessible_name = ! empty( $attributes['formTitle'] ) ? $attributes['formTitle'] : $post_title;
 			$form_aria_label      = isset( $form_accessible_name ) && ! empty( $form_accessible_name ) ? 'aria-label="' . esc_attr( $form_accessible_name ) . '"' : '';
 
-			$is_flex_layout     = isset( $attributes['layout']['type'] ) && $attributes['layout']['type'] === 'flex';
-			$is_wrap_layout     = isset( $attributes['layout']['flexWrap'] ) && $attributes['layout']['flexWrap'] !== 'nowrap';
-			$is_vertical_layout = $is_flex_layout && isset( $attributes['layout']['orientation'] ) && $attributes['layout']['orientation'] !== 'horizontal' && $is_wrap_layout;
-
 			$r .= "<form action='" . esc_url( $url ) . "'
 				id='" . $element_id . "'
 				method='post'
@@ -1295,15 +1297,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence of a wp-block-jetpack-button prepending it with the error wrapper.
 				// Fallback with same strategy for new core button blocks.
-				if ( $is_vertical_layout ) {
+				if ( $is_forced_horizontal ) {
+					// When user forced a horizontal layout, place the error wrapper
+					// after the form body.
+					$r .= self::render_error_wrapper( 'is-horizontal' );
+				} else {
 					// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 					// Replace only the first occurrence.
 					$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
 					if ( str_contains( $r, 'wp-block-button' ) ) {
 						$r = preg_replace( '/<div class="wp-block-button/', self::render_error_wrapper() . ' <div class="wp-block-button', $r, 1 );
 					}
-				} else {
-					$r .= self::render_error_wrapper( 'is-horizontal' );
 				}
 			}
 
