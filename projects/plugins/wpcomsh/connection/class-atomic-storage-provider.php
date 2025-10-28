@@ -196,6 +196,11 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				// External storage will provide the correct value on next read
 				\Jetpack_Options::delete_option( 'master_user' );
 
+				// Clear object cache to ensure cached values are invalidated
+				wp_cache_delete( 'alloptions', 'options' );
+				wp_cache_delete( 'jetpack_options', 'options' );
+				wp_cache_delete( 'jetpack_private_options', 'options' );
+
 				// Return what we actually wrote to the database
 				return $latest_result['tokens'];
 			}

@@ -162,6 +162,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
+		// Set master_user option - should be cleared when conflict is resolved
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+
 		// Call with new secret - should replace old token
 		$result = $this->provider->get_user_tokens( 'owner@example.com', 'new.secret' );
 
@@ -169,6 +172,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertIsArray( $result );
 		$this->assertCount( 1, $result );
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
+
+		// Verify master_user option was cleared
+		$this->assertFalse( \Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
@@ -190,6 +196,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 			)
 		);
 
+		// Set master_user option - should be cleared when orphaned tokens are removed
+		\Jetpack_Options::update_option( 'master_user', $old_owner_id );
+
 		// New owner connecting with same secret prefix
 		$result = $this->provider->get_user_tokens( 'new@example.com', 'shared.secret' );
 
@@ -197,6 +206,9 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( $new_owner_id, $result );
 		$this->assertArrayHasKey( $other_user_id, $result );
 		$this->assertArrayNotHasKey( $old_owner_id, $result );
+
+		// Verify master_user option was cleared
+		$this->assertFalse( \Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
