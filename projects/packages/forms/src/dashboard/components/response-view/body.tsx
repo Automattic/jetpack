@@ -448,43 +448,37 @@ const ResponseViewBody = ( {
 					</HStack>
 				</div>
 
-				<div className="jp-forms__inbox-response-meta">
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key">
-							{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">
+				<table className="jp-forms__inbox-response-meta">
+					<tr>
+						<th>{ __( 'Date:', 'jetpack-forms' ) }</th>
+						<td>
 							{ sprintf(
 								/* Translators: %1$s is the date, %2$s is the time. */
 								__( '%1$s at %2$s', 'jetpack-forms' ),
 								dateI18n( getDateSettings().formats.date, response.date ),
 								dateI18n( getDateSettings().formats.time, response.date )
 							) }
-						</span>
-					</div>
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key">
-							{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">
+						</td>
+					</tr>
+					<tr>
+						<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
+						<td>
 							<ExternalLink href={ response.entry_permalink }>
 								{ decodeEntities( response.entry_title ) || getPath( response ) }
 							</ExternalLink>
-						</span>
-					</div>
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key	">
-							{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">
+						</td>
+					</tr>
+					<tr>
+						<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
+						<td>
 							<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
 								<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }>
 									{ response.ip }
 								</ExternalLink>
 							</Tooltip>
-						</span>
-					</div>
-				</div>
+						</td>
+					</tr>
+				</table>
 
 				<div className="jp-forms__inbox-response-data">
 					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
