@@ -7,7 +7,7 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../../icons/mailpoet';
-import ConsentToggle from '../consent-toggle';
+import ConsentToggle from '../components/ConsentToggle';
 import type { CardItem, CardBuilderProps } from './types';
 import type { Integration } from '../../../../../types';
 
