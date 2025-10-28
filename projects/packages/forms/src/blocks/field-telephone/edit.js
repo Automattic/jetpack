@@ -147,7 +147,6 @@ export default function PhoneFieldEdit( props ) {
 						element: (
 							<div key="phoneFieldControls">
 								<ToggleControl
-									key="showCountrySelectorControl"
 									label={ __( 'Show country selector', 'jetpack-forms' ) }
 									checked={ showCountrySelector || false }
 									onChange={ onChangeShowCountrySelector }
@@ -155,7 +154,6 @@ export default function PhoneFieldEdit( props ) {
 								/>
 								{ showCountrySelector && (
 									<TextControl
-										key="countrySearchPlaceholderControl"
 										label={ __( 'Search placeholder', 'jetpack-forms' ) }
 										value={ searchPlaceholder }
 										placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
