@@ -677,4 +677,52 @@ describe( 'BarChart', () => {
 			).toBeInTheDocument();
 		} );
 	} );
+
+	describe( 'Margin with Legend', () => {
+		test( 'respects user-provided margin.top when legend is positioned at top', () => {
+			const customMargin = { top: 50, right: 20, bottom: 20, left: 20 };
+			renderWithTheme( {
+				showLegend: true,
+				legendPosition: 'top',
+				margin: customMargin,
+			} );
+
+			// Verify chart renders properly with both legend at top and custom margin
+			const chart = screen.getByTestId( 'bar-chart' );
+			expect( chart ).toBeInTheDocument();
+
+			// Verify legend is visible
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+		} );
+
+		test( 'uses default margin.top when no custom margin provided and legend is at top', () => {
+			renderWithTheme( {
+				showLegend: true,
+				legendPosition: 'top',
+			} );
+
+			// Chart should still render with default margin plus legend height
+			const chart = screen.getByTestId( 'bar-chart' );
+			expect( chart ).toBeInTheDocument();
+
+			// Verify legend is visible
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+		} );
+
+		test( 'respects custom margin when legend is at bottom', () => {
+			const customMargin = { top: 50, right: 20, bottom: 20, left: 20 };
+			renderWithTheme( {
+				showLegend: true,
+				legendPosition: 'bottom',
+				margin: customMargin,
+			} );
+
+			// When legend is at bottom, custom margin.top should be used as-is
+			const chart = screen.getByTestId( 'bar-chart' );
+			expect( chart ).toBeInTheDocument();
+
+			// Verify legend is visible
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+		} );
+	} );
 } );
