@@ -418,7 +418,7 @@ class WPCOM_JSON_API_Links {
 			list( $path, $min_version, $max_version ) = unserialize( $key );         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, see serialization at class.json-api.php.
 
 			// Grab the last component of the relative path to use as the top-level key.
-			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+			$last_path_segment = $this->get_last_segment_of_relative_path( $path ) ?? '';
 
 			$endpoint_path_versions[ $last_path_segment ][] = array(
 				'path'            => $path,
