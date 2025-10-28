@@ -265,7 +265,10 @@ function JetpackContactFormEdit( {
 	const innerRef = useRef();
 	const blockProps = useBlockProps( {
 		ref: wrapperRef,
-		className: clsx( className, variationName === 'multistep' && 'is-multistep' ),
+		className: clsx( {
+			className,
+			'is-multistep': variationName === 'multistep',
+		} ),
 	} );
 	const formClassnames = clsx(
 		className,
