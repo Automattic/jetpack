@@ -16,6 +16,7 @@ const IntegrationsModal = ( {
 	setAttributes,
 	integrationsData,
 	refreshIntegrations,
+	context = 'block-editor',
 } ) => {
 	if ( ! isOpen ) {
 		return null;
@@ -32,7 +33,7 @@ const IntegrationsModal = ( {
 				<IntegrationsList
 					integrations={ integrationsData }
 					refreshIntegrations={ refreshIntegrations }
-					context="block-editor"
+					context={ context }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 				/>

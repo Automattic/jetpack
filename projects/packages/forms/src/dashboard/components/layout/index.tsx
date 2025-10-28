@@ -19,6 +19,7 @@ import ExportResponsesButton from '../../inbox/export-responses';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
+import IntegrationsButton from '../integrations-button';
 
 import './style.scss';
 // eslint-disable-next-line import/no-unresolved -- aliased to the package's built asset in webpack config.
@@ -53,11 +54,8 @@ const Layout = () => {
 				name: 'responses',
 				title: __( 'Responses', 'jetpack-forms' ),
 			},
-			...( enableIntegrationsTab
-				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
-				: [] ),
 		],
-		[ enableIntegrationsTab ]
+		[]
 	);
 
 	const getCurrentTab = useCallback( () => {
@@ -108,6 +106,7 @@ const Layout = () => {
 			{ isResponsesTab && <ExportResponsesButton /> }
 			{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
 			{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
+			{ enableIntegrationsTab && <IntegrationsButton /> }
 			{ ! isResponsesTrashView && ! isResponsesSpamView && (
 				<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
 			) }
