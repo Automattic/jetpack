@@ -339,7 +339,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						...defaultMargin,
 						...margin,
 						...( showLegend && legendPosition === 'top'
-							? { top: ( defaultMargin.top || 0 ) + legendHeight }
+							? { top: ( margin?.top ?? ( defaultMargin.top || 0 ) ) + legendHeight }
 							: {} ),
 					} }
 					xScale={ chartOptions.xScale }
