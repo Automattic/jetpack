@@ -541,97 +541,95 @@ class Contact_Form_Block {
 			'jetpack/form-step-container'
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-image-select',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
-					'provides_context' => array(
-						'jetpack/field-required' => 'required',
-						'jetpack/field-image-select-show-labels' => 'showLabels',
-						'jetpack/field-image-select-is-supersized' => 'isSupersized',
-						'jetpack/field-image-select-is-multiple' => 'isMultiple',
-						'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
-						'jetpack/field-image-select-show-other-option' => 'showOtherOption',
-					),
-				)
-			);
+		Blocks::jetpack_register_block(
+			'jetpack/field-image-select',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+					'jetpack/field-image-select-show-labels' => 'showLabels',
+					'jetpack/field-image-select-is-supersized' => 'isSupersized',
+					'jetpack/field-image-select-is-multiple' => 'isMultiple',
+					'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
+					'jetpack/field-image-select-show-other-option' => 'showOtherOption',
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/fieldset-image-options',
-				array(
-					'uses_context'     => array(
-						'jetpack/field-image-select-is-supersized',
-						'jetpack/field-image-select-is-multiple',
-						'jetpack/field-share-attributes',
-					),
-					'provides_context' => array(
-						'jetpack/field-image-options-type' => 'type',
-					),
-				)
-			);
+		Blocks::jetpack_register_block(
+			'jetpack/fieldset-image-options',
+			array(
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-is-multiple',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'jetpack/field-image-options-type' => 'type',
+				),
+			)
+		);
 
-			Blocks::jetpack_register_block(
-				'jetpack/input-image-option',
-				array(
-					'supports'         => array(
-						'color'                => array(
+		Blocks::jetpack_register_block(
+			'jetpack/input-image-option',
+			array(
+				'supports'         => array(
+					'color'                => array(
+						'background'                    => true,
+						'text'                          => true,
+						'gradients'                     => false,
+						'__experimentalDefaultControls' => array(
 							'background' => true,
 							'text'       => true,
-							'gradients'  => false,
-							'__experimentalDefaultControls' => array(
-								'background' => true,
-								'text'       => true,
-							),
 						),
-						'typography'           => array(
-							'fontSize'                     => true,
-							'lineHeight'                   => true,
-							'__experimentalFontFamily'     => true,
-							'__experimentalFontWeight'     => true,
-							'__experimentalFontStyle'      => true,
-							'__experimentalTextTransform'  => true,
-							'__experimentalTextDecoration' => true,
-							'__experimentalLetterSpacing'  => true,
-							'__experimentalDefaultControls' => array(
-								'fontSize' => true,
-							),
+					),
+					'typography'           => array(
+						'fontSize'                      => true,
+						'lineHeight'                    => true,
+						'__experimentalFontFamily'      => true,
+						'__experimentalFontWeight'      => true,
+						'__experimentalFontStyle'       => true,
+						'__experimentalTextTransform'   => true,
+						'__experimentalTextDecoration'  => true,
+						'__experimentalLetterSpacing'   => true,
+						'__experimentalDefaultControls' => array(
+							'fontSize' => true,
 						),
-						'__experimentalBorder' => array(
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
 							'color'  => true,
 							'radius' => true,
 							'style'  => true,
 							'width'  => true,
-							'__experimentalDefaultControls' => array(
-								'color'  => true,
-								'radius' => true,
-								'style'  => true,
-								'width'  => true,
-							),
 						),
-						'spacing'              => array(
+					),
+					'spacing'              => array(
+						'margin'                        => true,
+						'padding'                       => true,
+						'__experimentalDefaultControls' => array(
 							'margin'  => true,
 							'padding' => true,
-							'__experimentalDefaultControls' => array(
-								'margin'  => true,
-								'padding' => true,
-							),
 						),
 					),
-					'uses_context'     => array(
-						'jetpack/field-image-select-is-supersized',
-						'jetpack/field-image-select-show-labels',
-						'jetpack/field-image-options-type',
-						'jetpack/field-share-attributes',
-					),
-					'provides_context' => array(
-						'allowResize' => 'allowResize',
-						'imageCrop'   => 'imageCrop',
-						'fixedHeight' => 'fixedHeight',
-					),
-				)
-			);
-		}
+				),
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-show-labels',
+					'jetpack/field-image-options-type',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'allowResize' => 'allowResize',
+					'imageCrop'   => 'imageCrop',
+					'fixedHeight' => 'fixedHeight',
+				),
+			)
+		);
 	}
 
 	/**
