@@ -4836,8 +4836,8 @@ importers:
         specifier: 12.1.11
         version: 12.1.11(postcss@8.5.6)
       print-this:
-        specifier: 1.16.0
-        version: 1.16.0
+        specifier: 2.0.0
+        version: 2.0.0
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -14997,8 +14997,8 @@ packages:
     resolution: {integrity: sha512-9uBdv/B4EefsuAL+pWqueZyZS2Ba+LxfFeQ9DN14HU4bN8bhaxKdkpjpB6fs9+pSjIBu+FXQHImEg8j/Lw0+vA==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
 
-  print-this@1.16.0:
-    resolution: {integrity: sha512-8iBsqf0vyG6uqknuzcJs2+JbGADCgScvSQhETv/w1dR56M08gv4pH2DDcUJI9R1Web3YBYSaqixVrQ3ACjoIxA==}
+  print-this@2.0.0:
+    resolution: {integrity: sha512-/v1/tXs4BQGpEF7OYKe05h4xiQR09Q4HgASL28pngx6aedCQaB1OlHs8t9RDVgUayXHDWHG9V5EBjPlXb46k4w==}
 
   process-on-spawn@1.1.0:
     resolution: {integrity: sha512-JOnOPQ/8TZgjs1JIH/m9ni7FfimjNa/PRx7y/Wb5qdItsnhO0jE4AT7fC0HjC28DUQWDr50dwSYZLdRMlqDq3Q==}
@@ -30915,7 +30915,7 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 18.3.1
 
-  print-this@1.16.0:
+  print-this@2.0.0:
     dependencies:
       jquery: 3.7.1
       opencollective-postinstall: 2.0.3
