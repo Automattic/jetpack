@@ -17,8 +17,6 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 
 The image select field is under the beta flag, so to test it just enable beta blocks.
 
-- Install the Code Snippets plugins then go to Snippets > Add New and use this code: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`.
-- Save and enable the snippet.
 - Test the block with different images, options, styles, etc.
 - If possible, try different themes as well.
 - Once a response is sent, it should be visible in the Forms dashboard.
