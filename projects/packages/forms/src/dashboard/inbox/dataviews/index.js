@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -20,11 +21,12 @@ import { useSearchParams } from 'react-router';
  */
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { SingleResponseView } from '../../components/response-view';
+import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
 import {
+	viewAction,
 	markAsSpamAction,
 	markAsNotSpamAction,
 	moveToTrashAction,
@@ -330,21 +332,57 @@ export default function InboxView() {
 	);
 
 	const actions = useMemo( () => {
+		const mobileViewAction = {
+			...viewAction,
+			RenderModal: ( { items, closeModal } ) => {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+
+				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+			},
+			hideModalHeader: true,
+		};
+
+		const desktopViewAction = {
+			...viewAction,
+			callback( items ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+				const selectedId = item.id.toString();
+				const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+
+				onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+			},
+		};
+
+		const viewResponseAction = isMobile ? mobileViewAction : desktopViewAction;
+
+		const primaryActions = [ viewResponseAction ];
+		const secondaryActions = [ markAsUnreadAction, editFormAction ];
+
 		switch ( statusFilter ) {
 			case 'trash':
-				return [ restoreAction, deleteAction, markAsSpamAction ];
+				return [ ...primaryActions, restoreAction, deleteAction, ...secondaryActions ];
 			case 'spam':
-				return [ markAsNotSpamAction, moveToTrashAction ];
+				return [ ...primaryActions, markAsNotSpamAction, moveToTrashAction, ...secondaryActions ];
 			default:
 				return [
+					...primaryActions,
 					markAsReadAction,
-					markAsUnreadAction,
 					markAsSpamAction,
 					moveToTrashAction,
-					editFormAction,
+					...secondaryActions,
 				];
 		}
-	}, [ statusFilter ] );
+	}, [ isMobile, onChangeSelection, selection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;

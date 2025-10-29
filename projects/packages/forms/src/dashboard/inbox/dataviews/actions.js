@@ -81,9 +81,32 @@ const invalidateCacheAndNavigate = (
 	}
 };
 
+// TODO: We should probably have better error messages in case of failure.
+const getGenericErrorMessage = numberOfErrors => {
+	return numberOfErrors.length === 1
+		? __( 'An error occurred.', 'jetpack-forms' )
+		: sprintf(
+				/* translators: %d: the number of responses. */
+				_n(
+					'An error occurred for %d response.',
+					'An error occurred for %d responses.',
+					numberOfErrors,
+					'jetpack-forms'
+				),
+				numberOfErrors
+		  );
+};
+
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
+};
+
+export const viewAction = {
+	id: 'view-response',
+	isPrimary: true,
+	label: __( 'View', 'jetpack-forms' ),
+	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
 export const editFormAction = {
@@ -107,25 +130,10 @@ export const editFormAction = {
 	},
 };
 
-// TODO: We should probably have better error messages in case of failure.
-const getGenericErrorMessage = numberOfErrors => {
-	return numberOfErrors.length === 1
-		? __( 'An error occurred.', 'jetpack-forms' )
-		: sprintf(
-				/* translators: %d: the number of responses. */
-				_n(
-					'An error occurred for %d response.',
-					'An error occurred for %d responses.',
-					numberOfErrors,
-					'jetpack-forms'
-				),
-				numberOfErrors
-		  );
-};
-
 export const markAsSpamAction = {
 	id: 'mark-as-spam',
-	label: __( 'Mark as spam', 'jetpack-forms' ),
+	isPrimary: true,
+	label: __( 'Spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
 	async callback( items, { registry } ) {
