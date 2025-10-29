@@ -15,6 +15,10 @@ import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 import { defaultView } from './views';
+/**
+ * Types
+ */
+import type { Action, QueryParams } from './types';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -22,8 +26,9 @@ import { defaultView } from './views';
  * @param {object} currentQuery - The current query from the store.
  * @return {object} Query params relevant for count caching.
  */
-const getCountQueryParams = currentQuery => {
-	const queryParams = {};
+const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
+	const queryParams: QueryParams = {};
+
 	if ( currentQuery?.search ) {
 		queryParams.search = currentQuery.search;
 	}
@@ -39,6 +44,7 @@ const getCountQueryParams = currentQuery => {
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
 	}
+
 	return queryParams;
 };
 
@@ -85,8 +91,8 @@ const invalidateCacheAndNavigate = (
 };
 
 // TODO: We should probably have better error messages in case of failure.
-const getGenericErrorMessage = numberOfErrors => {
-	return numberOfErrors.length === 1
+const getGenericErrorMessage = ( numberOfErrors: number ): string => {
+	return numberOfErrors === 1
 		? __( 'An error occurred.', 'jetpack-forms' )
 		: sprintf(
 				/* translators: %d: the number of responses. */
@@ -105,7 +111,7 @@ export const BULK_ACTIONS = {
 	markAsNotSpam: 'mark_as_not_spam',
 };
 
-export const viewAction = {
+export const viewAction: Action = {
 	id: 'view-response',
 	isPrimary: true,
 	icon: <Icon icon={ commentContent } />,
@@ -113,7 +119,7 @@ export const viewAction = {
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
-export const editFormAction = {
+export const editFormAction: Action = {
 	id: 'edit-form',
 	isPrimary: false,
 	icon: <Icon icon={ backup } />,
@@ -136,7 +142,7 @@ export const editFormAction = {
 	},
 };
 
-export const markAsSpamAction = {
+export const markAsSpamAction: Action = {
 	id: 'mark-as-spam',
 	isPrimary: true,
 	icon: <Icon icon={ spam } />,
@@ -160,11 +166,13 @@ export const markAsSpamAction = {
 			updateCountsOptimistically( item.status, 'spam', 1, queryParams );
 		} );
 
-		const promises = await Promise.allSettled(
+		const promises = ( await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
-		);
+		) ) as PromiseSettledResult< { id: string } >[];
 
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		const itemsUpdated = promises.filter(
+			( { status } ) => status === 'fulfilled'
+		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -207,6 +215,7 @@ export const markAsSpamAction = {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 
@@ -220,7 +229,7 @@ export const markAsSpamAction = {
 	},
 };
 
-export const markAsNotSpamAction = {
+export const markAsNotSpamAction: Action = {
 	id: 'mark-as-not-spam',
 	isPrimary: true,
 	icon: <Icon icon={ notSpam } />,
@@ -244,13 +253,15 @@ export const markAsNotSpamAction = {
 			updateCountsOptimistically( 'spam', 'publish', 1, queryParams );
 		} );
 
-		const promises = await Promise.allSettled(
+		const promises = ( await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
-		);
+		) ) as PromiseSettledResult< { id: string } >[];
 
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		const itemsUpdated = promises.filter(
+			( { status } ) => status === 'fulfilled'
+		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -302,7 +313,7 @@ export const markAsNotSpamAction = {
 	},
 };
 
-export const restoreAction = {
+export const restoreAction: Action = {
 	id: 'restore',
 	isPrimary: true,
 	icon: <Icon icon={ backup } />,
@@ -373,11 +384,12 @@ export const restoreAction = {
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const moveToTrashAction = {
+export const moveToTrashAction: Action = {
 	id: 'move-to-trash',
 	isPrimary: true,
 	icon: <Icon icon={ trash } />,
@@ -448,14 +460,16 @@ export const moveToTrashAction = {
 
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const deleteAction = {
+export const deleteAction: Action = {
 	id: 'delete',
 	isPrimary: true,
 	icon: <Icon icon={ trash } />,
@@ -467,6 +481,7 @@ export const deleteAction = {
 			action: 'delete',
 			multiple: items.length > 1,
 		} );
+
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
@@ -483,12 +498,15 @@ export const deleteAction = {
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
 			)
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
 		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 		}
+
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -504,6 +522,7 @@ export const deleteAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 
 			// Update the URL to remove references to deleted items.
@@ -526,16 +545,18 @@ export const deleteAction = {
 
 			const hashString = hashParams.toString();
 			window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
+
 			return;
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const markAsReadAction = {
+export const markAsReadAction: Action = {
 	id: 'mark-as-read',
 	isPrimary: false,
 	icon: <Icon icon={ seen } />,
@@ -645,11 +666,12 @@ export const markAsReadAction = {
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const markAsUnreadAction = {
+export const markAsUnreadAction: Action = {
 	id: 'mark-as-unread',
 	isPrimary: false,
 	icon: <Icon icon={ unseen } />,
@@ -752,6 +774,7 @@ export const markAsUnreadAction = {
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
