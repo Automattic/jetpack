@@ -248,13 +248,7 @@ export default function InboxView() {
 				label: __( 'Avatar', 'jetpack-forms' ),
 				render: ( { item } ) => {
 					return (
-						<img
-							src={ item.author_avatar }
-							alt={ item.author_name }
-							width={ 24 }
-							height={ 24 }
-							style={ { borderRadius: '50%' } }
-						/>
+						<img src={ item.author_avatar } alt={ item.author_name } width={ 24 } height={ 24 } />
 					);
 				},
 				enableSorting: false,
