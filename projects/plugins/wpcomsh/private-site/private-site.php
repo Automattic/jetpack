@@ -276,9 +276,15 @@ function maybe_fix_private_site_option() {
 		return;
 	}
 
-	$is_private     = site_is_private();
+	$is_private    = site_is_private();
+	$current_value = (int) get_option( 'blog_public' );
+
+	// No action needed if site is public and option is already set to 0 (discourage indexing).
+	if ( ! $is_private && $current_value === 0 ) {
+		return;
+	}
+
 	$expected_value = $is_private ? -1 : 1;
-	$current_value  = (int) get_option( 'blog_public' );
 
 	if ( $current_value !== $expected_value ) {
 		update_option( 'blog_public', $expected_value );
