@@ -1374,5 +1374,5 @@ class Defaults {
 	 *
 	 * @var int Bool-ish. Default 0.
 	 */
-	public static $default_wpcom_rest_api_enabled = 0;
+	public static $default_wpcom_rest_api_enabled = 1;
 }
