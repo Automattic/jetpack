@@ -492,6 +492,14 @@ const ResponseViewBody = ( {
 							</tr>
 						</tbody>
 					</table>
+					{ response.browser && (
+						<div className="jp-forms__inbox-response-meta-label">
+							<span className="jp-forms__inbox-response-meta-key	">
+								{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;
+							</span>
+							<span className="jp-forms__inbox-response-meta-value">{ response.browser }</span>
+						</div>
+					) }
 				</div>
 
 				<div className="jp-forms__inbox-response-data">

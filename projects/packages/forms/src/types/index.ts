@@ -102,6 +102,8 @@ export interface FormResponse {
 	ip: string;
 	/** The country code of the response author. */
 	country_code: string;
+	/** The browser and platform used to submit the form. */
+	browser?: string;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
