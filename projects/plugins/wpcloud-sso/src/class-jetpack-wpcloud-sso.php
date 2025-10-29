@@ -41,11 +41,15 @@ class Jetpack_WPCloud_SSO {
 						'url_info' => JETPACK_WPCLOUD_SSO_URI,
 					)
 				);
-				// Sync package.
-				$config->ensure( 'sync', Data_Settings::MUST_SYNC_DATA_SETTINGS );
 
-				// Identity crisis package.
-				$config->ensure( 'identity_crisis' );
+				// Sync package.
+				$must_sync_data = Data_Settings::MUST_SYNC_DATA_SETTINGS;
+				// Add additional modules.
+				$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Plugins';
+				$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Users';
+				$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Meta';
+				$must_sync_data['jetpack_sync_modules'][] = 'Automattic\\Jetpack\\Sync\\Modules\\Stats';
+				$config->ensure( 'sync', $must_sync_data );
 
 				// Read persisistent data and establish connection.
 				if ( class_exists( 'Atomic_Persistent_Data' ) ) {
