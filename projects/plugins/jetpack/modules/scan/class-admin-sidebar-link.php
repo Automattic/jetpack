@@ -70,8 +70,9 @@ class Admin_Sidebar_Link {
 
 		if ( $this->should_show_scan() ) {
 			Admin_Menu::add_menu(
-				__( 'Scan', 'jetpack' ),
-				__( 'Scan', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				/** "Scan" is a product name, do not translate. */
+				'Scan',
+				'Scan <span class="dashicons dashicons-external"></span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
@@ -82,8 +83,9 @@ class Admin_Sidebar_Link {
 		// Add scan item which shows history page only. This is mutally exclusive from the scan item above and is only shown for Atomic sitse.
 		if ( $this->should_show_scan_history_only() ) {
 			Admin_Menu::add_menu(
-				__( 'Scan', 'jetpack' ),
-				__( 'Scan', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				/** "Scan" is a product name, do not translate. */
+				'Scan',
+				'Scan <span class="dashicons dashicons-external"></span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
@@ -93,8 +95,9 @@ class Admin_Sidebar_Link {
 
 		if ( $this->should_show_backup() ) {
 			Admin_Menu::add_menu(
-				__( 'VaultPress Backup', 'jetpack' ),
-				__( 'VaultPress Backup', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				/** "VaultPress Backup" is a product name, do not translate. */
+				'VaultPress Backup',
+				'VaultPress Backup <span class="dashicons dashicons-external"></span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,

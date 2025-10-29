@@ -75,8 +75,9 @@ class Social_Admin_Page {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Social', 'jetpack-publicize-pkg' ),
-			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-publicize-pkg' ),
+			/** "Jetpack Social" is a product name, do not translate. */
+			'Jetpack Social',
+			'Social',
 			'publish_posts',
 			'jetpack-social',
 			array( $this, 'render' ),
