@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: add "auto" width for fields and detect when a form has a single input in it to show prettier validation errors 
