@@ -96,7 +96,9 @@ export const editFormAction = {
 			action: 'edit-form',
 			multiple: false,
 		} );
+
 		const [ item ] = items;
+
 		if ( item?.edit_form_url ) {
 			const url = new URL( item.edit_form_url, window.location.origin );
 			// redirect to the form edit page
@@ -131,6 +133,7 @@ export const markAsSpamAction = {
 			action: 'mark-as-spam',
 			multiple: items.length > 1,
 		} );
+
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -145,6 +148,7 @@ export const markAsSpamAction = {
 		const promises = await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
@@ -171,6 +175,7 @@ export const markAsSpamAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-spam-action',
@@ -189,6 +194,7 @@ export const markAsSpamAction = {
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
+
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
@@ -210,6 +216,7 @@ export const markAsNotSpamAction = {
 			action: 'mark-as-not-spam',
 			multiple: items.length > 1,
 		} );
+
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -226,6 +233,7 @@ export const markAsNotSpamAction = {
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
@@ -248,6 +256,7 @@ export const markAsNotSpamAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-not-spam-action',
@@ -264,6 +273,7 @@ export const markAsNotSpamAction = {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
@@ -287,6 +297,7 @@ export const restoreAction = {
 			action: 'restore',
 			multiple: items.length > 1,
 		} );
+
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -303,6 +314,7 @@ export const restoreAction = {
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
@@ -324,6 +336,7 @@ export const restoreAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'restore-action',
@@ -336,8 +349,10 @@ export const restoreAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
@@ -356,6 +371,7 @@ export const moveToTrashAction = {
 			action: 'move-to-trash',
 			multiple: items.length > 1,
 		} );
+
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -398,6 +414,7 @@ export const moveToTrashAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'move-to-trash-action',
@@ -410,6 +427,7 @@ export const moveToTrashAction = {
 					},
 				],
 			} );
+
 			return;
 		}
 		// There is at least one failure.
@@ -508,6 +526,7 @@ export const markAsReadAction = {
 			action: 'mark-as-read',
 			multiple: items.length > 1,
 		} );
+
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -552,6 +571,7 @@ export const markAsReadAction = {
 								updateMenuCounterOptimistically( 1 );
 							}
 						}
+
 						throw new Error( 'Failed to mark as read' );
 					} );
 			} )
@@ -561,9 +581,11 @@ export const markAsReadAction = {
 		if ( promises.some( ( { status } ) => status === 'fulfilled' ) ) {
 			invalidateCounts();
 			// Mark successfully updated records as invalid instead of removing from view
+
 			const updatedIds = items
 				.filter( ( _, index ) => promises[ index ]?.status === 'fulfilled' )
 				.map( item => item.id );
+
 			markRecordsAsInvalid( updatedIds );
 		}
 
@@ -582,6 +604,7 @@ export const markAsReadAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-read-action',
@@ -594,8 +617,10 @@ export const markAsReadAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
@@ -613,6 +638,7 @@ export const markAsUnreadAction = {
 			action: 'mark-as-unread',
 			multiple: items.length > 1,
 		} );
+
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -657,10 +683,12 @@ export const markAsUnreadAction = {
 								updateMenuCounterOptimistically( -1 );
 							}
 						}
+
 						throw new Error( 'Failed to mark as unread' );
 					} );
 			} )
 		);
+
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
 			// Invalidate counts cache to ensure counts are refetched and stay accurate
 			invalidateCounts();
@@ -681,6 +709,7 @@ export const markAsUnreadAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-unread-action',
@@ -693,8 +722,10 @@ export const markAsUnreadAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
