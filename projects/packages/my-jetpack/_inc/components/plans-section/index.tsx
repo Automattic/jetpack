@@ -109,9 +109,9 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+				<ExternalLink href={ renewUrl }>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
-				</Button>
+				</ExternalLink>
 			);
 		}
 
