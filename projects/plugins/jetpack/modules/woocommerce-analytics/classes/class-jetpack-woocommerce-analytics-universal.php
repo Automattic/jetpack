@@ -354,10 +354,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$order_source = $order->get_created_via();
 		if ( 'store-api' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '1';
-			$checkout_page_contains_checkout_shortcode = '0';
+			$checkout_page_contains_checkout_block = '1';
 		} elseif ( 'checkout' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
