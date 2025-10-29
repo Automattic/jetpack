@@ -123,7 +123,7 @@ class Script_Data {
 		global $wp_version;
 
 		$data = array(
-			'site' => array(
+			'site'     => array(
 				'admin_url'         => esc_url_raw( admin_url() ),
 				'date_format'       => get_option( 'date_format' ),
 				'icon'              => self::get_site_icon(),
@@ -145,7 +145,12 @@ class Script_Data {
 					'blog_id' => 0,
 				),
 			),
-			'user' => array(
+			'platform' => array(
+				'accent_colour'       => self::get_accent_colour(),
+				'has_branding'        => self::get_has_branding(),
+				'has_subtle_branding' => self::get_has_subtle_branding(),
+			),
+			'user'     => array(
 				'current_user' => self::get_current_user_data(),
 			),
 		);
@@ -184,6 +189,69 @@ class Script_Data {
 		 * @param array $data The script data.
 		 */
 		return apply_filters( 'jetpack_public_js_script_data', $data );
+	}
+
+	/**
+	 * Get the accent colour.
+	 *
+	 * @return string
+	 */
+	private static function get_accent_colour() {
+		/**
+		 * Filters the accent colour used in the Jetpack interface.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param string $colour The accent colour in HEX format.
+		 * @return string The filtered accent colour.
+		*/
+		return apply_filters( 'jetpack_accent_colour', '#069e08' ); // Jetpack green as default.
+	}
+
+	/**
+	 * Get whether the platform has branding enabled.
+	 *
+	 * @return bool
+	 */
+	private static function get_has_branding() {
+		// Default: Jetpack sites have branding, WordPress.com platform sites don't
+		$default = ! ( new Host() )->is_wpcom_platform();
+
+		/**
+		 * Filters whether the platform has Jetpack branding enabled.
+		 *
+		 * This determines if Jetpack logos, colors, and other branding elements
+		 * should be displayed in the UI.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param bool $has_branding Whether branding is enabled.
+		 * @return bool The filtered branding state.
+		 */
+		return apply_filters( 'jetpack_has_branding', $default );
+	}
+
+	/**
+	 * Get whether the platform has subtle branding enabled.
+	 *
+	 * Subtle branding means less prominent Jetpack logos and colors in the UI.
+	 *
+	 * @return bool
+	 */
+	private static function get_has_subtle_branding() {
+
+		/**
+		 * Filters whether the platform has Jetpack subtle branding enabled.
+		 *
+		 * This determines if Jetpack logos, colors, and other branding elements
+		 * should be displayed in the UI.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param bool $has_branding Whether branding is enabled.
+		 * @return bool The filtered branding state.
+		 */
+		return apply_filters( 'jetpack_has_subtle_branding', true );
 	}
 
 	/**

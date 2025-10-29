@@ -50,9 +50,16 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
+export interface PlatformData {
+	accent_colour?: string;
+	has_branding?: boolean;
+	has_subtle_branding?: boolean;
+}
+
 export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
+	platform?: PlatformData;
 }
 
 declare global {

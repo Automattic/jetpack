@@ -120,3 +120,51 @@ export function isJetpackSelfHostedSite() {
 export function currentUserCan( capability: keyof CurrentUserData[ 'capabilities' ] ): boolean {
 	return getScriptData()?.user.current_user.capabilities[ capability ];
 }
+
+/**
+ * Get the platform data from the script data.
+ *
+ * @return {import('./types').PlatformData} The platform data.
+ */
+export function getPlatformData() {
+	return getScriptData()?.platform;
+}
+
+/**
+ * Get the accent colour for the site.
+ *
+ * @return {string|null} The accent colour in hex format.
+ */
+export function accentColour(): string | null {
+	if ( isWpcomPlatformSite() ) {
+		// Return null to match core block styling
+		return null;
+	}
+	return getPlatformData()?.accent_colour || '#069e08'; // Jetpack green as default.
+}
+
+/**
+ * Check if the platform has Jetpack branding enabled.
+ *
+ * This determines if Jetpack logos, colors, and other branding elements
+ * should be displayed in the UI.
+ *
+ * @return {boolean} Whether the platform has branding enabled.
+ */
+export function hasBranding(): boolean {
+	// Default to true if the platform data is not available
+	return getPlatformData()?.has_branding ?? true;
+}
+
+/**
+ * Check if the platform has Jetpack subtle branding enabled.
+ *
+ * This determines if Jetpack logos, colors, and other branding elements
+ * should be displayed in a less prominent way in the UI.
+ *
+ * @return {boolean} Whether the platform has subtle branding enabled.
+ */
+export function hasSubtleBranding(): boolean {
+	// Default to true if the platform data is not available
+	return getPlatformData()?.has_subtle_branding ?? true;
+}
