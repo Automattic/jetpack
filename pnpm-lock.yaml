@@ -5592,8 +5592,8 @@ importers:
         specifier: 0.2.5
         version: 0.2.5
       yargs:
-        specifier: 17.7.2
-        version: 17.7.2
+        specifier: 18.0.0
+        version: 18.0.0
     devDependencies:
       jest:
         specifier: 30.0.4
@@ -5647,8 +5647,8 @@ importers:
         specifier: 3.17.0
         version: 3.17.0
       yargs:
-        specifier: 17.7.2
-        version: 17.7.2
+        specifier: 18.0.0
+        version: 18.0.0
 
   tools/js-tools:
     devDependencies:
