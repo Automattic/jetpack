@@ -6,6 +6,49 @@ import { people } from '@wordpress/icons';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import { getIconColor } from '../shared/util/block-icons';
 
+const isActiveHorizontalForm = attributes => {
+	const { layout, variationName } = attributes;
+	if ( ! layout ) {
+		return false;
+	}
+	if ( layout.orientation === 'vertical' ) {
+		return false;
+	}
+	if ( variationName === 'default-empty' ) {
+		return layout.flexWrap === 'nowrap';
+	}
+	return layout.flexWrap === 'nowrap' && layout.type === 'flex';
+};
+
+const isActiveDefaultForm = attributes => {
+	const { variationName, layout } = attributes;
+	if ( variationName === 'multistep' ) {
+		return false;
+	}
+
+	if ( ! hasFeatureFlag( 'horizontal-form' ) ) {
+		return true;
+	}
+
+	if ( variationName === 'horizontal' ) {
+		if ( layout.orientation === 'vertical' ) {
+			return true;
+		}
+		return layout.flexWrap !== 'nowrap';
+	}
+
+	if ( variationName === 'default-empty' ) {
+		if ( layout?.orientation === 'vertical' ) {
+			return true;
+		}
+		if ( layout.flexWrap === 'nowrap' ) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
 const variations = [
 	{
 		name: 'regular-form',
@@ -24,9 +67,10 @@ const variations = [
 		},
 		attributes: {
 			variationName: 'default-empty',
+			layout: { flexWrap: 'wrap' },
 		},
 		scope: [ 'transform' ],
-		isActive: ( { variationName } ) => variationName !== 'multistep',
+		isActive: isActiveDefaultForm,
 	},
 	{
 		name: 'contact-form',
@@ -935,6 +979,32 @@ const variations = [
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
 		isActive: [ 'variationName' ],
+	},
+	hasFeatureFlag( 'horizontal-form' ) && {
+		name: 'horizontal-form',
+		title: __( 'Horizontal Form', 'jetpack-forms' ),
+		description: __( 'Create a horizontal form layout.', 'jetpack-forms' ),
+		icon: {
+			foreground: getIconColor(),
+			src: renderMaterialIcon(
+				<>
+					<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
+					<Path
+						fillRule="evenodd"
+						clipRule="evenodd"
+						d="M9.5 7.5H7.5V9.5H9.5V7.5ZM7.5 6H9.5C10.3284 6 11 6.67157 11 7.5V9.5C11 10.3284 10.3284 11 9.5 11H7.5C6.67157 11 6 10.3284 6 9.5V7.5C6 6.67157 6.67157 6 7.5 6Z"
+					/>
+					<Path
+						fillRule="evenodd"
+						clipRule="evenodd"
+						d="M19 4.5H5C4.72386 4.5 4.5 4.72386 4.5 5V19C4.5 19.2761 4.72386 19.5 5 19.5H19C19.2761 19.5 19.5 19.2761 19.5 19V5C19.5 4.72386 19.2761 4.5 19 4.5ZM5 3C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3H5Z"
+					/>
+				</>
+			),
+		},
+		attributes: { layout: { type: 'flex', flexWrap: 'nowrap' }, variationName: 'horizontal' },
+		scope: [ 'transform' ],
+		isActive: isActiveHorizontalForm,
 	},
 	! isWpcomPlatformSite() && {
 		name: 'lead-capture-form',
