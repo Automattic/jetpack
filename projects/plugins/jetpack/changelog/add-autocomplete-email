@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses.
