@@ -188,7 +188,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 */
 	private function filter_post_meta_keys( $metas ) {
 		// Convert array of keys to a plain array of key strings
-		$meta_keys = array_unique( array_values( array_keys( $metas ) ) );
+		$meta_keys = array_unique( array_keys( $metas ) );
 		// // Filter the array by removing the excluded keys and any keys that include '_oembed'
 		$filtered_keys = array_filter(
 			$meta_keys,
