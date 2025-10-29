@@ -106,6 +106,10 @@
 				max-width: 75%;
 			}
 
+			&.jetpack-field__width-auto {
+				flex: 1 1 auto;
+			}
+
 			@media (max-width: #{ (gb.$break-mobile) }) {
 
 				&[class*="jetpack-field__width-"] {
