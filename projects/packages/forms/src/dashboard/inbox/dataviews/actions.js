@@ -3,12 +3,15 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
+import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 import { defaultView } from './views';
@@ -105,12 +108,15 @@ export const BULK_ACTIONS = {
 export const viewAction = {
 	id: 'view-response',
 	isPrimary: true,
+	icon: <Icon icon={ commentContent } />,
 	label: __( 'View', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
 export const editFormAction = {
 	id: 'edit-form',
+	isPrimary: false,
+	icon: <Icon icon={ backup } />,
 	label: __( 'Edit form', 'jetpack-forms' ),
 	isEligible: item => !! item?.edit_form_url,
 	supportsBulk: false,
@@ -133,6 +139,7 @@ export const editFormAction = {
 export const markAsSpamAction = {
 	id: 'mark-as-spam',
 	isPrimary: true,
+	icon: <Icon icon={ spam } />,
 	label: __( 'Spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
@@ -215,10 +222,11 @@ export const markAsSpamAction = {
 
 export const markAsNotSpamAction = {
 	id: 'mark-as-not-spam',
+	isPrimary: true,
+	icon: <Icon icon={ notSpam } />,
 	label: __( 'Not spam', 'jetpack-forms' ),
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
-	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
@@ -296,10 +304,11 @@ export const markAsNotSpamAction = {
 
 export const restoreAction = {
 	id: 'restore',
+	isPrimary: true,
+	icon: <Icon icon={ backup } />,
 	label: __( 'Restore', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'restore',
@@ -370,9 +379,10 @@ export const restoreAction = {
 
 export const moveToTrashAction = {
 	id: 'move-to-trash',
+	isPrimary: true,
+	icon: <Icon icon={ trash } />,
 	label: __( 'Trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
-	isPrimary: true,
 	supportsBulk: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
@@ -447,10 +457,11 @@ export const moveToTrashAction = {
 
 export const deleteAction = {
 	id: 'delete',
+	isPrimary: true,
+	icon: <Icon icon={ trash } />,
 	label: __( 'Delete', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'delete',
@@ -526,6 +537,8 @@ export const deleteAction = {
 
 export const markAsReadAction = {
 	id: 'mark-as-read',
+	isPrimary: false,
+	icon: <Icon icon={ seen } />,
 	label: __( 'Mark as read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
@@ -638,6 +651,8 @@ export const markAsReadAction = {
 
 export const markAsUnreadAction = {
 	id: 'mark-as-unread',
+	isPrimary: false,
+	icon: <Icon icon={ unseen } />,
 	label: __( 'Mark as unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,
