@@ -37,6 +37,19 @@ const settings = {
 	},
 	deprecated,
 	save,
+	variations: [
+		{
+			name: 'field-birthdate',
+			title: __( 'Birthdate', 'jetpack-forms' ),
+			description: __( 'Capture age with a date picker.', 'jetpack-forms' ),
+			attributes: {
+				// https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete#bday
+				autocomplete: 'bday',
+			},
+			isActive: ( blockAttributes, variationAttributes ) =>
+				blockAttributes.autocomplete === variationAttributes.autocomplete,
+		},
+	],
 	example: {
 		innerBlocks: [
 			{

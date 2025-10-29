@@ -12,6 +12,7 @@ import JetpackFieldControls from './jetpack-field-controls.js';
 const JetpackField = props => {
 	const {
 		attributes,
+		autocomplete,
 		clientId,
 		id,
 		isSelected,
@@ -57,6 +58,7 @@ const JetpackField = props => {
 		<>
 			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
+				autocomplete={ autocomplete }
 				id={ id }
 				required={ required }
 				width={ width }

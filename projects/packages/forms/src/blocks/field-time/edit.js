@@ -10,6 +10,7 @@ export default function NumberFieldEdit( props ) {
 			clientId={ props.clientId }
 			type="time"
 			label={ __( 'Time', 'jetpack-forms' ) }
+			autocomplete={ props.attributes.autocomplete }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			requiredIndicator={ props.attributes.requiredIndicator }

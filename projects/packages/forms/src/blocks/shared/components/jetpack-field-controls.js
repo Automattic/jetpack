@@ -3,7 +3,13 @@ import {
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import {
+	ExternalLink,
+	PanelBody,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { isValidElement, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldWidth from './jetpack-field-width.js';
@@ -25,6 +31,7 @@ const reservedAttributes = [
 
 const JetpackFieldControls = ( {
 	attributes,
+	autocomplete,
 	id,
 	required,
 	setAttributes,
@@ -141,6 +148,113 @@ const JetpackFieldControls = ( {
 					help={ errorState.error ? errorState.message : helpMessage }
 					__nextHasNoMarginBottom={ true }
 					__next40pxDefaultSize={ true }
+				/>
+				<SelectControl
+					label={ __( 'Autocomplete', 'jetpack-forms' ) }
+					value={ autocomplete || '' }
+					onChange={ value => setAttributes( { autocomplete: value } ) }
+					help={
+						<>
+							{ __( 'Guidance to the browser for autocompleting the form.', 'jetpack-forms' ) }
+							<br />
+							<ExternalLink href="https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete">
+								{ __( 'Read more', 'jetpack-forms' ) }
+							</ExternalLink>
+						</>
+					}
+					// See https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/autocomplete
+					options={ [
+						{
+							label: __( 'Default', 'jetpack-forms' ),
+							value: '',
+						},
+						{
+							label: __( 'Off', 'jetpack-forms' ),
+							value: 'off',
+						},
+						{
+							label: __( 'Telephone', 'jetpack-forms' ),
+							value: 'tel',
+						},
+						{
+							label: __( 'Full name', 'jetpack-forms' ),
+							value: 'name',
+						},
+						{
+							label: __( 'First name', 'jetpack-forms' ),
+							value: 'given-name',
+						},
+						{
+							label: __( 'Middle name', 'jetpack-forms' ),
+							value: 'additional-name',
+						},
+						{
+							label: __( 'The last name', 'jetpack-forms' ),
+							value: 'family-name',
+						},
+						{
+							label: __( 'The honorific prefix ("Mrs.", etc)', 'jetpack-forms' ),
+							value: 'honorific-prefix',
+						},
+						{
+							label: __( 'The honorific suffix ("Jr." etc)', 'jetpack-forms' ),
+							value: 'honorific-suffix',
+						},
+						{
+							label: __( 'A nickname', 'jetpack-forms' ),
+							value: 'nickname',
+						},
+						{
+							label: __( 'A username', 'jetpack-forms' ),
+							value: 'username',
+						},
+						{
+							label: __( 'A job title', 'jetpack-forms' ),
+							value: 'organization-title',
+						},
+						{
+							label: __( 'A company or organization name', 'jetpack-forms' ),
+							value: 'organization',
+						},
+						{
+							label: __( 'A street address', 'jetpack-forms' ),
+							value: 'street-address',
+						},
+						{
+							label: __( 'A country code', 'jetpack-forms' ),
+							value: 'country',
+						},
+						{
+							label: __( 'A country name', 'jetpack-forms' ),
+							value: 'country-name',
+						},
+						{
+							label: __( 'A postal code or ZIP code', 'jetpack-forms' ),
+							value: 'postal-code',
+						},
+						{
+							label: __( 'Currency', 'jetpack-forms' ),
+							value: 'transaction-currency',
+						},
+						{
+							label: __( 'A preferred language', 'jetpack-forms' ),
+							value: 'language',
+						},
+						{
+							label: __( 'A birth date', 'jetpack-forms' ),
+							value: 'bday',
+						},
+						{
+							label: __( 'A gender identity (e.g. "Female")', 'jetpack-forms' ),
+							value: 'sex',
+						},
+						{
+							label: __( 'A URL', 'jetpack-forms' ),
+							value: 'url',
+						},
+					] }
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
 				/>
 			</InspectorAdvancedControls>
 		</>

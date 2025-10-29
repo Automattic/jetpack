@@ -10,6 +10,7 @@ export default function TextFieldEdit( props ) {
 			clientId={ props.clientId }
 			type="text"
 			label={ __( 'Text', 'jetpack-forms' ) }
+			autocomplete={ props.attributes.autocomplete }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			requiredIndicator={ props.attributes.requiredIndicator }

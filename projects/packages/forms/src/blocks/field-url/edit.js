@@ -10,6 +10,7 @@ export default function UrlFieldEdit( props ) {
 			clientId={ props.clientId }
 			type="url"
 			label={ __( 'Website', 'jetpack-forms' ) }
+			autocomplete={ props.attributes.autocomplete }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			requiredIndicator={ props.attributes.requiredIndicator }

@@ -4,6 +4,7 @@ export default {
 	apiVersion: 3,
 	attributes: {
 		id: { type: 'string' },
+		autocomplete: { type: 'string', default: '' },
 		required: {
 			type: 'boolean',
 			default: false,

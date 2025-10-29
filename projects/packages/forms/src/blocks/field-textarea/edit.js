@@ -11,7 +11,7 @@ import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants.js';
 
 export default function TextareaFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, width, requiredIndicator } = attributes;
+	const { id, required, width, requiredIndicator, autocomplete } = attributes;
 
 	useFormWrapper( props );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -49,6 +49,7 @@ export default function TextareaFieldEdit( props ) {
 		<>
 			<div { ...innerBlocksProps } />
 			<JetpackFieldControls
+				autocomplete={ autocomplete }
 				id={ id }
 				required={ required }
 				setAttributes={ setAttributes }

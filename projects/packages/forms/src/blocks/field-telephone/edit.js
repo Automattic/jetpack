@@ -32,6 +32,7 @@ const isBoolean = value => {
 export default function PhoneFieldEdit( props ) {
 	const { setAttributes, attributes, clientId, isSelected } = props;
 	const {
+		autocomplete,
 		showCountrySelector,
 		width,
 		id,
@@ -141,6 +142,7 @@ export default function PhoneFieldEdit( props ) {
 			</BlockControls>
 
 			<JetpackFieldControls
+				autocomplete={ autocomplete }
 				clientId={ clientId }
 				id={ id }
 				required={ required }
