@@ -317,7 +317,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	/**
-	 * Site
+	 * Site.
 	 *
 	 * @var SAL_Site $site.
 	 */

@@ -195,11 +195,54 @@ export const WithCompositionLegend: Story = {
 		data,
 		containerHeight: '500px',
 	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Demonstrates the new composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	render: args => (
+		<GlobalChartsProvider>
+			<div style={ { padding: '20px' } }>
+				<h3>Interactive Legend</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Click legend items to show/hide segments. Percentages recalculate automatically for
+					visible segments.
+				</p>
+				<PieChartUnresponsive
+					chartId="interactive-pie-chart"
+					size={ args.size || 400 }
+					data={ args.data }
+					showLegend={ true }
+					legendInteractive={ true }
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendValueDisplay={ args.legendValueDisplay }
+				/>
+			</div>
+		</GlobalChartsProvider>
+	),
+	args: {
+		data,
+		size: 400,
+		containerHeight: '600px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive legends allow users to toggle segment visibility by clicking legend items. When segments are hidden, the visible segments are recalculated to total 100%. Requires chartId and GlobalChartsProvider.',
 			},
 		},
 	},
@@ -334,6 +377,11 @@ export const CompositionAPI: Story = {
 	},
 	args: {
 		data,
+	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
 	},
 	parameters: {
 		docs: {

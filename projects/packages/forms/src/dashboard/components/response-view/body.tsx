@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -19,8 +20,9 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
+import { download, image } from '@wordpress/icons';
 import clsx from 'clsx';
+import photon from 'photon';
 /**
  * Internal dependencies
  */
@@ -249,45 +251,46 @@ const ResponseViewBody = ( {
 				<div className="image-select-field">
 					{ ( value.choices?.length ?? 0 ) === 0 && '-' }
 					{ ( value.choices?.length ?? 0 ) > 0 && (
-						<>
-							<div className="image-select-field-choices">
-								{ value.choices
-									.map( choice => {
-										let transformedValue = choice.selected;
-
-										if ( choice.label != null && choice.label !== '' ) {
-											transformedValue += ' - ' + choice.label;
+						<VStack spacing="1">
+							{ value.choices.map( choice => {
+								const label = choice.label
+									? `${ choice.selected }: ${ choice.label }`
+									: choice.selected;
+								const hasImage = choice.image?.src;
+								return (
+									<Button
+										__next40pxDefaultSize
+										key={ choice.selected }
+										variant="tertiary"
+										onClick={
+											hasImage
+												? handleFilePreview( {
+														file_id: choice.image.id,
+														name: label,
+														url: choice.image.src,
+												  } )
+												: undefined
 										}
-
-										return transformedValue;
-									} )
-									.join( ', ' ) }
-							</div>
-							<div className="image-select-field-images">
-								{ value.choices.map( choice => {
-									const imageSrc =
-										choice.image?.src ||
-										'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
-
-									return (
-										<figure
-											key={ choice.selected }
-											className={ clsx( 'image-select-field-image', {
-												'is-empty': ! choice.image?.src,
-											} ) }
-										>
-											<img
-												className={ clsx( 'image-select-field-image', {
-													'is-empty': ! choice.image?.src,
-												} ) }
-												src={ imageSrc }
-												alt={ choice.selected }
-											/>
-										</figure>
-									);
-								} ) }
-							</div>
-						</>
+										className="image-select-field-button"
+										icon={
+											hasImage ? (
+												<img
+													alt={ choice.selected }
+													className="image-select-field-image"
+													loading="lazy"
+													src={ photon( choice.image.src, { width: 120, height: 120 } ) }
+												/>
+											) : (
+												image
+											)
+										}
+										iconSize={ 60 }
+									>
+										{ label }
+									</Button>
+								);
+							} ) }
+						</VStack>
 					) }
 				</div>
 			);
@@ -446,35 +449,37 @@ const ResponseViewBody = ( {
 				</div>
 
 				<div className="jp-forms__inbox-response-meta">
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key">
-							{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">
-							{ sprintf(
-								/* Translators: %1$s is the date, %2$s is the time. */
-								__( '%1$s at %2$s', 'jetpack-forms' ),
-								dateI18n( getDateSettings().formats.date, response.date ),
-								dateI18n( getDateSettings().formats.time, response.date )
-							) }
-						</span>
-					</div>
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key">
-							{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">
-							<ExternalLink href={ response.entry_permalink }>
-								{ decodeEntities( response.entry_title ) || getPath( response ) }
-							</ExternalLink>
-						</span>
-					</div>
-					<div className="jp-forms__inbox-response-meta-label">
-						<span className="jp-forms__inbox-response-meta-key	">
-							{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
-						</span>
-						<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
-					</div>
+					<table>
+						<tr>
+							<th>{ __( 'Date:', 'jetpack-forms' ) }</th>
+							<td>
+								{ sprintf(
+									/* Translators: %1$s is the date, %2$s is the time. */
+									__( '%1$s at %2$s', 'jetpack-forms' ),
+									dateI18n( getDateSettings().formats.date, response.date ),
+									dateI18n( getDateSettings().formats.time, response.date )
+								) }
+							</td>
+						</tr>
+						<tr>
+							<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
+							<td>
+								<ExternalLink href={ response.entry_permalink }>
+									{ decodeEntities( response.entry_title ) || getPath( response ) }
+								</ExternalLink>
+							</td>
+						</tr>
+						<tr>
+							<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>
+								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
+									<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }>
+										{ response.ip }
+									</ExternalLink>
+								</Tooltip>
+							</td>
+						</tr>
+					</table>
 				</div>
 
 				<div className="jp-forms__inbox-response-data">
@@ -489,7 +494,6 @@ const ResponseViewBody = ( {
 						</div>
 					) ) }
 				</div>
-
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
 						title={ decodeEntities( ( previewFile as { name: string } ).name ) }
@@ -503,7 +507,6 @@ const ResponseViewBody = ( {
 						/>
 					</Modal>
 				) }
-
 				<ConfirmDialog
 					isOpen={ isConfirmDialogOpen }
 					onConfirm={ onConfirmMarkAsSpam }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Prevent PHP error when handling malformed style source.

@@ -8,6 +8,8 @@
 namespace Automattic\Woocommerce_Analytics;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use WC_Site_Tracking;
 use WC_Tracks;
 use WC_Tracks_Client;
 use WC_Tracks_Event;
@@ -84,6 +86,11 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		// Check consent before recording any event
 		if ( ! Consent_Manager::has_analytics_consent() ) {
 			return true; // Skip recording.
+		}
+
+		// Skip recording if the request is coming from a bot.
+		if ( User_Agent_Info::is_bot() ) {
+			return true;
 		}
 
 		$prefixed_event_name = self::PREFIX . $event_name;
@@ -244,7 +251,15 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * @return array Server details.
 	 */
 	public static function get_server_details() {
-		$data = parent::get_server_details();
+		$data = array();
+
+		if ( method_exists( parent::class, 'get_server_details' ) ) {
+			$data = parent::get_server_details();
+		} elseif ( method_exists( WC_Site_Tracking::class, 'get_server_details' ) ) {
+			// WC < 6.8
+			$data = WC_Site_Tracking::get_server_details(); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
+		}
+
 		return array_merge(
 			$data,
 			array(
@@ -255,6 +270,22 @@ class WC_Analytics_Tracking extends WC_Tracks {
 				'_lg'      => isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ), 0, 5 ) : '',
 			)
 		);
+	}
+
+	/**
+	 * Get the blog details.
+	 *
+	 * @param int $blog_id The blog ID.
+	 * @return array The blog details.
+	 */
+	public static function get_blog_details( $blog_id ) {
+		if ( method_exists( parent::class, 'get_blog_details' ) ) {
+			return parent::get_blog_details( $blog_id );
+		} elseif ( method_exists( WC_Site_Tracking::class, 'get_blog_details' ) ) {
+			// WC < 6.8
+			return WC_Site_Tracking::get_blog_details( $blog_id ); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
+		}
+		return array();
 	}
 
 	/**
@@ -297,8 +328,34 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return self::$cached_visitor_id;
 		}
 
-		self::$cached_visitor_id = null;
-		return null;
+		// Generate a new anonId and try to save it in the browser's cookies.
+		// Note that base64-encoding an 18 character string generates a 24-character anon id.
+		$binary = '';
+		for ( $i = 0; $i < 18; ++$i ) {
+			$binary .= chr( wp_rand( 0, 255 ) );
+		}
+
+		self::$cached_visitor_id = base64_encode( $binary ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+
+
+		if ( ! headers_sent()
+			&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+			&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+		) {
+			setcookie(
+				'tk_ai',
+				self::$cached_visitor_id,
+				array(
+					'expires'  => time() + ( 365 * 24 * 60 * 60 ), // 1 year
+					'path'     => '/',
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => is_ssl(),
+					'httponly' => true,
+					'samesite' => 'Strict',
+				)
+			);
+		}
+		return self::$cached_visitor_id;
 	}
 
 	/**

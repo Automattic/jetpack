@@ -414,6 +414,7 @@ class WPCOM_Features {
 	public const FIELD_FILE                        = 'field-file';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
+	public const GITHUB_DEPLOYMENTS                = 'github-deployments';
 	public const GLOBAL_STYLES                     = 'global-styles';
 	public const GOOGLE_ANALYTICS                  = 'google-analytics';
 	public const GOOGLE_MY_BUSINESS                = 'google-my-business';
@@ -430,8 +431,10 @@ class WPCOM_Features {
 	public const LIST_INSTALLED_PLUGINS            = 'list-installed-plugins';
 	public const LIVE_SUPPORT                      = 'live_support';
 	public const LOCKED_MODE                       = 'locked-mode';
+	public const LOGS                              = 'logs';
 	public const MAILPOET_BUSINESS                 = 'mailpoet-business';
 	public const MANAGE_PLUGINS                    = 'manage-plugins';
+	public const MONITORING                        = 'monitoring';
 	public const MONITOR_1_MINUTE_CHECK_INTERVAL   = 'monitor-1-minute-check-interval';
 	public const MONITOR_MULTIPLE_EMAIL_RECIPIENTS = 'monitor-multiple-email-recipients';
 	public const MONITOR_SMS_NOTIFICATIONS         = 'monitor-sms-notifications';
@@ -441,6 +444,7 @@ class WPCOM_Features {
 	public const OPENTABLE                         = 'opentable';
 	public const OPTIONS_PERMALINK                 = 'options-permalink';
 	public const PAYMENTS                          = 'payments';
+	public const PERFORMANCE                       = 'performance';
 	public const PERFORMANCE_HISTORY               = 'performance-history';
 	public const POLLDADDY                         = 'polldaddy';
 	public const PREMIUM_CONTENT_CONTAINER         = 'premium-content/container';
@@ -785,6 +789,12 @@ class WPCOM_Features {
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 		),
+		self::GITHUB_DEPLOYMENTS                => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
+			),
+		),
 		self::GLOBAL_STYLES                     => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
 		),
@@ -896,6 +906,10 @@ class WPCOM_Features {
 		self::LOCKED_MODE                       => array(
 			self::WPCOM_HUNDRED_YEAR_BUNDLE,
 		),
+		self::LOGS                              => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+		),
 		self::MAILPOET_BUSINESS                 => array(
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
@@ -909,6 +923,10 @@ class WPCOM_Features {
 			),
 			self::WPCOM_SUMMER_SPECIAL_2025_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
+		),
+		self::MONITORING                        => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 
 		// MONITOR_1_MINUTE_CHECK_INTERVAL - Jetpack Monitor checks site uptime once per minute
@@ -962,6 +980,10 @@ class WPCOM_Features {
 		),
 		self::PAYMENTS                          => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+		),
+		self::PERFORMANCE                       => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::PERFORMANCE_HISTORY               => array(
 			self::JETPACK_BOOST_PLANS,

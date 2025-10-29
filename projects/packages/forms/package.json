@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "6.12.0",
+	"version": "6.13.0",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -43,6 +43,7 @@
 		"@automattic/request-external-access": "1.0.1",
 		"@automattic/ui": "1.0.2",
 		"@gravatar-com/hovercards": "0.15.0",
+		"@wordpress/admin-ui": "1.1.0",
 		"@wordpress/base-styles": "6.7.0",
 		"@wordpress/block-editor": "15.4.0",
 		"@wordpress/blocks": "15.4.0",
@@ -68,14 +69,15 @@
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
 		"js-sha256": "0.11.1",
-		"libphonenumber-js": "1.12.23",
+		"libphonenumber-js": "1.12.24",
 		"lodash": "4.17.21",
+		"photon": "4.1.1",
 		"react-redux": "7.2.8",
 		"react-router": "7.6.2",
 		"react-transition-group": "^4.4.5",
 		"redux": "4.2.1",
 		"redux-thunk": "2.3.0",
-		"semver": "7.7.1",
+		"semver": "7.7.3",
 		"webpack": "5.101.3",
 		"webpack-cli": "6.0.1"
 	},
@@ -105,7 +107,7 @@
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.87.0",
 		"sass-loader": "16.0.5",
-		"typescript": "5.9.2"
+		"typescript": "5.9.3"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",

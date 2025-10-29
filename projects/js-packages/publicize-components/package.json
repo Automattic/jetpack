@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "1.4.5",
+	"version": "1.4.6",
 	"private": true,
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
@@ -79,7 +79,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"storybook": "9.0.15",
-		"typescript": "5.9.2"
+		"typescript": "5.9.3"
 	},
 	"peerDependencies": {
 		"react-dom": "^18.0.0"

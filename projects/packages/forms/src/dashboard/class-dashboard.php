@@ -103,7 +103,7 @@ class Dashboard {
 		$preload_paths                 = array(
 			'/wp/v2/types?context=view',
 			'/wp/v2/feedback/config',
-			'/wp/v2/feedback/integrations?version=2',
+			'/wp/v2/feedback/integrations-metadata',
 			'/wp/v2/feedback/counts',
 			$filters_path,
 			$filters_locale_path,

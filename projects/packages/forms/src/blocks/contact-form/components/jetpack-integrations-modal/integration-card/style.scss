@@ -1,6 +1,6 @@
 .integration-card {
 
-	&__header {
+	&__header.is-clickable {
 		cursor: pointer;
 	}
 
@@ -80,11 +80,13 @@
 	&__connected-badge,
 	&__setup-badge {
 		order: 2;
+		min-width: 60px;
 
 		@media (max-width: 782px) {
 			order: 3;
 		}
 	}
+
 
 	&__description {
 		color: var(--jp-gray-50);

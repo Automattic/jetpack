@@ -183,15 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.0 - 2025-10-15
+### 4.5.1-beta - 2025-10-28
 #### Added
-- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders.
+- Tested up to WordPress 6.9
 
 #### Changed
 - Update package dependencies.
 
 #### Fixed
-- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
+- Concatenate JS: Fix incompatibility with WooCommerce Analytics.
 
 --------
 

@@ -4,6 +4,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
+import { store as dashboardStore } from '../store';
 /**
  * Types
  */
@@ -12,6 +13,7 @@ import type { FormResponse } from '../../types';
 export const useMarkAsSpam = ( response: FormResponse ) => {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
 	const { saveEntityRecord } = useDispatch( coreStore );
+	const { invalidateCounts } = useDispatch( dashboardStore );
 
 	const onConfirmMarkAsSpam = useCallback( async () => {
 		setIsConfirmDialogOpen( false );
@@ -21,8 +23,10 @@ export const useMarkAsSpam = ( response: FormResponse ) => {
 			status: 'spam',
 		} );
 
+		await invalidateCounts();
+
 		window.location.hash = window.location.hash.replace( 'status=inbox', 'status=spam' );
-	}, [ response, saveEntityRecord ] );
+	}, [ response, saveEntityRecord, invalidateCounts ] );
 
 	const onCancelMarkAsSpam = useCallback( () => {
 		setIsConfirmDialogOpen( false );

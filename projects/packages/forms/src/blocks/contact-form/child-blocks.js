@@ -65,14 +65,10 @@ export const childBlocks = [
 	JetpackRatingInput,
 	JetpackFieldSlider,
 	JetpackSliderInput,
-	...( getJetpackBlocksVariation() === 'beta'
-		? [
-				JetpackTimeField,
-				JetpackImageSelectField,
-				JetpackImageOptionsFieldset,
-				JetpackImageOptionInput,
-		  ]
-		: [] ),
+	JetpackImageSelectField,
+	JetpackImageOptionsFieldset,
+	JetpackImageOptionInput,
+	...( getJetpackBlocksVariation() === 'beta' ? [ JetpackTimeField ] : [] ),
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to

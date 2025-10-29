@@ -38,12 +38,12 @@
 		"@wordpress/e2e-test-utils-playwright": "1.31.0",
 		"allure-playwright": "2.15.1",
 		"axios": "1.12.0",
-		"chalk": "5.6.0",
+		"chalk": "5.6.2",
 		"config": "3.3.12",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",
 		"shell-escape": "0.2.0",
-		"typescript": "5.9.2",
+		"typescript": "5.9.3",
 		"winston": "3.17.0",
 		"yargs": "17.7.2"
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix response selection filtering bug caused by type mismatch
