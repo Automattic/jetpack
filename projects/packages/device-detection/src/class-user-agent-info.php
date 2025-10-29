@@ -108,6 +108,7 @@ class User_Agent_Info {
 		self::BROWSER_VIVALDI => 'Vivaldi',
 		self::BROWSER_MIUI    => 'MIUI Browser',
 		self::BROWSER_SILK    => 'Amazon Silk',
+		self::OTHER           => 'Other',
 	);
 
 	/**
