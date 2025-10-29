@@ -41,7 +41,7 @@
 		"glob": "11.0.2",
 		"svg2ttf": "^6.0.3",
 		"svgicons2svgfont": "^15.0.0",
-		"svgo": "^3.3.2",
+		"svgo": "^4.0.0",
 		"svgstore": "^3.0.1",
 		"typescript": "5.9.3",
 		"wawoff2": "^2.0.1",

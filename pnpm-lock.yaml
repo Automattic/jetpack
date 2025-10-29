@@ -1669,8 +1669,8 @@ importers:
         specifier: ^15.0.0
         version: 15.0.1
       svgo:
-        specifier: ^3.3.2
-        version: 3.3.2
+        specifier: ^4.0.0
+        version: 4.0.0
       svgstore:
         specifier: ^3.0.1
         version: 3.0.1
