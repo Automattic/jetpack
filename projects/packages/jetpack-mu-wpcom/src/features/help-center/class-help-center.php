@@ -204,6 +204,10 @@ class Help_Center {
 				// Add the help center icon to the admin bar after the reader icon.
 				12
 			);
+
+			// Initialize the help center menu panel
+			require_once __DIR__ . '/class-help-center-menu-panel.php';
+			Help_Center_Menu_Panel::init( $variant );
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
