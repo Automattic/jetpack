@@ -1,9 +1,4 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-
-/**
- * Constants
- */
-const JETPACK_GREEN_40 = '#069e08';
+import { accentColour } from '@automattic/jetpack-script-data';
 
 /**
  * Returns the icon color for Jetpack blocks.
@@ -13,11 +8,5 @@ const JETPACK_GREEN_40 = '#069e08';
  * @return {string} HEX color for block editor icons
  */
 export default function getIconColor() {
-	if ( isWpcomPlatformSite() ) {
-		// Return null to match core block styling
-		return null;
-	}
-
-	// Jetpack Green
-	return JETPACK_GREEN_40;
+	return accentColour();
 }
