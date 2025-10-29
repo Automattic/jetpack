@@ -63,9 +63,6 @@ class Contact_Form_Block {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
-		// Form notifications feature flag - can be controlled via filter
-		$features['form-notifications'] = apply_filters( 'jetpack_forms_enable_notifications', false );
-
 		return $features;
 	}
 
