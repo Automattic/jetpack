@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.4.0 - 2025-10-10
+### Added
+- Add typecheck script. [#44787]
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45097] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45335]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+
 ## 4.3.0 - 2025-07-30
 ### Added
 - Add UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site. [#44521]
@@ -18,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#44206]
 
 ### Fixed
-- My Jetpack: Fix footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
 - My Jetpack: Restore plan purchase link. [#44535]
 - Update JITMs to remove jQuery dependency. [#43783]
 

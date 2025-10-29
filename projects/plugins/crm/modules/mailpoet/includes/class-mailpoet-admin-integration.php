@@ -25,7 +25,7 @@ class Mailpoet_Admin_Integration {
 	/**
 	 * Setup MailPoet
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// Initialise Hooks
 		$this->init_hooks();
@@ -54,7 +54,7 @@ class Mailpoet_Admin_Integration {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add button to subscriber page 'View CRM Contact'
 		// /wp-admin/admin.php?page=mailpoet-subscribers#/stats/{id}

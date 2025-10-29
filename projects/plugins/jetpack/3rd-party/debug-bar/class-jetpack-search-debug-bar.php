@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Search as Jetpack_Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Singleton class instantiated by Jetpack_Searc_Debug_Bar::instance() that handles
  * rendering the Jetpack Search debug bar menu item and panel.
@@ -30,7 +34,8 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->title( esc_html__( 'Jetpack Search', 'jetpack' ) );
+		/** "Search" is a product name, do not translate. */
+		$this->title( 'Jetpack Search' );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'login_enqueue_scripts', array( $this, 'enqueue_scripts' ) );

@@ -1,5 +1,6 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
+@use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox {
@@ -89,6 +90,16 @@
 	min-height: 48px; // Same as avatar to middle-align single lines
 }
 
+.jp-forms__inbox-response-actions {
+	border-bottom: 1px solid var(--jp-forms-border-color);
+	padding: 8px 0;
+	width: 100%;
+
+	@media (min-width: 782px) {
+		padding: 8px 20px;
+	}
+}
+
 .jp-forms__inbox-response-name {
 	font-size: 24px;
 	font-weight: 700;
@@ -115,41 +126,23 @@
 
 .jp-forms__inbox-response-meta {
 	color: var(--jp-gray-80);
-	display: table;
-	flex-direction: column;
 	font-size: 12px;
-	font-weight: 400;
-	line-height: 20px;
-	row-gap: 4px;
-	padding: 12px 32px 24px;
-}
+	padding: 12px 30px 24px;
 
-.jp-forms__inbox-response-meta-label {
-	display: table-row;
-}
+	table {
+		text-align: left;
+		width: fit-content;
 
-.jp-forms__inbox-response-meta-key,
-.jp-forms__inbox-response-meta-value {
-	display: table-cell;
-	white-space: nowrap;
-}
+		td,
+		th {
+			padding: 0;
+		}
 
-.jp-forms__inbox-response-meta-key {
-	padding-right: 8px;
-}
-
-.jp-forms__inbox-response-meta-value {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	width: 80%;
-	max-width: 0;
-
-	.is-link {
-		text-decoration: none;
-		color: inherit;
-
-		&:hover {
-			text-decoration: underline;
+		th {
+			font-weight: 400;
+			padding-right: variables.$grid-unit-10;
+			vertical-align: top;
+			white-space: nowrap;
 		}
 	}
 }
@@ -259,7 +252,14 @@
 		flex-direction: row;
 		gap: 12px;
 	}
+}
 
+.jp-forms__inbox-response-data-value .image-select-field {
+
+	.image-select-field-button {
+		gap: variables.$grid-unit-10;
+		height: auto;
+	}
 }
 
 .jp-forms__header-subtext {
@@ -328,9 +328,24 @@
 		width: 100%;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			left: variables.$admin-sidebar-width;
-			width: calc(100% - variables.$admin-sidebar-width);
+			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 		}
+	}
+
+	.jp-forms__inbox__author-field {
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+	}
+
+	.jp-forms__inbox__unread-indicator {
+		color: #d63638;
+		font-size: 8px;
+		position: absolute;
+		left: -12px;
+		cursor: pointer;
 	}
 }
 
@@ -342,13 +357,13 @@
 .auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: variables.$admin-sidebar-width-collapsed;
-		width: calc(100% - variables.$admin-sidebar-width-collapsed);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
 	}
 
 	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
-		left: variables.$admin-sidebar-width;
-		width: calc(100% - variables.$admin-sidebar-width);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 	}
 }
 
@@ -361,28 +376,45 @@
 	left: 0;
 
 	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: variables.$admin-sidebar-width-collapsed;
-		width: calc(100% - variables.$admin-sidebar-width-collapsed);
+		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
+		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
 	}
 }
 
 .jp-forms__inbox__dataviews-response {
+	background: var(--jp-white);
 	min-width: 300px !important;
 	overflow: auto;
 	flex: 1 1 40%;
-
+	position: sticky;
+	top: var(--wp-admin--admin-bar--height, 32px);
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
 	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
 	margin-bottom: 97px;
 
 	@media (min-width: 782px) {
+		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
 
 	.components-tip {
-		background-color: rgba(var(--wp-admin-theme-color--rgb), 0.04);
-		margin: 0 24px 16px;
-		padding: 8px 16px;
-		border-radius: 4px;
+		align-items: anchor-center;
+		border-top: 1px solid var(--jp-forms-border-color);
+		margin: 8px 0 56px 0;
+		padding: 16px;
+		text-wrap: pretty;
+	}
+}
+
+.jp-forms__inbox__response-mobile {
+
+	.jp-forms__inbox__response-mobile__header-heading {
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	.jp-forms__inbox__response-mobile__header-actions {
+		width: auto;
 	}
 }
 
@@ -448,10 +480,6 @@ body.jetpack_page_jetpack-forms-admin {
 // Styling override when loaded in modal on mobile
 .components-modal__content {
 
-	.jp-forms__inbox-response-avatar {
-		left: 0;
-	}
-
 	.jp-forms__inbox-response-title,
 	.jp-forms__inbox-response-subtitle,
 	.jp-forms__inbox-response-meta,
@@ -492,3 +520,8 @@ body.jetpack_page_jetpack-forms-admin {
 	gap: 16px;
 	align-items: center;
 }
+
+.jp-forms__inbox__unread {
+	font-weight: 600;
+}
+

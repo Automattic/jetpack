@@ -339,7 +339,7 @@ describe( 'bin/eslint-changed.js', () => {
 		const usedDeprecatedRules = [
 			{
 				info: {
-					availableUntil: '10.0.0',
+					availableUntil: '11.0.0',
 					deprecatedSince: '8.53.0',
 					message: 'Formatting rules are being moved out of ESLint core.',
 					replacedBy: [
@@ -363,7 +363,7 @@ describe( 'bin/eslint-changed.js', () => {
 			},
 			{
 				info: {
-					availableUntil: '10.0.0',
+					availableUntil: '11.0.0',
 					deprecatedSince: '8.53.0',
 					message: 'Formatting rules are being moved out of ESLint core.',
 					replacedBy: [

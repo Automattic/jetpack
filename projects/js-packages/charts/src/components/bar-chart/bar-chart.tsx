@@ -3,27 +3,30 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { useGlobalChartTheme, useXYChartTheme } from '../../hooks';
+import {
+	useXYChartTheme,
+	useChartDataTransform,
+	useZeroValueDisplay,
+	useChartMargin,
+	useElementHeight,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useChartDataTransform } from '../shared/use-chart-data-transform';
-import { useChartMargin } from '../shared/use-chart-margin';
-import { useElementHeight } from '../shared/use-element-height';
-import { useZeroValueDisplay } from '../shared/use-zero-value-display';
-import { withResponsive } from '../shared/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip/accessible-tooltip';
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+	GlobalChartsContext,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
-import { useBarChartOptions } from './use-bar-chart-options';
+import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
 import type { FC, ReactNode, ComponentType } from 'react';
 
@@ -32,6 +35,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
+	legendInteractive?: boolean;
 	children?: ReactNode;
 }
 
@@ -80,6 +84,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'rect',
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
@@ -87,11 +94,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	legendInteractive = false,
 	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
-	const providerTheme = useGlobalChartTheme();
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -102,7 +109,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( dataSorted );
+	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
@@ -123,18 +130,36 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		totalPoints,
 	} );
 
-	const getColor = useCallback(
-		( seriesData: SeriesData, index: number ) =>
-			seriesData?.options?.stroke || providerTheme.colors[ index % providerTheme.colors.length ],
-		[ providerTheme ]
-	);
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const providerTheme = useGlobalChartsTheme();
+
+	// Add visibility information to series when using interactive legends
+	const seriesWithVisibility = useMemo( () => {
+		if ( ! chartId || ! legendInteractive ) {
+			return dataWithVisibleZeros.map( ( series, index ) => ( {
+				series,
+				index,
+				isVisible: true,
+			} ) );
+		}
+		return dataWithVisibleZeros.map( ( series, index ) => ( {
+			series,
+			index,
+			isVisible: isSeriesVisible( chartId, series.label ),
+		} ) );
+	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+
+	// Check if all series are hidden
+	const allSeriesHidden = useMemo( () => {
+		return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
+	}, [ seriesWithVisibility ] );
 
 	const getBarBackground = useCallback(
 		( index: number ) => () =>
 			withPatterns
 				? `url(#${ getPatternId( chartId, index ) })`
-				: getColor( dataSorted[ index ], index ),
-		[ withPatterns, getColor, dataSorted, chartId ]
+				: getElementStyles( { data: dataSorted[ index ], index } ).color,
+		[ withPatterns, getElementStyles, dataSorted, chartId ]
 	);
 
 	const renderDefaultTooltip = useCallback(
@@ -332,12 +357,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 						<>
 							<defs data-testid="bar-chart-patterns">
 								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getColor( seriesData, index ) )
+									renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
 								) }
 							</defs>
 							<style>
 								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle( index, getColor( seriesData, index ) )
+									createPatternBorderStyle(
+										index,
+										getElementStyles( { data: seriesData, index } ).color
+									)
 								) }
 							</style>
 						</>
@@ -345,17 +373,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
+					{ allSeriesHidden ? (
+						<text
+							x={ width / 2 }
+							y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
+							textAnchor="middle"
+							fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+							fontSize="14"
+							fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+						>
+							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+						</text>
+					) : null }
+
 					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ dataWithVisibleZeros.map( ( seriesData, index ) => (
-							<BarSeries
-								key={ seriesData?.label }
-								dataKey={ seriesData?.label }
-								data={ seriesData.data as DataPointDate[] }
-								yAccessor={ chartOptions.accessors.yAccessor }
-								xAccessor={ chartOptions.accessors.xAccessor }
-								colorAccessor={ getBarBackground( index ) }
-							/>
-						) ) }
+						{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+							// Skip rendering invisible series
+							if ( ! isVisible ) {
+								return null;
+							}
+
+							return (
+								<BarSeries
+									key={ seriesData?.label }
+									dataKey={ seriesData?.label }
+									data={ seriesData.data as DataPointDate[] }
+									yAccessor={ chartOptions.accessors.yAccessor }
+									xAccessor={ chartOptions.accessors.xAccessor }
+									colorAccessor={ getBarBackground( index ) }
+								/>
+							);
+						} ) }
 					</BarGroup>
 
 					<Axis { ...chartOptions.axis.x } />
@@ -378,14 +426,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'bar-chart__legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 

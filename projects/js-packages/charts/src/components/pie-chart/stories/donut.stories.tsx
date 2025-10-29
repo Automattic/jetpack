@@ -1,17 +1,25 @@
-import { jetpackTheme, wooTheme } from '../../../providers/theme';
-import { sharedDecorator } from '../../../stories/decorator-config';
-import { legendArgTypes } from '../../../stories/legend-config';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import {
+	__experimentalText as WPText,
+	__experimentalHStack as HStack,
+} from '@wordpress/components';
+import { Fragment } from 'react';
+import { BaseLegendItem } from '../../../components/legend/types';
+import { GlobalChartsProvider } from '../../../providers';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	legendArgTypes,
+	themeArgTypes,
+} from '../../../stories';
+import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
-import { PieChart } from '../../pie-chart';
+import { PieChart, PieChartUnresponsive } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof PieChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-	resize?: string;
-	theme?: string | object;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
 
 const data = [
 	{
@@ -34,8 +42,10 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
 	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
 		...legendArgTypes,
 		size: {
 			control: {
@@ -70,37 +80,6 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
-		theme: {
-			control: { type: 'select' as const },
-			options: [ 'default', 'jetpack', 'woo' ],
-			mapping: {
-				default: undefined,
-				jetpack: jetpackTheme,
-				woo: wooTheme,
-			},
-			defaultValue: 'default',
-		},
-		maxWidth: {
-			control: {
-				type: 'number',
-				min: 100,
-				max: 1200,
-			},
-		},
-		aspectRatio: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 1,
-			},
-		},
-		resizeDebounceTime: {
-			control: {
-				type: 'number',
-				min: 0,
-				max: 10000,
-			},
-		},
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -115,11 +94,9 @@ export const Default: Story = {
 		resize: 'none',
 		thickness: 0.5,
 		gapScale: 0.03,
-		padding: 20,
 		cornerScale: 0.03,
 		withTooltips: true,
 		data,
-		theme: 'default',
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -137,13 +114,6 @@ export const WithoutCenter: Story = {
 	args: {
 		...Default.args,
 		children: undefined,
-	},
-};
-
-export const CustomTheme: Story = {
-	args: {
-		...Default.args,
-		theme: wooTheme,
 	},
 };
 
@@ -235,11 +205,12 @@ export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
+		containerHeight: '500px',
 	},
 };
 
 export const WithCompositionLegend: Story = {
-	render: () => (
+	render: args => (
 		<div
 			style={ {
 				display: 'grid',
@@ -252,11 +223,15 @@ export const WithCompositionLegend: Story = {
 				<h3>Traditional Props-based</h3>
 				<PieChart
 					size={ 300 }
-					data={ data }
+					data={ args.data }
 					thickness={ 0.5 }
 					showLegend={ true }
-					legendPosition="bottom"
-					legendOrientation="horizontal"
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendMaxWidth={ args.legendMaxWidth }
+					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
+					legendValueDisplay={ args.legendValueDisplay }
 				>
 					<Group>
 						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
@@ -270,7 +245,12 @@ export const WithCompositionLegend: Story = {
 			</div>
 			<div>
 				<h3>Composition API</h3>
-				<PieChart size={ 300 } data={ data } thickness={ 0.5 }>
+				<PieChart
+					size={ 300 }
+					data={ args.data }
+					thickness={ 0.5 }
+					legendValueDisplay={ args.legendValueDisplay }
+				>
 					<Group>
 						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
 							User Stats
@@ -279,16 +259,80 @@ export const WithCompositionLegend: Story = {
 							100K Total
 						</Text>
 					</Group>
-					<PieChart.Legend position="bottom" orientation="horizontal" alignment="center" />
+					<PieChart.Legend
+						position={ args.legendPosition || 'bottom' }
+						orientation={ args.legendOrientation || 'horizontal' }
+						alignment={ args.legendAlignment || 'center' }
+						maxWidth={ args.legendMaxWidth }
+						textOverflow={ args.legendTextOverflow || 'wrap' }
+					/>
 				</PieChart>
 			</div>
 		</div>
 	),
+	args: {
+		data,
+		thickness: 0.5,
+		containerHeight: '500px',
+	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	render: args => (
+		<GlobalChartsProvider>
+			<div style={ { padding: '20px' } }>
+				<h3>Interactive Donut Chart</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Click legend items to show/hide segments. The total value updates dynamically.
+				</p>
+				<PieChartUnresponsive
+					chartId="interactive-donut-chart"
+					size={ args.size || 400 }
+					data={ args.data }
+					thickness={ 0.5 }
+					showLegend={ true }
+					legendInteractive={ true }
+					legendPosition={ args.legendPosition || 'bottom' }
+					legendOrientation={ args.legendOrientation || 'horizontal' }
+					legendAlignment={ args.legendAlignment || 'center' }
+					legendValueDisplay={ args.legendValueDisplay }
+				>
+					<Group>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+							User Stats
+						</Text>
+						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+							100K Total
+						</Text>
+					</Group>
+				</PieChartUnresponsive>
+			</div>
+		</GlobalChartsProvider>
+	),
+	args: {
+		data,
+		size: 400,
+		thickness: 0.5,
+		containerHeight: '600px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive donut chart with clickable legend. Segments can be hidden/shown, and percentages recalculate automatically. Requires chartId and GlobalChartsProvider.',
 			},
 		},
 	},
@@ -334,6 +378,86 @@ export const CustomLegendPositioning: Story = {
 		docs: {
 			description: {
 				story: 'Donut chart with vertical legend positioned at the top left.',
+			},
+		},
+	},
+};
+
+const WooPieLegend = ( {
+	chartItems,
+	items,
+	withComparison,
+}: {
+	chartItems: BaseLegendItem[];
+	items: { label: string; value: number; formattedValue: string; comparison: string }[];
+	withComparison: boolean;
+} ) => (
+	<div
+		style={ {
+			display: 'inline-grid',
+			gridTemplateColumns: '1fr auto auto',
+			gap: 'var(--wpds-spacing-05, 5px) var(--wpds-spacing-10, 10px)',
+		} }
+	>
+		{ items.map( ( item, index ) => {
+			const { color } = chartItems[ index ];
+
+			return (
+				<Fragment key={ index }>
+					<HStack direction="row" justify="flex-start" gap={ 2 }>
+						<div
+							style={ {
+								width: '8px',
+								height: '8px',
+								borderRadius: '50%',
+								flexShrink: 0,
+								backgroundColor: color,
+							} }
+						/>
+						<WPText size="small">{ item.label }</WPText>
+					</HStack>
+					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+						{ item.formattedValue }
+					</WPText>
+					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+						{ withComparison && item.comparison }
+					</WPText>
+				</Fragment>
+			);
+		} ) }
+	</div>
+);
+
+export const CustomLegend: Story = {
+	render: args => (
+		<PieChartUnresponsive { ...args }>
+			<PieChartUnresponsive.Legend
+				// eslint-disable-next-line react/jsx-no-bind
+				render={ items => (
+					<WooPieLegend
+						chartItems={ items }
+						items={ customerRevenueLegendData }
+						withComparison={ args.withComparison }
+					/>
+				) }
+			/>
+		</PieChartUnresponsive>
+	),
+	args: {
+		...Default.args,
+		data: customerRevenueData.map( segment => ( { ...segment, label: '' } ) ),
+		thickness: 0.3,
+		cornerScale: 0.03,
+		gapScale: 0.01,
+		size: 164,
+		withComparison: true,
+		withTooltips: false,
+		containerHeight: '300px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Demonstrates how to customize the legend using the render prop.',
 			},
 		},
 	},

@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 7.1.0
+ * Version: 8.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '7.1.0' );
+define( 'WPCOMSH_VERSION', '8.0.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -25,9 +25,6 @@ require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-m
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
-
-// Protected Owner functionality for Jetpack Connection
-require_once __DIR__ . '/connection/protected-owner-handlers.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
@@ -156,8 +153,8 @@ require_once __DIR__ . '/support-session.php';
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
 
-// Jetpack Token Resilience.
-require_once __DIR__ . '/jetpack-token-resilience/class-wpcomsh-blog-token-resilience.php';
+// Jetpack Connection Handlers (external storage and protected owner).
+require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';
@@ -724,7 +721,6 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
- * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );

@@ -129,7 +129,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Get the blog ID.
 	 *
-	 * @return Object current blog id.
+	 * @return mixed current blog id.
 	 */
 	protected function get_blog_id() {
 		return Jetpack_Options::get_option( 'id' );
@@ -198,7 +198,7 @@ class Jetpack_RelatedPosts {
 	public function get_headline() {
 		$options = $this->get_options();
 
-		if ( $options['show_headline'] ) {
+		if ( ! empty( $options['show_headline'] ) ) {
 			$headline = sprintf(
 				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
 				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
@@ -931,7 +931,7 @@ EOT;
 		}
 
 		if (
-			! $options['enabled']
+			empty( $options['enabled'] )
 			|| 0 === (int) $post_id
 			|| empty( $options['size'] )
 		) {
@@ -1305,21 +1305,19 @@ EOT;
 
 		$response = array(
 			'version'         => self::VERSION,
-			'show_thumbnails' => (bool) $options['show_thumbnails'],
-			'show_date'       => (bool) $options['show_date'],
-			'show_context'    => (bool) $options['show_context'],
-			'layout'          => (string) $options['layout'],
-			'headline'        => (string) $options['headline'],
+			'show_thumbnails' => (bool) ( $options['show_thumbnails'] ?? false ),
+			'show_date'       => (bool) ( $options['show_date'] ?? true ),
+			'show_context'    => (bool) ( $options['show_context'] ?? true ),
+			'layout'          => (string) ( $options['layout'] ?? 'grid' ),
+			'headline'        => (string) ( $options['headline'] ?? '' ),
 			'items'           => array(),
 		);
 
-		if ( count( $related_posts ) === $options['size'] ) {
+		if ( ! empty( $options['size'] ) && count( $related_posts ) === $options['size'] ) {
 			$response['items'] = $related_posts;
 		}
 
-		echo wp_json_encode( $response );
-
-		exit( 0 );
+		wp_send_json( $response );
 	}
 
 	/**
@@ -1758,8 +1756,8 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				$cat_link = get_category_link( $category );
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+					$cat_link = get_category_link( $category );
 					return array(
 						'text' => trim( $category->name ),
 						'link' => $cat_link,
@@ -1770,8 +1768,8 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				$tag_link = get_tag_link( $tag );
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
+					$tag_link = get_tag_link( $tag );
 					return array(
 						'text' => trim( $tag->name ),
 						'link' => $tag_link,
@@ -1814,7 +1812,7 @@ EOT;
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+				if ( $category instanceof WP_Term && 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
 					$post_cat_context = sprintf(
 						// Translators: The category or tag name.
 						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
@@ -1838,7 +1836,7 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				if ( '' !== trim( $tag->name ) ) {
+				if ( $tag instanceof WP_Term && '' !== trim( $tag->name ) ) {
 					$post_tag_context = sprintf(
 						// Translators: the category or tag name.
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),

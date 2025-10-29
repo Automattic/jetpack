@@ -130,7 +130,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 			if ( ! hash_equals( $salted_ans_1, $correct_ans ) && ! hash_equals( $salted_ans_2, $correct_ans ) ) {
 				self::generate_math_page( true );
 			} else {
-				$temp_pass = substr( hash_hmac( 'sha1', wp_rand( 1, 100000000 ), get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
+				$temp_pass = substr( hash_hmac( 'sha1', (string) wp_rand( 1, 100000000 ), get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
 
 				$brute_force_protection = Brute_Force_Protection::instance();
 				$brute_force_protection->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
@@ -162,7 +162,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 
 			$time_window = self::time_window();
 			$salt        = get_site_option( 'jetpack_protect_key' ) . '|' . get_site_option( 'admin_email' ) . '|';
-			$salted_ans  = hash_hmac( 'sha1', $ans, $salt . $time_window );
+			$salted_ans  = hash_hmac( 'sha1', (string) $ans, $salt . $time_window );
 			?>
 			<div style="margin: 5px 0 20px;">
 				<p style="font-size: 14px;">

@@ -346,11 +346,11 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 									<div class="ui horizontal list">
 									<?php
 
-									foreach ( $tels as $telKey => $telNo ) {
+									foreach ( $tels as $tel_key => $tel_num ) {
 										?>
 										<div class="item">
 										<?php
-										switch ( $telKey ) {
+										switch ( $tel_key ) {
 
 											case 'sectel':
 												echo '<i class="large phone icon"></i>';
@@ -363,9 +363,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 										?>
 										<div class="content">
 											<?php if ( $click2call == '1' ) { ?>
-											<a class="ui small button" href="<?php echo esc_attr( zeroBSCRM_clickToCallPrefix() . $telNo ); ?>" title="<?php esc_attr_e( 'Call', 'zero-bs-crm' ) . ' ' . $telNo; ?>"><?php echo esc_html( $telNo ); ?></a>
+											<a class="ui small button" href="<?php echo esc_attr( zeroBSCRM_clickToCallPrefix() . $tel_num ); ?>" title="<?php echo esc_attr( __( 'Call', 'zero-bs-crm' ) . ' ' . $tel_num ); ?>"><?php echo esc_html( $tel_num ); ?></a>
 											<?php } else { ?>
-											<div class="header"><?php echo esc_html( $telNo ); ?></div>
+											<div class="header"><?php echo esc_html( $tel_num ); ?></div>
 											<?php } ?>
 										</div>
 										</div>

@@ -29,6 +29,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
+		"automattic/jetpack-external-connections": "@dev",
 		"automattic/jetpack-external-media": "@dev",
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
@@ -54,7 +55,7 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/woocommerce-analytics": "@dev",
-		"scssphp/scssphp": "1.12.0"
+		"scssphp/scssphp": "1.13.0"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
@@ -110,7 +111,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_0_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ15_2_a_7",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

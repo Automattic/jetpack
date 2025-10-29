@@ -1,12 +1,13 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { BlockControls } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton, Button, PanelBody } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
+import { INTEGRATIONS_STORE } from '../../../store/integrations';
 import IntegrationsModal from './jetpack-integrations-modal';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
-import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/use-integrations-status';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.
@@ -18,7 +19,12 @@ import { useIntegrationsStatus } from './jetpack-integrations-modal/hooks/use-in
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const { integrations, refreshIntegrations, isLoading } = useIntegrationsStatus();
+	const integrations = useSelect( select => {
+		const store = select( INTEGRATIONS_STORE );
+		return store.getIntegrations() || [];
+	}, [] );
+	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
 
 	const handleOpenModal = entry_point => {
@@ -30,7 +36,7 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 		<>
 			<PanelBody
 				title={ __( 'Integrations', 'jetpack-forms' ) }
-				className="jetpack-contact-form__integrations-panel"
+				className="jetpack-contact-form__panel jetpack-contact-form__integrations-panel"
 				initialOpen={ false }
 			>
 				<ActiveIntegrations

@@ -81,7 +81,7 @@ add_action( 'delete_plugin', 'jetpack_docker_disable_delete_plugin', 10, 2 );
  */
 function jetpack_docker_disable_plugin_update( $plugins ) {
 	// No updates detected, so abort.
-	if ( ! is_object( $plugins ) || $plugins->response ) {
+	if ( ! is_object( $plugins ) || empty( $plugins->response ) ) {
 		return $plugins;
 	}
 

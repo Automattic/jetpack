@@ -27,40 +27,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  *
  * ================================================================================================================ */
 
-
-//create the DB table on activation... (should move this into a classs.. probably)
-register_activation_hook(ZBS_ROOTFILE,'zeroBSCRM_notifyme_createDBtable');
-function zeroBSCRM_notifyme_createDBtable(){
-  global $wpdb;
-  $notify_table = $wpdb->prefix . "zbs_notifications";
-
-  /* reference ID is for our JSON notification check + update i.e. new posts we want to notify folks of 
-  /* will use WP cron to check that resource daily + run the script to update zbsnotify_reference_id 
-  */
-
-  $sql = "CREATE TABLE IF NOT EXISTS $notify_table (
-  `id` INT(32) unsigned NOT NULL AUTO_INCREMENT,
-  `zbs_site` INT NULL DEFAULT NULL,
-  `zbs_team` INT NULL DEFAULT NULL,
-  `zbs_owner` INT NOT NULL,
-  `zbsnotify_recipient_id` INT(32) NOT NULL,
-  `zbsnotify_sender_id` INT(32) NOT NULL,
-  `zbsnotify_unread` tinyint(1) NOT NULL DEFAULT '1',
-  `zbsnotify_emailed` tinyint(1) NOT NULL DEFAULT '0',    
-  `zbsnotify_type` varchar(255) NOT NULL DEFAULT '',
-  `zbsnotify_parameters` text NOT NULL,
-  `zbsnotify_reference_id` INT(32) NOT NULL,      
-  `zbsnotify_created_at` INT(18) NOT NULL,
-  PRIMARY KEY (`id`)
-  ) ENGINE = InnoDB
-  DEFAULT CHARACTER SET = utf8
-  COLLATE = utf8_general_ci";
-
-  require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-  dbDelta($sql);
-}
-
-
 function zeroBSCRM_notifyme_scripts(){
 	global $zbs;
 	wp_enqueue_script( 'jquery' );
@@ -128,7 +94,7 @@ function zeroBSCRM_notifyme_echo_type($type = '', $title = '', $sender = -999, $
         break;
 
     case 'salesdash.suggestion':
-        esc_html_e( '⛽ See all your sales information in a sales dashboard built just for you.', 'zero-bs-crm') . ' ';
+			echo esc_html( __( '⛽ See all your sales information in a sales dashboard built just for you.', 'zero-bs-crm' ) . ' ' );
         break;
 
 
@@ -500,7 +466,8 @@ function zeroBSCRM_notifyme_activity(){
 add_action('wp_ajax_nopriv_notifyme_get_notifications_ajax','zeroBSCRM_notifyme_get_notifications_ajax');
 add_action( 'wp_ajax_notifyme_get_notifications_ajax', 'zeroBSCRM_notifyme_get_notifications_ajax' );
 function zeroBSCRM_notifyme_get_notifications_ajax(){
-      global $wpdb;
+	global $wpdb;
+	$res = array();
       check_ajax_referer( 'notifyme_nonce', 'security' );
       $cid = get_current_user_id();
       $now = date("U");
@@ -526,6 +493,5 @@ function zeroBSCRM_notifyme_get_notifications_ajax(){
         $res['notifybody'] = 'This is the body';
         $res['count'] = count($res['notifications']);
       }
-      echo json_encode($res,true);
-	die( 0 );
+	wp_send_json( $res );
 }

@@ -1886,35 +1886,6 @@ class zbsDAL_events extends zbsDAL_ObjectLayer {
     }
 
     /**
-     * Returns an status against a event
-     *
-     * @param int id event ID
-     *
-     * @return str event status string
-     */
-    /* IS THIS USED?
-    public function getEventStatus($id=-1){
-
-        global $zbs;
-
-        $id = (int)$id;
-
-        if ($id > 0){
-
-            return $this->DAL()->getFieldByID(array(
-                'id' => $id,
-                'objtype' => ZBS_TYPE_TASK,
-                'colname' => 'zbse_status',
-                'ignoreowner'=>true));
-
-        }
-
-        return false;
-        
-    }*/
-
-
-    /**
      * remove any non-db fields from the object
      * basically takes array like array('owner'=>1,'fname'=>'x','fullname'=>'x')
      * and returns array like array('owner'=>1,'fname'=>'x')

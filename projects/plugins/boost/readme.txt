@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.3.0
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,16 +183,15 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.1-beta - 2025-08-21
+### 4.5.1 - 2025-10-29
+#### Added
+- Tested up to WordPress 6.9
+
 #### Changed
-- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name.
-- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior.
-- Cornerstone Pages: Improve behavior when running on WordPress MU installations.
-- My Jetpack: Fixed multisite availability check for restricted products and modules.
 - Update package dependencies.
 
 #### Fixed
-- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute.
+- Concatenate JS: Fix incompatibility with WooCommerce Analytics.
 
 --------
 

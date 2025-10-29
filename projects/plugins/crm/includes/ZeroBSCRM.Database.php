@@ -48,6 +48,7 @@ $ZBSCRM_t['eventreminders']        = $wpdb->prefix . 'zbs_event_reminders';
 $ZBSCRM_t['tax']                   = $wpdb->prefix . 'zbs_tax_table';
 $ZBSCRM_t['security_log']          = $wpdb->prefix . 'zbs_security_log';
 $ZBSCRM_t['automation-workflows']  = $wpdb->prefix . 'zbs_workflows';
+$ZBSCRM_t['notifications']         = $wpdb->prefix . 'zbs_notifications';
 // phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 /**
@@ -474,7 +475,7 @@ function zeroBSCRM_createTables(){
   `zbs_team` int(11) DEFAULT NULL,
   `zbs_owner` int(11) NOT NULL,
   `zbsc_tax_name` VARCHAR(100) NULL,
-  `zbsc_rate` DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  `zbsc_rate` DECIMAL(20,10) NOT NULL DEFAULT 0.0000000000,
   `zbsc_created` INT(14) NOT NULL,
   `zbsc_lastupdated` INT(14) NOT NULL,
   PRIMARY KEY (`ID`))
@@ -835,26 +836,51 @@ function zeroBSCRM_createTables(){
 	// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	zeroBSCRM_db_runDelta( $sql );
 
-  // As of v5.0, if we've created via the above SQL, we're at DAL3 :)
-  // so on fresh installs, immitate the fact that we've 'completed' DAL1->DAL2->DAL3 Migration chain
-  update_option( 'zbs_db_migration_253', array('completed'=>time(),'started'=>time()), false);
-  update_option( 'zbs_db_migration_300', array('completed'=>time(),'started'=>time()), false);
+	// Notifications Table - Use the dedicated function
+	jpcrm_create_notifications_table();
 
-  // if any errors, log to wp option (potentially can't save to our zbs settings table because may not exist)
-  $errors = $zbsDB_creationErrors;
-  if (is_array($errors)){
-    if (count($errors) > 0) 
-      update_option( 'zbs_db_creation_errors', array('lasttried' => time(),'errors' => $errors), false);
-    else
-      delete_option( 'zbs_db_creation_errors' ); // successful run kills the alert
-  }
+	// As of v5.0, if we've created via the above SQL, we're at DAL3 :)
+	// so on fresh installs, immitate the fact that we've 'completed' DAL1->DAL2->DAL3 Migration chain
+	update_option(
+		'zbs_db_migration_253',
+		array(
+			'completed' => time(),
+			'started'   => time(),
+		),
+		false
+	);
+	update_option(
+		'zbs_db_migration_300',
+		array(
+			'completed' => time(),
+			'started'   => time(),
+		),
+		false
+	);
+
+	// if any errors, log to wp option (potentially can't save to our zbs settings table because may not exist)
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$errors = $zbsDB_creationErrors;
+	if ( is_array( $errors ) ) {
+		if ( count( $errors ) > 0 ) {
+			update_option(
+				'zbs_db_creation_errors',
+				array(
+					'lasttried' => time(),
+					'errors'    => $errors,
+				),
+				false
+			);
+		} else {
+			delete_option( 'zbs_db_creation_errors' ); // successful run kills the alert
+		}
+	}
 
   // no longer needed
   unset($zbsDB_lastError,$zbsDB_creationErrors);
 
   // return any errors encountered
   return $errors;
-
 
 }
 
@@ -895,6 +921,11 @@ function zeroBSCRM_db_runDelta($sql=''){
   
     global $wpdb,$zbsDB_lastError,$zbsDB_creationErrors;
   
+	// Ensure dbDelta is available (can be missing outside of admin load order)
+	if ( ! function_exists( 'dbDelta' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+	}
+
     // enact
     dbDelta($sql);
 
@@ -988,6 +1019,57 @@ function jpcrm_database_server_has_ability( $ability_name ) {
 	}
 
 	return false;
+}
+
+/**
+ * Create just the notifications table
+ *
+ * @since 5.6.0
+ * @return bool True if table was created successfully, false otherwise
+ */
+function jpcrm_create_notifications_table() {
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	global $wpdb, $ZBSCRM_t;
+
+	// Get database settings
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$storageEngineLine = zeroBSCRM_DB_canInnoDB() ? 'ENGINE=InnoDB' : '';
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$characterSet = $wpdb->charset ? $wpdb->charset : 'utf8';
+	$collation    = $wpdb->collate ? $wpdb->collate : 'utf8_general_ci';
+
+	// Table creation SQL
+	// phpcs:disable
+	$sql = 'CREATE TABLE IF NOT EXISTS ' . $ZBSCRM_t['notifications'] . "(
+    `id` INT(32) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `zbs_site` INT NULL DEFAULT NULL,
+    `zbs_team` INT NULL DEFAULT NULL,
+    `zbs_owner` INT NOT NULL,
+    `zbsnotify_recipient_id` INT(32) NOT NULL,
+    `zbsnotify_sender_id` INT(32) NOT NULL,
+    `zbsnotify_unread` TINYINT(1) NOT NULL DEFAULT '1',
+    `zbsnotify_emailed` TINYINT(1) NOT NULL DEFAULT '0',
+    `zbsnotify_type` VARCHAR(255) NOT NULL DEFAULT '',
+    `zbsnotify_parameters` TEXT NOT NULL,
+    `zbsnotify_reference_id` INT(32) NOT NULL,
+    `zbsnotify_created_at` INT(18) NOT NULL,
+    PRIMARY KEY (`id`))
+    " . $storageEngineLine . '
+    DEFAULT CHARACTER SET = ' . $characterSet . "
+    COLLATE = " . $collation . ";";
+    // phpcs:enable
+
+	// Run the query
+	zeroBSCRM_db_runDelta( $sql );
+
+	// Check if table was created successfully - the table name is set as a global variable so OK to put directly in the SQL
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$table_name = $ZBSCRM_t['notifications'];
+	// phpcs:disable
+	$table_exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" ) === $table_name;
+	// phpcs:enable
+
+	return $table_exists;
 }
 
 /* ======================================================

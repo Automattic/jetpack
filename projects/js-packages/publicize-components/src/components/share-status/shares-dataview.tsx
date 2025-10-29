@@ -53,11 +53,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 								</td>
 								<td>
 									<div className="dataviews-view-table__cell-content-wrapper">
-										{ humanTimeDiff(
-											// @ts-expect-error - humanTimeDiff is incorrectly typed, first argument can be a timestamp
-											item.timestamp * 1000,
-											getDate( null )
-										) }
+										{ humanTimeDiff( item.timestamp * 1000, getDate( null ) ) }
 									</div>
 								</td>
 								<td>

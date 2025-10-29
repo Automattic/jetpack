@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Extensions\Sharing;
 use Automattic\Jetpack\Modules;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register Sharing plugin.
  *

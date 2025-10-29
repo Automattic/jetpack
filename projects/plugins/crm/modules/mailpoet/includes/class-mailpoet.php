@@ -112,7 +112,7 @@ class Mailpoet {
 	 * Setup MailPoet
 	 * Note: This will effectively fire after core settings and modules loaded on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		if ( $this->check_dependencies() ) {
 
@@ -210,7 +210,7 @@ class Mailpoet {
 	/**
 	 * Initialise Settings
 	 */
-	private function init_settings( ) {
+	private function init_settings() {
 		
 		$this->settings = new \WHWPConfigExtensionsLib( $this->config_key, $this->default_settings() );
 
@@ -219,7 +219,7 @@ class Mailpoet {
 	/**
 	 * Retrieve Settings
 	 */
-	public function get_settings( ) {
+	public function get_settings() {
 		
 		return $this->settings->getAll();
 
@@ -228,7 +228,7 @@ class Mailpoet {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add settings tab
 		add_filter( 'zbs_settings_tabs', array( $this, 'add_settings_tab' ) );
@@ -265,7 +265,7 @@ class Mailpoet {
 	/**
 	 * Initialise Features
 	 */
-	private function init_features( ) {
+	private function init_features() {
 
 		global $zbs;
 
@@ -322,7 +322,7 @@ class Mailpoet {
 	/**
 	 * Autoload page AJAX
 	 */
-	private function load_ajax( ) {
+	private function load_ajax() {
 
 		$admin_page_directories = jpcrm_get_directories( JPCRM_MAILPOET_ROOT_PATH . 'admin' );
 
@@ -662,7 +662,7 @@ class Mailpoet {
 	 *
 	 * @return 
 	 */
-	public function get_jpcrm_mailpoet_latest_stats( ){
+	public function get_jpcrm_mailpoet_latest_stats() {
 
 		return array(
 
@@ -729,7 +729,7 @@ class Mailpoet {
 	 *	 
 	 * @return string URL
 	 */
-	public function get_local_mailpoet_admin_url( ){
+	public function get_local_mailpoet_admin_url() {
 
 		return site_url( '/wp-admin/admin.php?page=mailpoet-newsletters' );
 

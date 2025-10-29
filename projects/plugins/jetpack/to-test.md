@@ -1,6 +1,6 @@
-## Jetpack 15.0
+## Jetpack 15.1.1
 
-### Before you start:
+### Before you start
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
@@ -10,30 +10,3 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
-
-### Blocks
-
-The way JavaScript loaded for some blocks has changed. Make sure the following blocks work as expected:
-
-- Jetpack AI Search
-- Blogroll
-- Cookie Consent
-- Donations Form
-- Google Docs (Beta)
-- Image Compare
-- Like
-- Mailchimp
-- Map
-- Nextdoor
-- OpenTable
-- Podcast Player
-- Paid Content
-- Recipe (Beta)
-- Payment Button
-- Repeat Visitor
-- Sharing Buttons
-- Slideshow
-- Subscribe
-- Tiled Gallery
-
-**Thank you for all your help!**

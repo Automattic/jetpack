@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.1.5 - 2025-09-09
+### Changed
+- Update package dependencies. [#44206] [#44725] [#45096]
+
 ## 4.1.4 - 2025-07-04
 ### Changed
 - Update package dependencies. [#43425] [#43839]

@@ -5,9 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.26] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [4.2.25] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [4.2.24] - 2025-09-29
+### Changed
+- Update dependencies. [#44940]
+
+## [4.2.23] - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## [4.2.22] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [4.2.21] - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## [4.2.20] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [4.2.19] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## [4.2.18] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
 ## [4.2.17] - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## [4.2.16] - 2025-08-14
 ### Changed
@@ -927,6 +963,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.26]: https://github.com/Automattic/jetpack-backup/compare/v4.2.25...v4.2.26
+[4.2.25]: https://github.com/Automattic/jetpack-backup/compare/v4.2.24...v4.2.25
+[4.2.24]: https://github.com/Automattic/jetpack-backup/compare/v4.2.23...v4.2.24
+[4.2.23]: https://github.com/Automattic/jetpack-backup/compare/v4.2.22...v4.2.23
+[4.2.22]: https://github.com/Automattic/jetpack-backup/compare/v4.2.21...v4.2.22
+[4.2.21]: https://github.com/Automattic/jetpack-backup/compare/v4.2.20...v4.2.21
+[4.2.20]: https://github.com/Automattic/jetpack-backup/compare/v4.2.19...v4.2.20
+[4.2.19]: https://github.com/Automattic/jetpack-backup/compare/v4.2.18...v4.2.19
+[4.2.18]: https://github.com/Automattic/jetpack-backup/compare/v4.2.17...v4.2.18
 [4.2.17]: https://github.com/Automattic/jetpack-backup/compare/v4.2.16...v4.2.17
 [4.2.16]: https://github.com/Automattic/jetpack-backup/compare/v4.2.15...v4.2.16
 [4.2.15]: https://github.com/Automattic/jetpack-backup/compare/v4.2.14...v4.2.15

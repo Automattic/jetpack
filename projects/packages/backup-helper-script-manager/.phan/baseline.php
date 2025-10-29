@@ -10,13 +10,10 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
-    // PhanTypeMismatchArgumentInternal : 3 occurrences
-    // PhanTypeMismatchForeach : 2 occurrences
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-helper-script-manager-impl.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchForeach'],
-        'tests/php/Throw_On_Errors_Test.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
+        'tests/php/Throw_On_Errors_Test.php' => ['PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

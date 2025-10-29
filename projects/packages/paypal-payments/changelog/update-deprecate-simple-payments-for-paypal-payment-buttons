@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-No longer allow inserting Simple Payments block via inserter. Deprecating in favor of PayPal Payment Buttons block.

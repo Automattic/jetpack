@@ -363,7 +363,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
-			// @phan-suppress-next-line PhanUndeclaredMethodInCallable,PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
 			$order_items       = $order->get_items();

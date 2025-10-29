@@ -35,8 +35,13 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		// The regular user object doesn't have allowed_mime_types
 		unset( $server_user->data->allowed_mime_types );
 
-		unset( $user->allcaps['subscriber'] );
-		unset( $user->allcaps['level_0'] );
+		// WordPress 6.9 introduced lazy-loading of some WP_User properties.
+		// It also made said properties protected, so we can't modify keys directly.
+		$allcaps = $user->allcaps; // This triggers lazy loading
+		unset( $allcaps['subscriber'] );
+		unset( $allcaps['level_0'] );
+		$user->allcaps = $allcaps;
+
 		$this->assertEqualsObject( $user, $server_user, 'The replicastore user must equal the initial user.' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
@@ -55,6 +60,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->is_connected );
 
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
 	}
@@ -450,6 +456,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->is_connected );
 
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
@@ -471,6 +478,17 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
+	}
+
+	public function test_does_not_sync_user_authentication_attempts_with_empty_user() {
+		add_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_bruteprotect_api' ), 10, 3 );
+		do_action( 'wp_login', '', new WP_User() );
+		remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_bruteprotect_api' ) );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
+		$this->assertFalse( $event );
 	}
 
 	public function test_syncs_user_logout_event() {
@@ -568,7 +586,31 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
 
+		$this->assertFalse( $retrieved_user->data->is_connected );
+		unset( $retrieved_user->data->is_connected );
+
 		$this->assertEquals( $synced_user, $retrieved_user );
+	}
+
+	public function test_returns_user_object_by_id_with_connected_user() {
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->user_id => 'apple.a.' . $this->user_id,
+			)
+		);
+
+		$user_sync_module = Modules::get_module( 'users' );
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode(
+			$codec->encode(
+				$user_sync_module->get_object_by_id( 'user', $this->user_id )
+			)
+		);
+
+		$this->assertTrue( $retrieved_user->data->is_connected );
 	}
 
 	public function test_update_user_locale_changed_is_synced() {

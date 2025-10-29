@@ -30,7 +30,7 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "9.32.0",
+		"eslint": "9.38.0",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
@@ -49,9 +49,13 @@
 			"@swc/core",
 			"core-js",
 			"esbuild",
+			"print-this",
 			"svelte-preprocess",
 			"swiper",
 			"unrs-resolver"
-		]
+		],
+		"overrides": {
+			"esbuild-sass-plugin>sass": "npm:sass-embedded@1.87.0"
+		}
 	}
 }

@@ -94,6 +94,14 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 						'type'     => 'string',
 						'required' => false,
 					),
+					'bot_slug'          => array(
+						'type'     => 'string',
+						'required' => false,
+					),
+					'is_test_mode'      => array(
+						'type'     => 'boolean',
+						'required' => false,
+					),
 				),
 			)
 		);
@@ -187,6 +195,14 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 			$data['event_metadata'] = $request['event_metadata'];
 		}
 
+		if ( isset( $request['bot_slug'] ) ) {
+			$data['bot_slug'] = $request['bot_slug'];
+		}
+
+		if ( isset( $request['is_test_mode'] ) ) {
+			$data['is_test_mode'] = $request['is_test_mode'];
+		}
+
 		$body = Client::wpcom_json_api_request_as_user(
 			'/support-interactions',
 			'2',
@@ -225,6 +241,10 @@ class WP_REST_Help_Center_Support_Interactions extends \WP_REST_Controller {
 
 		if ( isset( $request['event_metadata'] ) ) {
 			$data['event_metadata'] = $request['event_metadata'];
+		}
+
+		if ( isset( $request['is_test_mode'] ) ) {
+			$data['is_test_mode'] = $request['is_test_mode'];
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(

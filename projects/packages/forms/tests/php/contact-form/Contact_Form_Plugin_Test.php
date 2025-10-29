@@ -13,6 +13,9 @@ use WorDBless\BaseTestCase;
 use WP_Block;
 use WP_Error;
 
+// Load the Form_Submission_Error class for testing.
+require_once __DIR__ . '/../../../src/contact-form/class-form-submission-error.php';
+
 /**
  * Test class for Contact_Form_Plugin
  *
@@ -162,7 +165,23 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel; font-size:24px;" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+		$expected  = '[contact-field type="checkbox" label="single" optionclasses="wp-block-jetpack-option has-text-color" optionstyles="color:caramel;font-size:24px" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+
+		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
+	 * Tests the render output of gutenblock_render_field_hidden.
+	 */
+	public function test_gutenblock_render_field_hidden_shortcode() {
+		// Test with attributes passed directly to the method
+		$atts = array(
+			'name'  => 'hidden_field',
+			'value' => 'hidden_value',
+		);
+
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_hidden( $atts, '' );
+		$expected  = '[contact-field name="hidden_field" value="hidden_value" type="hidden"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -212,7 +231,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			),
 		);
 		$shortcode = Contact_Form_Plugin::gutenblock_render_field_text( array(), '', new WP_Block( $block ) );
-		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel; font-size:24px;" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot; font-size:33rem; border-color:toot;border-width:1px;" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px;" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
+		$expected  = '[contact-field type="text" label="Label" requiredText="Do it" labelclasses="wp-block-jetpack-label has-text-color" labelstyles="color:caramel;font-size:24px" placeholder="hi!" min="1" max="10" inputclasses="wp-block-jetpack-input has-text-color has-border-color" inputstyles="color:toot;font-size:33rem;border-color:toot;border-width:1px" stylevariationattributes="{&quot;border&quot;:{&quot;color&quot;:&quot;toot&quot;&#044;&quot;width&quot;:&quot;1px&quot;}}" stylevariationclasses=" has-border-color" stylevariationstyles="border-color:toot;border-width:1px" fieldwrapperclasses="wp-block-jetpack-field-text"/]';
 
 		$this->assertEquals( $expected, $shortcode );
 	}
@@ -555,8 +574,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
-		$this->assertInstanceOf( WP_Error::class, $result, 'Expected a WP_Error when processing the form submission.' );
-		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error code to be "check_spam".' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission.' );
+		$this->assertEquals( 'Name field is required.', $result->get_error_message(), 'Expected the error message to be "Name field is required.".' );
+		$this->assertTrue( $result->is_validation_type(), 'Expected this to be a validation error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -567,7 +587,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin = Contact_Form_Plugin::init();
 		$result = $plugin->process_form_submission();
 
-		$this->assertFalse( $result, 'Expected a WP_Error when processing the form submission.' );
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
+		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
 	}
@@ -643,19 +665,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$default_consent = 'No';
 		$ip              = 'https://127.0.0.1';
 
+		$country_code = null; // No country code for legacy feedback
+
 		$this->assertEquals(
 			array(
 
-				'ID'         => array( $post_id_1, $post_id_2 ),
-				'Date'       => array( $post_1->post_date, $post_2->post_date ),
-				'Title'      => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'    => array( 'value1', 'value1' ),
-				'field_B'    => array( 'value2', '' ),
-				'field_C'    => array( '', 'value2' ),
-				'Source'     => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'    => array( $default_consent, $default_consent ),
-				'IP Address' => array( $ip, $ip ),
-
+				'ID'           => array( $post_id_1, $post_id_2 ),
+				'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'      => array( 'value1', 'value1' ),
+				'field_B'      => array( 'value2', '' ),
+				'field_C'      => array( '', 'value2' ),
+				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				'Consent'      => array( $default_consent, $default_consent ),
+				'IP Address'   => array( $ip, $ip ),
+				'Country code' => array( $country_code, $country_code ),
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -769,7 +793,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_interpersonal_data_exporter() {
-		global $post;
 
 		$post_id = Utility::create_legacy_feedback(
 			array(
@@ -793,11 +816,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				),
 				array(
 					'name'  => 'Source Title',
-					'value' => 'Cool Post Title', // the default value in the create_legacy_feedback
+					'value' => '(deleted) Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
 					'name'  => 'Source URL:',
-					'value' => get_permalink( $post->ID ),
+					'value' => '',
 				),
 				array(
 					'name'  => 'field',
@@ -819,6 +842,10 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'name'  => 'IP Address',
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
+				array(
+					'name'  => 'Country code',
+					'value' => null,
+				), // no country code for legacy feedback
 			),
 		);
 
@@ -827,5 +854,24 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			$exporter[0]
 		);
 		$this->assertIsArray( $exporter, 'Expected the exporter to return an array.' );
+	}
+
+	public function test_get_unread_count_zero() {
+		delete_option( 'jetpack_feedback_unread_count' );
+		$this->assertIsInt( Contact_Form_Plugin::get_unread_count() );
+		$this->assertGreaterThanOrEqual( 0, Contact_Form_Plugin::get_unread_count() );
+	}
+
+	public function test_get_unread_count_nonzero() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		delete_option( 'jetpack_feedback_unread_count' );
+	}
+
+	public function test_recalculate_unread_count() {
+		update_option( 'jetpack_feedback_unread_count', 5 );
+		$this->assertEquals( 5, Contact_Form_Plugin::get_unread_count() );
+		Contact_Form_Plugin::recalculate_unread_count();
+		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
 	}
 }

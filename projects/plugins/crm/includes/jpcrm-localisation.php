@@ -12,11 +12,11 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 /**
  * Creates a timezone-aware datetime string
  *
- * @param int  $timestamp Unix timestamp.
- * @param str  $format DateTime formatting string (e.g. 'Y-m-d H:i').
- * @param bool $use_utc Output in UTC timezone or WP timezone.
+ * @param int    $timestamp Unix timestamp.
+ * @param string $format DateTime formatting string (e.g. 'Y-m-d H:i').
+ * @param bool   $use_utc Output in UTC timezone or WP timezone.
  *
- * @return str formatted datetime string
+ * @return string formatted datetime string
  */
 function jpcrm_uts_to_datetime_str( $timestamp, $format = false, $use_utc = false ) {
 
@@ -59,9 +59,9 @@ function jpcrm_uts_to_datetime_str( $timestamp, $format = false, $use_utc = fals
  * Creates a timezone-aware date string
  * This is a wrapper of jpcrm_uts_to_datetime_str()
  *
- * @param int  $timestamp Unix timestamp.
- * @param str  $format DateTime formatting string (e.g. 'Y-m-d').
- * @param bool $use_utc Output in UTC timezone or WP timezone.
+ * @param int    $timestamp Unix timestamp.
+ * @param string $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param bool   $use_utc Output in UTC timezone or WP timezone.
  *
  * @return string formatted date string
  */
@@ -79,10 +79,10 @@ function jpcrm_uts_to_date_str( $timestamp, $format = false, $use_utc = false ) 
  * Creates a timezone-aware time string
  * This is a wrapper of jpcrm_uts_to_datetime_str()
  *
- * @param int $timestamp Unix timestamp.
- * @param str $format DateTime formatting string (e.g. 'H:i').
+ * @param int    $timestamp Unix timestamp.
+ * @param string $format DateTime formatting string (e.g. 'H:i').
  *
- * @return str formatted time string
+ * @return string formatted time string
  */
 function jpcrm_uts_to_time_str( $timestamp, $format = false ) {
 
@@ -97,9 +97,9 @@ function jpcrm_uts_to_time_str( $timestamp, $format = false ) {
 /**
  * Creates a UTS from a date time string
  *
- * @param str  $datetime_str String containing date and time (in WP timezone).
- * @param str  $format DateTime formatting string (e.g. 'Y-m-d H:i:s').
- * @param bool $use_utc Treat input as UTC timezone or WP timezone.
+ * @param string $datetime_str String containing date and time (in WP timezone).
+ * @param string $format DateTime formatting string (e.g. 'Y-m-d H:i:s').
+ * @param bool   $use_utc Treat input as UTC timezone or WP timezone.
  *
  * @return int $uts
  */
@@ -161,7 +161,7 @@ function jpcrm_datetime_post_keys_to_uts( $post_key, $format = false ) {
  * Creates a UTS from a WP-formatted date time string
  * This is a wrapper of jpcrm_datetime_str_to_uts()
  *
- * @param str $datetime_str String containing date and time (in WP timezone).
+ * @param string $datetime_str String containing date and time (in WP timezone).
  *
  * @return int $uts
  */
@@ -175,9 +175,9 @@ function jpcrm_datetime_str_wp_format_to_uts( $datetime_str ) {
  * Creates a UTS from a date string (midnight timestamp)
  * This is a wrapper of jpcrm_datetime_str_to_uts()
  *
- * @param str  $date_str String containing date (in WP timezone).
- * @param str  $format DateTime formatting string (e.g. 'Y-m-d').
- * @param bool $use_utc Treat input as UTC timezone or WP timezone.
+ * @param string $date_str String containing date (in WP timezone).
+ * @param string $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param bool   $use_utc Treat input as UTC timezone or WP timezone.
  *
  * @return int $uts
  */
@@ -208,7 +208,7 @@ function jpcrm_date_str_wp_format_to_uts( $date_str, $use_utc = false ) {
 /**
  * Returns WP timezone offset string (e.g. -10:00)
  *
- * @return str timezone offset string
+ * @return string timezone offset string
  */
 function jpcrm_get_wp_timezone_offset() {
 	$date_obj = new DateTime();

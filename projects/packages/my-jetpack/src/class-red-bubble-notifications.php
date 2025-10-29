@@ -43,6 +43,9 @@ class Red_Bubble_Notifications {
 							'type' => 'string',
 						),
 						'sanitize_callback' => function ( $param ) {
+							if ( ! is_array( $param ) ) {
+								return array();
+							}
 							return array_map( 'sanitize_text_field', $param );
 						},
 					),
@@ -73,6 +76,10 @@ class Red_Bubble_Notifications {
 		foreach ( Products::get_products_classes() as $slug => $product_class ) {
 			// Skip these- we don't show them in My Jetpack.
 			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
+				continue;
+			}
+			// Skip CRM from installation requirements - e.g. don't enforce installation for Complete plan users
+			if ( $slug === 'crm' ) {
 				continue;
 			}
 			if ( ! $product_class::has_paid_plan_for_product() ) {

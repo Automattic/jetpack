@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Fix undefined array key "blockName" warning in contact form pre-render hook

@@ -1,0 +1,55 @@
+const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+
+module.exports = [
+	{
+		entry: {
+			'jetpack-external-connections-settings': [ './src/settings.js', './src/settings.scss' ],
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
+		output: {
+			...jetpackWebpackConfig.output,
+			filename: '[name]/[name].js',
+			path: path.resolve( __dirname, 'src/build' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript.
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'scss' ],
+					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				} ),
+			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-external-connections',
+			} ),
+		},
+	},
+];

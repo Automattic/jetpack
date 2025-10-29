@@ -9,7 +9,7 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "2.11.2",
+		"automattic/wc-calypso-bridge": "2.11.3",
 		"wordpress/classic-editor-plugin": "1.6.7",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -34,7 +34,6 @@
 			"imports",
 			"jetpack-require-connection-owner",
 			"jetpack-token-error-header",
-			"jetpack-token-resilience",
 			"lib",
 			"mailpoet",
 			"notices",
@@ -128,7 +127,7 @@
 			"automattic/jetpack-composer-plugin": true,
 			"automattic/jetpack-autoloader": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ7_1_0"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ8_0_0"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",

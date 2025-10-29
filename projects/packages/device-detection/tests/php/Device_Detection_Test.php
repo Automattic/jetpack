@@ -187,6 +187,83 @@ class Device_Detection_Test extends TestCase {
 				false,
 				'other',
 			),
+
+			// Samsung Internet 19.0 on Android.
+			array(
+				'Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/19.0 Chrome/102.0.5005.125 Mobile Safari/537.36',
+				array(
+					'is_phone',
+					'is_smartphone',
+					'is_handheld',
+				),
+				'android',
+				'samsung',
+			),
+
+			// UC Browser 13.4 on Android.
+			array(
+				'Mozilla/5.0 (Linux; U; Android 13; en-US; SM-A525F Build/TP1A.220624.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/78.0.3904.108 UCBrowser/13.4.0.1306 Mobile Safari/537.36',
+				array(
+					'is_phone',
+					'is_smartphone',
+					'is_handheld',
+				),
+				'android',
+				'uc',
+			),
+
+			// Yandex Browser 23.1 on Windows.
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 YaBrowser/23.1.1.138 Yowser/2.5 Safari/537.36',
+				array(
+					'is_desktop',
+				),
+				false,
+				'yandex',
+			),
+
+			// Vivaldi 5.3 on Windows.
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Vivaldi/5.3.2679.68',
+				array(
+					'is_desktop',
+				),
+				false,
+				'vivaldi',
+			),
+
+			// MIUI Browser 12.10 on Android.
+			array(
+				'Mozilla/5.0 (Linux; U; Android 11; zh-CN; Redmi K30 Pro Build/RKQ1.200826.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.116 MiuiBrowser/12.10.0-gn Quark/4.7.5.176 Mobile Safari/537.36',
+				array(
+					'is_phone',
+					'is_smartphone',
+					'is_handheld',
+				),
+				'android',
+				'miui',
+			),
+
+			// Amazon Silk 96.3 on Kindle Fire.
+			array(
+				'Mozilla/5.0 (Linux; Android 9; KFMAWI Build/PS7327.3183N) AppleWebKit/537.36 (KHTML, like Gecko) Silk/96.3.7 like Chrome/96.0.4664.45 Safari/537.36',
+				array(
+					'is_tablet',
+					'is_handheld',
+				),
+				false,
+				'silk',
+			),
+
+			// Modern Edge (Chromium-based) on Windows.
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 Edg/120.0.2210.91',
+				array(
+					'is_desktop',
+				),
+				false,
+				'edge',
+			),
 		);
 	}
 

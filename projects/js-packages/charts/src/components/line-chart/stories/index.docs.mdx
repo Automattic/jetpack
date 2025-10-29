@@ -29,6 +29,10 @@ The Line Chart component provides a flexible, accessible, and highly customizabl
 	</LineChart>` }
 />
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Simple Line Chart
@@ -91,10 +95,13 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
 - **`legendShape`**: Shape used in legend markers (`'line'` by default)
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
+- **`legendInteractive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
 - **`children`**: Child components (e.g., annotations)
+
+For detailed prop information, type definitions, gradient configuration options, and complete annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs).
 
 ## Curve Types
 
@@ -240,7 +247,11 @@ Comparison styling can be set in your theme configuration:
 
 ### Gradient Fill
 
-Add visual depth with gradient fills under line series:
+Add visual depth with gradient fills under line series. The gradient system supports both simple fills and complex multi-stop gradients for sophisticated visual effects.
+
+#### Basic Gradient Fill
+
+Enable gradient fills for all series with the `withGradientFill` prop:
 
 <Canvas of={ LineChartStories.GradientFilled } />
 
@@ -251,6 +262,97 @@ Add visual depth with gradient fills under line series:
 		withGradientFill={true}
 	/>` }
 />
+
+#### Custom Gradient Colors
+
+Customize gradient colors per series using the `gradient` option in series data:
+
+<Canvas of={ LineChartStories.GradientCustomColors } />
+
+<Source
+	language="jsx"
+	code={ `const data = [
+		{
+			label: 'Revenue',
+			data: chartData,
+			options: {
+				gradient: {
+					from: '#4CAF50',
+					to: '#81C784',
+					fromOpacity: 0.8,
+					toOpacity: 0.1,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: expenseData,
+			options: {
+				gradient: {
+					from: '#F44336',
+					to: '#EF5350',
+					fromOpacity: 0.6,
+					toOpacity: 0.0,
+				},
+			},
+		},
+	];
+
+	<LineChart
+		data={data}
+		withGradientFill={true}
+	/>` }
+/>
+
+#### Gradient with sections
+
+Create gradients that fade to transparent at specific points using stops, useful for highlighting data ranges. When no color is specified, the gradient uses the line color automatically:
+
+<Canvas of={ LineChartStories.GradientTransparent } />
+
+<Source
+	language="jsx"
+	code={ `const data = [
+		{
+			label: 'Temperature',
+			data: temperatureData,
+			options: {
+				gradient: {
+					stops: [
+						{ offset: '0%', opacity: 0.7 }, // Uses line color
+						{ offset: '20%', opacity: 0 },  // Fades to transparent
+						{ offset: '100%', opacity: 0 },
+					],
+				},
+			},
+		},
+	];
+
+	<LineChart
+		data={data}
+		withGradientFill={true}
+	/>` }
+/>
+
+#### Gradient Options
+
+The `gradient` option in series data supports the following properties:
+
+- **`from`**: Start color (hex, rgb, CSS variable)
+- **`to`**: End color (used when no stops are defined)
+- **`fromOpacity`**: Start opacity (0-1, default: 0.4)
+- **`toOpacity`**: End opacity (0-1, default: 0.1)
+- **`stops`**: Array of gradient stops for complex gradients
+
+#### Gradient Stop Properties
+
+Each stop in the `stops` array accepts:
+
+- **`offset`**: Position along gradient (percentage string, e.g., '25%')
+- **`color`**: Color at this stop (hex, rgb, CSS variable) - defaults to line color if omitted
+- **`opacity`**: Opacity at this stop (0-1, default: 1)
+
+**Note**: When using `stops`, the `from`, `to`, `fromOpacity`, and `toOpacity` properties are ignored.
 
 ### Glyphs and Markers
 
@@ -353,6 +455,38 @@ Use different shapes and custom glyphs in legends:
 	/>` }
 />
 
+### Interactive Legends
+
+Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation. This feature requires wrapping your chart in `GlobalChartsProvider` and providing a unique `chartId`:
+
+<Source
+	language="jsx"
+	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<LineChart
+			data={data}
+			chartId="sales-chart"
+			showLegend={true}
+			legendInteractive={true}
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+**Interactive Legend Features:**
+- **Click or Tap**: Toggle series visibility by clicking on legend items
+- **Keyboard Navigation**: Use Tab to focus legend items, then Enter or Space to toggle
+- **Accessibility**: Full ARIA support with screen reader announcements
+- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
+- **Color Stability**: Series colors remain consistent when toggling visibility
+
+**Requirements:**
+- Must be wrapped in `GlobalChartsProvider`
+- Must provide a unique `chartId` prop
+- Set `legendInteractive={true}` and `showLegend={true}`
+
+**Note:** Interactive legends are currently supported for both LineChart and BarChart. Support for additional chart types will be added in future releases.
+
 ## Advanced Customization
 
 ### Axis Configuration
@@ -425,7 +559,7 @@ Control chart layout with precise margin settings:
 
 ## Annotations
 
-Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) guide:
+Add contextual information to highlight specific data points or events. For comprehensive annotation documentation, see the [Line Chart Annotations](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) guide. For detailed annotation API reference, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-types-line-chart-api-reference--docs):
 
 <Source
 	language="jsx"
@@ -489,9 +623,9 @@ The chart gracefully handles various error states and edge cases:
 
 ### Keyboard Navigation
 
-- **Tab**: Focus the chart
+- **Tab**: Focus the chart or legend items (if interactive legends are enabled)
 - **Arrow Keys**: Navigate between data points
-- **Enter/Space**: Activate tooltips or interactive elements
+- **Enter/Space**: Activate tooltips or toggle legend items (if interactive legends are enabled)
 - **Escape**: Close active tooltips
 
 ### Screen Reader Support
@@ -499,6 +633,7 @@ The chart gracefully handles various error states and edge cases:
 - Chart container has `role="grid"` with descriptive `aria-label`
 - Data points are navigable and announced with values
 - Interactive elements have appropriate ARIA attributes
+- Interactive legend items announce their current visibility state ("visible" or "hidden")
 - Color information is supplemented with patterns and labels
 
 ### Focus Management
@@ -527,115 +662,6 @@ Full functionality in all modern browsers supporting:
 - Graceful degradation for older browsers
 - Touch-friendly interactions on mobile devices
 
-## API Reference
-
-### LineChart
-
-Main chart component with responsive behavior by default.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
-| `width` | `number?` | responsive | Chart width in pixels |
-| `height` | `number?` | responsive | Chart height in pixels |
-| `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
-| `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
-| `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
-| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
-| `showLegend` | `boolean` | `false` | Display chart legend |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `LegendShape` | `'line'` | Shape used in legend markers |
-| `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
-| `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
-| `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
-| `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
-| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
-| `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
-| `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
-| `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |
-| `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
-| `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
-| `children` | `ReactNode?` | - | Child components (e.g., annotations) |
-
-### LineChart.AnnotationsOverlay
-
-Container component for chart annotations. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete details.
-
-**Props:**
-
-- `children`: Annotation components
-
-### LineChart.Annotation
-
-Individual annotation component. See [Annotations documentation](?path=/docs/js-packages-charts-types-line-chart-annotations--docs) for complete API reference.
-
-### SeriesData Type
-
-```typescript
-type SeriesData = {
-	label: string;
-	data: DataPointDate[];
-	options?: {
-		gradient?: {
-			from: string;
-			to: string;
-			fromOpacity?: number;
-			toOpacity?: number;
-		};
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-		type?: 'comparison'; // Semantic type for automatic theme styling
-	};
-};
-```
-
-### DataPointDate Type
-
-```typescript
-type DataPointDate = {
-	date?: Date;
-	dateString?: string; // Multiple formats supported
-	value: number | null;
-	label?: string;
-};
-```
-
-### ChartOptions Type
-
-```typescript
-type ChartOptions = {
-	yScale?: {
-		type?: 'linear' | 'log';
-		zero?: boolean;
-		domain?: [number, number];
-		nice?: boolean;
-	};
-	xScale?: {
-		type?: 'time' | 'linear';
-		domain?: [Date, Date] | [number, number];
-	};
-	axis?: {
-		x?: {
-			orientation?: 'top' | 'bottom';
-			numTicks?: number;
-			tickFormat?: (value: any) => string;
-		};
-		y?: {
-			orientation?: 'left' | 'right';
-			numTicks?: number;
-			tickFormat?: (value: number) => string;
-		};
-	};
-};
-```
-
-
 ## Performance Considerations
 
 ### Built-in Optimizations
@@ -656,11 +682,11 @@ Line Charts integrate seamlessly with the chart theming system:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
-	<ThemeProvider theme={jetpackTheme}>
+	<GlobalChartsProvider theme={jetpackTheme}>
 		<LineChart data={data} />
-	</ThemeProvider>` }
+	</GlobalChartsProvider>` }
 />
 
 **Available themes:**

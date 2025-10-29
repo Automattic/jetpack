@@ -603,7 +603,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 		if ( file_exists( $wp_cache_config_file_sample ) ) {
 			copy( $wp_cache_config_file_sample, $wp_cache_config_file );
-			$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
+			$cache_page_secret = md5( gmdate( 'H:i:s' ) . wp_rand() );
 			wp_cache_setting( 'cache_page_secret', $cache_page_secret );
 
 			if ( function_exists( "opcache_invalidate" ) ) {

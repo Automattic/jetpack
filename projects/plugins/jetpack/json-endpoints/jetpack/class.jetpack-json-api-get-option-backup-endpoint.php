@@ -22,7 +22,7 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	/**
 	 * Option names.
 	 *
-	 * @var string
+	 * @var array
 	 */
 	protected $option_names;
 

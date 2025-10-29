@@ -4054,13 +4054,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Returns an status against a contact
-     *
-     * @param int id Contact ID
-     *
-     * @return str contact status string
-     */
+		/**
+		 * Returns an status against a contact
+		 *
+		 * @param int $id Contact ID.
+		 *
+		 * @return string contact status string
+		 */
     public function getContactStatus($id=-1){
 
         global $zbs;
@@ -4081,14 +4081,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         
     }
 
-    /**
-     * Sets the status of a contact
-     *
-     * @param int id Contact ID
-     * @param str status Contact status
-     *
-     * @return int changed
-     */
+		/**
+		 * Sets the status of a contact
+		 *
+		 * @param int    $id Contact ID.
+		 * @param string $status Contact status.
+		 *
+		 * @return int|false contact ID if successful, false otherwise
+		 */
     public function setContactStatus( $id=-1, $status=-1 ){
 
         global $zbs;
@@ -4834,9 +4834,12 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         $whereArr = array();
 
-        if ($inCompany) $whereArr['incompany'] = array('ID','IN','(SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks']." WHERE zbsol_objtype_from = ".ZBS_TYPE_CONTACT." AND zbsol_objtype_to = ".ZBS_TYPE_COMPANY." AND zbsol_objid_to = %d)",$inCompany);
-
 			// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			if ( $inCompany ) {
+				global $ZBSCRM_t;
+				$whereArr['incompany'] = array( 'ID', 'IN', '(SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_to = %d)', $inCompany );
+			}
+
 			if ( $withStatus !== false && ! empty( $withStatus ) ) {
 				$whereArr['status'] = array( 'zbsc_status', '=', 'convert(%s using utf8mb4) collate utf8mb4_bin', $withStatus );
 			}

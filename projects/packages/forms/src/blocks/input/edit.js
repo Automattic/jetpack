@@ -96,7 +96,10 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 			/>
 			{ type === 'number' && (
 				<InspectorControls>
-					<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
+					<PanelBody
+						title={ __( 'Settings', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel"
+					>
 						<NumberControl
 							key="min"
 							label={ __( 'Minimum value', 'jetpack-forms' ) }

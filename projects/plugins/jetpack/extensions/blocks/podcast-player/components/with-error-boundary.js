@@ -31,7 +31,7 @@ export default function withErrorBoundary( WrappedComponent ) {
 										'jetpack'
 								  )
 								: __(
-										'An unexpected error occured within the Podcast Player. Reloading this page might fix the problem.',
+										'An unexpected error occurred within the Podcast Player. Reloading this page might fix the problem.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
 								  ) }

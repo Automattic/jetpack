@@ -32,7 +32,7 @@ yarn add @automattic/charts
 
 <Source
 	language="jsx"
-	code={`import { LineChart, ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={`import { LineChart, GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
 	const data = [
 		{
@@ -48,9 +48,9 @@ yarn add @automattic/charts
 
 	function MyChart() {
 		return (
-			<ThemeProvider theme={jetpackTheme}>
+			<GlobalChartsProvider theme={jetpackTheme}>
 				<LineChart data={data} />
-			</ThemeProvider>
+			</GlobalChartsProvider>
 		);
 	}`}
 />
@@ -84,7 +84,7 @@ Great for showing parts of a whole, with customizable thickness and gap spacing.
 Charts expect data in a standardized format with `date` (for time-series) or category values and numeric `value` properties.
 
 ### Theme System
-Use the `ThemeProvider` component to apply consistent styling across all charts. Supports Jetpack and WooCommerce themes out of the box.
+Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Supports Jetpack and WooCommerce themes out of the box.
 
 ### Responsive Design
 All charts automatically adapt to their container size using the `withResponsive` higher-order component.

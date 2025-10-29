@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
+const CodeMirrorLanguageDataPlugin = require( './webpack-plugins/codemirror-language-data-plugin.js' );
 const moduleConfig = require( './webpack.config.modules.js' );
 
 module.exports = async () => {
@@ -22,6 +23,10 @@ module.exports = async () => {
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 				'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
+				marketing: [
+					'./src/features/marketing/marketing.js',
+					'./src/features/marketing/marketing.scss',
+				],
 				'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
 				'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
 				'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',
@@ -32,6 +37,10 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.js',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
+				'wpcom-blocks-code-block-definition':
+					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
+				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',
+				'wpcom-blocks-code-style': './src/features/wpcom-blocks/code/style.css',
 				'wpcom-blocks-event-countdown-editor':
 					'./src/features/wpcom-blocks/event-countdown/editor.js',
 				'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
@@ -98,6 +107,7 @@ module.exports = async () => {
 						__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
 					},
 				} ),
+				new CodeMirrorLanguageDataPlugin(),
 			],
 			module: {
 				strictExportPresence: true,

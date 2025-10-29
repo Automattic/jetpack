@@ -24,7 +24,7 @@ class MailPoet_Contact_Tabs {
     /**
      * Setup MailPoet Contact Tabs
      */
-    public function __construct( ) {
+	public function __construct() {
 
         global $zbs;
 
@@ -60,7 +60,7 @@ class MailPoet_Contact_Tabs {
     /**
      * Initialise Hooks
      */
-    private function init_hooks( ){
+	private function init_hooks() {
 
         // add in tabs
         add_filter( 'jetpack-crm-contact-vital-tabs', array( $this, 'append_info_tabs' ) , 10, 3 );

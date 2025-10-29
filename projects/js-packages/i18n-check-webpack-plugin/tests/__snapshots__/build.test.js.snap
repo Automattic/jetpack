@@ -175,13 +175,13 @@ exports[`Webpack \`options-filter\`: Webpack build stats 1`] = `
           "message": "string/main.js:1:76: msgid argument is not a string literal: __(t?"arr is set":"arr is not set","domain")",
         },
         {
-          "message": "string/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+          "message": "string/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
         },
         {
-          "message": "string/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+          "message": "string/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
         },
         {
-          "message": "string/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+          "message": "string/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
         },
         {
           "message": "string/main.js: Optimization seems to have broken the following translation strings:
@@ -199,13 +199,13 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
           "message": "regex/main.js:1:76: msgid argument is not a string literal: __(t?"arr is set":"arr is not set","domain")",
         },
         {
-          "message": "regex/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+          "message": "regex/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
         },
         {
-          "message": "regex/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+          "message": "regex/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
         },
         {
-          "message": "regex/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+          "message": "regex/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
         },
         {
           "message": "regex/main.js: Optimization seems to have broken the following translation strings:
@@ -223,13 +223,13 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
           "message": "function/main.js:1:76: msgid argument is not a string literal: __(t?"arr is set":"arr is not set","domain")",
         },
         {
-          "message": "function/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+          "message": "function/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
         },
         {
-          "message": "function/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+          "message": "function/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
         },
         {
-          "message": "function/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+          "message": "function/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
         },
         {
           "message": "function/main.js: Optimization seems to have broken the following translation strings:
@@ -247,13 +247,13 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
           "message": "array/main.js:1:76: msgid argument is not a string literal: __(t?"arr is set":"arr is not set","domain")",
         },
         {
-          "message": "array/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+          "message": "array/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
         },
         {
-          "message": "array/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+          "message": "array/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
         },
         {
-          "message": "array/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+          "message": "array/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
         },
         {
           "message": "array/main.js: Optimization seems to have broken the following translation strings:
@@ -271,13 +271,13 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
           "message": "undefined/main.js:1:76: msgid argument is not a string literal: __(t?"arr is set":"arr is not set","domain")",
         },
         {
-          "message": "undefined/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+          "message": "undefined/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
         },
         {
-          "message": "undefined/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+          "message": "undefined/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
         },
         {
-          "message": "undefined/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+          "message": "undefined/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
         },
         {
           "message": "undefined/main.js: Optimization seems to have broken the following translation strings:
@@ -303,15 +303,15 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
     },
     {
       "compilerPath": "string",
-      "message": "string/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+      "message": "string/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
     },
     {
       "compilerPath": "string",
-      "message": "string/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+      "message": "string/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
     },
     {
       "compilerPath": "string",
-      "message": "string/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+      "message": "string/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
     },
     {
       "compilerPath": "string",
@@ -326,15 +326,15 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
     },
     {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+      "message": "regex/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
     },
     {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+      "message": "regex/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
     },
     {
       "compilerPath": "regex",
-      "message": "regex/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+      "message": "regex/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
     },
     {
       "compilerPath": "regex",
@@ -349,15 +349,15 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
     },
     {
       "compilerPath": "function",
-      "message": "function/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+      "message": "function/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
     },
     {
       "compilerPath": "function",
-      "message": "function/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+      "message": "function/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
     },
     {
       "compilerPath": "function",
-      "message": "function/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+      "message": "function/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
     },
     {
       "compilerPath": "function",
@@ -372,15 +372,15 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
     },
     {
       "compilerPath": "array",
-      "message": "array/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+      "message": "array/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
     },
     {
       "compilerPath": "array",
-      "message": "array/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+      "message": "array/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
     },
     {
       "compilerPath": "array",
-      "message": "array/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+      "message": "array/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
     },
     {
       "compilerPath": "array",
@@ -395,15 +395,15 @@ See https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#k
     },
     {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:186: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
+      "message": "undefined/main.js:1:262: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
     },
     {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:374: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
+      "message": "undefined/main.js:1:378: msgid argument is not a string literal: __(t?"regex is set":"regex is not set","domain")",
     },
     {
       "compilerPath": "undefined",
-      "message": "undefined/main.js:1:488: msgid argument is not a string literal: __(t?"string is set":"string is not set","domain")",
+      "message": "undefined/main.js:1:539: msgid argument is not a string literal: __(t?"func is set":"func is not set","domain")",
     },
     {
       "compilerPath": "undefined",

@@ -286,7 +286,7 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 			} );
 
 			/* dropping 'generic' in favour of opt groups
-				// in end do this in 2 - generics/non generics (easier to seperate)
+				// in end do this in 2 - generics/non generics (easier to separate)
 				var isGeneric = false;
 
 					// non generic

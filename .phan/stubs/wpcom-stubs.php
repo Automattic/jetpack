@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit c14eaecaad5e16e99877104f2e1bbe3d871f8193.
+ * Stubs automatically generated from WordPress.com commit d0f863c7ff00ed5789626b38fafd63ff366cbb49.
  */
 
 namespace {
@@ -263,6 +263,12 @@ namespace {
     function global_css()
     {
     }
+    /**
+     * @return \WP_Ability[]
+     */
+    function wp_get_abilities(): array
+    {
+    }
     class WPCOM_External_Connections
     {
         /**
@@ -361,6 +367,21 @@ namespace {
      */
     function log2logstash($params)
     {
+    }
+    class MailchimpApi
+    {
+        function __construct($blog_id, $user_id)
+        {
+        }
+        function get_lists()
+        {
+        }
+        static function get_settings($blog_id)
+        {
+        }
+        static function save_settings($blog_id, $new_settings = array(), $cleanup_previous = \false)
+        {
+        }
     }
     /**
      * @param int $site_id
@@ -486,7 +507,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true, $stream_callback = \null)
         {
         }
         /**
@@ -1152,7 +1173,25 @@ namespace {
     /**
      * @phan-return mixed
      */
+    function stats_get_visitors($blog_id, $end_date = \false, $num_units = 1, $unit = 1)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function stats_grandtotal_views($blog_id = \null, $site_id = \null, $update_if_older_than = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function get_all_time_postviews($post_id = \null)
     {
     }
     /**

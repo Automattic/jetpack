@@ -265,13 +265,14 @@ class Jetpack_Media_Summary {
 					++$number_of_paragraphs;
 				}
 
-				if ( isset( $extract['image'][0]['url'] ) ) {
+				// @phan-suppress-next-line PhanTypeMismatchDimFetch -- Phan is understandably confused, as $extract has many forms, including this one.
+				if ( ! empty( $extract['image'][0]['url'] ) ) {
 					$return['image']           = $extract['image'][0]['url'];
 					$return['secure']['image'] = self::ssl_img( $return['image'] );
 					++$return['count']['image'];
 				}
 
-				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {  // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- We established the image offset exists with '! empty( $extract['has']['image']' earlier.
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}

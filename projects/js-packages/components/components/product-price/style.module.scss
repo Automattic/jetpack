@@ -86,12 +86,14 @@
 
 		> p {
 			font-weight: 500;
+			font-size: 32px;
+			line-height: 32px;
 			margin-right: 8px;
 		}
 
 		> div {
-			line-height: 30px;
-			margin-top: auto;
+			line-height: 16px;
+			margin: auto 0 0;
 			color: var(--jp-gray-50);
 		}
 	}
@@ -103,8 +105,8 @@
 			font-weight: 400;
 			margin-right: 8px;
 			color: var(--jp-gray-40);
-			font-size: 32px;
-			line-height: 50px;
+			font-size: 21px;
+			line-height: 35px;
 
 			&::after {
 				background: var(--jp-gray-40);
@@ -112,8 +114,8 @@
 		}
 
 		> div {
-			line-height: 38px;
-			margin-top: auto;
+			line-height: 16px;
+			margin: auto 0 0;
 			color: var(--jp-gray-50);
 		}
 	}

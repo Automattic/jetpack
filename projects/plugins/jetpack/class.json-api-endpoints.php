@@ -81,7 +81,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Maximum version of the api for which to serve this endpoint
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -103,7 +102,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * Version of the endpoint this endpoint is deprecated in favor of.
 	 *
 	 * @var string
-	 * @phan-suppress PhanUndeclaredConstant -- https://github.com/phan/phan/issues/4855
 	 */
 	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
 
@@ -2783,7 +2781,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			array_values( array( $this->path, $blog_id ) + $request->get_url_params() )
 		);
 
-		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is confused.
 		if ( ! $response && ! is_array( $response ) ) {
 			// Dealing with empty non-array response.
 			$response = new WP_Error( 'empty_response', 'Endpoint response is empty', 500 );

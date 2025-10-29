@@ -268,7 +268,7 @@ class Jetpack_Slideshow_Shortcode {
 			'jetpack-shortcode-deps',
 			plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
-			'20250806',
+			'20250905',
 			true
 		);
 

@@ -1,14 +1,24 @@
-import { useGlobalChartTheme } from '../../../hooks';
-import { legendArgTypes } from '../../../stories/legend-config';
+import {
+	ChartStoryArgs,
+	temperatureData as sampleData,
+	largeValuesData,
+	trafficData as webTrafficData,
+} from '../../../stories';
 import LineChart from '../line-chart';
-import { lineChartStoryArgs, lineChartMetaArgs } from './config';
-import largeValuesData from './large-values-sample';
-import sampleData from './sample-data';
-import webTrafficData from './site-traffic-sample';
+import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
+/**
+ * Story-specific args that provide convenient Storybook controls.
+ * These don't map directly to component props but control how data/state is manipulated in stories.
+ */
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
+	/** Controls how many data series to display: 'single' (1 series), 'multiple' (4 series), or 'many' (all series) */
+	seriesCount?: 'single' | 'multiple' | 'many';
+	/** Chart sizing mode: 'responsive' (uses maxWidth/aspectRatio) or 'fixed' (uses width/height) */
+	dimensionMode?: 'responsive' | 'fixed';
+	/** Crosshair visibility on tooltip hover: 'none', 'vertical', 'horizontal', or 'both' */
+	crosshairMode?: 'none' | 'vertical' | 'horizontal' | 'both';
 };
 
 const meta: Meta< StoryArgs > = {
@@ -16,13 +26,78 @@ const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
-		...legendArgTypes,
+		seriesCount: {
+			control: { type: 'radio' },
+			options: [ 'single', 'multiple', 'many' ],
+			description: 'Number of data series',
+			table: { category: 'Data' },
+		},
+		dimensionMode: {
+			control: { type: 'radio' },
+			options: [ 'responsive', 'fixed' ],
+			description: 'Chart sizing mode',
+			table: { category: 'Dimensions' },
+		},
+		smoothing: {
+			control: 'boolean',
+			description: 'Enable line smoothing',
+			table: { category: 'Visual Style' },
+		},
+		curveType: {
+			control: { type: 'radio' },
+			options: [ 'linear', 'smooth', 'monotone' ],
+			description: 'Line curve type',
+			table: { category: 'Visual Style' },
+		},
+		withGradientFill: {
+			control: 'boolean',
+			description: 'Fill area under line with gradient',
+			table: { category: 'Visual Style' },
+		},
 	},
 };
 
 export default meta;
 
-const Template: StoryFn< typeof LineChart > = args => <LineChart { ...args } />;
+const Template: StoryFn< typeof LineChart > = args => {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+
+	// Determine data based on seriesCount control
+	let data = chartProps.data || lineChartStoryArgs.data;
+	if ( seriesCount === 'single' ) {
+		data = [ sampleData[ 0 ] ];
+	} else if ( seriesCount === 'multiple' ) {
+		data = sampleData.slice( 0, 4 );
+	} else if ( seriesCount === 'many' ) {
+		data = sampleData;
+	}
+
+	// Determine dimensions based on dimensionMode control
+	let dimensions = {};
+	if ( dimensionMode === 'fixed' ) {
+		dimensions = { width: 800, height: 400 };
+	}
+
+	// Map crosshairMode to withTooltipCrosshairs
+	let crosshairConfig;
+	if ( crosshairMode === 'vertical' ) {
+		crosshairConfig = { showVertical: true };
+	} else if ( crosshairMode === 'horizontal' ) {
+		crosshairConfig = { showHorizontal: true };
+	} else if ( crosshairMode === 'both' ) {
+		crosshairConfig = { showVertical: true, showHorizontal: true };
+	}
+
+	return (
+		<LineChart
+			{ ...chartProps }
+			{ ...dimensions }
+			data={ data }
+			withTooltipCrosshairs={ crosshairConfig }
+		/>
+	);
+};
 
 // Default story with multiple series
 export const Default: StoryObj< typeof LineChart > = Template.bind( {} );
@@ -36,15 +111,33 @@ SingleSeries.args = {
 	data: [ sampleData[ 0 ] ], // Only London temperature data
 };
 
-export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithLegend.args = {
+export const ManySeries: StoryObj< typeof LineChart > = Template.bind( {} );
+ManySeries.args = {
 	...lineChartStoryArgs,
+	data: sampleData,
 	showLegend: true,
+};
+
+export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithInteractiveLegend.args = {
+	...lineChartStoryArgs,
+	chartId: 'interactive-legend-demo',
+	showLegend: true,
+	legendInteractive: true,
+};
+
+WithInteractiveLegend.parameters = {
+	docs: {
+		description: {
+			story:
+				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
+		},
+	},
 };
 
 export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomLegendPositioning.args = {
-	data: sampleData,
+	...lineChartStoryArgs,
 	showLegend: true,
 	height: 400,
 	legendAlignment: 'start',
@@ -64,19 +157,30 @@ CustomLegendPositioning.parameters = {
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: () => (
+	render: args => (
 		<div style={ { width: '600px', height: '400px' } }>
 			<LineChart
-				data={ webTrafficData }
+				data={ args.data || webTrafficData }
 				width={ 600 }
 				height={ 300 }
 				withGradientFill={ false }
 				withLegendGlyph={ false }
 			>
-				<LineChart.Legend orientation="horizontal" alignment="center" position="bottom" />
+				<LineChart.Legend
+					orientation={ args.legendOrientation || 'horizontal' }
+					alignment={ args.legendAlignment || 'center' }
+					position={ args.legendPosition || 'bottom' }
+					maxWidth={ args.legendMaxWidth }
+					textOverflow={ args.legendTextOverflow || 'wrap' }
+				/>
 			</LineChart>
 		</div>
 	),
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
 	parameters: {
 		docs: {
 			description: {
@@ -89,17 +193,17 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 // Story with custom dimensions
 export const CustomDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 CustomDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 };
 
 // Add after existing stories
 export const FixedDimensions: StoryObj< typeof LineChart > = Template.bind( {} );
 FixedDimensions.args = {
+	...lineChartStoryArgs,
 	width: 800,
 	height: 400,
-	data: sampleData,
 	withTooltips: true,
 };
 
@@ -114,13 +218,89 @@ FixedDimensions.parameters = {
 // Story with gradient filled line chart
 export const GradientFilled: StoryObj< typeof LineChart > = Template.bind( {} );
 GradientFilled.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	margin: undefined,
 	data: webTrafficData,
 	withGradientFill: true,
 	options: {
 		axis: { y: { orientation: 'right' } },
 	},
+};
+
+// Story with custom gradient colors per series
+export const GradientCustomColors: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientCustomColors.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Revenue',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 45000 },
+				{ date: new Date( '2024-02-01' ), value: 52000 },
+				{ date: new Date( '2024-03-01' ), value: 48000 },
+				{ date: new Date( '2024-04-01' ), value: 61000 },
+				{ date: new Date( '2024-05-01' ), value: 68000 },
+				{ date: new Date( '2024-06-01' ), value: 72000 },
+			],
+			options: {
+				gradient: {
+					fromOpacity: 0.8,
+					toOpacity: 0,
+				},
+			},
+		},
+		{
+			label: 'Expenses',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 28000 },
+				{ date: new Date( '2024-02-01' ), value: 31000 },
+				{ date: new Date( '2024-03-01' ), value: 29000 },
+				{ date: new Date( '2024-04-01' ), value: 33000 },
+				{ date: new Date( '2024-05-01' ), value: 35000 },
+				{ date: new Date( '2024-06-01' ), value: 38000 },
+			],
+			options: {
+				gradient: {
+					from: 'var(--jp-red)',
+					to: 'var(--jp-red)',
+					fromOpacity: 0.6,
+					toOpacity: 0,
+				},
+			},
+		},
+	],
+	withGradientFill: true,
+};
+
+// Story with transparent gradient sections
+export const GradientTransparent: StoryObj< typeof LineChart > = Template.bind( {} );
+GradientTransparent.args = {
+	width: 600,
+	height: 300,
+	data: [
+		{
+			label: 'Temperature (°C)',
+			data: [
+				{ date: new Date( '2024-01-01' ), value: 15 },
+				{ date: new Date( '2024-02-01' ), value: 18 },
+				{ date: new Date( '2024-03-01' ), value: 22 },
+				{ date: new Date( '2024-04-01' ), value: 26 },
+				{ date: new Date( '2024-05-01' ), value: 30 },
+				{ date: new Date( '2024-06-01' ), value: 28 },
+			],
+			options: {
+				gradient: {
+					stops: [
+						{ offset: '0%', opacity: 0.7 },
+						{ offset: '20%', opacity: 0 },
+						{ offset: '100%', opacity: 0 },
+					],
+				},
+			},
+		},
+	],
+	withGradientFill: true,
 };
 
 export const ErrorStates: StoryObj< typeof LineChart > = {
@@ -203,13 +383,13 @@ export const ErrorStates: StoryObj< typeof LineChart > = {
 
 export const WithoutSmoothing: StoryObj< typeof LineChart > = Template.bind( {} );
 WithoutSmoothing.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	smoothing: false,
 };
 
 export const WithPointerEvents: StoryObj< typeof LineChart > = Template.bind( {} );
 WithPointerEvents.args = {
-	...Default.args,
+	...lineChartStoryArgs,
 	// eslint-disable-next-line no-alert
 	onPointerDown: ( { datum } ) => alert( 'Pointer down:' + JSON.stringify( datum ) ),
 };
@@ -309,22 +489,26 @@ SmartFormatting.parameters = {
 	},
 };
 
+// Offset for dashed line to prevent overlapping with solid line
+const DASHED_LINE_OFFSET = 100;
+
 export const BrokenLine: StoryObj< typeof LineChart > = Template.bind( {} );
 BrokenLine.args = {
-	...Default.args,
-	margin: {
-		bottom: 40,
-	},
+	...lineChartStoryArgs,
 	data: [
 		{
 			...webTrafficData[ 0 ],
-			label: 'Vistors to compare',
+			label: 'Visitors with dashed line',
+			data: webTrafficData[ 0 ].data.map( point => ( {
+				...point,
+				value: point.value + DASHED_LINE_OFFSET,
+			} ) ),
 			options: {
 				...webTrafficData[ 0 ].options,
-				seriesLineStyle: { strokeDasharray: '5 5 1' }, //specify dasharray as a string
+				seriesLineStyle: { strokeDasharray: '5 5', strokeWidth: 3 },
 			},
 		},
-		webTrafficData[ 1 ],
+		webTrafficData[ 0 ],
 	],
 	showLegend: true,
 };
@@ -375,42 +559,34 @@ export const DateStringFormats: StoryObj< typeof LineChart > = {
 	},
 };
 
-export const Comparison: StoryObj< typeof LineChart > = {
-	args: {
-		...lineChartStoryArgs,
-		showLegend: true,
-		smoothing: false,
-		data: [
-			{
-				...sampleData[ 0 ],
-				label: 'This Year',
-				options: {},
+export const Comparison: StoryObj< typeof LineChart > = Template.bind( {} );
+Comparison.args = {
+	showLegend: true,
+	smoothing: false,
+	data: [
+		{
+			...sampleData[ 0 ],
+			label: 'New York',
+		},
+		{
+			...sampleData[ 1 ],
+			label: 'New York last year',
+			group: 'new-york',
+			options: {
+				type: 'comparison' as const,
 			},
-			{
-				...sampleData[ 2 ],
-				label: 'Last Year',
-				options: {
-					type: 'comparison' as const,
-				},
+		},
+		{
+			...sampleData[ 2 ],
+			label: 'Tokyo',
+		},
+		{
+			...sampleData[ 3 ],
+			label: 'Tokyo last year',
+			group: 'tokyo',
+			options: {
+				type: 'comparison' as const,
 			},
-		],
-	},
-	render: args => {
-		const ComparisonChart = () => {
-			const theme = useGlobalChartTheme();
-			const primaryColor = theme.colors[ 2 ];
-
-			const data = args.data.map( series => ( {
-				...series,
-				options: {
-					...series.options,
-					stroke: primaryColor,
-				},
-			} ) );
-
-			return <LineChart { ...args } data={ data } />;
-		};
-
-		return <ComparisonChart />;
-	},
+		},
+	],
 };

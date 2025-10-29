@@ -1,15 +1,19 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
-import { sharedDecorator } from '../../../stories/decorator-config';
+import { useGlobalChartsTheme } from '../../../providers';
+import {
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	marketingChannelsComparison as salesByChannel,
+	salesByProduct,
+	themeArgTypes,
+} from '../../../stories';
 import BarListChart from '../bar-list-chart';
-import { salesByChannel, salesByProduct } from './sample-data';
 import type { Meta, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof BarListChart > & {
-	containerWidth?: string;
-	containerHeight?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > >;
 
 const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Bar List Chart',
@@ -17,7 +21,11 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: sharedDecorator,
+	decorators: [ chartDecorator ],
+	argTypes: {
+		...sharedChartArgTypes,
+		...themeArgTypes,
+	},
 };
 
 export default meta;
@@ -56,9 +64,13 @@ export const CustomLabelComponent: Story = {
 			xScale: {},
 			yScale: {},
 			labelComponent: ( { textProps, x, y, label, formatter } ) => {
+				// eslint-disable-next-line react-hooks/rules-of-hooks
+				const theme = useGlobalChartsTheme();
+				const circleColor = theme.colors[ 1 ]; // Use second theme color for contrast
+
 				return (
 					<>
-						<Circle cx={ x + 6 } cy={ y } r={ 8 } />
+						<Circle cx={ x + 6 } cy={ y } r={ 8 } fill={ circleColor } />
 						<Text { ...textProps } textAnchor="start" x={ x + 24 } y={ y } fontWeight={ 500 }>
 							{ formatter( label ) }
 						</Text>

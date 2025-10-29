@@ -4,7 +4,8 @@
 .jp-forms__integrations {
 	padding: 32px 8px;
 	margin: 0 auto 24px auto;
-	max-width: 720px;
+	width: 720px;
+	max-width: 98%;
 
 	.jp-forms__integrations-header {
 		display: flex;
@@ -29,6 +30,11 @@
 		border: 1px solid colors.$gray-200;
 		border-radius: 8px;
 		padding: 12px 24px;
+		background: colors.$white;
+
+		> div:last-of-type {
+			border-bottom: none;
+		}
 
 		@media ( max-width: 782px ) {
 			padding: 12px 8px;

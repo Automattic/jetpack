@@ -100,7 +100,7 @@ export function SettingsSection( { onReShared } ) {
 			{ isPostPublished ? (
 				<div>
 					<Panel>
-						<ScheduledShares postId={ postId } />
+						<ScheduledShares postId={ Number( postId ) } />
 					</Panel>
 				</div>
 			) : null }

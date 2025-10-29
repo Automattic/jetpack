@@ -22,7 +22,6 @@
 		<testsuite name="wpcloud">
 			<directory suffix="Test.php">tests/</directory>
 			<exclude>tests/feature-manager/FeatureHookTest.php</exclude>
-			<exclude>tests/BlogTokenResilienceTest.php</exclude>
 			<exclude>tests/FrontendNoticesTest.php</exclude>
 			<exclude>tests/FunctionsTest.php</exclude>
 			<exclude>tests/PlanNoticesTest.php</exclude>
@@ -30,7 +29,6 @@
 		</testsuite>
 		<testsuite name="other">
 			<file>tests/feature-manager/FeatureHookTest.php</file>
-			<file>tests/BlogTokenResilienceTest.php</file>
 			<file>tests/FrontendNoticesTest.php</file>
 			<file>tests/FunctionsTest.php</file>
 			<file>tests/PlanNoticesTest.php</file>
@@ -41,6 +39,7 @@
 	<php>
 		<ini name="display_errors" value="On" />
 		<ini name="display_startup_errors" value="On" />
+		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
 	</php>
 
 	<source>
@@ -68,7 +67,6 @@
 			<directory suffix=".php">imports</directory>
 			<directory suffix=".php">jetpack-require-connection-owner</directory>
 			<directory suffix=".php">jetpack-token-error-header</directory>
-			<directory suffix=".php">jetpack-token-resilience</directory>
 			<directory suffix=".php">lib</directory>
 			<directory suffix=".php">mailpoet</directory>
 			<directory suffix=".php">notices</directory>

@@ -1152,6 +1152,10 @@ class WPCOM_JSON_API_Menus_Get_Menu_Endpoint extends WPCOM_JSON_API_Menus_Abstra
 			return $menu;
 		}
 
+		if ( ! $menu instanceof WP_Term ) {
+			return new WP_Error( 'menu-not-found', 'Menu not found.', 404 );
+		}
+
 		$items = wp_get_nav_menu_items( $menu_id, array( 'update_post_term_cache' => false ) );
 
 		if ( is_wp_error( $items ) ) {

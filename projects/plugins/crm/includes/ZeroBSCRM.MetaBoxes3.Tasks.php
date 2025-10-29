@@ -714,7 +714,7 @@ function zeroBSCRM_task_ui_for_co( $taskObject = array() ) {
  * Returns a string for disabling browser autocomplete
  * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
  *
- * @param obj $task_object Object containing task details.
+ * @param array $task_object Object containing task details.
  *
  * @return string $html Contains the start/end date and time inputs.
  */

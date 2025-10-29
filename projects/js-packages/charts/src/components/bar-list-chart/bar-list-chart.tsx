@@ -2,9 +2,10 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Group } from '@visx/group';
 import { createScale, scaleBand } from '@visx/scale';
 import { Text, type TextProps } from '@visx/text';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import { GlobalChartsContext, GlobalChartsProvider } from '../../providers';
 import { BarChart } from '../bar-chart';
-import { withResponsive } from '../shared/with-responsive';
+import { withResponsive } from '../private/with-responsive';
 import type { SeriesData } from '../..';
 import type { ScaleOptions } from '../../types';
 import type { BarChartProps } from '../bar-chart/bar-chart';
@@ -12,7 +13,7 @@ import type { AxisRendererProps, AxisScale } from '@visx/axis';
 import type { AnyD3Scale } from '@visx/scale';
 import type { ComponentType, FC } from 'react';
 
-interface BarListChartProps
+export interface BarListChartProps
 	extends Exclude< BarChartProps, 'orientation' | 'size' | 'gridVisibility' > {
 	options?: {
 		/**
@@ -54,7 +55,7 @@ interface BarListChartProps
 	};
 }
 
-interface RenderLabelProps {
+export interface RenderLabelProps {
 	textProps: TextProps;
 	x: number;
 	y: number;
@@ -62,7 +63,7 @@ interface RenderLabelProps {
 	formatter: ( value: string ) => string;
 }
 
-interface RenderValueProps {
+export interface RenderValueProps {
 	textProps: TextProps;
 	x: number;
 	y: number;
@@ -210,7 +211,7 @@ const getDefaultYOffset = (
 	return -( barThickness + GAP_BETWEEN_BARS );
 };
 
-const BarListChart: FC< BarListChartProps > = ( {
+const BarListChartInternal: FC< BarListChartProps > = ( {
 	data,
 	width,
 	height,
@@ -292,4 +293,24 @@ const BarListChart: FC< BarListChartProps > = ( {
 	);
 };
 
-export default withResponsive< BarListChartProps >( BarListChart );
+const BarListChart: FC< BarListChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, render the core component directly
+	if ( existingContext ) {
+		return <BarListChartInternal { ...props } />;
+	}
+
+	// Otherwise, wrap with our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<BarListChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+BarListChart.displayName = 'BarListChart';
+
+const BarListChartResponsive = withResponsive< BarListChartProps >( BarListChart );
+
+export { BarListChartResponsive as default, BarListChart as BarListChartUnresponsive };

@@ -1,4 +1,5 @@
 import { store, getContext } from '@wordpress/interactivity';
+import { computeSliderValuePosition } from '../../blocks/input-range/utils';
 
 const NAMESPACE = 'jetpack/form';
 
@@ -25,13 +26,8 @@ store( NAMESPACE, {
 		get getSliderPosition() {
 			const context = getContext();
 			const { min, max } = getSliderMinMax( context );
-			let value = Number( context.fieldValue ?? context.default ?? min );
-			value = value < min ? min : value;
-			value = value > max ? max : value;
-			const percent = ( ( value - min ) * 100 ) / ( max - min );
-
-			// Magic numbers: 8px base offset, 0.15px per percent
-			return `calc(${ percent }% + (${ 8 - percent * 0.15 }px))`;
+			const value = context.fieldValue ?? context.default ?? min;
+			return computeSliderValuePosition( min, max, value );
 		},
 	},
 	actions: {

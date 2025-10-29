@@ -338,7 +338,7 @@ final class ZeroBSCRM {
 	public $encryption = null;
 
 	/**
-	 * Included Array (means we can not 'reinclude' stripe etc.)
+	 * Included Array (means we cannot 'reinclude' stripe etc.)
 	 */
 	public $included = array(
 
@@ -2425,7 +2425,7 @@ final class ZeroBSCRM {
 	/**
 	 * Get Globalised ZBS Vars
 	 *
-	 * @return str/int/bool
+	 * @return string|int|bool
 	 */
 	public function zbsvar( $key = '' ) {
 

@@ -1,7 +1,7 @@
+import { type Page, expect } from '@playwright/test';
 import logger from '_jetpack-e2e-commons/logger';
 import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
 import { createUser, deleteUser } from '_jetpack-e2e-commons/utils/user';
-import type { Page } from '@playwright/test';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];
@@ -96,9 +96,19 @@ export async function submitCredentials(
 	username: string,
 	password: string
 ): Promise< void > {
-	await page.getByRole( 'textbox', { name: 'Username or Email Address' } ).fill( username );
-	await page.getByRole( 'textbox', { name: 'Password' } ).fill( password );
-	await page.getByRole( 'button', { name: 'Log In' } ).click();
+	const usernameField = page.getByRole( 'textbox', { name: 'Username or Email Address' } );
+	await usernameField.click( { delay: 500 } );
+	await usernameField.fill( username );
+
+	const passwordField = page.getByRole( 'textbox', { name: 'Password' } );
+	await passwordField.click( { delay: 500 } );
+	await passwordField.fill( password );
+
+	await expect( usernameField ).toHaveValue( username );
+	await expect( passwordField ).toHaveValue( password );
+
+	const loginButton = page.getByRole( 'button', { name: 'Log In' } );
+	await loginButton.click();
 }
 
 /**

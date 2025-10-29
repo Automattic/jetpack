@@ -1,120 +1,30 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import {
-	ProgressBar,
 	__experimentalVStack as VStack,
 	__experimentalGrid as Grid,
 	__experimentalText as Text,
 } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { type FC } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
-import { formatMetricValue } from '../shared/format-metric-value';
+import { useContext, useMemo, type FC } from 'react';
+import {
+	GlobalChartsContext,
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+} from '../../providers';
+import { formatMetricValue, attachSubComponents } from '../../utils';
+import { Legend } from '../legend';
+import { useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
+import { useLeaderboardLegendItems } from './hooks';
 import styles from './leaderboard-chart.module.scss';
-
-/**
- * Default settings for LeaderboardChart component
- */
-const DEFAULT_LEADERBOARD_SETTINGS = {
-	labelSpacing: 1.5,
-	rowGap: 12,
-	columnGap: 4,
-	primaryColor: '#3858E9',
-	secondaryColor: '#66BDFF',
-	deltaColors: [ '#D63638', '#757575', '#008A20' ] as [ string, string, string ],
-} as const;
-export interface LeaderboardEntry {
-	/**
-	 * Unique internal key (e.g., 'key-direct')
-	 */
-	id: string;
-
-	/**
-	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
-	 */
-	label: string | JSX.Element;
-
-	/**
-	 * Value of the entry
-	 */
-	currentValue: number;
-
-	/**
-	 * Value of the entry in the previous period
-	 */
-	previousValue: number;
-
-	/**
-	 * Width of current bar, as % of the current value
-	 */
-	currentShare: number;
-
-	/**
-	 * Width of previous bar, as % of the current value
-	 */
-	previousShare: number;
-
-	/**
-	 * Delta of the entry
-	 */
-	delta: number;
-}
-
-export interface LeaderboardChartProps {
-	/**
-	 * Array of leaderboard entries to display
-	 */
-	data: LeaderboardEntry[];
-
-	/**
-	 * Whether to show comparison data
-	 */
-	withComparison?: boolean;
-
-	/**
-	 * Whether to overlay the label on top of bar
-	 */
-	withOverlayLabel?: boolean;
-
-	/**
-	 * Primary color for current period bars
-	 */
-	primaryColor?: string;
-
-	/**
-	 * Secondary color for comparison period bars
-	 */
-	secondaryColor?: string;
-
-	/**
-	 * Formatter for values
-	 */
-	valueFormatter?: ( value: number ) => string;
-
-	/**
-	 * Formatter for delta values
-	 */
-	deltaFormatter?: ( value: number ) => string;
-
-	/**
-	 * Whether the chart is in loading state
-	 */
-	loading?: boolean;
-
-	/**
-	 * Additional CSS class name for the chart container
-	 */
-	className?: string;
-
-	/**
-	 * Custom styling for the chart container
-	 */
-	style?: React.CSSProperties & {
-		'--bar-border'?: string;
-		'--primary-color'?: string;
-		'--secondary-color'?: string;
-	};
-}
+import type { LeaderboardChartProps } from './types';
+import type { LeaderboardEntry } from '../../types';
 
 /**
  * Default value formatter using formatMetricValue
@@ -142,63 +52,87 @@ const defaultDeltaFormatter = ( value: number ): string => {
 	} );
 };
 
-const ProgressBarWithOverlayLabel = ( { entry }: { entry: LeaderboardEntry } ) => (
-	<div className={ styles.progressContainerWithOverlayLabel }>
-		{ typeof entry.label === 'string' ? (
-			<Text className={ styles.progressBarLabel }>{ entry.label }</Text>
-		) : (
-			entry.label
-		) }
-
-		<div className={ styles.progressBar } style={ { width: entry.currentShare + '%' } }></div>
-	</div>
+const BarLabel = ( { label }: { label: string | JSX.Element } ) => (
+	<>{ typeof label === 'string' ? <Text className={ styles.label }>{ label }</Text> : label }</>
 );
 
-const ProgressBarWithLabel = ( {
+const BarWithLabel = ( {
 	entry,
 	withComparison,
+	withOverlayLabel,
+	primaryColor,
+	secondaryColor,
+	isPrimaryVisible = true,
+	isComparisonVisible = true,
 }: {
 	entry: LeaderboardEntry;
 	withComparison?: boolean;
+	withOverlayLabel?: boolean;
+	primaryColor: string;
+	secondaryColor: string;
+	isPrimaryVisible?: boolean;
+	isComparisonVisible?: boolean;
 } ) => (
-	<>
-		{ typeof entry.label === 'string' ? <Text>{ entry.label }</Text> : entry.label }
+	<div
+		className={ clsx( styles.barWithLabelContainer, {
+			[ styles[ 'is-overlay' ] ]: withOverlayLabel,
+		} ) }
+	>
+		<BarLabel label={ entry.label } />
 
-		<div className={ styles.progressContainer }>
-			<ProgressBar
-				value={ entry.currentShare }
-				className={ clsx( styles.progressBar, styles.primaryBar ) }
-			/>
+		{ isPrimaryVisible && (
+			<div
+				className={ styles.bar }
+				style={ {
+					width: entry.currentShare + '%',
+					backgroundColor: primaryColor,
+				} }
+			></div>
+		) }
 
-			{ withComparison && (
-				<ProgressBar
-					value={ entry.previousShare }
-					className={ clsx( styles.progressBar, styles.secondaryBar ) }
-				/>
-			) }
-		</div>
-	</>
+		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
+			<div
+				className={ styles.bar }
+				style={ {
+					width: entry.previousShare + '%',
+					backgroundColor: secondaryColor,
+				} }
+			></div>
+		) }
+	</div>
 );
 
 /**
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                  - Component props
- * @param props.data             - Array of leaderboard entries to display
- * @param props.withComparison   - Whether to show comparison data
- * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
- * @param props.primaryColor     - Primary color for current period bars
- * @param props.secondaryColor   - Secondary color for comparison period bars
- * @param props.valueFormatter   - Custom formatter for values
- * @param props.deltaFormatter   - Custom formatter for delta values
- * @param props.loading          - Whether the chart is in loading state
- * @param props.className        - Additional CSS class name
- * @param props.style            - Custom styling for the chart container
+ * @param props                   - Component props
+ * @param props.data              - Array of leaderboard entries to display
+ * @param props.chartId           - Optional unique identifier for the chart
+ * @param props.withComparison    - Whether to show comparison data
+ * @param props.withOverlayLabel  - Whether to overlay the label on top of the bar
+ * @param props.primaryColor      - Primary color for current period bars
+ * @param props.secondaryColor    - Secondary color for comparison period bars
+ * @param props.valueFormatter    - Custom formatter for values
+ * @param props.deltaFormatter    - Custom formatter for delta values
+ * @param props.loading           - Whether the chart is in loading state
+ * @param props.showLegend        - Whether to show legend
+ * @param props.legendOrientation - Legend orientation
+ * @param props.legendPosition    - Legend position
+ * @param props.legendAlignment   - Legend alignment
+ * @param props.legendShape       - Legend shape
+ * @param props.legendShapeWidth  - Width of legend shapes in pixels
+ * @param props.legendShapeHeight - Height of legend shapes in pixels
+ * @param props.legendLabels      - Custom labels for legend items
+ * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
+ * @param props.children          - Child components for composition API
+ * @param props.className         - Additional CSS class name
+ * @param props.style             - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
-export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
+const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	data,
+	chartId: providedChartId,
 	withComparison = false,
 	withOverlayLabel = false,
 	primaryColor,
@@ -206,85 +140,236 @@ export const LeaderboardChart: FC< LeaderboardChartProps > = ( {
 	valueFormatter = defaultValueFormatter,
 	deltaFormatter = defaultDeltaFormatter,
 	loading = false,
+	showLegend = false,
+	legendOrientation = 'horizontal',
+	legendPosition = 'bottom',
+	legendAlignment = 'center',
+	legendShape = 'circle',
+	legendShapeWidth = 8,
+	legendShapeHeight = 8,
+	legendLabels,
+	legendInteractive = false,
 	className,
 	style,
+	children,
 } ) => {
-	const theme = useGlobalChartTheme();
+	const chartId = useChartId( providedChartId );
+	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
 
-	// Get component settings from theme with fallbacks
-	const leaderboardSettings = theme.leaderboardChart;
-	const labelSpacing =
-		leaderboardSettings?.labelSpacing ?? DEFAULT_LEADERBOARD_SETTINGS.labelSpacing;
-	const rowGap = leaderboardSettings?.rowGap ?? DEFAULT_LEADERBOARD_SETTINGS.rowGap;
-	const columnGap = leaderboardSettings?.columnGap ?? DEFAULT_LEADERBOARD_SETTINGS.columnGap;
+	// Process children to extract compound components
+	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const {
+		labelSpacing,
+		rowGap,
+		columnGap,
+		primaryColor: settingsPrimaryColor,
+		secondaryColor: settingsSecondaryColor,
+		deltaColors,
+	} = leaderboardChartSettings;
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const { color: resolvedPrimaryColor } = getElementStyles( {
+		index: 0,
+		overrideColor: primaryColor || settingsPrimaryColor,
+	} );
+	const { color: resolvedSecondaryColor } = getElementStyles( {
+		index: 1,
+		overrideColor: secondaryColor || settingsSecondaryColor,
+	} );
 
-	// Use theme colors with prop overrides, fallback to defaults
-	const finalPrimaryColor =
-		primaryColor || leaderboardSettings?.primaryColor || DEFAULT_LEADERBOARD_SETTINGS.primaryColor;
-	const finalSecondaryColor =
-		secondaryColor ||
-		leaderboardSettings?.secondaryColor ||
-		DEFAULT_LEADERBOARD_SETTINGS.secondaryColor;
+	// Create legend items using the custom hook
+	const legendItems = useLeaderboardLegendItems( {
+		data: data || [],
+		primaryColor,
+		secondaryColor,
+		withComparison,
+		withOverlayLabel,
+		legendLabels,
+	} );
 
-	// Delta sign colors: negative, neutral, positive
-	const signColors = leaderboardSettings?.deltaColors ?? DEFAULT_LEADERBOARD_SETTINGS.deltaColors;
+	// Track visibility of primary and comparison series for interactive legends
+	const isPrimaryVisible = useMemo( () => {
+		if ( ! chartId || ! legendInteractive || legendItems.length === 0 ) {
+			return true;
+		}
+		return isSeriesVisible( chartId, legendItems[ 0 ].label );
+	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
 
-	const chartStyle = {
-		'--primary-color': finalPrimaryColor,
-		'--secondary-color': finalSecondaryColor,
-		...style,
-	};
+	const isComparisonVisible = useMemo( () => {
+		if ( ! chartId || ! legendInteractive || legendItems.length < 2 ) {
+			return true;
+		}
+		return isSeriesVisible( chartId, legendItems[ 1 ].label );
+	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+
+	// Check if all series are hidden
+	const allSeriesHidden = useMemo( () => {
+		if ( ! legendInteractive ) return false;
+		if ( withComparison && ! withOverlayLabel ) {
+			return ! isPrimaryVisible && ! isComparisonVisible;
+		}
+		return ! isPrimaryVisible;
+	}, [
+		legendInteractive,
+		isPrimaryVisible,
+		isComparisonVisible,
+		withComparison,
+		withOverlayLabel,
+	] );
+
+	// Validate data
+	const isDataValid = Boolean( data && data.length > 0 );
+
+	// Memoize metadata to prevent unnecessary re-registration
+	const chartMetadata = useMemo(
+		() => ( {
+			withComparison,
+			withOverlayLabel,
+		} ),
+		[ withComparison, withOverlayLabel ]
+	);
+
+	// Register chart with context
+	useChartRegistration( {
+		chartId,
+		legendItems,
+		chartType: 'leaderboard',
+		isDataValid,
+		metadata: chartMetadata,
+	} );
 
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ chartStyle }
+			<SingleChartContext.Provider
+				value={ {
+					chartId,
+					chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
+					chartHeight: 0,
+				} }
 			>
-				<div className={ styles.emptyState }>{ loading ? 'Loading...' : 'No data available' }</div>
-			</div>
+				<div
+					className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+					style={ style }
+				>
+					<div className={ styles.emptyState }>
+						{ loading
+							? __( 'Loading…', 'jetpack-charts' )
+							: __( 'No data available', 'jetpack-charts' ) }
+					</div>
+					{ /* Render children from composition API */ }
+					{ otherChildren }
+				</div>
+			</SingleChartContext.Provider>
 		);
 	}
 
 	return (
-		<Grid
-			className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-			templateColumns="minmax(0, 1fr) auto"
-			rowGap={ rowGap }
-			columnGap={ columnGap }
-			style={ chartStyle }
+		<SingleChartContext.Provider
+			value={ {
+				chartId,
+				chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
+				chartHeight: 0,
+			} }
 		>
-			{ data.map( entry => {
-				const colorIndex = Math.sign( entry.delta ) + 1;
-				const deltaColor = signColors[ colorIndex ];
+			<div
+				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+				style={ {
+					...style,
+					display: 'flex',
+					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
+					gap: showLegend ? '16px' : '0',
+				} }
+			>
+				{ allSeriesHidden ? (
+					<div className={ styles.emptyState }>
+						{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+					</div>
+				) : (
+					<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
+						{ data.map( entry => {
+							const colorIndex = Math.sign( entry.delta ) + 1;
+							const deltaColor = deltaColors[ colorIndex ];
 
-				return (
-					<Fragment key={ entry.id }>
-						<VStack spacing={ labelSpacing }>
-							{ withOverlayLabel ? (
-								<ProgressBarWithOverlayLabel entry={ entry } />
-							) : (
-								<ProgressBarWithLabel entry={ entry } withComparison={ withComparison } />
-							) }
-						</VStack>
+							return (
+								<Fragment key={ entry.id }>
+									<VStack spacing={ labelSpacing }>
+										<BarWithLabel
+											entry={ entry }
+											withComparison={ withComparison }
+											withOverlayLabel={ withOverlayLabel }
+											primaryColor={ resolvedPrimaryColor }
+											secondaryColor={ resolvedSecondaryColor }
+											isPrimaryVisible={ isPrimaryVisible }
+											isComparisonVisible={ isComparisonVisible }
+										/>
+									</VStack>
 
-						<div
-							className={ clsx( styles.valueContainer, {
-								[ styles.overlayLabel ]: withOverlayLabel,
-							} ) }
-						>
-							<Text>{ valueFormatter( entry.currentValue ) }</Text>
+									<div
+										className={ clsx( styles.valueContainer, {
+											[ styles.overlayLabel ]: withOverlayLabel,
+										} ) }
+									>
+										{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
-							{ withComparison && (
-								<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
-							) }
-						</div>
-					</Fragment>
-				);
-			} ) }
-		</Grid>
+										{ withComparison && isComparisonVisible && (
+											<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
+										) }
+									</div>
+								</Fragment>
+							);
+						} ) }
+					</Grid>
+				) }
+
+				{ showLegend && (
+					<Legend
+						orientation={ legendOrientation }
+						position={ legendPosition }
+						alignment={ legendAlignment }
+						shape={ legendShape }
+						shapeWidth={ legendShapeWidth }
+						shapeHeight={ legendShapeHeight }
+						chartId={ chartId }
+						interactive={ legendInteractive }
+					/>
+				) }
+
+				{ /* Render children from composition API */ }
+				{ otherChildren }
+			</div>
+		</SingleChartContext.Provider>
 	);
 };
 
-export default LeaderboardChart;
+const LeaderboardChartWithProvider: FC< LeaderboardChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <LeaderboardChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<LeaderboardChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+LeaderboardChartWithProvider.displayName = 'LeaderboardChart';
+
+// Create LeaderboardChart with composition API
+const LeaderboardChart = attachSubComponents( LeaderboardChartWithProvider, {
+	Legend: Legend,
+} );
+
+// Create responsive LeaderboardChart with composition API
+const LeaderboardChartResponsive = attachSubComponents(
+	withResponsive< LeaderboardChartProps >( LeaderboardChartWithProvider ),
+	{
+		Legend: Legend,
+	}
+);
+
+export { LeaderboardChartResponsive as default, LeaderboardChart as LeaderboardChartUnresponsive };

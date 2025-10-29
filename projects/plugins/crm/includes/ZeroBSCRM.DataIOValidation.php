@@ -157,18 +157,16 @@ function jpcrm_has_valid_tld( $s, $valid_tlds = array( '.com', '.net', '.org', '
 	return false;
 }
 
-   /*
-    * adds a scheme to a URL string if it doesn't exist
-    *
-    * @param str $s as a URL string
-    * @param str $scheme as an optional default scheme
-    *
-    * return scheme + str
-    */
-    //adapted from https://stackoverflow.com/a/14701491
-    function jpcrm_url_with_scheme($s, $scheme='https') {
-      return parse_url($s, PHP_URL_SCHEME) === null ? $scheme . '://' . ltrim($s,'/') : $s;
-    }
+/**
+ * Adds a scheme to a URL string if it doesn't exist
+ * adapted from https://stackoverflow.com/a/14701491
+ *
+ * @param string $s as a URL string.
+ * @param string $scheme as an optional default scheme.
+ */
+function jpcrm_url_with_scheme( $s, $scheme = 'https' ) {
+	return wp_parse_url( $s, PHP_URL_SCHEME ) === null ? $scheme . '://' . ltrim( $s, '/' ) : $s;
+}
 
 	#} Checks an email addr
 	function zeroBSCRM_validateEmail($emailAddr){

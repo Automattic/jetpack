@@ -429,7 +429,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 					<div>
 						<?php
 						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo zeroBSCRM_html_msg( 1, esc_html__( 'Note: There is no automatic way to undo a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
+						zeroBSCRM_html_msg( 1, esc_html__( 'Note: There is no automatic way to undo a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
 						?>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="3" />

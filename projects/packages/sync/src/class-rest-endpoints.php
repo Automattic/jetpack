@@ -77,7 +77,7 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 				'args'                => array(
 					'fields' => array(
-						'description' => __( 'Comma seperated list of additional fields that should be included in status.', 'jetpack-sync' ),
+						'description' => __( 'Comma-separated list of additional fields that should be included in status.', 'jetpack-sync' ),
 						'type'        => 'string',
 						'required'    => false,
 					),

@@ -13,6 +13,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME = 'blogroll-item';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 

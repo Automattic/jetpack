@@ -1,24 +1,68 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
-import { defaultTheme } from '../theme/themes';
-import type { ChartContextValue, ChartRegistration } from './types';
-import type { ChartTheme } from '../../types';
+import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
+import { getItemShapeStyles, getSeriesLineStyles, mergeThemes, hexToHsl } from '../../utils';
+import { getChartColor, type ColorCache } from './private/get-chart-color';
+import { defaultTheme } from './themes';
+import type { GlobalChartsContextValue, ChartRegistration } from './types';
+import type { ChartTheme, CompleteChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
 
-export const GlobalChartsContext = createContext< ChartContextValue | null >( null );
+export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
-	/** Optional theme override. Considered static for provider lifecycle. */
 	theme?: Partial< ChartTheme >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
-	children,
-	theme = {},
-} ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
+	// Track hidden series per chart: chartId -> Set<seriesLabel>
+	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
+		() => new Map()
+	);
 
-	const providerTheme: ChartTheme = useMemo( () => ( { ...defaultTheme, ...theme } ), [ theme ] );
+	const providerTheme: CompleteChartTheme = useMemo( () => {
+		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
+	}, [ theme ] );
+
+	// Cache expensive color computations that only change when theme colors change
+	const colorCache: ColorCache = useMemo( () => {
+		const { colors } = providerTheme;
+		const hues: number[] = [];
+		const existingHslColors: Array< [ number, number, number ] > = [];
+		let minHue = 360;
+		let maxHue = 0;
+
+		// Process all colors once and cache the results
+		if ( Array.isArray( colors ) ) {
+			for ( const color of colors ) {
+				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
+					const hslColor = hexToHsl( color );
+					hues.push( hslColor[ 0 ] );
+					existingHslColors.push( hslColor );
+					minHue = Math.min( minHue, hslColor[ 0 ] );
+					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				}
+			}
+		}
+
+		return {
+			colors: colors || [],
+			hues,
+			existingHslColors,
+			minHue,
+			maxHue,
+		};
+	}, [ providerTheme ] );
+
+	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
+		() => new Map()
+	);
+
+	// Reset group color mappings when theme colors change
+	useEffect( () => {
+		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
+		setGroupToColorMap( new Map() );
+	}, [ providerTheme.colors ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );
@@ -39,24 +83,129 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		[ charts ]
 	);
 
-	const value: ChartContextValue = useMemo(
+	const resolveColor = useCallback(
+		( {
+			group,
+			index,
+			overrideColor,
+		}: {
+			group?: string;
+			index: number;
+			overrideColor?: string;
+		} ): string => {
+			// Highest precedence: eg. explicit series stroke or chart color prop
+			if ( overrideColor ) {
+				return overrideColor;
+			}
+
+			// If group provided, maintain a stable assignment
+			if ( group ) {
+				const existing = groupToColorMap.get( group );
+
+				if ( existing ) {
+					return existing;
+				}
+
+				const assignedCount = groupToColorMap.size;
+				const color =
+					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
+				groupToColorMap.set( group, color );
+
+				return color;
+			}
+
+			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
+		},
+		[ colorCache, groupToColorMap ]
+	);
+
+	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
+		( { data, index, overrideColor, legendShape } ) => {
+			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
+			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
+
+			return {
+				color: resolveColor( {
+					group: data?.group,
+					index,
+					overrideColor:
+						overrideColor ||
+						( isSeriesData && data?.options?.stroke ) ||
+						( isPointPercentageData && data?.color ),
+				} ),
+				lineStyles: isSeriesData ? getSeriesLineStyles( data, index, providerTheme ) : {},
+				glyph: providerTheme.glyphs?.[ index ],
+				shapeStyles: isSeriesData
+					? getItemShapeStyles( data, index, providerTheme, legendShape )
+					: {},
+			};
+		},
+		[ providerTheme, resolveColor ]
+	);
+
+	// Series visibility management methods
+	const toggleSeriesVisibility = useCallback( ( chartId: string, seriesLabel: string ) => {
+		setHiddenSeries( prev => {
+			const newMap = new Map( prev );
+			const chartHidden = newMap.get( chartId ) || new Set();
+			const newSet = new Set( chartHidden );
+
+			if ( newSet.has( seriesLabel ) ) {
+				newSet.delete( seriesLabel );
+			} else {
+				newSet.add( seriesLabel );
+			}
+
+			if ( newSet.size === 0 ) {
+				newMap.delete( chartId );
+			} else {
+				newMap.set( chartId, newSet );
+			}
+
+			return newMap;
+		} );
+	}, [] );
+
+	const isSeriesVisible = useCallback(
+		( chartId: string, seriesLabel: string ) => {
+			const chartHidden = hiddenSeries.get( chartId );
+			return ! chartHidden || ! chartHidden.has( seriesLabel );
+		},
+		[ hiddenSeries ]
+	);
+
+	const getHiddenSeries = useCallback(
+		( chartId: string ): Set< string > => {
+			const set = hiddenSeries.get( chartId );
+			return set ? new Set( set ) : new Set< string >();
+		},
+		[ hiddenSeries ]
+	);
+
+	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
 			registerChart,
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
+			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
 		} ),
-		[ charts, registerChart, unregisterChart, getChartData, providerTheme ]
+		[
+			charts,
+			registerChart,
+			unregisterChart,
+			getChartData,
+			providerTheme,
+			getElementStyles,
+			toggleSeriesVisibility,
+			isSeriesVisible,
+			getHiddenSeries,
+		]
 	);
 
 	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
-};
-
-export const useGlobalChartsContext = (): ChartContextValue => {
-	const context = useContext( GlobalChartsContext );
-	if ( ! context ) {
-		throw new Error( 'useGlobalChartsContext must be used within a GlobalChartsProvider' );
-	}
-	return context;
 };

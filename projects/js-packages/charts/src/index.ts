@@ -1,38 +1,37 @@
 // Charts
-export { BarChart } from './components/bar-chart';
-export { LineChart } from './components/line-chart';
-export { PieChart } from './components/pie-chart';
-export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
-export { BarListChart } from './components/bar-list-chart';
-export { LeaderboardChart } from './components/leaderboard-chart';
+export { BarChart, BarChartUnresponsive } from './components/bar-chart';
+export { LineChart, LineChartUnresponsive } from './components/line-chart';
+export { PieChart, PieChartUnresponsive } from './components/pie-chart';
+export {
+	PieSemiCircleChart,
+	PieSemiCircleChartUnresponsive,
+} from './components/pie-semi-circle-chart';
+export { BarListChart, BarListChartUnresponsive } from './components/bar-list-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './components/leaderboard-chart';
+export { ConversionFunnelChart } from './components/conversion-funnel-chart';
 
 // Chart components
 export { BaseTooltip } from './components/tooltip';
-export { Legend, BaseLegend, useChartLegendData } from './components/legend';
-
-// Visx components
-export { Text, getStringWidth, useText } from './visx/text';
-export { Group } from './visx/group';
-export { LineShape, CircleShape, RectShape } from './visx/legend';
+export { Legend, useChartLegendItems } from './components/legend';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 
 // Themes
-export { ThemeProvider } from './providers/theme';
-export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
+export { GlobalChartsProvider as ThemeProvider } from './providers';
 
-// Utilities
-export { mergeThemes } from './utils/merge-themes';
-
-// Hooks
-export { useDeepMemo, useGlobalChartTheme, useChartMouseHandler, useXYChartTheme } from './hooks';
-
-// LeaderboardChart utilities
-export { formatMetricValue } from './components/leaderboard-chart';
+// Global context
+export {
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+	GlobalChartsContext,
+	defaultTheme,
+	jetpackTheme,
+	wooTheme,
+} from './providers';
 
 // Types
 export type * from './types';
 export type * from './visx/types';
+export type { PieChartProps } from './components/pie-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
-export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';

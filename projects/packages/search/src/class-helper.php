@@ -182,10 +182,54 @@ class Helper {
 				}
 
 				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
-				$key  = sprintf( '%s_%d', $type, count( $filters ) );
 
-				$filters[ $key ] = $widget_filter;
+				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
+				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
+					$filters = self::expand_product_attribute_filters( $widget_filter, $filters );
+				} else {
+					$key             = sprintf( '%s_%d', $type, count( $filters ) );
+					$filters[ $key ] = $widget_filter;
+				}
 			}
+		}
+
+		return $filters;
+	}
+
+	/**
+	 * Expands a product_attribute filter into individual filters for each attribute.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $widget_filter The filter configuration.
+	 * @param array $filters The existing filters array.
+	 * @return array The filters array with expanded product attribute filters.
+	 */
+	private static function expand_product_attribute_filters( $widget_filter, $filters ) {
+		if ( ! function_exists( 'wc_get_attribute_taxonomies' ) || ! function_exists( 'wc_attribute_taxonomy_name' ) ) {
+			return $filters;
+		}
+
+		$product_attributes  = wc_get_attribute_taxonomies();
+		$included_attributes = isset( $widget_filter['included_attributes'] ) ? (array) $widget_filter['included_attributes'] : array();
+
+		// If no attributes are explicitly included, show all attributes (backward compatibility).
+		// Also optimize by treating "all selected" the same as "none selected" to avoid O(n²) in_array() checks.
+		$show_all = empty( $included_attributes ) || count( $included_attributes ) === count( $product_attributes );
+
+		foreach ( $product_attributes as $attribute ) {
+			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
+
+			if ( ! $show_all && ! in_array( $attribute_name, $included_attributes, true ) ) {
+				continue;
+			}
+
+			$key                          = sprintf( 'product_attribute_%d', count( $filters ) );
+			$expanded_filter              = $widget_filter;
+			$expanded_filter['attribute'] = $attribute_name;
+			$expanded_filter['name']      = $attribute->attribute_label;
+			unset( $expanded_filter['included_attributes'] );
+			$filters[ $key ] = $expanded_filter;
 		}
 
 		return $filters;
@@ -282,6 +326,11 @@ class Helper {
 					$name = $tax->labels->name;
 				}
 				break;
+
+			case 'product_attribute':
+				$name = _x( 'Product Attributes', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
 		}
 
 		return $name;

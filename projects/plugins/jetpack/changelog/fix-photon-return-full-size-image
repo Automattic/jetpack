@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Carousel: improve image size processing to return higher quality images in additional situations.

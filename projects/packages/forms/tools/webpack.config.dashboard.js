@@ -5,6 +5,25 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
+/**
+ * Generate i18n function variants for @automattic/babel-plugin-replace-textdomain.
+ *
+ * The @wordpress/dataviews currently uses the i18n functions under a variety of aliases,
+ * which makes it a pain to add the proper textdomain. This function generates an object
+ * with the base function and 99 more variants as keys.
+ *
+ * @param {string} baseFn - Base function name (e.g., '__', '_x', '_n')
+ * @param {number} value  - Textdomain argument position (1-based index)
+ * @return {object} Object mapping function names to textdomain positions
+ */
+const generateI18nVariants = ( baseFn, value ) =>
+	Object.fromEntries(
+		Array.from( { length: 100 }, ( _, i ) => [
+			`${ baseFn }${ i || '' }`, // empty suffix for 0
+			value,
+		] )
+	);
+
 module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
@@ -23,6 +42,15 @@ module.exports = {
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
+			'@wordpress/admin-ui/build-style/style.css': path.join(
+				__dirname,
+				'..',
+				'node_modules',
+				'@wordpress',
+				'admin-ui',
+				'build-style',
+				'style.css'
+			),
 		},
 	},
 	externals: {
@@ -58,47 +86,9 @@ module.exports = {
 							{
 								textdomain: 'jetpack-forms',
 								functions: {
-									__: 1,
-									__1: 1,
-									__2: 1,
-									__3: 1,
-									__4: 1,
-									__5: 1,
-									__6: 1,
-									__7: 1,
-									__8: 1,
-									__9: 1,
-									__10: 1,
-									__11: 1,
-									__12: 1,
-									__13: 1,
-									__14: 1,
-									__15: 1,
-									__16: 1,
-									__17: 1,
-									__18: 1,
-									__19: 1,
-									__20: 1,
-									__21: 1,
-									__22: 1,
-									__23: 1,
-									__24: 1,
-									__25: 1,
-									__26: 1,
-									__27: 1,
-									__28: 1,
-									__29: 1,
-									__30: 1,
-									__31: 1,
-									__32: 1,
-									__33: 1,
-									_x: 2,
-									_x1: 2,
-									_x2: 2,
-									_x3: 2,
-									_x4: 2,
-									_x5: 2,
-									_n: 3,
+									...generateI18nVariants( '__', 1 ),
+									...generateI18nVariants( '_x', 2 ),
+									...generateI18nVariants( '_n', 3 ),
 								},
 							},
 						],
@@ -116,5 +106,18 @@ module.exports = {
 			jetpackWebpackConfig.FileRule(),
 		],
 	},
-	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: {
+				requestMap: {
+					// Bundle the package with our assets until WP core exposes wp-admin-ui.
+					'@wordpress/admin-ui': { external: false },
+					'@wordpress/admin-ui/build-style/style.css': { external: false },
+				},
+			},
+		} ),
+	],
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 };

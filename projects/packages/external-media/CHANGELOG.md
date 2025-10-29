@@ -5,9 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.8] - 2025-10-27
+### Removed
+- GutenbergKit: Disable problematic media providers. [#45461]
+
+## [0.5.7] - 2025-10-20
+### Changed
+- External media: Prevent site editor performance issues by bringing back previous script enqueue approach. [#45546]
+- Update dependencies. [#45488]
+
+## [0.5.6] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.5.5] - 2025-09-29
+### Changed
+- Update dependencies. [#44940]
+
+## [0.5.4] - 2025-09-22
+### Fixed
+- Fix lints. [#45242]
+
+## [0.5.3] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.5.2] - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## [0.5.1] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [0.5.0] - 2025-09-01
+### Added
+- Media Settings: Add Google Photos connection. [#44825]
+
+## [0.4.11] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
 ## [0.4.10] - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## [0.4.9] - 2025-08-14
 ### Changed
@@ -166,6 +207,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the button size in the editor for Gutenberg 18 or below. [#41619]
 - Media Library: Fix the Import Media button color in some color schemes. [#41664]
 
+[0.5.8]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.6...v0.5.7
+[0.5.6]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.4...v0.5.5
+[0.5.4]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-external-media/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.11...v0.5.0
+[0.4.11]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.10...v0.4.11
 [0.4.10]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.9...v0.4.10
 [0.4.9]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.8...v0.4.9
 [0.4.8]: https://github.com/Automattic/jetpack-external-media/compare/v0.4.7...v0.4.8

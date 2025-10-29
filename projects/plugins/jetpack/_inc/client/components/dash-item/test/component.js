@@ -118,7 +118,7 @@ describe( 'DashItem', () => {
 		} );
 	} );
 
-	describe( 'when site is connected, is a PRO module, user can not toggle', () => {
+	describe( 'when site is connected, is a PRO module, user cannot toggle', () => {
 		it( 'displays a toggle for users that can toggle', () => {
 			render( <DashItem { ...testProps } userCanToggle={ false } />, {
 				initialState: buildInitialState(),
@@ -139,8 +139,8 @@ describe( 'DashItem', () => {
 		} );
 	} );
 
-	describe( 'when site is connected, not a PRO module, user can not toggle', () => {
-		it( 'if user can not toggle, it does not display a toggle', () => {
+	describe( 'when site is connected, not a PRO module, user cannot toggle', () => {
+		it( 'if user cannot toggle, it does not display a toggle', () => {
 			render( <DashItem { ...testProps } pro={ false } userCanToggle={ false } />, {
 				initialState: buildInitialState(),
 			} );
@@ -155,7 +155,7 @@ describe( 'DashItem', () => {
 		} );
 	} );
 
-	describe( 'when site is in Offline Mode, not a PRO module, user can not toggle', () => {
+	describe( 'when site is in Offline Mode, not a PRO module, user cannot toggle', () => {
 		it( 'does not display the PRO button linked to #/plans when site is in Offline Mode', () => {
 			render( <DashItem { ...testProps } pro={ false } isOfflineMode={ true } />, {
 				initialState: buildInitialState(),

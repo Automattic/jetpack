@@ -172,18 +172,6 @@ function wpcom_add_hosting_menu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 	);
 
-	// Temporary "Hosting > Marketing" menu for existing users that shows a callout informing that the screen has moved to "Tools > Marketing".
-	if ( get_current_user_id() < 269750000 ) {
-		add_submenu_page(
-			$parent_slug,
-			esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			esc_url( "https://wordpress.com/marketing/tools-marketing/$domain" ),
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-		);
-	}
-
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
 	remove_submenu_page(
 		$parent_slug,
@@ -205,12 +193,14 @@ function wpcom_reorder_submenu( $menu_slug, $desired_order ) {
 		return;
 	}
 
+	$domain          = wp_parse_url( home_url(), PHP_URL_HOST );
 	$ordered_submenu = array();
 
 	// Re-add submenu items in the desired order.
 	foreach ( $desired_order as $submenu_slug ) {
 		foreach ( $submenu[ $menu_slug ] as $item ) {
-			if ( str_contains( $item[2], $submenu_slug ) ) {
+			$clean_url = str_replace( $domain, '', $item[2] );
+			if ( str_contains( $clean_url, $submenu_slug ) ) {
 				$ordered_submenu[] = $item;
 			}
 		}
@@ -296,8 +286,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 	add_submenu_page(
 		'jetpack',
-		esc_attr__( 'Scan', 'jetpack-mu-wpcom' ),
-		__( 'Scan', 'jetpack-mu-wpcom' ),
+		/** "Scan" is a product name, do not translate. */
+		'Scan',
+		'Scan',
 		'manage_options',
 		'https://wordpress.com/scan/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
@@ -307,8 +298,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 	add_submenu_page(
 		'jetpack',
-		esc_attr__( 'Backup', 'jetpack-mu-wpcom' ),
-		__( 'Backup', 'jetpack-mu-wpcom' ),
+		/** "Backup" is a product name, do not translate. */
+		'Backup',
+		'Backup',
 		'manage_options',
 		'https://wordpress.com/backup/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
@@ -376,8 +368,9 @@ function wpcom_add_jetpack_submenu() {
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', array( 'site' => $blog_id ) ) ) );
 	add_submenu_page(
 		'jetpack',
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
-		__( 'Activity Log', 'jetpack-mu-wpcom' ),
+		/** "Activity Log" is a product name, do not translate. */
+		'Activity Log',
+		'Activity Log',
 		'manage_options',
 		'https://wordpress.com/activity-log/' . $domain,
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
@@ -590,17 +583,6 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Adds some Tools menus that are missing on Simple sites.
  */
 function wpcom_add_tools_menu() {
-	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
-	add_submenu_page(
-		'tools.php',
-		__( 'Marketing', 'jetpack-mu-wpcom' ),
-		__( 'Marketing', 'jetpack-mu-wpcom' ),
-		'publish_posts',
-		'https://wordpress.com/marketing/tools/' . $domain,
-		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		1
-	);
-
 	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	if ( $is_simple_site ) {
 		add_submenu_page(
@@ -717,3 +699,7 @@ function wpcom_add_settings_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_add_settings_menu', 999999 );
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	require_once __DIR__ . '/p2-admin-menu.php';
+}

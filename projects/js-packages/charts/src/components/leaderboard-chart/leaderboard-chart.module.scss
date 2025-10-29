@@ -6,55 +6,33 @@
 	}
 }
 
-.progressContainerWithOverlayLabel {
+.barWithLabelContainer {
 	display: grid;
-	grid-template: "overlap" 1fr / 1fr; /* contains a single cell callded 'overlap' */
 	align-items: center;
+	grid-template-columns: 1fr;
+	row-gap: 6px;
+	isolation: isolate;
 
-	> * {
-		grid-area: overlap;
-	}
+	&.is-overlay {
+		grid-template: "overlap" 1fr / 1fr; /* contains a single cell callded 'overlap' */
 
-	.progressBar {
-		height: 100%;
-		background-color: var(--primary-color, #3858e9);
+		> * {
+			grid-area: overlap;
+		}
 
-		border-radius: var(--bar-border, 9999px);
-		z-index: -1; /* places it behind the label */
-
-		transition: width 0.3s ease-in-out;
-	}
-
-	.progressBarLabel {
-		padding-left: 8px;
-	}
-}
-
-.progressContainer {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-
-	.progressBar {
-		width: 100%;
-		height: 6px;
-		border-radius: 2px;
-		background-color: transparent;
-		overflow: hidden;
-		transition: width 0.3s ease-in-out;
-
-		> div {
-			background-color: var(--progress-color, #3858e9);
-			border-radius: var(--bar-border, 9999px);
+		.label {
+			padding-left: 8px;
 		}
 	}
 
-	.primaryBar {
-		--progress-color: var(--primary-color, #3858e9);
-	}
+	.bar {
+		height: 100%;
+		min-height: 6px;
 
-	.secondaryBar {
-		--progress-color: var(--secondary-color, #66bdff);
+		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
+		z-index: -1; /* places it behind the label */
+
+		transition: width 0.3s ease-in-out;
 	}
 }
 

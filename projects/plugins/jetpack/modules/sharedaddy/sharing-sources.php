@@ -159,7 +159,7 @@ abstract class Sharing_Source {
 		 * @param int $post_id Post ID.
 		 * @param int $this->id Sharing ID.
 		 */
-		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
+		$title = apply_filters( 'sharing_title', $post->post_title ?? '', $post_id, $this->id );
 
 		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
@@ -600,7 +600,7 @@ abstract class Sharing_Source {
 	public function get_total( $post = false ) {
 		global $wpdb, $blog_id;
 
-		$name = strtolower( $this->get_id() );
+		$name = strtolower( (string) $this->get_id() );
 
 		if ( $post === false ) {
 			// get total number of shares for service
@@ -620,7 +620,7 @@ abstract class Sharing_Source {
 		global $wpdb, $blog_id;
 
 		$totals = array();
-		$name   = strtolower( $this->get_id() );
+		$name   = strtolower( (string) $this->get_id() );
 
 		$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d AND share_service = %s GROUP BY post_id ORDER BY count DESC ', $blog_id, $name ) );
 
@@ -2004,7 +2004,7 @@ class Share_Facebook extends Sharing_Source {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
-		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) );
+		$fb_url = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -2371,7 +2371,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	 */
 	public function process_request( $post, array $post_data ) {
 		$url = str_replace( '&amp;', '&', $this->url );
-		$url = str_replace( '%post_id%', rawurlencode( $post->ID ), $url );
+		$url = str_replace( '%post_id%', rawurlencode( (string) $post->ID ), $url );
 		$url = str_replace( '%post_url%', rawurlencode( $this->get_share_url( $post->ID ) ), $url );
 		$url = str_replace( '%post_full_url%', rawurlencode( get_permalink( $post->ID ) ), $url );
 		$url = str_replace( '%post_title%', rawurlencode( $this->get_share_title( $post->ID ) ), $url );

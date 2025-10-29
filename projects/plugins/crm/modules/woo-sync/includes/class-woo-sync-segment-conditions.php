@@ -29,7 +29,7 @@ class Woo_Sync_Segment_Conditions {
 	/**
 	 * Setup Segment conditions
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// Require segment conditions when jpcrm is ready
     	add_action( 'jpcrm_post_init', array( $this, 'require_segment_conditions'), 1 );

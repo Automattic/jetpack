@@ -5,12 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.3.1-beta] - 2025-08-21
+## [4.5.1] - 2025-10-29
+### Added
+- Tested up to WordPress 6.9 [#45571]
+
 ### Changed
-- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
+- Update package dependencies. [#45652]
+
+### Fixed
+- Concatenate JS: Fix incompatibility with WooCommerce Analytics. [#45655]
+
+## [4.5.0] - 2025-10-15
+### Added
+- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders. [#45408]
+
+### Changed
+- Update package dependencies. [#45173] [#45229] [#45241] [#45298] [#45299] [#45334] [#45335] [#45478]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [4.4.0] - 2025-09-18
+### Added
+- Cornerstone Pages: Add filter to allow the full list of pages to be changed. [#44907]
+
+### Changed
+- Critical CSS: Updated UI to indicate when generated CSS is too much. [#44885]
+- Do not force CRM installation for Complete plan users [#45026]
+- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels) [#44953]
+- Updated PNG import location after refactors in My Jetpack. [#44801]
+- Update package dependencies.
+
+### Fixed
+- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list. [#45101]
+- E2E tests: improved connection flow [#44995]
+- General: Fix translation warning when activating Boost. [#45070]
+- Image CDN: Add support for images added via Breakdance blocks. [#45059]
+- Image CDN: gracefully handle an attempt to filter null. [#44874]
+- Page Cache: Fix fatal error when updating a page on multisite. [#45084]
+
+## [4.3.1] - 2025-08-25
+### Changed
 - Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
 - Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
-- My Jetpack: Fixed multisite availability check for restricted products and modules. [#44710]
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
 - Update package dependencies. [#44677] [#44701] [#44725]
 
 ### Fixed
@@ -32,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
 - Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
 - LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
-- My Jetpack: Fixing footer alignment for diconnected accounts. [#44468]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
 - My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
 - My Jetpack: Restoring plan purchase link. [#44535]
 - Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
@@ -804,7 +843,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1-beta
+[4.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.0...4.5.1
+[4.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.4.0...4.5.0
+[4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
+[4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
 [4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1
 [4.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.2...4.2.0

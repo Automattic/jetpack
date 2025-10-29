@@ -19,6 +19,10 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class that handles fetching of threats from the Scan API
  */

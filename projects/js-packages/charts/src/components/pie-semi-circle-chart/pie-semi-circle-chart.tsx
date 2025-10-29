@@ -2,32 +2,35 @@ import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip } from '@visx/tooltip';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, Children, isValidElement } from 'react';
-import { useGlobalChartTheme } from '../../hooks';
+import { useCallback, useContext, useMemo } from 'react';
+import { useElementHeight, useInteractiveLegendData } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+	useGlobalChartsContext,
+	GlobalChartsContext,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
+import type { LegendValueDisplay } from '../legend';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
-import type { FC, MouseEvent, ComponentType, ReactNode, PropsWithChildren } from 'react';
+import type { FC, MouseEvent, ReactNode } from 'react';
 
 const PAD_ANGLE = 0.03; // Padding between segments
 
-interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Width of the chart in pixels; height would be half of this value calculated automatically.
 	 */
@@ -58,24 +61,44 @@ interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] 
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * What type of value to display in the legend when showValues is true.
+	 * - 'percentage': Shows percentage values (e.g., "23%") [default]
+	 * - 'value': Shows raw numeric values (e.g., "30000")
+	 * - 'valueDisplay': Shows formatted values (e.g., "30K")
+	 * - 'none': Shows no values, only labels
+	 */
+	legendValueDisplay?: LegendValueDisplay;
+
+	/**
+	 * Enable interactive legend items that can toggle segment visibility.
+	 * Requires chartId and GlobalChartsProvider.
+	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
+	 */
+	legendInteractive?: boolean;
+
+	/**
+	 * Horizontal offset for tooltip positioning in pixels (default: 0)
+	 */
+	tooltipOffsetX?: number;
+
+	/**
+	 * Vertical offset for tooltip positioning in pixels (default: -15)
+	 */
+	tooltipOffsetY?: number;
 }
 
 // Base props type with optional responsive properties
 type PieSemiCircleChartBaseProps = Optional< PieSemiCircleChartProps, 'width' >;
 
 // Composition API types
-interface PieSemiCircleChartSubComponents {
-	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
-	SVG: FC< PropsWithChildren >;
-	HTML: FC< PropsWithChildren >;
-}
+type PieSemiCircleChartComponent = ChartComponentWithComposition< PieSemiCircleChartBaseProps >;
+type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
+	PieSemiCircleChartBaseProps & ResponsiveConfig
+>;
 
-type PieSemiCircleChartComponent = FC< PieSemiCircleChartBaseProps > &
-	PieSemiCircleChartSubComponents;
-type PieSemiCircleChartResponsiveComponent = FC< PieSemiCircleChartBaseProps & ResponsiveConfig > &
-	PieSemiCircleChartSubComponents;
-
-type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentage >;
 
 /**
  * Validates the semi-circle pie chart data
@@ -102,36 +125,6 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
-/**
- * Compound component for SVG children in the PieSemiCircleChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieSemiCircleChartSVG: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieSemiCircleChartSVG.displayName = 'PieSemiCircleChart.SVG';
-
-/**
- * Compound component for HTML children in the PieSemiCircleChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieSemiCircleChartHTML: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieSemiCircleChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieSemiCircleChartHTML.displayName = 'PieSemiCircleChart.HTML';
-
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -143,30 +136,46 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'circle',
+	legendValueDisplay = 'percentage',
+	legendInteractive = false,
 	label,
 	note,
 	className,
 	children,
+	tooltipOffsetX = 0,
+	tooltipOffsetY = -15,
 } ) => {
-	const providerTheme = useGlobalChartTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
-	const handleMouseMove = useCallback(
-		( event: MouseEvent, arc: ArcData ) => {
-			const coords = localPoint( event );
-			if ( ! coords ) return;
+	// Set up portal tooltip for better z-index handling
+	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+		detectBounds: true,
+		scroll: true,
+		debounce: 0,
+	} );
 
-			showTooltip( {
-				tooltipData: arc.data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
-			} );
+	const handleMouseMove = useCallback(
+		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
+			// Get coordinates relative to the current target element
+			const coords = localPoint( event );
+			if ( coords ) {
+				// Account for legend offset when legend is on top
+				const legendOffset = showLegend && legendPosition === 'top' ? legendHeight : 0;
+				showTooltip( {
+					tooltipData: arc.data,
+					tooltipLeft: coords.x + tooltipOffsetX,
+					tooltipTop: coords.y + legendOffset + tooltipOffsetY,
+				} );
+			}
 		},
-		[ showTooltip ]
+		[ showTooltip, tooltipOffsetX, tooltipOffsetY, showLegend, legendPosition, legendHeight ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
@@ -174,7 +183,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	const handleArcMouseMove = useCallback(
-		( arc: ArcData ) => ( event: MouseEvent ) => {
+		( arc: ArcData ) => ( event: MouseEvent< SVGElement > ) => {
 			handleMouseMove( event, arc );
 		},
 		[ handleMouseMove ]
@@ -182,6 +191,16 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	// Validate data first to get validation result
 	const { isValid, message } = validateData( data );
+
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+	// Filter and recalculate data for interactive legends
+	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
+		data,
+		chartId,
+		legendInteractive,
+		isSeriesVisible,
+	} );
 
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
@@ -191,52 +210,26 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
 			) => b.value - a.value,
-			// Use the color property from the data object as a last resort. The theme provides colours by default.
 			fill: ( d: DataPointPercentage & { index: number } ) =>
-				d.color || providerTheme.colors[ d.index % providerTheme.colors.length ],
+				getElementStyles( { data: d, index: d.index } ).color,
 		} ),
-		[ providerTheme.colors ]
+		[ getElementStyles ]
 	);
 
 	// Memoize legend options to prevent unnecessary re-calculations
-	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+	const legendOptions = useMemo(
+		() => ( { showValues: true, legendValueDisplay } ),
+		[ legendValueDisplay ]
+	);
 
-	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	// Create legend items using legendData (has recalculated percentages for visible items)
+	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
-		const svg: ReactNode[] = [];
-		const html: ReactNode[] = [];
-		const other: ReactNode[] = [];
-
-		Children.forEach( children, child => {
-			if ( isValidElement( child ) ) {
-				// Check displayName for compound components
-				const childType = child.type as { displayName?: string };
-				const displayName = childType?.displayName;
-
-				if ( displayName === 'PieSemiCircleChart.SVG' ) {
-					// Extract children from PieSemiCircleChart.SVG
-					Children.forEach( child.props.children, svgChild => {
-						svg.push( svgChild );
-					} );
-				} else if ( displayName === 'PieSemiCircleChart.HTML' ) {
-					// Extract children from PieSemiCircleChart.HTML
-					Children.forEach( child.props.children, htmlChild => {
-						html.push( htmlChild );
-					} );
-				} else if ( child.type === Group ) {
-					// Legacy support: still check for Group type for backward compatibility
-					svg.push( child );
-				} else {
-					other.push( child );
-				}
-			}
-		} );
-
-		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
-	}, [ children ] );
+	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+		children,
+		'PieSemiCircleChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -277,10 +270,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const innerRadius = radius * ( 1 - thickness );
 
 	// Map data with index for color assignment
-	const dataWithIndex = data.map( ( d, index ) => ( {
-		...d,
-		index,
-	} ) );
+	// When interactive, we need to find the original index to maintain consistent colors
+	const dataWithIndex = visibleData.map( d => {
+		const originalIndex = data.findIndex( item => item.label === d.label );
+		return {
+			...d,
+			index: originalIndex >= 0 ? originalIndex : 0,
+		};
+	} );
 
 	// Configure pie angles based on clockwise direction
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
@@ -295,6 +292,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			} }
 		>
 			<div
+				ref={ containerRef }
 				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
 				data-testid="pie-chart-container"
 				style={ {
@@ -310,81 +308,97 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				>
 					{ /* Main chart group centered horizontally and positioned at bottom */ }
 					<Group top={ chartHeight } left={ width / 2 }>
-						{ /* Pie chart */ }
-						<Pie< DataPointPercentage & { index: number } >
-							data={ dataWithIndex }
-							pieValue={ accessors.value }
-							outerRadius={ radius }
-							innerRadius={ innerRadius }
-							cornerRadius={ 3 }
-							padAngle={ PAD_ANGLE }
-							startAngle={ startAngle }
-							endAngle={ endAngle }
-							pieSort={ accessors.sort }
-						>
-							{ pie => {
-								return pie.arcs.map( arc => (
-									<g
-										key={ arc.data.label }
-										onMouseMove={ handleArcMouseMove( arc ) }
-										onMouseLeave={ handleMouseLeave }
+						{ allSegmentsHidden ? (
+							<text
+								textAnchor="middle"
+								y={ -radius / 2 }
+								fill="#ccc"
+								fontSize="14"
+								fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+							>
+								{ __(
+									'All segments are hidden. Click legend items to show data.',
+									'jetpack-charts'
+								) }
+							</text>
+						) : (
+							<>
+								{ /* Pie chart */ }
+								<Pie< DataPointPercentage & { index: number } >
+									data={ dataWithIndex }
+									pieValue={ accessors.value }
+									outerRadius={ radius }
+									innerRadius={ innerRadius }
+									cornerRadius={ 3 }
+									padAngle={ PAD_ANGLE }
+									startAngle={ startAngle }
+									endAngle={ endAngle }
+									pieSort={ accessors.sort }
+								>
+									{ pie => {
+										return pie.arcs.map( arc => (
+											<g
+												key={ arc.data.label }
+												onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+												onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+											>
+												<path
+													d={ pie.path( arc ) || '' }
+													fill={ accessors.fill( arc.data ) }
+													data-testid="pie-segment"
+												/>
+											</g>
+										) );
+									} }
+								</Pie>
+
+								{ /* Label and note text */ }
+								<Group>
+									<Text
+										textAnchor="middle"
+										verticalAnchor="start"
+										y={ -40 } // Position above the chart with space for note
+										className={ styles.label }
 									>
-										<path
-											d={ pie.path( arc ) || '' }
-											fill={ accessors.fill( arc.data ) }
-											data-testid="pie-segment"
-										/>
-									</g>
-								) );
-							} }
-						</Pie>
+										{ label }
+									</Text>
+									<Text
+										textAnchor="middle"
+										verticalAnchor="start"
+										y={ -20 } // Position between label and chart
+										className={ styles.note }
+									>
+										{ note }
+									</Text>
+								</Group>
 
-						{ /* Label and note text */ }
-						<Group>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -40 } // Position above the chart with space for note
-								className={ styles.label }
-							>
-								{ label }
-							</Text>
-							<Text
-								textAnchor="middle"
-								verticalAnchor="start"
-								y={ -20 } // Position between label and chart
-								className={ styles.note }
-							>
-								{ note }
-							</Text>
-						</Group>
-
-						{ /* Render SVG children from composition API */ }
-						{ svgChildren }
+								{ /* Render SVG children from composition API */ }
+								{ ! allSegmentsHidden && svgChildren }
+							</>
+						) }
 					</Group>
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ {
-							label: tooltipData.label,
-							value: tooltipData.value,
-							valueDisplay: tooltipData.valueDisplay,
-						} }
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
-					/>
+					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+						<div role="tooltip">
+							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 
@@ -419,8 +433,8 @@ PieSemiCircleChartWithProvider.displayName = 'PieSemiCircleChart';
 // Create PieSemiCircleChart with composition API
 const PieSemiCircleChart = attachSubComponents( PieSemiCircleChartWithProvider, {
 	Legend: Legend,
-	SVG: PieSemiCircleChartSVG,
-	HTML: PieSemiCircleChartHTML,
+	SVG: ChartSVG,
+	HTML: ChartHTML,
 } ) as PieSemiCircleChartComponent;
 
 // Create responsive PieSemiCircleChart with composition API
@@ -428,8 +442,8 @@ const PieSemiCircleChartResponsive = attachSubComponents(
 	withResponsive< PieSemiCircleChartProps >( PieSemiCircleChartWithProvider ),
 	{
 		Legend: Legend,
-		SVG: PieSemiCircleChartSVG,
-		HTML: PieSemiCircleChartHTML,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
 	}
 ) as PieSemiCircleChartResponsiveComponent;
 

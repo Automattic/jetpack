@@ -703,7 +703,22 @@ function access_denied_template_path() {
 		return __DIR__ . '/access-denied-preview-login-template.php';
 	}
 
-	if ( site_is_coming_soon() ) {
+	/*
+	 * Logged-out users coming from Calypso are likely authenticated in wordpress.com, so if we redirect them
+	 * straight away to the login page, the SSO module will try to automatically log them in into the site.
+	 */
+	$calypso_domains          = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	$should_redirect_to_login = ( ! is_user_logged_in() ) && class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'sso' ) && in_array( wp_get_referer(), $calypso_domains, true );
+	if ( $should_redirect_to_login ) {
+		wp_safe_redirect( wp_login_url( set_url_scheme( original_request_url() ) ) );
+		exit( 0 );
+	} elseif ( site_is_coming_soon() ) {
 		return __DIR__ . '/access-denied-coming-soon-template.php';
 	} else {
 		return __DIR__ . '/access-denied-private-site-template.php';

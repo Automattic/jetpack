@@ -75,7 +75,7 @@ function jpcrm_quote_generate_posted_pdf() {
  * Generate PDF file for a quote
  *
  * @param int $quote_id Quote ID.
- * @return str $file_to_save path to created pdf
+ * @return string $file_to_save path to created pdf
  */
 function jpcrm_quote_generate_pdf( $quote_id = false ) {
 

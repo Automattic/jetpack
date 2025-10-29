@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: default to notify the post author when the notification recipients list is empty.

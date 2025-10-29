@@ -43,7 +43,7 @@ class Woo_Sync_Background_Sync {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// check we're good to go
 		$this->verify_ready_mode();
@@ -97,7 +97,7 @@ class Woo_Sync_Background_Sync {
 	 * Checks that all 'pre-ready' conditions are met before enabling sync
 	 * (Critical migrations when we moved from 1 to many site syncing)
 	 */
-	public function verify_ready_mode( ){
+	public function verify_ready_mode() {
 
 		// check for critical migration when we moved from 1 to many site syncing
 		$migration_status = get_option( 'jpcrm_woosync_52_mig' );		
@@ -166,7 +166,7 @@ class Woo_Sync_Background_Sync {
 	/**
 	 * Setup cron schedule
 	 */
-	private function schedule_cron( ) {
+	private function schedule_cron() {
 
 		// schedule it
 		if ( ! wp_next_scheduled( 'jpcrm_woosync_sync' ) ) {
@@ -421,8 +421,7 @@ class Woo_Sync_Background_Sync {
 				'percentage_completed' => $overall_percentage,
 			);
 			$woosync_latest_stats = $this->woosync()->get_jpcrm_woo_latest_stats();
-			echo json_encode( array_merge( $woosync_latest_stats, $woosync_status_array ) );
-			exit( 0 );
+			wp_send_json( array_merge( $woosync_latest_stats, $woosync_status_array ) );
 
 		}
 
@@ -547,8 +546,8 @@ class Woo_Sync_Background_Sync {
 	/**
 	 * Catches deletion of WooCommerce orders and (optionally) removes transactions from CRM
 	 *
-	 * @param int $order_post_id
-	 * @param str $delete_action
+	 * @param int    $order_post_id Order post ID.
+	 * @param string $delete_action Delete action.
 	 */
 	private function woocommerce_order_removed( $order_post_id, $delete_action ) {
 

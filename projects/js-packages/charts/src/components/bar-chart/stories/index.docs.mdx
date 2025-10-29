@@ -25,6 +25,10 @@ The Bar Chart component provides a flexible, accessible, and highly customizable
 	/>` }
 />
 
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Bar Chart API Reference](./?path=/docs/js-packages-charts-types-bar-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Simple Bar Chart
@@ -62,6 +66,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 - **`withTooltips`**: Enable interactive tooltips (`false` by default)
 - **`withPatterns`**: Use pattern fills instead of solid colors (`false` by default)
 - **`showLegend`**: Display chart legend (`false` by default)
+- **`legendInteractive`**: Enable interactive legend with series toggle (`false` by default, requires `chartId`)
 - **`gridVisibility`**: Grid line visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 - **`margin`**: Custom chart margins
 - **`options`**: Advanced axis and scale configuration
@@ -275,7 +280,7 @@ By default, bars with zero values have no visual height, making them difficult t
 
 Display series information with automatic color and pattern matching:
 
-<Canvas of={ BarChartStories.WithLegend } />
+<Canvas of={ BarChartStories.WithInteractiveLegend } />
 
 <Source
 	language="jsx"
@@ -350,6 +355,38 @@ For more flexible legend positioning and future extensibility, use the compositi
 		legendAlignment="end"
 	/>` }
 />
+
+### Interactive Legend
+
+Enable interactive legend items that users can click to toggle series visibility. This feature requires a `chartId` and wrapping your chart in a `GlobalChartsProvider`:
+
+<Canvas of={ BarChartStories.WithInteractiveLegend } />
+
+<Source
+	language="jsx"
+	code={ `import { BarChart, GlobalChartsProvider } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<BarChart
+			data={data}
+			chartId="my-chart"
+			showLegend={true}
+			legendInteractive={true}
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+**Interactive legend features:**
+- **Click to toggle**: Click legend items to show/hide series
+- **Visual feedback**: Legend items visually indicate their active/inactive state
+- **Accessibility**: Full keyboard support with proper ARIA attributes
+- **Empty state**: When all series are hidden, a message prompts users to re-enable series
+- **State management**: Visibility state is managed through the global charts provider
+
+**Requirements:**
+- Set `legendInteractive={true}` to enable the feature
+- Provide a unique `chartId` prop for state tracking
+- Wrap the chart in a `<GlobalChartsProvider>` component
 
 ## Advanced Customization
 
@@ -491,105 +528,6 @@ Full functionality in all modern browsers supporting:
 - Automatic data validation and error boundaries
 - Efficient pattern generation for accessibility features
 
-## API Reference
-
-### BarChart
-
-Main chart component with responsive behavior by default.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
-| `chartId` | `string` | auto-generated | Optional unique identifier for the chart |
-| `width` | `number` | responsive | Chart width in pixels |
-| `height` | `number` | `400` | Chart height in pixels |
-| `orientation` | `'vertical' \| 'horizontal'` | `'vertical'` | Bar orientation |
-| `withTooltips` | `boolean` | `false` | Enable interactive tooltips |
-| `withPatterns` | `boolean` | `false` | Use pattern fills for accessibility |
-| `showZeroValues` | `boolean` | `false` | Display zero values with minimum visual height |
-| `showLegend` | `boolean` | `false` | Display chart legend |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `LegendShape` | `'rect'` | Shape used in legend markers |
-| `gridVisibility` | `'x' \| 'y' \| 'xy' \| 'none'` | orientation-based | Grid line visibility |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
-| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }` | calculated | Chart margins |
-| `options` | `ChartOptions` | `{}` | Advanced axis and scale configuration |
-| `className` | `string` | - | Additional CSS class name |
-| `children` | `ReactNode` | - | Child components (e.g., `<BarChart.Legend />`) |
-
-### BarChart.Legend
-
-Composition API component for displaying chart legends. Must be used as a child of `<BarChart>`.
-
-**Props:**
-
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout orientation |
-| `alignment` | `'start' \| 'center' \| 'end'` | `'center'` | Horizontal legend alignment |
-| `position` | `'top' \| 'bottom'` | `'bottom'` | Vertical legend alignment |
-| `shape` | `LegendShape` | `'rect'` | Shape used in legend markers |
-| `className` | `string` | - | Additional CSS class name |
-| `chartId` | `string` | auto-detected | Chart ID (automatically detected from parent context) |
-
-### SeriesData Type
-
-```typescript
-type SeriesData = {
-	label: string;
-	data: DataPointDate[];
-	options?: {
-		stroke?: string;
-	};
-};
-```
-
-### DataPointDate Type
-
-```typescript
-type DataPointDate = {
-	date?: Date;
-	dateString?: string; // Multiple formats supported
-	value: number | null;
-	label?: string;
-};
-```
-
-### ChartOptions Type
-
-```typescript
-type ChartOptions = {
-	yScale?: {
-		type?: 'linear' | 'band';
-		zero?: boolean;
-		domain?: [number, number];
-		nice?: boolean;
-		padding?: number;
-	};
-	xScale?: {
-		type?: 'time' | 'linear' | 'band';
-		domain?: [Date, Date] | [number, number];
-		padding?: number;
-	};
-	axis?: {
-		x?: {
-			orientation?: 'top' | 'bottom';
-			numTicks?: number;
-			tickFormat?: (value: any) => string;
-		};
-		y?: {
-			orientation?: 'left' | 'right';
-			numTicks?: number;
-			tickFormat?: (value: number) => string;
-		};
-	};
-};
-```
-
 ## Performance Considerations
 
 ### Built-in Optimizations
@@ -605,11 +543,11 @@ Bar Charts integrate seamlessly with the chart theming system:
 
 <Source
 	language="jsx"
-	code={ `import { ThemeProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
 
-	<ThemeProvider theme={jetpackTheme}>
+	<GlobalChartsProvider theme={jetpackTheme}>
 		<BarChart data={data} />
-	</ThemeProvider>` }
+	</GlobalChartsProvider>` }
 />
 
 **Available themes:**

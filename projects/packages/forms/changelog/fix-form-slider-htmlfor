@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: slider, replace for with htmlFor to fix JS warning

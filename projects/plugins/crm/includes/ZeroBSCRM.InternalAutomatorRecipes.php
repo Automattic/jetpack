@@ -606,7 +606,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 /**
  * Catches new logs and updates contact 'last contacted' if contact type log
  *
- * @param arr $obj Array containing log details.
+ * @param array $obj Array containing log details.
  */
 function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 

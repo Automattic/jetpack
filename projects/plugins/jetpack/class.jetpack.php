@@ -39,6 +39,7 @@ use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Woocommerce_Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -2623,6 +2624,10 @@ p {
 			Sync_Actions::do_only_first_initial_sync();
 		}
 
+		if ( ! defined( 'WC_ANALYTICS' ) && class_exists( 'Automattic\Woocommerce_Analytics' ) ) {
+			Woocommerce_Analytics::maybe_add_proxy_speed_module();
+		}
+
 		self::plugin_initialize();
 	}
 
@@ -2803,6 +2808,10 @@ p {
 			self::disconnect();
 			Jetpack_Options::delete_option( 'version' );
 		}
+
+		if ( ! defined( 'WC_ANALYTICS' ) && class_exists( 'Automattic\Woocommerce_Analytics' ) ) {
+			Woocommerce_Analytics::maybe_remove_proxy_speed_module();
+		}
 	}
 
 	/**
@@ -2832,7 +2841,7 @@ p {
 	}
 
 	/**
-	 * Happens after a successfull disconnection.
+	 * Happens after a successful disconnection.
 	 *
 	 * @static
 	 */
@@ -3109,6 +3118,7 @@ p {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate.
 			$args = array();
+			// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
@@ -5112,7 +5122,7 @@ endif;
 	 * @return mixed
 	 */
 	public static function set_suffix_on_min( $src, $handle ) {
-		if ( ! str_contains( $src, '.min.css' ) ) {
+		if ( ! is_string( $src ) || ! str_contains( $src, '.min.css' ) ) {
 			return $src;
 		}
 

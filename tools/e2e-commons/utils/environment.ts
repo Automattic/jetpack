@@ -74,7 +74,7 @@ export function resolveSiteUrl(): string {
 	} else if ( process.env.USE_CLOUDFLARE_TUNNEL ) {
 		logger.debug( 'USE_CLOUDFLARE_TUNNEL is set, checking cloudflared tunnel file' );
 
-		const cloudflaredPath = config.get( 'dirs.temp' ) + '/cloudflared';
+		const cloudflaredPath = config.get( 'dirs.temp' ) + '/cloudflared-url';
 		try {
 			url = fs.readFileSync( cloudflaredPath, 'utf8' ).replace( 'http:', 'https:' );
 			logger.debug( `Using cloudflared tunnel URL from file: ${ url }` );
@@ -89,7 +89,7 @@ export function resolveSiteUrl(): string {
 		logger.debug( 'Checking for localtunnel url' );
 
 		// Check localtunnel file first
-		const localtunnelPath = config.get( 'dirs.temp' ) + '/localtunnel';
+		const localtunnelPath = config.get( 'dirs.temp' ) + '/localtunnel-url';
 		try {
 			url = fs.readFileSync( localtunnelPath, 'utf8' ).replace( 'http:', 'https:' );
 			logger.debug( `Using localtunnel URL from file: ${ url }` );

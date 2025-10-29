@@ -1,79 +1,3 @@
-.jetpack-field-slider__row {
-	display: flex;
-	align-items: center;
-	width: 100%;
-	gap: 12px;
-	margin-top: 30px;
-}
-
-.jetpack-field-slider__input-container {
-	display: flex;
-	flex: 1 1 auto;
-	min-width: 0;
-	position: relative;
-}
-
-.jetpack-field-slider__range {
-	-webkit-appearance: none;
-	appearance: none;
-	height: 4px;
-	background: var(--jetpack--contact-form--button-primary--background-color);
-	outline: none;
-	border-radius: 2px;
-	transition: background 0.3s;
-	width: 100%;
-	box-sizing: border-box;
-
-	&:focus {
-		outline: none;
-		opacity: 1;
-	}
-
-	&::-webkit-slider-thumb {
-		-webkit-appearance: none;
-		appearance: none;
-		width: 16px;
-		height: 16px;
-		background: var(--jetpack--contact-form--button-primary--background-color);
-		border-radius: 50%;
-		cursor: pointer;
-		transition: background 0.3s;
-		box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
-	}
-
-	&::-moz-range-thumb,
-	&::-ms-thumb {
-		width: 16px;
-		height: 16px;
-		background: var(--jetpack--contact-form--button-primary--background-color);
-		border-radius: 50%;
-		cursor: pointer;
-		transition: background 0.3s;
-	}
-
-	&:focus::-webkit-slider-thumb,
-	&:focus::-moz-range-thumb,
-	&::-ms-fill-lower,
-	&::-ms-fill-upper,
-	&:focus::-ms-fill-lower,
-	&:focus::-ms-fill-upper {
-		background: var(--jetpack--contact-form--button-primary--background-color);
-	}
-}
-
-.jetpack-field-slider__value-indicator {
-	position: absolute;
-	top: -36px;
-	left: 0;
-	transform: translateX(-50%);
-	background: var(--jetpack--contact-form--button-primary--background-color);
-	color: var(--jetpack--contact-form--button-primary--color);
-	border-radius: 8px;
-	padding: 2px 8px;
-	font-size: 0.7em;
-	z-index: 2;
-}
-
 .jetpack-field-slider__min-input[type="number"],
 .jetpack-field-slider__max-input[type="number"] {
 	field-sizing: content;
@@ -84,9 +8,11 @@
 	background: transparent;
 	font: inherit;
 	font-size: 0.9em;
+	color: inherit;
 	padding: 0 0.2em;
 	margin: 0;
 	appearance: textfield;
+	text-transform: inherit;
 
 	&.has-error {
 		outline-color: var(--color-error, #d63638);
@@ -100,30 +26,17 @@
 	}
 }
 
-.jetpack-field-slider__text-labels {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 6px;
-	font-size: 0.9em;
-}
-
 input[type="text"].jetpack-field-slider__min-text-label,
 input[type="text"].jetpack-field-slider__max-text-label {
 	border: none;
 	background: transparent;
 	font: inherit;
+	color: inherit;
 	padding: 0 0.2em;
 	margin: 0;
 	width: auto;
 	field-sizing: content;
 	min-width: 3ch;
 	max-width: 24ch;
-}
-
-.jetpack-field-slider__min-text-label {
-	text-align: left;
-}
-
-.jetpack-field-slider__max-text-label {
-	text-align: right;
+	text-transform: inherit;
 }

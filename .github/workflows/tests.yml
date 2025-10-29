@@ -3,7 +3,7 @@ name: Tests
 on:
   pull_request:
   push:
-    branches: [ 'trunk', '*/branch-*' ]
+    branches: ['trunk', '*/branch-*']
 
 concurrency:
   # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
@@ -11,17 +11,17 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  COMPOSER_ROOT_VERSION: "dev-trunk"
+  COMPOSER_ROOT_VERSION: 'dev-trunk'
 
 jobs:
   create-matrix:
-    name: "Determine tests matrix"
+    name: 'Determine tests matrix'
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2021-02-03: Should only take a second.
+    timeout-minutes: 1 # 2021-02-03: Should only take a second.
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: create-matrix
         run: |
           MATRIX="$(.github/files/generate-ci-matrix.php)"
@@ -60,7 +60,7 @@ jobs:
       coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           # Test coverage checks require a fetch depth > 1.
           fetch-depth: 2
@@ -318,7 +318,7 @@ jobs:
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Get token
         id: get_token
@@ -332,7 +332,7 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Download coverage artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: 'Code coverage'
           path: coverage
@@ -351,7 +351,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-02-23 Wild guess
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       # But it doesn't have to be checked out.
@@ -405,9 +405,9 @@ jobs:
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
-    timeout-minutes: 2  # 2022-09-08: Should only take a few seconds.
+    timeout-minutes: 2 # 2022-09-08: Should only take a few seconds.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
         with:
@@ -444,7 +444,7 @@ jobs:
     name: Type checking
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
@@ -456,11 +456,9 @@ jobs:
           EXIT=0
           set -o pipefail
           for DIR in $( jq -r 'if .scripts.typecheck then input_filename | sub( "/package.json"; "" ) else empty end' projects/*/*/package.json projects/*/*/tests/e2e/package.json tools/*/package.json 2>/dev/null ); do
-            echo "::group::$DIR"
             if ! ( cd "$DIR" && pnpm run typecheck ) | sed -uE 's#^.+\([0-9,]+\): error #'"$DIR"'/&#'; then
               EXIT=1
             fi
-            echo "::endgroup::"
           done
           exit $EXIT
 
@@ -468,9 +466,9 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
+    timeout-minutes: 20 # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install

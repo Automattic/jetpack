@@ -16,6 +16,14 @@
 			"src/"
 		]
 	},
+	"autoload-dev": {
+		"classmap": [
+			"tests/php/lib/"
+		],
+		"psr-4": {
+			"Automattic\\Block_Delimiter\\Tests\\": "tests/php/"
+		}
+	},
 	"scripts": {
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"

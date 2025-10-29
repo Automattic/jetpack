@@ -499,7 +499,7 @@ if ( ! $confirmAct ) {
 																									echo ' checked="checked"';
 																								}
 																								?>
-							/> <?php echo esc_html_e( $field_label, 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?><br />
+							/> <?php esc_html_e( $field_label, 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?><br />
 						<?php } ?>
 					</td>
 

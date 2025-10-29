@@ -57,7 +57,7 @@ class Jetpack_Options {
 					'site_icon_url',               // (string) url to the full site icon
 					'site_icon_id',                // (int)    Attachment id of the site icon file
 					'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
-					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
+					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occurred
 					'unique_registrations',        // (integer) A counter of how many times the site was registered
 					'protect_whitelist',           // (array) IP Address for the Protect module to ignore
 					'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
@@ -250,7 +250,7 @@ class Jetpack_Options {
 	 *
 	 * @var array
 	 */
-	private static $external_storage_allowlist = array( 'blog_token', 'id' );
+	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'user_tokens' );
 
 	/**
 	 * Determines if external storage should be used for a given option.
@@ -335,8 +335,8 @@ class Jetpack_Options {
 		 * @since 1.1.2
 		 * @since-jetpack 3.0.0
 		 *
-		 * @param str $name The name of the option being updated.
-		 * @param mixed $value The new value of the option.
+		 * @param string $name The name of the option being updated.
+		 * @param mixed  $value The new value of the option.
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {

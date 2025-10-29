@@ -5,9 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.4 - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## 0.4.3 - 2025-10-10
+### Changed
+- Update package dependencies. [#45428]
+
+## 0.4.2 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## 0.4.1 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 0.4.0 - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+## 0.3.0 - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package v5.0.0 → v7.0.0 [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## 0.2.5 - 2025-09-01
+### Changed
+- Remove unused JavaScript dependencies. [#44813]
+
+### Fixed
+- Restore dependency removed in #44813. [#44968]
+
+## 0.2.4 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
 ## 0.2.3 - 2025-08-18
 ### Added
-- Add type-check script to ensure that the TypeScript files are type-checked. [#44795]
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
 
 ## 0.2.2 - 2025-08-14
 ### Changed

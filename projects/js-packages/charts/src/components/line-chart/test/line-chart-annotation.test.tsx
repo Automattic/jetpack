@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { getLabelPosition } from '../line-chart-annotation';
+import { getLabelPosition } from '../private/line-chart-annotation';
 
 describe( 'LineChartAnnotation', () => {
 	describe( 'getLabelPosition', () => {

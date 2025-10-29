@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
@@ -309,7 +313,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $local_user->exists() ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
-			$connection_error = __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' );
+			$connection_error = __( 'The user who set up the Jetpack connection no longer exists on this site.', 'jetpack' );
 
 			$result = self::connection_failing_test( $name, $connection_error );
 		}
@@ -348,7 +352,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
 			/* translators: a WordPress username */
-			$connection_error = sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login );
+			$connection_error = sprintf( __( 'The user (%s) who set up the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login );
 			/* translators: a WordPress username */
 			$recommendation = sprintf( __( 'We recommend either upgrading the user (%s) or reconnecting Jetpack.', 'jetpack' ), $master_user->user_login );
 

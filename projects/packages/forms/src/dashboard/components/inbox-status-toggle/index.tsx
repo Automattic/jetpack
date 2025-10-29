@@ -3,13 +3,14 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -25,21 +26,25 @@ import useInboxData from '../../hooks/use-inbox-data';
  * @return {string} The formatted label.
  */
 function getTabLabel( label: string, count: number ): string {
-	/* translators: %1$s1: Tab label, %2$d: Count */
-	return sprintf( __( '%1$s (%2$d)', 'jetpack-forms' ), label, count || 0 );
+	return `${ label } (${ formatNumber( count || 0 ) })`;
 }
+
+type InboxStatusToggleProps = {
+	onChange: ( status: string ) => void;
+};
 
 /**
  * Renders the status toggle for the inbox view.
  *
+ * @param {Function} onChange - The function to call when the status changes.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle(): JSX.Element {
+export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useInboxData();
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash, setSelectedResponses } = useInboxData();
 
 	const statusTabs = [
 		{ label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ), value: 'inbox' },
@@ -61,11 +66,13 @@ export default function InboxStatusToggle(): JSX.Element {
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
-
+				params.delete( 'r' ); // Clear selected responses when changing tabs.
 				return params;
 			} );
+			setSelectedResponses( [] );
+			onChange( newStatus );
 		},
-		[ setSearchParams, status, isSm ]
+		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);
 
 	return (

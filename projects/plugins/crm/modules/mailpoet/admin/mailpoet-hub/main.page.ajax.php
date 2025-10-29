@@ -1,9 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
 /**
  * Fired by AJAX on hub page (where still contacts to import, checks nonce and initiates sync)
  */
-function jpcrm_mailpoet_ajax_import_subscribers( ){
+function jpcrm_mailpoet_ajax_import_subscribers() {
 
 	global $zbs;
 
@@ -15,9 +15,7 @@ function jpcrm_mailpoet_ajax_import_subscribers( ){
 
 	// if something's returned, output via AJAX
 	// (Mostly `background_sync->sync_subscribers()` will do this automatically)
-	echo json_encode( $return );
-	exit( 0 );
-
+	wp_send_json( $return );
 }
 
 // import subscribers AJAX

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.22] - 2025-10-20
+### Changed
+- Internal updates.
+
+## [0.7.21] - 2025-09-19
+### Changed
+- Internal updates.
+
+## [0.7.20] - 2025-09-15
+### Fixed
+- Ensure compatibility with images added via Breakdance blocks. [#45059]
+
+## [0.7.19] - 2025-09-08
+### Changed
+- Internal updates.
+
+## [0.7.18] - 2025-08-25
+### Fixed
+- Prevent an error when attempting to filter null. [#44874]
+
 ## [0.7.17] - 2025-08-18
 ### Fixed
 - Add defensive check for `is_string` before trimming photon url. [#44822]
@@ -222,6 +242,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.7.22]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.21...v0.7.22
+[0.7.21]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.20...v0.7.21
+[0.7.20]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.19...v0.7.20
+[0.7.19]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.18...v0.7.19
+[0.7.18]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.17...v0.7.18
 [0.7.17]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.16...v0.7.17
 [0.7.16]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.15...v0.7.16
 [0.7.15]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.7.14...v0.7.15

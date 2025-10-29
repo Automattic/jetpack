@@ -1,27 +1,33 @@
+import { localPoint } from '@visx/event';
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
+import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { useContext, useMemo, Children, isValidElement } from 'react';
-import { useChartMouseHandler, useGlobalChartTheme } from '../../hooks';
+import { useCallback, useContext, useMemo } from 'react';
+import { useElementHeight, useInteractiveLegendData } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
 	useChartRegistration,
-} from '../../providers/chart-context';
-import { GlobalChartsContext } from '../../providers/chart-context/global-charts-provider';
-import { attachSubComponents } from '../../utils/create-composition';
-import { Legend } from '../legend';
-import { useChartLegendData } from '../legend/use-chart-legend-data';
-import { SingleChartContext } from '../shared/single-chart-context';
-import { useElementHeight } from '../shared/use-element-height';
-import { withResponsive } from '../shared/with-responsive';
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+	GlobalChartsContext,
+} from '../../providers';
+import { attachSubComponents } from '../../utils';
+import { getStringWidth } from '../../visx/text';
+import { Legend, useChartLegendItems } from '../legend';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { SingleChartContext } from '../private/single-chart-context';
+import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
 import styles from './pie-chart.module.scss';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
-import type { ResponsiveConfig } from '../shared/with-responsive';
-import type { SVGProps, MouseEvent, ReactNode, FC, ComponentType, PropsWithChildren } from 'react';
+import type { LegendValueDisplay } from '../legend';
+import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
-interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
+export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
 	 * Inner radius in pixels. If > 0, creates a donut chart. Defaults to 0.
 	 */
@@ -52,24 +58,50 @@ interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	cornerScale?: number;
 
 	/**
+	 * Whether to show labels on pie segments. Defaults to true.
+	 */
+	showLabels?: boolean;
+
+	/**
+	 * What type of value to display in the legend when showValues is true.
+	 * - 'percentage': Shows percentage values (e.g., "23%") [default]
+	 * - 'value': Shows raw numeric values (e.g., "30000")
+	 * - 'valueDisplay': Shows formatted values (e.g., "30K")
+	 * - 'none': Shows no values, only labels
+	 */
+	legendValueDisplay?: LegendValueDisplay;
+
+	/**
+	 * Enable interactive legend items that can toggle segment visibility.
+	 * Requires chartId and GlobalChartsProvider.
+	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
+	 */
+	legendInteractive?: boolean;
+
+	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
+
+	/**
+	 * Horizontal offset for tooltip positioning in pixels (default: 0)
+	 */
+	tooltipOffsetX?: number;
+
+	/**
+	 * Vertical offset for tooltip positioning in pixels (default: -15)
+	 */
+	tooltipOffsetY?: number;
 }
 
 // Base props type with optional responsive properties
 type PieChartBaseProps = Optional< PieChartProps, 'size' >;
 
 // Composition API types
-interface PieChartSubComponents {
-	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
-	SVG: FC< PropsWithChildren >;
-	HTML: FC< PropsWithChildren >;
-}
-
-type PieChartComponent = FC< PieChartBaseProps > & PieChartSubComponents;
-type PieChartResponsiveComponent = FC< PieChartBaseProps & ResponsiveConfig > &
-	PieChartSubComponents;
+type PieChartComponent = ChartComponentWithComposition< PieChartBaseProps >;
+type PieChartResponsiveComponent = ChartComponentWithComposition<
+	PieChartBaseProps & ResponsiveConfig
+>;
 
 /**
  * Validates the pie chart data
@@ -98,36 +130,6 @@ const validateData = ( data: DataPointPercentage[] ) => {
 };
 
 /**
- * Compound component for SVG children in the PieChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieChartSVG: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieChartSVG.displayName = 'PieChart.SVG';
-
-/**
- * Compound component for HTML children in the PieChart
- * @param {PropsWithChildren} props          - Component props
- * @param {ReactNode}         props.children - Child elements to render
- * @return {JSX.Element} The children wrapped in a fragment
- */
-const PieChartHTML: FC< PropsWithChildren > = ( { children } ) => {
-	// This component doesn't render directly - its children are extracted by PieChart
-	// We just return the children as-is
-	return <>{ children }</>;
-};
-
-// Set displayName for better debugging and type checking
-PieChartHTML.displayName = 'PieChart.HTML';
-
-/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -142,63 +144,65 @@ const PieChartInternal = ( {
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
+	legendMaxWidth,
+	legendTextOverflow = 'wrap',
+	legendItemClassName,
 	legendShape = 'circle',
 	size,
 	thickness = 1,
-	padding = 20,
+	padding = 0,
 	gapScale = 0,
 	cornerScale = 0,
+	showLabels = true,
+	legendValueDisplay = 'percentage',
+	legendInteractive = false,
 	children = null,
+	tooltipOffsetX = 0,
+	tooltipOffsetY = -15,
 }: PieChartProps ) => {
-	const providerTheme = useGlobalChartTheme();
+	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
-	const { onMouseMove, onMouseLeave, tooltipOpen, tooltipData, tooltipLeft, tooltipTop } =
-		useChartMouseHandler( {
-			withTooltips,
-		} );
+	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
+		useTooltip< DataPointPercentage >();
+
+	// Set up portal tooltip for better z-index handling
+	const { containerRef, TooltipInPortal } = useTooltipInPortal( {
+		detectBounds: true,
+		scroll: true,
+		debounce: 0,
+	} );
+
+	const onMouseLeave = useCallback( () => {
+		if ( ! withTooltips ) {
+			return;
+		}
+		hideTooltip();
+	}, [ withTooltips, hideTooltip ] );
+
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+
+	// Filter and recalculate data for interactive legends
+	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
+		data,
+		chartId,
+		legendInteractive,
+		isSeriesVisible,
+	} );
 
 	// Memoize legend options to prevent unnecessary re-calculations
-	const legendOptions = useMemo( () => ( { showValues: true } ), [] );
+	const legendOptions = useMemo(
+		() => ( { showValues: true, legendValueDisplay } ),
+		[ legendValueDisplay ]
+	);
 
-	// Create legend items using the reusable hook
-	const legendItems = useChartLegendData( data, legendOptions );
+	// Create legend items using legendData (has recalculated percentages for visible items)
+	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useMemo( () => {
-		const svg: ReactNode[] = [];
-		const html: ReactNode[] = [];
-		const other: ReactNode[] = [];
-
-		Children.forEach( children, child => {
-			if ( isValidElement( child ) ) {
-				// Check displayName for compound components
-				const childType = child.type as { displayName?: string };
-				const displayName = childType?.displayName;
-
-				if ( displayName === 'PieChart.SVG' ) {
-					// Extract children from PieChart.SVG
-					Children.forEach( child.props.children, svgChild => {
-						svg.push( svgChild );
-					} );
-				} else if ( displayName === 'PieChart.HTML' ) {
-					// Extract children from PieChart.HTML
-					Children.forEach( child.props.children, htmlChild => {
-						html.push( htmlChild );
-					} );
-				} else if ( child.type === Group ) {
-					// Legacy support: still check for Group type for backward compatibility
-					svg.push( child );
-				} else {
-					other.push( child );
-				}
-			}
-		} );
-
-		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
-	}, [ children ] );
+	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -238,7 +242,7 @@ const PieChartInternal = ( {
 	const centerX = width / 2;
 	const centerY = adjustedHeight / 2;
 
-	// Calculate the angle between each
+	// Calculate the angle between each (use original data length for consistent spacing)
 	const padAngle = gapScale * ( ( 2 * Math.PI ) / data.length );
 
 	const outerRadius = radius - padding;
@@ -248,27 +252,32 @@ const PieChartInternal = ( {
 	const cornerRadius = cornerScale ? Math.min( cornerScale * outerRadius, maxCornerRadius ) : 0;
 
 	// Map the data to include index for color assignment
-	const dataWithIndex = data.map( ( d, index ) => ( {
-		...d,
-		index,
-	} ) );
+	// When interactive, we need to find the original index to maintain consistent colors
+	const dataWithIndex = visibleData.map( d => {
+		const originalIndex = data.findIndex( item => item.label === d.label );
+		return {
+			...d,
+			index: originalIndex >= 0 ? originalIndex : 0,
+		};
+	} );
 
 	const accessors = {
 		value: ( d: DataPointPercentage ) => d.value,
-		// Use the color property from the data object as a last resort. The theme provides colours by default.
-		fill: ( d: DataPointPercentage & { index: number } ) =>
-			d?.color || providerTheme.colors[ d.index ],
+		fill: ( d: DataPointPercentage & { index: number } ) => {
+			return getElementStyles( { data: d, index: d.index } ).color;
+		},
 	};
 
 	return (
 		<SingleChartContext.Provider
 			value={ {
 				chartId,
-				chartWidth: size,
+				chartWidth: width,
 				chartHeight: adjustedHeight,
 			} }
 		>
 			<div
+				ref={ containerRef }
 				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
 				style={ {
 					display: 'flex',
@@ -276,86 +285,140 @@ const PieChartInternal = ( {
 				} }
 			>
 				<svg
-					viewBox={ `0 0 ${ size } ${ adjustedHeight }` }
+					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
 					preserveAspectRatio="xMidYMid meet"
-					width={ size }
+					width={ width }
 					height={ adjustedHeight }
 				>
 					<Group top={ centerY } left={ centerX }>
-						<Pie< DataPointPercentage & { index: number } >
-							data={ dataWithIndex }
-							pieValue={ accessors.value }
-							outerRadius={ outerRadius }
-							innerRadius={ innerRadius }
-							padAngle={ padAngle }
-							cornerRadius={ cornerRadius }
-						>
-							{ pie => {
-								return pie.arcs.map( ( arc, index ) => {
-									const [ centroidX, centroidY ] = pie.path.centroid( arc );
-									const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
-									const handleMouseMove = ( event: MouseEvent< SVGElement > ) =>
-										onMouseMove( event, arc.data );
+						{ allSegmentsHidden ? (
+							<text
+								textAnchor="middle"
+								dy=".33em"
+								fill={ providerTheme.gridColor || '#ccc' }
+								fontSize="14"
+								fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+							>
+								{ __(
+									'All segments are hidden. Click legend items to show data.',
+									'jetpack-charts'
+								) }
+							</text>
+						) : (
+							<Pie< DataPointPercentage & { index: number } >
+								data={ dataWithIndex }
+								pieValue={ accessors.value }
+								outerRadius={ outerRadius }
+								innerRadius={ innerRadius }
+								padAngle={ padAngle }
+								cornerRadius={ cornerRadius }
+							>
+								{ pie => {
+									return pie.arcs.map( ( arc, index ) => {
+										const [ centroidX, centroidY ] = pie.path.centroid( arc );
+										const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
+										const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+											if ( ! withTooltips ) {
+												return;
+											}
 
-									const pathProps: SVGProps< SVGPathElement > = {
-										d: pie.path( arc ) || '',
-										fill: accessors.fill( arc.data ),
-									};
+											// Get coordinates relative to the current target element
+											const coords = localPoint( event );
+											if ( coords ) {
+												// Account for legend offset when legend is on top
+												const legendOffset =
+													showLegend && legendPosition === 'top' ? legendHeight : 0;
+												showTooltip( {
+													tooltipData: arc.data,
+													tooltipLeft: coords.x + tooltipOffsetX,
+													tooltipTop: coords.y + legendOffset + tooltipOffsetY,
+												} );
+											}
+										};
 
-									if ( withTooltips ) {
-										pathProps.onMouseMove = handleMouseMove;
-										pathProps.onMouseLeave = onMouseLeave;
-									}
+										const pathProps: SVGProps< SVGPathElement > & { 'data-testid'?: string } = {
+											d: pie.path( arc ) || '',
+											fill: accessors.fill( arc.data ),
+											'data-testid': 'pie-segment',
+										};
 
-									return (
-										<g key={ `arc-${ index }` }>
-											<path { ...pathProps } />
-											{ hasSpaceForLabel && (
-												<text
-													x={ centroidX }
-													y={ centroidY }
-													dy=".33em"
-													fill={ providerTheme.labelBackgroundColor || '#333' }
-													fontSize={ 12 }
-													textAnchor="middle"
-													pointerEvents="none"
-												>
-													{ arc.data.label }
-												</text>
-											) }
-										</g>
-									);
-								} );
-							} }
-						</Pie>
+										const groupProps: SVGProps< SVGGElement > = {};
+										if ( withTooltips ) {
+											groupProps.onMouseMove = handleMouseMove;
+											groupProps.onMouseLeave = onMouseLeave;
+										}
+
+										// Estimate text width more accurately for background sizing
+										const fontSize = 12;
+										const estimatedTextWidth = getStringWidth( arc.data.label, { fontSize } );
+										const labelPadding = 6;
+										const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+										const backgroundHeight = fontSize + labelPadding * 2;
+
+										return (
+											<g key={ `arc-${ index }` } { ...groupProps }>
+												<path { ...pathProps } />
+												{ showLabels && hasSpaceForLabel && (
+													<g>
+														{ providerTheme.labelBackgroundColor && (
+															<rect
+																x={ centroidX - backgroundWidth / 2 }
+																y={ centroidY - backgroundHeight / 2 }
+																width={ backgroundWidth }
+																height={ backgroundHeight }
+																fill={ providerTheme.labelBackgroundColor }
+																rx={ 4 }
+																ry={ 4 }
+																pointerEvents="none"
+															/>
+														) }
+														<text
+															x={ centroidX }
+															y={ centroidY }
+															dy=".33em"
+															fill={ providerTheme.labelTextColor || '#333' }
+															fontSize={ fontSize }
+															textAnchor="middle"
+															pointerEvents="none"
+														>
+															{ arc.data.label }
+														</text>
+													</g>
+												) }
+											</g>
+										);
+									} );
+								} }
+							</Pie>
+						) }
 
 						{ /* Render SVG children (like Group, Text) inside the SVG */ }
-						{ svgChildren }
+						{ ! allSegmentsHidden && svgChildren }
 					</Group>
 				</svg>
 
 				{ showLegend && (
 					<Legend
-						items={ legendItems }
 						orientation={ legendOrientation }
 						position={ legendPosition }
 						alignment={ legendAlignment }
+						maxWidth={ legendMaxWidth }
+						textOverflow={ legendTextOverflow }
+						legendItemClassName={ legendItemClassName }
 						className={ styles[ 'pie-chart-legend' ] }
 						shape={ legendShape }
 						ref={ legendRef }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
-					<BaseTooltip
-						data={ tooltipData }
-						top={ tooltipTop || 0 }
-						left={ tooltipLeft || 0 }
-						style={ {
-							transform: 'translate(-50%, -100%)',
-						} }
-					/>
+					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+						<div role="tooltip">
+							<BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />
+						</div>
+					</TooltipInPortal>
 				) }
 
 				{ /* Render HTML component children from PieChart.HTML */ }
@@ -389,8 +452,8 @@ PieChartWithProvider.displayName = 'PieChart';
 // Create PieChart with composition API
 const PieChart = attachSubComponents( PieChartWithProvider, {
 	Legend: Legend,
-	SVG: PieChartSVG,
-	HTML: PieChartHTML,
+	SVG: ChartSVG,
+	HTML: ChartHTML,
 } ) as PieChartComponent;
 
 // Create responsive PieChart with composition API
@@ -398,8 +461,8 @@ const PieChartResponsive = attachSubComponents(
 	withResponsive< PieChartProps >( PieChartWithProvider ),
 	{
 		Legend: Legend,
-		SVG: PieChartSVG,
-		HTML: PieChartHTML,
+		SVG: ChartSVG,
+		HTML: ChartHTML,
 	}
 ) as PieChartResponsiveComponent;
 

@@ -24,7 +24,7 @@ const MinifyJs = () => {
 			<MinifyMeta
 				datasyncKey="minify_js_excludes"
 				buttonText={ __( 'Exclude JS handles', 'jetpack-boost' ) }
-				placeholder={ __( 'Comma separated list of JS handles to exclude', 'jetpack-boost' ) }
+				placeholder={ __( 'Comma-separated list of JS handles to exclude', 'jetpack-boost' ) }
 			/>
 			{ showMinifyLegacy?.data && <MinifyLegacyNotice /> }
 		</Module>

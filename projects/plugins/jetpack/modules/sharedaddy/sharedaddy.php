@@ -118,7 +118,8 @@ function sharing_meta_box_save( $post_id ) {
 
 	// Record sharing disable.
 	if (
-		$post_type_object->public
+		$post_type_object instanceof \WP_Post_Type
+		&& $post_type_object->public
 		&& current_user_can( 'edit_post', $post_id )
 		&& isset( $_POST['sharing_status_hidden'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core takes care of the validation.
 	) {

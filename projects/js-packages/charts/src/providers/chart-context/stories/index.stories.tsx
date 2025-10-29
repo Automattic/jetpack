@@ -7,190 +7,155 @@ import {
 	BarListChart,
 	DataPointPercentage,
 	SeriesData,
-	ThemeProvider,
+	LeaderboardChart,
 } from '../../../.';
-import barSampleData from '../../../components/bar-chart/stories/sample-data';
-import { jetpackTheme, wooTheme } from '../../theme/themes';
-import { GlobalChartsProvider } from '../global-charts-provider';
+import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
+import {
+	medalCountsData,
+	marketingChannelsByCountry,
+	globalMarketComparisonByCountry,
+	osUsageData,
+	trafficSourcesData,
+} from '../../../stories/sample-data';
+import { themeArgTypes } from '../../../stories/theme-config';
 
-const meta: Meta = {
+type StoryArgs = ChartStoryArgs< {
+	showUnitedStates?: boolean;
+	showGreatBritain?: boolean;
+	showJapan?: boolean;
+} >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Chart Context',
 	parameters: {
 		layout: 'centered',
 	},
+	decorators: [ simpleChartDecorator ],
+	argTypes: {
+		...themeArgTypes,
+		showUnitedStates: {
+			control: { type: 'boolean' },
+			description: 'Show United States data in all charts',
+			defaultValue: true,
+		},
+		showGreatBritain: {
+			control: { type: 'boolean' },
+			description: 'Show Great Britain data in all charts',
+			defaultValue: true,
+		},
+		showJapan: {
+			control: { type: 'boolean' },
+			description: 'Show Japan data in all charts',
+			defaultValue: true,
+		},
+	},
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj< StoryArgs >;
 
-const barData: SeriesData[] = [ barSampleData[ 0 ], barSampleData[ 1 ], barSampleData[ 2 ] ];
-
-const lineData: SeriesData[] = [
+// Use centralized sample data
+const baseBarData: SeriesData[] = [
+	medalCountsData[ 0 ],
+	medalCountsData[ 1 ],
+	medalCountsData[ 2 ],
+];
+const baseLineData: SeriesData[] = globalMarketComparisonByCountry;
+const baseBarListData: SeriesData[] = marketingChannelsByCountry;
+const basePieDataWithCountries: DataPointPercentage[] = [
 	{
-		group: 'united-states',
+		...osUsageData[ 0 ],
 		label: 'United States',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 15, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 25, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 30, label: 'Jan 5' },
-		],
-	},
-	{
 		group: 'united-states',
-		label: 'United States comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 1, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 2, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 1.5, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 2.5, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 3, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
 	},
 	{
-		group: 'great-britain',
+		...osUsageData[ 1 ],
 		label: 'Great Britain',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 8, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 12, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 18, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 22, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 28, label: 'Jan 5' },
-		],
-	},
-	{
 		group: 'great-britain',
-		label: 'Great Britain comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 0.8, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 1.2, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 1.8, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 2.2, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 2.8, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
 	},
 	{
-		group: 'japan',
+		...osUsageData[ 2 ],
 		label: 'Japan',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 5, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 8, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 6, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 12, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 16, label: 'Jan 5' },
-		],
-	},
-	{
 		group: 'japan',
-		label: 'Japan comparison',
-		data: [
-			{ date: new Date( '2024-01-01' ), value: 0.5, label: 'Jan 1' },
-			{ date: new Date( '2024-01-02' ), value: 0.8, label: 'Jan 2' },
-			{ date: new Date( '2024-01-03' ), value: 0.6, label: 'Jan 3' },
-			{ date: new Date( '2024-01-04' ), value: 1.2, label: 'Jan 4' },
-			{ date: new Date( '2024-01-05' ), value: 1.6, label: 'Jan 5' },
-		],
-		options: {
-			type: 'comparison' as const,
-		},
 	},
 ];
 
-const pieData: DataPointPercentage[] = [
+// Filtering functions
+const filterSeriesData = ( data: SeriesData[], args: StoryArgs ): SeriesData[] => {
+	return data.filter( series => {
+		if ( series.group === 'united-states' && ! args.showUnitedStates ) return false;
+		if ( series.group === 'great-britain' && ! args.showGreatBritain ) return false;
+		if ( series.group === 'japan' && ! args.showJapan ) return false;
+		return true;
+	} );
+};
+
+const filterPieData = ( data: DataPointPercentage[], args: StoryArgs ): DataPointPercentage[] => {
+	return data.filter( item => {
+		if ( item.group === 'united-states' && ! args.showUnitedStates ) return false;
+		if ( item.group === 'great-britain' && ! args.showGreatBritain ) return false;
+		if ( item.group === 'japan' && ! args.showJapan ) return false;
+		return true;
+	} );
+};
+
+// Data with color overrides - only United States gets red override
+const colorOverrideBarData: SeriesData[] = [
 	{
-		label: 'United States',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 65,
+		...medalCountsData[ 0 ],
+		options: { stroke: '#e74c3c' }, // Red override for United States only
 	},
-	{
-		label: 'Great Britain',
-		value: 30000,
-		valueDisplay: '30K',
-		percentage: 25,
-	},
-	{
-		label: 'Japan',
-		value: 22000,
-		valueDisplay: '22K',
-		percentage: 10,
-	},
+	medalCountsData[ 1 ],
+	medalCountsData[ 2 ],
 ];
 
-// Data for Bar List Chart
-const barListData: SeriesData[] = [
+const colorOverrideLineData: SeriesData[] = globalMarketComparisonByCountry.map(
+	( series, index ) => {
+		// Only United States series (index 0 and 1) get red override
+		if ( index <= 1 ) {
+			return {
+				...series,
+				options: {
+					...series.options,
+					stroke: '#e74c3c',
+				},
+			};
+		}
+		return series;
+	}
+);
+
+const colorOverrideBarListData: SeriesData[] = [
 	{
-		group: 'united-states',
-		label: 'Jan 21-Aug 8, 2024',
-		data: [
-			{ label: 'Organic search', value: 30000 },
-			{ label: 'Affiliates', value: 19000 },
-			{ label: 'Display', value: 18000 },
-		],
+		...marketingChannelsByCountry[ 0 ],
+		options: { stroke: '#e74c3c' }, // Red override for United States only
 	},
-	{
-		group: 'great-britain',
-		label: 'Jan 21-Aug 8, 2023',
-		data: [
-			{ label: 'Organic search', value: 20000 },
-			{ label: 'Affiliates', value: 15000 },
-			{ label: 'Display', value: 19900 },
-		],
-	},
-	{
-		group: 'japan',
-		label: 'Jan 21-Aug 8, 2022',
-		data: [
-			{ label: 'Organic search', value: 15000 },
-			{ label: 'Affiliates', value: 12000 },
-			{ label: 'Display', value: 14000 },
-		],
-	},
+	marketingChannelsByCountry[ 1 ],
+	marketingChannelsByCountry[ 2 ],
 ];
 
-// Data for Donut Chart (uses PieChart with thickness)
-const donutData: DataPointPercentage[] = [
+const colorOverridePieData: DataPointPercentage[] = [
 	{
-		label: 'United States',
-		value: 80000,
-		valueDisplay: '80K',
-		percentage: 65,
+		...basePieDataWithCountries[ 0 ],
+		color: '#e74c3c', // Red override for United States only
 	},
 	{
-		label: 'Great Britain',
-		value: 30000,
-		valueDisplay: '30K',
-		percentage: 25,
+		...basePieDataWithCountries[ 1 ],
 	},
 	{
-		label: 'Japan',
-		value: 22000,
-		valueDisplay: '22K',
-		percentage: 10,
+		...basePieDataWithCountries[ 2 ],
 	},
 ];
 
 // Reusable grid component
-const ChartGrid = ( {
-	lineChartData,
-	barChartData,
-	pieChartData,
-	barListChartData,
-	donutChartData,
-}: {
-	lineChartData: SeriesData[];
-	barChartData: SeriesData[];
-	pieChartData: DataPointPercentage[];
-	barListChartData: SeriesData[];
-	donutChartData: DataPointPercentage[];
-} ) => {
+const ChartGrid = ( { args }: { args: StoryArgs } ) => {
+	// Apply filtering based on args
+	const lineChartData = filterSeriesData( baseLineData, args );
+	const barChartData = filterSeriesData( baseBarData, args );
+	const pieChartData = filterPieData( basePieDataWithCountries, args );
+	const barListChartData = filterSeriesData( baseBarListData, args );
+	const donutChartData = filterPieData( basePieDataWithCountries, args );
+
 	return (
 		<div
 			style={ {
@@ -205,7 +170,7 @@ const ChartGrid = ( {
 				width={ 350 }
 				height={ 250 }
 				withGradientFill={ false }
-				withLegendGlyph={ false }
+				showLegend={ true }
 				withTooltips={ true }
 				margin={ { bottom: 40 } }
 			/>
@@ -237,149 +202,92 @@ const ChartGrid = ( {
 				withTooltips={ true }
 				showLegend={ true }
 			/>
+
+			<LeaderboardChart data={ trafficSourcesData } withComparison showLegend />
+		</div>
+	);
+};
+
+// Chart grid with color overrides
+const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
+	// Apply filtering to color override data
+	const lineChartData = filterSeriesData( colorOverrideLineData, args );
+	const barChartData = filterSeriesData( colorOverrideBarData, args );
+	const pieChartData = filterPieData( colorOverridePieData, args );
+	const barListChartData = filterSeriesData( colorOverrideBarListData, args );
+	const donutChartData = filterPieData( colorOverridePieData, args );
+
+	return (
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				gap: '4rem',
+				width: '100%',
+			} }
+		>
+			<LineChart
+				data={ lineChartData }
+				width={ 350 }
+				height={ 250 }
+				withGradientFill={ false }
+				showLegend={ true }
+				withTooltips={ true }
+				margin={ { bottom: 40 } }
+			/>
+
+			<BarChart
+				data={ barChartData }
+				width={ 350 }
+				height={ 250 }
+				withTooltips={ true }
+				showLegend={ true }
+			/>
+
+			<PieSemiCircleChart
+				data={ pieChartData }
+				width={ 350 }
+				label="Semi-Circle Chart"
+				withTooltips={ true }
+				showLegend={ true }
+			/>
+
+			<BarListChart data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
+
+			<PieChart size={ 300 } data={ pieChartData } withTooltips={ true } showLegend={ true } />
+
+			<PieChart
+				size={ 300 }
+				thickness={ 0.5 }
+				data={ donutChartData }
+				withTooltips={ true }
+				showLegend={ true }
+			/>
+
+			<LeaderboardChart
+				data={ trafficSourcesData }
+				withComparison
+				showLegend
+				secondaryColor="#e74c3c"
+			/>
 		</div>
 	);
 };
 
 export const Default: Story = {
-	render: () => (
-		<GlobalChartsProvider>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
+	render: ( _, { args } ) => <ChartGrid args={ args } />,
+	args: {
+		showUnitedStates: true,
+		showGreatBritain: true,
+		showJapan: true,
+	},
 };
 
-export const JetpackTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider theme={ jetpackTheme }>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const WooTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider theme={ wooTheme }>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const CustomTheme: Story = {
-	render: () => (
-		<GlobalChartsProvider
-			theme={ {
-				colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
-				seriesLineStyles: [
-					{
-						strokeWidth: 1,
-						strokeDasharray: '8 8',
-						strokeLinecap: 'square',
-					},
-					{
-						strokeDasharray: '5 8',
-						strokeWidth: 2,
-						strokeLinecap: 'square',
-					},
-				],
-				gridStyles: {
-					stroke: '#ffe3e3',
-					strokeWidth: 2,
-				},
-			} }
-		>
-			<ChartGrid
-				lineChartData={ lineData }
-				barChartData={ barData }
-				pieChartData={ pieData }
-				barListChartData={ barListData }
-				donutChartData={ donutData }
-			/>
-		</GlobalChartsProvider>
-	),
-};
-
-export const NestedThemes: Story = {
-	render: () => {
-		return (
-			<GlobalChartsProvider theme={ wooTheme }>
-				<div
-					style={ {
-						display: 'grid',
-						gridTemplateColumns: 'repeat(2, 1fr)',
-						gap: '4rem',
-						width: '100%',
-					} }
-				>
-					<ThemeProvider theme={ { colors: [ '#FF6B6B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<LineChart
-							data={ lineData }
-							width={ 350 }
-							height={ 250 }
-							withGradientFill={ false }
-							withLegendGlyph={ false }
-							withTooltips={ true }
-							margin={ { bottom: 40 } }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#2ECC71', ...wooTheme.colors.slice( 1 ) ] } }>
-						<BarChart
-							data={ barData }
-							width={ 350 }
-							height={ 250 }
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#E91E63', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieSemiCircleChart
-							data={ pieData }
-							width={ 350 }
-							label="Semi-Circle Chart"
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#F9CA24', ...wooTheme.colors.slice( 1 ) ] } }>
-						<BarListChart data={ barListData } width={ 350 } height={ 250 } withTooltips={ true } />
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#F0932B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieChart size={ 300 } data={ pieData } withTooltips={ true } showLegend={ true } />
-					</ThemeProvider>
-
-					<ThemeProvider theme={ { colors: [ '#EB4D4B', ...wooTheme.colors.slice( 1 ) ] } }>
-						<PieChart
-							size={ 300 }
-							thickness={ 0.5 }
-							data={ donutData }
-							withTooltips={ true }
-							showLegend={ true }
-						/>
-					</ThemeProvider>
-				</div>
-			</GlobalChartsProvider>
-		);
+export const WithColorOverrides: Story = {
+	render: ( _, { args } ) => <ChartGridWithColorOverrides args={ args } />,
+	args: {
+		showUnitedStates: true,
+		showGreatBritain: true,
+		showJapan: true,
 	},
 };

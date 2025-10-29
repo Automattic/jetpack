@@ -10,8 +10,8 @@ import type { SingleIntegrationCardProps } from '../../../../types';
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
 type JetpackCRMCardProps = SingleIntegrationCardProps & {
-	jetpackCRM: boolean;
-	setAttributes: ( attrs: { jetpackCRM: boolean } ) => void;
+	jetpackCRM?: boolean;
+	setAttributes: ( attrs: { jetpackCRM?: boolean } ) => void;
 };
 
 const JetpackCRMCard = ( {
@@ -37,7 +37,7 @@ const JetpackCRMCard = ( {
 	const cardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: jetpackCRM,
+		headerToggleValue: !! jetpackCRM,
 		isHeaderToggleEnabled: true,
 		onHeaderToggleChange: ( value: boolean ) => setAttributes( { jetpackCRM: value } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -140,8 +140,8 @@ const JetpackCRMCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'Jetpack CRM', 'jetpack-forms' ) }
-			description={ __( 'Store contact form submissions in your CRM', 'jetpack-forms' ) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <JetpackIcon color={ COLOR_JETPACK } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }

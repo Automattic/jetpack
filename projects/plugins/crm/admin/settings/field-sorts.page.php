@@ -204,7 +204,7 @@ if ( $sbupdated ) {
 
 													switch ( $field['migrate'] ) {
 
-														// } Address Fields which were seperate fields under an obj are now managed as groups
+														// } Address Fields which were separate fields under an obj are now managed as groups
 														case 'addresses':
 															// } Grouped "Address" field out
 															?>

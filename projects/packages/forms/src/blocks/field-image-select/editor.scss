@@ -1,42 +1,41 @@
-@use "../shared/styles/visually-hidden" as *;
+@use "style" as *;
+@use "../shared/styles/empty_image_option" as *;
 
-// There is a high specificity flex rule that we need to override.
+// Editor-only styles.
+
+// There is a high specificity flex rule for form fields
+// that we need to override to show the image options
+// in a grid.
 .wp-block-jetpack-contact-form
 .jetpack-contact-form
 .jetpack-fieldset-image-options__wrapper
 .jetpack-input-image-option {
 	flex-basis: unset;
+	flex-grow: 0;
 }
 
-.jetpack-fieldset-image-options__wrapper {
-	--jetpack-field-image-options-gap: 16px;
-	display: flex;
-	flex-wrap: wrap;
-	gap: var(--jetpack-field-image-options-gap);
+.jetpack-contact-form .jetpack-input-image-option .components-placeholder.has-illustration {
+	overflow: hidden;
+	position: relative;
 
-	.jetpack-input-image-option {
-		box-sizing: border-box;
-		display: flex;
-		flex-direction: column;
-		width: calc(( 1 / 4 ) * 100% - var(--jetpack-field-image-options-gap) * ( 3 / 4 ));
+	&::after {
 
-		&.is-supersized {
-			width: calc(( 1 / 2 ) * 100% - var(--jetpack-field-image-options-gap) * ( 1 / 2 ));
-		}
-
-		.jetpack-input-image-option__wrapper {
-			width: 100%;
-			overflow: hidden;
-
-			figcaption {
-
-				@extend %visually-hidden;
-			}
-		}
-
-		.jetpack-input-image-option__label {
-			padding-top: 8px;
-			padding-left: 8px;
-		}
+		@extend %empty-image-option-icon;
 	}
+
+	.components-placeholder__illustration {
+		display: none;
+	}
+}
+
+// There is no outer block in the editor, so we apply
+// the styles directly to the input image option.
+.jetpack-input-image-option {
+	display: flex;
+
+	@include image-select-responsive-width;
+}
+
+div.wp-block.jetpack-input-image-option.jetpack-field {
+	margin: 0;
 }

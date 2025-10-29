@@ -11,6 +11,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.
@@ -110,6 +114,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'type'                     => 'text',
 				'required'                 => false,
 				'requiredtext'             => null,
+				'requiredindicator'        => true,
 				'options'                  => array(),
 				'optionsdata'              => array(),
 				'id'                       => null,
@@ -160,6 +165,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'iconstyle'                => null, // For rating field icon style (lowercase for shortcode compatibility)
 				// full phone field attributes, might become a standalone country list input block
 				'showcountryselector'      => false,
+				'searchplaceholder'        => false,
+				// Image select field attributes
+				'ismultiple'               => null,
+				'showlabels'               => null,
+				'issupersized'             => null,
+				'randomizeoptions'         => null,
+				'showotheroption'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -196,7 +208,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		// allow boolean values for showcountryselector, only if it's set so we don't pollute other fields attrs
 		if ( isset( $attributes['showcountryselector'] ) ) {
-			if ( '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
+			if ( true === $attributes['showcountryselector'] || '1' === $attributes['showcountryselector'] || 'true' === strtolower( $attributes['showcountryselector'] ) ) {
 				$attributes['showcountryselector'] = true;
 			} else {
 				$attributes['showcountryselector'] = false;
@@ -332,27 +344,26 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 				} else {
-					// Check that the selected options are valid
-					$options      = (array) $this->get_attribute( 'options' );
-					$options_data = (array) $this->get_attribute( 'optionsdata' );
 
+					$options_data    = (array) $this->get_attribute( 'optionsdata' );
+					$possible_values = array();
 					if ( ! empty( $options_data ) ) {
-						$options = array_map(
-							function ( $option ) {
-								return $this->sanitize_text_field( trim( $option['label'] ) );
-							},
-							$options_data
-						);
+						foreach ( $options_data as $option_index => $option ) {
+							$option_label = isset( $option['label'] ) ? Contact_Form_Plugin::strip_tags( $option['label'] ) : '';
+							if ( is_string( $option_label ) && '' !== $option_label ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option_label );
+							}
+						}
 					} else {
-						$options = array_map( array( $this, 'sanitize_text_field' ), $options );
+						foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
+							$option = Contact_Form_Plugin::strip_tags( $option );
+							if ( is_string( $option ) && '' !== $option ) {
+								$possible_values[] = $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option );
+							}
+						}
 					}
 
-					$non_empty_options = array_filter(
-						$options,
-						function ( $option ) {
-							return $option !== '';
-						}
-					);
+					$non_empty_options = array_map( array( $this, 'sanitize_text_field' ), $possible_values );
 
 					foreach ( $field_value  as $field_value_item ) {
 						if ( ! in_array( $field_value_item, $non_empty_options, true ) ) {
@@ -394,6 +405,59 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						/* translators: %s is the name of a form field */
 						$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
 						break;
+					}
+				}
+				break;
+			case 'image-select':
+				// Check that there is at least one option selected
+				if ( empty( $field_value ) ) {
+					/* translators: %s is the name of a form field */
+					$this->add_error( sprintf( __( '%s requires at least one selection.', 'jetpack-forms' ), $field_label ) );
+				} else {
+					// Check that the selected options are valid
+					$options      = (array) $this->get_attribute( 'options' );
+					$options_data = (array) $this->get_attribute( 'optionsdata' );
+
+					if ( ! empty( $options_data ) ) {
+						// Extract letters from options_data for validation
+						$options = array_map(
+							function ( $option ) {
+								return sanitize_text_field( trim( $option['letter'] ?? '' ) );
+							},
+							$options_data
+						);
+					}
+
+					$non_empty_options = array_filter(
+						$options,
+						function ( $option ) {
+							return $option !== '';
+						}
+					);
+
+					// For single selection (radio), check if the selected value is in the options
+					if ( ! $this->get_attribute( 'ismultiple' ) ) {
+						// Decode the JSON response to get the selected value
+						$decoded_value  = json_decode( $field_value, true );
+						$selected_value = $decoded_value['selected'] ?? '';
+
+						if ( ! in_array( $selected_value, $non_empty_options, true ) ) {
+							/* translators: %s is the name of a form field */
+							$this->add_error( sprintf( __( '%s requires a valid selection.', 'jetpack-forms' ), $field_label ) );
+						}
+					} else {
+						// For multiple selection (checkbox), check each selected value
+						foreach ( $field_value as $field_value_item ) {
+							// Decode the JSON response to get the selected value
+							$decoded_item   = json_decode( $field_value_item, true );
+							$selected_value = $decoded_item['selected'] ?? '';
+
+							if ( ! in_array( $selected_value, $non_empty_options, true ) ) {
+								/* translators: %s is the name of a form field */
+								$this->add_error( sprintf( __( '%s requires valid selections.', 'jetpack-forms' ), $field_label ) );
+								break;
+							}
+						}
 					}
 				}
 				break;
@@ -459,14 +523,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render() {
 
-		$field_id            = $this->get_attribute( 'id' );
-		$field_type          = $this->maybe_override_type();
-		$field_label         = $this->get_attribute( 'label' );
-		$field_required      = $this->get_attribute( 'required' );
-		$field_required_text = $this->get_attribute( 'requiredtext' );
-		$field_placeholder   = $this->get_attribute( 'placeholder' );
-		$field_width         = $this->get_attribute( 'width' );
-		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+		$field_id                 = $this->get_attribute( 'id' );
+		$field_type               = $this->maybe_override_type();
+		$field_label              = $this->get_attribute( 'label' );
+		$field_required           = $this->get_attribute( 'required' );
+		$field_required_text      = $this->get_attribute( 'requiredtext' );
+		$field_required_indicator = (bool) $this->get_attribute( 'requiredindicator' );
+		$field_placeholder        = $this->get_attribute( 'placeholder' );
+		$field_width              = $this->get_attribute( 'width' );
+		$class                    = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
 		$label_classes  = $this->get_attribute( 'labelclasses' );
 		$label_styles   = $this->get_attribute( 'labelstyles' );
@@ -619,7 +684,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 
-		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs );
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_required_text, $extra_attrs, $field_required_indicator );
 
 		/**
 		 * Filter the HTML of the Contact Form.
@@ -704,21 +769,22 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
 	 * @param bool   $always_render - if the label should always be shown.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false, $required_indicator = true ) {
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
 			if ( ! in_array( $type, array( 'checkbox', 'checkbox-multiple', 'radio', 'consent', 'file' ), true ) ) {
 				switch ( $form_style ) {
 					case 'outlined':
-						return $this->render_outline_label( $id, $label, $required, $required_field_text );
+						return $this->render_outline_label( $id, $label, $required, $required_field_text, $required_indicator );
 					case 'animated':
-						return $this->render_animated_label( $id, $label, $required, $required_field_text );
+						return $this->render_animated_label( $id, $label, $required, $required_field_text, $required_indicator );
 					case 'below':
-						return $this->render_below_label( $id, $label, $required, $required_field_text );
+						return $this->render_below_label( $id, $label, $required, $required_field_text, $required_indicator );
 				}
 			}
 
@@ -731,7 +797,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$extra_attrs['style'] = $this->label_styles;
 		}
 
-		$type_class           = $type ? ' ' . $type : '';
+		$type_class = $type ? ' ' . $type : '';
+
 		$extra_attrs['class'] = "grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' );
 
 		if ( ! empty( $this->label_classes ) ) {
@@ -750,7 +817,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			"</label>\n";
 	}
 
@@ -763,10 +830,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_legend_as_label( $type, $id, $legend, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
 		if ( ! empty( $this->label_styles ) ) {
 			$extra_attrs['style'] = $this->label_styles;
 		}
@@ -789,7 +857,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. '<span class="grunion-label-text">' . wp_kses_post( $legend ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
+				. ( $required && $required_indicator ? '<span class="grunion-label-required">' . $required_field_text . '</span>' : '' )
 				. "</legend>\n";
 	}
 
@@ -904,12 +972,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_email_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'email', __( 'Please enter a valid email address', 'jetpack-forms' ) );
-		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'email', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'email', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -924,93 +993,152 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$field  = $this->render_label( 'telephone', $id, $label, $required, $required_field_text );
-		$field .= $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
-		return $field;
-	}
+	public function render_telephone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
+		$show_country_selector = $this->get_attribute( 'showcountryselector' );
+		$default_country       = $this->get_attribute( 'default' );
+		$search_placeholder    = $this->get_attribute( 'searchplaceholder' );
 
-	/**
-	 * Return the HTML for the telephone field.
-	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param string $value - the value of the field.
-	 * @param string $class - the field class.
-	 * @param bool   $required - if the field is marked as required.
-	 * @param string $required_field_text - the text in the required text field.
-	 * @param string $placeholder - the field placeholder content.
-	 *
-	 * @return string HTML
-	 */
-	public function render_phone_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		if ( ! $show_country_selector ) {
+			// old telephone field treatment
+			$this->set_invalid_message( 'telephone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+			$label = $this->render_label( 'telephone', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
+			$field = $this->render_input_field( 'tel', $id, $value, $class, $placeholder, $required );
+			return $label . $field;
+		}
+
+		if ( empty( $search_placeholder ) ) {
+			$search_placeholder = __( 'Search countries…', 'jetpack-forms' );
+		}
+
 		$this->enqueue_phone_field_assets();
-		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
-		$label = $this->render_label( 'phone', $id, $label, $required, $required_field_text );
 
+		// $class is ill-formed, so we need to fix it
+		// Strip 'class=' and quotes to get just the class names
+		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+
+		$link_label_id = $id . '-number';
+
+		$this->set_invalid_message( 'phone', __( 'Please enter a valid phone number', 'jetpack-forms' ) );
+		$label = $this->render_label( 'phone', $link_label_id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
 
+		$translated_countries = $this->get_translatable_countries();
+		$global_config        = array(
+			'i18n' => array(
+				'countryNames' => $translated_countries,
+			),
+		);
+		wp_interactivity_config( 'jetpack/field-phone', $global_config );
 		ob_start();
 		?>
-		<div class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+		<div
+			class="jetpack-field__input-phone-wrapper <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?> <?php echo esc_attr( $class_names ); ?>"
 			style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
 			data-wp-on--jetpack-form-reset='actions.phoneResetHandler'
+			data-wp-class--is-combobox-open="context.comboboxOpen"
 			<?php
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- function is supposed to work this way
 			echo wp_interactivity_data_wp_context(
 				array(
 					'fieldId'             => $id,
-					'defaultCountry'      => $this->get_attribute( 'default' ),
+					'defaultCountry'      => $default_country,
 					'showCountrySelector' => $this->get_attribute( 'showcountryselector' ),
 					// dynamic
 					'phoneNumber'         => '',
-					'phoneCountryCode'    => $this->get_attribute( 'default' ),
-					'countryList'         => array(),
+					'phoneCountryCode'    => $default_country,
 					'fullPhoneNumber'     => '',
 					'countryPrefix'       => '',
+					// combobox state
+					'useCombobox'         => true,
+					'comboboxOpen'        => false,
+					'searchTerm'          => '',
+					'allCountries'        => array(),
+					'filteredCountries'   => array(),
+					'selectedCountry'     => array(),
 				)
 			);
 			?>
 			>
-				<div class="jetpack-field__input-prefix" data-wp-bind--hidden="!context.showCountrySelector">
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- it's escaped in calling function ?>
-					<select <?php echo $class; ?>
-						data-wp-bind--disabled='state.isSubmitting'
-						data-wp-init="callbacks.initializeCountrySelector"
-						data-wp-on--change="actions.onPhoneCountryChange"
-						data-wp-bind--value="context.phoneCountryCode"
-						data-wp-on--blur='actions.onFieldBlur'>
-						<template
-							data-wp-each--country="context.countryList"
-							data-wp-each-key="context.country.code">
-							<option
-								data-wp-bind--value="context.country.value"
-								data-wp-bind--selected="context.country.selected"
-								data-wp-text="context.country.label"></option>
-						</template>
-					</select>
+				<div class="jetpack-field__input-prefix"
+					data-wp-bind--hidden="!context.showCountrySelector"
+					data-wp-on-document--click="actions.phoneComboboxDocumentClickHandler">
+					<div class="jetpack-custom-combobox">
+
+						<button
+							class="jetpack-combobox-trigger"
+							type="button"
+							data-wp-on--click="actions.phoneComboboxToggle"
+							data-wp-bind--aria-expanded="context.comboboxOpen">
+							<span
+								class="jetpack-combobox-selected"
+								data-wp-text="context.selectedCountry.flag"></span>
+							<span
+								class="jetpack-combobox-trigger-arrow"
+								data-wp-class--is-open="context.comboboxOpen">
+								<svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</span>
+							<span
+								class="jetpack-combobox-selected"
+								data-wp-text="context.selectedCountry.value"></span>
+						</button>
+						<div
+							class="jetpack-combobox-dropdown <?php echo esc_attr( $this->get_attribute( 'stylevariationclasses' ) ); ?>"
+							style="<?php echo ( ! empty( $this->field_styles ) && is_string( $this->field_styles ) ? esc_attr( $this->field_styles ) : '' ); ?>"
+							data-wp-bind--hidden="!context.comboboxOpen">
+							<input
+								class="jetpack-combobox-search"
+								type="text"
+								placeholder="<?php echo esc_attr( $search_placeholder ); ?>"
+								data-wp-on--input="actions.phoneComboboxInputHandler"
+								data-wp-on--keydown="actions.phoneComboboxKeydownHandler"
+								data-wp-init="callbacks.registerPhoneComboboxSearchInput">
+							<div class="jetpack-combobox-options" data-wp-init="callbacks.registerPhoneComboboxOptionsList">
+								<template
+									data-wp-each--filtered="context.filteredCountries"
+									data-wp-each-key="context.filtered.code">
+									<div
+										class="jetpack-combobox-option"
+										data-wp-key="context.filtered.code"
+										data-wp-class--jetpack-combobox-option-selected="context.filtered.selected"
+										data-wp-on--click="actions.phoneCountryChangeHandler">
+										<span class="jetpack-combobox-option-icon" data-wp-text="context.filtered.flag"></span>
+										<span class="jetpack-combobox-option-value" data-wp-text="context.filtered.value"></span>
+										<span class="jetpack-combobox-option-description" data-wp-text="context.filtered.country"></span>
+									</div>
+								</template>
+							</div>
+						</div>
+					</div>
 				</div>
 				<input
+					class="jetpack-field__input-element"
 					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- both are escaped in calling function ?>
-					<?php echo $class; ?> <?php echo $placeholder; ?>
+					<?php echo $placeholder; ?>
 					type="tel"
 					<?php if ( $required ) { ?>
 						required="true"
 						aria-required="true"
 					<?php } ?>
+					id="<?php echo esc_attr( $link_label_id ); ?>"
+					name="<?php echo esc_attr( $link_label_id ); ?>"
 					data-wp-bind--disabled='state.isSubmitting'
 					data-wp-bind--aria-invalid='state.fieldHasErrors'
 					data-wp-bind--value='context.phoneNumber'
 					aria-errormessage="<?php echo esc_attr( $id ); ?>-phone-error-message"
-					data-wp-on--input='actions.onPhoneNumberChange'
+					data-wp-on--input='actions.phoneNumberInputHandler'
 					data-wp-on--blur='actions.onFieldBlur'
-					data-wp-class--has-value='state.hasFieldValue'
+					data-wp-on--focus='actions.phoneNumberFocusHandler'
+					data-wp-class--has-value='context.phoneNumber'
+					data-wp-init="callbacks.registerPhoneInput"
+					data-wp-init--phone-field-custom-combobox="callbacks.initializePhoneFieldCustomComboBox"
 					/>
 				<input type="hidden"
 					id="<?php echo esc_attr( $id ); ?>"
@@ -1020,7 +1148,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<?php
 		$input = ob_get_clean();
 
-		$field = $label . $input . $this->get_error_div( $id, 'phone' );
+		$field = $label . $input . $this->get_error_div( $id, 'telephone' );
 		return $field;
 	}
 
@@ -1034,13 +1162,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'url', __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' ) );
 
-		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'url', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -1055,15 +1184,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		if ( ! is_string( $value ) ) {
 			$value = '';
 		}
 
-		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= "<textarea
 		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
@@ -1074,7 +1204,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						data-wp-on--blur='actions.onFieldBlur'
 						data-wp-class--has-value='state.hasFieldValue'
 						data-wp-bind--aria-invalid='state.fieldHasErrors'
-						data-wp-on--keydown='actions.onKeyDownTextarea'
 						aria-errormessage='" . esc_attr( $id ) . "-textarea-error-message'
 						"
 						. $class
@@ -1094,10 +1223,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$this->set_invalid_message( 'radio', __( 'Please select one of the options.', 'jetpack-forms' ) );
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
@@ -1138,7 +1268,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset' data-wp-bind--aria-invalid='state.fieldHasErrors' >";
 		}
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
 			$field .= "<div class='grunion-radio-options " . esc_attr( $options_classes ) . "' style='" . esc_attr( $options_styles ) . "'>";
@@ -1233,10 +1363,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$label_class                   = 'grunion-field-label checkbox';
 		$label_class                  .= $this->is_error() ? ' form-error' : '';
 		$label_class                  .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -1246,7 +1377,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field  = "<div class='contact-form__checkbox-wrap' style='" . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "' >";
 		$field .= "<input id='" . esc_attr( $id ) . "' type='checkbox' data-wp-on--change='actions.onFieldChange' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 		$field .= "<label for='" . esc_attr( $id ) . "' class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
-		$field .= wp_kses_post( $label ) . ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
+		$field .= wp_kses_post( $label ) . ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' );
 		$field .= "</label>\n";
 		$field .= "<div class='clear-form'></div>\n";
 		$field .= '</div>';
@@ -1269,7 +1400,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field = "<label class='" . esc_attr( $label_class ) . "' style='" . esc_attr( $this->label_styles ) . ( $has_inner_block_option_styles ? esc_attr( $this->option_styles ) : '' ) . "'>";
 
 		if ( 'implicit' === $consent_type ) {
-			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' style='display:none;' /> \n";
+			$field .= "\t\t<input type='hidden' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' /> \n";
 		} else {
 			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
 		}
@@ -1291,10 +1422,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field CSS class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML for the file upload field.
 	 */
-	private function render_file_field( $id, $label, $class, $required, $required_field_text ) {
+	private function render_file_field( $id, $label, $class, $required, $required_field_text, $required_indicator = true ) {
 		// Check if Jetpack is active
 		if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
 			return '<div class="jetpack-form-field-error">' .
@@ -1374,7 +1506,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				// translators: %s is the formatted maximum file size.
 				'fileTooLarge'       => sprintf( __( 'File is too large. Maximum allowed size is %s.', 'jetpack-forms' ), size_format( $max_file_size ) ),
 				'invalidType'        => __( 'This file type is not allowed.', 'jetpack-forms' ),
-				'maxFiles'           => __( 'You have exeeded the number of files that you can upload.', 'jetpack-forms' ),
+				'maxFiles'           => __( 'You have exceeded the number of files that you can upload.', 'jetpack-forms' ),
 				'uploadFailed'       => __( 'File upload failed, try again.', 'jetpack-forms' ),
 			),
 			'endpoint'      => $this->get_unauth_endpoint_url(),
@@ -1393,7 +1525,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'hasMaxFiles'      => false,
 		);
 
-		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true );
+		$field = $this->render_label( 'file', $id, $label, $required, $required_field_text, array(), true, $required_indicator );
 
 		ob_start();
 		?>
@@ -1451,6 +1583,32 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Render a hidden field.
+	 *
+	 * @param string $id - the field ID.
+	 * @param string $label - the field label.
+	 * @param string $value - the value of the field.
+	 *
+	 * @return string HTML for the hidden field.
+	 */
+	private function render_hidden_field( $id, $label, $value ) {
+		/**
+		 *
+		 * Filter the value of the hidden field.
+		 *
+		 * @since 6.3.0
+		 *
+		 * @param string $value The value of the hidden field.
+		 * @param string $label The label of the hidden field.
+		 * @param string $id The ID of the hidden field.
+		 *
+		 * @return string The modified value of the hidden field.
+		 */
+		$value = apply_filters( 'jetpack_forms_hidden_field_value', $value, $label, $id );
+		return "<input type='hidden' name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' value='" . esc_attr( $value ) . "' />\n";
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the file field.
 	 *
 	 * @since 0.45.0
@@ -1498,10 +1656,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		$options_classes   = $this->get_attribute( 'optionsclasses' );
 		$options_styles    = $this->get_attribute( 'optionsstyles' );
 		$form_style        = $this->get_form_style();
@@ -1550,7 +1709,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$field = "<fieldset {$fieldset_id} class='jetpack-field-multiple__fieldset'" . ( $required ? 'data-required' : '' ) . ' data-wp-bind--aria-invalid="state.fieldHasErrors">';
 		}
 
-		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text );
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		if ( ! $is_outlined_style ) {
 			$field .= "<div class='grunion-checkbox-multiple-options " . $options_classes . "' style='" . $options_styles . "' " . '>';
@@ -1642,11 +1801,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
+		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$class  = preg_replace( "/class=['\"]([^'\"]*)['\"]/", 'class="contact-form__select-wrapper $1"', $class );
 		$field .= "<div {$class} style='" . esc_attr( $this->field_styles ) . "'>";
 		$field .= "\t<span class='contact-form__select-element-wrapper'><select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . ( $required ? "required aria-required='true'" : '' ) . " data-wp-on--change='actions.onFieldChange' data-wp-bind--aria-invalid='state.fieldHasErrors'>\n";
@@ -1681,10 +1841,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
@@ -1708,7 +1869,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$label       = isset( $formats[ $date_format ] ) ? $label . ' (' . $formats[ $date_format ]['label'] . ')' : $label;
 		$extra_attrs = array( 'data-format' => $date_format );
 
-		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'date', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $extra_attrs );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
@@ -1800,13 +1961,14 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+	public function render_time_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
 		$this->set_invalid_message( 'time', __( 'Please enter a valid time.', 'jetpack-forms' ) );
 
-		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'time', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'time', $id, $value, $class, $placeholder, $required );
 
 		return $field;
@@ -1821,12 +1983,223 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( 'image-select', $id, $label, $required, $required_field_text );
-		// TODO: Implement the image select field rendering.
+	public function render_image_select_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
+		wp_enqueue_style( 'jetpack-form-field-image-select-style', plugins_url( '../../dist/blocks/field-image-select/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+
+		$is_multiple       = $this->get_attribute( 'ismultiple' );
+		$show_labels       = $this->get_attribute( 'showlabels' );
+		$randomize_options = $this->get_attribute( 'randomizeoptions' );
+		$is_supersized     = $this->get_attribute( 'issupersized' );
+
+		$input_type = $is_multiple ? 'checkbox' : 'radio';
+		$input_name = $is_multiple ? $id . '[]' : $id;
+
+		$field = "<div class='jetpack-field jetpack-field-image-select'>";
+
+		$fieldset_id = "id='" . esc_attr( "$id-label" ) . "'";
+
+		$field .= "<fieldset {$fieldset_id} data-wp-bind--aria-invalid='state.fieldHasErrors' >";
+
+		$field .= $this->render_legend_as_label( '', $id, $label, $required, $required_field_text, array(), $required_indicator );
+
+		$options_classes = $this->get_attribute( 'optionsclasses' );
+		$options_styles  = $this->get_attribute( 'optionsstyles' );
+
+		$field .= "<div class='" . esc_attr( $options_classes ) . " jetpack-field jetpack-fieldset-image-options' style='" . esc_attr( $options_styles ) . "'>";
+		$field .= "<div class='jetpack-fieldset-image-options__wrapper'>";
+
+		$options_data = $this->get_attribute( 'optionsdata' );
+
+		// Filter out empty options from the end
+		$options_data = $this->trim_image_select_options( $options_data );
+
+		$used_html_ids = array();
+
+		// Create a separate array of original letters in sequence (A, B, C...)
+		$perceived_letters = array();
+
+		foreach ( $options_data as $option ) {
+			$perceived_letters[] = Contact_Form_Plugin::strip_tags( $option['letter'] );
+		}
+
+		// Create a working copy of options for potential randomization
+		$working_options = $options_data;
+
+		// Randomize options if requested, but preserve original letter values
+		if ( $randomize_options ) {
+			shuffle( $working_options );
+
+			// Trims options after randomization to ensure the last option has a label or image.
+			$working_options = $this->trim_image_select_options( $working_options );
+		}
+
+		// Calculate row options count for CSS variable
+		$total_options_count = count( $working_options );
+		// Those values are halved on mobile via CSS media query
+		$max_images_per_row = $is_supersized ? 2 : 4;
+		$row_options_count  = min( $total_options_count, $max_images_per_row );
+
+		foreach ( $working_options as $option_index => $option ) {
+			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
+			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
+			$image_block   = $option['image'];
+
+			$rendered_image_block = render_block( $image_block );
+			// Remove any links from the rendered block
+			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
+
+			// Extract image src from rendered block
+			$image_src = '';
+
+			if ( ! empty( $rendered_image_block ) ) {
+				if ( preg_match( '/<img[^>]+src=["\']([^"\']+)["\'][^>]*>/i', $rendered_image_block, $matches ) ) {
+					$extracted_src = $matches[1];
+
+					if ( filter_var( $extracted_src, FILTER_VALIDATE_URL ) || str_starts_with( $extracted_src, 'data:' ) ) {
+						$image_src = $extracted_src;
+					}
+				}
+			} else {
+				$rendered_image_block = '<figure class="wp-block-image jetpack-input-image-option__empty-image"><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="" style="aspect-ratio:1;object-fit:cover"/></figure>';
+			}
+
+			$option_value                = wp_json_encode(
+				array(
+					'perceived'  => $perceived_letters[ $option_index ],
+					'selected'   => $option_letter,
+					'label'      => $option_label,
+					'showLabels' => $show_labels,
+					'image'      => array(
+						'id'  => $image_block['attrs']['id'] ?? null,
+						'src' => $image_src ?? null,
+					),
+				)
+			);
+			$option_id                   = $id . '-' . $option_letter;
+			$used_html_ids[ $option_id ] = true;
+
+			$figcaption_id = esc_attr( $option_id . '-figcaption' );
+
+			// Add id attribute to figcaption for accessibility
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$rendered_image_block = preg_replace( '/(<figcaption[^>]*)(>)/', '$1 id="' . $figcaption_id . '"$2', $rendered_image_block );
+			}
+
+			// To be able to apply the backdrop-filter for the hover effect, we need to separate the background into an outer div.
+			// This outer div needs the color styles separately, and also the border radius to match the inner div without sticking out.
+			$option_outer_classes = 'jetpack-input-image-option__outer ' . ( isset( $option['classcolor'] ) ? $option['classcolor'] : '' );
+
+			if ( $is_supersized ) {
+				$option_outer_classes .= ' is-supersized';
+			}
+
+			$border_styles = '';
+			if ( ! empty( $option['style'] ) ) {
+				preg_match( '/border-radius:([^;]+)/', $option['style'], $radius_match );
+				preg_match( '/border-width:([^;]+)/', $option['style'], $width_match );
+
+				if ( ! empty( $radius_match[1] ) ) {
+					$radius_value = trim( $radius_match[1] );
+
+					if ( ! empty( $width_match[1] ) ) {
+							$width_value   = trim( $width_match[1] );
+							$border_styles = "border-radius:calc({$radius_value} + {$width_value});";
+					} else {
+							$border_styles = "border-radius:{$radius_value};";
+					}
+				} else {
+					// Handle individual border radius properties when border-radius is not present
+					preg_match( '/border-top-left-radius:([^;]+)/', $option['style'], $top_left_match );
+					preg_match( '/border-top-right-radius:([^;]+)/', $option['style'], $top_right_match );
+					preg_match( '/border-bottom-right-radius:([^;]+)/', $option['style'], $bottom_right_match );
+					preg_match( '/border-bottom-left-radius:([^;]+)/', $option['style'], $bottom_left_match );
+
+					if ( ! empty( $top_left_match[1] ) || ! empty( $top_right_match[1] ) || ! empty( $bottom_right_match[1] ) || ! empty( $bottom_left_match[1] ) ) {
+						$width_value = ! empty( $width_match[1] ) ? trim( $width_match[1] ) : '1px';
+
+						$top_left     = ! empty( $top_left_match[1] ) ? trim( $top_left_match[1] ) : '4px';
+						$top_right    = ! empty( $top_right_match[1] ) ? trim( $top_right_match[1] ) : '4px';
+						$bottom_right = ! empty( $bottom_right_match[1] ) ? trim( $bottom_right_match[1] ) : '4px';
+						$bottom_left  = ! empty( $bottom_left_match[1] ) ? trim( $bottom_left_match[1] ) : '4px';
+
+						$border_styles = "border-radius:calc({$top_left} + {$width_value}) calc({$top_right} + {$width_value}) calc({$bottom_right} + {$width_value}) calc({$bottom_left} + {$width_value});";
+					}
+				}
+			}
+
+			$option_outer_styles  = ( empty( $option['stylecolor'] ) ? '' : $option['stylecolor'] ) . $border_styles;
+			$option_outer_styles .= "--row-options-count: {$row_options_count};";
+			$option_outer_styles  = empty( $option_outer_styles ) ? '' : "style='" . esc_attr( $option_outer_styles ) . "'";
+
+			$field .= "<div class='{$option_outer_classes}' {$option_outer_styles}>";
+
+			$default_classes = 'jetpack-field jetpack-input-image-option';
+			$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
+			$option_classes  = "class='" . ( empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . $option['class'] ) . "'";
+
+			$field .= "<div {$option_classes} {$option_styles} data-wp-on--click='actions.onImageOptionClick' data-wp-init='callbacks.setImageOptionOutlineColor'>";
+
+			$input_id = esc_attr( $option_id );
+			$label_id = esc_attr( $option_id . '-label' );
+
+			/* translators: %s is the letter associated with the option, e.g. "Option A" */
+			$aria_label_parts = array( sprintf( __( 'Option %s', 'jetpack-forms' ), $perceived_letters[ $option_index ] ) );
+
+			if ( ! empty( $option_label ) ) {
+				$aria_label_parts[] = $option_label;
+			}
+
+			$aria_label = implode( ': ', $aria_label_parts );
+
+			// Build aria-describedby to reference label and figcaption
+			$aria_describedby_parts = array( $label_id );
+
+			if ( ! empty( $rendered_image_block ) && strpos( $rendered_image_block, '<figcaption' ) !== false ) {
+				$aria_describedby_parts[] = $figcaption_id;
+			}
+
+			$aria_describedby = implode( ' ', $aria_describedby_parts );
+
+			$field .= "<div class='jetpack-input-image-option__wrapper'>";
+			$field .= "<input
+			id='" . $input_id . "'
+			class='jetpack-input-image-option__input'
+			type='" . esc_attr( $input_type ) . "'
+			name='" . esc_attr( $input_name ) . "'
+			value='" . esc_attr( $option_value ) . "'
+			aria-label='" . esc_attr( $aria_label ) . "'
+			aria-describedby='" . esc_attr( $aria_describedby ) . "'
+			data-wp-init='callbacks.setImageOptionCheckColor'
+			data-wp-on--keydown='actions.onKeyDownImageOption'
+			data-wp-on--change='" . ( $is_multiple ? 'actions.onMultipleFieldChange' : 'actions.onFieldChange' ) . "' "
+			. $class
+			. ( $is_multiple ? checked( in_array( $option_value, (array) $value, true ), true, false ) : checked( $option_value, $value, false ) ) . ' '
+			. ( $required ? "required aria-required='true'" : '' )
+			. '/> ';
+
+			$field .= $rendered_image_block;
+			$field .= '</div>';
+
+			$field .= "<div class='jetpack-input-image-option__label-wrapper'>";
+			$field .= "<div class='jetpack-input-image-option__label-code'>" . esc_html( $perceived_letters[ $option_index ] ) . '</div>';
+
+			$label_classes  = 'jetpack-input-image-option__label';
+			$label_classes .= $show_labels ? '' : ' visually-hidden';
+			$field         .= "<span id='{$label_id}' class='{$label_classes}'>" . esc_html( $option_label ) . '</span>';
+			$field         .= '</div></div></div>';
+		}
+
+		$field .= '</div></div>';
+
+		$field .= $this->get_error_div( $id, 'image-select' );
+
+		$field .= '</fieldset>';
+
+		$field .= '</div>';
 
 		return $field;
 	}
@@ -1842,10 +2215,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param array  $extra_attrs - Extra attributes used in number field, namely `min` and `max`.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+	public function render_number_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		$this->set_invalid_message( 'number', __( 'Please enter a valid number', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
 			// translators: %d is the minimum value.
@@ -1855,7 +2229,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// translators: %d is the maximum value.
 			$this->set_invalid_message( 'max_number', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
 		}
-		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( 'number', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'number', $id, $value, $class, $placeholder, $required, $extra_attrs );
 		return $field;
 	}
@@ -1871,11 +2245,12 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param string $type - the type.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
-		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text );
+	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type, $required_indicator = true ) {
+		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
@@ -1969,7 +2344,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			// If corner radii are set on the top-left or bottom-left of the block, take the maximum of the two.
 			// We check the left side due to writing direction—this variable is used to offset text.
 			// TODO: this should factor in RTL languages.
-			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . $border_radius['topLeft'] . ',' . $border_radius['bottomLeft'] . ');' : '';
+			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: max(' . ( $border_radius['topLeft'] ?? '0' ) . ',' . ( $border_radius['bottomLeft'] ?? '0' ) . ');' : '';
 		} elseif ( isset( $border_radius ) ) {
 			$css_vars .= $border_radius ? '--jetpack--contact-form--border-radius: ' . $border_radius . ';' : '';
 		}
@@ -1994,10 +2369,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_outline_label( $id, $label, $required, $required_field_text ) {
+	public function render_outline_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		$classes  = 'notched-label__label';
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -2014,7 +2390,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						style="' . $this->label_styles . esc_attr( $output_data['css_vars'] ) . '"
 					>
 					<span class="grunion-label-text">' . esc_html( $label ) . '</span>'
-					. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+					. ( $required && $required_indicator ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>
 				</div>
 				<div class="notched-label__filler' . esc_attr( $output_data['class_name'] ) . '" style="' . esc_attr( $output_data['style'] ) . '"></div>
@@ -2029,10 +2405,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_animated_label( $id, $label, $required, $required_field_text ) {
+	public function render_animated_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		$classes  = 'animated-label__label';
 		$classes .= $this->is_error() ? ' form-error' : '';
 		$classes .= $this->label_classes ? ' ' . $this->label_classes : '';
@@ -2044,7 +2421,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				style="' . $this->label_styles . '"
 			>
 				<span class="grunion-label-text">' . wp_kses_post( $label ) . '</span>'
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+				. ( $required && $required_indicator !== 'hidden' ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
@@ -2055,17 +2432,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_below_label( $id, $label, $required, $required_field_text ) {
+	public function render_below_label( $id, $label, $required, $required_field_text, $required_indicator = true ) {
 		return '
 			<label
 				for="' . esc_attr( $id ) . '"
 				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
 			>'
 			. esc_html( $label )
-			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			. ( $required && $required_indicator ? '<span>' . $required_field_text . '</span>' : '' ) .
 			'</label>';
 	}
 
@@ -2081,12 +2459,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text for a field marked as required.
 	 * @param array  $extra_attrs - extra attributes to be passed to render functions.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array() ) {
+	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text, $extra_attrs = array(), $required_indicator = true ) {
 		if ( ! $this->is_field_renderable( $type ) ) {
 			return '';
+		}
+
+		if ( $type === 'hidden' ) {
+			// For hidden fields, we don't need to render the label or any other HTML.
+			return $this->render_hidden_field( $id, $label, $value );
 		}
 
 		$trimmed_type = trim( esc_attr( $type ) );
@@ -2141,6 +2525,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		);
 
 		$interactivity_attrs = ' data-wp-interactive="jetpack/form" ' . wp_interactivity_data_wp_context( $context ) . ' ';
+
 		// Fields with an inset label need an extra wrapper to show the error message below the input.
 		if ( $has_inset_label ) {
 			$field_width       = $this->get_attribute( 'width' );
@@ -2158,46 +2543,44 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		switch ( $type ) {
 			case 'email':
-				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
-				break;
-			case 'telephone':
-				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'phone':
-				$field .= $this->render_phone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+			case 'telephone':
+				$field .= $this->render_telephone_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'url':
-				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'textarea':
-				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'checkbox':
-				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'checkbox-multiple':
-				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_checkbox_multiple_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'select':
-				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_select_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'date':
-				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_date_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
 				break;
 			case 'number':
-				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs, $required_indicator );
 				break;
 			case 'slider':
-				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs, $required_indicator );
 				break;
 			case 'file':
-				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
+				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			case 'rating':
 				$field .= $this->render_rating_field(
@@ -2206,17 +2589,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$value,
 					$field_class,
 					$required,
-					$required_field_text
+					$required_field_text,
+					$required_indicator
 				);
 				break;
 			case 'time':
-				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_time_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'image-select':
-				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text );
+				$field .= $this->render_image_select_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
 				break;
 			default: // text field
-				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
+				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type, $required_indicator );
 				break;
 		}
 
@@ -2292,8 +2676,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return bool
 	 */
 	public function is_field_renderable( $type ) {
-		// Check that radio, select, and multiple choice
-		// fields have at leaast one valid option.
+		// Check that radio, select, multiple choice, and image select
+		// fields have at least one valid option.
 		if ( $type === 'radio' || $type === 'checkbox-multiple' || $type === 'select' ) {
 			$options           = (array) $this->get_attribute( 'options' );
 			$non_empty_options = array_filter(
@@ -2305,16 +2689,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			return count( $non_empty_options ) > 0;
 		}
 
-		// File field requires Jetpack to be active
-		if ( $type === 'file' ) {
-			/**
-			 * Check if Jetpack is active for file uploads.
-			 *
-			 * @since 5.3.0
-			 *
-			 * @return bool
-			 */
-			return apply_filters( 'jetpack_forms_is_file_field_renderable', defined( 'JETPACK__PLUGIN_DIR' ) );
+		if ( $type === 'image-select' ) {
+			$options_data         = (array) $this->get_attribute( 'optionsdata' );
+			$trimmed_options_data = $this->trim_image_select_options( $options_data );
+
+			return ! empty( $trimmed_options_data );
 		}
 
 		return true;
@@ -2357,9 +2736,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $class              Additional CSS classes.
 	 * @param bool   $required           Whether field is required.
 	 * @param string $required_field_text Required label text.
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 * @return string HTML markup.
 	 */
-	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text, $required_indicator = true ) {
 		// Enqueue stylesheet for rating field.
 		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
 
@@ -2369,7 +2749,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$initial_rating = (int) $value ? (int) $value : 0;
 
-		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text );
+		$label_html = $this->render_legend_as_label( 'rating', $id, $label, $required, $required_field_text, array(), $required_indicator );
 
 		/*
 		 * Determine which icon SVG to use based on the 'iconstyle' attribute.
@@ -2490,10 +2870,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $required_field_text The required field text.
 	 * @param string $placeholder The field placeholder.
 	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
+	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML for the slider field.
 	 */
-	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		$this->enqueue_slider_field_assets();
 		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
 		if ( isset( $extra_attrs['min'] ) ) {
@@ -2512,11 +2893,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$min_text_label = isset( $extra_attrs['minLabel'] ) ? $extra_attrs['minLabel'] : '';
 		$max_text_label = isset( $extra_attrs['maxLabel'] ) ? $extra_attrs['maxLabel'] : '';
 
-		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 
 		ob_start();
 		?>
-		<div class="jetpack-field-slider__input-row"
+		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
 			echo wp_json_encode(
@@ -2539,7 +2920,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					min="<?php echo esc_attr( $min ); ?>"
 					max="<?php echo esc_attr( $max ); ?>"
 					step="<?php echo esc_attr( $step ); ?>"
-					class="<?php echo esc_attr( $class ); ?>"
+					class="<?php echo esc_attr( trim( $class . ' jetpack-field-slider__range' ) ); ?>"
 					placeholder="<?php echo esc_attr( $placeholder ); ?>"
 					<?php
 					if ( $required ) :
@@ -2558,7 +2939,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
 		</div>
 		<?php if ( '' !== $min_text_label || '' !== $max_text_label ) : ?>
-			<div class="jetpack-field-slider__text-labels" aria-hidden="true">
+			<div class="jetpack-field-slider__text-labels <?php echo esc_attr( $this->field_classes ); ?>" aria-hidden="true">
 				<span class="jetpack-field-slider__min-text-label"><?php echo esc_html( $min_text_label ); ?></span>
 				<span class="jetpack-field-slider__max-text-label"><?php echo esc_html( $max_text_label ); ?></span>
 			</div>
@@ -2580,7 +2961,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		\wp_enqueue_style(
 			'jetpack-form-slider-field',
-			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			plugins_url( '../../dist/blocks/input-range/style.css', __FILE__ ),
 			array(),
 			$version
 		);
@@ -2594,14 +2975,278 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Gets an array of translatable country names indexed by their two-letter country codes.
+	 *
+	 * @since 6.2.1
+	 *
+	 * @return array Array of country names with two-letter country codes as keys.
+	 */
+	public function get_translatable_countries() {
+		return array(
+			'AF' => __( 'Afghanistan', 'jetpack-forms' ),
+			'AL' => __( 'Albania', 'jetpack-forms' ),
+			'DZ' => __( 'Algeria', 'jetpack-forms' ),
+			'AS' => __( 'American Samoa', 'jetpack-forms' ),
+			'AD' => __( 'Andorra', 'jetpack-forms' ),
+			'AO' => __( 'Angola', 'jetpack-forms' ),
+			'AI' => __( 'Anguilla', 'jetpack-forms' ),
+			'AG' => __( 'Antigua and Barbuda', 'jetpack-forms' ),
+			'AR' => __( 'Argentina', 'jetpack-forms' ),
+			'AM' => __( 'Armenia', 'jetpack-forms' ),
+			'AW' => __( 'Aruba', 'jetpack-forms' ),
+			'AU' => __( 'Australia', 'jetpack-forms' ),
+			'AT' => __( 'Austria', 'jetpack-forms' ),
+			'AZ' => __( 'Azerbaijan', 'jetpack-forms' ),
+			'BS' => __( 'Bahamas', 'jetpack-forms' ),
+			'BH' => __( 'Bahrain', 'jetpack-forms' ),
+			'BD' => __( 'Bangladesh', 'jetpack-forms' ),
+			'BB' => __( 'Barbados', 'jetpack-forms' ),
+			'BY' => __( 'Belarus', 'jetpack-forms' ),
+			'BE' => __( 'Belgium', 'jetpack-forms' ),
+			'BZ' => __( 'Belize', 'jetpack-forms' ),
+			'BJ' => __( 'Benin', 'jetpack-forms' ),
+			'BM' => __( 'Bermuda', 'jetpack-forms' ),
+			'BT' => __( 'Bhutan', 'jetpack-forms' ),
+			'BO' => __( 'Bolivia', 'jetpack-forms' ),
+			'BA' => __( 'Bosnia and Herzegovina', 'jetpack-forms' ),
+			'BW' => __( 'Botswana', 'jetpack-forms' ),
+			'BR' => __( 'Brazil', 'jetpack-forms' ),
+			'IO' => __( 'British Indian Ocean Territory', 'jetpack-forms' ),
+			'VG' => __( 'British Virgin Islands', 'jetpack-forms' ),
+			'BN' => __( 'Brunei', 'jetpack-forms' ),
+			'BG' => __( 'Bulgaria', 'jetpack-forms' ),
+			'BF' => __( 'Burkina Faso', 'jetpack-forms' ),
+			'BI' => __( 'Burundi', 'jetpack-forms' ),
+			'KH' => __( 'Cambodia', 'jetpack-forms' ),
+			'CM' => __( 'Cameroon', 'jetpack-forms' ),
+			'CA' => __( 'Canada', 'jetpack-forms' ),
+			'CV' => __( 'Cape Verde', 'jetpack-forms' ),
+			'KY' => __( 'Cayman Islands', 'jetpack-forms' ),
+			'CF' => __( 'Central African Republic', 'jetpack-forms' ),
+			'TD' => __( 'Chad', 'jetpack-forms' ),
+			'CL' => __( 'Chile', 'jetpack-forms' ),
+			'CN' => __( 'China', 'jetpack-forms' ),
+			'CX' => __( 'Christmas Island', 'jetpack-forms' ),
+			'CC' => __( 'Cocos (Keeling) Islands', 'jetpack-forms' ),
+			'CO' => __( 'Colombia', 'jetpack-forms' ),
+			'KM' => __( 'Comoros', 'jetpack-forms' ),
+			'CG' => __( 'Congo - Brazzaville', 'jetpack-forms' ),
+			'CD' => __( 'Congo - Kinshasa', 'jetpack-forms' ),
+			'CK' => __( 'Cook Islands', 'jetpack-forms' ),
+			'CR' => __( 'Costa Rica', 'jetpack-forms' ),
+			'HR' => __( 'Croatia', 'jetpack-forms' ),
+			'CU' => __( 'Cuba', 'jetpack-forms' ),
+			'CY' => __( 'Cyprus', 'jetpack-forms' ),
+			'CZ' => __( 'Czech Republic', 'jetpack-forms' ),
+			'CI' => __( "Côte d'Ivoire", 'jetpack-forms' ),
+			'DK' => __( 'Denmark', 'jetpack-forms' ),
+			'DJ' => __( 'Djibouti', 'jetpack-forms' ),
+			'DM' => __( 'Dominica', 'jetpack-forms' ),
+			'DO' => __( 'Dominican Republic', 'jetpack-forms' ),
+			'EC' => __( 'Ecuador', 'jetpack-forms' ),
+			'EG' => __( 'Egypt', 'jetpack-forms' ),
+			'SV' => __( 'El Salvador', 'jetpack-forms' ),
+			'GQ' => __( 'Equatorial Guinea', 'jetpack-forms' ),
+			'ER' => __( 'Eritrea', 'jetpack-forms' ),
+			'EE' => __( 'Estonia', 'jetpack-forms' ),
+			'SZ' => __( 'Eswatini', 'jetpack-forms' ),
+			'ET' => __( 'Ethiopia', 'jetpack-forms' ),
+			'FK' => __( 'Falkland Islands', 'jetpack-forms' ),
+			'FO' => __( 'Faroe Islands', 'jetpack-forms' ),
+			'FJ' => __( 'Fiji', 'jetpack-forms' ),
+			'FI' => __( 'Finland', 'jetpack-forms' ),
+			'FR' => __( 'France', 'jetpack-forms' ),
+			'GF' => __( 'French Guiana', 'jetpack-forms' ),
+			'PF' => __( 'French Polynesia', 'jetpack-forms' ),
+			'GA' => __( 'Gabon', 'jetpack-forms' ),
+			'GM' => __( 'Gambia', 'jetpack-forms' ),
+			'GE' => __( 'Georgia', 'jetpack-forms' ),
+			'DE' => __( 'Germany', 'jetpack-forms' ),
+			'GH' => __( 'Ghana', 'jetpack-forms' ),
+			'GI' => __( 'Gibraltar', 'jetpack-forms' ),
+			'GR' => __( 'Greece', 'jetpack-forms' ),
+			'GL' => __( 'Greenland', 'jetpack-forms' ),
+			'GD' => __( 'Grenada', 'jetpack-forms' ),
+			'GP' => __( 'Guadeloupe', 'jetpack-forms' ),
+			'GU' => __( 'Guam', 'jetpack-forms' ),
+			'GT' => __( 'Guatemala', 'jetpack-forms' ),
+			'GG' => __( 'Guernsey', 'jetpack-forms' ),
+			'GN' => __( 'Guinea', 'jetpack-forms' ),
+			'GW' => __( 'Guinea-Bissau', 'jetpack-forms' ),
+			'GY' => __( 'Guyana', 'jetpack-forms' ),
+			'HT' => __( 'Haiti', 'jetpack-forms' ),
+			'HN' => __( 'Honduras', 'jetpack-forms' ),
+			'HK' => __( 'Hong Kong', 'jetpack-forms' ),
+			'HU' => __( 'Hungary', 'jetpack-forms' ),
+			'IS' => __( 'Iceland', 'jetpack-forms' ),
+			'IN' => __( 'India', 'jetpack-forms' ),
+			'ID' => __( 'Indonesia', 'jetpack-forms' ),
+			'IR' => __( 'Iran', 'jetpack-forms' ),
+			'IQ' => __( 'Iraq', 'jetpack-forms' ),
+			'IE' => __( 'Ireland', 'jetpack-forms' ),
+			'IM' => __( 'Isle of Man', 'jetpack-forms' ),
+			'IL' => __( 'Israel', 'jetpack-forms' ),
+			'IT' => __( 'Italy', 'jetpack-forms' ),
+			'JM' => __( 'Jamaica', 'jetpack-forms' ),
+			'JP' => __( 'Japan', 'jetpack-forms' ),
+			'JE' => __( 'Jersey', 'jetpack-forms' ),
+			'JO' => __( 'Jordan', 'jetpack-forms' ),
+			'KZ' => __( 'Kazakhstan', 'jetpack-forms' ),
+			'KE' => __( 'Kenya', 'jetpack-forms' ),
+			'KI' => __( 'Kiribati', 'jetpack-forms' ),
+			'XK' => __( 'Kosovo', 'jetpack-forms' ),
+			'KW' => __( 'Kuwait', 'jetpack-forms' ),
+			'KG' => __( 'Kyrgyzstan', 'jetpack-forms' ),
+			'LA' => __( 'Laos', 'jetpack-forms' ),
+			'LV' => __( 'Latvia', 'jetpack-forms' ),
+			'LB' => __( 'Lebanon', 'jetpack-forms' ),
+			'LS' => __( 'Lesotho', 'jetpack-forms' ),
+			'LR' => __( 'Liberia', 'jetpack-forms' ),
+			'LY' => __( 'Libya', 'jetpack-forms' ),
+			'LI' => __( 'Liechtenstein', 'jetpack-forms' ),
+			'LT' => __( 'Lithuania', 'jetpack-forms' ),
+			'LU' => __( 'Luxembourg', 'jetpack-forms' ),
+			'MO' => __( 'Macao', 'jetpack-forms' ),
+			'MG' => __( 'Madagascar', 'jetpack-forms' ),
+			'MW' => __( 'Malawi', 'jetpack-forms' ),
+			'MY' => __( 'Malaysia', 'jetpack-forms' ),
+			'MV' => __( 'Maldives', 'jetpack-forms' ),
+			'ML' => __( 'Mali', 'jetpack-forms' ),
+			'MT' => __( 'Malta', 'jetpack-forms' ),
+			'MH' => __( 'Marshall Islands', 'jetpack-forms' ),
+			'MQ' => __( 'Martinique', 'jetpack-forms' ),
+			'MR' => __( 'Mauritania', 'jetpack-forms' ),
+			'MU' => __( 'Mauritius', 'jetpack-forms' ),
+			'YT' => __( 'Mayotte', 'jetpack-forms' ),
+			'MX' => __( 'Mexico', 'jetpack-forms' ),
+			'FM' => __( 'Micronesia', 'jetpack-forms' ),
+			'MD' => __( 'Moldova', 'jetpack-forms' ),
+			'MC' => __( 'Monaco', 'jetpack-forms' ),
+			'MN' => __( 'Mongolia', 'jetpack-forms' ),
+			'ME' => __( 'Montenegro', 'jetpack-forms' ),
+			'MS' => __( 'Montserrat', 'jetpack-forms' ),
+			'MA' => __( 'Morocco', 'jetpack-forms' ),
+			'MZ' => __( 'Mozambique', 'jetpack-forms' ),
+			'MM' => __( 'Myanmar', 'jetpack-forms' ),
+			'NA' => __( 'Namibia', 'jetpack-forms' ),
+			'NR' => __( 'Nauru', 'jetpack-forms' ),
+			'NP' => __( 'Nepal', 'jetpack-forms' ),
+			'NL' => __( 'Netherlands', 'jetpack-forms' ),
+			'NC' => __( 'New Caledonia', 'jetpack-forms' ),
+			'NZ' => __( 'New Zealand', 'jetpack-forms' ),
+			'NI' => __( 'Nicaragua', 'jetpack-forms' ),
+			'NE' => __( 'Niger', 'jetpack-forms' ),
+			'NG' => __( 'Nigeria', 'jetpack-forms' ),
+			'NU' => __( 'Niue', 'jetpack-forms' ),
+			'NF' => __( 'Norfolk Island', 'jetpack-forms' ),
+			'KP' => __( 'North Korea', 'jetpack-forms' ),
+			'MK' => __( 'North Macedonia', 'jetpack-forms' ),
+			'MP' => __( 'Northern Mariana Islands', 'jetpack-forms' ),
+			'NO' => __( 'Norway', 'jetpack-forms' ),
+			'OM' => __( 'Oman', 'jetpack-forms' ),
+			'PK' => __( 'Pakistan', 'jetpack-forms' ),
+			'PW' => __( 'Palau', 'jetpack-forms' ),
+			'PS' => __( 'Palestine', 'jetpack-forms' ),
+			'PA' => __( 'Panama', 'jetpack-forms' ),
+			'PG' => __( 'Papua New Guinea', 'jetpack-forms' ),
+			'PY' => __( 'Paraguay', 'jetpack-forms' ),
+			'PE' => __( 'Peru', 'jetpack-forms' ),
+			'PH' => __( 'Philippines', 'jetpack-forms' ),
+			'PN' => __( 'Pitcairn Islands', 'jetpack-forms' ),
+			'PL' => __( 'Poland', 'jetpack-forms' ),
+			'PT' => __( 'Portugal', 'jetpack-forms' ),
+			'PR' => __( 'Puerto Rico', 'jetpack-forms' ),
+			'QA' => __( 'Qatar', 'jetpack-forms' ),
+			'RO' => __( 'Romania', 'jetpack-forms' ),
+			'RU' => __( 'Russia', 'jetpack-forms' ),
+			'RW' => __( 'Rwanda', 'jetpack-forms' ),
+			'RE' => __( 'Réunion', 'jetpack-forms' ),
+			'BL' => __( 'Saint Barthélemy', 'jetpack-forms' ),
+			'SH' => __( 'Saint Helena', 'jetpack-forms' ),
+			'KN' => __( 'Saint Kitts and Nevis', 'jetpack-forms' ),
+			'LC' => __( 'Saint Lucia', 'jetpack-forms' ),
+			'MF' => __( 'Saint Martin', 'jetpack-forms' ),
+			'PM' => __( 'Saint Pierre and Miquelon', 'jetpack-forms' ),
+			'VC' => __( 'Saint Vincent and the Grenadines', 'jetpack-forms' ),
+			'WS' => __( 'Samoa', 'jetpack-forms' ),
+			'SM' => __( 'San Marino', 'jetpack-forms' ),
+			'SA' => __( 'Saudi Arabia', 'jetpack-forms' ),
+			'SN' => __( 'Senegal', 'jetpack-forms' ),
+			'RS' => __( 'Serbia', 'jetpack-forms' ),
+			'SC' => __( 'Seychelles', 'jetpack-forms' ),
+			'SL' => __( 'Sierra Leone', 'jetpack-forms' ),
+			'SG' => __( 'Singapore', 'jetpack-forms' ),
+			'SK' => __( 'Slovakia', 'jetpack-forms' ),
+			'SI' => __( 'Slovenia', 'jetpack-forms' ),
+			'SB' => __( 'Solomon Islands', 'jetpack-forms' ),
+			'SO' => __( 'Somalia', 'jetpack-forms' ),
+			'ZA' => __( 'South Africa', 'jetpack-forms' ),
+			'GS' => __( 'South Georgia and the South Sandwich Islands', 'jetpack-forms' ),
+			'KR' => __( 'South Korea', 'jetpack-forms' ),
+			'ES' => __( 'Spain', 'jetpack-forms' ),
+			'LK' => __( 'Sri Lanka', 'jetpack-forms' ),
+			'SD' => __( 'Sudan', 'jetpack-forms' ),
+			'SR' => __( 'Suriname', 'jetpack-forms' ),
+			'SJ' => __( 'Svalbard and Jan Mayen', 'jetpack-forms' ),
+			'SE' => __( 'Sweden', 'jetpack-forms' ),
+			'CH' => __( 'Switzerland', 'jetpack-forms' ),
+			'SY' => __( 'Syria', 'jetpack-forms' ),
+			'ST' => __( 'São Tomé and Príncipe', 'jetpack-forms' ),
+			'TW' => __( 'Taiwan', 'jetpack-forms' ),
+			'TJ' => __( 'Tajikistan', 'jetpack-forms' ),
+			'TZ' => __( 'Tanzania', 'jetpack-forms' ),
+			'TH' => __( 'Thailand', 'jetpack-forms' ),
+			'TL' => __( 'Timor-Leste', 'jetpack-forms' ),
+			'TG' => __( 'Togo', 'jetpack-forms' ),
+			'TK' => __( 'Tokelau', 'jetpack-forms' ),
+			'TO' => __( 'Tonga', 'jetpack-forms' ),
+			'TT' => __( 'Trinidad and Tobago', 'jetpack-forms' ),
+			'TN' => __( 'Tunisia', 'jetpack-forms' ),
+			'TR' => __( 'Turkey', 'jetpack-forms' ),
+			'TM' => __( 'Turkmenistan', 'jetpack-forms' ),
+			'TC' => __( 'Turks and Caicos Islands', 'jetpack-forms' ),
+			'TV' => __( 'Tuvalu', 'jetpack-forms' ),
+			'VI' => __( 'U.S. Virgin Islands', 'jetpack-forms' ),
+			'UG' => __( 'Uganda', 'jetpack-forms' ),
+			'UA' => __( 'Ukraine', 'jetpack-forms' ),
+			'AE' => __( 'United Arab Emirates', 'jetpack-forms' ),
+			'GB' => __( 'United Kingdom', 'jetpack-forms' ),
+			'US' => __( 'United States', 'jetpack-forms' ),
+			'UY' => __( 'Uruguay', 'jetpack-forms' ),
+			'UZ' => __( 'Uzbekistan', 'jetpack-forms' ),
+			'VU' => __( 'Vanuatu', 'jetpack-forms' ),
+			'VA' => __( 'Vatican City', 'jetpack-forms' ),
+			'VE' => __( 'Venezuela', 'jetpack-forms' ),
+			'VN' => __( 'Vietnam', 'jetpack-forms' ),
+			'WF' => __( 'Wallis and Futuna', 'jetpack-forms' ),
+			'YE' => __( 'Yemen', 'jetpack-forms' ),
+			'ZM' => __( 'Zambia', 'jetpack-forms' ),
+			'ZW' => __( 'Zimbabwe', 'jetpack-forms' ),
+		);
+	}
+
+	/**
 	 * Enqueues scripts and styles needed for the slider field.
 	 *
-	 * @since 5.1.0
+	 * @since 6.2.1
 	 *
 	 * @return void
 	 */
 	private function enqueue_phone_field_assets() {
 		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		// extra cache busting strategy for view.js, seems they are left out of cache clearing on deploys
+		$asset_file = plugin_dir_path( __FILE__ ) . '../../dist/modules/field-phone/view.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : null;
+		$version   .= $asset['version'] ?? '';
+
+		// combobox styles
+		\wp_enqueue_style(
+			'jetpack-form-combobox',
+			plugins_url( '../../dist/contact-form/css/combobox.css', __FILE__ ),
+			array(),
+			$version
+		);
 
 		\wp_enqueue_style(
 			'jetpack-form-phone-field',
@@ -2616,5 +3261,45 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			array( '@wordpress/interactivity' ),
 			$version
 		);
+	}
+
+	/**
+	 * Trims the image select options from the end of the array if they are empty.
+	 *
+	 * @param array $options The options to trim.
+	 *
+	 * @return array The trimmed options array.
+	 */
+	private function trim_image_select_options( $options ) {
+		if ( empty( $options ) ) {
+			return $options;
+		}
+
+		// Work backwards through the array to find the last valid option
+		$last_valid_index = -1;
+
+		for ( $i = count( $options ) - 1; $i >= 0; $i-- ) {
+			$option = $options[ $i ];
+
+			// Check if option has a label
+			$has_label = ! empty( $option['label'] );
+
+			// Check if option has an image with src
+			$has_image = false;
+
+			if ( isset( $option['image']['innerHTML'] ) ) {
+				// Extract src from innerHTML using regex
+				preg_match( '/src="([^"]*)"/', $option['image']['innerHTML'], $matches );
+				$has_image = ! empty( $matches[1] );
+			}
+
+			// If this option has either a label or an image, it's valid
+			if ( $has_label || $has_image ) {
+				$last_valid_index = $i;
+				break;
+			}
+		}
+
+		return array_slice( $options, 0, $last_valid_index + 1 );
 	}
 }

@@ -142,7 +142,7 @@ function split_to_php_html( $source ) {
 					// special case for lines like: "     // comment\n":
 					// if we're adding a comment with a newline, and the 'php' array current line
 					// has no trailing newline, add one
-					if ( substr_count( $text, "\n" ) >= 1 && isset( $ret['php'][ $current_line ] ) && 0 === substr_count( $ret['php'][ $current_line ], "\n" ) ) {
+					if ( substr_count( $text, "\n" ) >= 1 && ! empty( $ret['php'][ $current_line ] ) && 0 === substr_count( $ret['php'][ $current_line ], "\n" ) ) {
 						$ret['php'][ $current_line ] .= "\n";
 					}
 

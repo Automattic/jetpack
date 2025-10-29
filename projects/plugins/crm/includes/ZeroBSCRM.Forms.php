@@ -93,34 +93,30 @@ class ZBS_Form_Widget extends WP_Widget {
         );
     }
  
-    /**
-     * Front-end display of widget.
-     *
-     * @see WP_Widget::widget()
-     *
-     * @param array $args     Widget arguments.
-     * @param array $instance Saved values from database.
-     */
-    public function widget( $args, $instance ) {
-		
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
+	public function widget( $args, $instance ) {
+
 		zeroBSCRM_forms_enqueuements();
-		
-        extract( $args );
-        $title = apply_filters( 'widget_title', $instance['title'] );
- 		$style = $instance['style'];
- 		$id = $instance['id'];
+		$title = apply_filters( 'widget_title', $instance['title'] );
+		$style = $instance['style'];
+		$id    = $instance['id'];
 
-        echo $before_widget;
-        if ( ! empty( $title ) ) {
-            echo $before_title . $title . $after_title;
-        }
-        if ( ! empty( $style) && ! empty($id)) {
-
-        	echo zeroBSCRM_forms_build_form_html($id,$style,__('You have not entered a style or ID in the form shortcode','zero-bs-crm'));
-
-        }
-        echo $after_widget;
-    }
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( ! empty( $title ) ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		if ( ! empty( $style ) && ! empty( $id ) ) {
+			echo zeroBSCRM_forms_build_form_html( $id, $style, __( 'You have not entered a style or ID in the form shortcode', 'zero-bs-crm' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
  
     /**
      * Back-end widget form.

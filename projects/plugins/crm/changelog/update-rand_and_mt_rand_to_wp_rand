@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use wp_rand() instead of rand() and mt_rand().

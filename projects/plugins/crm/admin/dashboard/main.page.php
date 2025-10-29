@@ -77,7 +77,7 @@ function jpcrm_render_dashboard_page() {
 	$labels[0] = gmdate( 'F Y' );
 
 	for ( $i = 0; $i < 12; $i++ ) {
-		$labels[ $i ] = gmdate( 'M y', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, gmdate( 'Y' ) ) );
+		$labels[ $i ] = gmdate( 'M y', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, (int) gmdate( 'Y' ) ) );
 	}
 
 	$labels = array_reverse( $labels );
@@ -87,7 +87,7 @@ function jpcrm_render_dashboard_page() {
 
 	// fill with zeros if months aren't present
 	for ( $i = 11; $i > 0; $i-- ) {
-		$key                                 = gmdate( 'nY', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, gmdate( 'Y' ) ) );
+		$key                                 = gmdate( 'nY', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, (int) gmdate( 'Y' ) ) );
 		$transaction_totals_by_month[ $key ] = 0;
 	}
 

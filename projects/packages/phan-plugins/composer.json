@@ -10,7 +10,7 @@
 		"templating"
 	],
 	"require": {
-		"phan/phan": "^5.4",
+		"phan/phan": "5.5.2",
 		"php": ">=8.0"
 	},
 	"require-dev": {

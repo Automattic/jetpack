@@ -22,14 +22,14 @@ Another way to set these is via a filter. This requires creating a function that
 ```php
 // Set the subsidairy id. Note that subsidiary id is a string that will be filtered
 // with WordPress' sanitize_key() so make sure it conforms to the regex [^a-z0-9_\-].
-function subsidiary_filter( ) {
+function subsidiary_filter() {
 	return '<subsidiary id here>';
 }
 
 add_filter( 'jetpack_partner_subsidiary_id', 'subsidiary_filter' );
 
 // Set the affiliate code.
-function affiliate_filter( ) {
+function affiliate_filter() {
 	return '<affiliate code here>';
 }
 

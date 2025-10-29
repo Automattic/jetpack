@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.3.5
+ * Stubs automatically generated from PHPUnit 12.4.1
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10062,7 +10062,7 @@ class Exception extends \RuntimeException implements \PHPUnit\Exception
     public function __construct(string $message = '', int|string $code = 0, ?\Throwable $previous = null)
     {
     }
-    public function __sleep(): array
+    public function __serialize(): array
     {
     }
     /**
@@ -11053,7 +11053,7 @@ final readonly class ChildProcessResultProcessor
  */
 interface IsolatedTestRunner
 {
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void;
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -11062,7 +11062,7 @@ interface IsolatedTestRunner
  */
 final class IsolatedTestRunnerRegistry
 {
-    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public static function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
     public static function set(\PHPUnit\Framework\IsolatedTestRunner $runner): void
@@ -11084,7 +11084,7 @@ final class SeparateProcessTestRunner implements \PHPUnit\Framework\IsolatedTest
      * @throws \PHPUnit\Event\NoPreviousThrowableException
      * @throws ProcessIsolationException
      */
-    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState): void
+    public function run(\PHPUnit\Framework\TestCase $test, bool $runEntireClass, bool $preserveGlobalState, bool $requiresXdebug): void
     {
     }
 }
@@ -11577,13 +11577,16 @@ final readonly class DataProvider
     /**
      * @param non-empty-string $methodName
      */
-    public function __construct(string $methodName)
+    public function __construct(string $methodName, bool $validateArgumentCount = true)
     {
     }
     /**
      * @return non-empty-string
      */
     public function methodName(): string
+    {
+    }
+    public function validateArgumentCount(): bool
     {
     }
 }
@@ -11599,7 +11602,7 @@ final readonly class DataProviderExternal
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
-    public function __construct(string $className, string $methodName)
+    public function __construct(string $className, string $methodName, bool $validateArgumentCount = true)
     {
     }
     /**
@@ -11612,6 +11615,9 @@ final readonly class DataProviderExternal
      * @return non-empty-string
      */
     public function methodName(): string
+    {
+    }
+    public function validateArgumentCount(): bool
     {
     }
 }
@@ -11921,6 +11927,18 @@ final readonly class Group
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class IgnoreDeprecations
 {
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public function __construct(null|string $messagePattern = null)
+    {
+    }
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
+    {
+    }
 }
 /**
  * @immutable
@@ -12249,6 +12267,8 @@ final readonly class RequiresSetting
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @deprecated https://github.com/sebastianbergmann/phpunit/issues/6284
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final readonly class RunClassInSeparateProcess
@@ -12772,6 +12792,16 @@ final class SameSize extends \PHPUnit\Framework\Constraint\Count
  */
 abstract class Constraint implements \Countable, \PHPUnit\Framework\SelfDescribing
 {
+    /**
+     * @template A
+     *
+     * @param A $actual
+     *
+     * @return A
+     */
+    final public function __invoke(mixed $actual): mixed
+    {
+    }
     /**
      * Evaluates the constraint for parameter $other.
      *
@@ -17375,6 +17405,9 @@ final readonly class DataProvider extends \PHPUnit\Metadata\Metadata
     public function methodName(): string
     {
     }
+    public function validateArgumentCount(): bool
+    {
+    }
 }
 /**
  * @immutable
@@ -17553,6 +17586,12 @@ final readonly class IgnoreDeprecations extends \PHPUnit\Metadata\Metadata
     public function isIgnoreDeprecations(): true
     {
     }
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
+    {
+    }
 }
 /**
  * @immutable
@@ -17577,7 +17616,10 @@ final readonly class IgnorePhpunitWarnings extends \PHPUnit\Metadata\Metadata
     public function isIgnorePhpunitWarnings(): true
     {
     }
-    public function shouldIgnore(string $message): bool
+    /**
+     * @return null|non-empty-string
+     */
+    public function messagePattern(): ?string
     {
     }
 }
@@ -17665,7 +17707,7 @@ abstract readonly class Metadata
      * @param class-string     $className
      * @param non-empty-string $methodName
      */
-    public static function dataProvider(string $className, string $methodName): \PHPUnit\Metadata\DataProvider
+    public static function dataProvider(string $className, string $methodName, bool $validateArgumentCount): \PHPUnit\Metadata\DataProvider
     {
     }
     /**
@@ -17728,10 +17770,16 @@ abstract readonly class Metadata
     public static function groupOnMethod(string $groupName): \PHPUnit\Metadata\Group
     {
     }
-    public static function ignoreDeprecationsOnClass(): \PHPUnit\Metadata\IgnoreDeprecations
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public static function ignoreDeprecationsOnClass(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
     }
-    public static function ignoreDeprecationsOnMethod(): \PHPUnit\Metadata\IgnoreDeprecations
+    /**
+     * @param null|non-empty-string $messagePattern
+     */
+    public static function ignoreDeprecationsOnMethod(?string $messagePattern = null): \PHPUnit\Metadata\IgnoreDeprecations
     {
     }
     /**
@@ -19103,8 +19151,8 @@ final class CodeCoverage
 final readonly class DataProvider
 {
     /**
-     * @param class-string     $className
-     * @param non-empty-string $methodName
+     * @param class-string<\PHPUnit\Framework\TestCase> $className
+     * @param non-empty-string       $methodName
      *
      * @throws \PHPUnit\Framework\InvalidDataProviderException
      *
@@ -19170,6 +19218,9 @@ final class HookMethods
     public function hookMethods(string $className): array
     {
     }
+    public function isHookMethod(\ReflectionMethod $method): bool
+    {
+    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -19208,6 +19259,9 @@ final readonly class Requirements
      * @return list<string>
      */
     public function requirementsNotSatisfiedFor(string $className, string $methodName): array
+    {
+    }
+    public function requiresXdebug(string $className, string $methodName): bool
     {
     }
 }
@@ -19398,7 +19452,7 @@ final class CodeCoverage
     {
     }
     /**
-     * @phpstan-assert-if-true !null $this->instance
+     * @phpstan-assert-if-true !null $this->codeCoverage
      */
     public function isActive(): bool
     {
@@ -19438,10 +19492,10 @@ final class ErrorHandler
     /**
      * @throws \PHPUnit\Event\Code\NoTestCaseObjectOnCallStackException
      */
-    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function __invoke(int $errorNumber, string $errorString, string $errorFile, int $errorLine): false
     {
     }
-    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): bool
+    public function deprecationHandler(int $errorNumber, string $errorString, string $errorFile, int $errorLine): true
     {
     }
     public function registerDeprecationHandler(): void
@@ -27844,9 +27898,6 @@ final readonly class Test
     public static function isTestMethod(\ReflectionMethod $method): bool
     {
     }
-    public static function isHookMethod(\ReflectionMethod $method): bool
-    {
-    }
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -27970,7 +28021,7 @@ final readonly class Job
      * @param list<non-empty-string> $arguments
      * @param ?non-empty-string      $input
      */
-    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false)
+    public function __construct(string $code, array $phpSettings = [], array $environmentVariables = [], array $arguments = [], ?string $input = null, bool $redirectErrors = false, bool $requiresXdebug = false)
     {
     }
     /**
@@ -28024,6 +28075,9 @@ final readonly class Job
     {
     }
     public function redirectErrors(): bool
+    {
+    }
+    public function requiresXdebug(): bool
     {
     }
 }
@@ -28153,7 +28207,10 @@ final class Parser
 }
 final class AmbiguousOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $candiates
+     */
+    public function __construct(string $option, array $candiates)
     {
     }
 }
@@ -28174,7 +28231,10 @@ final class RequiredOptionArgumentMissingException extends \RuntimeException imp
 }
 final class UnknownOptionException extends \RuntimeException implements \SebastianBergmann\CliParser\Exception
 {
-    public function __construct(string $option)
+    /**
+     * @param array<string> $similarOptions
+     */
+    public function __construct(string $option, array $similarOptions)
     {
     }
 }
@@ -28189,6 +28249,9 @@ namespace SebastianBergmann\CodeCoverage;
 final class CodeCoverage
 {
     public function __construct(\SebastianBergmann\CodeCoverage\Driver\Driver $driver, \SebastianBergmann\CodeCoverage\Filter $filter)
+    {
+    }
+    public function __serialize(): array
     {
     }
     /**
@@ -28548,6 +28611,17 @@ final class RawCodeCoverageData
      * @param int[] $lines
      */
     public function removeCoverageDataForLines(string $filename, array $lines): void
+    {
+    }
+    /**
+     * At the end of a file, the PHP interpreter always sees an implicit return. Where this occurs in a file that has
+     * e.g. a class definition, that line cannot be invoked from a test and results in confusing coverage. This engine
+     * implementation detail therefore needs to be masked which is done here by simply ensuring that all empty lines
+     * are skipped over for coverage purposes.
+     *
+     * @see https://github.com/sebastianbergmann/php-code-coverage/issues/799
+     */
+    public function skipEmptyLines(): void
     {
     }
 }
@@ -29173,6 +29247,9 @@ namespace SebastianBergmann\CodeCoverage\Report;
 final class Clover
 {
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29182,6 +29259,8 @@ final class Clover
 final class Cobertura
 {
     /**
+     * @param null|non-empty-string $target
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
@@ -29194,6 +29273,9 @@ final readonly class Crap4j
     {
     }
     /**
+     * @param null|non-empty-string $target
+     * @param null|non-empty-string $name
+     *
      * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
      */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null, ?string $name = null): string
@@ -29211,6 +29293,11 @@ final class OpenClover
 }
 final class PHP
 {
+    /**
+     * @param null|non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
     public function process(\SebastianBergmann\CodeCoverage\CodeCoverage $coverage, ?string $target = null): string
     {
     }
@@ -30968,6 +31055,14 @@ final class Filesystem
     public static function createDirectory(string $directory): void
     {
     }
+    /**
+     * @param non-empty-string $target
+     *
+     * @throws \SebastianBergmann\CodeCoverage\WriteOperationFailedException
+     */
+    public static function write(string $target, string $buffer): void
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
@@ -30984,6 +31079,20 @@ final readonly class Percentage
     {
     }
     public function asFixedWidthString(): string
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final readonly class Xml
+{
+    /**
+     * @throws \SebastianBergmann\CodeCoverage\XmlException
+     *
+     * @see https://bugs.php.net/bug.php?id=79191
+     */
+    public static function asString(\DOMDocument $document): string
     {
     }
 }

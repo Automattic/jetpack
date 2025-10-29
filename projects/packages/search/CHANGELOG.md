@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.53.0] - 2025-10-27
+### Added
+- Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
+
+### Changed
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45582] [#45588]
+
+## [0.52.24] - 2025-10-21
+### Fixed
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
+
+## [0.52.23] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [0.52.22] - 2025-10-13
+### Fixed
+- Prevent PHP errors when handling malformed data. [#45419]
+
+## [0.52.21] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.52.20] - 2025-09-29
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.19] - 2025-09-22
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.18] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.52.17] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+## [0.52.16] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.52.15] - 2025-09-01
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.14] - 2025-08-25
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+- Pass SSL argument properly to Photon for sites with https enabled. [#44851]
+
 ## [0.52.13] - 2025-08-18
 ### Changed
 - Update dependencies. [#44615]
@@ -1311,6 +1363,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.53.0]: https://github.com/Automattic/jetpack-search/compare/v0.52.24...v0.53.0
+[0.52.24]: https://github.com/Automattic/jetpack-search/compare/v0.52.23...v0.52.24
+[0.52.23]: https://github.com/Automattic/jetpack-search/compare/v0.52.22...v0.52.23
+[0.52.22]: https://github.com/Automattic/jetpack-search/compare/v0.52.21...v0.52.22
+[0.52.21]: https://github.com/Automattic/jetpack-search/compare/v0.52.20...v0.52.21
+[0.52.20]: https://github.com/Automattic/jetpack-search/compare/v0.52.19...v0.52.20
+[0.52.19]: https://github.com/Automattic/jetpack-search/compare/v0.52.18...v0.52.19
+[0.52.18]: https://github.com/Automattic/jetpack-search/compare/v0.52.17...v0.52.18
+[0.52.17]: https://github.com/Automattic/jetpack-search/compare/v0.52.16...v0.52.17
+[0.52.16]: https://github.com/Automattic/jetpack-search/compare/v0.52.15...v0.52.16
+[0.52.15]: https://github.com/Automattic/jetpack-search/compare/v0.52.14...v0.52.15
+[0.52.14]: https://github.com/Automattic/jetpack-search/compare/v0.52.13...v0.52.14
 [0.52.13]: https://github.com/Automattic/jetpack-search/compare/v0.52.12...v0.52.13
 [0.52.12]: https://github.com/Automattic/jetpack-search/compare/v0.52.11...v0.52.12
 [0.52.11]: https://github.com/Automattic/jetpack-search/compare/v0.52.10...v0.52.11

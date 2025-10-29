@@ -252,9 +252,7 @@ function stats_admin_menu() {
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
 		// Enable the new Odyssey Stats experience.
-		$stats_dashboard = new Stats_Dashboard();
-		$hook            = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ), 1 );
-		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+		Stats_Dashboard::init();
 	}
 }
 
@@ -603,7 +601,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} elseif ( ! empty( $get['headers']['content-type'] ) ) {
 		$type = $get['headers']['content-type'];
@@ -1056,7 +1054,7 @@ function stats_dashboard_widget_content() {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} else {
 		$body = stats_convert_post_titles( $get['body'] );
@@ -1337,7 +1335,7 @@ function stats_get_remote_csv( $url ) {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		return array(); // @todo: return an error?
 	} else {
 		return stats_str_getcsv( $get['body'] );

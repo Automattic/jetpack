@@ -1,10 +1,11 @@
+import { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
+import { ChartStoryArgs } from '../../../stories';
+import { DataPointDate } from '../../../types';
 import LineChart from '../line-chart';
 import { lineChartMetaArgs, lineChartStoryArgs } from './config';
 import type { Meta, StoryFn, StoryObj } from '@storybook/react';
 
-type StoryArgs = React.ComponentProps< typeof LineChart > & {
-	themeName?: string;
-};
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
@@ -58,7 +59,7 @@ CrosshairHorizontal.args = {
 export const Custom: StoryObj< typeof LineChart > = Template.bind( {} );
 Custom.args = {
 	...tooltipStoryArgs,
-	renderTooltip: ( { tooltipData } ) => {
+	renderTooltip: ( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
 		const nearestDatum = tooltipData?.nearestDatum?.datum;
 		if ( ! nearestDatum ) return null;
 

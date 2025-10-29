@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improvement so decimals in tax rates do not allow duplicates

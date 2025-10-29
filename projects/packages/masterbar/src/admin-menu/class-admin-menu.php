@@ -20,19 +20,10 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		$this->add_stats_menu();
 		$this->add_upgrades_menu();
-		$this->add_posts_menu();
-		$this->add_media_menu();
-		$this->add_page_menu();
-		$this->add_testimonials_menu();
-		$this->add_portfolio_menu();
-		$this->add_comments_menu();
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
-		$this->add_tools_menu();
-		$this->add_options_menu();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -97,22 +88,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Adds My Mailboxes menu.
-	 */
-	public function add_my_mailboxes_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', 4.64424 );
-	}
-
-	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), __( 'Stats', 'jetpack-masterbar' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 2.98 );
-	}
-
-	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
@@ -153,97 +128,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core.
 			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
 		}
-	}
-
-	/**
-	 * Adds Posts menu.
-	 */
-	public function add_posts_menu() {
-		$submenus_to_update = array();
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit.php' ) ) {
-			$submenus_to_update['edit.php']     = 'https://wordpress.com/posts/' . $this->domain;
-			$submenus_to_update['post-new.php'] = 'https://wordpress.com/post/' . $this->domain;
-			$this->update_submenus( 'edit.php', $submenus_to_update );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=category' ) ) {
-			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=category' => 'https://wordpress.com/settings/taxonomies/category/' . $this->domain ) );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'edit-tags.php?taxonomy=post_tag' ) ) {
-			$this->update_submenus( 'edit.php', array( 'edit-tags.php?taxonomy=post_tag' => 'https://wordpress.com/settings/taxonomies/post_tag/' . $this->domain ) );
-		}
-	}
-
-	/**
-	 * Adds Media menu.
-	 */
-	public function add_media_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'upload.php' ) ) {
-			return;
-		}
-
-		$this->hide_submenu_page( 'upload.php', 'media-new.php' );
-
-		$this->update_menu( 'upload.php', 'https://wordpress.com/media/' . $this->domain );
-	}
-
-	/**
-	 * Adds Page menu.
-	 */
-	public function add_page_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=page' ) ) {
-			return;
-		}
-
-		$submenus_to_update = array(
-			'edit.php?post_type=page'     => 'https://wordpress.com/pages/' . $this->domain,
-			'post-new.php?post_type=page' => 'https://wordpress.com/page/' . $this->domain,
-		);
-		$this->update_submenus( 'edit.php?post_type=page', $submenus_to_update );
-	}
-
-	/**
-	 * Adds Testimonials menu.
-	 */
-	public function add_testimonials_menu() {
-		$this->add_custom_post_type_menu( 'jetpack-testimonial' );
-	}
-
-	/**
-	 * Adds Portfolio menu.
-	 */
-	public function add_portfolio_menu() {
-		$this->add_custom_post_type_menu( 'jetpack-portfolio' );
-	}
-
-	/**
-	 * Adds a custom post type menu.
-	 *
-	 * @param string $post_type Custom post type.
-	 */
-	public function add_custom_post_type_menu( $post_type ) {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit.php?post_type=' . $post_type ) ) {
-			return;
-		}
-
-		$submenus_to_update = array(
-			'edit.php?post_type=' . $post_type     => 'https://wordpress.com/types/' . $post_type . '/' . $this->domain,
-			'post-new.php?post_type=' . $post_type => 'https://wordpress.com/edit/' . $post_type . '/' . $this->domain,
-		);
-		$this->update_submenus( 'edit.php?post_type=' . $post_type, $submenus_to_update );
-	}
-
-	/**
-	 * Adds Comments menu.
-	 */
-	public function add_comments_menu() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'edit-comments.php' ) ) {
-			return;
-		}
-
-		$this->update_menu( 'edit-comments.php', 'https://wordpress.com/comments/all/' . $this->domain );
 	}
 
 	/**
@@ -316,58 +200,6 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-	}
-
-	/**
-	 * Adds Tools menu.
-	 */
-	public function add_tools_menu() {
-		$submenus_to_update = array();
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'import.php' ) ) {
-			$submenus_to_update['import.php'] = 'https://wordpress.com/import/' . $this->domain;
-		}
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'export.php' ) ) {
-			$submenus_to_update['export.php'] = 'https://wordpress.com/export/' . $this->domain;
-		}
-		$this->update_submenus( 'tools.php', $submenus_to_update );
-
-		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		$submenus_to_update = array();
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$this->hide_submenu_page( 'options-general.php', 'sharing' );
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-general.php' ) ) {
-			$submenus_to_update['options-general.php'] = 'https://wordpress.com/settings/general/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-writing.php' ) ) {
-			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
-		) {
-			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
-		}
-
-		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
-			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
-		}
-
-		$this->update_submenus( 'options-general.php', $submenus_to_update );
-
-		// Temporary "Settings > Newsletter" menu for existing users that shows a callout informing that the screen has moved to "Jetpack (> Settings) > Newsletter".
-		if ( get_current_user_id() < 269750000 ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/jetpack-newsletter/' . $this->domain, null, 7 );
-		}
 	}
 
 	/**

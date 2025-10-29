@@ -19,12 +19,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 * Class encapsulating logic concerned with installing and using different fonts
 */
 class JPCRM_Fonts {
-
-	public function __construct( ) {
-
-	}
-
-
 	/*
 	* Returns a list of fonts available via our CDN:
 	*

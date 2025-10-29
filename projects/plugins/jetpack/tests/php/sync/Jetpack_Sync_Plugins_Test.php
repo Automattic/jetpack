@@ -9,6 +9,15 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 	protected $theme;
 	const PLUGIN_ZIP = __DIR__ . '/../files/the.1.1.zip';
 
+	protected static $hello_dolly_path;
+
+	/**
+	 * Set up before class.
+	 */
+	public static function setUpBeforeClass(): void {
+		self::$hello_dolly_path = file_exists( WP_PLUGIN_DIR . '/hello.php' ) ? 'hello.php' : 'hello-dolly/hello.php';
+	}
+
 	public function test_installing_and_removing_plugin_is_synced() {
 		$this->resetCallableAndConstantTimeouts();
 		$this->sender->do_sync();
@@ -78,55 +87,55 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_activate_and_deactivating_plugin_is_synced() {
-		activate_plugin( 'hello.php' );
+		activate_plugin( self::$hello_dolly_path );
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
-		$this->assertContains( 'hello.php', $active_plugins );
+		$this->assertContains( self::$hello_dolly_path, $active_plugins );
 
-		deactivate_plugins( 'hello.php' );
+		deactivate_plugins( self::$hello_dolly_path );
 		$this->sender->do_sync();
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
-		$this->assertNotContains( 'hello.php', $active_plugins );
+		$this->assertNotContains( self::$hello_dolly_path, $active_plugins );
 	}
 
 	public function test_plugin_activation_action_is_synced() {
-		activate_plugin( 'hello.php' );
+		activate_plugin( self::$hello_dolly_path );
 		$this->sender->do_sync();
 
 		$activated_plugin = $this->server_event_storage->get_most_recent_event( 'activated_plugin' );
 
 		$this->assertTrue( isset( $activated_plugin->args ) );
-		$this->assertEquals( 'hello.php', $activated_plugin->args[0] );
+		$this->assertEquals( self::$hello_dolly_path, $activated_plugin->args[0] );
 		$this->assertFalse( $activated_plugin->args[1] );
 		$this->assertEquals( 'Hello Dolly', $activated_plugin->args[2]['name'] );
 		$this->assertTrue( (bool) $activated_plugin->args[2]['version'] );
 	}
 
 	public function test_plugin_deactivation_action_is_synced() {
-		activate_plugin( 'hello.php' );
-		deactivate_plugins( 'hello.php' );
+		activate_plugin( self::$hello_dolly_path );
+		deactivate_plugins( self::$hello_dolly_path );
 		$this->sender->do_sync();
 
 		$deactivated_plugin = $this->server_event_storage->get_most_recent_event( 'deactivated_plugin' );
 		$this->assertTrue( isset( $deactivated_plugin->args ) );
-		$this->assertEquals( 'hello.php', $deactivated_plugin->args[0] );
+		$this->assertEquals( self::$hello_dolly_path, $deactivated_plugin->args[0] );
 		$this->assertFalse( $deactivated_plugin->args[1] );
 		$this->assertEquals( 'Hello Dolly', $deactivated_plugin->args[2]['name'] );
 		$this->assertTrue( (bool) $deactivated_plugin->args[2]['version'] );
 	}
 
 	public function test_plugin_deletion_is_synced() {
-		do_action( 'delete_plugin', 'hello.php' );
-		do_action( 'deleted_plugin', 'hello.php', true );
+		do_action( 'delete_plugin', self::$hello_dolly_path );
+		do_action( 'deleted_plugin', self::$hello_dolly_path, true );
 		$this->sender->do_sync();
 
 		$delete_plugin = $this->server_event_storage->get_most_recent_event( 'deleted_plugin' );
 		$this->assertTrue( isset( $delete_plugin->args ) );
-		$this->assertEquals( 'hello.php', $delete_plugin->args[0] );
+		$this->assertEquals( self::$hello_dolly_path, $delete_plugin->args[0] );
 		$this->assertTrue( $delete_plugin->args[1] );
 		$this->assertEquals( 'Hello Dolly', $delete_plugin->args[2]['name'] );
 		$this->assertTrue( (bool) $delete_plugin->args[2]['version'] );
@@ -136,7 +145,7 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 		$plugins = get_plugins();
 
-		if ( ! isset( $plugins['hello.php'] ) ) {
+		if ( ! isset( $plugins[ self::$hello_dolly_path ] ) ) {
 			$this->markTestSkipped( 'Plugin hello dolly is not available' );
 		}
 		add_filter( 'all_plugins', array( $this, 'remove_hello_dolly' ) );
@@ -148,7 +157,7 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 		$synced_plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$not_synced     = array_diff_key( $plugins, $synced_plugins );
 
-		$this->assertTrue( isset( $not_synced['hello.php'] ) );
+		$this->assertTrue( isset( $not_synced[ self::$hello_dolly_path ] ) );
 	}
 
 	public static function install_the_plugin() {
@@ -192,7 +201,7 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function remove_hello_dolly( $plugins ) {
-		unset( $plugins['hello.php'] );
+		unset( $plugins[ self::$hello_dolly_path ] );
 		return $plugins;
 	}
 }

@@ -29,15 +29,6 @@ function AuthInstructions() {
 						{ __( 'Google Security page', 'jetpack-external-media' ) }
 					</a>
 				</li>
-				<li>
-					<a
-						target="_blank"
-						rel="noopener noreferrer"
-						href="https://wordpress.com/marketing/connections/"
-					>
-						{ __( 'WordPress.com Connections', 'jetpack-external-media' ) }
-					</a>
-				</li>
 			</ul>
 		</Fragment>
 	);

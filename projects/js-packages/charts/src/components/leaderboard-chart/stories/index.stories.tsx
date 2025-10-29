@@ -1,185 +1,29 @@
-import { ThemeProvider, jetpackTheme, wooTheme } from '../../../providers/theme';
-import { formatMetricValue } from '../../shared/format-metric-value';
-import { LeaderboardChart } from '../leaderboard-chart';
+import { defaultTheme } from '../../../providers';
 import {
-	sampleData,
-	smallDataset,
-	largeValues,
-	negativeGrowth,
-	dataWithImageColor,
-} from './sample-data';
+	chartDecorator,
+	sharedChartArgTypes,
+	ChartStoryArgs,
+	trafficSourcesData as sampleData,
+	shortTrafficSourcesData as smallDataset,
+	revenueMetricsData as largeValues,
+	decliningMetricsData as negativeGrowth,
+	categorizedMetricsData as dataWithImageColor,
+	themeArgTypes,
+	CHART_THEME_MAP,
+} from '../../../stories';
+import { legendArgTypes } from '../../../stories/legend-config';
+import { formatMetricValue } from '../../../utils';
+import { hexToRgba } from '../../../utils/color-utils';
+import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta< typeof LeaderboardChart > = {
+type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
+
+const meta: Meta< StoryArgs > = {
 	title: 'JS Packages/Charts/Types/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
 		layout: 'centered',
-		docs: {
-			description: {
-				component: `
-A flexible and accessible leaderboard chart component for displaying ranked data with WordPress ProgressBar components and optional comparison values.
-
-## Features
-
-- 📊 Clean, responsive leaderboard visualization
-- 🎨 Customizable colors and styling  
-- 🔄 Optional comparison data support
-- 📱 Mobile-friendly design
-- 🎯 TypeScript support with full type definitions
-- ♿ Accessible design
-- 🧪 Comprehensive test coverage
-
-## Usage
-
-### Basic Usage
-
-\`\`\`typescript
-import { LeaderboardChart } from '@automattic/charts';
-
-const data = [
-  {
-    id: 'direct',
-    label: 'Direct',
-    currentValue: 12500,
-    previousValue: 10000,
-    currentShare: 100,
-    previousShare: 80,
-    delta: 25,
-  },
-  // ... more entries
-];
-
-function MyComponent() {
-  return (
-    <LeaderboardChart
-      data={data}
-      withComparison={true}
-      primaryColor="#3858E9"
-      secondaryColor="#66BDFF"
-    />
-  );
-}
-\`\`\`
-
-### With Custom Formatters
-
-\`\`\`typescript
-import { LeaderboardChart } from '@automattic/charts';
-
-function CustomFormattedChart() {
-  return (
-    <LeaderboardChart
-      data={data}
-      withComparison={true}
-      valueFormatter={(value) => \`$\${(value / 1000).toFixed(1)}k\`}
-      deltaFormatter={(value) => \`\${value > 0 ? '+' : ''}\${value}%\`}
-    />
-  );
-}
-\`\`\`
-
-### Preparing Your Data
-
-The LeaderboardChart expects pre-processed data. You'll need to transform your raw data into the required format:
-
-\`\`\`typescript
-import { LeaderboardChart } from '@automattic/charts';
-
-// Transform your raw data into LeaderboardEntry format
-function transformRawData(rawData) {
-  const maxValue = Math.max(...rawData.map(item => item.current_period.value));
-  
-  return rawData.map(item => ({
-    id: item.id,
-    label: item.name,
-    currentValue: item.current_period.value,
-    previousValue: item.previous_period.value,
-    currentShare: (item.current_period.value / maxValue) * 100,
-    previousShare: (item.previous_period.value / maxValue) * 100,
-    delta: ((item.current_period.value - item.previous_period.value) / item.previous_period.value) * 100,
-  }));
-}
-
-function ProcessedDataChart() {
-  const processedData = transformRawData(rawData);
-  
-  return (
-    <LeaderboardChart
-      data={processedData}
-      withComparison={true}
-    />
-  );
-}
-\`\`\`
-
-## LeaderboardEntry Interface
-
-\`\`\`typescript
-interface LeaderboardEntry {
-  id: string;              // Unique identifier
-  label: string;           // Display name
-  currentValue: number;    // Current period value
-  previousValue: number;   // Previous period value
-  currentShare: number;    // Current bar width (0-100)
-  previousShare: number;   // Previous bar width (0-100)
-  delta: number;           // Percentage change
-}
-\`\`\`
-
-## Data Transformation
-
-Since the LeaderboardChart expects pre-processed data, you'll need to handle data transformation in your application. This gives you full control over how your specific data structures are converted and allows for custom business logic.
-
-## Styling
-
-The component uses CSS Modules for styling. You can customize colors using CSS custom properties:
-
-\`\`\`css
-.myCustomChart {
-  --primary-color: #ff6b6b;
-  --secondary-color: #4ecdc4;
-	--bar-border: 1px solid 8px;
-}
-\`\`\`
-
-## Accessibility
-
-The component includes:
-- Semantic HTML structure
-- Proper color contrast ratios
-- Keyboard navigation support
-- Screen reader compatible markup
-
-## Examples
-
-### E-commerce Sales Channels
-
-\`\`\`typescript
-const salesData = [
-  { id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000, currentShare: 100, previousShare: 84, delta: 18 },
-  { id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000, currentShare: 71, previousShare: 78, delta: -9 },
-  { id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000, currentShare: 40, previousShare: 33, delta: 20 },
-  { id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000, currentShare: 27, previousShare: 24, delta: 9 },
-];
-
-<LeaderboardChart data={salesData} withComparison={true} />
-\`\`\`
-
-### Traffic Sources
-
-\`\`\`typescript
-const trafficData = [
-  { id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
-  { id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
-  { id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
-];
-
-<LeaderboardChart data={trafficData} withComparison={true} />
-\`\`\`
-				`,
-			},
-		},
 	},
 	tags: [ 'autodocs' ],
 	argTypes: {
@@ -201,14 +45,14 @@ const trafficData = [
 			control: 'color',
 			description: 'Primary color for current period bars',
 			table: {
-				defaultValue: { summary: '#3858E9' },
+				defaultValue: { summary: defaultTheme.leaderboardChart.primaryColor },
 			},
 		},
 		secondaryColor: {
 			control: 'color',
 			description: 'Secondary color for comparison period bars',
 			table: {
-				defaultValue: { summary: '#66BDFF' },
+				defaultValue: { summary: defaultTheme.leaderboardChart.secondaryColor },
 			},
 		},
 		valueFormatter: {
@@ -248,26 +92,68 @@ const trafficData = [
 				type: { summary: 'React.CSSProperties' },
 			},
 		},
+		withOverlayLabel: {
+			control: 'boolean',
+			description: 'Whether to overlay the label on top of the bar',
+			table: {
+				defaultValue: { summary: 'false' },
+			},
+		},
+		legendShapeWidth: {
+			control: 'number',
+			description: 'Width of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
+		legendShapeHeight: {
+			control: 'number',
+			description: 'Height of legend shapes in pixels',
+			table: {
+				category: 'Legend',
+				type: { summary: 'number' },
+				defaultValue: { summary: '8' },
+			},
+		},
+		legendLabels: {
+			control: 'object',
+			description: 'Custom labels for legend items',
+			table: {
+				category: 'Legend',
+				type: { summary: '{ primary?: string; comparison?: string }' },
+				defaultValue: { summary: 'undefined' },
+			},
+		},
+		...sharedChartArgTypes,
+		...legendArgTypes,
+		...themeArgTypes,
 	},
-	decorators: [
-		Story => (
-			<div style={ { width: '400px', padding: '20px' } }>
-				<Story />
-			</div>
-		),
-	],
+	args: {
+		primaryColor: undefined,
+		secondaryColor: undefined,
+		themeName: 'default',
+		showLegend: false,
+		legendPosition: 'bottom',
+		legendAlignment: 'center',
+		legendOrientation: 'horizontal',
+		legendShape: 'circle',
+		legendShapeWidth: 8,
+		legendShapeHeight: 8,
+		withOverlayLabel: false,
+	},
+	decorators: [ chartDecorator ],
 };
 
 export default meta;
-type Story = StoryObj< typeof meta >;
+type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -276,8 +162,6 @@ export const WithoutComparison: Story = {
 		data: sampleData,
 		withComparison: false,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -285,7 +169,6 @@ export const WithOverlayLabel: Story = {
 	args: {
 		data: sampleData,
 		withOverlayLabel: true,
-		primaryColor: '#66BDFF',
 	},
 };
 
@@ -294,8 +177,6 @@ export const Loading: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: true,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -304,8 +185,8 @@ export const CustomColors: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#FF6B6B',
-		secondaryColor: '#4ECDC4',
+		primaryColor: 'red',
+		secondaryColor: 'green',
 	},
 };
 
@@ -314,8 +195,6 @@ export const SmallDataset: Story = {
 		data: smallDataset,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -324,8 +203,6 @@ export const EmptyData: Story = {
 		data: [],
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -334,8 +211,6 @@ export const LargeValues: Story = {
 		data: largeValues,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -344,8 +219,6 @@ export const NegativeGrowth: Story = {
 		data: negativeGrowth,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 	},
 };
 
@@ -354,8 +227,7 @@ export const CurrencyFormatting: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
+
 		valueFormatter: ( value: number ) =>
 			formatMetricValue( value, 'currency', {
 				useMultipliers: true,
@@ -373,8 +245,7 @@ export const NumberFormatting: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#FF6B6B',
-		secondaryColor: '#4ECDC4',
+
 		valueFormatter: ( value: number ) =>
 			formatMetricValue( value, 'number', {
 				useMultipliers: false,
@@ -428,8 +299,7 @@ export const AdvancedFormatting: Story = {
 		data: largeValues,
 		withComparison: true,
 		loading: false,
-		primaryColor: '#8B5CF6',
-		secondaryColor: '#06B6D4',
+
 		valueFormatter: ( value: number ) => {
 			if ( value >= 1000000 ) {
 				return formatMetricValue( value, 'currency', {
@@ -450,41 +320,6 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
-// Themed stories
-export const JetpackTheme: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ jetpackTheme }>
-				<div style={ { width: '400px', padding: '20px' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-};
-
-export const WooCommerceTheme: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<div style={ { width: '400px', padding: '20px' } }>
-					<Story />
-				</div>
-			</ThemeProvider>
-		),
-	],
-};
-
 export const OverlayLabelWithImage: Story = {
 	args: {
 		data: dataWithImageColor.map( entry => ( {
@@ -497,20 +332,118 @@ export const OverlayLabelWithImage: Story = {
 				/>
 			),
 		} ) ),
-		primaryColor: '#C8CFF6',
 		withComparison: true,
 		withOverlayLabel: true,
 		loading: false,
 		style: {
-			'--bar-border': '4px',
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
-	decorators: [
-		Story => (
-			<ThemeProvider theme={ wooTheme }>
-				<Story />
-			</ThemeProvider>
-		),
-	],
+	render: args => {
+		const themeName = args.themeName || 'default';
+		const theme = CHART_THEME_MAP[ themeName ];
+		const primaryColor =
+			theme?.leaderboardChart?.primaryColor || defaultTheme.leaderboardChart.primaryColor;
+		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+
+		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+	},
+};
+
+export const WithLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+	},
+};
+
+export const CustomLegendLabels: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendLabels: {
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		},
+	},
+};
+
+export const WithCompositionLegend: Story = {
+	render: args => (
+		<div
+			style={ {
+				display: 'grid',
+				gap: '2rem',
+				gridTemplateColumns: 'repeat(2, 1fr)',
+				alignItems: 'start',
+			} }
+		>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
+				<LeaderboardChart { ...args } showLegend={ true } />
+			</div>
+			<div>
+				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
+					Composition API with Legend Component
+				</h3>
+				<LeaderboardChart { ...args }>
+					<LeaderboardChart.Legend
+						shape="circle"
+						shapeWidth={ 8 }
+						shapeHeight={ 8 }
+						style={ { marginTop: '16px' } }
+					/>
+				</LeaderboardChart>
+			</div>
+		</div>
+	),
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		legendLabels: {
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		},
+	},
+	argTypes: {
+		legendInteractive: {
+			table: { disable: true },
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
+			},
+		},
+	},
+};
+
+export const InteractiveLegend: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendInteractive: true,
+		legendLabels: {
+			primary: 'Current period',
+			comparison: 'Previous period',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Interactive legend allows users to click legend items to toggle the visibility of current and previous period data. Click on the legend items to show/hide the corresponding bars and values. When all series are hidden, a message is displayed.',
+			},
+		},
+	},
 };
