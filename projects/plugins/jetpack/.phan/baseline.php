@@ -55,7 +55,6 @@ return [
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
-    // PhanUndeclaredClassMethod : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
@@ -68,6 +67,7 @@ return [
     // PhanParamTooManyCallable : 2 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
     // PhanUndeclaredClassInCallable : 2 occurrences
+    // PhanUndeclaredClassMethod : 2 occurrences
     // PhanUndeclaredFunctionInCallable : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
@@ -77,8 +77,6 @@ return [
     // PhanTypeMismatchArgumentInternalProbablyReal : 1 occurrence
     // PhanTypeMismatchArgumentInternalReal : 1 occurrence
     // PhanTypeSuspiciousStringExpression : 1 occurrence
-    // PhanUndeclaredClassConstant : 1 occurrence
-    // PhanUndeclaredConstant : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
 
@@ -98,7 +96,6 @@ return [
         '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchDimAssignment'],
         '_inc/lib/admin-pages/class.jetpack-admin-page.php' => ['PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/class-jetpack-ai-helper.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchPropertyDefault'],
-        '_inc/lib/class-jetpack-currencies.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         '_inc/lib/class-jetpack-instagram-gallery-helper.php' => ['PhanTypeMismatchArgument'],
         '_inc/lib/class-jetpack-mapbox-helper.php' => ['PhanTypeMismatchArgumentNullable'],
         '_inc/lib/class-jetpack-podcast-feed-locator.php' => ['PhanDeprecatedFunctionInternal'],
@@ -152,7 +149,7 @@ return [
         'class.jetpack-post-images.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'class.jetpack-twitter-cards.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypePossiblyInvalidDimOffset'],
         'class.jetpack.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeArraySuspiciousNullable', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'class.json-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredConstant'],
+        'class.json-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeComparisonToArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'class.json-api.php' => ['PhanPluginDuplicateSwitchCaseLooseEquality', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeArraySuspicious', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'enhanced-open-graph.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'extensions/blocks/ai-chat/ai-chat.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
