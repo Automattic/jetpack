@@ -27,8 +27,8 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@wordpress/element": "6.31.0",
-		"@wordpress/i18n": "6.4.0",
+		"@wordpress/element": "6.33.0",
+		"@wordpress/i18n": "6.6.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
@@ -39,7 +39,7 @@
 		"@babel/runtime": "7.28.4",
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.3.0",
-		"@wordpress/browserslist-config": "6.31.0",
+		"@wordpress/browserslist-config": "6.33.0",
 		"concurrently": "7.6.0",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
