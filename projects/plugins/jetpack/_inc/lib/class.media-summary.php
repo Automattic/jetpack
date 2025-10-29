@@ -36,7 +36,6 @@ class Jetpack_Media_Summary {
 	 */
 	public static function get( ?int $post_id, int $blog_id = 0, array $args = array() ) {
 		$post_id = (int) $post_id;
-		$blog_id = $blog_id;
 
 		$defaults = array(
 			'max_words' => 16,
