@@ -109,10 +109,14 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	fi
 fi
 
+PLUGINS_TO_NOT_SYMLINK=('wpcloud-sso')
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 	[[ -d "$DIR" ]] || continue # We are only interested in directories, e.g. different plugins.
 	[[ -f "$DIR/composer.json" ]] || continue # If there's no composer.json in the folder, it's probably not a plugin.
 	PLUGIN="$(basename "$DIR")"
+
+	# Some plugins should not be symlinked
+	printf '%s\n' "${PLUGINS_TO_NOT_SYMLINK[@]}" | grep -qxF "$PLUGIN" && continue
 
 	# Read plugin slug from composer.json, with fallback to beta-plugin-slug
 	PLUGIN_SLUG=$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"]' "$DIR/composer.json")
@@ -123,8 +127,6 @@ for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
 		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN_SLUG"
 	fi
 done
-
-
 
 WP_HOST_PORT=":$HOST_PORT"
 
