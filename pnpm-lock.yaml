@@ -4136,8 +4136,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
 
   projects/plugins/boost:
     dependencies:
@@ -4299,8 +4299,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -4399,8 +4399,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5027,8 +5027,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5105,8 +5105,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
 
   projects/plugins/protect:
     dependencies:
@@ -5229,8 +5229,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5252,8 +5252,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5279,8 +5279,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5376,8 +5376,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5499,8 +5499,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5629,8 +5629,8 @@ importers:
         specifier: 5.6.2
         version: 5.6.2
       config:
-        specifier: 3.3.12
-        version: 3.3.12
+        specifier: 4.1.1
+        version: 4.1.1
       localtunnel:
         specifier: 2.0.2
         version: 2.0.2
@@ -11022,9 +11022,9 @@ packages:
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
 
-  config@3.3.12:
-    resolution: {integrity: sha512-Vmx389R/QVM3foxqBzXO8t2tUikYZP64Q6vQxGrsMpREeJc/aWRnPRERXWsYzOHAumx/AOoILWe6nU3ZJL+6Sw==}
-    engines: {node: '>= 10.0.0'}
+  config@4.1.1:
+    resolution: {integrity: sha512-jljfwqNZ7QHwAW9Z9NDZdJARFiu5pjLqQO0K4ooY22iY/bIY78n0afI4ANEawfgQOxri0K/3oTayX8XIauWcLA==}
+    engines: {node: '>= 20.0.0'}
 
   configstore@7.0.0:
     resolution: {integrity: sha512-yk7/5PN5im4qwz0WFZW3PXnzHgPu9mX29Y8uZ3aefe2lBPC1FYttWZRcaW9fKkT0pBCJyuQ2HfbmPVaODi9jcQ==}
@@ -26001,7 +26001,7 @@ snapshots:
 
   confbox@0.1.8: {}
 
-  config@3.3.12:
+  config@4.1.1:
     dependencies:
       json5: 2.2.3
 
