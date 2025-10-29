@@ -454,7 +454,7 @@ class Jetpack_Likes_Settings {
 		 * @param bool $enabled Are Post Likes enabled on single posts?
 		 */
 			"wpl_is_single_{$post_type}_disabled",
-			(bool) in_array( $post_type, $options['show'], true )
+			in_array( $post_type, $options['show'], true )
 		);
 	}
 
@@ -518,7 +518,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on archive/front/search pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_index_disabled', (bool) in_array( 'index', $options['show'], true ) );
+		return (bool) apply_filters( 'wpl_is_index_disabled', in_array( 'index', $options['show'], true ) );
 	}
 
 	/**
@@ -537,7 +537,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on single pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_single_page_disabled', (bool) in_array( 'page', $options['show'], true ) );
+		return (bool) apply_filters( 'wpl_is_single_page_disabled', in_array( 'page', $options['show'], true ) );
 	}
 
 	/**
@@ -556,7 +556,7 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on attachment pages?
 		 */
-		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'], true ) );
+		return (bool) apply_filters( 'wpl_is_attachment_disabled', in_array( 'attachment', $options['show'], true ) );
 	}
 
 	/**

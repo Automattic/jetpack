@@ -793,7 +793,7 @@ HTML;
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		$is_current_user_subscribed = isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
 		// Atomic sites with jetpack_verbum_subscription_modal option enabled
 		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
@@ -834,7 +834,7 @@ HTML;
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		$is_current_user_subscribed = isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
 		if ( $is_current_user_subscribed ) {
 			$tracking_event = 'hidden_already_subscribed';

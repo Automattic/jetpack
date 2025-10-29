@@ -335,10 +335,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = $blog_id;
 					break;
 				case 'name':
-					$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+					$response[ $key ] = htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 					break;
 				case 'description':
-					$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+					$response[ $key ] = htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
 					break;
 				case 'URL':
 					$response[ $key ] = (string) home_url();

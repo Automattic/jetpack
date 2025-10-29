@@ -65,7 +65,7 @@ class WPCOM_JSON_API_Date {
 			$minutes = (int) floor( $offset / 60 );
 		}
 
-		return (string) gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
+		return gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
 	}
 
 	/**
@@ -92,7 +92,7 @@ class WPCOM_JSON_API_Date {
 		$minutes   = floor( $timestamp / 60 );
 		$timestamp = $timestamp % 60;
 
-		return (string) sprintf(
+		return sprintf(
 			'P%dDT%dH%dM%dS',
 			$days,
 			$hours,

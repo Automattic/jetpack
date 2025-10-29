@@ -210,7 +210,7 @@ class Admin_Bar_Notice {
 			return null;
 		}
 		// Return true if there is at least one threat found.
-		return (bool) isset( $scan_state->threats[0] );
+		return isset( $scan_state->threats[0] );
 	}
 
 	/**

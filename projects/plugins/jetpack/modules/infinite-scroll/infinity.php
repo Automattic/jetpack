@@ -391,7 +391,7 @@ class The_Neverending_Home_Page {
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 === $entries ) {
-			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
+			return ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
 		$paged = max( 1, (int) self::wp_query()->get( 'paged' ) );
 

@@ -68,8 +68,6 @@ function slideshare_shortcode( $atts ) {
 		$w = (int) $content_width;
 	} elseif ( $w < 300 || $w > 1600 ) { // If width was specified, but is too small/large, set default value.
 		$w = 425;
-	} else {
-		$w = (int) $w;
 	}
 
 	$h = ceil( $w * 348 / 425 ); // Note: user-supplied height is ignored.

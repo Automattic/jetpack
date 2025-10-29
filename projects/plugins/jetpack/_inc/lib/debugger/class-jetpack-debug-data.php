@@ -391,7 +391,7 @@ class Jetpack_Debug_Data {
 
 		$user = new WP_User( $master_user );
 
-		if ( ! $user ) {
+		if ( ! $user->exists() ) {
 			return __( 'Master user no longer exists. Please disconnect and reconnect Jetpack.', 'jetpack' );
 		}
 

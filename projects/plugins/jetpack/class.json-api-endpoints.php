@@ -1980,15 +1980,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public function parse_date( $date_string ) {
 		$date_string_info = date_parse( $date_string );
-		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
+		if ( 0 === $date_string_info['error_count'] ) {
 			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
 			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
 				$dt_utc   = new DateTime( $date_string );
 				$dt_local = clone $dt_utc;
 				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
 				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+					$dt_local->format( 'Y-m-d H:i:s' ),
+					$dt_utc->format( 'Y-m-d H:i:s' ),
 				);
 			}
 
@@ -2004,8 +2004,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$dt_local->setTimezone( wp_timezone() );
 
 		return array(
-			(string) $dt_local->format( 'Y-m-d H:i:s' ),
-			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+			$dt_local->format( 'Y-m-d H:i:s' ),
+			$dt_utc->format( 'Y-m-d H:i:s' ),
 		);
 	}
 
@@ -2812,7 +2812,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return array(
 			$response,
 			(string) $nonce,
-			(string) $hmac,
+			$hmac,
 		);
 	}
 

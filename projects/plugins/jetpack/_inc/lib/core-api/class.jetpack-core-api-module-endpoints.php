@@ -518,19 +518,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 
 	/**
-	 * Decode the special HTML characters in a certain value.
-	 *
-	 * @since 5.8
-	 *
-	 * @param string $value Value to decode.
-	 *
-	 * @return string Value with decoded HTML characters.
-	 */
-	private function decode_special_characters( $value ) {
-		return (string) htmlspecialchars_decode( $value, ENT_QUOTES );
-	}
-
-	/**
 	 * If it's a valid Jetpack module and configuration parameters have been sent, update it.
 	 *
 	 * @since 4.3.0
