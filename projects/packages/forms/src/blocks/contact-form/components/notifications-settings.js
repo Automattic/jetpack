@@ -136,6 +136,8 @@ const NotificationsSettings = ( {
 							} }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }
+							__experimentalExpandOnFocus={ true }
+							__experimentalAutoSelectFirstMatch={ true }
 						/>
 					</>
 				) }
