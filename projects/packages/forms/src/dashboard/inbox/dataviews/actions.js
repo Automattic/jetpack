@@ -1,11 +1,14 @@
+/**
+ * External dependencies
+ */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { notSpam, spam } from '../../icons';
+/**
+ * Internal dependencies
+ */
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 import { defaultView } from './views';
@@ -83,18 +86,9 @@ export const BULK_ACTIONS = {
 	markAsNotSpam: 'mark_as_not_spam',
 };
 
-export const viewAction = {
-	id: 'view-response',
-	icon: <Icon icon={ commentContent } />,
-	isPrimary: true,
-	label: __( 'View response', 'jetpack-forms' ),
-	modalHeader: __( 'Response', 'jetpack-forms' ),
-};
-
 export const editFormAction = {
 	id: 'edit-form',
 	label: __( 'Edit form', 'jetpack-forms' ),
-	icon: <Icon icon={ backup } />,
 	isEligible: item => !! item?.edit_form_url,
 	supportsBulk: false,
 	async callback( items ) {
@@ -132,7 +126,6 @@ export const markAsSpamAction = {
 	label: __( 'Mark as spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
-	icon: <Icon icon={ spam } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-spam',
@@ -211,7 +204,7 @@ export const markAsNotSpamAction = {
 	label: __( 'Not spam', 'jetpack-forms' ),
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
-	icon: <Icon icon={ notSpam } />,
+	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
@@ -288,7 +281,7 @@ export const restoreAction = {
 	label: __( 'Restore', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	icon: <Icon icon={ backup } />,
+	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'restore',
@@ -354,11 +347,10 @@ export const restoreAction = {
 
 export const moveToTrashAction = {
 	id: 'move-to-trash',
-	label: __( 'Move to trash', 'jetpack-forms' ),
+	label: __( 'Trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	isPrimary: true,
 	supportsBulk: true,
-	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'move-to-trash',
@@ -429,10 +421,10 @@ export const moveToTrashAction = {
 
 export const deleteAction = {
 	id: 'delete',
-	label: __( 'Delete permanently', 'jetpack-forms' ),
+	label: __( 'Delete', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	icon: <Icon icon={ trash } />,
+	isPrimary: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'delete',
@@ -511,13 +503,11 @@ export const markAsReadAction = {
 	label: __( 'Mark as read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-read',
 			multiple: items.length > 1,
 		} );
-		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -618,7 +608,6 @@ export const markAsUnreadAction = {
 	label: __( 'Mark as unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-unread',
