@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.1-beta - 2025-10-28
+### 4.5.1 - 2025-10-29
 #### Added
 - Tested up to WordPress 6.9
 
