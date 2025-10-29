@@ -1,12 +1,13 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { hasBranding, hasSubtleBranding } from '@automattic/jetpack-script-data';
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
 
-const isWpcom = isWpcomPlatformSite();
+const showBranding = hasBranding();
+const showSubtleBranding = hasSubtleBranding();
 
-// We do not want the Jetpack collection on WordPress.com (Simple or Atomic).
-if ( ! isWpcom ) {
+// We do not want the Jetpack collection on platforms without Jetpack branding.
+if ( showBranding ) {
 	registerBlockCollection( 'jetpack', {
 		title: 'Jetpack',
 		icon: <JetpackLogo />,
@@ -20,7 +21,7 @@ setCategories( [
 	{
 		slug: 'contact-form',
 		title: __( 'Forms', 'jetpack' ),
-		icon: <JetpackLogo />,
+		icon: showSubtleBranding ? <JetpackLogo /> : null,
 	},
 ] );
 
@@ -30,7 +31,7 @@ setCategories( [
 	{
 		slug: 'monetize',
 		title: __( 'Monetize', 'jetpack' ),
-		icon: <JetpackLogo />,
+		icon: showSubtleBranding ? <JetpackLogo /> : null,
 	},
 ] );
 
@@ -40,6 +41,6 @@ setCategories( [
 	{
 		slug: 'grow',
 		title: __( 'Grow', 'jetpack' ),
-		icon: <JetpackLogo />,
+		icon: showSubtleBranding ? <JetpackLogo /> : null,
 	},
 ] );
