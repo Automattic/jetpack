@@ -130,7 +130,7 @@ return [
         '_inc/lib/debugger/class-jetpack-debug-data.php' => ['PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         '_inc/lib/debugger/class-jetpack-debugger.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         '_inc/lib/debugger/debug-functions.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        '_inc/lib/icalendar-reader.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPossiblyUndeclaredVariable', 'PhanRedundantCondition', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
+        '_inc/lib/icalendar-reader.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         '_inc/lib/markdown/extra.php' => ['PhanImpossibleConditionInLoop', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturn'],
         '_inc/lib/plans.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         '_inc/lib/tonesque.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
