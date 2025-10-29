@@ -306,4 +306,130 @@ class User_Agent_Info_Test extends TestCase {
 
 		return $test_cases;
 	}
+
+	/**
+	 * Test get_browser_display_name() returns human-readable browser names.
+	 *
+	 * @param string $ua User agent string.
+	 * @param string $expected_name Expected browser display name.
+	 * @return void
+	 *
+	 * @dataProvider browser_display_name_provider
+	 */
+	#[DataProvider( 'browser_display_name_provider' )]
+	public function test_get_browser_display_name( string $ua, string $expected_name ) {
+		$ua_info = new User_Agent_Info( $ua );
+		$this->assertEquals( $expected_name, $ua_info->get_browser_display_name() );
+	}
+
+	/**
+	 * Data provider for browser display name tests.
+	 *
+	 * @return array
+	 */
+	public static function browser_display_name_provider() {
+		return array(
+			// Chrome Desktop
+			array(
+				'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+				'Chrome',
+			),
+			// Firefox Desktop
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0',
+				'Firefox',
+			),
+			// Safari Desktop
+			array(
+				'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+				'Safari',
+			),
+			// Edge
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
+				'Edge',
+			),
+			// Opera
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 OPR/77.0.4054.277',
+				'Opera',
+			),
+			// Internet Explorer
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko',
+				'Internet Explorer',
+			),
+			// Samsung Browser
+			array(
+				'Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/19.0 Chrome/102.0.5005.125 Mobile Safari/537.36',
+				'Samsung Browser',
+			),
+			// UC Browser
+			array(
+				'Mozilla/5.0 (Linux; U; Android 13; en-US; SM-A525F) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/78.0.3904.108 UCBrowser/13.4.0.1306 Mobile Safari/537.36',
+				'UC Browser',
+			),
+			// Yandex Browser
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 YaBrowser/21.5.0.582 Yowser/2.5 Safari/537.36',
+				'Yandex Browser',
+			),
+			// Vivaldi
+			array(
+				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36 Vivaldi/4.0.2312.38',
+				'Vivaldi',
+			),
+			// MIUI Browser
+			array(
+				'Mozilla/5.0 (Linux; U; Android 11; zh-cn; Mi 10 Build/RKQ1.200826.002) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/89.0.4389.116 Mobile Safari/537.36 XiaoMi/MiuiBrowser/13.10.0-gn',
+				'MIUI Browser',
+			),
+			// Amazon Silk
+			array(
+				'Mozilla/5.0 (Linux; Android 9; KFMAWI) AppleWebKit/537.36 (KHTML, like Gecko) Silk/89.3.12 like Chrome/89.0.4389.116 Safari/537.36',
+				'Amazon Silk',
+			),
+			// Unknown/Other browser (should return the constant value)
+			array(
+				'CustomBrowser/1.0',
+				'other',
+			),
+		);
+	}
+
+	/**
+	 * Test that get_browser_display_name() returns the constant value for unknown browsers.
+	 *
+	 * @return void
+	 */
+	public function test_get_browser_display_name_returns_constant_for_unknown() {
+		$ua_info      = new User_Agent_Info( 'UnknownBrowser/1.0' );
+		$browser      = $ua_info->get_browser();
+		$display_name = $ua_info->get_browser_display_name();
+
+		// Should return the constant value (likely 'other') for unknown browsers
+		$this->assertEquals( $browser, $display_name );
+	}
+
+	/**
+	 * Test that get_browser_display_name() handles empty user agent.
+	 *
+	 * @return void
+	 */
+	public function test_get_browser_display_name_handles_empty_ua() {
+		// Unset the server variable to ensure we're testing with truly empty UA
+		$original_ua = $_SERVER['HTTP_USER_AGENT'] ?? null;
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+
+		$ua_info      = new User_Agent_Info( '' );
+		$display_name = $ua_info->get_browser_display_name();
+
+		// Should return 'other' for empty UA
+		$this->assertEquals( 'other', $display_name );
+
+		// Restore original UA
+		if ( $original_ua !== null ) {
+			$_SERVER['HTTP_USER_AGENT'] = $original_ua;
+		}
+	}
 }
