@@ -13,7 +13,9 @@ export const defaultView = {
 	filters: [],
 	page: 1,
 	perPage: 20,
-	fields: [ 'from', 'date', 'source', 'ip' ],
+	fields: [ 'date', 'source', 'ip' ],
+	titleField: 'from',
+	mediaField: 'avatar',
 };
 
 export const defaultLayouts = {
