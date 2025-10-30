@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Update WooCommerce sync related tests to account for whitelisting order item meta.
