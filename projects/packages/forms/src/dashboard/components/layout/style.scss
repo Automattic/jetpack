@@ -51,16 +51,17 @@ body.jetpack_page_jetpack-forms-admin {
 		min-height: 0;
 		background: var(--jp-white);
 
-		.jp-forms__inbox__dataviews__container {
-			justify-content: unset;
-			align-items: unset;
-		}
-
 		// Ensure Outlet renders as flex child that expands
 		> * {
 			display: flex;
 			flex: 1;
 			flex-direction: column;
+		}
+
+		.jp-forms__inbox__dataviews__container {
+			flex-direction: row;
+			justify-content: unset;
+			align-items: unset;
 		}
 	}
 
