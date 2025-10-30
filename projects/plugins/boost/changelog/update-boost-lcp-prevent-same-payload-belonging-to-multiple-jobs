@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+LCP: Prevent requesting analysis for the same pages multiple times.
