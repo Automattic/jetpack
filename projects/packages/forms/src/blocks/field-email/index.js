@@ -1,8 +1,8 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { envelope } from '@wordpress/icons';
 import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';

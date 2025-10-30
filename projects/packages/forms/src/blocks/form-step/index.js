@@ -1,5 +1,5 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import StepIcon from './icon';
 import save from './save';

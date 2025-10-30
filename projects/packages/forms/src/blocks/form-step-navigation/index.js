@@ -1,6 +1,6 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import { next } from '@wordpress/icons';
-import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
 

@@ -1,8 +1,8 @@
+import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon';
 import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
 import edit from './edit';
 import save from './save';
 import variations from './variations';
