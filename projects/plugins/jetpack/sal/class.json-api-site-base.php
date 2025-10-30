@@ -79,7 +79,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_name() {
-		return htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$name = get_bloginfo( 'name' );
+		return is_string( $name ) ? htmlspecialchars_decode( $name, ENT_QUOTES ) : '';
 	}
 
 	/**
@@ -88,7 +89,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_description() {
-		return htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+		$description = get_bloginfo( 'description' );
+		return is_string( $description ) ? htmlspecialchars_decode( $description, ENT_QUOTES ) : '';
 	}
 
 	/**
