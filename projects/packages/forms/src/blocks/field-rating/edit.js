@@ -87,7 +87,7 @@ export default function RatingFieldEdit( props ) {
 					{
 						index: 1,
 						element: (
-							<>
+							<div key="ratingFieldControls">
 								<NumberControl
 									__next40pxDefaultSize
 									__unstableInputWidth="50%"
@@ -107,7 +107,7 @@ export default function RatingFieldEdit( props ) {
 									value={ defaultValue }
 									onChange={ onChangeDefault }
 								/>
-							</>
+							</div>
 						),
 					},
 				] }

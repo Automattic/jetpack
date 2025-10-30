@@ -72,6 +72,10 @@ class WPCOM_Features {
 	private const WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY       = 'wooexpress-medium-bundle-yearly'; // 1055
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY       = 'wooexpress-small-bundle-monthly'; // 1054
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY        = 'wooexpress-small-bundle-yearly'; // 1056
+	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_monthly'; // 4001
+	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
+	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_pro_plan_monthly'; // 4003
+	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_pro_plan_yearly'; // 4004
 	private const WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY        = 'wp_bundle_migration_trial_monthly'; // 1057
 	private const WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY          = 'wp_bundle_hosting_trial_monthly'; // 1058
 	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
@@ -241,6 +245,7 @@ class WPCOM_Features {
 	private const WPCOM_ECOMMERCE_TRIAL_PLANS   = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
 	private const WPCOM_WOOEXPRESS_MEDIUM_PLANS = array( self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY );
 	private const WPCOM_WOOEXPRESS_SMALL_PLANS  = array( self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY, self::WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY );
+	private const WOO_HOSTED_PLANS              = array( self::WOO_HOSTED_BASIC_PLAN_MONTHLY, self::WOO_HOSTED_BASIC_PLAN_YEARLY, self::WOO_HOSTED_PRO_PLAN_MONTHLY, self::WOO_HOSTED_PRO_PLAN_YEARLY );
 	private const GOOGLE_WORKSPACE_PRODUCTS     = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS               = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS     = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
@@ -708,10 +713,12 @@ class WPCOM_Features {
 		),
 		self::CUSTOM_DOMAIN                     => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WOO_HOSTED_PLANS,
 		),
 		self::DOMAIN_MAPPING                    => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
+			self::WOO_HOSTED_PLANS,
 		),
 		self::DONATIONS                         => array(
 			self::WPCOM_ALL_SITES,
@@ -1161,6 +1168,7 @@ class WPCOM_Features {
 		 */
 		self::SET_PRIMARY_CUSTOM_DOMAIN         => array(
 			self::WPCOM_BLOGGER_AND_HIGHER_PLANS,
+			self::WOO_HOSTED_PLANS,
 			self::YOAST_PREMIUM,
 		),
 		// Hosting Configuration.

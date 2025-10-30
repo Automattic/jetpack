@@ -1965,199 +1965,215 @@ class User_Agent_Info {
 			return false;
 		}
 
+		// Some sourced via
+		// https://github.com/ua-parser/uap-core/blob/432e95f6767cc8bab4c20c255784cd6f7e93bc15/regexes.yaml#L151
 		$bot_agents = array(
-			'alexa',
-			'altavista',
-			'ask jeeves',
-			'attentio',
-			'baiduspider',
-			'bingbot',
-			'chtml generic',
-			'crawler',
-			'fastmobilecrawl',
-			'feedfetcher-google',
-			'firefly',
-			'froogle',
-			'gigabot',
-			'googlebot',
-			'googlebot-mobile',
-			'heritrix',
-			'httrack',
-			'ia_archiver',
-			'irlbot',
-			'iescholar',
-			'infoseek',
-			'jumpbot',
-			'linkcheck',
-			'lycos',
-			'mediapartners',
-			'mediobot',
-			'motionbot',
-			'msnbot',
-			'mshots',
-			'openbot',
-			'pss-webkit-request',
-			'pythumbnail',
-			'scooter',
-			'slurp',
-			'snapbot',
-			'spider',
-			'taptubot',
-			'technoratisnoop',
-			'teoma',
-			'twiceler',
-			'yahooseeker',
-			'yahooysmcm',
-			'yammybot',
-			'ahrefsbot',
-			'pingdom.com_bot',
-			'kraken',
-			'yandexbot',
-			'twitterbot',
-			'tweetmemebot',
-			'openhosebot',
-			'queryseekerspider',
-			'linkdexbot',
-			'grokkit-crawler',
-			'livelapbot',
-			'germcrawler',
-			'domaintunocrawler',
-			'grapeshotcrawler',
-			'cloudflare-alwaysonline',
-			'cookieinformationscanner', // p1699315886066389-slack-C0438NHCLSY
-			'facebookexternalhit', // https://www.facebook.com/externalhit_uatext.php
-			'feedburner',
-			'yacybot', // http://yacy.net/bot.html
-			'trendictionbot',  // http://www.trendiction.de/bot;
-			'elisabot',
-			'linkfluence', // http://linkfluence.com/
-			'semrushbot', // https://www.semrush.com/bot/
-			'archive.org_bot', // http://archive.org/details/archive.org_bot
-			'ezlynxbot', // https://www.ezoic.com/bot
-			'siteauditbot', // https://www.semrush.com/bot/
-			'snapchat', // https://developers.snap.com/robots
-			'applebot', // https://support.apple.com/en-ca/HT204683
-			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
-			'google-safety;', // https://www.google.com/bot.html
-			'mojeekbot', // https://www.mojeek.com/bot.html
-			'linkwalker', // https://www.linkwalker.com/
-			'dataforseobot', // https://www.dataforseo.com/dataforseo-bot
-			'gptbot', // https://platform.openai.com/docs/gptbot
-			'google-inspectiontool', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
-			'blexbot',
-			'dotbot', // https://darkvisitors.com/agents/dotbot
-			'claudebot', // https://support.anthropic.com/en/articles/8896518
-			'wp-e2e-tests', // WordPress e2e tests
-			// https://github.com/ua-parser/uap-core/blob/432e95f6767cc8bab4c20c255784cd6f7e93bc15/regexes.yaml#L151
-			'whatsapp',
-			'linkedinbot',
-			'scrapy',
-			'mj12bot',
-			'simplepie',
-			'bingpreview',
-			'yahoo! slurp',
-			'nutch',
+			// Microsoft/Bing https://www.bing.com/webmasters/help/which-crawlers-does-bing-use-8c184ec0
+			'bingbot', // Bing/Copilot
+			'adidxbot', // Bing Ads
+			'bingpreview', // Generates page snapshots for Bing
+			'bingvideopreview', // Generates previews of videos for Bing
+			'microsoft',
+
+			// Google https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
 			'adsbot-google',
-			'zyborg',
-			'csimplespider',
-			'cityreview robot',
-			'crawldaddy',
-			'crawlfire',
-			'finderbots',
-			'index crawler',
-			'job roboter',
-			'kiwistatus spider',
-			'lijit crawler',
-			'queryseekersp ider',
-			'scollspider',
-			'trends crawler',
-			'usyd-nlp-spider',
-			'sitecat webbot',
+			'appengine-google',
+			'feedfetcher-google',
+			'mediapartners-google',
+			'storebot-google', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-storebot
+			'google sketchup',
+			'google-cloudbertexbot', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-cloudvertexbot
+			'google-extended', // Gemini https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-extended
+			'google-inspectiontool', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
+			'google-safety;', // https://www.google.com/bot.html
+			'googlebot-mobile',
+			'googlebot', // and googlebot-[image,video,news,] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googlebot
+			'googleother', // and googleother-[video,image] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googleother
+
+			// OpenAI https://platform.openai.com/docs/bots
+			'gptbot', // Crawler
+			'chatgpt-user', // ChatGPT on behalf of user
+			'oai-searchbot', // ChatGPT search features
+
+			// Anthropic
+			'claudebot', // chat citation fetch https://support.anthropic.com/en/articles/8896518
+			'claude-web', // web-focused crawl https://darkvisitors.com/agents/claude-web
+			'anthropic-ai', // bulk model training https://darkvisitors.com/agents/anthropic-ai
+
+			// Perplexity
+			'perplexitybot', // index builder https://docs.perplexity.ai/guides/bots
+			'perplexity-user', // human-triggered visit https://docs.perplexity.ai/guides/bots
+
+			// Meta https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/
+			'facebookbot', // AI data scraper https://darkvisitors.com/agents/facebookbot
+			'facebookexternalhit', // shares https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify
+			'facebookcatalog', // shares https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify
+			'meta-webindexer', // Meta AI search indexer https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#meta-webindexer
+			'meta-externalads', // web crawler improving ads https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#meta-externalads
+			'meta-externalagent', // training AI models https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify-2
+			'meta-externalfetcher', // user-initiated fetches, may skip robots.txt https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify-3
+
+			// Semrush https://www.semrush.com/bot/
+			'semrushbot',
+			'siteauditbot',
+
+			// Other bots (alphabetized list)
 			'123metaspider-bot',
 			'1470.net crawler',
 			'50.nu',
 			'8bo crawler bot',
 			'aboundex',
-			'appengine-google',
+			'ahrefsbot',
+			'ai2bot', // AI2 crawler for LLMm training https://allenai.org/crawler
+			'alexa',
+			'altavista',
+			'amazonbot', // https://developer.amazon.com/amazonbot
+			'applebot', // https://support.apple.com/en-ca/HT204683
+			'arcgis hub indexer',
+			'archive.org_bot', // http://archive.org/details/archive.org_bot
 			'archiver',
+			'ask jeeves',
+			'attentio',
+			'baiduspider',
+			'blexbot',
 			'blitzbot',
 			'blogbridge',
 			'bloglovin',
+			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
 			'boardreader blog indexer',
 			'boardreader favicon fetcher',
 			'boitho.com-dc',
 			'botseer',
 			'bubing',
+			'bytespider', // ByteDance (owner of TikTok) to train LLMs for Doubao https://darkvisitors.com/agents/bytespider
 			'catchpoint',
+			'ccbot', // CommonCrawl non-profit https://commoncrawl.org/ccbot
 			'charlotte',
 			'checklinks',
+			'chtml generic',
+			'cityreview robot',
+			'cloudflare-alwaysonline',
 			'clumboot',
+			'coccocbot', // Coc Coc https://darkvisitors.com/agents/coccocbot-web
+			'cohere-ai', // Cohere AI https://darkvisitors.com/agents/cohere-ai
 			'comodo http',
 			'comodo-webinspector-crawler',
 			'converacrawler',
+			'cookieinformationscanner', // Internal ref p1699315886066389-slack-C0438NHCLSY
 			'crawl-e',
 			'crawlconvera',
+			'crawldaddy',
+			'crawler',
+			'crawlfire',
+			'csimplespider',
+			'dataforseobot', // https://www.dataforseo.com/dataforseo-bot
 			'daumoa',
+			'diffbot', // https://docs.diffbot.com/docs/how-to-use-custom-user-agents-with-extract-apis & https://darkvisitors.com/agents/diffbot
+			'domaintunocrawler',
+			'dotbot', // https://darkvisitors.com/agents/dotbot
+			'duckassistbot', // DuckDuckGo AI Assistant https://darkvisitors.com/agents/duckassistbot
+			'elisabot',
+			'ezlynxbot', // https://www.ezoic.com/bot
+			'fastmobilecrawl',
 			'feed seeker bot',
 			'feedbin',
+			'feedburner',
+			'finderbots',
 			'findlinks',
+			'firefly',
 			'flamingo_searchengine',
 			'followsite bot',
+			'froogle',
 			'furlbot',
 			'genieo',
+			'germcrawler',
+			'gigabot',
 			'gomezagent',
 			'gonzo1',
-			'googleother',
-			'google sketchup',
+			'grapeshotcrawler',
+			'grokkit-crawler',
 			'grub-client',
 			'gsa-crawler',
+			'heritrix',
 			'hiddenmarket',
 			'holmes',
 			'hoowwwer',
 			'htdig',
-			'icc-crawler',
+			'httrack',
+			'ia_archiver',
 			'icarus6j',
+			'icc-crawler',
 			'ichiro',
 			'iconsurf',
+			'iescholar',
 			'iltrovatore',
+			'index crawler',
+			'infoseek',
 			'infuzapp',
 			'innovazion crawler',
 			'internetarchive',
+			'irlbot',
 			'jbot',
+			'job roboter',
+			'jumpbot',
 			'kaloogabot',
+			'kiwistatus spider',
+			'kraken',
 			'kurzor',
 			'larbin',
 			'leia',
 			'lesnikbot',
+			'lijit crawler',
 			'linguee bot',
 			'linkaider',
+			'linkcheck',
+			'linkdexbot',
+			'linkedinbot',
+			'linkfluence', // http://linkfluence.com/
+			'linkwalker', // https://www.linkwalker.com/
 			'lite bot',
+			'livelapbot',
 			'llaut',
+			'lycos',
 			'mail.ru_bot',
-			'masscan',
 			'masidani_bot',
-			'mediapartners-google',
-			'microsoft',
+			'masscan',
+			'mediapartners',
+			'mediobot',
+			'mj12bot',
 			'mogimogi',
+			'mojeekbot', // https://www.mojeek.com/bot.html
+			'motionbot',
 			'mozdex',
+			'mshots',
+			'msnbot',
 			'msrbot',
 			'mtps feed aggregation system',
 			'netresearch',
 			'netvibes',
 			'newsgator',
 			'ning',
+			'nutch',
 			'nymesis',
 			'objectssearch',
 			'ogscrper',
-			'orbiter',
+			'omgili', // Webz.io web crawler for a data seller https://darkvisitors.com/agents/omgili
 			'oozbot',
+			'openbot',
+			'openhosebot',
+			'orbiter',
 			'pagepeeker',
 			'pagesinventory',
 			'paxleframework',
 			'peeplo screenshot bot',
 			'phpcrawl',
+			'pingdom.com_bot',
 			'plantynet_webrobot',
 			'pompos',
+			'pss-webkit-request',
+			'pythumbnail',
+			'queryseekersp ider',
+			'queryseekerspider',
 			'qwantify',
 			'read%20later',
 			'reaper',
@@ -2165,25 +2181,44 @@ class User_Agent_Info {
 			'retreiver',
 			'riddler',
 			'rival iq',
+			'scollspider',
+			'scooter',
+			'scrapy',
 			'scrubby',
 			'searchsight',
 			'seekbot',
 			'semanticdiscovery',
-			'simpy',
 			'seostats',
+			'simplepie',
 			'simplerss',
+			'simpy',
+			'sitecat webbot',
 			'sitecon',
-			'slackbot-linkexpanding',
 			'slack-imgproxy',
+			'slackbot-linkexpanding',
+			'slurp',
+			'snapbot',
+			'snapchat', // https://developers.snap.com/robots
 			'snappy',
 			'speedy spider',
+			'spider',
 			'squrl java',
 			'stringer',
+			'taptubot',
+			'technoratisnoop',
+			'teoma',
 			'theusefulbot',
-			'thumbshotsbot',
 			'thumbshots.ru',
+			'thumbshotsbot',
+			'timpibot', // LLM trainer https://darkvisitors.com/agents/timpibot
 			'tiny tiny rss',
+			'trendictionbot',  // http://www.trendiction.de/bot;
+			'trends crawler',
+			'tweetmemebot',
+			'twiceler',
+			'twitterbot', // https://developer.x.com/en/docs/x-for-websites/cards/guides/getting-started#crawling
 			'url2png',
+			'usyd-nlp-spider',
 			'vagabondo',
 			'voilabot',
 			'vortex',
@@ -2193,19 +2228,29 @@ class User_Agent_Info {
 			'web-sniffer',
 			'webthumb',
 			'wesee',
+			'whatsapp',
 			'whatweb',
 			'wire',
 			'wordpress',
 			'wotbox',
+			'wp-e2e-tests', // WordPress e2e tests
 			'www.almaden.ibm.com',
 			'xenu',
+			'yacybot', // http://yacy.net/bot.html
+			'yahoo! slurp',
+			'yahooseeker',
+			'yahooysmcm',
+			'yammybot',
+			'yandexbot',
 			'yottaamonitor',
+			'youbot', // You.com AI assistant https://darkvisitors.com/agents/youbot
 			'yowedo',
-			'zao',
 			'zao-crawler',
+			'zao',
 			'zebot_www.ze.bz',
+			'zoombot', // SEOZOom https://darkvisitors.com/agents/zoombot
 			'zooshot',
-			'arcgis hub indexer',
+			'zyborg',
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {

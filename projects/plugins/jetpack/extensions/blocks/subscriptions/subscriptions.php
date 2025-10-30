@@ -824,6 +824,7 @@ function render_for_website( $data, $classes, $styles ) {
 									required="required"
 									type="email"
 									name="email"
+									autocomplete="email"
 									%1$s
 									style="%2$s"
 									placeholder="%3$s"

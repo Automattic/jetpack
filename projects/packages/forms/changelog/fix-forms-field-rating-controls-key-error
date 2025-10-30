@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix a consoler error triggered by iterable without key prop

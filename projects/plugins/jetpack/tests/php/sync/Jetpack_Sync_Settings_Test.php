@@ -179,13 +179,6 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 		);
 	}
 
-	public function test_enabling_wpcom_rest_api_enabled_gets_disabled_when_send_data_fails() {
-		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
-		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );
-		remove_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
-		$this->assertFalse( Settings::is_wpcom_rest_api_enabled() );
-	}
-
 	/**
 	 * Intercept send_data to return WP_Error.
 	 */

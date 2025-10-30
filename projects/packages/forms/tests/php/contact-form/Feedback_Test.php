@@ -2972,4 +2972,62 @@ class Feedback_Test extends BaseTestCase {
 		wp_delete_user( $author_id );
 		wp_delete_user( $subscriber_id );
 	}
+
+	/**
+	 * Test that country flags are returned correctly.
+	 */
+	public function test_get_country_flag() {
+		$form_id = Utility::get_form_id();
+
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test valid country codes
+		$test_cases = array(
+			'US' => '🇺🇸',
+			'GB' => '🇬🇧',
+			'DE' => '🇩🇪',
+			'CA' => '🇨🇦',
+			'JP' => '🇯🇵',
+			'us' => '🇺🇸', // Test lowercase (should be converted to uppercase internally)
+		);
+
+		foreach ( $test_cases as $country_code => $expected_flag ) {
+			$filter_callback = function () use ( $country_code ) {
+				return $country_code;
+			};
+			add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+			$response = Feedback::from_submission( $_post_data, $form );
+
+			$this->assertEquals( $expected_flag, $response->get_country_flag(), "Country code {$country_code} should convert to flag emoji {$expected_flag}" );
+
+			remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+		}
+
+		// Test when no country code is available
+		$filter_callback = function () {
+			return null;
+		};
+		add_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+
+		$response = Feedback::from_submission( $_post_data, $form );
+		$this->assertSame( '', $response->get_country_flag(), 'Should return empty string when no country code is available' );
+
+		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
+	}
 }
