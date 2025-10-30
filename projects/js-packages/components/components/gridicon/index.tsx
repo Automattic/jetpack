@@ -63,6 +63,8 @@ class Gridicon extends Component< GridiconProps > {
 				return __( 'Matching comment.', 'jetpack-components' );
 			case 'gridicons-cross':
 				return __( 'Close.', 'jetpack-components' );
+			case 'gridicons-domains':
+				return __( 'Website', 'jetpack-components' );
 			case 'gridicons-filter':
 				return __( 'Toggle search filters.', 'jetpack-components' );
 			case 'gridicons-folder':

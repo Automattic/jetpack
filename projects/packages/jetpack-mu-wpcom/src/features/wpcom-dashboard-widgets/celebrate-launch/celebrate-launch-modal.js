@@ -1,4 +1,4 @@
-import { Gridicon } from '@automattic/components';
+import { Gridicon } from '@automattic/jetpack-components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
