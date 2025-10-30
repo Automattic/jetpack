@@ -271,11 +271,20 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param \WC_Abstract_Order $order_object The order object.
+	 * @param array $args An array with order data.
 	 *
-	 * @return array
+	 * @return array|false
 	 */
-	public function expand_order_object( $order_object ) {
+	public function expand_order_object( $args ) {
+		if ( empty( $args['id'] ) ) {
+			return false;
+		}
+
+		$order_object = wc_get_order( $args['id'] );
+
+		if ( ! $order_object instanceof \WC_Abstract_Order ) {
+			return false;
+		}
 
 		return $this->filter_order_data( $order_object );
 	}
@@ -312,7 +321,7 @@ class WooCommerce_HPOS_Orders extends Module {
 
 		$processed[ $order_object->id ] = true;
 
-		return $order_object;
+		return array( 'id' => $order_object->id );
 	}
 
 	/**
