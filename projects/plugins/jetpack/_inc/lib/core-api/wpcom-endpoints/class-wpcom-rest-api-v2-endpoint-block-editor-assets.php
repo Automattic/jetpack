@@ -523,17 +523,19 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return $html;
 		}
 
-		$lines               = explode( "\n", $html );
-		$filtered_lines      = array();
-		$inside_excluded_tag = false;
-		$closing_tag         = '</' . $tag_name;
+		$lines                = explode( "\n", $html );
+		$filtered_lines       = array();
+		$inside_excluded_tag  = false;
+		$closing_tag          = '</' . $tag_name;
+		$current_excluded_tag = '';
 
 		foreach ( $lines as $line ) {
 			// If we're inside an excluded tag, skip until we find the closing tag
 			if ( $inside_excluded_tag ) {
-				// Check if this line contains the closing tag
-				if ( strpos( $line, $closing_tag ) !== false ) {
-					$inside_excluded_tag = false;
+				// Check if this line contains the closing tag for the current excluded tag
+				if ( strpos( $line, $current_excluded_tag ) !== false ) {
+					$inside_excluded_tag  = false;
+					$current_excluded_tag = '';
 				}
 				// Skip this line either way (it's part of the excluded block)
 				continue;
@@ -541,8 +543,14 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 			$should_keep = true;
 
-			// Check if this line contains the tag we're looking for
-			if ( strpos( $line, '<' . $tag_name ) !== false ) {
+			// Check if this line contains the tag we're looking for OR an inline style tag
+			// When filtering styles (tag_name='link'), we also need to handle <style> tags
+			$is_inline_style = false;
+			if ( 'link' === $tag_name && strpos( $line, '<style' ) !== false ) {
+				$is_inline_style = true;
+			}
+
+			if ( strpos( $line, '<' . $tag_name ) !== false || $is_inline_style ) {
 				// Extract the id attribute (which often matches the handle)
 				$handle = '';
 				if ( preg_match( '/id=["\']([^"\']+)["\']/', $line, $id_matches ) ) {
@@ -572,10 +580,21 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 				// If we're excluding this tag, check if it's self-closing or multi-line
 				if ( ! $should_keep ) {
-					// Check if this line also contains the closing tag (single-line tag)
-					if ( strpos( $line, $closing_tag ) === false ) {
-						// Multi-line tag - set flag to skip subsequent lines
-						$inside_excluded_tag = true;
+					// <link> tags are self-closing and should never enter multi-line exclusion state
+					// Only <style> and <script> tags can be multi-line
+					if ( $is_inline_style || 'script' === $tag_name ) {
+						// Determine the actual closing tag for this specific element
+						$actual_closing_tag = $closing_tag;
+						if ( $is_inline_style ) {
+							$actual_closing_tag = '</style';
+						}
+
+						// Check if this line also contains the closing tag (single-line tag)
+						if ( strpos( $line, $actual_closing_tag ) === false ) {
+							// Multi-line tag - set flag to skip subsequent lines
+							$inside_excluded_tag  = true;
+							$current_excluded_tag = $actual_closing_tag;
+						}
 					}
 					// Either way, don't keep this line
 					continue;
