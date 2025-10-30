@@ -244,7 +244,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 						$this->get_core_block_types(),
 						self::ALLOWED_PLUGIN_BLOCKS
 					),
+					// @phan-suppress-next-line PhanTypePossiblyInvalidDimOffset -- Keys are guaranteed by callback above
 					'scripts'             => $html['scripts'],
+					// @phan-suppress-next-line PhanTypePossiblyInvalidDimOffset -- Keys are guaranteed by callback above
 					'styles'              => $html['styles'],
 				)
 			);
