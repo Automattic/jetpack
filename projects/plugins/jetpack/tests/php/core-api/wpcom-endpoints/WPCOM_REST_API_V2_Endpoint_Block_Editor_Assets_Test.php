@@ -813,4 +813,200 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertTrue( $callback_executed, 'Plugin callback should execute without fatal error' );
 		$this->assertInstanceOf( WP_REST_Response::class, $response, 'Request should complete successfully' );
 	}
+
+	/**
+	 * Test exclude parameter with 'core' value excludes WordPress core assets.
+	 */
+	public function test_exclude_parameter_with_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Core assets should be excluded (wp-includes, wp-admin paths)
+		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-includes/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/', $data['styles'] );
+	}
+
+	/**
+	 * Test exclude parameter with 'gutenberg' value excludes Gutenberg plugin assets.
+	 */
+	public function test_exclude_parameter_with_gutenberg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add mock Gutenberg assets
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'gutenberg-test-script', 'http://example.org/plugins/gutenberg/script.js', array(), '1.0', true );
+				wp_register_style( 'gutenberg-test-style', 'http://example.org/plugins/gutenberg/style.css', array(), '1.0' );
+				wp_enqueue_script( 'gutenberg-test-script' );
+				wp_enqueue_style( 'gutenberg-test-style' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Gutenberg assets should be excluded
+		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['scripts'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['styles'] );
+	}
+
+	/**
+	 * Test exclude parameter with both 'core' and 'gutenberg' values.
+	 */
+	public function test_exclude_parameter_with_core_and_gutenberg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core,gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Both core and Gutenberg assets should be excluded
+		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-includes/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/', $data['styles'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['styles'] );
+	}
+
+	/**
+	 * Test exclude parameter with plugin handle prefix.
+	 */
+	public function test_exclude_parameter_with_plugin_handle() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add mock plugin assets with specific prefix
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'contact-form-7-script', 'http://example.org/contact-form.js', array(), '1.0', true );
+				wp_register_style( 'contact-form-7-style', 'http://example.org/contact-form.css', array(), '1.0' );
+				wp_enqueue_script( 'contact-form-7-script' );
+				wp_enqueue_style( 'contact-form-7-style' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'contact-form-7' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Plugin assets with the specified handle prefix should be excluded
+		$this->assertStringNotContainsString( 'contact-form-7-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'contact-form-7-style', $data['styles'] );
+	}
+
+	/**
+	 * Test that without exclude parameter, all assets are included.
+	 */
+	public function test_without_exclude_parameter_includes_all_assets() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Core assets should be present
+		$this->assertNotEmpty( $data['scripts'] );
+		$this->assertNotEmpty( $data['styles'] );
+	}
+
+	/**
+	 * Test that plugin assets are preserved when excluding core.
+	 */
+	public function test_plugin_assets_preserved_when_excluding_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add mock plugin assets
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'jetpack-test-exclude', 'http://example.org/jetpack-test.js', array(), '1.0', true );
+				wp_register_style( 'jetpack-test-exclude-style', 'http://example.org/jetpack-test.css', array(), '1.0' );
+				wp_enqueue_script( 'jetpack-test-exclude' );
+				wp_enqueue_style( 'jetpack-test-exclude-style' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Jetpack assets should still be present
+		$this->assertStringContainsString( 'jetpack-test-exclude', $data['scripts'] );
+		$this->assertStringContainsString( 'jetpack-test-exclude-style', $data['styles'] );
+
+		// Core assets should be excluded
+		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+	}
+
+	/**
+	 * Test that Jetpack styles are preserved when excluding core (regression test for bug).
+	 */
+	public function test_jetpack_styles_preserved_with_exclude_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add Jetpack-style assets with inline styles (common pattern)
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_style( 'jetpack-blocks-editor', 'http://example.org/jetpack-blocks.css', array(), '1.0' );
+				wp_enqueue_style( 'jetpack-blocks-editor' );
+				wp_add_inline_style( 'jetpack-blocks-editor', '.jetpack-block { color: blue; }' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Jetpack styles should be present (this was the bug - they were being incorrectly filtered out)
+		$this->assertStringContainsString( 'jetpack-blocks-editor', $data['styles'] );
+		$this->assertStringContainsString( 'jetpack-block { color: blue; }', $data['styles'] );
+	}
+
+	/**
+	 * Test excluding multiple plugin types simultaneously.
+	 */
+	public function test_multiple_plugin_exclusions() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add multiple plugin assets
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'contact-form-7-script', 'http://example.org/cf7.js', array(), '1.0', true );
+				wp_register_script( 'woocommerce-script', 'http://example.org/woo.js', array(), '1.0', true );
+				wp_register_script( 'jetpack-test-script', 'http://example.org/jetpack.js', array(), '1.0', true );
+				wp_enqueue_script( 'contact-form-7-script' );
+				wp_enqueue_script( 'woocommerce-script' );
+				wp_enqueue_script( 'jetpack-test-script' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'contact-form-7,woocommerce' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Contact Form 7 and WooCommerce should be excluded
+		$this->assertStringNotContainsString( 'contact-form-7-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'woocommerce-script', $data['scripts'] );
+
+		// Jetpack should still be present
+		$this->assertStringContainsString( 'jetpack-test-script', $data['scripts'] );
+	}
 }
