@@ -2505,9 +2505,9 @@ EOT;
 	}
 
 	/**
-	 * Tests get_default_to method with valid post author
+	 * Tests get_default_to_for_editor method with valid post author
 	 */
-	public function test_get_default_to_with_valid_post_author_but_no_source() {
+	public function test_get_default_to_for_editor_with_valid_post_author() {
 		$email     = 'author@example.com';
 		$author_id = wp_insert_user(
 			array(
@@ -2532,6 +2532,14 @@ EOT;
 
 		wp_delete_user( $author_id );
 		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests get_default_to_for_editor method with null
+	 */
+	public function test_get_default_to_for_editor_with_null() {
+		$result = Contact_Form::get_default_to_for_editor( null );
+		$this->assertEquals( get_option( 'admin_email' ), $result );
 	}
 
 	/**
