@@ -43,7 +43,8 @@
 	},
 	"pnpm": {
 		"patchedDependencies": {
-			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
+			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch",
+			"@automattic/components": "patches/@automattic__components.patch"
 		},
 		"ignoredBuiltDependencies": [
 			"@swc/core",

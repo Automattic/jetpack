@@ -1,0 +1,15 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+deleted file mode 100644
+index 5a230ba4d0a2d580371d0b343772041853eb71e1..0000000000000000000000000000000000000000
+diff --git a/dist/esm/notice-banner/index.js b/dist/esm/notice-banner/index.js
+index e8e868f675a0d71a9bf2f640cc6ab97480863d3a..ac07d63c0bd89ce368b5826e5f7dc1b30d3ebaa2 100644
+--- a/dist/esm/notice-banner/index.js
++++ b/dist/esm/notice-banner/index.js
+@@ -1,6 +1,6 @@
+ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+ import { alert } from '@automattic/components/src/icons';
+-import { Icon, warning, info, check, closeSmall } from '@wordpress/icons';
++import { Icon, cautionFilled as warning, info, check, closeSmall } from '@wordpress/icons';
+ import clsx from 'clsx';
+ import './style.scss';
+ const getIconByLevel = (level) => {

@@ -10,6 +10,9 @@ overrides:
 pnpmfileChecksum: sha256-YDpdpIHQj3g4K8AUyR3UOEtgYZDcSuWJ2qXiqWTTWSY=
 
 patchedDependencies:
+  '@automattic/components':
+    hash: ed26d99fe25fbf608e0e0b0e1d3fe36c2a8c784fa496a931b7af0e2057184e91
+    path: patches/@automattic__components.patch
   '@wordpress/dataviews':
     hash: 9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1
     path: .pnpm-patches/@wordpress__dataviews@4.12.0.patch
@@ -2715,7 +2718,7 @@ importers:
         version: 4.1.0
       '@automattic/components':
         specifier: 2.2.0
-        version: 2.2.0(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.2.0(patch_hash=ed26d99fe25fbf608e0e0b0e1d3fe36c2a8c784fa496a931b7af0e2057184e91)(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -17202,7 +17205,7 @@ snapshots:
   '@automattic/calypso-products@1.2.2(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-config': 1.0.0-alpha.0
-      '@automattic/components': 2.2.0(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/components': 2.2.0(patch_hash=ed26d99fe25fbf608e0e0b0e1d3fe36c2a8c784fa496a931b7af0e2057184e91)(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils': 1.2.3
       '@automattic/number-formatters': 1.0.13
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -17227,7 +17230,7 @@ snapshots:
 
   '@automattic/color-studio@4.1.0': {}
 
-  '@automattic/components@2.2.0(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/components@2.2.0(patch_hash=ed26d99fe25fbf608e0e0b0e1d3fe36c2a8c784fa496a931b7af0e2057184e91)(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-color-schemes': 3.1.3
@@ -17358,7 +17361,7 @@ snapshots:
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-config': 1.0.0-alpha.0
-      '@automattic/components': 2.2.0(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@automattic/components': 2.2.0(patch_hash=ed26d99fe25fbf608e0e0b0e1d3fe36c2a8c784fa496a931b7af0e2057184e91)(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/data-stores': 3.1.2(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.33.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
