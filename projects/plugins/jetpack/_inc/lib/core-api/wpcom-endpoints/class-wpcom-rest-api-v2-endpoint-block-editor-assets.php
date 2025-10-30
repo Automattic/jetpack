@@ -668,6 +668,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	/**
 	 * Filters assets from conditional comments (<!--[if ...]>).
 	 *
+	 * IE conditional comments are not parsed as DOM elements by DOMDocument - they
+	 * remain as DOMComment nodes with HTML as plain text. This means we must use
+	 * regex to parse their content before DOM processing. This is the standard
+	 * approach for handling conditional comments across all HTML parsers.
+	 *
 	 * @param string $html The HTML content.
 	 * @param string $tag_name The HTML tag name ('link' or 'script').
 	 * @param string $url_attribute The attribute containing the URL ('href' or 'src').
@@ -675,7 +680,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @return string The filtered HTML content.
 	 */
 	private function filter_conditional_comments( $html, $tag_name, $url_attribute, $exclude_rules ) {
-		// Match conditional comments
+		// Pattern matches: <!--[if CONDITION]>INNER_HTML<![endif]-->
+		// [^\]]* matches the condition (everything before the first ])
+		// (.*?) captures the inner HTML (non-greedy)
+		// /is flags: case-insensitive and . matches newlines
 		$pattern = '/<!--\[if[^\]]*\]>(.*?)<!\[endif\]-->/is';
 
 		return preg_replace_callback(
@@ -685,40 +693,64 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				$inner_html   = $matches[1];
 
 				// Check if this conditional comment contains assets that should be excluded
-				if ( 'script' === $tag_name ) {
-					// Extract script tags and check if they should be excluded
-					if ( preg_match( '/<script[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $script_match ) ) {
-						$url = $script_match[1];
-						// Extract handle from id attribute if present
-						$handle = '';
-						if ( preg_match( '/id=["\']([^"\']+)["\']/i', $script_match[0], $id_match ) ) {
-							$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
-						}
+				if ( 'script' === $tag_name && $this->should_exclude_conditional_script( $inner_html, $url_attribute, $exclude_rules ) ) {
+					return ''; // Remove the entire conditional comment
+				}
 
-						if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
-							return ''; // Remove the entire conditional comment
-						}
-					}
-				} elseif ( 'link' === $tag_name ) {
-					// Extract link tags and check if they should be excluded
-					if ( preg_match( '/<link[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $link_match ) ) {
-						$url = $link_match[1];
-						// Extract handle from id attribute if present
-						$handle = '';
-						if ( preg_match( '/id=["\']([^"\']+)["\']/i', $link_match[0], $id_match ) ) {
-							$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
-						}
-
-						if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
-							return ''; // Remove the entire conditional comment
-						}
-					}
+				if ( 'link' === $tag_name && $this->should_exclude_conditional_link( $inner_html, $url_attribute, $exclude_rules ) ) {
+					return ''; // Remove the entire conditional comment
 				}
 
 				return $full_comment; // Keep the conditional comment if not excluded
 			},
 			$html
 		);
+	}
+
+	/**
+	 * Check if a conditional comment containing a script should be excluded.
+	 *
+	 * @param string $inner_html The HTML inside the conditional comment.
+	 * @param string $url_attribute The attribute containing the URL ('src').
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return bool True if the script should be excluded, false otherwise.
+	 */
+	private function should_exclude_conditional_script( $inner_html, $url_attribute, $exclude_rules ) {
+		if ( ! preg_match( '/<script[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $script_match ) ) {
+			return false;
+		}
+
+		$url    = $script_match[1];
+		$handle = '';
+
+		if ( preg_match( '/id=["\']([^"\']+)["\']/i', $script_match[0], $id_match ) ) {
+			$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
+		}
+
+		return $this->should_exclude_asset( $url, $handle, $exclude_rules );
+	}
+
+	/**
+	 * Check if a conditional comment containing a link should be excluded.
+	 *
+	 * @param string $inner_html The HTML inside the conditional comment.
+	 * @param string $url_attribute The attribute containing the URL ('href').
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return bool True if the link should be excluded, false otherwise.
+	 */
+	private function should_exclude_conditional_link( $inner_html, $url_attribute, $exclude_rules ) {
+		if ( ! preg_match( '/<link[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $link_match ) ) {
+			return false;
+		}
+
+		$url    = $link_match[1];
+		$handle = '';
+
+		if ( preg_match( '/id=["\']([^"\']+)["\']/i', $link_match[0], $id_match ) ) {
+			$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
+		}
+
+		return $this->should_exclude_asset( $url, $handle, $exclude_rules );
 	}
 
 	/**
