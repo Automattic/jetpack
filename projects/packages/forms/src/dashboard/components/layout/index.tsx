@@ -55,15 +55,17 @@ const Layout = () => {
 			<ActionsDropdownMenu exportData={ { show: true } } />
 		</>
 	) : (
-		<div className="jp-forms__layout-header-actions">
-			<ExportResponsesButton />
+		<>
 			{ isResponsesTrashView && <EmptyTrashButton /> }
 			{ isResponsesSpamView && <EmptySpamButton /> }
-			{ enableIntegrationsTab && <IntegrationsButton /> }
 			{ ! isResponsesTrashView && ! isResponsesSpamView && (
-				<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+				<>
+					{ enableIntegrationsTab && <IntegrationsButton /> }
+					<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
+				</>
 			) }
-		</div>
+			<ExportResponsesButton />
+		</>
 	);
 
 	return (

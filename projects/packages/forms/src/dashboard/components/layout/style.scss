@@ -24,11 +24,6 @@ body.jetpack_page_jetpack-forms-admin {
 	width: 100%;
 	min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0px));
 
-	.jp-forms__layout-header-actions {
-		display: flex;
-		gap: 8px;
-	}
-
 	.jp-forms__layout-header-title {
 		display: flex;
 		align-items: center;
@@ -47,6 +42,7 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 #jp-forms-dashboard .jp-forms__layout {
+	background: #fff;
 
 	.admin-ui-page__content {
 		display: flex;
@@ -73,6 +69,7 @@ body.jetpack_page_jetpack-forms-admin {
 		margin: 0;
 		padding: 16px 48px 0;
 		width: 100%;
+		background: transparent;
 
 		@media (max-width: 782px) {
 			padding: 8px 24px 0;

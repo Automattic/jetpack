@@ -35,6 +35,8 @@ const Integrations = () => {
 		<IntegrationsModal
 			isOpen={ true }
 			onClose={ handleClose }
+			attributes={ undefined }
+			setAttributes={ undefined }
 			integrationsData={ integrations }
 			refreshIntegrations={ refreshIntegrations }
 			context="dashboard"

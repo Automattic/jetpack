@@ -23,12 +23,7 @@ export default function IntegrationsButton(): JSX.Element {
 	}, [ navigate ] );
 
 	return (
-		<Button
-			__next40pxDefaultSize
-			variant="secondary"
-			onClick={ onButtonClickHandler }
-			className="integrations-button"
-		>
+		<Button __next40pxDefaultSize variant="secondary" onClick={ onButtonClickHandler }>
 			{ __( 'Integrations', 'jetpack-forms' ) }
 		</Button>
 	);
