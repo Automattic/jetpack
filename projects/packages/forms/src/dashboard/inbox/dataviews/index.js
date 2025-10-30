@@ -13,6 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Icon, globe } from '@wordpress/icons';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -23,7 +24,7 @@ import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import { getPath, getItemId } from '../utils.js';
+import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -310,7 +311,22 @@ export default function InboxView() {
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
-			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
+			{
+				id: 'ip',
+				label: __( 'IP Address', 'jetpack-forms' ),
+				enableSorting: false,
+				render: ( { item } ) => {
+					return (
+						<>
+							<span className="response-country-flag">
+								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
+								{ item.country_code && getCountryFlagEmoji( item.country_code ) }
+							</span>
+							{ item.ip || '' }
+						</>
+					);
+				},
+			},
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);

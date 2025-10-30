@@ -31,7 +31,12 @@ import CopyClipboardButton from '../../components/copy-clipboard-button';
 import Gravatar from '../../components/gravatar';
 import useInboxData from '../../hooks/use-inbox-data';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
-import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
+import {
+	getPath,
+	updateMenuCounter,
+	updateMenuCounterOptimistically,
+	getCountryFlagEmoji,
+} from '../../inbox/utils';
 import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
 
@@ -473,6 +478,11 @@ const ResponseViewBody = ( {
 							<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
 							<td>
 								<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
+									{ response.country_code && (
+										<span className="jp-forms__inbox-response-meta-country-flag response-country-flag">
+											{ getCountryFlagEmoji( response.country_code ) }
+										</span>
+									) }
 									<ExternalLink href={ getRedirectUrl( 'ip-lookup', { path: response.ip } ) }>
 										{ response.ip }
 									</ExternalLink>

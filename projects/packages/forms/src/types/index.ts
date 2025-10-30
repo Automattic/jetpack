@@ -100,6 +100,8 @@ export interface FormResponse {
 	author_avatar: string;
 	/** The IP address of the response author. */
 	ip: string;
+	/** The country code of the response author. */
+	country_code: string;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
