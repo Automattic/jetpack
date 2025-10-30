@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router';
  */
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal';
 import { INTEGRATIONS_STORE } from '../../store/integrations';
-import './style.scss';
 /**
  * Types
  */
@@ -33,15 +32,13 @@ const Integrations = () => {
 	}, [ navigate ] );
 
 	return (
-		<div className="jp-forms__integrations">
-			<IntegrationsModal
-				isOpen={ true }
-				onClose={ handleClose }
-				integrationsData={ integrations }
-				refreshIntegrations={ refreshIntegrations }
-				context="dashboard"
-			/>
-		</div>
+		<IntegrationsModal
+			isOpen={ true }
+			onClose={ handleClose }
+			integrationsData={ integrations }
+			refreshIntegrations={ refreshIntegrations }
+			context="dashboard"
+		/>
 	);
 };
 

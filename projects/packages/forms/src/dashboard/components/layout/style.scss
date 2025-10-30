@@ -54,6 +54,19 @@ body.jetpack_page_jetpack-forms-admin {
 		flex: 1 1 auto;
 		flex-direction: column;
 		min-height: 0;
+		background: var(--jp-white);
+
+		.jp-forms__inbox__dataviews__container {
+			justify-content: unset;
+			align-items: unset;
+		}
+
+		// Ensure Outlet renders as flex child that expands
+		> * {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+		}
 	}
 
 	.admin-ui-page__header {
@@ -67,52 +80,5 @@ body.jetpack_page_jetpack-forms-admin {
 		}
 	}
 
-	.jp-forms__dashboard-tabs {
-		display: flex;
-		flex-direction: column;
-		flex: 1;
-
-		> .components-tab-panel__tabs {
-			margin: 0;
-			padding-inline: 32px;
-			border-bottom: 1px solid var(--jp-gray-5);
-
-			.components-tab-panel__tabs-item {
-				border-bottom: 2px solid transparent;
-				font-size: var(--jp-forms-font-size-regular);
-				font-weight: 400;
-				height: 40px;
-				padding: 8px 16px;
-
-				&.is-active {
-					border-color: var(--jp-green-50);
-					font-weight: 500;
-
-					&::after {
-						display: none;
-					}
-				}
-			}
-
-			@media (max-width: 600px) {
-				top: 0;
-			}
-
-			@media (max-width: 660px) {
-				padding: 0 8px;
-			}
-		}
-
-		.jp-forms__inbox__dataviews__container {
-			justify-content: unset;
-			align-items: unset;
-		}
-
-		.components-tab-panel__tab-content {
-			display: flex;
-			flex: 1;
-			background: var(--jp-white);
-		}
-	}
 
 }

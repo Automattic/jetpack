@@ -4,11 +4,10 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch, JetpackLogo } from '@automattic/jetpack-components';
 import { NavigableRegion, Page } from '@wordpress/admin-ui';
-import { TabPanel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Outlet, useLocation, useNavigate } from 'react-router';
+import { Outlet, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -16,6 +15,7 @@ import useConfigValue from '../../../hooks/use-config-value';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import ExportResponsesButton from '../../inbox/export-responses';
+import Integrations from '../../integrations';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
@@ -26,7 +26,6 @@ import './style.scss';
 import '@wordpress/admin-ui/build-style/style.css';
 const Layout = () => {
 	const location = useLocation();
-	const navigate = useNavigate();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
@@ -41,6 +40,7 @@ const Layout = () => {
 
 	const isResponsesTrashView = currentStatus.includes( 'trash' );
 	const isResponsesSpamView = currentStatus.includes( 'spam' );
+	const isIntegrationsOpen = location.pathname === '/integrations';
 
 	useEffect( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_page_view', {
@@ -48,64 +48,17 @@ const Layout = () => {
 		} );
 	}, [ isSm ] );
 
-	const tabs = useMemo(
-		() => [
-			{
-				name: 'responses',
-				title: __( 'Responses', 'jetpack-forms' ),
-			},
-		],
-		[]
-	);
-
-	const getCurrentTab = useCallback( () => {
-		const path = location.pathname.split( '/' )[ 1 ];
-		const validTabNames = tabs.map( tab => tab.name );
-
-		if ( validTabNames.includes( path ) ) {
-			return path;
-		}
-
-		return 'responses';
-	}, [ location.pathname, tabs ] );
-
-	const isResponsesTab = getCurrentTab() === 'responses';
-
-	const handleTabSelect = useCallback(
-		( tabName: string ) => {
-			if ( ! tabName ) {
-				tabName = 'responses';
-			}
-
-			const currentTab = getCurrentTab();
-
-			if ( currentTab !== tabName ) {
-				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_dashboard_tab_change', {
-					tab: tabName,
-					viewport: isSm ? 'mobile' : 'desktop',
-					previous_tab: currentTab,
-				} );
-			}
-
-			navigate( {
-				pathname: `/${ tabName }`,
-				search: tabName === 'responses' ? location.search : '',
-			} );
-		},
-		[ navigate, location.search, isSm, getCurrentTab ]
-	);
-
 	const headerActions = isSm ? (
 		<>
-			{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
-			{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
-			<ActionsDropdownMenu exportData={ { show: isResponsesTab } } />
+			{ isResponsesTrashView && <EmptyTrashButton /> }
+			{ isResponsesSpamView && <EmptySpamButton /> }
+			<ActionsDropdownMenu exportData={ { show: true } } />
 		</>
 	) : (
 		<div className="jp-forms__layout-header-actions">
-			{ isResponsesTab && <ExportResponsesButton /> }
-			{ isResponsesTab && isResponsesTrashView && <EmptyTrashButton /> }
-			{ isResponsesTab && isResponsesSpamView && <EmptySpamButton /> }
+			<ExportResponsesButton />
+			{ isResponsesTrashView && <EmptyTrashButton /> }
+			{ isResponsesSpamView && <EmptySpamButton /> }
 			{ enableIntegrationsTab && <IntegrationsButton /> }
 			{ ! isResponsesTrashView && ! isResponsesSpamView && (
 				<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
@@ -127,18 +80,9 @@ const Layout = () => {
 				className="admin-ui-page__content"
 				ariaLabel={ __( 'Forms dashboard content', 'jetpack-forms' ) }
 			>
-				{ ! isLoadingConfig && (
-					<TabPanel
-						className="jp-forms__dashboard-tabs"
-						tabs={ tabs }
-						initialTabName={ getCurrentTab() }
-						onSelect={ handleTabSelect }
-						key={ getCurrentTab() }
-					>
-						{ () => <Outlet /> }
-					</TabPanel>
-				) }
+				{ ! isLoadingConfig && <Outlet /> }
 			</NavigableRegion>
+			{ isIntegrationsOpen && <Integrations /> }
 		</Page>
 	);
 };
