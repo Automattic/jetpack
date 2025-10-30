@@ -21,7 +21,6 @@ import {
  */
 import type { BreveDispatch, BreveFeature, BreveSelect } from '../types';
 import type { Block } from '@automattic/jetpack-ai-client';
-import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
 import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
 
 type CoreBlockEditorSelect = {
@@ -132,7 +131,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				return removeFormat( record, type, 0, record.text.length ).formats;
 			};
 		},
-	} as WPFormat;
+	} as ReturnType< typeof registerFormatType >;
 
 	registerFormatType( formatName, settings );
 }
