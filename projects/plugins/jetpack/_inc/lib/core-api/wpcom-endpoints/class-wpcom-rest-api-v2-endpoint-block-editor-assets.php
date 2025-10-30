@@ -628,6 +628,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return $html;
 		}
 
+		// First, handle conditional comments separately (they're not parsed by DOMDocument)
+		$html = $this->filter_conditional_comments( $html, $tag_name, $url_attribute, $exclude_rules );
+
 		// Suppress warnings for malformed HTML
 		libxml_use_internal_errors( true );
 
@@ -660,6 +663,62 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		libxml_clear_errors();
 
 		return $dom->saveHTML();
+	}
+
+	/**
+	 * Filters assets from conditional comments (<!--[if ...]>).
+	 *
+	 * @param string $html The HTML content.
+	 * @param string $tag_name The HTML tag name ('link' or 'script').
+	 * @param string $url_attribute The attribute containing the URL ('href' or 'src').
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return string The filtered HTML content.
+	 */
+	private function filter_conditional_comments( $html, $tag_name, $url_attribute, $exclude_rules ) {
+		// Match conditional comments
+		$pattern = '/<!--\[if[^\]]*\]>(.*?)<!\[endif\]-->/is';
+
+		return preg_replace_callback(
+			$pattern,
+			function ( $matches ) use ( $tag_name, $url_attribute, $exclude_rules ) {
+				$full_comment = $matches[0];
+				$inner_html   = $matches[1];
+
+				// Check if this conditional comment contains assets that should be excluded
+				if ( 'script' === $tag_name ) {
+					// Extract script tags and check if they should be excluded
+					if ( preg_match( '/<script[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $script_match ) ) {
+						$url = $script_match[1];
+						// Extract handle from id attribute if present
+						$handle = '';
+						if ( preg_match( '/id=["\']([^"\']+)["\']/i', $script_match[0], $id_match ) ) {
+							$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
+						}
+
+						if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
+							return ''; // Remove the entire conditional comment
+						}
+					}
+				} elseif ( 'link' === $tag_name ) {
+					// Extract link tags and check if they should be excluded
+					if ( preg_match( '/<link[^>]*' . $url_attribute . '=["\']([^"\']+)["\'][^>]*>/i', $inner_html, $link_match ) ) {
+						$url = $link_match[1];
+						// Extract handle from id attribute if present
+						$handle = '';
+						if ( preg_match( '/id=["\']([^"\']+)["\']/i', $link_match[0], $id_match ) ) {
+							$handle = preg_replace( $this->handle_suffix_regex, '', $id_match[1] );
+						}
+
+						if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
+							return ''; // Remove the entire conditional comment
+						}
+					}
+				}
+
+				return $full_comment; // Keep the conditional comment if not excluded
+			},
+			$html
+		);
 	}
 
 	/**
