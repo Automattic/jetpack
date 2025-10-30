@@ -33,7 +33,7 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mariadb:10.4
+        image: mariadb:12.0
         env:
           MARIADB_ROOT_PASSWORD: root
         ports:
