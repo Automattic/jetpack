@@ -251,7 +251,7 @@
 	} );
 
 	$( document ).ready( function () {
-		$( '.presentation-wrapper' ).forEach( function () {
+		$( '.presentation-wrapper' ).each( function () {
 			new Presentation( this );
 		} );
 	} );
