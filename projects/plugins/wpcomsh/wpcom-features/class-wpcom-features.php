@@ -231,10 +231,6 @@ class WPCOM_Features {
 	private const A4A_JETPACK_SOCIAL_V1_MONTHLY               = 'a4a_jetpack_social_v1_monthly'; // 3339
 	private const A4A_JETPACK_CREATOR_YEARLY                  = 'a4a_jetpack_creator_yearly'; // 3340
 	private const A4A_JETPACK_CREATOR_MONTHLY                 = 'a4a_jetpack_creator_monthly'; // 3341
-	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_yearly'; // 4001
-	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
-	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_basic_plan_yearly'; // 4003
-	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_basic_plan_yearly'; // 4004
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -272,7 +268,6 @@ class WPCOM_Features {
 	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS, self::WPCOM_WOOEXPRESS_PLANS );
 	private const WPCOM_WOOEXPRESS_PLANS          = array( self::WPCOM_WOOEXPRESS_MEDIUM_PLANS, self::WPCOM_WOOEXPRESS_SMALL_PLANS );
-	private const WOO_HOSTED_PLANS                = array( self::WOO_HOSTED_BASIC_PLAN_MONTHLY, self::WOO_HOSTED_BASIC_PLAN_YEARLY, self::WOO_HOSTED_PRO_PLAN_MONTHLY, self::WOO_HOSTED_PRO_PLAN_YEARLY );
 
 	// WPCOM "Level 3" C: Misc product groupings unrelated to free plan trials.
 	private const WPCOM_EMAIL_PRODUCTS = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
