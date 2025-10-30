@@ -813,4 +813,146 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertTrue( $callback_executed, 'Plugin callback should execute without fatal error' );
 		$this->assertInstanceOf( WP_REST_Response::class, $response, 'Request should complete successfully' );
 	}
+
+	/**
+	 * Test that exclude parameter works with 'core' value.
+	 */
+	public function test_exclude_parameter_with_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Core assets should be excluded - check for script/link tags with core URLs
+		$this->assertStringNotContainsString( 'src="http://example.org/wp-includes/', $data['scripts'], 'Core scripts should be excluded' );
+		$this->assertStringNotContainsString( 'src="http://example.org/wp-admin/', $data['scripts'], 'Core admin scripts should be excluded' );
+		$this->assertStringNotContainsString( 'href="http://example.org/wp-includes/', $data['styles'], 'Core styles should be excluded' );
+	}
+
+	/**
+	 * Test that exclude parameter works with 'gutenberg' value.
+	 */
+	public function test_exclude_parameter_with_gutenberg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Mock Gutenberg asset
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'gutenberg-test', 'http://example.org/plugins/gutenberg/build/script.js', array(), '1.0', true );
+				wp_enqueue_script( 'gutenberg-test' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Gutenberg assets should be excluded
+		$this->assertStringNotContainsString( 'plugins/gutenberg', $data['scripts'], 'Gutenberg scripts should be excluded' );
+	}
+
+	/**
+	 * Test that exclude parameter works with 'core,gutenberg' value.
+	 */
+	public function test_exclude_parameter_with_core_and_gutenberg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core,gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Both core and Gutenberg assets should be excluded - check for script tags with core/gutenberg URLs
+		$this->assertStringNotContainsString( 'src="http://example.org/wp-includes/', $data['scripts'], 'Core scripts should be excluded' );
+		$this->assertStringNotContainsString( 'src="http://example.org/plugins/gutenberg/', $data['scripts'], 'Gutenberg scripts should be excluded' );
+	}
+
+	/**
+	 * Test that exclude parameter works with plugin handle prefix.
+	 */
+	public function test_exclude_parameter_with_plugin_handle() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Mock Contact Form 7 asset
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'contact-form-7-editor', 'http://example.org/contact-form-7/script.js', array(), '1.0', true );
+				wp_enqueue_script( 'contact-form-7-editor' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'contact-form-7' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Contact Form 7 assets should be excluded
+		$this->assertStringNotContainsString( 'contact-form-7', $data['scripts'], 'Contact Form 7 scripts should be excluded' );
+	}
+
+	/**
+	 * Test that without exclude parameter, all assets are included (backward compatibility).
+	 */
+	public function test_without_exclude_parameter_includes_all_assets() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Core assets should be included
+		$this->assertNotEmpty( $data['scripts'], 'Scripts should not be empty' );
+		$this->assertNotEmpty( $data['styles'], 'Styles should not be empty' );
+	}
+
+	/**
+	 * Test that plugin assets are preserved when excluding core.
+	 */
+	public function test_plugin_assets_preserved_when_excluding_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core,gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Plugin scripts should be preserved (styles may not be printed in test environment)
+		$this->assertStringContainsString( 'jetpack-mock-script', $data['scripts'], 'Plugin scripts should be preserved' );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
+	}
+
+	/**
+	 * Test multiple plugin exclusions.
+	 */
+	public function test_multiple_plugin_exclusions() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Mock multiple plugin assets
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'plugin-a-script', 'http://example.org/plugin-a/script.js', array(), '1.0', true );
+				wp_register_script( 'plugin-b-script', 'http://example.org/plugin-b/script.js', array(), '1.0', true );
+				wp_enqueue_script( 'plugin-a-script' );
+				wp_enqueue_script( 'plugin-b-script' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'plugin-a,plugin-b' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Both plugins should be excluded
+		$this->assertStringNotContainsString( 'plugin-a', $data['scripts'], 'Plugin A should be excluded' );
+		$this->assertStringNotContainsString( 'plugin-b', $data['scripts'], 'Plugin B should be excluded' );
+	}
 }

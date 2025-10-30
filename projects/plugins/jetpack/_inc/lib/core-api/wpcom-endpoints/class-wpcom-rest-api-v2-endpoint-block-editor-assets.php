@@ -149,6 +149,14 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_items' ),
 					'permission_callback' => array( $this, 'get_items_permissions_check' ),
+					'args'                => array(
+						'exclude' => array(
+							'description'       => __( 'Comma-separated list of asset types to exclude from the response. Supported values: "core" (WordPress core assets), "gutenberg" (Gutenberg plugin assets), or plugin handle prefixes (e.g., "contact-form-7").', 'jetpack' ),
+							'type'              => 'string',
+							'default'           => '',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
@@ -282,6 +290,15 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		remove_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10 );
 		remove_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10 );
 
+		// Apply filtering based on query parameter
+		$exclude_param = $request->get_param( 'exclude' );
+		$exclude_rules = $this->parse_exclude_parameter( $exclude_param );
+
+		if ( ! empty( $exclude_rules ) ) {
+			$styles  = $this->filter_assets_from_html( $styles, 'link', 'href', $exclude_rules );
+			$scripts = $this->filter_assets_from_html( $scripts, 'script', 'src', $exclude_rules );
+		}
+
 		$wp_styles  = $current_wp_styles;
 		$wp_scripts = $current_wp_scripts;
 
@@ -373,16 +390,204 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @return bool True if the asset is a core or Gutenberg asset, false otherwise.
 	 */
 	private function is_core_or_gutenberg_asset( $src ) {
+		return $this->is_core_asset( $src ) || $this->is_gutenberg_asset( $src );
+	}
+
+	/**
+	 * Check if an asset is a WordPress core asset.
+	 *
+	 * @param string $src The asset source URL.
+	 * @return bool True if the asset is a core asset, false otherwise.
+	 */
+	private function is_core_asset( $src ) {
 		if ( ! is_string( $src ) ) {
 			return false;
 		}
 
 		return empty( $src ) ||
-			$src[0] === '/' ||
-			strpos( $src, 'wp-includes/' ) !== false ||
-			strpos( $src, 'wp-admin/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg/' ) !== false ||
+			strpos( $src, '/wp-includes/' ) !== false ||
+			strpos( $src, '/wp-admin/' ) !== false;
+	}
+
+	/**
+	 * Check if an asset is a Gutenberg plugin asset.
+	 *
+	 * @param string $src The asset source URL.
+	 * @return bool True if the asset is a Gutenberg asset, false otherwise.
+	 */
+	private function is_gutenberg_asset( $src ) {
+		if ( ! is_string( $src ) ) {
+			return false;
+		}
+
+		return strpos( $src, 'plugins/gutenberg/' ) !== false ||
 			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
+	}
+
+	/**
+	 * Parse the exclude query parameter into an array of exclusion rules.
+	 *
+	 * @param string $exclude_param The comma-separated exclude parameter value.
+	 * @return array Array of exclusion rules.
+	 */
+	private function parse_exclude_parameter( $exclude_param ) {
+		if ( empty( $exclude_param ) ) {
+			return array();
+		}
+
+		return array_map( 'trim', explode( ',', $exclude_param ) );
+	}
+
+	/**
+	 * Check if an asset should be excluded based on the exclusion rules.
+	 *
+	 * @param string $url The asset URL.
+	 * @param string $handle The asset handle.
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return bool True if the asset should be excluded, false otherwise.
+	 */
+	private function should_exclude_asset( $url, $handle, $exclude_rules ) {
+		if ( empty( $exclude_rules ) ) {
+			return false;
+		}
+
+		foreach ( $exclude_rules as $rule ) {
+			// Check for 'core' exclusion
+			if ( 'core' === $rule && $this->is_core_asset( $url ) ) {
+				return true;
+			}
+
+			// Check for 'gutenberg' exclusion
+			if ( 'gutenberg' === $rule && $this->is_gutenberg_asset( $url ) ) {
+				return true;
+			}
+
+			// Check if handle starts with the rule (plugin handle prefix)
+			if ( ! empty( $handle ) && is_string( $handle ) && strpos( $handle, $rule . '-' ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if an inline asset (no src/href) should be excluded based on its handle.
+	 *
+	 * Inline assets are associated with handles from WordPress core scripts,
+	 * so we need to check if the handle is a core handle when 'core' is in exclude rules.
+	 *
+	 * @param string $handle The asset handle.
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return bool True if the inline asset should be excluded, false otherwise.
+	 */
+	private function should_exclude_inline_asset( $handle, $exclude_rules ) {
+		if ( empty( $exclude_rules ) || empty( $handle ) ) {
+			return false;
+		}
+
+		foreach ( $exclude_rules as $rule ) {
+			// For 'core' exclusion, check if handle starts with 'wp-' or common core prefixes
+			if ( 'core' === $rule ) {
+				$core_prefixes = array( 'wp-', 'utils-', 'moment-', 'mediaelement', 'media-', 'plupload', 'editor-' );
+				foreach ( $core_prefixes as $prefix ) {
+					if ( strpos( $handle, $prefix ) === 0 ) {
+						return true;
+					}
+				}
+			}
+
+			// Check if handle starts with the rule (plugin handle prefix)
+			if ( ! empty( $handle ) && is_string( $handle ) && strpos( $handle, $rule . '-' ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Filter out specified assets from HTML output based on exclusion rules.
+	 *
+	 * This method processes the HTML line-by-line and removes any script or link tags
+	 * that match the exclusion rules.
+	 *
+	 * @param string $html The HTML string containing script or link tags.
+	 * @param string $tag_name The HTML tag name to process ('script' or 'link').
+	 * @param string $url_attribute The attribute name containing the URL ('src' or 'href').
+	 * @param array  $exclude_rules Array of exclusion rules.
+	 * @return string The filtered HTML with excluded assets removed.
+	 */
+	private function filter_assets_from_html( $html, $tag_name, $url_attribute, $exclude_rules ) {
+		if ( empty( $html ) || empty( $exclude_rules ) ) {
+			return $html;
+		}
+
+		$lines               = explode( "\n", $html );
+		$filtered_lines      = array();
+		$inside_excluded_tag = false;
+		$closing_tag         = '</' . $tag_name;
+
+		foreach ( $lines as $line ) {
+			// If we're inside an excluded tag, skip until we find the closing tag
+			if ( $inside_excluded_tag ) {
+				// Check if this line contains the closing tag
+				if ( strpos( $line, $closing_tag ) !== false ) {
+					$inside_excluded_tag = false;
+				}
+				// Skip this line either way (it's part of the excluded block)
+				continue;
+			}
+
+			$should_keep = true;
+
+			// Check if this line contains the tag we're looking for
+			if ( strpos( $line, '<' . $tag_name ) !== false ) {
+				// Extract the id attribute (which often matches the handle)
+				$handle = '';
+				if ( preg_match( '/id=["\']([^"\']+)["\']/', $line, $id_matches ) ) {
+					$handle = $id_matches[1];
+					// Remove '-js' or '-css' suffix or '-extra', '-before', '-after' suffix from handle
+					$handle = preg_replace( '/-(js|css|extra|before|after)$/', '', $handle );
+				}
+
+				// Extract the URL attribute if present
+				$url = '';
+				if ( preg_match( '/' . $url_attribute . '=["\']([^"\']+)["\']/', $line, $url_matches ) ) {
+					$url = $url_matches[1];
+				}
+
+				// Check if this asset should be excluded
+				// For inline scripts/styles (no URL), only check handle-based exclusions
+				if ( ! empty( $url ) ) {
+					if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
+						$should_keep = false;
+					}
+				} elseif ( ! empty( $handle ) ) {
+					// Inline script/style - check if handle matches exclusion rules
+					if ( $this->should_exclude_inline_asset( $handle, $exclude_rules ) ) {
+						$should_keep = false;
+					}
+				}
+
+				// If we're excluding this tag, check if it's self-closing or multi-line
+				if ( ! $should_keep ) {
+					// Check if this line also contains the closing tag (single-line tag)
+					if ( strpos( $line, $closing_tag ) === false ) {
+						// Multi-line tag - set flag to skip subsequent lines
+						$inside_excluded_tag = true;
+					}
+					// Either way, don't keep this line
+					continue;
+				}
+			}
+
+			if ( $should_keep ) {
+				$filtered_lines[] = $line;
+			}
+		}
+
+		return implode( "\n", $filtered_lines );
 	}
 
 	/**
