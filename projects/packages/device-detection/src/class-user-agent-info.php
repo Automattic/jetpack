@@ -1990,10 +1990,10 @@ class User_Agent_Info {
 			'googlebot', // and googlebot-[image,video,news,] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googlebot
 			'googleother', // and googleother-[video,image] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googleother
 
-			// OpenAI
-			'gptbot', // https://platform.openai.com/docs/gptbot
-			'chatgpt-user', // ChatGPT on behalf of user https://darkvisitors.com/agents/chatgpt-user
-			'oai-searchbot', // OpenAI https://darkvisitors.com/agents/oai-searchbot
+			// OpenAI https://platform.openai.com/docs/bots
+			'gptbot', // Crawler
+			'chatgpt-user', // ChatGPT on behalf of user
+			'oai-searchbot', // ChatGPT search features
 
 			// Anthropic
 			'claudebot', // chat citation fetch https://support.anthropic.com/en/articles/8896518
