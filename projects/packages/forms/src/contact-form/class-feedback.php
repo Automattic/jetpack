@@ -943,6 +943,10 @@ class Feedback {
 		// Get browser name.
 		$browser_name = $ua_info->get_browser_display_name();
 
+		if ( $browser_name === User_Agent_Info::OTHER ) {
+			return __( 'Unknown browser', 'jetpack-forms' );
+		}
+
 		// Determine platform type (Mobile, Tablet, or Desktop).
 		$platform_type = 'Desktop';
 		if ( $ua_info->is_tablet() ) {
