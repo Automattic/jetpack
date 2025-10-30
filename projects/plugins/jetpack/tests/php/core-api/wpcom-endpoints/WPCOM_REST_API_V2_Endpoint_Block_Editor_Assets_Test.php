@@ -923,8 +923,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Plugin scripts should be preserved (styles may not be printed in test environment)
+		// Plugin assets should still be in the output
 		$this->assertStringContainsString( 'jetpack-mock-script', $data['scripts'], 'Plugin scripts should be preserved' );
+		$this->assertStringContainsString( 'jetpack-mock-style', $data['styles'], 'Plugin styles should be preserved' );
 
 		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_allowed_plugin_assets' ) );
 	}
