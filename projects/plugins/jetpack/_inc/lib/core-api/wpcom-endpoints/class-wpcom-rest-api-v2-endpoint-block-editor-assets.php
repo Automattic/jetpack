@@ -642,7 +642,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		);
 
 		// Remove the XML encoding processing instruction
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		foreach ( $dom->childNodes as $node ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( $node->nodeType === XML_PI_NODE ) {
 				$dom->removeChild( $node );
 				break;
@@ -774,6 +776,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$element->parentNode->removeChild( $element );
 		}
 	}
@@ -797,6 +800,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$element->parentNode->removeChild( $element );
 		}
 	}
@@ -830,6 +834,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$element->parentNode->removeChild( $element );
 		}
 	}
