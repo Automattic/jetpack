@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Device detection: update bots list
+Device detection: update bot detection list to include new AI and LLM crawler oriented bots.
