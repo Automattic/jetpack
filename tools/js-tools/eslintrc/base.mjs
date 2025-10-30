@@ -477,6 +477,9 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 				// Maybe someday, but not yet.
 				'package-json/require-type': 'off',
+
+				// Not needed for every package.json.
+				'package-json/require-license': 'off',
 			},
 		},
 		{

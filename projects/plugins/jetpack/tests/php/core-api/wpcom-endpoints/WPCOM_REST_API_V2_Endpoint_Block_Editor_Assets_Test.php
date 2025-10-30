@@ -633,4 +633,184 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertFalse( has_filter( 'script_loader_src', array( $this->instance, 'make_url_absolute' ) ), 'Script filter should be removed after processing' );
 		$this->assertFalse( has_filter( 'style_loader_src', array( $this->instance, 'make_url_absolute' ) ), 'Style filter should be removed after processing' );
 	}
+
+	/**
+	 * Test that the screen is properly configured as a block editor.
+	 */
+	public function test_screen_is_configured_as_block_editor() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		$this->assertTrue( $screen_captured->is_block_editor(), 'Screen should be marked as block editor' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base should be "post"' );
+	}
+
+	/**
+	 * Test that the correct post type is set on the screen.
+	 */
+	public function test_screen_post_type_is_set_correctly() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		// Test with default post type
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		$this->assertSame( 'post', $screen_captured->post_type, 'Default post type should be "post"' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
+	}
+
+	/**
+	 * Test that custom post type is properly handled.
+	 */
+	public function test_screen_handles_custom_post_type() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Register a custom post type
+		register_post_type( 'custom_test_type', array( 'show_in_rest' => true ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		// Set the post_type query var
+		set_query_var( 'post_type', 'custom_test_type' );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		$this->assertSame( 'custom_test_type', $screen_captured->post_type, 'Custom post type should be set on screen' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
+
+		// Cleanup
+		unregister_post_type( 'custom_test_type' );
+		set_query_var( 'post_type', null );
+	}
+
+	/**
+	 * Test that array post type uses the first value.
+	 */
+	public function test_screen_handles_array_post_type() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		// Set the post_type query var as an array (edge case)
+		set_query_var( 'post_type', array( 'page', 'post' ) );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		$this->assertSame( 'page', $screen_captured->post_type, 'First post type from array should be used' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base is always "post" for edit screens' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID is always "post" for edit screens' );
+
+		// Cleanup
+		set_query_var( 'post_type', null );
+	}
+
+	/**
+	 * Test that invalid post type falls back to default 'post'.
+	 */
+	public function test_screen_handles_invalid_post_type() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$screen_captured = null;
+
+		$action = function () use ( &$screen_captured ) {
+			$screen_captured = get_current_screen();
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		// Set an invalid post type that doesn't exist
+		set_query_var( 'post_type', 'nonexistent_post_type' );
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action, 1 );
+
+		$this->assertNotNull( $screen_captured, 'Screen should be captured' );
+		// Should fall back to 'post' when invalid post type provided
+		$this->assertSame( 'post', $screen_captured->post_type, 'Should fall back to "post" for invalid post type' );
+		$this->assertSame( 'post', $screen_captured->base, 'Screen base should be "post"' );
+		$this->assertSame( 'post', $screen_captured->id, 'Screen ID should be "post"' );
+
+		// Cleanup
+		set_query_var( 'post_type', null );
+	}
+
+	/**
+	 * Test that plugins calling get_current_screen() don't cause fatal errors.
+	 */
+	public function test_no_fatal_error_when_plugin_calls_get_current_screen() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$callback_executed = false;
+
+		// Simulate a plugin/theme that calls get_current_screen() during enqueue
+		$action = function () use ( &$callback_executed ) {
+			// This is what plugins do that was causing fatal errors
+			$screen = get_current_screen();
+
+			// If we get here without fatal error, test passes
+			$callback_executed = true;
+
+			// Verify we can actually use the screen object
+			$this->assertNotNull( $screen );
+			$this->assertIsString( $screen->base );
+		};
+
+		add_action( 'enqueue_block_editor_assets', $action );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+
+		remove_action( 'enqueue_block_editor_assets', $action );
+
+		$this->assertTrue( $callback_executed, 'Plugin callback should execute without fatal error' );
+		$this->assertInstanceOf( WP_REST_Response::class, $response, 'Request should complete successfully' );
+	}
 }

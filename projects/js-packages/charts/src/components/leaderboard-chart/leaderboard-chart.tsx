@@ -62,12 +62,16 @@ const BarWithLabel = ( {
 	withOverlayLabel,
 	primaryColor,
 	secondaryColor,
+	isPrimaryVisible = true,
+	isComparisonVisible = true,
 }: {
 	entry: LeaderboardEntry;
 	withComparison?: boolean;
 	withOverlayLabel?: boolean;
 	primaryColor: string;
 	secondaryColor: string;
+	isPrimaryVisible?: boolean;
+	isComparisonVisible?: boolean;
 } ) => (
 	<div
 		className={ clsx( styles.barWithLabelContainer, {
@@ -76,15 +80,17 @@ const BarWithLabel = ( {
 	>
 		<BarLabel label={ entry.label } />
 
-		<div
-			className={ styles.bar }
-			style={ {
-				width: entry.currentShare + '%',
-				backgroundColor: primaryColor,
-			} }
-		></div>
+		{ isPrimaryVisible && (
+			<div
+				className={ styles.bar }
+				style={ {
+					width: entry.currentShare + '%',
+					backgroundColor: primaryColor,
+				} }
+			></div>
+		) }
 
-		{ withComparison && ! withOverlayLabel && (
+		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
 			<div
 				className={ styles.bar }
 				style={ {
@@ -118,6 +124,7 @@ const BarWithLabel = ( {
  * @param props.legendShapeWidth  - Width of legend shapes in pixels
  * @param props.legendShapeHeight - Height of legend shapes in pixels
  * @param props.legendLabels      - Custom labels for legend items
+ * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
  * @param props.children          - Child components for composition API
  * @param props.className         - Additional CSS class name
  * @param props.style             - Custom styling for the chart container
@@ -141,6 +148,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legendShapeWidth = 8,
 	legendShapeHeight = 8,
 	legendLabels,
+	legendInteractive = false,
 	className,
 	style,
 	children,
@@ -158,7 +166,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		secondaryColor: settingsSecondaryColor,
 		deltaColors,
 	} = leaderboardChartSettings;
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 	const { color: resolvedPrimaryColor } = getElementStyles( {
 		index: 0,
 		overrideColor: primaryColor || settingsPrimaryColor,
@@ -177,6 +185,36 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		withOverlayLabel,
 		legendLabels,
 	} );
+
+	// Track visibility of primary and comparison series for interactive legends
+	const isPrimaryVisible = useMemo( () => {
+		if ( ! chartId || ! legendInteractive || legendItems.length === 0 ) {
+			return true;
+		}
+		return isSeriesVisible( chartId, legendItems[ 0 ].label );
+	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+
+	const isComparisonVisible = useMemo( () => {
+		if ( ! chartId || ! legendInteractive || legendItems.length < 2 ) {
+			return true;
+		}
+		return isSeriesVisible( chartId, legendItems[ 1 ].label );
+	}, [ chartId, legendInteractive, legendItems, isSeriesVisible ] );
+
+	// Check if all series are hidden
+	const allSeriesHidden = useMemo( () => {
+		if ( ! legendInteractive ) return false;
+		if ( withComparison && ! withOverlayLabel ) {
+			return ! isPrimaryVisible && ! isComparisonVisible;
+		}
+		return ! isPrimaryVisible;
+	}, [
+		legendInteractive,
+		isPrimaryVisible,
+		isComparisonVisible,
+		withComparison,
+		withOverlayLabel,
+	] );
 
 	// Validate data
 	const isDataValid = Boolean( data && data.length > 0 );
@@ -242,38 +280,46 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					gap: showLegend ? '16px' : '0',
 				} }
 			>
-				<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
-					{ data.map( entry => {
-						const colorIndex = Math.sign( entry.delta ) + 1;
-						const deltaColor = deltaColors[ colorIndex ];
+				{ allSeriesHidden ? (
+					<div className={ styles.emptyState }>
+						{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
+					</div>
+				) : (
+					<Grid templateColumns="minmax(0, 1fr) auto" rowGap={ rowGap } columnGap={ columnGap }>
+						{ data.map( entry => {
+							const colorIndex = Math.sign( entry.delta ) + 1;
+							const deltaColor = deltaColors[ colorIndex ];
 
-						return (
-							<Fragment key={ entry.id }>
-								<VStack spacing={ labelSpacing }>
-									<BarWithLabel
-										entry={ entry }
-										withComparison={ withComparison }
-										withOverlayLabel={ withOverlayLabel }
-										primaryColor={ resolvedPrimaryColor }
-										secondaryColor={ resolvedSecondaryColor }
-									/>
-								</VStack>
+							return (
+								<Fragment key={ entry.id }>
+									<VStack spacing={ labelSpacing }>
+										<BarWithLabel
+											entry={ entry }
+											withComparison={ withComparison }
+											withOverlayLabel={ withOverlayLabel }
+											primaryColor={ resolvedPrimaryColor }
+											secondaryColor={ resolvedSecondaryColor }
+											isPrimaryVisible={ isPrimaryVisible }
+											isComparisonVisible={ isComparisonVisible }
+										/>
+									</VStack>
 
-								<div
-									className={ clsx( styles.valueContainer, {
-										[ styles.overlayLabel ]: withOverlayLabel,
-									} ) }
-								>
-									<Text>{ valueFormatter( entry.currentValue ) }</Text>
+									<div
+										className={ clsx( styles.valueContainer, {
+											[ styles.overlayLabel ]: withOverlayLabel,
+										} ) }
+									>
+										{ isPrimaryVisible && <Text>{ valueFormatter( entry.currentValue ) }</Text> }
 
-									{ withComparison && (
-										<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
-									) }
-								</div>
-							</Fragment>
-						);
-					} ) }
-				</Grid>
+										{ withComparison && isComparisonVisible && (
+											<Text style={ { color: deltaColor } }>{ deltaFormatter( entry.delta ) }</Text>
+										) }
+									</div>
+								</Fragment>
+							);
+						} ) }
+					</Grid>
+				) }
 
 				{ showLegend && (
 					<Legend
@@ -284,6 +330,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						shapeWidth={ legendShapeWidth }
 						shapeHeight={ legendShapeHeight }
 						chartId={ chartId }
+						interactive={ legendInteractive }
 					/>
 				) }
 

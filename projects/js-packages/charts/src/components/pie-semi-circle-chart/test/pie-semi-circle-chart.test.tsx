@@ -1,6 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react';
 import { GlobalChartsProvider } from '../../../providers';
 import PieSemiCircleChart from '../pie-semi-circle-chart';
 
@@ -67,9 +66,7 @@ describe( 'PieSemiCircleChart', () => {
 		const firstSegment = segments[ 0 ];
 
 		// Wrap hover interaction in act()
-		await act( async () => {
-			await user.hover( firstSegment );
-		} );
+		await user.hover( firstSegment );
 
 		// Check for tooltip by looking for the specific tooltip role
 		const tooltip = screen.getByRole( 'tooltip' );
@@ -90,17 +87,13 @@ describe( 'PieSemiCircleChart', () => {
 		const segments = screen.getAllByTestId( 'pie-segment' );
 		const firstSegment = segments[ 0 ];
 
-		await act( async () => {
-			await user.hover( firstSegment );
-		} );
+		await user.hover( firstSegment );
 
 		// Wait for tooltip to be visible - it should show in the BaseTooltip component
 		const tooltip = await screen.findByRole( 'tooltip' );
 		expect( tooltip ).toHaveTextContent( 'MacOS' );
 
-		await act( async () => {
-			await user.unhover( firstSegment );
-		} );
+		await user.unhover( firstSegment );
 
 		// Verify tooltip is gone - checking for the tooltip role specifically
 		await waitFor( () => {

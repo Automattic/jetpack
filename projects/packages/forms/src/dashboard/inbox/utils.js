@@ -73,3 +73,21 @@ export const updateMenuCounterOptimistically = count => {
  * @return {string} The ID of the item.
  */
 export const getItemId = item => item?.id?.toString() ?? '';
+
+/**
+ * Get the country flag emoji from a country code.
+ *
+ * @param {string|null} countryCode - Two-letter ISO 3166-1 alpha-2 country code (e.g., "US") or null if unknown.
+ * @return {string} The country flag emoji.
+ */
+export const getCountryFlagEmoji = countryCode => {
+	if ( ! countryCode ) {
+		return '';
+	}
+	const upperCountryCode = countryCode.toUpperCase();
+	const offset = 127397;
+	return String.fromCodePoint(
+		upperCountryCode.charCodeAt( 0 ) + offset,
+		upperCountryCode.charCodeAt( 1 ) + offset
+	);
+};

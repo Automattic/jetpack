@@ -13,6 +13,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Icon, globe } from '@wordpress/icons';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -23,7 +24,7 @@ import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import { getPath, getItemId } from '../utils.js';
+import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -149,7 +150,6 @@ export default function InboxView() {
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
 
-	const [ sidePanelItem, setSidePanelItem ] = useState();
 	const onChangeSelection = useCallback(
 		items => {
 			// Set the side panel item only when we are not on mobile.
@@ -161,18 +161,8 @@ export default function InboxView() {
 			}
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
-				const currentURLSelection = _searchParams.get( 'r' )?.split( ',' ) || [];
-
-				// Filter out IDs from the current URL selection that are either already selected in the current view
-				// or already present in the current records, to avoid duplication when merging selections across pages.
-				const currentSelection = currentURLSelection.filter(
-					id => ! ( items.includes( id ) || records?.some( record => getItemId( record ) === id ) )
-				);
-
-				// merge items with the current URL
-				const mergedItems = [ ...new Set( [ ...currentSelection, ...items ] ) ];
-				if ( mergedItems.length ) {
-					_searchParams.set( 'r', mergedItems.join( ',' ) );
+				if ( items.length ) {
+					_searchParams.set( 'r', items.join( ',' ) );
 				} else {
 					_searchParams.delete( 'r' );
 				}
@@ -181,6 +171,8 @@ export default function InboxView() {
 		},
 		[ records, setSearchParams, isMobile ]
 	);
+
+	const [ sidePanelItem, setSidePanelItem ] = useState();
 	// Because selection is in sync with the URL and data takes some time to load,
 	// We need to carefully (avoid infinite loops by always updating the state)
 	// set the sidePanelItem when we have data and selection.
@@ -319,7 +311,22 @@ export default function InboxView() {
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
-			{ id: 'ip', label: __( 'IP Address', 'jetpack-forms' ), enableSorting: false },
+			{
+				id: 'ip',
+				label: __( 'IP Address', 'jetpack-forms' ),
+				enableSorting: false,
+				render: ( { item } ) => {
+					return (
+						<>
+							<span className="response-country-flag">
+								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
+								{ item.country_code && getCountryFlagEmoji( item.country_code ) }
+							</span>
+							{ item.ip || '' }
+						</>
+					);
+				},
+			},
 		],
 		[ filterOptions, dateSettings.formats.date ]
 	);

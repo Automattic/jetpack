@@ -284,6 +284,155 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Test GET feedback/integrations-metadata returns 200 and expected structure
+	 */
+	public function test_get_integrations_metadata_returns_200() {
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify response code
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify basic structure (array format)
+		$this->assertIsArray( $data );
+		$this->assertNotEmpty( $data, 'Should have at least one integration' );
+
+		// Verify core integrations are present (by id)
+		$integration_ids = array_column( $data, 'id' );
+		$this->assertContains( 'akismet', $integration_ids );
+		$this->assertContains( 'zero-bs-crm', $integration_ids );
+		$this->assertContains( 'google-drive', $integration_ids );
+		$this->assertContains( 'mailpoet', $integration_ids );
+
+		// Verify structure of each integration - should only have metadata fields
+		foreach ( $data as $integration ) {
+			// Fields that SHOULD be present
+			$this->assertArrayHasKey( 'id', $integration );
+			$this->assertArrayHasKey( 'slug', $integration );
+			$this->assertArrayHasKey( 'type', $integration );
+			$this->assertArrayHasKey( 'title', $integration );
+			$this->assertArrayHasKey( 'subtitle', $integration );
+			$this->assertArrayHasKey( 'marketingUrl', $integration );
+			$this->assertArrayHasKey( 'enabledByDefault', $integration );
+
+			// Fields that should NOT be present (expensive to compute)
+			$this->assertArrayNotHasKey( 'isInstalled', $integration );
+			$this->assertArrayNotHasKey( 'isActive', $integration );
+			$this->assertArrayNotHasKey( 'isConnected', $integration );
+			$this->assertArrayNotHasKey( 'needsConnection', $integration );
+			$this->assertArrayNotHasKey( 'settingsUrl', $integration );
+			$this->assertArrayNotHasKey( 'pluginFile', $integration );
+			$this->assertArrayNotHasKey( 'version', $integration );
+			$this->assertArrayNotHasKey( 'details', $integration );
+
+			// Verify expected data types
+			$this->assertIsString( $integration['id'] );
+			$this->assertIsString( $integration['slug'] );
+			$this->assertIsString( $integration['type'] );
+			$this->assertTrue( $integration['title'] === '' || is_string( $integration['title'] ) );
+			$this->assertTrue( $integration['subtitle'] === '' || is_string( $integration['subtitle'] ) );
+			$this->assertTrue( $integration['marketingUrl'] === null || is_string( $integration['marketingUrl'] ) );
+			$this->assertIsBool( $integration['enabledByDefault'] );
+		}
+	}
+
+	/**
+	 * Test GET feedback/integrations-metadata unauthorized access
+	 */
+	public function test_get_integrations_metadata_returns_401() {
+		wp_set_current_user( 0 );
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test that metadata endpoint does not make any external HTTP calls
+	 */
+	public function test_get_integrations_metadata_makes_no_external_calls() {
+		$http_requests_made = array();
+
+		// Hook into HTTP API to track any external requests
+		$http_filter = function ( $false, $parsed_args, $url ) use ( &$http_requests_made ) {
+			$http_requests_made[] = $url;
+			// Return a mock response to prevent actual calls
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( array() ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+
+		add_filter( 'pre_http_request', $http_filter, 10, 3 );
+
+		// Make the request
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$response = $this->server->dispatch( $request );
+
+		// Remove the filter
+		remove_filter( 'pre_http_request', $http_filter, 10 );
+
+		// Verify the endpoint returns 200
+		$this->assertEquals( 200, $response->get_status() );
+
+		// Verify NO external HTTP requests were made
+		$this->assertEmpty(
+			$http_requests_made,
+			'Metadata endpoint should not make any external HTTP requests. Found: ' . implode( ', ', $http_requests_made )
+		);
+
+		// Verify we still get data back
+		$data = $response->get_data();
+		$this->assertNotEmpty( $data, 'Should return integration metadata' );
+	}
+
+	/**
+	 * Test that metadata endpoint returns consistent data with full endpoint
+	 */
+	public function test_integrations_metadata_consistency_with_full_endpoint() {
+		// Fetch metadata endpoint
+		$metadata_request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations-metadata' );
+		$metadata_response = $this->server->dispatch( $metadata_request );
+		$metadata_data     = $metadata_response->get_data();
+
+		// Fetch full integrations endpoint
+		$full_request = new WP_REST_Request( 'GET', '/wp/v2/feedback/integrations' );
+		$full_request->set_param( 'version', 2 );
+		$full_response = $this->server->dispatch( $full_request );
+		$full_data     = $full_response->get_data();
+
+		// Both should return the same number of integrations
+		$this->assertSameSize( $full_data, $metadata_data, 'Metadata and full endpoints should return the same number of integrations' );
+
+		// Build a map of metadata by slug
+		$metadata_by_slug = array();
+		foreach ( $metadata_data as $meta ) {
+			$metadata_by_slug[ $meta['slug'] ] = $meta;
+		}
+
+		// Verify that metadata fields match between endpoints
+		foreach ( $full_data as $integration ) {
+			$slug = $integration['slug'];
+			$this->assertArrayHasKey( $slug, $metadata_by_slug, "Integration $slug should be in metadata endpoint" );
+
+			$meta = $metadata_by_slug[ $slug ];
+
+			// Compare shared fields
+			$this->assertEquals( $integration['id'], $meta['id'], "ID should match for $slug" );
+			$this->assertEquals( $integration['slug'], $meta['slug'], "Slug should match for $slug" );
+			$this->assertEquals( $integration['type'], $meta['type'], "Type should match for $slug" );
+			$this->assertEquals( $integration['title'], $meta['title'], "Title should match for $slug" );
+			$this->assertEquals( $integration['subtitle'], $meta['subtitle'], "Subtitle should match for $slug" );
+			$this->assertEquals( $integration['marketingUrl'], $meta['marketingUrl'], "Marketing URL should match for $slug" );
+			$this->assertEquals( $integration['enabledByDefault'], $meta['enabledByDefault'], "Enabled by default should match for $slug" );
+		}
+	}
+
+	/**
 	 * Test GET feedback/integrations/{slug} with a valid integration
 	 */
 	public function test_get_single_integration_returns_200_and_structure() {

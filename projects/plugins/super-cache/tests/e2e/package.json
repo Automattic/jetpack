@@ -23,6 +23,6 @@
 		"jest-util": "^30.0.0",
 		"shell-escape": "0.2.0",
 		"ts-jest": "29.4.0",
-		"typescript": "5.9.2"
+		"typescript": "5.9.3"
 	}
 }

@@ -2,12 +2,12 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch, JetpackLogo } from '@automattic/jetpack-components';
 import { NavigableRegion, Page } from '@wordpress/admin-ui';
 import { TabPanel } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -29,7 +29,6 @@ const Layout = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
-	const hasFeedback = useConfigValue( 'hasFeedback' );
 	const isLoadingConfig = enableIntegrationsTab === undefined;
 
 	const { currentStatus } = useSelect(
@@ -57,10 +56,6 @@ const Layout = () => {
 			...( enableIntegrationsTab
 				? [ { name: 'integrations', title: __( 'Integrations', 'jetpack-forms' ) } ]
 				: [] ),
-			{
-				name: 'about',
-				title: _x( 'About', 'About Forms', 'jetpack-forms' ),
-			},
 		],
 		[ enableIntegrationsTab ]
 	);
@@ -73,15 +68,15 @@ const Layout = () => {
 			return path;
 		}
 
-		return hasFeedback ? 'responses' : 'about';
-	}, [ location.pathname, tabs, hasFeedback ] );
+		return 'responses';
+	}, [ location.pathname, tabs ] );
 
 	const isResponsesTab = getCurrentTab() === 'responses';
 
 	const handleTabSelect = useCallback(
 		( tabName: string ) => {
 			if ( ! tabName ) {
-				tabName = hasFeedback ? 'responses' : 'about';
+				tabName = 'responses';
 			}
 
 			const currentTab = getCurrentTab();
@@ -99,7 +94,7 @@ const Layout = () => {
 				search: tabName === 'responses' ? location.search : '',
 			} );
 		},
-		[ navigate, location.search, isSm, getCurrentTab, hasFeedback ]
+		[ navigate, location.search, isSm, getCurrentTab ]
 	);
 
 	const headerActions = isSm ? (
@@ -122,7 +117,11 @@ const Layout = () => {
 	return (
 		<Page
 			className="jp-forms__layout"
-			title={ __( 'Forms', 'jetpack-forms' ) }
+			title={
+				<div className="jp-forms__layout-header-title">
+					<JetpackLogo showText={ false } width={ 24 } /> Forms
+				</div>
+			}
 			actions={ headerActions }
 		>
 			<NavigableRegion

@@ -210,6 +210,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return array                  Array of term IDs.
 	 */
 	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
+		// @phan-suppress-next-line PhanAccessMethodInternal -- the @internal annotation is for an internal comment, not to mark the function as internal
 		return get_terms(
 			array(
 				'fields'     => 'ids',

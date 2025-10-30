@@ -17,6 +17,9 @@ use WP_Block;
 use WP_Error;
 use WP_Post;
 
+// Load the Form_Submission_Error class.
+require_once __DIR__ . '/class-form-submission-error.php';
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -251,25 +254,40 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Get the instance of the contact form from a JWT token.
 	 *
 	 * @param string $jwt_token The JWT token.
+	 * @param bool   $throw_exception Whether to throw an exception if the JWT token is invalid or cannot be decoded.
 	 *
-	 * @return Contact_Form|null The contact form instance or null if not found.
+	 * @return Contact_Form|null The contact form instance, or null if decoding fails and $throw_exception is false.
+	 * @throws \Exception If the JWT token is invalid or cannot be decoded and $throw_exception is true.
 	 */
-	public static function get_instance_from_jwt( $jwt_token ) {
+	public static function get_instance_from_jwt( $jwt_token, $throw_exception = false ) {
 		$secret = self::get_secret();
-		if ( empty( $secret ) ) {
-			return null;
-		}
 
 		try {
 			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
 		} catch ( \Exception $e ) {
+			// Re-throw with more context about the failure.
+			if ( $throw_exception ) {
+				throw new \Exception(
+					sprintf(
+						/* translators: %s is the original exception message */
+						__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
+						$e->getMessage()
+					),
+					0,
+					$e
+				);
+			}
+
 			return null;
 		}
+
 		$source = $data['source'] ?? array();
+
 		if ( empty( $source ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 			$source_post_id = ! empty( $_POST['contact-form-id'] ) && is_numeric( $_POST['contact-form-id'] ) ? absint( wp_unslash( $_POST['contact-form-id'] ) ) : 0;
 			$post           = get_post( $source_post_id );
+
 			if ( $post !== null && $source_post_id > 0 ) {
 				// create a fallback source
 				$source = array(
@@ -286,6 +304,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$form->source           = Feedback_Source::from_serialized( $source );
 		$form->hash             = $data['hash'];
 		$form->has_verified_jwt = true;
+
 		return $form;
 	}
 
@@ -367,12 +386,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function to get the secret from the Tokens class.
 	 *
-	 * @return string|null The secret from the Tokens class or null if not available.
+	 * @return string The secret from the Tokens class, or a default secret if not available.
 	 */
 	private static function get_secret() {
 		$token          = ( new Tokens() )->get_access_token();
 		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
-		if ( ! isset( $token->secret ) ) {
+
+		if ( empty( $token->secret ) ) {
 			return $default_secret;
 		}
 
@@ -1798,18 +1818,18 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Make sure we're processing the form we think we're processing... probably a redundant check.
 			if ( $widget ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'widget-' . $widget !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return Form_Submission_Error::system_error( 'form_id_mismatch_widget', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-' . $block_template !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+					return Form_Submission_Error::system_error( 'form_id_mismatch_block_template', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( $block_template_part ) {
 				if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-					return false;
+						return Form_Submission_Error::system_error( 'form_id_mismatch_block_template_part', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 				}
 			} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $this->current_post ) || self::get_post_property( $this->current_post, 'ID' ) !== (int) sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
+				return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
 			}
 		}
 
@@ -2074,10 +2094,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		);
 		$footer_ip = null;
 		if ( $comment_author_ip ) {
-			$footer_ip = sprintf(
-			/* translators: Placeholder is the IP address of the person who submitted a form. */
+			$comment_author_ip_with_flag = $comment_author_ip . ( $response->get_country_flag() ? ' ' . $response->get_country_flag() : '' );
+			$footer_ip                   = sprintf(
+				/* translators: Placeholder is the IP address of the person who submitted a form. */
 				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
-				$comment_author_ip
+				$comment_author_ip_with_flag
 			) . '<br />';
 		}
 
@@ -2832,9 +2853,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function add_error( $error_code, $error_message ) {
 		$id = $this->get_attribute( 'id' );
 		if ( ! isset( self::$static_errors[ $id ] ) ) {
-			self::$static_errors[ $id ] = new \WP_Error();
+			self::$static_errors[ $id ] = Form_Submission_Error::validation_error( $error_code, $error_message );
+		} else {
+			// If we already have errors, add this error to the existing Form_Submission_Error
+			self::$static_errors[ $id ]->add( $error_code, $error_message );
 		}
-		self::$static_errors[ $id ]->add( $error_code, $error_message );
 		$this->errors = self::$static_errors[ $id ];
 	}
 	/**
