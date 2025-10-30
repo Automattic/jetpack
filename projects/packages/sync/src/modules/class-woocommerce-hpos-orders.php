@@ -296,7 +296,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @param array $args Order ID.
 	 *
-	 * @return \WC_Abstract_Order|false
+	 * @return array|false
 	 */
 	public function on_before_enqueue_order_save( $args ) {
 		// Prevent multiple triggers on a single request.
