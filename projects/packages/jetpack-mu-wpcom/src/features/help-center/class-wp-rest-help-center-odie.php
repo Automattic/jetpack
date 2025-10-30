@@ -99,7 +99,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)/(?P<chat_id>\d+)/(?P<message_id>\d+)/feedback',
+			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-_]+)/(?P<chat_id>\d+)/(?P<message_id>\d+)/feedback',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
@@ -133,7 +133,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)',
+			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-_]+)',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
