@@ -18,6 +18,20 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	const CACHE_BUSTER = '2025-02-28';
 
 	/**
+	 * Pre-compiled regex pattern for extracting HTML element ID attributes.
+	 *
+	 * @var string
+	 */
+	private $handle_regex = '/id=["\']([^"\']+)["\']/';
+
+	/**
+	 * Pre-compiled regex pattern for removing common handle suffixes.
+	 *
+	 * @var string
+	 */
+	private $handle_suffix_regex = '/-(js|css|extra|before|after)$/';
+
+	/**
 	 * List of allowed plugin handle prefixes whose assets should be preserved.
 	 * Each entry should be a handle prefix that identifies assets from allowed plugins.
 	 *
@@ -118,7 +132,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$core_blocks = array_filter(
 			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
 			function ( $block_name ) {
-				return strpos( $block_name, 'core/' ) === 0;
+				return str_starts_with( $block_name, 'core/' );
 			}
 		);
 
@@ -405,8 +419,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		return empty( $src ) ||
-			strpos( $src, '/wp-includes/' ) !== false ||
-			strpos( $src, '/wp-admin/' ) !== false;
+			str_contains( $src, '/wp-includes/' ) ||
+			str_contains( $src, '/wp-admin/' );
 	}
 
 	/**
@@ -420,8 +434,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return false;
 		}
 
-		return strpos( $src, 'plugins/gutenberg/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
+		return str_contains( $src, 'plugins/gutenberg/' ) ||
+			str_contains( $src, 'plugins/gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**
@@ -463,7 +477,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			}
 
 			// Check if handle starts with the rule (plugin handle prefix)
-			if ( ! empty( $handle ) && is_string( $handle ) && strpos( $handle, $rule . '-' ) === 0 ) {
+			if ( ! empty( $handle ) && is_string( $handle ) && str_starts_with( $handle, $rule . '-' ) ) {
 				return true;
 			}
 		}
@@ -486,19 +500,22 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return false;
 		}
 
+		// Define core prefixes once
+		static $core_prefixes = array( 'wp-', 'utils-', 'moment-', 'mediaelement', 'media-', 'plupload', 'editor-' );
+
 		foreach ( $exclude_rules as $rule ) {
 			// For 'core' exclusion, check if handle starts with 'wp-' or common core prefixes
 			if ( 'core' === $rule ) {
-				$core_prefixes = array( 'wp-', 'utils-', 'moment-', 'mediaelement', 'media-', 'plupload', 'editor-' );
 				foreach ( $core_prefixes as $prefix ) {
-					if ( strpos( $handle, $prefix ) === 0 ) {
+					if ( str_starts_with( $handle, $prefix ) ) {
 						return true;
 					}
 				}
+				continue; // Skip to next rule after checking core
 			}
 
 			// Check if handle starts with the rule (plugin handle prefix)
-			if ( ! empty( $handle ) && is_string( $handle ) && strpos( $handle, $rule . '-' ) === 0 ) {
+			if ( str_starts_with( $handle, $rule . '-' ) ) {
 				return true;
 			}
 		}
@@ -533,7 +550,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			// If we're inside an excluded tag, skip until we find the closing tag
 			if ( $inside_excluded_tag ) {
 				// Check if this line contains the closing tag for the current excluded tag
-				if ( strpos( $line, $current_excluded_tag ) !== false ) {
+				if ( str_contains( $line, $current_excluded_tag ) ) {
 					$inside_excluded_tag  = false;
 					$current_excluded_tag = '';
 				}
@@ -546,23 +563,28 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			// Check if this line contains the tag we're looking for OR an inline style tag
 			// When filtering styles (tag_name='link'), we also need to handle <style> tags
 			$is_inline_style = false;
-			if ( 'link' === $tag_name && strpos( $line, '<style' ) !== false ) {
+			if ( 'link' === $tag_name && str_contains( $line, '<style' ) ) {
 				$is_inline_style = true;
 			}
 
-			if ( strpos( $line, '<' . $tag_name ) !== false || $is_inline_style ) {
+			if ( str_contains( $line, '<' . $tag_name ) || $is_inline_style ) {
 				// Extract the id attribute (which often matches the handle)
 				$handle = '';
-				if ( preg_match( '/id=["\']([^"\']+)["\']/', $line, $id_matches ) ) {
+				if ( preg_match( $this->handle_regex, $line, $id_matches ) ) {
 					$handle = $id_matches[1];
 					// Remove '-js' or '-css' suffix or '-extra', '-before', '-after' suffix from handle
-					$handle = preg_replace( '/-(js|css|extra|before|after)$/', '', $handle );
+					$handle = preg_replace( $this->handle_suffix_regex, '', $handle );
 				}
 
 				// Extract the URL attribute if present
 				$url = '';
 				if ( preg_match( '/' . $url_attribute . '=["\']([^"\']+)["\']/', $line, $url_matches ) ) {
 					$url = $url_matches[1];
+				}
+
+				// Early return if nothing to check
+				if ( empty( $url ) && empty( $handle ) ) {
+					continue;
 				}
 
 				// Check if this asset should be excluded
@@ -590,7 +612,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 						}
 
 						// Check if this line also contains the closing tag (single-line tag)
-						if ( strpos( $line, $actual_closing_tag ) === false ) {
+						if ( ! str_contains( $line, $actual_closing_tag ) ) {
 							// Multi-line tag - set flag to skip subsequent lines
 							$inside_excluded_tag  = true;
 							$current_excluded_tag = $actual_closing_tag;
@@ -631,7 +653,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( self::ALLOWED_PLUGIN_HANDLE_PREFIXES as $allowed_prefix ) {
-			if ( strpos( $handle, $allowed_prefix ) === 0 ) {
+			if ( str_starts_with( $handle, $allowed_prefix ) ) {
 				return true;
 			}
 		}
