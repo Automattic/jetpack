@@ -931,6 +931,42 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that Jetpack styles are preserved when excluding core styles.
+	 *
+	 * This test ensures that the filtering logic doesn't incorrectly enter
+	 * multi-line exclusion state for self-closing <link> tags, which was
+	 * causing all remaining styles to be filtered out.
+	 */
+	public function test_jetpack_styles_preserved_with_exclude_core() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Mock Jetpack styles
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_style( 'jetpack-blocks-editor', 'http://localhost/wp-content/plugins/jetpack/_inc/blocks/editor.css', array(), '1.0' );
+				wp_register_style( 'jetpack-sharing-buttons-style', 'http://localhost/wp-content/plugins/jetpack/_inc/blocks/sharing-buttons/view.css', array(), '1.0' );
+				wp_enqueue_style( 'jetpack-blocks-editor' );
+				wp_enqueue_style( 'jetpack-sharing-buttons-style' );
+			}
+		);
+
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core,gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Jetpack styles should be preserved even when core is excluded
+		$this->assertStringContainsString( 'jetpack-blocks-editor-css', $data['styles'], 'Jetpack blocks editor styles should be preserved' );
+		$this->assertStringContainsString( 'jetpack-sharing-buttons-style-css', $data['styles'], 'Jetpack sharing buttons styles should be preserved' );
+		$this->assertStringContainsString( '/wp-content/plugins/jetpack/', $data['styles'], 'Jetpack plugin path should be in styles' );
+
+		// Core styles should be excluded
+		$this->assertStringNotContainsString( 'wp-components-css', $data['styles'], 'Core wp-components styles should be excluded' );
+		$this->assertStringNotContainsString( 'wp-block-library-css', $data['styles'], 'Core wp-block-library styles should be excluded' );
+	}
+
+	/**
 	 * Test multiple plugin exclusions.
 	 */
 	public function test_multiple_plugin_exclusions() {
