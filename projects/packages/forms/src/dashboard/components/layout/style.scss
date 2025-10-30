@@ -78,4 +78,17 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 
 
+	.admin-ui-page__header {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 16px 48px 4px;
+		width: 100%;
+		background: transparent;
+
+		@media (max-width: 782px) {
+			padding: 8px 24px 0;
+		}
+	}
+
+
 }
