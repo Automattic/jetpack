@@ -118,7 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$core_blocks = array_filter(
 			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
 			function ( $block_name ) {
-				return strpos( $block_name, 'core/' ) === 0;
+				return str_starts_with( $block_name, 'core/' );
 			}
 		);
 
@@ -379,10 +379,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		return empty( $src ) ||
 			$src[0] === '/' ||
-			strpos( $src, 'wp-includes/' ) !== false ||
-			strpos( $src, 'wp-admin/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
+			str_contains( $src, 'wp-includes/' ) ||
+			str_contains( $src, 'wp-admin/' ) ||
+			str_contains( $src, 'plugins/gutenberg/' ) ||
+			str_contains( $src, 'plugins/gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**
@@ -407,7 +407,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( self::ALLOWED_PLUGIN_HANDLE_PREFIXES as $allowed_prefix ) {
-			if ( strpos( $handle, $allowed_prefix ) === 0 ) {
+			if ( str_starts_with( $handle, $allowed_prefix ) ) {
 				return true;
 			}
 		}
