@@ -389,16 +389,16 @@ class User_Agent_Info_Test extends TestCase {
 				'Mozilla/5.0 (Linux; Android 9; KFMAWI) AppleWebKit/537.36 (KHTML, like Gecko) Silk/89.3.12 like Chrome/89.0.4389.116 Safari/537.36',
 				'Amazon Silk',
 			),
-			// Unknown/Other browser (should return the constant value)
+			// Unknown/Other browser (should return the display name from the map)
 			array(
 				'CustomBrowser/1.0',
-				'other',
+				'Other',
 			),
 		);
 	}
 
 	/**
-	 * Test that get_browser_display_name() returns the constant value for unknown browsers.
+	 * Test that get_browser_display_name() returns the display name for unknown browsers.
 	 *
 	 * @return void
 	 */
@@ -407,8 +407,10 @@ class User_Agent_Info_Test extends TestCase {
 		$browser      = $ua_info->get_browser();
 		$display_name = $ua_info->get_browser_display_name();
 
-		// Should return the constant value (likely 'other') for unknown browsers
-		$this->assertEquals( $browser, $display_name );
+		// Browser should be 'other' constant
+		$this->assertEquals( 'other', $browser );
+		// Display name should be 'Other' (capitalized)
+		$this->assertEquals( 'Other', $display_name );
 	}
 
 	/**
@@ -424,8 +426,8 @@ class User_Agent_Info_Test extends TestCase {
 		$ua_info      = new User_Agent_Info( '' );
 		$display_name = $ua_info->get_browser_display_name();
 
-		// Should return 'other' for empty UA
-		$this->assertEquals( 'other', $display_name );
+		// Should return 'Other' (capitalized) for empty UA
+		$this->assertEquals( 'Other', $display_name );
 
 		// Restore original UA
 		if ( $original_ua !== null ) {
