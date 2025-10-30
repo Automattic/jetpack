@@ -5,6 +5,7 @@ import { addFilter } from '@wordpress/hooks';
 import clsx from 'clsx';
 import useFieldSelected from '../hooks/use-field-selected';
 import useJetpackFieldStyles from '../hooks/use-jetpack-field-styles';
+import useSyncHideLabel from '../hooks/use-sync-hide-label';
 import useSyncRequiredIndicator from '../hooks/use-sync-required-indicator';
 import { ALLOWED_INNER_BLOCKS } from '../util/constants';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -33,14 +34,24 @@ const JetpackField = props => {
 		style: blockStyle,
 	} );
 
+	const hideLabel = attributes?.hideLabel;
+
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label, required, requiredText, requiredIndicator } ],
+			[ 'jetpack/label', { label, required, requiredText, requiredIndicator, hideLabel } ],
 			[ 'jetpack/input', { type } ],
 		];
-	}, [ label, required, requiredText, requiredIndicator, type ] );
+	}, [ label, required, requiredText, requiredIndicator, hideLabel, type ] );
 
 	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
+
+	useSyncHideLabel( {
 		clientId,
 		blockName: 'jetpack/field-sync',
 		isSynced: attributes?.shareFieldAttributes,

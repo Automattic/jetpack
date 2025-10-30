@@ -13,6 +13,7 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useSyncHideLabel from '../shared/hooks/use-sync-hide-label';
 import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
 import { countries } from './country-list';
 import { getTranslatedCountryName } from './country-names-translated';
@@ -35,6 +36,7 @@ export default function PhoneFieldEdit( props ) {
 		searchPlaceholder,
 		default: defaultCountry,
 		requiredIndicator,
+		hideLabel,
 	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
 
@@ -87,6 +89,7 @@ export default function PhoneFieldEdit( props ) {
 					required,
 					requiredText,
 					requiredIndicator,
+					hideLabel,
 				},
 			],
 			[ 'jetpack/phone-input', {} ],
@@ -96,6 +99,14 @@ export default function PhoneFieldEdit( props ) {
 	} );
 
 	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
+
+	useSyncHideLabel( {
 		clientId,
 		blockName: 'jetpack/field-sync',
 		isSynced: attributes?.shareFieldAttributes,

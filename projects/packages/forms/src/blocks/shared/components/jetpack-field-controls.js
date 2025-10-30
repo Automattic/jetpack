@@ -80,6 +80,7 @@ const JetpackFieldControls = ( {
 				key="requiredIndicator"
 				label={ __( 'Show required text', 'jetpack-forms' ) }
 				checked={ !! attributes.requiredIndicator }
+				disabled={ attributes.hideLabel }
 				onChange={ value => setAttributes( { requiredIndicator: value } ) }
 				help={ __(
 					'Toggle whether to display the required indicator text for this field.',
@@ -88,6 +89,17 @@ const JetpackFieldControls = ( {
 				__nextHasNoMarginBottom={ true }
 			/>
 		),
+		<ToggleControl
+			key="hideLabelControl"
+			label={ __( 'Hide label', 'jetpack-forms' ) }
+			checked={ attributes.hideLabel }
+			onChange={ value => setAttributes( { hideLabel: value } ) }
+			help={ __(
+				'When label is hidden, the placeholder text will be used for accessibility',
+				'jetpack-forms'
+			) }
+			__nextHasNoMarginBottom={ true }
+		/>,
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"

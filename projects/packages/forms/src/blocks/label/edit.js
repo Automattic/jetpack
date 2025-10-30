@@ -14,6 +14,7 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'fontSize',
 	'style',
 	'requiredIndicator',
+	'hideLabel',
 ];
 
 const getLabelOrFallback = ( label, placeholder ) => {

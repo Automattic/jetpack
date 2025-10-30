@@ -12,6 +12,10 @@ export default {
 			type: 'boolean',
 			default: true,
 		},
+		hideLabel: {
+			type: 'boolean',
+			default: false,
+		},
 		width: {
 			type: 'number',
 			default: 100,

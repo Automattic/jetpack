@@ -6,12 +6,13 @@ import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import useSyncHideLabel from '../shared/hooks/use-sync-hide-label';
 import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
 import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
 
 export default function TextareaFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes } = props;
-	const { id, required, width, requiredIndicator } = attributes;
+	const { id, required, width, requiredIndicator, hideLabel } = attributes;
 
 	useFormWrapper( props );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -26,10 +27,13 @@ export default function TextareaFieldEdit( props ) {
 
 	const template = useMemo( () => {
 		return [
-			[ 'jetpack/label', { label: __( 'Message', 'jetpack-forms' ), requiredIndicator } ],
+			[
+				'jetpack/label',
+				{ label: __( 'Message', 'jetpack-forms' ), requiredIndicator, hideLabel },
+			],
 			[ 'jetpack/input', { type: 'textarea' } ],
 		];
-	}, [ requiredIndicator ] );
+	}, [ requiredIndicator, hideLabel ] );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		allowedBlocks: ALLOWED_INNER_BLOCKS,
@@ -38,6 +42,14 @@ export default function TextareaFieldEdit( props ) {
 	} );
 
 	useSyncRequiredIndicator( {
+		clientId,
+		blockName: 'jetpack/field-sync',
+		isSynced: attributes?.shareFieldAttributes,
+		attributes,
+		setAttributes,
+	} );
+
+	useSyncHideLabel( {
 		clientId,
 		blockName: 'jetpack/field-sync',
 		isSynced: attributes?.shareFieldAttributes,

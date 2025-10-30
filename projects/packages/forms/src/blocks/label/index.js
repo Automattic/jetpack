@@ -70,6 +70,10 @@ const settings = {
 			type: 'boolean',
 			default: true,
 		},
+		hideLabel: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	usesContext: [
 		'jetpack/form-class-name',
