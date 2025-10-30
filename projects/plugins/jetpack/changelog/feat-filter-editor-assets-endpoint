@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Editor assets endpoint: Filter returned assets with exclude query parameter
