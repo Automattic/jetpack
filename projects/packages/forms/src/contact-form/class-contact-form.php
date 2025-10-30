@@ -2101,6 +2101,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$comment_author_ip_with_flag
 			) . '<br />';
 		}
+		$footer_browser = null;
+		if ( $response->get_browser() ) {
+			$footer_browser = sprintf(
+				/* translators: Placeholder is the browser and platform used to submit a form. */
+				esc_html__( 'Browser: %1$s', 'jetpack-forms' ),
+				$response->get_browser()
+			) . '<br />';
+		}
 
 		$footer_url = sprintf(
 			/* translators: Placeholder is the URL of the page where a form was submitted. */
@@ -2142,6 +2150,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 						'<span style="font-size: 12px">',
 						$footer_time . '<br />',
 						$footer_ip ? $footer_ip . '<br />' : null,
+						$footer_browser ? $footer_browser . '<br />' : null,
 						$footer_url . '<br /><br />',
 						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
 						$sent_by_text,
