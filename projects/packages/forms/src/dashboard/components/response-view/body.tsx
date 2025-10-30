@@ -490,6 +490,12 @@ const ResponseViewBody = ( {
 									</Tooltip>
 								</td>
 							</tr>
+							{ response.browser && (
+								<tr>
+									<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
+									<td>{ response.browser }</td>
+								</tr>
+							) }
 						</tbody>
 					</table>
 				</div>
