@@ -1372,7 +1372,7 @@ class Defaults {
 	/**
 	 * Default for enabling wpcom rest api for Sync.
 	 *
-	 * @var int Bool-ish. Default 0.
+	 * @var int Bool-ish. Default 1.
 	 */
-	public static $default_wpcom_rest_api_enabled = 0;
+	public static $default_wpcom_rest_api_enabled = 1;
 }

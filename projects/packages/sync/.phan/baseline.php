@@ -17,9 +17,9 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
-    // PhanNonClassMethodCall : 5 occurrences
-    // PhanPossiblyUndeclaredVariable : 5 occurrences
+    // PhanPossiblyUndeclaredVariable : 4 occurrences
     // PhanTypeExpectedObjectPropAccess : 4 occurrences
+    // PhanNonClassMethodCall : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
@@ -50,7 +50,7 @@ return [
         'src/class-rest-sender.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-sender.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-server.php' => ['PhanTypeMismatchDeclaredParam', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-settings.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-settings.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-utils.php' => ['PhanTypeExpectedObjectPropAccess'],
         'src/modules/class-callables.php' => ['PhanParamSignatureMismatch', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument'],
         'src/modules/class-comments.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
