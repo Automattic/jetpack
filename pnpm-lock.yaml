@@ -5617,8 +5617,8 @@ importers:
         specifier: ^20.4.2
         version: 20.19.21
       '@wordpress/e2e-test-utils-playwright':
-        specifier: 1.33.0
-        version: 1.33.0(@playwright/test@1.55.1)
+        specifier: 1.34.0
+        version: 1.34.0(@playwright/test@1.55.1)
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -9697,8 +9697,8 @@ packages:
     resolution: {integrity: sha512-lXF9NiBkiw1uFdUdAmQBxnnIUsFZxxJM2tLTXpRrPBWtB77e1rdmz0xVWBYDHr8FaaOXQ/30TuvhAiNPsbISfg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/e2e-test-utils-playwright@1.33.0':
-    resolution: {integrity: sha512-OuxF/5TeHh2k58jsKRG2AtFhoRgAFKUrOjcrBLaNew3Y6RepwvLLgSq1LXqUrR1nhJU90AaH6AqFrJ2s+lmFUw==}
+  '@wordpress/e2e-test-utils-playwright@1.34.0':
+    resolution: {integrity: sha512-CpbjtXGxiNDjRrVx3Foo4CG2aSpmiQIjEHxLj+ItKXmg9JsDr/1iYEBraOA12LX8tUaHaEll3ykByJebMR1OdA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
@@ -23033,7 +23033,7 @@ snapshots:
     dependencies:
       '@wordpress/deprecated': 4.33.0
 
-  '@wordpress/e2e-test-utils-playwright@1.33.0(@playwright/test@1.55.1)':
+  '@wordpress/e2e-test-utils-playwright@1.34.0(@playwright/test@1.55.1)':
     dependencies:
       '@playwright/test': 1.55.1
       change-case: 4.1.2
