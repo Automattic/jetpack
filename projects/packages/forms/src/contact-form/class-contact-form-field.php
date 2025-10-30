@@ -172,6 +172,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'issupersized'             => null,
 				'randomizeoptions'         => null,
 				'showotheroption'          => null,
+				// label setting/attribute
+				'hidelabel'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -774,6 +776,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array(), $always_render = false, $required_indicator = true ) {
+		if ( $this->get_attribute( 'hidelabel' ) ) {
+			return '';
+		}
 		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
@@ -894,6 +899,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// this is a hack for Firefox to prevent users from falsely entering a something other than a number into a number field.
 		if ( $type === 'number' ) {
 			$extra_attrs_string .= " data-wp-on--keypress='actions.handleNumberKeyPress' ";
+		}
+
+		if ( $this->get_attribute( 'hidelabel' ) ) {
+			$aria_label          = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
+			$extra_attrs_string .= " aria-label='" . esc_attr( $aria_label ) . "' ";
 		}
 
 		return "<input
