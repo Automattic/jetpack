@@ -2713,9 +2713,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      '@automattic/components':
-        specifier: 2.2.0
-        version: 2.2.0(@babel/runtime@7.28.4)(@types/react@18.3.25)(@wordpress/data@10.31.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
