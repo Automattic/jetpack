@@ -17,7 +17,7 @@ const getFormsCommands = () =>
 			return [
 				{
 					icon: FormsIcon,
-					label: __( 'View form responses', 'jetpack-forms' ),
+					label: __( 'See form responses', 'jetpack-forms' ),
 					name: 'jetpack/forms-inbox',
 					callback: ( { close } ) => {
 						tracks.recordEvent( 'jetpack_command_palette_forms_inbox_open' );
@@ -27,7 +27,7 @@ const getFormsCommands = () =>
 				},
 				{
 					icon: spam,
-					label: __( 'View form spam', 'jetpack-forms' ),
+					label: __( 'Review form spam', 'jetpack-forms' ),
 					name: 'jetpack/forms-spam',
 					callback: ( { close } ) => {
 						tracks.recordEvent( 'jetpack_command_palette_forms_spam_open' );
@@ -37,7 +37,7 @@ const getFormsCommands = () =>
 				},
 				{
 					icon: trash,
-					label: __( 'View form trash', 'jetpack-forms' ),
+					label: __( 'See form trash', 'jetpack-forms' ),
 					name: 'jetpack/forms-trash',
 					callback: ( { close } ) => {
 						tracks.recordEvent( 'jetpack_command_palette_forms_trash_open' );
@@ -55,12 +55,17 @@ const getFormsCommands = () =>
 	};
 
 const JetpackFormsCommands = () => {
-	// Command palette available across WP Admin from Gutenberg v21.5 and (TBD) WP v6.9
-	// https://github.com/WordPress/gutenberg/pull/71030
 	useCommandLoader( {
 		name: 'jetpack/forms',
 		hook: getFormsCommands(),
 	} );
 };
 
-JetpackFormsCommands();
+// Command palette available across WP Admin from Gutenberg v21.5 and WordPress v6.9
+// https://github.com/WordPress/gutenberg/pull/71030
+if ( typeof useCommandLoader === 'function' ) {
+	JetpackFormsCommands();
+} else {
+	// eslint-disable-next-line no-console
+	console.info( 'Command palette not available.' );
+}
