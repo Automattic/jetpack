@@ -385,7 +385,7 @@ class User_Agent_Info {
 	 */
 	public function get_browser_display_name() {
 		$browser = $this->get_browser();
-		return isset( self::BROWSER_DISPLAY_NAME_MAP[ $browser ] ) ? self::BROWSER_DISPLAY_NAME_MAP[ $browser ] : $browser;
+		return self::BROWSER_DISPLAY_NAME_MAP[ $browser ] ?? $browser;
 	}
 
 	/**
