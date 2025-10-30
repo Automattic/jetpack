@@ -8,6 +8,22 @@ import { __ } from '@wordpress/i18n';
  */
 import IntegrationsList from './integrations-list';
 import './style.scss';
+/**
+ * Types
+ */
+import type { Integration } from '../../../../types';
+
+type BlockAttributes = Record< string, unknown >;
+
+type IntegrationsModalProps = {
+	isOpen: boolean;
+	onClose: () => void;
+	attributes?: BlockAttributes;
+	setAttributes?: ( attributes: BlockAttributes ) => void;
+	integrationsData: Integration[];
+	refreshIntegrations: () => Promise< void >;
+	context?: 'block-editor' | 'dashboard';
+};
 
 const IntegrationsModal = ( {
 	isOpen,
@@ -16,7 +32,8 @@ const IntegrationsModal = ( {
 	setAttributes,
 	integrationsData,
 	refreshIntegrations,
-} ) => {
+	context = 'block-editor',
+}: IntegrationsModalProps ) => {
 	if ( ! isOpen ) {
 		return null;
 	}
@@ -32,7 +49,7 @@ const IntegrationsModal = ( {
 				<IntegrationsList
 					integrations={ integrationsData }
 					refreshIntegrations={ refreshIntegrations }
-					context="block-editor"
+					context={ context }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 				/>
