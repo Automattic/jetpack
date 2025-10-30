@@ -526,7 +526,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	/**
 	 * Filter out specified assets from HTML output based on exclusion rules.
 	 *
-	 * This method processes the HTML line-by-line and removes any script or link tags
+	 * This method uses DOMDocument to parse and filter HTML, removing script/link/style tags
 	 * that match the exclusion rules.
 	 *
 	 * @param string $html The HTML string containing script or link tags.
@@ -540,95 +540,140 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return $html;
 		}
 
-		$lines                = explode( "\n", $html );
-		$filtered_lines       = array();
-		$inside_excluded_tag  = false;
-		$closing_tag          = '</' . $tag_name;
-		$current_excluded_tag = '';
+		// Suppress warnings for malformed HTML
+		libxml_use_internal_errors( true );
 
-		foreach ( $lines as $line ) {
-			// If we're inside an excluded tag, skip until we find the closing tag
-			if ( $inside_excluded_tag ) {
-				// Check if this line contains the closing tag for the current excluded tag
-				if ( str_contains( $line, $current_excluded_tag ) ) {
-					$inside_excluded_tag  = false;
-					$current_excluded_tag = '';
-				}
-				// Skip this line either way (it's part of the excluded block)
-				continue;
-			}
+		$dom = new DOMDocument();
+		// Use UTF-8 encoding and load HTML fragment without adding doctype/html/body wrappers
+		$dom->loadHTML(
+			'<?xml encoding="UTF-8">' . $html,
+			LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+		);
 
-			$should_keep = true;
-
-			// Check if this line contains the tag we're looking for OR an inline style tag
-			// When filtering styles (tag_name='link'), we also need to handle <style> tags
-			$is_inline_style = false;
-			if ( 'link' === $tag_name && str_contains( $line, '<style' ) ) {
-				$is_inline_style = true;
-			}
-
-			if ( str_contains( $line, '<' . $tag_name ) || $is_inline_style ) {
-				// Extract the id attribute (which often matches the handle)
-				$handle = '';
-				if ( preg_match( $this->handle_regex, $line, $id_matches ) ) {
-					$handle = $id_matches[1];
-					// Remove '-js' or '-css' suffix or '-extra', '-before', '-after' suffix from handle
-					$handle = preg_replace( $this->handle_suffix_regex, '', $handle );
-				}
-
-				// Extract the URL attribute if present
-				$url = '';
-				if ( preg_match( '/' . $url_attribute . '=["\']([^"\']+)["\']/', $line, $url_matches ) ) {
-					$url = $url_matches[1];
-				}
-
-				// Early return if nothing to check
-				if ( empty( $url ) && empty( $handle ) ) {
-					continue;
-				}
-
-				// Check if this asset should be excluded
-				// For inline scripts/styles (no URL), only check handle-based exclusions
-				if ( ! empty( $url ) ) {
-					if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
-						$should_keep = false;
-					}
-				} elseif ( ! empty( $handle ) ) {
-					// Inline script/style - check if handle matches exclusion rules
-					if ( $this->should_exclude_inline_asset( $handle, $exclude_rules ) ) {
-						$should_keep = false;
-					}
-				}
-
-				// If we're excluding this tag, check if it's self-closing or multi-line
-				if ( ! $should_keep ) {
-					// <link> tags are self-closing and should never enter multi-line exclusion state
-					// Only <style> and <script> tags can be multi-line
-					if ( $is_inline_style || 'script' === $tag_name ) {
-						// Determine the actual closing tag for this specific element
-						$actual_closing_tag = $closing_tag;
-						if ( $is_inline_style ) {
-							$actual_closing_tag = '</style';
-						}
-
-						// Check if this line also contains the closing tag (single-line tag)
-						if ( ! str_contains( $line, $actual_closing_tag ) ) {
-							// Multi-line tag - set flag to skip subsequent lines
-							$inside_excluded_tag  = true;
-							$current_excluded_tag = $actual_closing_tag;
-						}
-					}
-					// Either way, don't keep this line
-					continue;
-				}
-			}
-
-			if ( $should_keep ) {
-				$filtered_lines[] = $line;
+		// Remove the XML encoding processing instruction
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API uses camelCase
+		foreach ( $dom->childNodes as $node ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API uses camelCase
+			if ( $node->nodeType === XML_PI_NODE ) {
+				$dom->removeChild( $node );
+				break;
 			}
 		}
 
-		return implode( "\n", $filtered_lines );
+		// Process <link> tags (and <style> when filtering styles)
+		if ( 'link' === $tag_name ) {
+			$this->filter_link_elements( $dom, $url_attribute, $exclude_rules );
+			$this->filter_style_elements( $dom, $exclude_rules );
+		}
+
+		// Process <script> tags
+		if ( 'script' === $tag_name ) {
+			$this->filter_script_elements( $dom, $url_attribute, $exclude_rules );
+		}
+
+		libxml_clear_errors();
+
+		return $dom->saveHTML();
+	}
+
+	/**
+	 * Filter <link> elements from the DOM based on exclusion rules.
+	 *
+	 * @param DOMDocument $dom The DOM document.
+	 * @param string      $url_attribute The attribute containing the URL ('href').
+	 * @param array       $exclude_rules Array of exclusion rules.
+	 */
+	private function filter_link_elements( $dom, $url_attribute, $exclude_rules ) {
+		$links     = $dom->getElementsByTagName( 'link' );
+		$to_remove = array();
+
+		foreach ( $links as $link ) {
+			$handle = $this->extract_handle_from_element( $link );
+			$url    = $link->getAttribute( $url_attribute );
+
+			if ( ! empty( $url ) && $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
+				$to_remove[] = $link;
+			}
+		}
+
+		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API uses camelCase
+			$element->parentNode->removeChild( $element );
+		}
+	}
+
+	/**
+	 * Filter <style> elements from the DOM based on exclusion rules.
+	 *
+	 * @param DOMDocument $dom The DOM document.
+	 * @param array       $exclude_rules Array of exclusion rules.
+	 */
+	private function filter_style_elements( $dom, $exclude_rules ) {
+		$styles    = $dom->getElementsByTagName( 'style' );
+		$to_remove = array();
+
+		foreach ( $styles as $style ) {
+			$handle = $this->extract_handle_from_element( $style );
+
+			if ( ! empty( $handle ) && $this->should_exclude_inline_asset( $handle, $exclude_rules ) ) {
+				$to_remove[] = $style;
+			}
+		}
+
+		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API uses camelCase
+			$element->parentNode->removeChild( $element );
+		}
+	}
+
+	/**
+	 * Filter <script> elements from the DOM based on exclusion rules.
+	 *
+	 * @param DOMDocument $dom The DOM document.
+	 * @param string      $url_attribute The attribute containing the URL ('src').
+	 * @param array       $exclude_rules Array of exclusion rules.
+	 */
+	private function filter_script_elements( $dom, $url_attribute, $exclude_rules ) {
+		$scripts   = $dom->getElementsByTagName( 'script' );
+		$to_remove = array();
+
+		foreach ( $scripts as $script ) {
+			$handle = $this->extract_handle_from_element( $script );
+			$url    = $script->getAttribute( $url_attribute );
+
+			// Check URL-based exclusions
+			if ( ! empty( $url ) ) {
+				if ( $this->should_exclude_asset( $url, $handle, $exclude_rules ) ) {
+					$to_remove[] = $script;
+				}
+			} elseif ( ! empty( $handle ) ) {
+				// Check handle-based exclusions for inline scripts
+				if ( $this->should_exclude_inline_asset( $handle, $exclude_rules ) ) {
+					$to_remove[] = $script;
+				}
+			}
+		}
+
+		foreach ( $to_remove as $element ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API uses camelCase
+			$element->parentNode->removeChild( $element );
+		}
+	}
+
+	/**
+	 * Extract and normalize the handle from a DOM element's ID attribute.
+	 *
+	 * @param DOMElement $element The DOM element.
+	 * @return string The extracted handle, with common suffixes removed.
+	 */
+	private function extract_handle_from_element( $element ) {
+		$id = $element->getAttribute( 'id' );
+		if ( empty( $id ) ) {
+			return '';
+		}
+
+		// Remove common suffixes (-js, -css, -extra, -before, -after)
+		return preg_replace( $this->handle_suffix_regex, '', $id );
 	}
 
 	/**
