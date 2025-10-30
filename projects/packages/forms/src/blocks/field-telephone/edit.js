@@ -154,7 +154,7 @@ export default function PhoneFieldEdit( props ) {
 				width={ width }
 				extraFieldSettings={ [
 					{
-						index: 1,
+						index: 3,
 						element: (
 							<div key="phoneFieldControls">
 								<ToggleControl
