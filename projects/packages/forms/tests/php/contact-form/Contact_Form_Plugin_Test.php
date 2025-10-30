@@ -680,6 +680,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'Consent'      => array( $default_consent, $default_consent ),
 				'IP Address'   => array( $ip, $ip ),
 				'Country code' => array( $country_code, $country_code ),
+				'Browser'      => array( null, null ), // No browser for legacy feedback
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -770,6 +771,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result['Source'] ) );
 		$this->assertTrue( isset( $result['Consent'] ) );
 		$this->assertTrue( isset( $result['IP Address'] ) );
+		$this->assertTrue( isset( $result['Browser'] ) );
 
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
