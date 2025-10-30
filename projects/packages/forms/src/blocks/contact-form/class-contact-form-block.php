@@ -473,15 +473,13 @@ class Contact_Form_Block {
 			)
 		);
 
-		if ( Blocks::get_variation() === 'beta' ) {
-			Blocks::jetpack_register_block(
-				'jetpack/field-time',
-				array(
-					'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
-					'provides_context' => array( 'jetpack/field-required' => 'required' ),
-				)
-			);
-		}
+		Blocks::jetpack_register_block(
+			'jetpack/field-time',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
 
 		// Paid file field block
 		add_action(
