@@ -251,8 +251,8 @@
 	} );
 
 	$( document ).ready( function () {
-		$( '.presentation-wrapper' ).each( function () {
-			new Presentation( this );
-		} );
+		[ ...document.getElementsByClassName( 'presentation-wrapper' ) ].forEach(
+			el => new Presentation( el )
+		);
 	} );
 } )( jQuery );
