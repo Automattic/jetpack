@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch, JetpackLogo } from '@automattic/jetpack-components';
+import { hasSubtleBranding } from '@automattic/jetpack-script-data';
 import { NavigableRegion, Page } from '@wordpress/admin-ui';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
@@ -74,7 +75,7 @@ const Layout = () => {
 			<Header
 				title={
 					<div className="jp-forms__layout-header-title">
-						<JetpackLogo showText={ false } width={ 20 } /> Forms
+						{ hasSubtleBranding() && <JetpackLogo showText={ false } width={ 20 } /> } Forms
 					</div>
 				}
 				subTitle={ __(
