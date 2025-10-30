@@ -143,15 +143,32 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_non_whitelisted_order_item_meta_is_not_synced() {
+		$this->server_event_storage->reset();
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();
 		$order_item  = reset( $order_items ); // first item
 
 		wc_add_order_item_meta( $order_item->get_id(), 'foo', 'bar', true );
+		wc_update_order_item_meta( $order_item->get_id(), 'foo', 'baz' );
+		wc_delete_order_item_meta( $order_item->get_id(), 'foo' );
+
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'added_order_item_meta' );
-		$this->assertFalse( (bool) $event, 'Non-whitelisted meta should not trigger sync events.' );
+		$added_events   = $this->server_event_storage->get_all_events( 'added_order_item_meta' );
+		$updated_events = $this->server_event_storage->get_all_events( 'updated_order_item_meta' );
+		$deleted_events = $this->server_event_storage->get_all_events( 'deleted_order_item_meta' );
+
+		// Merge all events
+		$meta_events = array_merge( $added_events, $updated_events, $deleted_events );
+
+		$foo_events = array_filter(
+			$meta_events,
+			function ( $event ) {
+				return isset( $event->args[2] ) && $event->args[2] === 'foo';
+			}
+		);
+
+		$this->assertEmpty( $foo_events );
 	}
 
 	public function test_approving_a_review_is_synced() {
