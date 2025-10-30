@@ -14,7 +14,6 @@ import useCreateForm from '../../hooks/use-create-form';
 type CreateFormButtonProps = {
 	label?: string;
 	showPatterns?: boolean;
-	variant?: 'primary' | 'secondary';
 };
 
 /**
@@ -23,13 +22,11 @@ type CreateFormButtonProps = {
  * @param {object}  props              - The component props.
  * @param {string}  props.label        - The label for the button.
  * @param {boolean} props.showPatterns - Whether to show the patterns on the editor immediately.
- * @param {string}  props.variant      - The button variant (primary or secondary).
  * @return {JSX.Element}                 The button to create a new form.
  */
 export default function CreateFormButton( {
 	label = __( 'Create a free form', 'jetpack-forms' ),
 	showPatterns = false,
-	variant = 'secondary',
 }: CreateFormButtonProps ): JSX.Element {
 	const { openNewForm } = useCreateForm();
 
@@ -49,7 +46,7 @@ export default function CreateFormButton( {
 	return (
 		<Button
 			__next40pxDefaultSize
-			variant={ variant }
+			variant="primary"
 			onClick={ onButtonClickHandler }
 			icon={ plus }
 			className="create-form-button"

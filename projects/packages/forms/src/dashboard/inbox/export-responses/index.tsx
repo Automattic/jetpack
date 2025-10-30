@@ -28,7 +28,7 @@ const ExportResponsesButton = () => {
 
 	return (
 		<>
-			<Button __next40pxDefaultSize variant="primary" icon={ download } onClick={ openModal }>
+			<Button __next40pxDefaultSize variant="secondary" icon={ download } onClick={ openModal }>
 				{ exportLabel }
 			</Button>
 
