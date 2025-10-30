@@ -250,7 +250,7 @@
 		},
 	} );
 
-	$( document ).ready( function () {
+	addEventListener( 'DOMContentLoaded', () => {
 		[ ...document.getElementsByClassName( 'presentation-wrapper' ) ].forEach(
 			el => new Presentation( el )
 		);
