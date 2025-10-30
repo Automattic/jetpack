@@ -5,6 +5,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
+import useConfigValue from '../../../hooks/use-config-value';
 import { INTEGRATIONS_STORE } from '../../../store/integrations';
 import IntegrationsModal from './jetpack-integrations-modal';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
@@ -19,11 +20,20 @@ import ActiveIntegrations from './jetpack-integrations-modal/active-integrations
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const integrations = useSelect( select => {
-		const store = select( INTEGRATIONS_STORE );
-		return store.getIntegrations() || [];
-	}, [] );
-	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const { integrations, isLoading } = useSelect(
+		select => {
+			if ( isIntegrationsEnabled === false ) {
+				return { integrations: [], isLoading: false };
+			}
+			const store = select( INTEGRATIONS_STORE );
+			return {
+				integrations: store.getIntegrations() || [],
+				isLoading: store.isIntegrationsLoading(),
+			};
+		},
+		[ isIntegrationsEnabled ]
+	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
 

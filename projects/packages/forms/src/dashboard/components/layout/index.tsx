@@ -30,7 +30,6 @@ const Layout = () => {
 
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
 	const isLoadingConfig = enableIntegrationsTab === undefined;
-
 	const { currentStatus } = useSelect(
 		select => ( {
 			currentStatus: select( dashboardStore ).getCurrentStatus(),

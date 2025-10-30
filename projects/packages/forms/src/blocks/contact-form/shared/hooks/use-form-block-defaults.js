@@ -1,5 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import useConfigValue from '../../../../hooks/use-config-value';
 import { INTEGRATIONS_STORE } from '../../../../store/integrations';
 
 /**
@@ -13,11 +14,20 @@ import { INTEGRATIONS_STORE } from '../../../../store/integrations';
  * @param {Function} params.setAttributes - Setter for block attributes
  */
 export default function useFormBlockDefaults( { attributes, setAttributes } ) {
-	const integrations = useSelect( select => {
-		const store = select( INTEGRATIONS_STORE );
-		return store.getIntegrations() || [];
-	}, [] );
-	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const { integrations, isLoading } = useSelect(
+		select => {
+			if ( isIntegrationsEnabled === false ) {
+				return { integrations: [], isLoading: false };
+			}
+			const store = select( INTEGRATIONS_STORE );
+			return {
+				integrations: store.getIntegrations() || [],
+				isLoading: store.isIntegrationsLoading(),
+			};
+		},
+		[ isIntegrationsEnabled ]
+	);
 
 	useEffect( () => {
 		if ( isLoading || ! Array.isArray( integrations ) ) {

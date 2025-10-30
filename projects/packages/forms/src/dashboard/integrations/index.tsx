@@ -8,6 +8,7 @@ import { useState, useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../hooks/use-config-value';
 import { INTEGRATIONS_STORE } from '../../store/integrations';
 import AkismetDashboardCard from './akismet-card';
 import GoogleSheetsDashboardCard from './google-sheets-card';
@@ -25,12 +26,19 @@ import type { Integration } from '../../types';
 const EMPTY_ARRAY: Integration[] = [];
 
 const Integrations = () => {
-	const { integrations } = useSelect( ( select: SelectIntegrations ) => {
-		const store = select( INTEGRATIONS_STORE );
-		return {
-			integrations: store.getIntegrations() ?? EMPTY_ARRAY,
-		};
-	}, [] ) as { integrations: Integration[] };
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const { integrations } = useSelect(
+		( select: SelectIntegrations ) => {
+			if ( isIntegrationsEnabled === false ) {
+				return { integrations: EMPTY_ARRAY };
+			}
+			const store = select( INTEGRATIONS_STORE );
+			return {
+				integrations: store.getIntegrations() ?? EMPTY_ARRAY,
+			};
+		},
+		[ isIntegrationsEnabled ]
+	) as { integrations: Integration[] };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 	const [ expandedCards, setExpandedCards ] = useState( {
 		akismet: false,
