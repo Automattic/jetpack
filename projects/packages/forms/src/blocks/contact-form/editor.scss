@@ -841,6 +841,10 @@
 				// See the selector in class-contact-form-block.php for
 				// 'jetpack/input' registration.
 				color: unset !important;
+
+				&:has(.screen-reader-text) {
+					display: none;
+				}
 			}
 
 			.notched-label__label {
@@ -972,7 +976,7 @@
 				outline: none;
 			}
 
-			.jetpack-field__input,
+			.jetpack-field__input:not(~ .screen-reader-text),
 			.jetpack-field__textarea,
 			.jetpack-field-dropdown__toggle {
 				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);

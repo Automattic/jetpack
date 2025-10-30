@@ -93,7 +93,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 	} = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 
-	const { label, placeholder, requiredText, requiredIndicator } = attributes;
+	const { label, placeholder, requiredText, requiredIndicator, hideLabel } = attributes;
 	const placeholderValue = placeholder !== '' ? placeholder : __( 'Add label…', 'jetpack-forms' );
 	const suffix = dateFormat
 		? `(${ DATE_FORMATS.find( f => f.value === dateFormat )?.label })`
@@ -103,6 +103,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 		'notched-label__label': formStyle === FORM_STYLE.OUTLINED,
 		'animated-label__label': formStyle === FORM_STYLE.ANIMATED,
 		'below-label__label': formStyle === FORM_STYLE.BELOW,
+		'screen-reader-text': hideLabel,
 	} );
 
 	const inputBlock = useSiblingBlock( clientId );

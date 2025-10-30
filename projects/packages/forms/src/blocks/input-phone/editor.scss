@@ -103,7 +103,7 @@
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
 
-	.jetpack-field__input {
+	.jetpack-field__input:not(~ .screen-reader-text) {
 		padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
 	}
 
@@ -126,6 +126,13 @@
 
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
 .is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	// .notched-label .screen-reader-text:has(~ .jetpack-field__input) {
+	// 	padding-top: var(--jetpack--contact-form--input-padding, 16px);
+	// }
+	.notched-label:has(.screen-reader-text) ~ .jetpack-field__input {
+		padding-top: var(--jetpack--contact-form--input-padding-top, 16px);
+	}
 
 	.jetpack-field__input {
 
