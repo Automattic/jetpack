@@ -434,6 +434,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						'<input
 							type="email"
 							name="email"
+							autocomplete="email"
 							%1$s
 							style="%2$s"
 							placeholder="%3$s"
@@ -528,7 +529,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							for="<?php echo esc_attr( $subscribe_field_id . '-' . $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
 						</label>
-						<input type="email" name="email" required="required"
+						<input type="email" name="email" autocomplete="email" required="required"
 							<?php if ( ! empty( $email_field_classes ) ) { ?>
 								class="<?php echo esc_attr( $email_field_classes ); ?> required"
 							<?php } ?>
