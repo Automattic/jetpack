@@ -389,6 +389,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The secret from the Tokens class, or a default secret if not available.
 	 */
 	private static function get_secret() {
+
+		/**
+		 * Filter the secret used for signing contact form JWT tokens.
+		 *
+		 * @param string $secret Passes a empty string by default so that we can fall back to other methods if the filter is not used.
+		 *
+		 * @return string The secret used for signing contact form JWT tokens.
+		 */
+		$secret = apply_filters( 'jetpack_forms_secret_jwt', '' );
+		if ( is_string( $secret ) && ! empty( $secret ) ) {
+			return $secret;
+		}
+
 		$token          = ( new Tokens() )->get_access_token();
 		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
 
