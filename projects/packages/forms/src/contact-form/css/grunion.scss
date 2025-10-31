@@ -434,6 +434,10 @@ that needs to mimic the input element styles */
 	max-width: 75%;
 }
 
+.wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
+	flex: 1 1 auto;
+}
+
 @media only screen and ( max-width: 480px ) {
 
 	.wp-block-jetpack-contact-form .grunion-field-wrap {
@@ -1217,12 +1221,18 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .contact-form__input-error.has-errors {
+
 	margin: 0.25rem 0;
 	display: flex;
 	opacity: 1;
 	max-height: unset;
 	transform: translateY(0);
 	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
+
+	.is-single-input-form & {
+		position: absolute;
+	}
+
 }
 
 .contact-form [aria-invalid="true"]:not(fieldset),

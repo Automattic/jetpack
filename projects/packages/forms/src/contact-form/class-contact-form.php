@@ -735,7 +735,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$version
 		);
 
-		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
+		$is_single_input_form = count( $form->fields ) === 1;
+
+		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
+
+		if ( $is_single_input_form ) {
+			$container_classes[] = 'is-single-input-form';
+		}
+
 		$container_classes[]      = self::get_block_alignment_class( $attributes );
 		$container_classes_string = implode( ' ', $container_classes );
 
@@ -906,7 +913,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $is_multistep ) {
 				$r = preg_replace( '/<div class="wp-block-jetpack-form-step-navigation__wrapper/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-form-step-navigation__wrapper', $r, 1 );
-			} elseif ( $has_submit_button_block ) {
+			} elseif ( $has_submit_button_block && ! $is_single_input_form ) {
 				// Place the error wrapper before the FIRST button block only to avoid duplicates (e.g., navigation buttons in multistep forms).
 				// Replace only the first occurrence.
 				$r = preg_replace( '/<div class="wp-block-jetpack-button/', self::render_error_wrapper() . ' <div class="wp-block-jetpack-button', $r, 1 );
