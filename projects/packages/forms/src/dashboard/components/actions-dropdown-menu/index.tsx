@@ -5,7 +5,8 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { DropdownMenu } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { menu, plus, download } from '@wordpress/icons';
+import { menu, plus, download, plugins } from '@wordpress/icons';
+import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -21,6 +22,7 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 	const { openNewForm } = useCreateForm();
 	const { showExportModal, openModal, closeModal, onExport, autoConnectGdrive, exportLabel } =
 		useExportResponses();
+	const navigate = useNavigate();
 
 	const analyticsEvent = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
@@ -34,7 +36,19 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 		} );
 	}, [ openNewForm, analyticsEvent ] );
 
+	const onIntegrationsClick = useCallback( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_button_click', {
+			origin: 'dashboard',
+		} );
+		navigate( '/integrations' );
+	}, [ navigate ] );
+
 	const controls = [
+		{
+			icon: plugins,
+			onClick: onIntegrationsClick,
+			title: __( 'Integrations', 'jetpack-forms' ),
+		},
 		...( exportData.show
 			? [
 					{
