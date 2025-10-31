@@ -5,6 +5,7 @@ import { Hovercards } from '@gravatar-com/hovercards';
 import '@gravatar-com/hovercards/dist/style.css';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { sha256 } from 'js-sha256';
 import './style.scss';
 
@@ -23,6 +24,7 @@ type GravatarProps = {
 	email: string;
 	size?: number;
 	useHovercard?: boolean;
+	isRounded?: boolean;
 };
 
 /**
@@ -40,6 +42,7 @@ export default function Gravatar( {
 	email,
 	size = 48,
 	useHovercard = true,
+	isRounded = true,
 }: GravatarProps ): JSX.Element | null {
 	const profileImageRef = useRef( null );
 	const hovercardRef = useRef( null );
@@ -80,10 +83,14 @@ export default function Gravatar( {
 
 	const hashedEmail = sha256( email );
 
+	const classes = clsx( 'jp-forms__gravatar', {
+		'is-rounded': isRounded,
+	} );
+
 	return (
 		<img
 			alt={ displayName || '' }
-			className="jp-forms__gravatar"
+			className={ classes }
 			ref={ profileImageRef }
 			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }&name=${ displayName }` }
 			width={ size }
