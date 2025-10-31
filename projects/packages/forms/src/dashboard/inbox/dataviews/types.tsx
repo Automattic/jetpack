@@ -1,3 +1,4 @@
+import type { FormResponse } from '../../../types';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**
@@ -14,7 +15,7 @@ export type QueryParams = {
 /**
  * Store actions
  */
-type Registry = {
+export type Registry = {
 	dispatch: ( store: StoreDescriptor ) => {
 		// Notices store actions
 		createSuccessNotice: (
@@ -35,14 +36,14 @@ type Registry = {
 		deleteEntityRecord: (
 			kind: string,
 			name: string,
-			recordId: string,
+			recordId: number,
 			query: Record< string, unknown >,
 			options?: { throwOnError?: boolean }
 		) => Promise< void >;
 		editEntityRecord: (
 			kind: string,
 			name: string,
-			recordId: string,
+			recordId: number,
 			edits: Record< string, unknown >
 		) => Promise< void >;
 
@@ -56,7 +57,7 @@ type Registry = {
 		doBulkAction: ( ids: string[], action: string ) => void;
 		invalidateFilters: () => void;
 		invalidateCounts: () => void;
-		markRecordsAsInvalid: ( ids: string[] ) => void;
+		markRecordsAsInvalid: ( ids: number[] ) => void;
 	};
 	select: ( store: StoreDescriptor ) => {
 		// Dashboard store select actions
@@ -66,16 +67,9 @@ type Registry = {
 		getEntityRecord: (
 			kind: string,
 			name: string,
-			recordId: string
+			recordId: number
 		) => Record< string, unknown > | undefined;
 	};
-};
-
-type Item = {
-	id: string;
-	status: string;
-	edit_form_url: string;
-	is_unread: boolean;
 };
 
 export type Action = {
@@ -84,7 +78,7 @@ export type Action = {
 	icon: React.ReactNode;
 	label: string;
 	modalHeader?: string;
-	isEligible?: ( item: Item ) => boolean;
+	isEligible?: ( item: FormResponse ) => boolean;
 	supportsBulk?: boolean;
-	callback?: ( items: Item[], { registry }: { registry: Registry } ) => Promise< void >;
+	callback?: ( items: FormResponse[], { registry }: { registry: Registry } ) => Promise< void >;
 };
