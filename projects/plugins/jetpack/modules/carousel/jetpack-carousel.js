@@ -815,7 +815,7 @@
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
-			if ( jetpackCarouselStrings.stats ) {
+			if ( jetpackCarouselStrings.stats && carousel.isOpen ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?' +
@@ -826,9 +826,18 @@
 					Math.random();
 			}
 
-			pageview( attachmentId );
+			if ( carousel.isOpen ) {
+				pageview( attachmentId );
+			}
 
-			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			// Update lastKnownLocationHash before setting window.location.hash to prevent
+			// a race condition. Setting window.location.hash triggers the hashchange event
+			// synchronously, which can execute before lastKnownLocationHash is fully updated
+			// in a chained assignment like: window.location.hash = lastKnownLocationHash = value.
+			// This causes the hashchange handler to see mismatched values and re-trigger
+			// selectSlideAtIndex, resulting in duplicate tracking calls.
+			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			window.location.hash = lastKnownLocationHash;
 		}
 
 		function restoreScroll() {
@@ -845,8 +854,8 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
 			carousel.isOpen = false;
+			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
@@ -1607,6 +1616,9 @@
 			} );
 
 			swiper.on( 'slideChange', function ( swiper ) {
+				if ( ! carousel.isOpen ) {
+					return;
+				}
 				selectSlideAtIndex( swiper.realIndex );
 				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );
