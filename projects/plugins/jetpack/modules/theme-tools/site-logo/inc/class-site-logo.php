@@ -218,9 +218,9 @@ class Site_Logo {
 
 		// If we've got an array, reduce them to a string for output
 		if ( is_array( $classes ) ) {
-			$classes = (string) '.' . implode( ', .', $classes );
+			$classes = '.' . implode( ', .', $classes );
 		} else {
-			$classes = (string) '.' . $classes;
+			$classes = '.' . $classes;
 		}
 
 		return $classes;

@@ -14,7 +14,6 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgument : 3 occurrences
-    // PhanPluginRedundantAssignment : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
@@ -38,7 +37,6 @@ return [
         'src/class-waf-rules-manager.php' => ['PhanTypeMismatchArgument'],
         'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
-        'tests/php/unit/WafRuntimeTargetsTest.php' => ['PhanPluginRedundantAssignment'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

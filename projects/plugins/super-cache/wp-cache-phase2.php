@@ -2508,7 +2508,6 @@ function wp_cache_get_ob( &$buffer ) {
 		}
 	}
 
-	$new_cache = true;
 	if ( $fr ) {
 		$supercacheonly = false;
 		fclose( $fr );
@@ -2911,7 +2910,6 @@ function wp_cache_shutdown_callback() {
 						$value = 'application/rss+xml';
 				}
 			}
-			$is_feed = true;
 
 			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
 				$wp_cache_meta['ttl'] = 60;

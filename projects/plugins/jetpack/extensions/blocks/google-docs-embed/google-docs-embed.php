@@ -52,7 +52,7 @@ function render_callback( $attributes ) {
 	$url          = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
 	$aspect_ratio = empty( $attributes['aspectRatio'] ) ? '' : $attributes['aspectRatio'];
 
-	switch ( $attributes['variation'] ) {
+	switch ( $attributes['variation'] ?? 'google-docs' ) {
 		case 'google-docs':
 		default:
 			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';
@@ -69,7 +69,7 @@ function render_callback( $attributes ) {
 		return '';
 	}
 
-	if ( $pattern && ! preg_match( $pattern, $url ) ) {
+	if ( ! preg_match( $pattern, $url ) ) {
 		return '';
 	}
 

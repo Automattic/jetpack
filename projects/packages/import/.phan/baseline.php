@@ -13,7 +13,6 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
-    // PhanRedundantArrayValuesCall : 1 occurrence
     // PhanTraitParentReference : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
 
@@ -24,7 +23,6 @@ return [
         'src/endpoints/class-end.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturnProbablyReal'],
         'src/endpoints/class-global-style.php' => ['PhanTypeMismatchReturn'],
         'src/endpoints/class-menu.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/endpoints/class-post.php' => ['PhanRedundantArrayValuesCall'],
         'src/endpoints/class-start.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturnProbablyReal'],
         'src/endpoints/class-tag.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'src/endpoints/trait-import-id.php' => ['PhanTraitParentReference'],

@@ -203,9 +203,7 @@ function sharing_process_requests() {
 		}
 
 		$service = new $services[ ( $service_name ) ]( $service_name, array() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
-			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		}
+		$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 }
 

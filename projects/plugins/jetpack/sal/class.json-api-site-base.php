@@ -79,7 +79,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_name() {
-		return (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$name = get_bloginfo( 'name' );
+		return is_string( $name ) ? htmlspecialchars_decode( $name, ENT_QUOTES ) : '';
 	}
 
 	/**
@@ -88,7 +89,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_description() {
-		return (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+		$description = get_bloginfo( 'description' );
+		return is_string( $description ) ? htmlspecialchars_decode( $description, ENT_QUOTES ) : '';
 	}
 
 	/**
@@ -1013,7 +1015,7 @@ abstract class SAL_Site {
 	public function get_logo() {
 		// Set an empty response array.
 		$logo_setting = array(
-			'id'    => (int) 0,
+			'id'    => 0,
 			'sizes' => array(),
 			'url'   => '',
 		);
@@ -1254,7 +1256,7 @@ abstract class SAL_Site {
 			$blog_services          = $ss->get_blog_services();
 			$default_sharing_status = ! empty( $blog_services['visible'] );
 		}
-		return (bool) $default_sharing_status;
+		return $default_sharing_status;
 	}
 
 	/**

@@ -36,7 +36,6 @@ class Jetpack_Media_Summary {
 	 */
 	public static function get( ?int $post_id, int $blog_id = 0, array $args = array() ) {
 		$post_id = (int) $post_id;
-		$blog_id = (int) $blog_id;
 
 		$defaults = array(
 			'max_words' => 16,
@@ -438,7 +437,7 @@ class Jetpack_Media_Summary {
 	 * @return int Word count.
 	 */
 	public static function get_word_count( $post_content ) {
-		return (int) count( self::split_content_in_words( self::clean_text( $post_content ) ) );
+		return count( self::split_content_in_words( self::clean_text( $post_content ) ) );
 	}
 
 	/**
@@ -453,7 +452,7 @@ class Jetpack_Media_Summary {
 		$content_word_count = count( self::split_content_in_words( self::clean_text( $post_content ) ) );
 		$excerpt_word_count = count( self::split_content_in_words( self::clean_text( $excerpt_content ) ) );
 
-		return (int) $content_word_count - $excerpt_word_count;
+		return $content_word_count - $excerpt_word_count;
 	}
 
 	/**

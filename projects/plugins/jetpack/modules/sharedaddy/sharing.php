@@ -403,7 +403,7 @@ class Sharing_Admin {
 	 */
 	public function should_use_site_editor() {
 			$block_availability = Jetpack_Gutenberg::get_cached_availability();
-			$is_block_available = (bool) isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
+			$is_block_available = isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
 			$is_block_theme     = wp_is_block_theme();
 			return $is_block_available && $is_block_theme;
 	}
@@ -849,7 +849,7 @@ function jetpack_post_sharing_get_value( array $post ) {
 	}
 
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
-	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+	return ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }
 
 /**

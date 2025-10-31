@@ -171,7 +171,7 @@ class Jetpack_Recommendations {
 		);
 
 		$path_parts  = explode( '/', $plugin );
-		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
+		$plugin_file = array_pop( $path_parts );
 
 		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
 			$products = array_column( Jetpack_Plan::get_products(), 'product_slug' );

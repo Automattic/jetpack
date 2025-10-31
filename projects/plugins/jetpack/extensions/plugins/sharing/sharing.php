@@ -55,7 +55,7 @@ add_action(
 								return false;
 							}
 
-							return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+							return ! get_post_meta( $post['id'], 'sharing_disabled', true );
 						},
 						'schema'       => array(
 							'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),

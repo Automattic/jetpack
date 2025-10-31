@@ -653,8 +653,6 @@ class Classic_Search {
 			return $args;
 		}
 
-		$args = array();
-
 		foreach ( $the_tax_query->queries as $tax_query ) {
 			// Right now we only support slugs...see note above.
 			if ( ! is_array( $tax_query ) || ! isset( $tax_query['field'] ) || 'slug' !== $tax_query['field'] ) {

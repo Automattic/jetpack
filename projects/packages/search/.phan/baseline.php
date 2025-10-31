@@ -19,7 +19,6 @@ return [
     // PhanDeprecatedFunction : 2 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
-    // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
     // PhanTypeInvalidDimOffset : 1 occurrence
@@ -36,7 +35,7 @@ return [
         'src/class-options.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-rest-controller.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-template-tags.php' => ['PhanTypeMismatchArgumentProbablyReal'],
-        'src/classic-search/class-classic-search.php' => ['PhanPluginRedundantAssignment', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
+        'src/classic-search/class-classic-search.php' => ['PhanTypeInvalidDimOffset', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypePossiblyInvalidDimOffset'],
         'src/customizer/customize-controls/class-excluded-post-types-control.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/instant-search/class-instant-search.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/widgets/class-search-widget.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgument'],

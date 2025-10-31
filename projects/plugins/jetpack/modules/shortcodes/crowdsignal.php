@@ -228,7 +228,6 @@ if (
 			$inline = ! in_the_loop()
 				&& ! Constants::is_defined( 'TESTING_IN_JETPACK' );
 
-			$no_script       = false;
 			$infinite_scroll = false;
 
 			if ( is_home() && current_theme_supports( 'infinite-scroll' ) ) {
@@ -239,16 +238,12 @@ if (
 				$inline = true;
 			}
 
-			if ( is_feed() || ( defined( 'DOING_AJAX' ) && ! $infinite_scroll ) ) {
-				$no_script = false;
-			}
-
 			self::$add_script = $infinite_scroll;
 
 			/*
 			 * Rating embed.
 			 */
-			if ( (int) $attributes['rating'] > 0 && ! $no_script ) {
+			if ( (int) $attributes['rating'] > 0 ) {
 				$post_id = $post instanceof WP_Post ? $post->ID : get_the_ID();
 				$post_id = $post_id ?? '';
 
@@ -371,10 +366,7 @@ if (
 					esc_html( $attributes['title'] )
 				);
 
-				if (
-					$no_script
-					|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
-				) {
+				if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 					return $poll_link;
 				} elseif ( 'slider' === $attributes['type'] && ! $inline ) { // Slider poll.
 					if ( ! in_array(
@@ -390,7 +382,7 @@ if (
 						'embed' => 'poll',
 						'delay' => (int) $attributes['delay'],
 						'visit' => $attributes['visit'],
-						'id'    => (int) $poll,
+						'id'    => $poll,
 						'site'  => $attributes['site'],
 					);
 
@@ -434,7 +426,7 @@ if (
 
 						$data = array( 'url' => $poll_js );
 
-						self::$scripts['poll'][ (int) $poll ] = $data;
+						self::$scripts['poll'][ $poll ] = $data;
 
 						add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
 
@@ -459,7 +451,7 @@ if (
 						 *
 						 * @param int $poll Poll ID.
 						 */
-						do_action( 'crowdsignal_shortcode_before', (int) $poll );
+						do_action( 'crowdsignal_shortcode_before', $poll );
 
 						return sprintf(
 							'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
@@ -483,7 +475,7 @@ if (
 						);
 
 						/** This action is already documented in modules/shortcodes/crowdsignal.php */
-						do_action( 'crowdsignal_shortcode_before', (int) $poll );
+						do_action( 'crowdsignal_shortcode_before', $poll );
 
 						return sprintf(
 							'<a id="pd_a_%1$s"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$s" style="%2$s%3$s"></div><div id="PD_superContainer"></div><noscript>%4$s</noscript>',

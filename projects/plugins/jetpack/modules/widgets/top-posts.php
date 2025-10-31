@@ -151,7 +151,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>"><?php esc_html_e( 'Maximum number of posts to show (no more than 10):', 'jetpack' ); ?></label>
-			<input id="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>" type="number" value="<?php echo (int) $count; ?>" min="1" max="10" />
+			<input id="<?php echo esc_attr( $this->get_field_id( 'count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>" type="number" value="<?php echo esc_attr( (string) $count ); ?>" min="1" max="10" />
 		</p>
 
 		<?php if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) : ?>
@@ -715,7 +715,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$query_args      = array(
 			'max'       => 11,
 			'summarize' => 1,
-			'num'       => (int) $days,
+			'num'       => $days,
 		);
 		$wpcom_stats     = new WPCOM_Stats();
 		$post_view_posts = $wpcom_stats->convert_stats_array_to_object(

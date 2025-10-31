@@ -1632,7 +1632,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string
 	 */
 	public static function get_default_label_from_type( $type ) {
-		$str = null;
 		switch ( $type ) {
 			case 'text':
 				$str = __( 'Text', 'jetpack-forms' );
@@ -2261,7 +2260,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$should_send_email = apply_filters( 'grunion_should_send_email', null, $post_id );
 
 		// Determine if email should be sent based on filter precedence
-		$send_email = false;
 		if ( $should_send_email === true ) {
 			// Filter explicitly says to send email
 			$send_email = true;
