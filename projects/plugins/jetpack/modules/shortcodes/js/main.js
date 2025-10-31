@@ -251,8 +251,8 @@
 	} );
 
 	addEventListener( 'DOMContentLoaded', () => {
-		[ ...document.getElementsByClassName( 'presentation-wrapper' ) ].forEach(
-			el => new Presentation( el )
-		);
+		document.querySelectorAll( '.presentation-wrapper' ).forEach( el => {
+			new Presentation( el );
+		} );
 	} );
 } )( jQuery );
