@@ -227,6 +227,7 @@ export default function InboxView() {
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
+					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					return (
 						<div className="jp-forms__inbox__author-field">
 							{ item.is_unread && (
@@ -237,15 +238,14 @@ export default function InboxView() {
 									●
 								</span>
 							) }
-							{ item.author_email && (
-								<Gravatar
-									email={ item.author_email }
-									displayName={ authorInfo }
-									key={ decodeEntities( item.author_email ) }
-									size={ 32 }
-									useHovercard={ false }
-								/>
-							) }
+							<Gravatar
+								email={ item.author_email || item.ip } // With IP we still return placeholder image
+								defaultImage={ defaultImage }
+								displayName={ authorInfo }
+								key={ item.id }
+								size={ 32 }
+								useHovercard={ false }
+							/>
 							{ wrapperUnread( item.is_unread, authorInfo ) }
 						</div>
 					);
