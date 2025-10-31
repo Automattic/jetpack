@@ -238,7 +238,7 @@ export default function InboxView() {
 								</span>
 							) }
 							<Gravatar
-								email={ item.author_email || item.ip }
+								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								displayName={ authorInfo }
 								key={ item.id }
 								size={ 32 }
