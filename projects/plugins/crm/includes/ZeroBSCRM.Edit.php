@@ -174,7 +174,7 @@ class zeroBSCRM_Edit{
 					$data = zeroBSCRM_invoicing_getInvoiceData( $this->objID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					if ( ! empty( $data['invoiceObj']['contact'] ) ) {
 						$obj_owner = (int) $data['invoiceObj']['contact'][0]['owner'];
-					} elseif ( ! empty( $data['invoiceObj']['contact'] ) ) {
+					} elseif ( ! empty( $data['invoiceObj']['company'] ) ) {
 						$obj_owner = (int) $data['invoiceObj']['company'][0]['owner'];
 					}
 				}
