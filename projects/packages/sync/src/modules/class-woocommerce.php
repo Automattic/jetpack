@@ -272,7 +272,7 @@ class WooCommerce extends Module {
 	 * @return bool True if whitelisted.
 	 */
 	public function is_whitelisted_order_item_meta( $meta_key ) {
-		return in_array( $meta_key, self::$order_item_meta_whitelist, true );
+		return is_string( $meta_key ) && in_array( $meta_key, self::$order_item_meta_whitelist, true );
 	}
 
 	/**
