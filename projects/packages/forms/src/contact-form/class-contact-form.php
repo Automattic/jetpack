@@ -393,12 +393,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		/**
 		 * Filter the secret used for signing contact form JWT tokens.
 		 *
-		 * @param string $secret The secret used for signing contact form JWT tokens.
+		 * @param string $secret Passes a empty string by default so that we can fall back to other methods if the filter is not used.
 		 *
 		 * @return string The secret used for signing contact form JWT tokens.
 		 */
 		$secret = apply_filters( 'jetpack_form_secret_jwt', '' );
-		if ( ! empty( $secret ) ) {
+		if ( is_string( $secret ) && ! empty( $secret ) ) {
 			return $secret;
 		}
 
