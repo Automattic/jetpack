@@ -247,8 +247,23 @@ export default function InboxView() {
 				id: 'avatar',
 				label: __( 'Avatar', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					const authorInfo = decodeEntities(
+						item.author_name || item.author_email || item.author_url || item.ip
+					);
+					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+
 					return (
-						<img src={ item.author_avatar } alt={ item.author_name } width={ 24 } height={ 24 } />
+						<>
+							<Gravatar
+								email={ item.author_email || item.ip } // With IP we still return placeholder image
+								defaultImage={ defaultImage }
+								displayName={ authorInfo }
+								key={ item.id }
+								size={ 32 }
+								useHovercard={ false }
+								isRounded={ false }
+							/>
+						</>
 					);
 				},
 				enableSorting: false,
@@ -263,7 +278,6 @@ export default function InboxView() {
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					const secondaryInfo =
 						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">
@@ -294,14 +308,6 @@ export default function InboxView() {
 									●
 								</span>
 							) }
-							<Gravatar
-								email={ item.author_email || item.ip } // With IP we still return placeholder image
-								defaultImage={ defaultImage }
-								displayName={ authorInfo }
-								key={ item.id }
-								size={ 32 }
-								useHovercard={ false }
-							/>
 							<div className="jp-forms__inbox__author-info-container">
 								<span className="jp-forms__inbox__author-info">
 									{ wrapperUnread( item.is_unread, authorInfo ) }

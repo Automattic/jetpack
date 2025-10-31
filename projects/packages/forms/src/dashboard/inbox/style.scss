@@ -303,6 +303,12 @@
 		@media (min-width: 782px) {
 			border-right: 1px solid var(--jp-gray-5);
 		}
+
+		// Override DataViews default max-width for media in primary column
+		// to better fit smaller avatars (24x24 instead of larger preview images)
+		.dataviews-column-primary__media {
+			max-width: 32px;
+		}
 	}
 
 	.dataviews-footer {
