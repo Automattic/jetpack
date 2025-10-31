@@ -473,5 +473,30 @@
 				}
 			}
 		}
+
+		#wp-admin-bar-help-center {
+
+			li {
+
+				.ab-item {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+
+					svg {
+						fill: currentColor;
+						padding: 0;
+						position: unset;
+					}
+
+					&:hover {
+
+						svg {
+							fill: #7b90ff;
+						}
+					}
+				}
+			}
+		}
 	}
 }
