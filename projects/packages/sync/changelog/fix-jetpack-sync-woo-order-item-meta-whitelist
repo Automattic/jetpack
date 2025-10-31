@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync: Ensure order item meta is only synced if it is in the whitelist.
