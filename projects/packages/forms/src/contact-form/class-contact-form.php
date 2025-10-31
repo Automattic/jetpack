@@ -482,7 +482,35 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $default_to;
 		}
 
-		$post_author = get_userdata( $post_author_id );
+		$post = get_post( $source->get_id() );
+		if ( ! $post ) {
+			return $default_to;
+		}
+
+		return self::get_default_to_for_editor( $post );
+	}
+
+	/**
+	 * Get the default recipient email address for the contact form based on post data.
+	 *
+	 * This is used when we load the post or page in the editor, and we don't have the post author ID directly.
+	 *
+	 * @param mixed|null $post Optional post data (object or array).
+	 *
+	 * @return string The default recipient email address.
+	 */
+	public static function get_default_to_for_editor( $post = null ) {
+		$default_to = get_option( 'admin_email' );
+
+		if ( empty( $post ) ) {
+			return $default_to;
+		}
+
+		$post_author_id = self::get_post_property( $post, 'post_author' );
+		$post_id        = self::get_post_property( $post, 'ID' );
+		$post_author    = get_user( $post_author_id );
+
+		// Check that the user has edit permissions for this blog and has an email address
 		if ( empty( $post_author ) || empty( $post_author->user_email ) ) {
 			return $default_to;
 		}
@@ -493,7 +521,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		// Check that the author can still edit the post or page.
-		if ( user_can( $post_author_id, 'edit_post', $source->get_id() ) ) {
+		if ( user_can( $post_author_id, 'edit_post', $post_id ) ) {
 			return $post_author->user_email;
 		}
 

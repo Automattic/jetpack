@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix a bug with the default email in the editor

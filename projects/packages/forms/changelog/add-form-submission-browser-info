@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Device detection: added a method that returns the browser display name.

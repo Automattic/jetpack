@@ -815,7 +815,7 @@
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
-			if ( jetpackCarouselStrings.stats ) {
+			if ( jetpackCarouselStrings.stats && carousel.isOpen ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?' +
@@ -826,9 +826,12 @@
 					Math.random();
 			}
 
-			pageview( attachmentId );
+			if ( carousel.isOpen ) {
+				pageview( attachmentId );
+			}
 
-			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			window.location.hash = lastKnownLocationHash;
 		}
 
 		function restoreScroll() {
@@ -845,8 +848,8 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
 			carousel.isOpen = false;
+			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
@@ -1607,6 +1610,9 @@
 			} );
 
 			swiper.on( 'slideChange', function ( swiper ) {
+				if ( ! carousel.isOpen ) {
+					return;
+				}
 				selectSlideAtIndex( swiper.realIndex );
 				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );

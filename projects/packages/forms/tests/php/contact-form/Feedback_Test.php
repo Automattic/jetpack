@@ -361,6 +361,58 @@ class Feedback_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test the browser information is parsed correctly from user agent.
+	 */
+	public function test_browser_parsing_from_user_agent() {
+
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => 'John Doe',
+				'email'   => 'john@example.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Test Chrome Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Chrome', $browser, 'Browser should be Chrome' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test Safari Mobile (iPhone)
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Safari', $browser, 'Browser should be Safari' );
+		$this->assertStringContainsString( 'Mobile', $browser, 'Platform should be Mobile' );
+
+		// Test Firefox Desktop
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0';
+		$response                   = Feedback::from_submission( $_post_data, $form );
+		$browser                    = $response->get_browser();
+		$this->assertStringContainsString( 'Firefox', $browser, 'Browser should be Firefox' );
+		$this->assertStringContainsString( 'Desktop', $browser, 'Platform should be Desktop' );
+
+		// Test no user agent
+		unset( $_SERVER['HTTP_USER_AGENT'] );
+		$response = Feedback::from_submission( $_post_data, $form );
+		$browser  = $response->get_browser();
+		$this->assertNull( $browser, 'Browser should be null when no user agent' );
+	}
+
+	/**
 	 * Test the subject line is computed for legacy correctly.
 	 */
 	public function test_computed_subject_legacy() {

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -922,6 +923,40 @@ class Feedback {
 			}
 		}
 		return $country_code;
+	}
+
+	/**
+	 * Get the browser information from the user agent.
+	 *
+	 * Returns a formatted string like "Chrome (Desktop)" or "Safari (Mobile)".
+	 *
+	 * @return string|null Browser information or null if user agent is not available.
+	 */
+	public function get_browser() {
+		if ( empty( $this->user_agent ) ) {
+			return null;
+		}
+
+		// Use Jetpack Device Detection to parse the user agent.
+		$ua_info = new User_Agent_Info( $this->user_agent );
+
+		// Get browser name.
+		$browser_name = $ua_info->get_browser_display_name();
+
+		if ( $browser_name === User_Agent_Info::OTHER ) {
+			return __( 'Unknown browser', 'jetpack-forms' );
+		}
+
+		// Determine platform type (Mobile, Tablet, or Desktop).
+		$platform_type = 'Desktop';
+		if ( $ua_info->is_tablet() ) {
+			$platform_type = 'Tablet';
+		} elseif ( $ua_info->get_platform() ) {
+			// If there's a mobile platform detected (not false), it's mobile.
+			$platform_type = 'Mobile';
+		}
+
+		return sprintf( '%s (%s)', $browser_name, $platform_type );
 	}
 
 	/**

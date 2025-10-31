@@ -95,6 +95,22 @@ class User_Agent_Info {
 	const BROWSER_SILK             = 'silk';
 	const OTHER                    = 'other';
 
+	const BROWSER_DISPLAY_NAME_MAP = array(
+		self::BROWSER_CHROME  => 'Chrome',
+		self::BROWSER_FIREFOX => 'Firefox',
+		self::BROWSER_SAFARI  => 'Safari',
+		self::BROWSER_EDGE    => 'Edge',
+		self::BROWSER_OPERA   => 'Opera',
+		self::BROWSER_IE      => 'Internet Explorer',
+		self::BROWSER_SAMSUNG => 'Samsung Browser',
+		self::BROWSER_UC      => 'UC Browser',
+		self::BROWSER_YANDEX  => 'Yandex Browser',
+		self::BROWSER_VIVALDI => 'Vivaldi',
+		self::BROWSER_MIUI    => 'MIUI Browser',
+		self::BROWSER_SILK    => 'Amazon Silk',
+		self::OTHER           => 'Other',
+	);
+
 	/**
 	 * A list of dumb-phone user agent parts.
 	 *
@@ -360,6 +376,16 @@ class User_Agent_Info {
 			return self::BROWSER_IE;
 		}
 		return self::OTHER;
+	}
+
+	/**
+	 * Get the display name of the browser.
+	 *
+	 * @return string
+	 */
+	public function get_browser_display_name() {
+		$browser = $this->get_browser();
+		return self::BROWSER_DISPLAY_NAME_MAP[ $browser ] ?? $browser;
 	}
 
 	/**
