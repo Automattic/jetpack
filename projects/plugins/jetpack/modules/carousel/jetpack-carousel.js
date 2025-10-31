@@ -302,6 +302,7 @@
 		var scrollPos;
 
 		var lastKnownLocationHash = '';
+		var lastTrackedAttachmentId = null;
 		var isUserTyping = false;
 
 		var gallerySelector =
@@ -815,18 +816,22 @@
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
-			if ( jetpackCarouselStrings.stats && carousel.isOpen ) {
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?' +
-					jetpackCarouselStrings.stats +
-					'&post=' +
-					encodeURIComponent( attachmentId ) +
-					'&rand=' +
-					Math.random();
-			}
+			// Only track if this is a different attachment than the last one tracked,
+			// to prevent duplicate tracking during Swiper's loop transitions.
+			if ( carousel.isOpen && attachmentId !== lastTrackedAttachmentId ) {
+				lastTrackedAttachmentId = attachmentId;
 
-			if ( carousel.isOpen ) {
+				if ( jetpackCarouselStrings.stats ) {
+					new Image().src =
+						document.location.protocol +
+						'//pixel.wp.com/g.gif?' +
+						jetpackCarouselStrings.stats +
+						'&post=' +
+						encodeURIComponent( attachmentId ) +
+						'&rand=' +
+						Math.random();
+				}
+
 				pageview( attachmentId );
 			}
 
@@ -855,6 +860,7 @@
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
 			carousel.isOpen = false;
+			lastTrackedAttachmentId = null;
 			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
