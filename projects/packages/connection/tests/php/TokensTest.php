@@ -317,6 +317,159 @@ class TokensTest extends TestCase {
 	}
 
 	/**
+	 * Test that the filter can inject a user token.
+	 */
+	public function test_jetpack_connection_get_access_token_filter() {
+		$tokens = new Tokens();
+
+		// The filter receives null as the first parameter and should return a complete token object
+		add_filter(
+			'jetpack_connection_get_access_token',
+			function ( $token, $user_id ) {
+				// Inject a custom token for user ID 1
+				if ( $user_id === 1 ) {
+					return (object) array(
+						'external_user_id' => 1,
+						'secret'           => 'filtered_secret_123',
+					);
+				}
+				return $token;
+			},
+			10,
+			2
+		);
+
+		$filtered_token = $tokens->get_access_token( 1, false );
+
+		// Verify the filter injected the custom token
+		static::assertIsObject( $filtered_token );
+		static::assertSame( 'filtered_secret_123', $filtered_token->secret );
+		static::assertSame( 1, $filtered_token->external_user_id );
+
+		remove_all_filters( 'jetpack_connection_get_access_token' );
+	}
+
+	/**
+	 * Test that the filter can inject a blog token for Simple sites.
+	 */
+	public function test_jetpack_connection_get_access_token_filter_blog_token() {
+		$tokens = new Tokens();
+
+		// Simulate a Simple site that needs a blog token injected
+		add_filter(
+			'jetpack_connection_get_access_token',
+			function ( $token, $user_id ) {
+				// When $user_id is false, this is a blog token request
+				if ( false === $user_id ) {
+					return (object) array(
+						'external_user_id' => null,
+						'secret'           => 'simple_site_blog_token',
+					);
+				}
+				return $token;
+			},
+			10,
+			2
+		);
+
+		// Request a blog token (user_id = false)
+		$blog_token = $tokens->get_access_token( false );
+
+		// Verify the filter injected the blog token
+		static::assertIsObject( $blog_token );
+		static::assertSame( 'simple_site_blog_token', $blog_token->secret );
+		static::assertNull( $blog_token->external_user_id );
+
+		remove_all_filters( 'jetpack_connection_get_access_token' );
+	}
+
+	/**
+	 * Test that the filter can pass through by returning null.
+	 */
+	public function test_jetpack_connection_get_access_token_filter_null_passthrough() {
+		// Set up a mock with a real token to return
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_user_tokens' ) )
+			->getMock();
+
+		// User tokens are stored as strings in format "key.secret.user_id"
+		$tokens->expects( $this->once() )
+			->method( 'get_user_tokens' )
+			->willReturn(
+				array(
+					1 => 'test_key.normal_token_secret.1',
+				)
+			);
+
+		// Add a filter that returns null (pass-through)
+		add_filter(
+			'jetpack_connection_get_access_token',
+			function () {
+				// Return null to let normal token retrieval happen
+				return null;
+			},
+			10
+		);
+
+		// Request a user token
+		$user_token = $tokens->get_access_token( 1, false );
+
+		// Verify the normal token retrieval happened (not the filter)
+		static::assertIsObject( $user_token );
+		static::assertSame( 'test_key.normal_token_secret', $user_token->secret );
+		static::assertSame( 1, $user_token->external_user_id );
+
+		remove_all_filters( 'jetpack_connection_get_access_token' );
+	}
+
+	/**
+	 * Test that the filter can return WP_Error for error handling.
+	 */
+	public function test_jetpack_connection_get_access_token_filter_error_handling() {
+		$tokens = new Tokens();
+
+		// Test 1: Filter returns WP_Error when suppress_errors is false
+		add_filter(
+			'jetpack_connection_get_access_token',
+			function ( $token, $user_id ) {
+				if ( $user_id === 999 ) {
+					return new WP_Error( 'token_blocked', 'This user token is blocked' );
+				}
+				return $token;
+			},
+			10,
+			2
+		);
+
+		$result = $tokens->get_access_token( 999, false, false );
+
+		static::assertInstanceOf( WP_Error::class, $result );
+		static::assertSame( 'token_blocked', $result->get_error_code() );
+		static::assertSame( 'This user token is blocked', $result->get_error_message() );
+
+		remove_all_filters( 'jetpack_connection_get_access_token' );
+
+		// Test 2: Filter returns false when suppress_errors is true
+		add_filter(
+			'jetpack_connection_get_access_token',
+			function ( $token, $user_id, $_token_key, $suppress_errors ) {
+				if ( $user_id === 888 && $suppress_errors ) {
+					return false;
+				}
+				return $token;
+			},
+			10,
+			4
+		);
+
+		$result = $tokens->get_access_token( 888, false, true );
+
+		static::assertFalse( $result );
+
+		remove_all_filters( 'jetpack_connection_get_access_token' );
+	}
+
+	/**
 	 * Filter to get the current site URL.
 	 *
 	 * @return string
