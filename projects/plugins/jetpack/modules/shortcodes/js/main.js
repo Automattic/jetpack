@@ -250,9 +250,9 @@
 		},
 	} );
 
-	$( document ).ready( function () {
-		$( '.presentation-wrapper' ).forEach( function () {
-			new Presentation( this );
+	addEventListener( 'DOMContentLoaded', () => {
+		document.querySelectorAll( '.presentation-wrapper' ).forEach( el => {
+			new Presentation( el );
 		} );
 	} );
 } )( jQuery );
