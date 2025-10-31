@@ -804,16 +804,6 @@ function JetpackContactFormEdit( {
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
-						title={ __( 'Responses storage', 'jetpack-forms' ) }
-						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
-						initialOpen={ false }
-					>
-						<JetpackManageResponsesSettings
-							attributes={ attributes }
-							setAttributes={ setAttributes }
-						/>
-					</PanelBody>
-					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }
 						className="jetpack-contact-form__panel"
@@ -908,6 +898,16 @@ function JetpackContactFormEdit( {
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
 						</Suspense>
 					) }
+					<PanelBody
+						title={ __( 'Responses storage', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
+						initialOpen={ false }
+					>
+						<JetpackManageResponsesSettings
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+						/>
+					</PanelBody>
 				</InspectorControls>
 				<InspectorAdvancedControls>
 					<TextControl
