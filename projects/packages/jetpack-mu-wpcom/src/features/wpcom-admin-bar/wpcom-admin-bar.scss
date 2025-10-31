@@ -476,6 +476,20 @@
 
 		#wp-admin-bar-help-center {
 
+			&.hover {
+
+				.ab-sub-wrapper {
+					display: none;
+				}
+			}
+
+			&.open-click {
+
+				.ab-sub-wrapper {
+					display: block;
+				}
+			}
+
 			li {
 
 				.ab-item {
