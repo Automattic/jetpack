@@ -52,6 +52,7 @@ const settings = {
 				fontSize: true,
 			},
 		},
+		blockVisibility: true,
 	},
 	attributes: {
 		label: {
@@ -69,6 +70,10 @@ const settings = {
 		requiredIndicator: {
 			type: 'boolean',
 			default: true,
+		},
+		metadata: {
+			type: 'object',
+			default: {},
 		},
 	},
 	usesContext: [
