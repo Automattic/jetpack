@@ -2099,7 +2099,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				/* translators: Placeholder is the IP address of the person who submitted a form. */
 				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
 				$comment_author_ip_with_flag
-			) . '<br />';
+			);
 		}
 		$footer_browser = null;
 		if ( $response->get_browser() ) {
