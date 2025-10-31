@@ -9,6 +9,16 @@ import { sha256 } from 'js-sha256';
 import './style.scss';
 
 type GravatarProps = {
+	defaultImage?: // https://docs.gravatar.com/sdk/images/#default-image
+	| 'blank'
+		| 'color'
+		| 'identicon'
+		| 'initials'
+		| 'monsterid'
+		| 'mp'
+		| 'retro'
+		| 'robohash'
+		| 'wavatar';
 	displayName?: string;
 	email: string;
 	size?: number;
@@ -25,6 +35,7 @@ type GravatarProps = {
  * @return {JSX.Element} The Gravatar component
  */
 export default function Gravatar( {
+	defaultImage = 'initials',
 	displayName,
 	email,
 	size = 48,
@@ -74,7 +85,7 @@ export default function Gravatar( {
 			alt={ displayName || '' }
 			className="jp-forms__gravatar"
 			ref={ profileImageRef }
-			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=initials&name=${ displayName }` }
+			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }&name=${ displayName }` }
 			width={ size }
 			height={ size }
 		/>
