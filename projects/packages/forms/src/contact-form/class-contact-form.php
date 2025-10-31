@@ -397,7 +397,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @return string The secret used for signing contact form JWT tokens.
 		 */
-		$secret = apply_filters( 'jetpack_form_secret_jwt', '' );
+		$secret = apply_filters( 'jetpack_forms_secret_jwt', '' );
 		if ( is_string( $secret ) && ! empty( $secret ) ) {
 			return $secret;
 		}
