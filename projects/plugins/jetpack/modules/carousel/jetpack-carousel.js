@@ -831,10 +831,11 @@
 			}
 
 			// Update lastKnownLocationHash before setting window.location.hash to prevent
-			// the hashchange event handler from re-triggering selectSlideAtIndex.
-			// If we use a combined assignment (window.location.hash = lastKnownLocationHash = value),
-			// the hashchange event can fire before lastKnownLocationHash is updated, causing
-			// duplicate tracking calls.
+			// a race condition. Setting window.location.hash triggers the hashchange event
+			// synchronously, which can execute before lastKnownLocationHash is fully updated
+			// in a chained assignment like: window.location.hash = lastKnownLocationHash = value.
+			// This causes the hashchange handler to see mismatched values and re-trigger
+			// selectSlideAtIndex, resulting in duplicate tracking calls.
 			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
 			window.location.hash = lastKnownLocationHash;
 		}
