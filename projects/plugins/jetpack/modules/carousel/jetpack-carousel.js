@@ -830,6 +830,11 @@
 				pageview( attachmentId );
 			}
 
+			// Update lastKnownLocationHash before setting window.location.hash to prevent
+			// the hashchange event handler from re-triggering selectSlideAtIndex.
+			// If we use a combined assignment (window.location.hash = lastKnownLocationHash = value),
+			// the hashchange event can fire before lastKnownLocationHash is updated, causing
+			// duplicate tracking calls.
 			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
 			window.location.hash = lastKnownLocationHash;
 		}
