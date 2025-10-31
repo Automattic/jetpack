@@ -149,12 +149,12 @@ class Contact_Form_Block {
 			'jetpack/label',
 			array(
 				'supports'     => array(
-					'color'      => array(
+					'color'           => array(
 						'text'       => true,
 						'background' => false,
 						'gradients'  => false,
 					),
-					'typography' => array(
+					'typography'      => array(
 						'fontSize'                     => true,
 						'lineHeight'                   => true,
 						'__experimentalFontFamily'     => true,
@@ -164,6 +164,7 @@ class Contact_Form_Block {
 						'__experimentalTextDecoration' => true,
 						'__experimentalLetterSpacing'  => true,
 					),
+					'blockVisibility' => true,
 				),
 				'uses_context' => array(
 					'jetpack/field-required',
