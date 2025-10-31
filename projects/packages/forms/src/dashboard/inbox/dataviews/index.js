@@ -237,15 +237,13 @@ export default function InboxView() {
 									●
 								</span>
 							) }
-							{ item.author_email && (
-								<Gravatar
-									email={ item.author_email }
-									displayName={ authorInfo }
-									key={ decodeEntities( item.author_email ) }
-									size={ 32 }
-									useHovercard={ false }
-								/>
-							) }
+							<Gravatar
+								email={ item.author_email || item.ip }
+								displayName={ authorInfo }
+								key={ item.id }
+								size={ 32 }
+								useHovercard={ false }
+							/>
 							{ wrapperUnread( item.is_unread, authorInfo ) }
 						</div>
 					);
