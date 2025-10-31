@@ -2153,9 +2153,6 @@ function wp_cache_ob_callback( $buffer ) {
 	} elseif ( wpsc_is_caching_user_disabled() ) {
 		wp_cache_debug( 'wp_cache_ob_callback: Caching disabled for known user. User logged in or cookie found.' );
 		$cache_this_page = false;
-	} elseif ( wp_cache_user_agent_is_rejected() ) {
-		wp_cache_debug( 'wp_cache_ob_callback: Caching disabled because user agent was rejected.' );
-		$cache_this_page = false;
 	}
 
 	if ( isset( $wpsc_save_headers ) && $wpsc_save_headers ) {
