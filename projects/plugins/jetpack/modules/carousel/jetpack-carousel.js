@@ -1609,6 +1609,9 @@
 			} );
 
 			swiper.on( 'slideChange', function ( swiper ) {
+				if ( ! carousel.isOpen ) {
+					return;
+				}
 				selectSlideAtIndex( swiper.realIndex );
 				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );
