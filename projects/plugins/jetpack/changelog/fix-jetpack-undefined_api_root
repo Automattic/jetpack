@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+API: Ensure API root is set prior to usage.
