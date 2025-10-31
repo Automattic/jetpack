@@ -253,7 +253,7 @@ class WooCommerce extends Module {
 	 */
 	public function filter_meta( $args ) {
 		if (
-			$this->is_whitelisted_order_item_meta( $args[2] )
+			! empty( $args[2] ) && $this->is_whitelisted_order_item_meta( $args[2] )
 		) {
 			return $args;
 		}
