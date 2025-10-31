@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.4.1
+ * Stubs automatically generated from PHPUnit 12.4.2
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -13202,6 +13202,8 @@ final class IsAnything extends \PHPUnit\Framework\Constraint\Constraint
      * If $returnResult is true, the result of the evaluation is returned as
      * a boolean value instead: true in case of success, false in case of a
      * failure.
+     *
+     * @throws void
      */
     public function evaluate(mixed $other, string $description = '', bool $returnResult = false): ?bool
     {
@@ -15015,6 +15017,9 @@ final class AnyInvokedCount extends \PHPUnit\Framework\MockObject\Rule\Invocatio
  */
 final class AnyParameters implements \PHPUnit\Framework\MockObject\Rule\ParametersRule
 {
+    /**
+     * @throws void
+     */
     public function apply(\PHPUnit\Framework\MockObject\Invocation $invocation): void
     {
     }
@@ -27135,6 +27140,8 @@ final readonly class SuccessfulSchemaDetectionResult extends \PHPUnit\TextUI\Xml
     {
     }
     /**
+     * @throws void
+     *
      * @return non-empty-string
      */
     public function version(): string
