@@ -2697,6 +2697,7 @@ class Contact_Form_Plugin {
 			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 			$results[ __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
 			$results[ __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
+			$results[ __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
 
 		}
 		return $results;
@@ -2737,6 +2738,7 @@ class Contact_Form_Plugin {
 			'90_consent'       => _x( 'Consent', 'noun', 'jetpack-forms' ),
 			'93_ip_address'    => __( 'IP Address', 'jetpack-forms' ),
 			'94_country_code'  => __( 'Country code', 'jetpack-forms' ),
+			'95_browser'       => __( 'Browser', 'jetpack-forms' ),
 		);
 	}
 
