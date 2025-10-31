@@ -372,6 +372,23 @@ class Tokens {
 			return false;
 		}
 
+		/**
+		 * Filters the access token retrieval.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param object|null $access_token The access token object or null if not found.
+		 * @param int|false $user_id The user ID or false for blog token.
+		 * @param string|false $token_key The token key to match or false for any.
+		 * @param bool $suppress_errors Whether to suppress errors or not.
+		 *
+		 * @return object|false|WP_Error The access token object, false if not found and suppress_errors is true, or WP_Error if not found and suppress_errors is false.
+		 */
+		$access_token = apply_filters( 'jetpack_connection_get_access_token', null, $user_id, $token_key, $suppress_errors );
+		if ( $access_token !== null ) {
+			return $access_token;
+		}
+
 		$possible_special_tokens = array();
 		$possible_normal_tokens  = array();
 		$user_tokens             = $this->get_user_tokens();
