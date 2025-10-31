@@ -315,13 +315,19 @@ class WooCommerce_HPOS_Orders extends Module {
 			return false;
 		}
 
-		if ( isset( $processed[ $order_object->id ] ) ) {
+		$order_id = $order_object->get_id();
+
+		if ( empty( $order_id ) ) {
 			return false;
 		}
 
-		$processed[ $order_object->id ] = true;
+		if ( isset( $processed[ $order_id ] ) ) {
+			return false;
+		}
 
-		return array( 'id' => $order_object->id );
+		$processed[ $order_id ] = true;
+
+		return array( 'id' => $order_id );
 	}
 
 	/**

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: WooCommerce_HPOS_Orders: Fix 'Order properties should not be accessed directly.' notice
+
+
