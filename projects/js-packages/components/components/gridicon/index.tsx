@@ -48,34 +48,36 @@ class Gridicon extends Component< GridiconProps > {
 			default:
 				return '';
 			case 'gridicons-audio':
-				return __( 'Has audio.', 'jetpack-components' );
+				return __( 'Has audio', 'jetpack-components' );
 			case 'gridicons-arrow-left':
 				return __( 'Arrow left', 'jetpack-components' );
 			case 'gridicons-arrow-right':
 				return __( 'Arrow right', 'jetpack-components' );
 			case 'gridicons-calendar':
-				return __( 'Is an event.', 'jetpack-components' );
+				return __( 'Is an event', 'jetpack-components' );
 			case 'gridicons-cart':
-				return __( 'Is a product.', 'jetpack-components' );
+				return __( 'Is a product', 'jetpack-components' );
 			case 'chevron-down':
 				return __( 'Show filters', 'jetpack-components' );
 			case 'gridicons-comment':
-				return __( 'Matching comment.', 'jetpack-components' );
+				return __( 'Matching comment', 'jetpack-components' );
 			case 'gridicons-cross':
-				return __( 'Close.', 'jetpack-components' );
+				return __( 'Close', 'jetpack-components' );
+			case 'gridicons-domains':
+				return __( 'Website', 'jetpack-components' );
 			case 'gridicons-filter':
-				return __( 'Toggle search filters.', 'jetpack-components' );
+				return __( 'Toggle search filters', 'jetpack-components' );
 			case 'gridicons-folder':
 				return __( 'Category', 'jetpack-components' );
 			case 'gridicons-help-outline':
 				return __( 'Help', 'jetpack-components' );
 			case 'gridicons-info':
 			case 'gridicons-info-outline':
-				return __( 'Information.', 'jetpack-components' );
+				return __( 'Information', 'jetpack-components' );
 			case 'gridicons-image-multiple':
-				return __( 'Has multiple images.', 'jetpack-components' );
+				return __( 'Has multiple images', 'jetpack-components' );
 			case 'gridicons-image':
-				return __( 'Has an image.', 'jetpack-components' );
+				return __( 'Has an image', 'jetpack-components' );
 			case 'gridicons-page':
 				return __( 'Page', 'jetpack-components' );
 			case 'gridicons-post':
@@ -86,7 +88,7 @@ class Gridicon extends Component< GridiconProps > {
 			case 'gridicons-tag':
 				return __( 'Tag', 'jetpack-components' );
 			case 'gridicons-video':
-				return __( 'Has a video.', 'jetpack-components' );
+				return __( 'Has a video', 'jetpack-components' );
 		}
 	}
 
@@ -170,6 +172,12 @@ class Gridicon extends Component< GridiconProps > {
 				return (
 					<g>
 						<path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z" />
+					</g>
+				);
+			case 'gridicons-domains':
+				return (
+					<g>
+						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm6.918 6h-3.215a49.088 49.088 0 00-.565-3.357A8.048 8.048 0 0118.918 8zm-5.904-3.928c.068.352.387 2.038.645 3.928h-3.318c.258-1.89.577-3.576.645-3.928C11.319 4.029 11.656 4 12 4s.681.029 1.014.072zM14 12c0 .598-.043 1.286-.109 2h-3.782c-.066-.714-.109-1.402-.109-2s.043-1.286.109-2h3.782c.066.714.109 1.402.109 2zM8.862 4.643A49.088 49.088 0 008.297 8H5.082a8.048 8.048 0 013.78-3.357zM4.263 10h3.821C8.033 10.668 8 11.344 8 12s.033 1.332.085 2H4.263C4.097 13.359 4 12.692 4 12s.098-1.359.263-2zm.819 6h3.215c.188 1.424.42 2.65.565 3.357A8.048 8.048 0 015.082 16zm5.904 3.928A77.282 77.282 0 0110.341 16h3.318a78.303 78.303 0 01-.645 3.928c-.333.043-.67.072-1.014.072s-.681-.029-1.014-.072zm4.152-.571c.145-.707.377-1.933.565-3.357h3.215a8.048 8.048 0 01-3.78 3.357zM19.737 14h-3.821c.051-.668.084-1.344.084-2s-.033-1.332-.085-2h3.821c.166.641.264 1.308.264 2s-.097 1.359-.263 2z" />
 					</g>
 				);
 			case 'gridicons-filter':
