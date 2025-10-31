@@ -830,7 +830,8 @@
 				pageview( attachmentId );
 			}
 
-			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			window.location.hash = lastKnownLocationHash;
 		}
 
 		function restoreScroll() {
