@@ -815,7 +815,7 @@
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
-			if ( jetpackCarouselStrings.stats ) {
+			if ( jetpackCarouselStrings.stats && carousel.isOpen ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?' +
@@ -826,7 +826,9 @@
 					Math.random();
 			}
 
-			pageview( attachmentId );
+			if ( carousel.isOpen ) {
+				pageview( attachmentId );
+			}
 
 			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
 		}
@@ -845,8 +847,8 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
 			carousel.isOpen = false;
+			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
