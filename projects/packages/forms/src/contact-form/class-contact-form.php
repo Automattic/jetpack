@@ -735,7 +735,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$version
 		);
 
-		$is_single_input_form = count( $form->fields ) === 1;
+		$is_single_input_form = is_array( $form->fields ) && count( $form->fields ) === 1;
 
 		$container_classes = array( 'wp-block-jetpack-contact-form-container' );
 
