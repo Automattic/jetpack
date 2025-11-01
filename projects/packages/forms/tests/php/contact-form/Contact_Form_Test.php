@@ -3827,13 +3827,6 @@ EOT;
 	 * when $form->fields is null or not countable.
 	 */
 	public function test_parse_handles_null_fields_without_fatal_error() {
-		global $post;
-
-		// Create a post for testing
-		if ( ! $post ) {
-			$post = self::factory()->post->create_and_get();
-		}
-
 		// Test 1: Create a form and set fields to null to simulate the error condition
 		$form = new Contact_Form(
 			array( 'to' => 'test@example.com' ),
@@ -3841,6 +3834,7 @@ EOT;
 		);
 
 		// Manually set fields to null to simulate the error condition
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
 		$form->fields = null;
 
 		// Now test that parse() doesn't throw a fatal error when accessing $form->fields
@@ -3854,10 +3848,11 @@ EOT;
 		$this->assertIsString( $result, 'Parse should return a string even when fields is null' );
 
 		// Test 2: Test with fields set to false
-		$form2         = new Contact_Form(
+		$form2 = new Contact_Form(
 			array( 'to' => 'test@example.com' ),
 			''
 		);
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
 		$form2->fields = false;
 
 		$result2 = Contact_Form::parse(
