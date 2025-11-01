@@ -3820,4 +3820,83 @@ EOT;
 
 		remove_filter( 'grunion_should_send_email', '__return_true' );
 	}
+
+	/**
+	 * Test that parse method handles null or non-array fields gracefully without fatal error.
+	 * This tests the safety check added at line 738 to prevent PHP fatal errors
+	 * when $form->fields is null or not countable.
+	 */
+	public function test_parse_handles_null_fields_without_fatal_error() {
+		// Test 1: Create a form and set fields to null to simulate the error condition
+		$form = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			'' // Empty content
+		);
+
+		// Manually set fields to null to simulate the error condition
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
+		$form->fields = null;
+
+		// Now test that parse() doesn't throw a fatal error when accessing $form->fields
+		$result = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		// Should return a valid string without throwing a fatal error
+		$this->assertIsString( $result, 'Parse should return a string even when fields is null' );
+
+		// Test 2: Test with fields set to false
+		$form2 = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			''
+		);
+		// @phan-suppress-next-line PhanTypeMismatchPropertyProbablyReal -- purely for testing purposes
+		$form2->fields = false;
+
+		$result2 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		$this->assertIsString( $result2, 'Parse should return a string even when fields is false' );
+
+		// Test 3: Test with empty array (should identify as not single input form)
+		$form3         = new Contact_Form(
+			array( 'to' => 'test@example.com' ),
+			''
+		);
+		$form3->fields = array();
+
+		$result3 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			'',
+			array()
+		);
+
+		$this->assertIsString( $result3, 'Parse should return a string with empty fields array' );
+		$this->assertStringNotContainsString( 'is-single-input-form', $result3, 'Should not have single-input-form class with empty fields' );
+
+		// Test 4: Test with single field (should identify as single input form)
+		$result4 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			"[contact-field label='Name' type='name' required='1'/]",
+			array()
+		);
+
+		$this->assertIsString( $result4, 'Parse should return a string with single field' );
+		$this->assertStringContainsString( 'is-single-input-form', $result4, 'Should have single-input-form class with one field' );
+
+		// Test 5: Test with multiple fields (should not be single input form)
+		$result5 = Contact_Form::parse(
+			array( 'to' => 'test@example.com' ),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/]",
+			array()
+		);
+
+		$this->assertIsString( $result5, 'Parse should return a string with multiple fields' );
+		$this->assertStringNotContainsString( 'is-single-input-form', $result5, 'Should not have single-input-form class with multiple fields' );
+	}
 }
