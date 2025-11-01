@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: change field's attribute width to enum to support both integers and string
