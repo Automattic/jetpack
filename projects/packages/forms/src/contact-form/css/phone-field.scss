@@ -75,9 +75,10 @@
 	.is-style-animated & {
 
 		.jetpack-field__input-phone-wrapper {
-			padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
-			padding-left: var(--jetpack--contact-form--animated-left-offset);
-			padding-right: var(--jetpack--contact-form--animated-right-offset);
+
+			&:not(.no-label) {
+				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
+			}
 
 			&:has(.jetpack-field__input-element:focus) {
 				outline: unset;
@@ -104,6 +105,10 @@
 
 				.grunion-label-text {
 					font-size: 0.75em;
+				}
+
+				.grunion-label-required {
+					font-size: 0.6375em;
 				}
 			}
 		}
