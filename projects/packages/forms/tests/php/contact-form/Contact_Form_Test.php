@@ -492,6 +492,26 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the browser information is included in the email message.
+	 */
+	public function test_process_submission_includes_browser_in_email() {
+		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36';
+		$form                       = new Contact_Form( array() );
+		$result                     = $form->process_submission();
+
+		// Processing should be successful and produce the success message.
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback_id = end( Posts::init()->posts )->ID;
+		$submission  = get_post( $feedback_id );
+
+		// Browser information should be included in the email.
+		$email = get_post_meta( $submission->ID, '_feedback_email', true );
+		$this->assertStringContainsString( 'Browser:', $email['message'] );
+		$this->assertStringContainsString( 'Chrome', $email['message'] );
+	}
+
+	/**
 	 * Tests that the submission as a whole will produce something in the
 	 * database when some labels are provided.
 	 *

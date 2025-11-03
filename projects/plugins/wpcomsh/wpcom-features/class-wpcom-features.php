@@ -920,6 +920,7 @@ class WPCOM_Features {
 		self::MAILPOET_BUSINESS                 => array(
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
+			self::WOO_HOSTED_PLANS,
 		),
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                    => array(

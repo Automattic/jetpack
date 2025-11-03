@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: default multistep forms to single step view in the editor and prevent viewport jumping during step navigation.

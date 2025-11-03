@@ -13,7 +13,7 @@ export default {
 			default: true,
 		},
 		width: {
-			type: 'number',
+			enum: [ 25, 33, 50, 75, 100, 'auto' ],
 			default: 100,
 		},
 		shareFieldAttributes: {
