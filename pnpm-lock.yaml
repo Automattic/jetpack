@@ -4814,6 +4814,9 @@ importers:
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
+      jmpress:
+        specifier: 0.4.5
+        version: 0.4.5
       jquery-cycle:
         specifier: 3.0.3
         version: 3.0.3
@@ -13426,6 +13429,9 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  jmpress@0.4.5:
+    resolution: {integrity: sha512-9fhlHHYjwmPazvtjbe7mImAK1hVLkSekqupqg1DcUkxANcoBakvYY5WZcjcc+qahRsMtJ1zB+6MFhzSJmJgnpQ==}
 
   joi@17.13.3:
     resolution: {integrity: sha512-otDA4ldcIx+ZXsKHWmp0YizCweVRZG96J10b0FevjfuncLO1oX59THoAmHkNubYJ+9gWsYsp5k8v4ib6oDv1fA==}
@@ -29125,6 +29131,8 @@ snapshots:
       - ts-node
 
   jiti@2.6.1: {}
+
+  jmpress@0.4.5: {}
 
   joi@17.13.3:
     dependencies:

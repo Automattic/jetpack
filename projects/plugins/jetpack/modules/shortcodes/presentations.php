@@ -124,17 +124,17 @@ if ( ! class_exists( 'Presentations' ) ) :
 			wp_enqueue_style( 'presentations', $plugin . 'css/style.css', array(), JETPACK__VERSION );
 			// Add JavaScript.
 			wp_enqueue_script( 'jquery' );
-			wp_enqueue_script(
-				'jmpress',
-				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/jmpress.min.js', 'modules/shortcodes/js/jmpress.js' ),
+			wp_register_script(
+				'jetpack-shortcode-deps',
+				plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
 				array( 'jquery' ),
-				JETPACK__VERSION,
+				'20251030',
 				true
 			);
 			wp_enqueue_script(
 				'presentations',
 				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/main.min.js', 'modules/shortcodes/js/main.js' ),
-				array( 'jquery', 'jmpress' ),
+				array( 'jquery', 'jetpack-shortcode-deps' ),
 				JETPACK__VERSION,
 				true
 			);
