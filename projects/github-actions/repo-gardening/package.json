@@ -17,7 +17,7 @@
 	"dependencies": {
 		"@actions/core": "1.11.1",
 		"@actions/github": "6.0.1",
-		"@slack/web-api": "7.9.1",
+		"@slack/web-api": "7.12.0",
 		"compare-versions": "6.1.1",
 		"glob": "11.0.2",
 		"moment": "2.30.1",
