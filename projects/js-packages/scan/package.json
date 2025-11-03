@@ -54,7 +54,7 @@
 		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "16.3.0",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.25",
+		"@types/react": "18.3.26",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",
 		"storybook": "9.0.15",
