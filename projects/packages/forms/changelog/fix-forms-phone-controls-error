@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix an error on phone field controls due to lack of key prop

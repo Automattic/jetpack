@@ -326,18 +326,63 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-a.7 - 2025-10-27
+### 15.2-beta - 2025-11-03
 #### Enhancements
+- Don't translate product names.
+- Forms: Add browser info to form responses exports.
+- Forms: Add emoji flag to the response email next to the IP address.
+- Forms: Add first and last name variations.
+- Forms: Add flag next to the IP Address.
+- Forms: Add integrations store.
+- Forms: Add new integrations list component.
+- Forms: Add notification settings panel.
+- Forms: Add read and unread state for new form responses.
+- Forms: Add required indicator settings and make forms with a single input required by default.
 - Forms: Add shared ConsentToggle component.
-- Forms: Improve the performance of loading the form responsesn dashboard by breaking it up into two stages.
+- Forms: Add the IP address as the default field in the responses dashboard.
+- Forms: Add time field.
+- Forms: Avoid typographic orphans in Forms panels in editor.
+- Forms: Disable Jetpack CRM integration by default.
+- Forms: Enable forms push notifications functionality.
+- Forms: Hide Google export card if disabled.
+- Forms: Improve the performance of loading the form responses.
+- Forms: Link IP to lookup service.
+- Forms: merged email and push notification settings panels.
+- Forms: Release Image Select Field to production.
+- Forms: Remove Inbox view action for desktop and leave it just for mobile.
+- Forms: Reorganize settings to a single panel for rating, slider and phone fields.
+- Forms: Start storing the country_code based on the IP with the form responses.
+- Forms: Update "Action after submit" sidebar section.
+- Forms: Update Inbox empty state notices.
 - Instant Search: Add global WooCommerce Product Attributes as filter options.
 - Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.
+- Sharing Buttons block: Update Reddit logo to match updated design.
+- Sitemaps: Use XMLWriter by default for more performant sitemap generation.
+- Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses.
 
 #### Improved compatibility
-- Tested up to WordPress 6.9
+- Custom post types: Ensure features remain available when theme support is added.
+- Forms: Remove Creative Mail promotion.
+- Tested up to WordPress 6.9.
 
 #### Bug fixes
+- Forms: Fix a bug where ther responsive modal is not able to be closed.
 - Forms: Fix textarea submission on enter.
+- Forms: Fix where notices show up so they don't overlap the bottom action bar.
+- Forms: Prevent the required text from being removed from required fields when creating a form from a pattern.
+- Forms: Reset the selection on tab switch in dashboard.
+- Forms: Send emails to the author of the form only if they are able to edit it.
+- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items.
+- Forms: Stop preloading the integrations endpoint.
+- Forms: Store the feedback source info with more context.
+- Instant Search: Handle browser privacy settings stripping out the search query value.
+- Maps Block: Fix compatibility with MapKit JS version 5.80.0+.
+- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin.
+- Newsletter: Update wording to clarify how the reply-to settings can be used.
+- Podcast feed: Prevent fatals when content is empty.
+- Related Posts: Prevent PHP errors when settings are malformed.
+- Slideshow block: Ensure image size selection is correctly reflected in editor at all times.
+- Stats: Prevent fatal when chart response is invalid.
 
 --------
 

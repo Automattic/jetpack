@@ -662,7 +662,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "e63cae9b776f3e26a96d575a258b11ebc22af71c"
+                "reference": "0f0dac123b94a4c9a94e3f97071c3c4c1a180ed5"
             },
             "require": {
                 "php": ">=7.2"
@@ -683,7 +683,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 }
             },
             "autoload": {
@@ -1038,7 +1038,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "86ec576c631ebd6c40ab8c698d3cc4817d298d57"
+                "reference": "b67085a2204120bcd50730d6245ca7dd4701f117"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1077,7 +1077,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.27.x-dev"
+                    "dev-trunk": "5.28.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1560,7 +1560,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "0e7c20324ff820efb82d3462205b958965e7260b"
+                "reference": "fc7fd9c5a4b0b76751f492f4f45704086e1c6f12"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1590,7 +1590,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.53.x-dev"
+                    "dev-trunk": "0.54.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"

@@ -698,7 +698,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "e63cae9b776f3e26a96d575a258b11ebc22af71c"
+                "reference": "0f0dac123b94a4c9a94e3f97071c3c4c1a180ed5"
             },
             "require": {
                 "php": ">=7.2"
@@ -719,7 +719,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 }
             },
             "autoload": {
@@ -1007,7 +1007,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "9cfc90d779410bb79284fa67b18964d915799d0d"
+                "reference": "713257694eab74ca2b21290a99ac6cc1ffb392e1"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1037,7 +1037,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.26.x-dev"
+                    "dev-trunk": "0.27.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"

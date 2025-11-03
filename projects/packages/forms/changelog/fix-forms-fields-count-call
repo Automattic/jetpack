@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: make sure fields is array before attempting a count

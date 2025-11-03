@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Forms: Start storing the country_code based on the IP with the form responses.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Forms: start storing the country code with the form responses based on the IP address.
