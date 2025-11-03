@@ -47,7 +47,7 @@
 		"@codemirror/view": "6.38.0",
 		"@gravatar-com/hovercards": "0.15.0",
 		"@gravatar-com/quick-editor": "0.8.0",
-		"@lezer/common": "1.2.3",
+		"@lezer/common": "1.3.0",
 		"@lezer/highlight": "1.2.1",
 		"@lezer/lr": "1.4.2",
 		"@popperjs/core": "^2.11.8",
