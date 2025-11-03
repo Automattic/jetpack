@@ -437,7 +437,7 @@ that needs to mimic the input element styles */
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
-	flex: 1 1 auto;
+	flex: 1 1 0;
 }
 
 @media only screen and ( max-width: 480px ) {
