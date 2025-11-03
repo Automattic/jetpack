@@ -8,6 +8,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
+import { defaultView } from './views';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -33,6 +34,48 @@ const getCountQueryParams = currentQuery => {
 		queryParams.is_unread = currentQuery.is_unread;
 	}
 	return queryParams;
+};
+
+/**
+ * Helper function to invalidate cache and navigate to correct page after removing items.
+ *
+ * @param {object} registry               - WordPress data registry.
+ * @param {object} currentQuery           - The current query.
+ * @param {object} queryParams            - Query parameters for count caching.
+ * @param {string} statusBeingRemovedFrom - The status items are being removed from ('trash', 'spam', or 'inbox').
+ */
+const invalidateCacheAndNavigate = (
+	registry,
+	currentQuery,
+	queryParams,
+	statusBeingRemovedFrom
+) => {
+	// Invalidate counts to ensure accurate totals
+	registry.dispatch( dashboardStore ).invalidateCounts();
+
+	// Navigate to correct page if current page will be invalid
+	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );
+	const { setCurrentQuery } = registry.dispatch( dashboardStore );
+
+	// Get the appropriate count based on which status we're removing from
+	const countGetters = {
+		trash: getTrashCount,
+		spam: getSpamCount,
+		inbox: getInboxCount,
+	};
+	const remainingCount = countGetters[ statusBeingRemovedFrom ]( queryParams );
+
+	const perPage = currentQuery?.per_page || defaultView.perPage;
+	const newTotalPages = Math.max( 1, Math.ceil( remainingCount / perPage ) );
+	const currentPage = currentQuery?.page || defaultView.page;
+
+	if ( currentPage > newTotalPages ) {
+		// Navigate to the last valid page
+		setCurrentQuery( {
+			...currentQuery,
+			page: newTotalPages,
+		} );
+	}
 };
 
 export const BULK_ACTIONS = {
@@ -110,6 +153,16 @@ export const markAsSpamAction = {
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
+		// If there is at least one successful update, invalidate the cache and navigate if needed
+		if ( itemsUpdated.length ) {
+			let status = 'inbox';
+			if ( items[ 0 ]?.status === 'trash' ) {
+				status = 'trash';
+			}
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+		}
+
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -181,6 +234,12 @@ export const markAsNotSpamAction = {
 			)
 		);
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
+		// If there is at least one successful update, invalidate the cache and navigate if needed
+		if ( itemsUpdated.length ) {
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
+		}
+
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -251,6 +310,13 @@ export const restoreAction = {
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
+		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
+		// If there is at least one successful update, invalidate the cache and navigate if needed
+		if ( itemsUpdated.length ) {
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
+		}
+
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
 			const successMessage =
 				items.length === 1
@@ -314,6 +380,18 @@ export const moveToTrashAction = {
 				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
 			)
 		);
+
+		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
+		// If there is at least one successful update, invalidate the cache and navigate if needed
+		if ( itemsUpdated.length ) {
+			let status = 'inbox';
+			if ( items[ 0 ]?.status === 'trash' ) {
+				status = 'trash';
+			}
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+		}
+
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
 			const successMessage =
 				items.length === 1
@@ -380,6 +458,7 @@ export const deleteAction = {
 		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 		}
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
