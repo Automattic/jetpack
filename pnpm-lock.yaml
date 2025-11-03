@@ -49,8 +49,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1
       '@slack/web-api':
-        specifier: 7.9.1
-        version: 7.9.1
+        specifier: 7.12.0
+        version: 7.12.0
       compare-versions:
         specifier: 6.1.1
         version: 6.1.1
@@ -102,8 +102,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1
       '@slack/web-api':
-        specifier: 7.9.1
-        version: 7.9.1
+        specifier: 7.12.0
+        version: 7.12.0
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -5617,8 +5617,8 @@ importers:
         specifier: 1.55.1
         version: 1.55.1
       '@slack/web-api':
-        specifier: 7.9.1
-        version: 7.9.1
+        specifier: 7.12.0
+        version: 7.12.0
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -8571,12 +8571,12 @@ packages:
     resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
-  '@slack/types@2.17.0':
-    resolution: {integrity: sha512-30KdPUBGJczlchnV8tKSxFG1yPk6rb8waba6HAoNHOy99zomzovQo6WpH9vQsY0g3RlxgVLojxKMRe0WjEjFWw==}
+  '@slack/types@2.18.0':
+    resolution: {integrity: sha512-ZKrdeoppbM+3l2KKOi4/3oFYKCEwiW3dQfdHZDcecJ9rAmEqWPnARYmac9taZNitb0xnSgu6GOpHgwaKI8se2g==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.9.1':
-    resolution: {integrity: sha512-qMcb1oWw3Y/KlUIVJhkI8+NcQXq1lNymwf+ewk93ggZsGd6iuz9ObQsOEbvlqlx1J+wd8DmIm3DORGKs0fcKdg==}
+  '@slack/web-api@7.12.0':
+    resolution: {integrity: sha512-LrDxjYyqjeYYQGVdVZ6EYHunFmzveOr2pFpShr6TzW4KNFpdNNnpKekjtMg0PJlOsMibSySLGQqiBZQDasmRCA==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@so-ric/colorspace@1.1.6':
@@ -20922,12 +20922,12 @@ snapshots:
     dependencies:
       '@types/node': 20.19.21
 
-  '@slack/types@2.17.0': {}
+  '@slack/types@2.18.0': {}
 
-  '@slack/web-api@7.9.1':
+  '@slack/web-api@7.12.0':
     dependencies:
       '@slack/logger': 4.0.0
-      '@slack/types': 2.17.0
+      '@slack/types': 2.18.0
       '@types/node': 20.19.21
       '@types/retry': 0.12.0
       axios: 1.12.0
