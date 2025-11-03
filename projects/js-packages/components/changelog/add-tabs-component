@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Tabs component with animated indicator for ARIA-compliant tab navigation.
