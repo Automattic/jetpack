@@ -161,7 +161,7 @@ export const markAsSpamAction = {
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'inbox' );
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, items[ 0 ]?.status );
 		}
 
 		if ( itemsUpdated.length === items.length ) {
@@ -386,7 +386,7 @@ export const moveToTrashAction = {
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'inbox' );
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, items[ 0 ]?.status );
 		}
 
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
