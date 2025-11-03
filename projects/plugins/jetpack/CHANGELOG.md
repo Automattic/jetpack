@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.2-beta - 2025-11-03
+### Enhancements
+- Forms: Add browser info to form responses exports. [#45709]
+- Forms: Add emoji flag to the response email next to the IP address. [#45645]
+- Forms: Add first and last name variations. [#45517]
+- Forms: Add flag next to the IP Address. [#45643]
+- Forms: Add new integrations list component. [#45648]
+- Forms: Add the IP address as the default field in the responses dashboard. [#45704]
+- Forms: Add time field. [#45665]
+- Forms: Disable Jetpack CRM integration by default. [#45667]
+- Forms: Enable forms push notifications functionality. [#45682]
+- Forms: Link IP to lookup service. [#45653]
+- Forms: Release Image Select Field to production. [#45577]
+- Forms: Start storing the country_code based on the IP with the form responses. [#45599]
+- Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses. [#44929]
+- Don't translate product names. [#43961]
+
+### Bug fixes
+- Forms: Fix where notices show up so they don't overlap the bottom action bar. [#45616]
+- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items. [#45618]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API: Ensure API root is set prior to usage. [#45708]
+- Calendar Reader: Remove debugging statement added to bypass caching. [#45671]
+- Editor assets endpoint: Mock current screen to avoid fatal errors from plugins/themes. [#45617]
+- Fix duplicate tracking event for carousel. [#45720]
+- Flex sites: Return the is_wpcom_flex flag from the sites API for deleted sites. [#45719]
+- Forms: Add browser info to form responses detail view. [#45674]
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+- Prevent PHP error when handling malformed style source. [#45621]
+- Remove incorrect comment. [#45724]
+- Shortcodes: Fix JS error in presentation shortcode. [#45701]
+- Tests: Update WooCommerce sync related tests to account for whitelisting order item meta. [#45684]
+- Update package dependencies. [#45652] [#45676] [#45677]
+
 ## 15.2-a.7 - 2025-10-27
 ### Enhancements
 - Forms: Add shared ConsentToggle component. [#45556]

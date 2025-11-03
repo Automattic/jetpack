@@ -326,18 +326,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-a.7 - 2025-10-27
+### 15.2-beta - 2025-11-03
 #### Enhancements
-- Forms: Add shared ConsentToggle component.
-- Forms: Improve the performance of loading the form responsesn dashboard by breaking it up into two stages.
-- Instant Search: Add global WooCommerce Product Attributes as filter options.
-- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.
-
-#### Improved compatibility
-- Tested up to WordPress 6.9
+- Forms: Add browser info to form responses exports.
+- Forms: Add emoji flag to the response email next to the IP address.
+- Forms: Add first and last name variations.
+- Forms: Add flag next to the IP Address.
+- Forms: Add new integrations list component.
+- Forms: Add the IP address as the default field in the responses dashboard.
+- Forms: Add time field.
+- Forms: Disable Jetpack CRM integration by default.
+- Forms: Enable forms push notifications functionality.
+- Forms: Link IP to lookup service.
+- Forms: Release Image Select Field to production.
+- Forms: Start storing the country_code based on the IP with the form responses.
+- Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses.
+- Don't translate product names.
 
 #### Bug fixes
-- Forms: Fix textarea submission on enter.
+- Forms: Fix where notices show up so they don't overlap the bottom action bar.
+- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items.
 
 --------
 

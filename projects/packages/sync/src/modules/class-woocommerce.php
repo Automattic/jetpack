@@ -246,7 +246,7 @@ class WooCommerce extends Module {
 	/**
 	 * Handler for filtering out non-whitelisted order item meta.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.22.3
 	 *
 	 * @param array $args Hook arguments.
 	 * @return array|false False if not whitelisted, the original hook args otherwise.
@@ -266,7 +266,7 @@ class WooCommerce extends Module {
 	 *
 	 * @access public
 	 *
-	 * @since $$next-version$$
+	 * @since 4.22.3
 	 *
 	 * @param string $meta_key Order item meta key.
 	 * @return bool True if whitelisted.

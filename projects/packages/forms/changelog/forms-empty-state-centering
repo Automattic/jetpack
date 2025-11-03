@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Improve empty state centering and fix scrolling by consolidating layout min-height rules and improving flexbox handling.
