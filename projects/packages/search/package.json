@@ -89,7 +89,7 @@
 		"@wordpress/dependency-extraction-webpack-plugin": "6.31.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.0.0",
-		"concurrently": "7.6.0",
+		"concurrently": "9.2.1",
 		"core-js": "3.38.1",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",

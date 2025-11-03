@@ -160,7 +160,7 @@
 		"@wordpress/token-list": "3.31.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.0.0",
-		"concurrently": "7.6.0",
+		"concurrently": "9.2.1",
 		"eval": "0.1.8",
 		"glob": "11.0.2",
 		"jest": "30.0.4",
