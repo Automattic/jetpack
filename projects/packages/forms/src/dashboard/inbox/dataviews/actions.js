@@ -50,11 +50,6 @@ const invalidateCacheAndNavigate = (
 	queryParams,
 	statusBeingRemovedFrom
 ) => {
-	// Invalidate entity records cache for current view
-	registry
-		.dispatch( coreStore )
-		.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
-
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
@@ -161,7 +156,11 @@ export const markAsSpamAction = {
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, items[ 0 ]?.status );
+			let status = 'inbox';
+			if ( items[ 0 ]?.status === 'trash' ) {
+				status = 'trash';
+			}
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
 
 		if ( itemsUpdated.length === items.length ) {
@@ -386,7 +385,11 @@ export const moveToTrashAction = {
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, items[ 0 ]?.status );
+			let status = 'inbox';
+			if ( items[ 0 ]?.status === 'trash' ) {
+				status = 'trash';
+			}
+			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
 
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
