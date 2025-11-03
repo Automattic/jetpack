@@ -8,6 +8,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
+import { defaultView } from './views';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -69,9 +70,9 @@ const invalidateCacheAndNavigate = (
 	};
 	const remainingCount = countGetters[ statusBeingRemovedFrom ]( queryParams );
 
-	const perPage = currentQuery?.per_page || 20;
+	const perPage = currentQuery?.per_page || defaultView.perPage;
 	const newTotalPages = Math.max( 1, Math.ceil( remainingCount / perPage ) );
-	const currentPage = currentQuery?.page || 1;
+	const currentPage = currentQuery?.page || defaultView.page;
 
 	if ( currentPage > newTotalPages ) {
 		// Navigate to the last valid page

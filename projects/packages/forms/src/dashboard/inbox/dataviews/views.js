@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router';
 
 const LAYOUT_TABLE = 'table';
 
-const defaultView = {
+export const defaultView = {
 	type: LAYOUT_TABLE,
 	search: '',
 	filters: [],
