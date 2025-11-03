@@ -121,6 +121,7 @@
 
 		.jetpack-field__input-phone-wrapper {
 			z-index: unset;
+			border-color: transparent !important;
 
 			&:has(.jetpack-field__input-element:focus) {
 				outline: unset;
