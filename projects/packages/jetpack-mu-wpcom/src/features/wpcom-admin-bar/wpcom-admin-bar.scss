@@ -483,7 +483,7 @@
 				}
 			}
 
-			&.open-click {
+			&.hover.open-click {
 
 				.ab-sub-wrapper {
 					display: block;
@@ -495,12 +495,17 @@
 				.ab-item {
 					display: flex;
 					align-items: center;
+					justify-content: flex-start;
 					gap: 12px;
 
-					svg {
+					svg.help-center-menu-icon {
 						fill: currentColor;
 						padding: 0;
 						position: unset;
+
+						@media (max-width: 782px) {
+							padding: 0 !important;
+						}
 					}
 
 					&:hover {
