@@ -52,7 +52,7 @@
 		"@lezer/lr": "1.4.3",
 		"@popperjs/core": "^2.11.8",
 		"@preact/signals": "1.2.2",
-		"@sentry/browser": "8.33.0",
+		"@sentry/browser": "10.22.0",
 		"@tanstack/react-query": "^5.15.5",
 		"@wordpress/api-fetch": "7.31.0",
 		"@wordpress/base-styles": "6.7.0",
