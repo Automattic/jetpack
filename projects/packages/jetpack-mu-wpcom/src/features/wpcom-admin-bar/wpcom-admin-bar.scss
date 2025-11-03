@@ -473,5 +473,35 @@
 				}
 			}
 		}
+
+		#wp-admin-bar-help-center {
+
+			li {
+
+				.ab-item {
+					display: flex;
+					align-items: center;
+					justify-content: flex-start;
+					gap: 12px;
+
+					svg.help-center-menu-icon {
+						fill: currentColor;
+						padding: 0;
+						position: unset;
+
+						@media (max-width: 782px) {
+							padding: 0 !important;
+						}
+					}
+
+					&:hover {
+
+						svg {
+							fill: #7b90ff;
+						}
+					}
+				}
+			}
+		}
 	}
 }
