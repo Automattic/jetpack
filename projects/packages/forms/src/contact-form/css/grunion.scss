@@ -378,6 +378,13 @@ that needs to mimic the input element styles */
 	padding-left: 0;
 }
 
+.wp-block-jetpack-contact-form-container.is-single-input-form {
+
+	&:has(.contact-form__input-error.has-errors) {
+		margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2);
+	}
+}
+
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	min-height: var(--jetpack--contact-form--input-height, auto);
 	align-self: flex-end;
@@ -412,8 +419,11 @@ that needs to mimic the input element styles */
 	box-sizing: border-box;
 	position: relative;
 	flex: 1 1 100%;
-	display: flex;
-	flex-direction: column;
+
+	:where(:not(.is-single-input-form) > .grunion-field-wrap) {
+		display: flex;
+		flex-direction: column;
+	}
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
