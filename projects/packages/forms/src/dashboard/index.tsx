@@ -10,7 +10,6 @@ import { RouterProvider } from 'react-router/dom';
  */
 import Layout from './components/layout';
 import Inbox from './inbox';
-import Integrations from './integrations';
 import DashboardNotices from './notices-list';
 import './style.scss';
 
@@ -47,7 +46,7 @@ function initFormsDashboard() {
 				},
 				{
 					path: 'integrations',
-					element: <Integrations />,
+					element: <Inbox />,
 				},
 			],
 		},

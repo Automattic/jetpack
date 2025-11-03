@@ -68,7 +68,9 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 				'Share your form to start collecting responses. New items will appear here.',
 				'jetpack-forms'
 			) }
-			actions={ <CreateFormButton label={ __( 'Create a new form', 'jetpack-forms' ) } /> }
+			actions={
+				<CreateFormButton label={ __( 'Create a new form', 'jetpack-forms' ) } variant="primary" />
+			}
 		/>
 	);
 };

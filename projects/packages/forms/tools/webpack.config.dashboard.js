@@ -113,6 +113,8 @@ module.exports = {
 					// Bundle the package with our assets until WP core exposes wp-admin-ui.
 					'@wordpress/admin-ui': { external: false },
 					'@wordpress/admin-ui/build-style/style.css': { external: false },
+					// Bundle jetpack-connection since it's used by IntegrationsModal
+					'@automattic/jetpack-connection': { external: false },
 				},
 			},
 		} ),

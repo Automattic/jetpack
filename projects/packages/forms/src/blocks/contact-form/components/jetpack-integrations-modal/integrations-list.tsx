@@ -17,6 +17,7 @@ interface ExpandedCardsState {
 const IntegrationsList = ( {
 	integrations = [],
 	refreshIntegrations,
+	context,
 	handlers,
 	attributes,
 	setAttributes,
@@ -24,7 +25,7 @@ const IntegrationsList = ( {
 	const items = useIntegrationCardsData( {
 		integrations,
 		refreshIntegrations,
-		context: 'block-editor',
+		context,
 		handlers,
 		attributes,
 		setAttributes,
@@ -41,18 +42,21 @@ const IntegrationsList = ( {
 	const [ expandedCards, setExpandedCards ] =
 		useState< ExpandedCardsState >( initialCardsExpandedState );
 
-	const toggleCard = useCallback( ( id: string ) => {
-		setExpandedCards( prev => {
-			const isExpanding = ! prev[ id ];
-			if ( isExpanding ) {
-				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_expand', {
-					card: id,
-					origin: 'block-editor',
-				} );
-			}
-			return { ...prev, [ id ]: isExpanding };
-		} );
-	}, [] );
+	const toggleCard = useCallback(
+		( id: string ) => {
+			setExpandedCards( prev => {
+				const isExpanding = ! prev[ id ];
+				if ( isExpanding ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_expand', {
+						card: id,
+						origin: context,
+					} );
+				}
+				return { ...prev, [ id ]: isExpanding };
+			} );
+		},
+		[ context ]
+	);
 
 	return (
 		<>
