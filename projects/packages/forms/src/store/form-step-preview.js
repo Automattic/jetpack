@@ -59,7 +59,7 @@ const selectors = {
 	 * @return {boolean} Whether the form is in single step mode.
 	 */
 	isSingleStepMode( state, formClientId ) {
-		return !! state.singleStepMode[ formClientId ];
+		return state.singleStepMode[ formClientId ] !== false;
 	},
 
 	/**

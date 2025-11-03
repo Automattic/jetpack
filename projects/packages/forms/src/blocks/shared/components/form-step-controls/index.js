@@ -1,4 +1,4 @@
-import { BlockControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { BlockControls } from '@wordpress/block-editor';
 import {
 	ToolbarGroup,
 	ToolbarButton,
@@ -29,13 +29,10 @@ export default function StepControls( { formClientId } ) {
 	const { setActiveStep, enableSingleStepMode, disableSingleStepMode } =
 		useDispatch( singleStepStore );
 
-	// Access the block editor dispatcher to programmatically select blocks when needed.
-	const { selectBlock } = useDispatch( blockEditorStore );
-
 	// Use our custom navigation hook
 	const { navigateToNextStep, navigateToPreviousStep, currentStepInfo, steps } = useStepNavigation(
 		formClientId,
-		true // always update the selected block when navigating
+		false
 	);
 
 	const { selectedStepId, isSingleStep } = useSelect(
@@ -114,7 +111,6 @@ export default function StepControls( { formClientId } ) {
 									onClick={ () => {
 										setActiveStep( formClientId, step.clientId );
 										enableSingleStepMode( formClientId );
-										selectBlock( step.clientId );
 										onClose();
 									} }
 									isSelected={ selectedStepId === step.clientId && isSingleStep }

@@ -247,7 +247,7 @@ function JetpackContactFormEdit( {
 
 	const { isSingleStep, isFirstStep, isLastStep, currentStepClientId } = useSelect(
 		select => {
-			const { getCurrentStepInfo, isSingleStepMode } = select( singleStepStore );
+			const { getCurrentStepInfo, isSingleStepMode, getActiveStepId } = select( singleStepStore );
 
 			const info = getCurrentStepInfo( clientId, steps );
 
@@ -255,7 +255,7 @@ function JetpackContactFormEdit( {
 				isSingleStep: isSingleStepMode( clientId ),
 				isFirstStep: info ? info.isFirstStep : false,
 				isLastStep: info ? info.isLastStep : false,
-				currentStepClientId: info ? info.clientId : null,
+				currentStepClientId: getActiveStepId( clientId ),
 			};
 		},
 		[ clientId, steps ]
@@ -735,6 +735,17 @@ function JetpackContactFormEdit( {
 
 	const { setActiveStep } = useDispatch( singleStepStore );
 
+	useEffect( () => {
+		if (
+			variationName === 'multistep' &&
+			isSingleStep &&
+			steps.length > 0 &&
+			! currentStepClientId
+		) {
+			setActiveStep( clientId, steps[ 0 ].clientId );
+		}
+	}, [ variationName, isSingleStep, steps, currentStepClientId, clientId, setActiveStep ] );
+
 	// Find the selected block and its parent step block
 	const selectedBlock = useFindBlockRecursively(
 		selectedBlockClientId,
@@ -750,8 +761,12 @@ function JetpackContactFormEdit( {
 			return;
 		}
 
-		// If a block is selected, make sure it's in the current step
-		if ( selectedBlockClientId && stepBlock && stepBlock.clientId !== currentStepClientId ) {
+		if (
+			selectedBlockClientId &&
+			stepBlock &&
+			stepBlock.clientId !== currentStepClientId &&
+			currentStepClientId
+		) {
 			setActiveStep( clientId, stepBlock.clientId );
 		}
 	}, [
