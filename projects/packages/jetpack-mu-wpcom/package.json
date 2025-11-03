@@ -49,7 +49,7 @@
 		"@gravatar-com/quick-editor": "0.8.0",
 		"@lezer/common": "1.3.0",
 		"@lezer/highlight": "1.2.1",
-		"@lezer/lr": "1.4.2",
+		"@lezer/lr": "1.4.3",
 		"@popperjs/core": "^2.11.8",
 		"@preact/signals": "1.2.2",
 		"@sentry/browser": "8.33.0",
