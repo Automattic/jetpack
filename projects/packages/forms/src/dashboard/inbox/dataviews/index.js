@@ -458,7 +458,6 @@ export default function InboxView() {
 					onChangeSelection={ onChangeSelection }
 					getItemId={ getItemId }
 					defaultLayouts={ defaultLayouts }
-					header={ <InboxStatusToggle onChange={ resetPage } /> }
 					empty={
 						<EmptyResponses
 							status={ statusFilter }
@@ -466,7 +465,26 @@ export default function InboxView() {
 							readStatusFilter={ readStatusFilter }
 						/>
 					}
-				/>
+				>
+					<HStack
+						className="jp-forms__inbox__view-actions"
+						spacing={ 2 }
+						alignment="center"
+						justify="space-between"
+					>
+						<HStack spacing={ 2 }>
+							<InboxStatusToggle onChange={ resetPage } />
+						</HStack>
+						<HStack spacing={ 2 } alignment="right">
+							<DataViews.Search />
+							<DataViews.FiltersToggle />
+							<DataViews.ViewConfig />
+						</HStack>
+					</HStack>
+					<DataViews.FiltersToggled className="jp-forms__inbox__filters-container" />
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</DataViews>
 				{ isResponseModalOpen && (
 					<Modal
 						title={ __( 'Response', 'jetpack-forms' ) }
