@@ -98,7 +98,7 @@
 		"@wordpress/browserslist-config": "6.31.0",
 		"@wordpress/date": "5.31.0",
 		"autoprefixer": "10.4.20",
-		"concurrently": "7.6.0",
+		"concurrently": "9.2.1",
 		"glob": "11.0.2",
 		"jest": "30.0.4",
 		"jest-environment-jsdom": "30.0.4",

@@ -1013,8 +1013,8 @@ importers:
         specifier: 12.1.0
         version: 12.1.0(rollup@3.29.5)(tslib@2.8.1)(typescript@5.9.3)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -1961,8 +1961,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -2061,8 +2061,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -2301,8 +2301,8 @@ importers:
         specifier: 6.14.0
         version: 6.14.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4(@types/node@20.19.21)
@@ -2664,8 +2664,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       glob:
         specifier: 11.0.2
         version: 11.0.2
@@ -3173,8 +3173,8 @@ importers:
         specifier: 18.3.25
         version: 18.3.25
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4(@types/node@20.19.21)
@@ -3437,8 +3437,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -3615,8 +3615,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0(@babel/core@7.28.4)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       core-js:
         specifier: 3.38.1
         version: 3.38.1
@@ -3696,8 +3696,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -3885,8 +3885,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       copy-webpack-plugin:
         specifier: 13.0.0
         version: 13.0.0(webpack@5.101.3)
@@ -4109,8 +4109,8 @@ importers:
         specifier: 30.4.0
         version: 30.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -4242,8 +4242,8 @@ importers:
         specifier: 6.4.0
         version: 6.4.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -4369,8 +4369,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -4978,8 +4978,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0(@babel/core@7.28.4)
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       eval:
         specifier: 0.1.8
         version: 0.1.8
@@ -5081,8 +5081,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -5205,8 +5205,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       sass-embedded:
         specifier: 1.87.0
         version: 1.87.0
@@ -5270,8 +5270,8 @@ importers:
   projects/plugins/social:
     devDependencies:
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
 
   projects/plugins/social/tests/e2e:
     devDependencies:
@@ -5349,8 +5349,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -5478,8 +5478,8 @@ importers:
         specifier: 6.31.0
         version: 6.31.0
       concurrently:
-        specifier: 7.6.0
-        version: 7.6.0
+        specifier: 9.2.1
+        version: 9.2.1
       sass-embedded:
         specifier: 1.87.0
         version: 1.87.0
@@ -11026,9 +11026,9 @@ packages:
   concat-with-sourcemaps@1.1.0:
     resolution: {integrity: sha512-4gEjHJFT9e+2W/77h/DS5SGUgwDaOwprX8L/gl5+3ixnzkVJJsZWDSelmN3Oilw3LNDZjZV0yqH1hLG3k6nghg==}
 
-  concurrently@7.6.0:
-    resolution: {integrity: sha512-BKtRgvcJGeZ4XttiDiNcFiRlxoAeZOseqUvyYRUp/Vtd+9p1ULmeoSqGsDA+2ivdeDFpqrJvGvmI+StKfKl5hw==}
-    engines: {node: ^12.20.0 || ^14.13.0 || >=16.0.0}
+  concurrently@9.2.1:
+    resolution: {integrity: sha512-fsfrO0MxV64Znoy8/l1vVIjjHa29SZyyqPgQBwhiDcaW8wJc2W3XWVOGx4M3oJBnv/zdUZIIp1gDeS98GzP8Ng==}
+    engines: {node: '>=18'}
     hasBin: true
 
   confbox@0.1.8:
@@ -15970,9 +15970,6 @@ packages:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
     deprecated: The work that was done in this beta branch won't be included in future versions
-
-  spawn-command@0.0.2:
-    resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
 
   spawn-wrap@2.0.0:
     resolution: {integrity: sha512-EeajNjfN9zMnULLwhZZQU3GWBoFNkbngTUPfaawT4RkMiviTxcX0qfhVbGey39mfctfDHkWtuecgQ8NJcyQWHg==}
@@ -26004,14 +26001,11 @@ snapshots:
     dependencies:
       source-map: 0.6.1
 
-  concurrently@7.6.0:
+  concurrently@9.2.1:
     dependencies:
       chalk: 4.1.2
-      date-fns: 2.30.0
-      lodash: 4.17.21
       rxjs: 7.8.2
       shell-quote: 1.8.3
-      spawn-command: 0.0.2
       supports-color: 8.1.1
       tree-kill: 1.2.2
       yargs: 17.7.2
@@ -32009,8 +32003,6 @@ snapshots:
   source-map@0.8.0-beta.0:
     dependencies:
       whatwg-url: 7.1.0
-
-  spawn-command@0.0.2: {}
 
   spawn-wrap@2.0.0:
     dependencies:
