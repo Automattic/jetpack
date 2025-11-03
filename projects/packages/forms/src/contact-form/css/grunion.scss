@@ -447,7 +447,7 @@ that needs to mimic the input element styles */
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-auto-wrap {
-	flex: 1 1 auto;
+	flex: 1 1 0;
 }
 
 @media only screen and ( max-width: 480px ) {
@@ -1230,12 +1230,14 @@ on production builds, the attributes are being reordered, causing side-effects
 	overflow: hidden;
 	transform: translateY(-0.33em);
 	transition: max-height 200ms cubic-bezier(0.34, 0.8, 0.34, 1), opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 100ms cubic-bezier(0.34, 0.8, 0.34, 1);
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: row;
 }
 
 .contact-form__input-error.has-errors {
 
 	margin: 0.25rem 0;
-	display: flex;
 	opacity: 1;
 	max-height: unset;
 	transform: translateY(0);
