@@ -7,14 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.11.0] - 2025-11-03
 ### Changed
-- Enable ClickHouse by default. [#45696]
-- Send all events to clickhouse. [#45723]
+- Enable ClickHouse by default. [#45696] [#45723]
 - Update package dependencies. [#45652]
 
 ### Fixed
-- Fix improved data handling due to invalid prop name. [#45544]
+- Fix data handling with invalid prop names. [#45544]
 - Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
-- Set dynamic WebPack public path for split assets. [#45654]
+- Set dynamic webpack public path for split assets. [#45654]
 
 ## [0.10.1] - 2025-10-27
 ### Changed

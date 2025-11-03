@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.3.0] - 2025-11-03
 ### Added
-- Added a method that returns the browser display name. [#45674]
+- Add a method that returns the browser display name. [#45674]
 
 ### Changed
 - Update bot detection list to include new AI and LLM crawler oriented bots. [#45695]
