@@ -97,7 +97,7 @@ class LCP_Analyzer {
 	private function analyze_pages( $pages ) {
 		$payload = array(
 			'pages'     => $pages,
-			'requestId' => md5( wp_json_encode( $pages ) . time() ),
+			'requestId' => md5( wp_json_encode( $pages ) ),
 		);
 		return Boost_API::post( 'lcp', $payload );
 	}
