@@ -110,7 +110,20 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
-            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+
+            # Sort projects so plugins come last (allowing parallel builds but ensuring plugins build after all packages are built)
+            NON_PLUGIN_PROJECTS=()
+            PLUGIN_PROJECTS=()
+            for project in "${PROJECTS[@]}"; do
+              if [[ "$project" != plugins/* ]]; then
+                NON_PLUGIN_PROJECTS+=("$project")
+              else
+                PLUGIN_PROJECTS+=("$project")
+              fi
+            done
+            SORTED_PROJECTS=("${NON_PLUGIN_PROJECTS[@]}" "${PLUGIN_PROJECTS[@]}")
+
+            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${SORTED_PROJECTS[@]}"
           fi
 
       - name: Filter mirror list for release branch
