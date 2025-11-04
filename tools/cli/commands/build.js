@@ -540,6 +540,28 @@ async function writeFileAtomic( file, data, options = {} ) {
 }
 
 /**
+ * Prepend data to a file.
+ *
+ * Reads the existing file content and prepends the new data.
+ * Intended to be similar to fs.appendFile. Too bad this isn't a native function.
+ *
+ * If the file doesn't exist, it will be created.
+ *
+ * @param {string} path    - Path to file.
+ * @param {string} data    - Contents to prepend.
+ * @param {object} options - Options.
+ */
+async function prependFile( path, data, options = {} ) {
+	const existingData = await fs.readFile( path, options ).catch( e => {
+		if ( e.code === 'ENOENT' ) {
+			return '';
+		}
+		throw e;
+	} );
+	await writeFileAtomic( path, data + existingData, options );
+}
+
+/**
  * Copy a file atomically.
  *
  * Copies to a temporary file then renames, on the assumption that the latter is an atomic operation.
@@ -1065,7 +1087,14 @@ async function buildProject( t ) {
 		runversion: projectRunVersionNumber,
 	};
 	await t.ctx.mirrorMutex( async () => {
-		// prettier-ignore
-		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+		// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
+		const priorityRepos = [ 'Automattic/jetpack-production', 'Automattic/jetpack-mu-wpcom-plugin' ];
+		const mirrorsFile = `${ t.argv.forMirrors }/mirrors.txt`;
+
+		if ( priorityRepos.includes( gitSlug ) ) {
+			await prependFile( mirrorsFile, `${ gitSlug }\n`, { encoding: 'utf8' } );
+		} else {
+			await fs.appendFile( mirrorsFile, `${ gitSlug }\n`, { encoding: 'utf8' } );
+		}
 	} );
 }
