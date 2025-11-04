@@ -68,7 +68,7 @@
 - Editor assets endpoint: Mock current screen to avoid fatal errors from plugins/themes. [#45617]
 - External media: Prevent site editor performance issues by bringing back previous script enqueue approach. [#45546]
 - Fix duplicate tracking event for carousel. [#45720]
-- Flex sites: Return the is_wpcom_flex flag from the sites API for deleted sites. [#45719]
+- Flex sites: Return the `is_wpcom_flex` flag from the sites API for deleted sites. [#45719]
 - Flex sites: Return the `is_wpcom_flex` flag from the sites API. [#45395]
 - Forms: Add browser info to form responses detail view. [#45674]
 - Forms: Fix plugin activation state. [#45471]
