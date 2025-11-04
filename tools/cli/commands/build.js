@@ -24,6 +24,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
 
+// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
 const priorityRepos = new Set( [
 	'Automattic/jetpack-production',
 	'Automattic/jetpack-mu-wpcom-plugin',
