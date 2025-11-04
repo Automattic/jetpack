@@ -151,14 +151,7 @@ export default function PhoneFieldEdit( props ) {
 					{
 						index: 2,
 						element: (
-							<BaseControl
-								help={ __(
-									'Search and select a default country for the phone number field.',
-									'jetpack-forms'
-								) }
-								__nextHasNoMarginBottom={ true }
-								key="phoneFieldControls"
-							>
+							<BaseControl __nextHasNoMarginBottom={ true } key="phoneFieldControls">
 								<ToggleControl
 									label={ __( 'Show country selector', 'jetpack-forms' ) }
 									checked={ showCountrySelector || false }
@@ -173,6 +166,10 @@ export default function PhoneFieldEdit( props ) {
 										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
 										__nextHasNoMarginBottom={ true }
 										__next40pxDefaultSize={ true }
+										help={ __(
+											'Search and select a default country for the phone number field.',
+											'jetpack-forms'
+										) }
 									/>
 								) }
 							</BaseControl>
