@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3de99b2fae861d6f97d2c3e4a3562a30",
+    "content-hash": "bb89455cecb1d39de94642561ac78006",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -1344,16 +1344,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v6.14.0",
+            "version": "v6.15.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "a2c97ac466533826e82a068f9bff22a867c370b5"
+                "reference": "35839e1f65785894bcc89f2cf5c7388511ebfa43"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/a2c97ac466533826e82a068f9bff22a867c370b5",
-                "reference": "a2c97ac466533826e82a068f9bff22a867c370b5",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/35839e1f65785894bcc89f2cf5c7388511ebfa43",
+                "reference": "35839e1f65785894bcc89f2cf5c7388511ebfa43",
                 "shasum": ""
             },
             "require": {
@@ -1386,7 +1386,7 @@
                 "textdomain": "jetpack-forms",
                 "mirror-repo": "Automattic/jetpack-forms",
                 "branch-alias": {
-                    "dev-trunk": "6.14.x-dev"
+                    "dev-trunk": "6.15.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
@@ -1406,9 +1406,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.14.0"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v6.15.0"
             },
-            "time": "2025-11-03T08:48:27+00:00"
+            "time": "2025-11-04T05:42:29+00:00"
         },
         {
             "name": "automattic/jetpack-image-cdn",
