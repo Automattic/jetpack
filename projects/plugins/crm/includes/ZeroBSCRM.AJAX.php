@@ -5362,18 +5362,6 @@ function zeroBSCRM_AJAX_sendStatement() {
 		wp_send_json( $r );
 }
 
-/*
-replaced with zeroBSCRM_retrieve
-function zbs_get_content($URL){
-		//need to wrap this in if function exists...
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_URL, $URL);
-		$data = curl_exec($ch);
-		curl_close($ch);
-		return $data;
-} */
-
 add_action( 'wp_ajax_zbs_invoice_mark_paid', 'zbs_invoice_mark_paid' );
 function zbs_invoice_mark_paid() {
 
