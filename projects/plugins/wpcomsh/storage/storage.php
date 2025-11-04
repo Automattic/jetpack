@@ -104,7 +104,7 @@ function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, 
 
 	$finfo     = finfo_open( FILEINFO_MIME_TYPE );
 	$real_mime = finfo_file( $finfo, $file );
-	// todo: remove when we are PHP 8.1+, as curl_close() is noop in 8.1+ and deprecated in PHP 8.5+
+	// todo: remove when we are PHP 8.1+, as finfo_close() is noop in 8.1+ and deprecated in PHP 8.5+
 	if ( PHP_VERSION_ID < 80100 ) {
 		finfo_close( $finfo ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.finfo_closeDeprecated
 	}
