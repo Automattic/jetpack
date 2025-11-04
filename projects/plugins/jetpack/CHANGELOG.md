@@ -2,118 +2,88 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.2-beta - 2025-11-03
+## 15.2 - 2025-11-04
 ### Enhancements
 - Forms: Add browser info to form responses exports. [#45709]
 - Forms: Add emoji flag to the response email next to the IP address. [#45645]
 - Forms: Add first and last name variations. [#45517]
-- Forms: Add flag next to the IP address. [#45643]
+- Forms: Add flag next to the IP Address. [#45643]
+- Forms: Add integrations store. [#45372] [#45432]
 - Forms: Add new integrations list component. [#45648]
+- Forms: Add notification settings panel. [#45396]
+- Forms: Add read and unread state for new form responses. [#45350]
+- Forms: Add required indicator settings and make forms with a single input required by default. [#45300]
+- Forms: Add shared ConsentToggle component. [#45556]
 - Forms: Add the IP address as the default field in the responses dashboard. [#45704]
 - Forms: Add time field. [#45665]
+- Forms: Avoid typographic orphans in Forms panels in editor. [#45455]
+- Forms: Disable Jetpack CRM integration by default. [#45667]
 - Forms: Enable forms push notifications functionality. [#45682]
-- Forms: Link IP to lookup service. [#45653]
-- Forms: Release Image Select Field to production. [#45577]
-- Forms: Start storing the country_code based on the IP with the form responses. [#45599]
-- Subscription forms: Provide autocomplete attribute for email fields to help with filling in email addresses. [#44929]
-- Prevent translation of product names. [#43961]
-
-### Bug fixes
-- Forms: Ensure notices don't overlap the bottom action bar. [#45616]
-- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items. [#45618]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- API: Ensure API root is set prior to usage. [#45708]
-- Calendar Reader: Remove debugging statement added to bypass caching. [#45671]
-- Editor assets endpoint: Mock current screen to avoid fatal errors from plugins/themes. [#45617]
-- Fix duplicate tracking event for carousel. [#45720]
-- Flex sites: Return the `is_wpcom_flex` flag from the sites API for deleted sites. [#45719]
-- Forms: Add browser info to form responses detail view. [#45674]
-- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
-- Prevent PHP error when handling malformed style source. [#45621]
-- Remove incorrect comment. [#45724]
-- Shortcodes: Fix JavaScript error in presentation shortcode. [#45701]
-- Tests: Update WooCommerce sync related tests to account for whitelisting order item meta. [#45684]
-- Update package dependencies. [#45652] [#45676] [#45677]
-
-## 15.2-a.7 - 2025-10-27
-### Enhancements
-- Forms: Add shared ConsentToggle component. [#45556]
+- Forms: Hide Google export card if disabled. [#45375]
 - Forms: Improve the performance of loading the form responses. [#45565]
+- Forms: Link IP to lookup service. [#45653]
+- Forms: merged email and push notification settings panels. [#45548]
+- Forms: Release Image Select Field to production. [#45577]
+- Forms: Remove Inbox view action for desktop and leave it just for mobile. [#45444]
+- Forms: Reorganize settings to a single panel for rating, slider and phone fields. [#45196]
+- Forms: Start storing the country_code based on the IP with the form responses. [#45599]
+- Forms: Update "Action after submit" sidebar section. [#45502]
+- Forms: Update Inbox empty state notices. [#45421]
 - Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
 - Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45588]
-
-### Improved compatibility
-- Tested up to WordPress 6.9. [#45571]
-
-### Bug fixes
-- Forms: Fix textarea submission on enter. [#45602]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Post Images: Ensure type is WP_Post before treating it as a post. [#45623]
-
-## 15.2-a.5 - 2025-10-21
-### Enhancements
-- Forms: merged email and push notification settings panels. [#45548]
-
-### Bug fixes
-- Forms: Fix a bug where ther responsive modal is not able to be closed. [#45541] [#45557]
-- Forms: Reset the selection on tab switch in dashboard. [#45543]
-- Forms: Stop preloading the integrations endpoint. [#45558]
-- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Forms: Remove unused `useFormsConfig` hook. [#45554]
-
-## 15.2-a.3 - 2025-10-20
-### Enhancements
-- Forms: Update "Action after submit" sidebar section. [#45502]
+- Don't translate product names. [#43961]
 - Sharing Buttons block: Update Reddit logo to match updated design. [#45484]
 - Sitemaps: Use XMLWriter by default for more performant sitemap generation. [#45527]
+- Subscription forms: Provide autocomplete attribute for email fields, to help with filling in email addresses. [#44929]
 
 ### Improved compatibility
 - Custom post types: Ensure features remain available when theme support is added. [#45407]
 - Forms: Remove Creative Mail promotion. [#45524]
+- Tested up to WordPress 6.9. [#45571]
 
 ### Bug fixes
-- Forms: Send emails to the author of the form only if they are able to edit it. [#45515]
+- Forms: Fix a bug where ther responsive modal is not able to be closed. [#45541] [#45557]
+- Forms: Fix textarea submission on enter. [#45602]
+- Forms: Fix where notices show up so they don't overlap the bottom action bar. [#45616]
 - Forms: Prevent the required text from being removed from required fields when creating a form from a pattern. [#45495]
+- Forms: Reset the selection on tab switch in dashboard. [#45543]
+- Forms: Send emails to the author of the form only if they are able to edit it. [#45515]
+- Forms: Simplify the selection on the responses dashboard so that it changes every time to only the valid set of items. [#45618]
+- Forms: Stop preloading the integrations endpoint. [#45558]
 - Forms: Store the feedback source info with more context. [#45231]
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
 - Maps Block: Fix compatibility with MapKit JS version 5.80.0+. [#45476]
 - My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+- Newsletter: Update wording to clarify how the reply-to settings can be used. [#45368]
 - Podcast feed: Prevent fatals when content is empty. [#45498]
 - Related Posts: Prevent PHP errors when settings are malformed. [#45538]
 - Slideshow block: Ensure image size selection is correctly reflected in editor at all times. [#45500]
 - Stats: Prevent fatal when chart response is invalid. [#45496]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- API: Ensure API root is set prior to usage. [#45708]
 - Blaze: Hide module toggle on WordPress.com sites. [#45499]
-- Slideshow block: Fix sizing for lazy-loaded images. [#45164]
+- Calendar Reader: Remove debugging statement added to bypass caching. [#45671]
+- Comment likes: Prevent PHP warnings if site URL is invalid. [#45420]
+- Editor assets endpoint: Mock current screen to avoid fatal errors from plugins/themes. [#45617]
 - External media: Prevent site editor performance issues by bringing back previous script enqueue approach. [#45546]
-- Forms: Strip period from Terms submission label on the post-submission page. [#45509]
+- Fix duplicate tracking event for carousel. [#45720]
+- Flex sites: Return the `is_wpcom_flex` flag from the sites API for deleted sites. [#45719]
+- Flex sites: Return the `is_wpcom_flex` flag from the sites API. [#45395]
+- Forms: Add browser info to form responses detail view. [#45674]
 - Forms: Fix plugin activation state. [#45471]
 - Forms: Remove unused `hasAI` from config. [#45522]
-- Update package dependencies. [#45478]
-
-## 15.2-a.1 - 2025-10-13
-### Enhancements
-- Forms: Add required indicator settings and make forms with a single input required by default. [#45300]
-- Forms: Add integrations store. [#45372] [#45432]
-- Forms: Add notification settings panel. [#45396]
-- Forms: Add read and unread state for new form responses. [#45350]
-- Forms: Avoid typographic orphans in Forms panels in editor. [#45455]
-- Forms: Hide Google export card if disabled. [#45375]
-- Forms: Remove Inbox view action for desktop and leave it just for mobile. [#45444]
-- Forms: Update Inbox empty state notices. [#45421]
-- Forms: Reorganize settings to a single panel for rating, slider and phone fields. [#45196]
-
-### Bug fixes
-- Newsletter: Update wording to clarify how the reply-to settings can be used. [#45368]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Comment likes: Prevent PHP warnings if site URL is invalid. [#45420]
-- Flex sites: Return the `is_wpcom_flex` flag from the sites API. [#45395]
+- Forms: Remove unused `useFormsConfig` hook. [#45554]
+- Forms: Strip period from Terms submission label on the post-submission page. [#45509]
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+- Post Images: Ensure type is WP_Post before treating it as a post. [#45623]
+- Prevent PHP error when handling malformed style source. [#45621]
+- Remove incorrect comment. [#45724]
+- Shortcodes: Fix JS error in presentation shortcode. [#45701]
+- Slideshow block: Fix sizing for lazy-loaded images. [#45164]
 - Sync: Handle lazy-loading of `WP_User` object properties. [#45450]
+- Tests: Update WooCommerce sync related tests to account for whitelisting order item meta. [#45684]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45677]
 
 ## 15.1.1 - 2025-10-10
 ### Bug fixes

@@ -326,9 +326,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.2-beta - 2025-11-03
+### 15.2 - 2025-11-04
 #### Enhancements
-- Don't translate product names.
 - Forms: Add browser info to form responses exports.
 - Forms: Add emoji flag to the response email next to the IP address.
 - Forms: Add first and last name variations.
@@ -356,6 +355,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Update Inbox empty state notices.
 - Instant Search: Add global WooCommerce Product Attributes as filter options.
 - Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.
+- Don't translate product names.
 - Sharing Buttons block: Update Reddit logo to match updated design.
 - Sitemaps: Use XMLWriter by default for more performant sitemap generation.
 - Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses.
