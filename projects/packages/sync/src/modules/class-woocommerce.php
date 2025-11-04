@@ -128,6 +128,9 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
+		// Reduce noisy updates via Jetpack CRM's WooSync
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'maybe_skip_updates_triggered_by_crm' ), 5 );
+
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
@@ -238,8 +241,34 @@ class WooCommerce extends Module {
 	 * @return array $args The hook arguments.
 	 */
 	public function filter_order_item( $args ) {
-		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
-		$args[1] = $this->build_order_item( $args[0] );
+		if ( is_array( $args ) && ! empty( $args[0] ) ) {
+
+			// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
+			$order_item = $this->build_order_item( (int) $args[0] );
+			if ( $order_item ) {
+				$args[1] = $order_item;
+			}
+		}
+		return $args;
+	}
+
+	/**
+	 * Skip enqueueing WooCommerce order item update actions when they are triggered
+	 * by Jetpack CRM Woo Sync background job.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false False to skip enqueue, original args otherwise.
+	 */
+	public function maybe_skip_updates_triggered_by_crm( $args ) {
+		if (
+			( function_exists( 'doing_action' ) && doing_action( 'jpcrm_woosync_sync' ) )
+			|| defined( 'jpcrm_woosync_running' )
+			|| defined( 'jpcrm_woosync_cron_running' )
+		) {
+			return false;
+		}
 		return $args;
 	}
 
@@ -335,6 +364,7 @@ class WooCommerce extends Module {
 	 * @return object Order item.
 	 */
 	public function build_order_item( $order_item_id ) {
+		// here
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );

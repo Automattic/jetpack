@@ -299,6 +299,15 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array|false
 	 */
 	public function on_before_enqueue_order_save( $args ) {
+		// Skip enqueueing when triggered by Jetpack CRM Woo Sync background job to avoid periodic noise.
+		if (
+			( function_exists( 'doing_action' ) && doing_action( 'jpcrm_woosync_sync' ) )
+			|| defined( 'jpcrm_woosync_running' )
+			|| defined( 'jpcrm_woosync_cron_running' )
+		) {
+			return false;
+		}
+
 		// Prevent multiple triggers on a single request.
 		static $processed = array();
 
