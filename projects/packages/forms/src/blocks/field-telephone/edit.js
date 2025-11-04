@@ -4,7 +4,13 @@ import {
 	BlockContextProvider,
 	BlockControls,
 } from '@wordpress/block-editor';
-import { TextControl, ToggleControl, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	BaseControl,
+	TextControl,
+	ToggleControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
@@ -143,9 +149,16 @@ export default function PhoneFieldEdit( props ) {
 				width={ width }
 				extraFieldSettings={ [
 					{
-						index: 1,
+						index: 2,
 						element: (
-							<div key="phoneFieldControls">
+							<BaseControl
+								help={ __(
+									'Search and select a default country for the phone number field.',
+									'jetpack-forms'
+								) }
+								__nextHasNoMarginBottom={ true }
+								key="phoneFieldControls"
+							>
 								<ToggleControl
 									label={ __( 'Show country selector', 'jetpack-forms' ) }
 									checked={ showCountrySelector || false }
@@ -154,7 +167,7 @@ export default function PhoneFieldEdit( props ) {
 								/>
 								{ showCountrySelector && (
 									<TextControl
-										label={ __( 'Search placeholder', 'jetpack-forms' ) }
+										label={ __( 'Default country', 'jetpack-forms' ) }
 										value={ searchPlaceholder }
 										placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
 										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
@@ -162,7 +175,7 @@ export default function PhoneFieldEdit( props ) {
 										__next40pxDefaultSize={ true }
 									/>
 								) }
-							</div>
+							</BaseControl>
 						),
 					},
 				] }
