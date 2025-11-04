@@ -196,7 +196,7 @@ export async function handler( argv ) {
 		.then( async () => {
 			if ( argv.forMirrors && ctx.mirrorRepos.length > 0 ) {
 				const mirrorsFile = `${ argv.forMirrors }/mirrors.txt`;
-				await fs.writeFile( mirrorsFile, ctx.mirrorRepos.join( '\n' ), {
+				await fs.writeFile( mirrorsFile, ctx.mirrorRepos.join( '\n' ) + '\n', {
 					encoding: 'utf8',
 				} );
 			}
