@@ -160,14 +160,14 @@ export default function PhoneFieldEdit( props ) {
 								/>
 								{ showCountrySelector && (
 									<TextControl
-										label={ __( 'Default country', 'jetpack-forms' ) }
+										label={ __( 'Search placeholder', 'jetpack-forms' ) }
 										value={ searchPlaceholder }
 										placeholder={ __( 'Search countries…', 'jetpack-forms' ) }
 										onChange={ newValue => setAttributes( { searchPlaceholder: newValue } ) }
 										__nextHasNoMarginBottom={ true }
 										__next40pxDefaultSize={ true }
 										help={ __(
-											'Search and select a default country for the phone number field.',
+											'Set placeholder text shown in the country selector search.',
 											'jetpack-forms'
 										) }
 									/>
