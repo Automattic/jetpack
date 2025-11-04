@@ -10,6 +10,8 @@ export type QueryParams = {
 	before?: string;
 	after?: string;
 	is_unread?: boolean;
+	per_page?: number;
+	page?: number;
 };
 
 /**
@@ -58,10 +60,14 @@ export type Registry = {
 		invalidateFilters: () => void;
 		invalidateCounts: () => void;
 		markRecordsAsInvalid: ( ids: number[] ) => void;
+		setCurrentQuery: ( queryParams: QueryParams ) => void;
 	};
 	select: ( store: StoreDescriptor ) => {
 		// Dashboard store select actions
 		getCurrentQuery: () => QueryParams;
+		getTrashCount: ( queryParams: QueryParams ) => number;
+		getSpamCount: ( queryParams: QueryParams ) => number;
+		getInboxCount: ( queryParams: QueryParams ) => number;
 
 		// Core store select actions
 		getEntityRecord: (

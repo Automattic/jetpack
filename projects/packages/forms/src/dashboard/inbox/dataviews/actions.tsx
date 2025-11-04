@@ -18,7 +18,7 @@ import { defaultView } from './views';
 /**
  * Types
  */
-import type { Action, QueryParams } from './types';
+import type { Action, QueryParams, Registry } from './types';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -57,11 +57,11 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
  * @param {string} statusBeingRemovedFrom - The status items are being removed from ('trash', 'spam', or 'inbox').
  */
 const invalidateCacheAndNavigate = (
-	registry,
-	currentQuery,
-	queryParams,
-	statusBeingRemovedFrom
-) => {
+	registry: Registry,
+	currentQuery: QueryParams,
+	queryParams: QueryParams,
+	statusBeingRemovedFrom: string
+): void => {
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
