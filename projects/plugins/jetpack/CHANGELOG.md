@@ -11,7 +11,6 @@
 - Forms: Add new integrations list component. [#45648]
 - Forms: Add the IP address as the default field in the responses dashboard. [#45704]
 - Forms: Add time field. [#45665]
-- Forms: Disable Jetpack CRM integration by default. [#45667]
 - Forms: Enable forms push notifications functionality. [#45682]
 - Forms: Link IP to lookup service. [#45653]
 - Forms: Release Image Select Field to production. [#45577]

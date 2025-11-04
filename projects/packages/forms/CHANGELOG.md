@@ -39,8 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show gravatars also for rows without emails. [#45726]
 - Use a dropdown selector to list eligible users to receive form notifications. [#45634]
 - Use Jetpack logo on dashboard header. [#45609]
-- Disable Jetpack CRM integration by default. [#45667]
-- Revert CRM frontend default to true. [#45669]
 - Use table to render response meta. [#45656]
 - Improve empty state centering and fix scrolling by consolidating layout min-height rules and improving flexbox handling. [#45649]
 - Update package dependencies. [#45652]
