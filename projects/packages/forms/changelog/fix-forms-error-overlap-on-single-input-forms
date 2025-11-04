@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix error overlapping on single input forms after using position: absolute and turning the main container to display: flex
