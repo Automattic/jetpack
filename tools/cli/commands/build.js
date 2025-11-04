@@ -187,7 +187,6 @@ export async function handler( argv ) {
 		limit: pLimit( argv.concurrency ),
 		dependencies,
 		promises: {},
-		mirrorMutex: pLimit( 1 ),
 		versions: {},
 		mirrorRepos: [],
 	};
@@ -1073,14 +1072,13 @@ async function buildProject( t ) {
 		version: projectVersionNumber,
 		runversion: projectRunVersionNumber,
 	};
-	await t.ctx.mirrorMutex( async () => {
-		// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-		const priorityRepos = [ 'Automattic/jetpack-production', 'Automattic/jetpack-mu-wpcom-plugin' ];
 
-		if ( priorityRepos.includes( gitSlug ) ) {
-			t.ctx.mirrorRepos.unshift( gitSlug );
-		} else {
-			t.ctx.mirrorRepos.push( gitSlug );
-		}
-	} );
+	// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
+	const priorityRepos = [ 'Automattic/jetpack-production', 'Automattic/jetpack-mu-wpcom-plugin' ];
+
+	if ( priorityRepos.includes( gitSlug ) ) {
+		t.ctx.mirrorRepos.unshift( gitSlug );
+	} else {
+		t.ctx.mirrorRepos.push( gitSlug );
+	}
 }
