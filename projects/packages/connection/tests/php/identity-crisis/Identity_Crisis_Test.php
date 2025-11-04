@@ -46,10 +46,6 @@ class Identity_Crisis_Test extends BaseTestCase {
 			$instance->setAccessible( true );
 		}
 		$instance->setValue( null, null );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$instance->setAccessible( false );
-		}
 		$this->reset_connection_status();
 	}
 
