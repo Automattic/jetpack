@@ -24,6 +24,11 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
 
+const priorityRepos = new Set( [
+	'Automattic/jetpack-production',
+	'Automattic/jetpack-mu-wpcom-plugin',
+] );
+
 /**
  * Options definition for the build subcommand.
  *
@@ -1074,9 +1079,7 @@ async function buildProject( t ) {
 	};
 
 	// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-	const priorityRepos = [ 'Automattic/jetpack-production', 'Automattic/jetpack-mu-wpcom-plugin' ];
-
-	if ( priorityRepos.includes( gitSlug ) ) {
+	if ( priorityRepos.has( gitSlug ) ) {
 		t.ctx.mirrorRepos.unshift( gitSlug );
 	} else {
 		t.ctx.mirrorRepos.push( gitSlug );
