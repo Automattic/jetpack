@@ -350,6 +350,10 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
+
+		&--mobile {
+			text-decoration: underline;
+		}
 	}
 
 	.jp-forms__inbox__unread-indicator {

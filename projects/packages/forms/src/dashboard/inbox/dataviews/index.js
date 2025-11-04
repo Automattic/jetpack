@@ -6,14 +6,16 @@ import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
+	Modal,
 } from '@wordpress/components';
-import { useResizeObserver } from '@wordpress/compose';
+import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -89,6 +91,30 @@ export default function InboxView() {
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
 	const selectedResponses = searchParams.get( 'r' );
+	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
+	const [ responseModal, setResponseModal ] = useState( null );
+
+	const closeResponseModal = useCallback( () => {
+		setIsResponseModalOpen( false );
+		setResponseModal( null );
+	}, [ setIsResponseModalOpen, setResponseModal ] );
+
+	const openResponseModal = useCallback(
+		item => {
+			const content = <ResponseMobileView response={ item } closeModal={ closeResponseModal } />;
+
+			setResponseModal( content );
+			setIsResponseModalOpen( true );
+		},
+		[ setIsResponseModalOpen, closeResponseModal, setResponseModal ]
+	);
+
+	useEffect( () => {
+		if ( ! isMobileViewport ) {
+			closeResponseModal();
+		}
+	}, [ isMobileViewport, closeResponseModal ] );
 
 	useEffect( () => {
 		return setupSidebarWidthObserver();
@@ -228,8 +254,22 @@ export default function InboxView() {
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+
+					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
+
 					return (
-						<div className="jp-forms__inbox__author-field">
+						<div
+							className={ clsx(
+								'jp-forms__inbox__author-field',
+								isMobileViewport && 'jp-forms__inbox__author-field--mobile'
+							) }
+							{ ...( isMobileViewport && {
+								onClick: handleClick,
+								onKeyDown: () => {},
+								role: 'button',
+								tabIndex: 0,
+							} ) }
+						>
 							{ item.is_unread && (
 								<span
 									className="jp-forms__inbox__unread-indicator"
@@ -328,50 +368,67 @@ export default function InboxView() {
 				},
 			},
 		],
-		[ filterOptions, dateSettings.formats.date ]
+		[
+			filterOptions?.date,
+			filterOptions?.source,
+			isMobileViewport,
+			openResponseModal,
+			dateSettings.formats.date,
+		]
 	);
 
 	const actions = useMemo( () => {
-		const _actions = [
-			markAsReadAction,
-			markAsUnreadAction,
-			markAsSpamAction,
-			markAsNotSpamAction,
-			moveToTrashAction,
-			editFormAction,
-			restoreAction,
-			deleteAction,
-		];
-		if ( isMobile ) {
-			_actions.unshift( {
-				...viewAction,
-				RenderModal: ( { items, closeModal } ) => {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					return <ResponseMobileView response={ item } closeModal={ closeModal } />;
-				},
-				hideModalHeader: true,
-			} );
-		} else {
-			_actions.unshift( {
-				...viewAction,
-				callback( items ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-						action: 'view-response',
-						multiple: items.length > 1,
-					} );
-					const [ item ] = items;
-					const selectedId = item.id.toString();
-					const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
-					onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
-				},
-			} );
+		const mobileViewAction = {
+			...viewAction,
+			RenderModal: ( { items, closeModal } ) => {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+
+				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
+			},
+			hideModalHeader: true,
+		};
+
+		const desktopViewAction = {
+			...viewAction,
+			callback( items ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+					action: 'view-response',
+					multiple: items.length > 1,
+				} );
+
+				const [ item ] = items;
+				const selectedId = item.id.toString();
+				const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
+
+				onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+			},
+		};
+
+		const viewResponseAction = isMobile ? mobileViewAction : desktopViewAction;
+
+		const primaryActions = [ viewResponseAction ];
+		const secondaryActions = [ markAsUnreadAction, editFormAction ];
+
+		switch ( statusFilter ) {
+			case 'trash':
+				return [ ...primaryActions, restoreAction, deleteAction, ...secondaryActions ];
+			case 'spam':
+				return [ ...primaryActions, markAsNotSpamAction, moveToTrashAction, ...secondaryActions ];
+			default:
+				return [
+					...primaryActions,
+					markAsReadAction,
+					markAsSpamAction,
+					moveToTrashAction,
+					...secondaryActions,
+				];
 		}
-		return _actions;
-	}, [ isMobile, onChangeSelection, selection ] );
+	}, [ isMobile, onChangeSelection, selection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -410,6 +467,15 @@ export default function InboxView() {
 						/>
 					}
 				/>
+				{ isResponseModalOpen && (
+					<Modal
+						title={ __( 'Response', 'jetpack-forms' ) }
+						__experimentalHideHeader={ true }
+						onRequestClose={ closeResponseModal }
+					>
+						{ responseModal }
+					</Modal>
+				) }
 			</div>
 			<SingleResponseView
 				sidePanelItem={ selection.length && sidePanelItem }
