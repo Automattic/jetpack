@@ -34,7 +34,7 @@
 - Don't translate product names. [#43961]
 - Sharing Buttons block: Update Reddit logo to match updated design. [#45484]
 - Sitemaps: Use XMLWriter by default for more performant sitemap generation. [#45527]
-- Subscription forms: provide autocomplete attribute for email fields, to help with filling in email addresses. [#44929]
+- Subscription forms: Provide autocomplete attribute for email fields, to help with filling in email addresses. [#44929]
 
 ### Improved compatibility
 - Custom post types: Ensure features remain available when theme support is added. [#45407]
