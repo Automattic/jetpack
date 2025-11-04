@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.15.0] - 2025-11-04
+### Changed
+- Change field's attribute width to enum to support both integers and string. [#45741]
+- Use `flex-basis: 0` for auto width as it will deal better adjusting to content and not extra space. [#45747]
+
+### Fixed
+- Fix error overlapping on single input forms after using position: absolute and turning the main container to `display: flex`. [#45749]
+
 ## [6.14.0] - 2025-11-03
 ### Added
 - Device detection: Add a method that returns the browser display name. [#45674]
@@ -1798,6 +1806,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.15.0]: https://github.com/automattic/jetpack-forms/compare/v6.14.0...v6.15.0
 [6.14.0]: https://github.com/automattic/jetpack-forms/compare/v6.13.0...v6.14.0
 [6.13.0]: https://github.com/automattic/jetpack-forms/compare/v6.12.0...v6.13.0
 [6.12.0]: https://github.com/automattic/jetpack-forms/compare/v6.11.0...v6.12.0
