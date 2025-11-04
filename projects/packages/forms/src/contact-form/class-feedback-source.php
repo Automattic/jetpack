@@ -200,7 +200,7 @@ class Feedback_Source {
 		if ( $this->page_number > 1 && ! empty( $this->permalink ) ) {
 			return add_query_arg( 'page', $this->page_number, $this->permalink );
 		}
-		return $this->permalink;
+		return wp_validate_redirect( $this->permalink, home_url() );
 	}
 
 	/**

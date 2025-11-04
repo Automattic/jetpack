@@ -402,15 +402,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $secret;
 		}
 
-		$token          = ( new Tokens() )->get_access_token();
-		$default_secret = hash_hmac( 'md5', get_option( 'admin_email' ), JETPACK__VERSION );
+		$token = ( new Tokens() )->get_access_token();
 
-		if ( empty( $token->secret ) ) {
-			return $default_secret;
+		if ( ! empty( $token->secret ) ) {
+			return $token->secret;
 		}
 
-		// Get the secret from the Tokens class.
-		return $token->secret;
+		$secret = get_option( 'jetpack_forms_secret_key', false );
+		if ( empty( $secret ) ) {
+			// Generate a fallback secret if we don't have one from Tokens.
+			$secret = wp_generate_password( 64, true, true );
+			update_option( 'jetpack_forms_secret_key', $secret );
+		}
+
+		return $secret;
 	}
 
 	/**
