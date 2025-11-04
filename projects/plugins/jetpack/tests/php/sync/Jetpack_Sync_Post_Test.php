@@ -1441,7 +1441,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
@@ -1466,7 +1469,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );
@@ -1491,7 +1497,10 @@ That was a cool video.';
 		$test_instance = new Modules\Posts();
 		$test_ref      = new ReflectionObject( $test_instance );
 		$property_ref  = $test_ref->getProperty( 'action_handler' );
-		$property_ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property_ref->setAccessible( true );
+		}
 		$property_ref->setValue( $test_instance, function () {} );
 
 		$test_instance->daily_akismet_meta_cleanup_before( $ids );

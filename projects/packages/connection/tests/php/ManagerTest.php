@@ -59,7 +59,10 @@ class ManagerTest extends TestCase {
 		$manager    = new Manager();
 		$reflection = new \ReflectionClass( $manager );
 		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( $manager );
 	}
 

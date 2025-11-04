@@ -228,7 +228,10 @@ EOT;
 	 */
 	public function test_wp_pattern_block_replace() {
 		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_patterns' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		Instant_Search::initialize( 1 );
 		WP_Block_Patterns_Registry::get_instance()->register(
 			'jetpack-search/footer',

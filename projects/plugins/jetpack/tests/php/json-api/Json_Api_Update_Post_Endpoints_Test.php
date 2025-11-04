@@ -161,7 +161,10 @@ class Json_Api_Update_Post_Endpoints_Test extends WP_UnitTestCase {
 	public function invoke_method( &$object, $method_name, array $parameters = array() ) {
 		$reflection = new \ReflectionClass( get_class( $object ) );
 		$method     = $reflection->getMethod( $method_name );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		return $method->invokeArgs( $object, $parameters );
 	}
