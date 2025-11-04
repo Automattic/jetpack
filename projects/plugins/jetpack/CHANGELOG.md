@@ -83,8 +83,7 @@
 - Slideshow block: Fix sizing for lazy-loaded images. [#45164]
 - Sync: Handle lazy-loading of `WP_User` object properties. [#45450]
 - Tests: Update WooCommerce sync related tests to account for whitelisting order item meta. [#45684]
-- Update package dependencies. [#45478]
-- Update package dependencies. [#45652] [#45676] [#45677]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45677]
 
 ## 15.1.1 - 2025-10-10
 ### Bug fixes
