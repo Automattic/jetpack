@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.2-beta - 2025-11-03
+## 15.2 - 2025-11-04
 ### Enhancements
 - Forms: Add browser info to form responses exports. [#45709]
 - Forms: Add emoji flag to the response email next to the IP address. [#45645]
