@@ -364,7 +364,6 @@ class WooCommerce extends Module {
 	 * @return object Order item.
 	 */
 	public function build_order_item( $order_item_id ) {
-		// here
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
