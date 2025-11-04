@@ -12,7 +12,15 @@ import {
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video, warning } from '@wordpress/icons';
+import {
+	Icon,
+	pencil as edit,
+	cloud,
+	image,
+	media,
+	video,
+	cautionFilled as warning,
+} from '@wordpress/icons';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
