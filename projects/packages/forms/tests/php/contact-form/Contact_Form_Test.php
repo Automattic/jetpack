@@ -338,7 +338,7 @@ class Contact_Form_Test extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: <a href="https://redirect.jetpack.com/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
+		$this->assertStringContainsString( 'IP Address: <a href="https://jetpack.com/redirect/?source=ip-lookup&#038;path=127.0.0.1">127.0.0.1</a>', $email['message'] );
 	}
 
 	/**
