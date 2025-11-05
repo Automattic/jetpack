@@ -76,6 +76,7 @@ const Layout = () => {
 					<JetpackLogo showText={ false } width={ 24 } /> Forms
 				</div>
 			}
+			subTitle={ __( 'Manage your forms and responses', 'jetpack-forms' ) }
 			actions={ headerActions }
 		>
 			<NavigableRegion
