@@ -265,6 +265,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			legendInteractive = false,
+			animation = true,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
@@ -437,7 +438,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 				} }
 			>
 				<div
-					className={ clsx( 'line-chart', styles[ 'line-chart' ], className ) }
+					className={ clsx(
+						'line-chart',
+						styles[ 'line-chart' ],
+						animation ? styles[ 'line-chart__animated' ] : null,
+						className
+					) }
 					data-testid="line-chart"
 					style={ {
 						width,
