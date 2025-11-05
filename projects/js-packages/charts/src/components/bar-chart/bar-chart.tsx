@@ -36,6 +36,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
 	legendInteractive?: boolean;
+	animation?: boolean;
 	children?: ReactNode;
 }
 
@@ -95,6 +96,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	withPatterns = false,
 	showZeroValues = false,
 	legendInteractive = false,
+	animation = true,
 	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
@@ -314,7 +316,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+				className={ clsx(
+					'bar-chart',
+					styles[ 'bar-chart' ],
+					animation ? styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] : null,
+					className
+				) }
 				data-testid="bar-chart"
 				role="grid"
 				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
