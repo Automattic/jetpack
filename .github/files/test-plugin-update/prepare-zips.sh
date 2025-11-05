@@ -52,7 +52,8 @@ fi
 echo "::endgroup::"
 
 echo "::group::Fetching $PLUGIN_SLUG-stable.zip..."
-JSON="$(curl -L --fail --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) "https://api.wordpress.org/plugins/info/1.0/$PLUGIN_SLUG.json")"
+# Note: Don't use --fail here, the API returns a 404 with a valid resonse if the plugin doesn't exist. Sigh.
+JSON="$(curl -L --retry 2 --retry-delay $(( 30 + RANDOM % 8 )) "https://api.wordpress.org/plugins/info/1.0/$PLUGIN_SLUG.json")"
 if jq -e --arg slug "$PLUGIN_SLUG" '.slug == $slug' <<<"$JSON" &>/dev/null; then
 	URL="$(jq -r '.download_link // ""' <<<"$JSON")"
 	if [[ -z "$URL" ]]; then
