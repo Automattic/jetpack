@@ -39,6 +39,9 @@ const defaultTheme: CompleteChartTheme = {
 			radius: 5,
 		},
 	},
+	geoChart: {
+		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
+	},
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
