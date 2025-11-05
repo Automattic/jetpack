@@ -6,4 +6,4 @@ PNPM_VERSION=10.4.0
 
 # Other useful version numbers.
 MIN_PHP_VERSION=7.2
-MAX_PHP_VERSION=8.4
+MAX_PHP_VERSION=8.5
