@@ -1756,7 +1756,7 @@ class Contact_Form_Plugin {
 
 			// Use a specific error message for invalid JWT tokens
 			$error_message = ( 'invalid_jwt' === $error_code )
-				? __( 'Oh no, this form is no longer valid. Reload the page and try again — data entered may be lost.', 'jetpack-forms' )
+				? __( 'An error occurred. Reload the page and try again — data entered may be lost.', 'jetpack-forms' )
 				: __( 'An error occurred. Please try again later.', 'jetpack-forms' );
 
 			$accepts_json && wp_send_json_error(
