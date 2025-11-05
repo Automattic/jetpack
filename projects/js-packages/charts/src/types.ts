@@ -186,6 +186,11 @@ export type ChartTheme = {
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
+	/** GeoChart specific settings */
+	geoChart?: {
+		/** Default fill color for a country (with no data) */
+		countryFillColor?: string;
+	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/** Gap between rows in the leaderboard grid */

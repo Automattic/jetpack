@@ -39,6 +39,9 @@ const defaultTheme: CompleteChartTheme = {
 			radius: 5,
 		},
 	},
+	geoChart: {
+		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
+	},
 	leaderboardChart: {
 		rowGap: 12,
 		columnGap: 4,
@@ -97,6 +100,9 @@ const jetpackTheme: ChartTheme = {
 			fill: 'var(--jp-gray-80, #2c3338)',
 			radius: 5,
 		},
+	},
+	geoChart: {
+		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
@@ -167,6 +173,9 @@ const wooTheme: ChartTheme = {
 			fill: 'black',
 			radius: 5,
 		},
+	},
+	geoChart: {
+		countryFillColor: '#F0F0F0',
 	},
 	leaderboardChart: {
 		rowGap: 12,
