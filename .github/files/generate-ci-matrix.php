@@ -87,6 +87,7 @@ $matrix[] = array(
 	'php'     => '8.5',
 	'wp'      => 'trunk',
 	'timeout' => 20,
+	'force-package-tests' => true,
 );
 
 // Add WooCommerce tests.
