@@ -820,6 +820,17 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	public function test_exclude_parameter_with_core() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
+		// First, verify core assets ARE present without exclusions
+		$request_without_exclude  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response_without_exclude = $this->server->dispatch( $request_without_exclude );
+		$data_without_exclude     = $response_without_exclude->get_data();
+
+		$this->assertStringContainsString( '/wp-includes/', $data_without_exclude['scripts'], 'Core scripts should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/', $data_without_exclude['scripts'], 'Core admin scripts should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-includes/', $data_without_exclude['styles'], 'Core styles should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/', $data_without_exclude['styles'], 'Core admin styles should be present without exclusions' );
+
+		// Now verify they ARE excluded with 'exclude=core'
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$request->set_param( 'exclude', 'core' );
 		$response = $this->server->dispatch( $request );
@@ -919,6 +930,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Core assets should be present
 		$this->assertNotEmpty( $data['scripts'] );
 		$this->assertNotEmpty( $data['styles'] );
+
+		// Verify specific core paths are included when no exclusions are applied
+		$this->assertStringContainsString( '/wp-includes/', $data['scripts'], 'Core wp-includes scripts should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/', $data['scripts'], 'Core wp-admin scripts should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-includes/', $data['styles'], 'Core wp-includes styles should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/', $data['styles'], 'Core wp-admin styles should be present without exclusions' );
 	}
 
 	/**
