@@ -149,6 +149,7 @@ const PieChartInternal = ( {
 	legendItemClassName,
 	legendShape = 'circle',
 	size,
+	animation,
 	thickness = 1,
 	padding = 0,
 	gapScale = 0,
@@ -395,6 +396,21 @@ const PieChartInternal = ( {
 						{ /* Render SVG children (like Group, Text) inside the SVG */ }
 						{ ! allSegmentsHidden && svgChildren }
 					</Group>
+
+					{ animation && (
+						<circle
+							cx={ centerX }
+							cy={ centerY }
+							r={ ( outerRadius - innerRadius ) / 2 + innerRadius }
+							pathLength="100"
+							fill="transparent"
+							style={ {
+								stroke: providerTheme.backgroundColor,
+								strokeWidth: outerRadius - innerRadius,
+							} }
+							className={ styles.overlayCircle }
+						/>
+					) }
 				</svg>
 
 				{ showLegend && (
