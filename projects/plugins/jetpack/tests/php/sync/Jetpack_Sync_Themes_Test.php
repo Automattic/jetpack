@@ -24,7 +24,10 @@ class Dummy_Sync_Test_WP_Upgrader {
 		$instance = $reflection->newInstanceWithoutConstructor();
 
 		$prop = $reflection->getProperty( 'stylesheet' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( $instance, 'foobar-theme' );
 		return $instance;
 	}

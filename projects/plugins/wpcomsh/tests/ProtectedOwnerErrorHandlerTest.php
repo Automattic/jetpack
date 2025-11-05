@@ -54,7 +54,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'build_error_data' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler, $raw_error );
 
@@ -223,7 +226,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 
@@ -245,7 +251,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 
@@ -268,7 +277,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 
@@ -296,7 +308,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 
@@ -311,7 +326,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 
@@ -341,7 +359,10 @@ class ProtectedOwnerErrorHandlerTest extends WP_UnitTestCase {
 		// Use reflection to access private method
 		$reflection = new ReflectionClass( $this->handler );
 		$method     = $reflection->getMethod( 'get_prepopulation_email' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$result = $method->invoke( $this->handler );
 

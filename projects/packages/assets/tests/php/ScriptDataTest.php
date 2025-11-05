@@ -76,7 +76,10 @@ class ScriptDataTest extends TestCase {
 		Monkey\tearDown();
 		// Reset the static property for isolation between tests.
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
-		$ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, false );
 		parent::tearDown();
 	}
@@ -112,7 +115,10 @@ class ScriptDataTest extends TestCase {
 
 	public function test_render_script_data_for_unauthenticated_rest_request() {
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
-		$ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, false );
 
 		Functions\when( 'is_admin' )->justReturn( false );
@@ -145,7 +151,10 @@ class ScriptDataTest extends TestCase {
 
 	public function test_render_script_data_for_authenticated_rest_request_with_block_editor_assets() {
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
-		$ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, false );
 
 		Functions\when( 'is_admin' )->justReturn( false );
@@ -178,7 +187,10 @@ class ScriptDataTest extends TestCase {
 
 	public function test_render_script_data_with_no_data() {
 		$ref = new \ReflectionProperty( Script_Data::class, 'did_render_script_data' );
-		$ref->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, false );
 
 		Functions\when( 'is_admin' )->justReturn( false );
