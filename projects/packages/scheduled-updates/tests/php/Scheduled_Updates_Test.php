@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Test class for Scheduled_Updates.
@@ -93,6 +92,8 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		delete_option( 'jetpack_scheduled_update_statuses' );
 		delete_option( 'auto_update_plugins' );
 
+		unset( $GLOBALS['mock_realpath'] );
+
 		parent::tear_down_wordbless();
 	}
 
@@ -127,16 +128,12 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Simulate managed plugins linked from a root /wordpress directory.
-	 *
-	 * @group failing
 	 */
-	#[Group( 'failing' )]
 	public function test_managed_plugins() {
 		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 
-		// Tweak realpath so that it returns `/wordpress/...`.
-		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
-		$realpath->expects( $this->once() )->willReturn( '/wordpress/plugins/managed-plugin' );
+		// Mock realpath to return a path starting with /wordpress/.
+		$GLOBALS['mock_realpath'][ WP_PLUGIN_DIR . '/managed-plugin' ] = '/wordpress/plugins/managed-plugin';
 
 		$request       = new \WP_REST_Request( 'GET', '/wp/v2/plugins' );
 		$result        = rest_do_request( $request );
@@ -690,13 +687,8 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 		$plugins = array( 'managed-plugin/managed-plugin.php', 'installed-plugin/installed-plugin.php' );
 		symlink( WP_PLUGIN_DIR . '/wordpress/managed-plugin', WP_PLUGIN_DIR . '/managed-plugin' );
 
-		// Tweak realpath so that it returns `/wordpress/...` for the managed plugin.
-		$realpath = $this->getFunctionMock( __NAMESPACE__, 'realpath' );
-		$realpath->expects( $this->once() )->willReturnCallback(
-			function ( $path ) {
-				return str_replace( WP_PLUGIN_DIR, '/wordpress/plugins', $path );
-			}
-		);
+		// Mock realpath to return a path starting with /wordpress/ for the managed plugin.
+		$GLOBALS['mock_realpath'][ WP_PLUGIN_DIR . '/managed-plugin' ] = '/wordpress/plugins/managed-plugin';
 
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
 		$request->set_body_params(
