@@ -128,9 +128,6 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
-		// Reduce noisy updates via Jetpack CRM's WooSync
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'maybe_skip_updates_triggered_by_crm' ), 5 );
-
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
@@ -241,14 +238,8 @@ class WooCommerce extends Module {
 	 * @return array $args The hook arguments.
 	 */
 	public function filter_order_item( $args ) {
-		if ( is_array( $args ) && ! empty( $args[0] ) ) {
-
-			// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
-			$order_item = $this->build_order_item( (int) $args[0] );
-			if ( $order_item ) {
-				$args[1] = $order_item;
-			}
-		}
+		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
+		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
 	}
 

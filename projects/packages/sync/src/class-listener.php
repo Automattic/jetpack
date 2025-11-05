@@ -290,6 +290,15 @@ class Listener {
 		 */
 		do_action( 'jetpack_sync_action_before_enqueue' );
 
+		// Skip enqueueing any Sync action when triggered by Jetpack CRM Woo Sync background job to avoid periodic noise.
+		if (
+			( function_exists( 'doing_action' ) && doing_action( 'jpcrm_woosync_sync' ) )
+			|| defined( 'jpcrm_woosync_running' )
+			|| defined( 'jpcrm_woosync_cron_running' )
+		) {
+			return;
+		}
+
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
