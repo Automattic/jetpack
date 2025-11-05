@@ -15,8 +15,8 @@ if ( PHP_VERSION_ID >= 80500 ) {
 	set_error_handler(
 		function ( $errno, $errstr, $errfile = '' ) {
 			return E_DEPRECATED === $errno
-				&& str_contains( $errstr, 'setAccessible() is deprecated' )
-				&& str_ends_with( $errfile, 'vendor/wikimedia/testing-access-wrapper/src/TestingAccessWrapper.php' );
+				&& str_contains( $errstr, 'setAccessible() is deprecated' ) // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.str_containsFound -- this is a PHP 7.4+ function in a PHP 8.5+ block
+				&& str_ends_with( $errfile, 'vendor/wikimedia/testing-access-wrapper/src/TestingAccessWrapper.php' ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.str_ends_withFound -- this is a PHP 7.4+ function in a PHP 8.5+ block
 		},
 		E_ALL
 	);
