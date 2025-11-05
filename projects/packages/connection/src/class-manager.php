@@ -1747,16 +1747,16 @@ class Manager {
 	 * @return array $amended arguments.
 	 */
 	public static function apply_activation_source_to_args( $args ) {
-		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+		$activation_source = get_option( 'jetpack_activation_source' );
 
-		if ( $activation_source_name ) {
+		if ( ! empty( $activation_source[0] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_as'] = urlencode( $activation_source_name );
+			$args['_as'] = urlencode( $activation_source[0] );
 		}
 
-		if ( $activation_source_keyword ) {
+		if ( ! empty( $activation_source[1] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_ak'] = urlencode( $activation_source_keyword );
+			$args['_ak'] = urlencode( $activation_source[1] );
 		}
 
 		return $args;
