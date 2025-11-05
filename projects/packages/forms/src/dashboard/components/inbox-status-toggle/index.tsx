@@ -2,7 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Tabs, useBreakpointMatch } from '@automattic/jetpack-components';
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -11,6 +11,7 @@ import { useSearchParams } from 'react-router';
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data';
+import * as Tabs from '../tabs';
 
 /**
  * Returns a formatted tab label with count badge.

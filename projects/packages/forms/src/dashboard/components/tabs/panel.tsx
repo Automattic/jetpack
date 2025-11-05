@@ -7,7 +7,7 @@ import { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.scss';
+import './style.scss';
 import type { TabPanelProps } from './types.ts';
 
 /**
@@ -24,7 +24,7 @@ export const Panel = forwardRef< HTMLDivElement, TabPanelProps >( function TabPa
 		<BaseUITabs.Panel
 			ref={ forwardedRef }
 			tabIndex={ tabIndex ?? ( focusable ? 0 : -1 ) }
-			className={ clsx( styles.tabpanel, className ) }
+			className={ clsx( 'jp-forms-tabs__tabpanel', className ) }
 			{ ...otherProps }
 		/>
 	);

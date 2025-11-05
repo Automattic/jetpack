@@ -11,7 +11,7 @@ import { forwardRef, useState, useEffect, useCallback, isValidElement, cloneElem
 /**
  * Internal dependencies
  */
-import styles from './style.module.scss';
+import './style.scss';
 import type { TabListProps } from './types.ts';
 
 const DEFAULT_SCROLL_MARGIN = 0;
@@ -121,17 +121,17 @@ export const List = forwardRef< HTMLDivElement, TabListProps >( function TabList
 			activateOnFocus={ activateOnFocus }
 			data-select-on-move={ activateOnFocus ? 'true' : 'false' }
 			className={ clsx(
-				styles.tablist,
-				overflow.first && styles[ 'is-overflowing-first' ],
-				overflow.last && styles[ 'is-overflowing-last' ],
-				styles[ `has-${ density }-density` ],
+				'jp-forms-tabs__tablist',
+				overflow.first && 'jp-forms-tabs__is-overflowing-first',
+				overflow.last && 'jp-forms-tabs__is-overflowing-last',
+				`jp-forms-tabs__has-${ density }-density`,
 				className
 			) }
 			render={ renderTabList }
 			{ ...otherProps }
 		>
 			{ children }
-			<BaseUITabs.Indicator className={ styles.indicator } />
+			<BaseUITabs.Indicator className="jp-forms-tabs__indicator" />
 		</BaseUITabs.List>
 	);
 } );

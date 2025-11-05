@@ -11,7 +11,7 @@ import { forwardRef, cloneElement } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './style.module.scss';
+import './style.scss';
 import type { TabProps } from './types.ts';
 
 const ChevronRight = ( props: React.SVGProps< SVGSVGElement > ) => {
@@ -31,11 +31,11 @@ export const Tab = forwardRef< HTMLButtonElement, TabProps >( function Tab(
 	return (
 		<BaseUITabs.Tab
 			ref={ forwardedRef }
-			className={ clsx( styles.tab, className ) }
+			className={ clsx( 'jp-forms-tabs__tab', className ) }
 			{ ...otherProps }
 		>
-			<span className={ styles.tab__children }>{ children }</span>
-			<ChevronRight className={ styles.tab__chevron } />
+			<span className="jp-forms-tabs__tab__children">{ children }</span>
+			<ChevronRight className="jp-forms-tabs__tab__chevron" />
 		</BaseUITabs.Tab>
 	);
 } );

@@ -85,4 +85,3 @@ export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
 export * from './components/global-notices/index.ts';
-export * as Tabs from './components/tabs/index.ts';
