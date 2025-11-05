@@ -768,6 +768,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$links     = $dom->getElementsByTagName( 'link' );
 		$to_remove = array();
 
+		// Use two-pass approach: collect elements first, then remove them.
+		// This is necessary because getElementsByTagName() returns a live DOMNodeList
+		// that updates as the DOM changes. Removing elements during iteration can
+		// cause the iterator to skip elements.
 		foreach ( $links as $link ) {
 			$handle = $this->extract_handle_from_element( $link );
 			$url    = $link->getAttribute( $url_attribute );
@@ -793,6 +797,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$styles    = $dom->getElementsByTagName( 'style' );
 		$to_remove = array();
 
+		// Use two-pass approach: collect elements first, then remove them.
+		// This is necessary because getElementsByTagName() returns a live DOMNodeList
+		// that updates as the DOM changes. Removing elements during iteration can
+		// cause the iterator to skip elements.
 		foreach ( $styles as $style ) {
 			$handle = $this->extract_handle_from_element( $style );
 
@@ -818,6 +826,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$scripts   = $dom->getElementsByTagName( 'script' );
 		$to_remove = array();
 
+		// Use two-pass approach: collect elements first, then remove them.
+		// This is necessary because getElementsByTagName() returns a live DOMNodeList
+		// that updates as the DOM changes. Removing elements during iteration can
+		// cause the iterator to skip elements.
 		foreach ( $scripts as $script ) {
 			$handle = $this->extract_handle_from_element( $script );
 			$url    = $script->getAttribute( $url_attribute );
