@@ -475,7 +475,7 @@ export default function InboxView() {
 						<HStack spacing={ 2 }>
 							<InboxStatusToggle onChange={ resetPage } />
 						</HStack>
-						<HStack spacing={ 2 } alignment="right">
+						<HStack spacing={ 2 } justify={ containerWidth < 600 ? 'space-between' : 'flex-end' }>
 							<DataViews.Search />
 							<DataViews.FiltersToggle />
 							<DataViews.ViewConfig />

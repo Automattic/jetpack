@@ -119,13 +119,9 @@
 		align-items: flex-start;
 		gap: 12px;
 
-		// Make all child divs full width and align left on mobile
+		// Make all child divs full width on mobile
 		> div {
 			width: 100%;
-
-			> div {
-				justify-content: flex-start !important;
-			}
 		}
 	}
 
