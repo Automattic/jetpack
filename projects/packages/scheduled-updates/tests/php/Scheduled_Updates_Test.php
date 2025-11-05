@@ -20,13 +20,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Used to mock global functions inside a namespace.
-	 *
-	 * @see https://github.com/php-mock/php-mock-phpunit
-	 */
-	use \phpmock\phpunit\PHPMock;
-
-	/**
 	 * Admin user ID.
 	 *
 	 * @var int
@@ -39,16 +32,6 @@ class Scheduled_Updates_Test extends \WorDBless\BaseTestCase {
 	 * @var \WP_Filesystem_Direct
 	 */
 	public $wp_filesystem;
-
-	/**
-	 * Set up before class.
-	 *
-	 * @see Restrictions here: https://github.com/php-mock/php-mock-phpunit?tab=readme-ov-file#restrictions
-	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-		\phpmock\phpunit\PHPMock::defineFunctionMock( 'Automattic\Jetpack', 'realpath' );
-	}
 
 	/**
 	 * Set up.
