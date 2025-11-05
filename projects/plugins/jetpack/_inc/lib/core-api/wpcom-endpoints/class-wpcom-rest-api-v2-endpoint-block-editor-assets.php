@@ -25,6 +25,13 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	private $handle_suffix_regex = '/-(js|css|extra|before|after)$/';
 
 	/**
+	 * Cached base URL for the plugins directory.
+	 *
+	 * @var string|null
+	 */
+	private $plugins_base_url = null;
+
+	/**
 	 * List of allowed plugin handle prefixes whose assets should be preserved.
 	 * Each entry should be a handle prefix that identifies assets from allowed plugins.
 	 *
@@ -520,6 +527,20 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
+	 * Get the base URL for the plugins directory.
+	 *
+	 * Caches the result to avoid repeated function calls.
+	 *
+	 * @return string The base URL for the plugins directory with trailing slash.
+	 */
+	private function get_plugins_base_url() {
+		if ( null === $this->plugins_base_url ) {
+			$this->plugins_base_url = trailingslashit( plugins_url() );
+		}
+		return $this->plugins_base_url;
+	}
+
+	/**
 	 * Check if an asset is a Gutenberg plugin asset.
 	 *
 	 * @param string $src The asset source URL.
@@ -530,8 +551,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return false;
 		}
 
-		return str_contains( $src, 'plugins/gutenberg/' ) ||
-			str_contains( $src, 'plugins/gutenberg-core/' ); // WPCOM-specific path
+		$plugins_url = $this->get_plugins_base_url();
+
+		return str_contains( $src, $plugins_url . 'gutenberg/' ) ||
+			str_contains( $src, $plugins_url . 'gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**
