@@ -68,6 +68,8 @@ export interface ConversionFunnelChartProps
 	loading?: boolean;
 	/** Custom styling */
 	style?: React.CSSProperties;
+	/** Whether to show animation or not */
+	animation?: boolean;
 	/** Custom render function for step labels */
 	renderStepLabel?: ( props: StepLabelRenderProps ) => React.ReactNode;
 	/** Custom render function for step rates */
