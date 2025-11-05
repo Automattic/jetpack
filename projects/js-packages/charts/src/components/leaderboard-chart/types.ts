@@ -18,6 +18,11 @@ export interface LeaderboardChartProps
 		| 'legendInteractive'
 	> {
 	/**
+	 * Whether to show animation or not
+	 */
+	animation?: boolean;
+
+	/**
 	 * Whether to show comparison data
 	 */
 	withComparison?: boolean;

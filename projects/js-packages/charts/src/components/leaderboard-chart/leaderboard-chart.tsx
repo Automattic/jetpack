@@ -62,6 +62,7 @@ const BarWithLabel = ( {
 	withOverlayLabel,
 	primaryColor,
 	secondaryColor,
+	animation,
 	isPrimaryVisible = true,
 	isComparisonVisible = true,
 }: {
@@ -72,6 +73,7 @@ const BarWithLabel = ( {
 	secondaryColor: string;
 	isPrimaryVisible?: boolean;
 	isComparisonVisible?: boolean;
+	animation?: boolean;
 } ) => (
 	<div
 		className={ clsx( styles.barWithLabelContainer, {
@@ -82,7 +84,9 @@ const BarWithLabel = ( {
 
 		{ isPrimaryVisible && (
 			<div
-				className={ styles.bar }
+				className={ clsx( styles.bar, {
+					[ styles.bar__animated ]: animation,
+				} ) }
 				style={ {
 					width: entry.currentShare + '%',
 					backgroundColor: primaryColor,
@@ -92,7 +96,9 @@ const BarWithLabel = ( {
 
 		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
 			<div
-				className={ styles.bar }
+				className={ clsx( styles.bar, {
+					[ styles.bar__animated ]: animation,
+				} ) }
 				style={ {
 					width: entry.previousShare + '%',
 					backgroundColor: secondaryColor,
@@ -116,6 +122,7 @@ const BarWithLabel = ( {
  * @param props.valueFormatter    - Custom formatter for values
  * @param props.deltaFormatter    - Custom formatter for delta values
  * @param props.loading           - Whether the chart is in loading state
+ * @param props.animation         - Whether the chart should animate on load
  * @param props.showLegend        - Whether to show legend
  * @param props.legendOrientation - Legend orientation
  * @param props.legendPosition    - Legend position
@@ -140,6 +147,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	valueFormatter = defaultValueFormatter,
 	deltaFormatter = defaultDeltaFormatter,
 	loading = false,
+	animation = true,
 	showLegend = false,
 	legendOrientation = 'horizontal',
 	legendPosition = 'bottom',
@@ -301,6 +309,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											secondaryColor={ resolvedSecondaryColor }
 											isPrimaryVisible={ isPrimaryVisible }
 											isComparisonVisible={ isComparisonVisible }
+											animation={ animation && ! loading }
 										/>
 									</VStack>
 
