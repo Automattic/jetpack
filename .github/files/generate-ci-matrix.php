@@ -82,11 +82,11 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 
 // todo: move to the main matrix once WP latest is compatible with PHP 8.5.
 $matrix[] = array(
-	'name'    => 'PHP tests: PHP 8.5 WP trunk',
-	'script'  => 'test-php',
-	'php'     => '8.5',
-	'wp'      => 'trunk',
-	'timeout' => 20,
+	'name'                => 'PHP tests: PHP 8.5 WP trunk',
+	'script'              => 'test-php',
+	'php'                 => '8.5',
+	'wp'                  => 'trunk',
+	'timeout'             => 20,
 	'force-package-tests' => true,
 );
 
