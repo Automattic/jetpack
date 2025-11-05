@@ -244,26 +244,6 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Skip enqueueing WooCommerce order item update actions when they are triggered
-	 * by Jetpack CRM Woo Sync background job.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param array $args Hook arguments.
-	 * @return array|false False to skip enqueue, original args otherwise.
-	 */
-	public function maybe_skip_updates_triggered_by_crm( $args ) {
-		if (
-			( function_exists( 'doing_action' ) && doing_action( 'jpcrm_woosync_sync' ) )
-			|| defined( 'jpcrm_woosync_running' )
-			|| defined( 'jpcrm_woosync_cron_running' )
-		) {
-			return false;
-		}
-		return $args;
-	}
-
-	/**
 	 * Handler for filtering out non-whitelisted order item meta.
 	 *
 	 * @since 4.22.3
