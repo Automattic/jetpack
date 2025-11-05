@@ -1,0 +1,109 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts/Types/Geo Chart/API Reference" />
+
+# Geo Chart API Reference
+
+## GeoChart
+
+Main component for rendering geographical data on an interactive world map.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `Record<string, number>` | - | **Required.** Record mapping country ISO codes (e.g., 'USA', 'CAN', 'GBR') to numeric values |
+| `width` | `number` | - | **Required.** Width of the chart in pixels |
+| `height` | `number` | - | **Required.** Height of the chart in pixels |
+| `className` | `string` | - | Additional CSS class name for the chart container |
+| `chartId` | `string` | - | Custom chart identifier for accessibility |
+
+## GeoChartProps Type
+
+```typescript
+interface GeoChartProps extends Pick<BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height'> {}
+```
+
+## FeatureShape Type
+
+Internal type representing a geographic feature in the map topology.
+
+```typescript
+interface FeatureShape {
+	type: 'Feature';
+	id: string;
+	geometry: {
+		coordinates: [number, number][][];
+		type: 'Polygon';
+	};
+	properties: {
+		name: string;
+	};
+}
+```
+
+## TooltipData Type
+
+Internal type for tooltip data structure.
+
+```typescript
+interface TooltipData {
+	countryName: string;
+	countryId: string;
+	value: number;
+}
+```
+
+## Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `colors[0]` | `string` | `'#069E08'` | Primary color used for data visualization with alpha transparency |
+| `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
+| `geoChart.countryFillColor` | `string` | `'#E5E7EB'` | Fill color for countries without data values |
+
+## Country ISO Codes
+
+The `data` prop accepts three-letter ISO 3166-1 alpha-3 country codes. Common examples:
+
+- **USA**: United States
+- **CAN**: Canada
+- **GBR**: United Kingdom
+- **DEU**: Germany
+- **FRA**: France
+- **JPN**: Japan
+- **AUS**: Australia
+- **BRA**: Brazil
+- **IND**: India
+- **CHN**: China
+- **MEX**: Mexico
+- **ESP**: Spain
+- **ITA**: Italy
+- **NLD**: Netherlands
+- **RUS**: Russia
+- **KOR**: South Korea
+- **ZAF**: South Africa
+- **NGA**: Nigeria
+- **ARG**: Argentina
+- **SAU**: Saudi Arabia
+
+For a complete list, refer to the ISO 3166-1 alpha-3 standard.
+
+## Map Projection
+
+The chart uses **Mercator projection** from `@visx/geo` with the following parameters:
+
+- **Scale**: Calculated as `width * 0.16`
+- **Translation**: `[centerX, centerY + 50]` (slightly offset vertically)
+- **Topology**: World country boundaries from Natural Earth data
+
+## Color Scaling
+
+Colors are automatically scaled using `@visx/scale`'s `scaleLinear`:
+
+- **Domain**: `[0, maxValue]` where maxValue is the highest value in the data
+- **Range**: `[lightColor, fullColor]` where lightColor has 20% opacity (hex: `#RRGGBB20`)
+- **Interpolation**: Linear interpolation between transparent and full opacity
+

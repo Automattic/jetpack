@@ -1,0 +1,212 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as GeoChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts/Types/Geo Chart" of={ GeoChartStories } />
+
+# Geo Chart
+
+Geo Charts visualize geographical data on an interactive world map using Mercator projection, making it easy to understand the distribution of values across countries.
+
+<Canvas of={ GeoChartStories.Default } />
+
+## Overview
+
+The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on `@visx/geo` with Mercator projection, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
+
+<Source
+	language="tsx"
+	code={ `import { GeoChart } from '@automattic/charts';
+
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-types-geo-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Geo Chart
+
+The simplest geo chart requires data, width, and height. The `data` prop accepts a record mapping country ISO codes to numeric values:
+
+<Canvas of={ GeoChartStories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ {
+			USA: 1000,
+			CAN: 500,
+			GBR: 450,
+			DEU: 400,
+			AUS: 350,
+			FRA: 300,
+			MEX: 250,
+			JPN: 200,
+			BRA: 150,
+			IND: 120,
+		} }
+		width={ 800 }
+		height={ 500 }
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Record mapping country ISO codes (e.g., 'USA', 'CAN', 'GBR') to numeric values
+- **`width`**: Width of the chart in pixels
+- **`height`**: Height of the chart in pixels
+
+### Optional Props
+
+- **`className`**: Additional CSS class name for custom styling
+
+For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-types-geo-chart-api-reference--docs).
+
+## Interactive Features
+
+### Hover Tooltips
+
+The Geo Chart includes built-in interactive tooltips that display on hover, showing:
+
+- Country name
+- Country ISO code
+- Value for that country
+
+Tooltips are automatically enabled and positioned near the cursor for optimal readability.
+
+### Color Scaling
+
+The chart automatically scales colors based on data values:
+
+- **No data**: Countries without values use the default theme color
+- **Low values**: Displayed with lighter, semi-transparent colors
+- **High values**: Displayed with full opacity using the primary theme color
+
+The color scale uses alpha transparency (20% to 100% opacity) for smooth gradations that maintain visual consistency across different themes.
+
+## Country Code Format
+
+The Geo Chart uses three-letter ISO country codes (ISO 3166-1 alpha-3). Common examples:
+
+- **USA**: United States
+- **CAN**: Canada
+- **GBR**: United Kingdom
+- **DEU**: Germany (Deutschland)
+- **FRA**: France
+- **JPN**: Japan
+- **AUS**: Australia
+- **BRA**: Brazil
+- **IND**: India
+- **CHN**: China
+- **MEX**: Mexico
+- **ESP**: Spain
+- **ITA**: Italy
+- **NLD**: Netherlands
+
+**Important**: Use the three-letter codes (alpha-3), not two-letter codes. For a complete list of country codes, refer to the [ISO 3166-1 alpha-3 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
+
+## Styling and Customization
+
+### Theme Integration
+
+Geo Charts automatically integrate with the chart theme system for colors and styling:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+
+	<GlobalChartsProvider theme={ jetpackTheme }>
+		<GeoChart
+			data={ ordersByCountry }
+			width={ 800 }
+			height={ 500 }
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+The chart uses the following theme properties:
+
+- **`colors[0]`**: Primary color for data visualization (used with alpha transparency for scaling)
+- **`backgroundColor`**: Background color for the map
+- **`geoChart.countryFillColor`**: Fill color for countries without data
+
+### Custom Styling
+
+Add custom styles using the `className` prop:
+
+<Source
+	language="tsx"
+	code={ `.custom-geo-chart {
+		border-radius: 8px;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+		className="custom-geo-chart"
+	/>` }
+/>
+
+## Map Projection Details
+
+The Geo Chart uses Mercator projection with the following characteristics:
+
+- **Projection**: Standard Mercator (equirectangular-like distortion)
+- **Center**: Slightly offset vertically (50px down) for better visual balance
+- **Scale**: Automatically calculated as `width * 0.16` for optimal sizing
+- **Graticule**: Hidden by default (grid lines set to transparent)
+
+This projection provides a familiar world map layout suitable for most geographical data visualization needs.
+
+## Best Practices
+
+### Data Preparation
+
+- **Use correct ISO codes**: Ensure country codes follow the three-letter ISO 3166-1 alpha-3 format
+- **Validate data**: Check that values are positive numbers
+- **Consider scale**: Large value ranges will show more dramatic color differences
+
+### Performance Considerations
+
+The Geo Chart renders efficiently for typical use cases, but consider these factors:
+
+- **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
+- **Tooltip rendering**: Tooltips are lightweight and render only on hover
+- **Map complexity**: The world topology is pre-loaded and optimized for performance
+
+### Accessibility
+
+- **Alternative views**: Consider providing a data table or list view for users who prefer non-visual data
+- **Color contrast**: The automatic color scaling maintains theme consistency, but test with your specific color choices
+- **Keyboard navigation**: Currently, the chart is primarily mouse-driven; consider complementing with keyboard-accessible data views
+
+## Accessibility
+
+### Mouse Interaction
+
+- **Hover**: Move the mouse over any country to see its data in a tooltip
+- **Visual feedback**: Countries with data show graduated colors based on value magnitude
+
+### Screen Reader Support
+
+The Geo Chart currently uses standard SVG rendering without additional ARIA labels. For better accessibility:
+
+- Provide a data table or list alongside the chart
+- Use descriptive headings to introduce the geographical data
+- Consider adding `aria-label` or `aria-describedby` to the container element
+
+### Focus Management
+
+The chart does not currently implement keyboard navigation. For full accessibility:
+
+- Complement the chart with a keyboard-accessible data table
+- Provide text summaries of key insights
+- Consider using the chart as a visual supplement to accessible data presentations

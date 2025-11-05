@@ -16,7 +16,7 @@ const meta: Meta< StoryArgs > = {
 	parameters: {
 		layout: 'centered',
 	},
-	tags: [ 'autodocs' ],
+	decorators: [ chartDecorator ],
 	argTypes: {
 		data: {
 			control: 'object',
@@ -51,7 +51,6 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 	},
-	decorators: [ chartDecorator ],
 };
 
 export default meta;
