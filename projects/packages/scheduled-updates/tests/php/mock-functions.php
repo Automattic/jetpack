@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Mock realpath in the current namespace
  *
- * If $GLOBALS['mock_realpath'] is set, it will be used as the return value.
+ * If $GLOBALS['mock_realpath'][ $path ] is set, it will be used as the return value.
  * Otherwise, it falls back to the native realpath function.
  *
  * @param string $path The path to resolve.
