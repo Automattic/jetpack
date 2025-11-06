@@ -1,7 +1,9 @@
 /* Basic editor and frontend layout styles */
 
 .wp-block-code {
-	--font-family: Consolas, Monaco, monospace;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 
 	&.show-line-numbers {
 		counter-set: code-line-number calc(var(--line-numbers-start-at, 1) - 1);
@@ -28,10 +30,6 @@
 		}
 	}
 
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-
 	&.loading {
 		cursor: wait;
 		filter: saturate(0.6) opacity(0.6);
@@ -47,7 +45,6 @@
 	.cm-scroller {
 		display: flex !important;
 		align-items: flex-start !important;
-		font-family: var(--font-family);
 		line-height: 1.4;
 		height: 100%;
 		overflow-x: auto;
