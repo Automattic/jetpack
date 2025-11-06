@@ -659,6 +659,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['form_fill_duration'] = array(
+			'description' => __( 'The duration in seconds from first user interaction to form submission. Returns null for submissions before this feature was added.', 'jetpack-forms' ),
+			'type'        => array( 'integer', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'absint',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['browser'] = array(
 			'description' => __( 'The browser and platform used to submit the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -989,6 +999,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'country_code', $fields ) ) {
 			$data['country_code'] = $feedback_response->get_country_code();
+		}
+
+		if ( rest_is_field_included( 'form_fill_duration', $fields ) ) {
+			$data['form_fill_duration'] = $feedback_response->get_form_fill_duration();
 		}
 
 		if ( rest_is_field_included( 'browser', $fields ) ) {

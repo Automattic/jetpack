@@ -249,6 +249,15 @@ class Feedback {
 	protected $country_code = null;
 
 	/**
+	 * The form fill duration in seconds.
+	 *
+	 * Tracks how long the user spent filling out the form (from first interaction to submission).
+	 *
+	 * @var int|null
+	 */
+	protected $form_fill_duration = null;
+
+	/**
 	 * The subject of the feedback entry.
 	 *
 	 * @var string
@@ -427,10 +436,11 @@ class Feedback {
 			! empty( $parsed_content['is_test'] )
 		);
 
-		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
-		$this->country_code = $parsed_content['country_code'] ?? null;
-		$this->user_agent   = $parsed_content['user_agent'] ?? null;
-		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+		$this->ip_address         = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->country_code       = $parsed_content['country_code'] ?? null;
+		$this->user_agent         = $parsed_content['user_agent'] ?? null;
+		$this->form_fill_duration = $parsed_content['form_fill_duration'] ?? null;
+		$this->subject            = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 		$this->logged_in_user          = $parsed_content['logged_in_user'] ?? null;
@@ -493,14 +503,15 @@ class Feedback {
 		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
 		// If post_data is provided, use it to populate fields.
-		$this->fields          = $this->get_computed_fields( $post_data, $form );
-		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
-		$this->country_code    = $this->get_country_code_from_ip( $this->ip_address );
-		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
-		$this->subject         = $this->get_computed_subject( $post_data, $form );
-		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
-		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
-		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+		$this->fields             = $this->get_computed_fields( $post_data, $form );
+		$this->ip_address         = Contact_Form_Plugin::get_ip_address();
+		$this->country_code       = $this->get_country_code_from_ip( $this->ip_address );
+		$this->user_agent         = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
+		$this->form_fill_duration = isset( $post_data['form_fill_duration'] ) ? absint( $post_data['form_fill_duration'] ) : null;
+		$this->subject            = $this->get_computed_subject( $post_data, $form );
+		$this->author_data        = Feedback_Author::from_submission( $post_data, $form );
+		$this->comment_content    = $this->get_computed_comment_content( $post_data, $form );
+		$this->has_consent        = $this->get_computed_consent( $post_data, $form );
 
 		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
@@ -1125,6 +1136,17 @@ class Feedback {
 	}
 
 	/**
+	 * Get the form fill duration in seconds.
+	 *
+	 * Represents the time from first user interaction to form submission.
+	 *
+	 * @return int|null
+	 */
+	public function get_form_fill_duration() {
+		return $this->form_fill_duration;
+	}
+
+	/**
 	 * Get the emoji flag for the country.
 	 *
 	 * @return string The emoji flag for the country code, or empty string if unavailable.
@@ -1567,6 +1589,7 @@ class Feedback {
 				'ip'                      => $this->ip_address,
 				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
+				'form_fill_duration'      => $this->form_fill_duration,
 				'notification_recipients' => $this->notification_recipients,
 				'logged_in_user'          => $this->logged_in_user,
 			),

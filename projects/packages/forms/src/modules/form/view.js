@@ -672,6 +672,18 @@ const { state, actions } = store( NAMESPACE, {
 				// Capture file preview URLs before submission (blob URLs for images, icon URLs for other files)
 				capturedFilePreviews = captureFilePreviews( context.formHash );
 
+				// Calculate and set the form fill duration before submission
+				if ( context.formFirstInteractionTime ) {
+					const duration = Math.round( ( Date.now() - context.formFirstInteractionTime ) / 1000 ); // Duration in seconds
+					const form = document.getElementById( 'jp-form-' + context.formHash );
+					if ( form ) {
+						const durationField = form.querySelector( 'input[name="form_fill_duration"]' );
+						if ( durationField ) {
+							durationField.value = duration;
+						}
+					}
+				}
+
 				const { success, error, data, refreshArgs } = yield submitForm( context.formHash );
 
 				if ( success ) {
@@ -765,6 +777,14 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;
 			registerField( fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra );
+		},
+
+		trackFirstInteraction() {
+			const context = getContext();
+			// Store the first interaction time when user focuses on any form field
+			if ( ! context.formFirstInteractionTime ) {
+				context.formFirstInteractionTime = Date.now();
+			}
 		},
 
 		scrollToWrapper() {

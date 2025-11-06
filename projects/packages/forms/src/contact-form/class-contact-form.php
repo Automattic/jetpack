@@ -1544,6 +1544,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			id='contact-form-$id'
 			class='{$container_classes_string}'
 			data-wp-interactive='jetpack/form' " . wp_interactivity_data_wp_context( $context ) . "
+			data-wp-on--focusin=\"callbacks.trackFirstInteraction\"
 			data-wp-watch--scroll-to-wrapper=\"callbacks.scrollToWrapper\"
 		>\n";
 
@@ -1632,6 +1633,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
+			$r .= "<input type='hidden' name='form_fill_duration' value='0' />\n";
 			$r .= $form->body;
 
 			if ( $is_multistep ) {

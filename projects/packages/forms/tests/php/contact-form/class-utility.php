@@ -175,7 +175,7 @@ class Utility {
 		$prefix    = $form_id ? $form_id : 'g' . $post_id;
 		$post_data = array();
 		foreach ( $values as $key => $val ) {
-			if ( strpos( $key, 'contact-form' ) === 0 || strpos( $key, 'action' ) === 0 ) {
+			if ( strpos( $key, 'contact-form' ) === 0 || strpos( $key, 'action' ) === 0 || strpos( $key, 'form_fill_duration' ) === 0 ) {
 				$post_data[ $key ] = $val;
 			} else {
 				$post_data[ $prefix . '-' . $key ] = $val;
