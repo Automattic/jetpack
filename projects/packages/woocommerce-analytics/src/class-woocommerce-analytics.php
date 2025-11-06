@@ -217,7 +217,7 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		$results = $wp_filesystem->copy( $mu_plugin_src_file, $mu_plugin_dest_file, true );
+		$results = copy( $mu_plugin_src_file, $mu_plugin_dest_file );
 
 		if ( ! $results ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
