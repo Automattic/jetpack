@@ -23,7 +23,7 @@ import { useSearchParams } from 'react-router';
  */
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { SingleResponseView } from '../../components/response-view';
+import { SingleResponseView, ResponseMobileView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
@@ -455,6 +455,13 @@ export default function InboxView() {
 				} );
 
 				const [ item ] = items;
+				const selectedId = item.id.toString();
+				// Set the 'v' query param to show this item in modal on mobile
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					_searchParams.set( 'v', selectedId );
+					return _searchParams;
+				} );
 
 				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 			},
@@ -474,6 +481,13 @@ export default function InboxView() {
 				const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
 
 				onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+
+				// Set the 'v' query param to show this item in the sidebar
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					_searchParams.set( 'v', selectedId );
+					return _searchParams;
+				} );
 			},
 		};
 
@@ -496,7 +510,7 @@ export default function InboxView() {
 					...secondaryActions,
 				];
 		}
-	}, [ isMobile, onChangeSelection, selection, statusFilter ] );
+	}, [ isMobile, onChangeSelection, selection, statusFilter, setSearchParams ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
