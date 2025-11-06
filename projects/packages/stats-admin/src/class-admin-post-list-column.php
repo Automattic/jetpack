@@ -221,11 +221,13 @@ class Admin_Post_List_Column {
 	public function get_post_page_views_for_current_list(): array {
 		global $wp_query;
 
-		if ( ! $wp_query->posts ) {
+		if ( $wp_query->posts ) {
+			$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
+		} elseif ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && ! empty( $_POST['post_ID'] ) && check_ajax_referer( 'inlineeditnonce', '_inline_edit' ) ) {
+			$post_ids = array( sanitize_text_field( wp_unslash( $_POST['post_ID'] ) ) );
+		} else {
 			return array();
 		}
-
-		$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 
 		$wpcom_stats = $this->get_stats();
 		$post_views  = $wpcom_stats->get_total_post_views(
