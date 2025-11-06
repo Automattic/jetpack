@@ -176,7 +176,7 @@ class NamespaceInfo {
 			$unprefixed = null;
 		}
 		// Skip if the shortened version is an alias though.
-		if ( isset( $aliases[ $unprefixed ] ) ) {
+		if ( $unprefixed !== null && isset( $aliases[ $unprefixed ] ) ) {
 			$unprefixed = null;
 		}
 		$unprefixedCt = $unprefixed === null ? INF : substr_count( $unprefixed, '\\' );

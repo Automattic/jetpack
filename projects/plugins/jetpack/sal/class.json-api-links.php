@@ -293,10 +293,11 @@ class WPCOM_JSON_API_Links {
 	public function get_closest_version_of_endpoint( $template_path, $path, $request_method = 'GET' ) {
 		$closest_endpoint_cache_by_version = & $this->closest_endpoint_cache_by_version;
 
-		$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $this->api->version ];
+		$api_version            = $this->api->version ?? '';
+		$closest_endpoint_cache = & $closest_endpoint_cache_by_version[ $api_version ];
 		if ( ! $closest_endpoint_cache ) {
-			$closest_endpoint_cache_by_version[ $this->api->version ] = array();
-			$closest_endpoint_cache                                   = & $closest_endpoint_cache_by_version[ $this->api->version ];
+			$closest_endpoint_cache_by_version[ $api_version ] = array();
+			$closest_endpoint_cache                            = & $closest_endpoint_cache_by_version[ $api_version ];
 		}
 
 		if ( ! isset( $closest_endpoint_cache[ $template_path ] ) ) {
@@ -316,10 +317,10 @@ class WPCOM_JSON_API_Links {
 		$matches_by_version = & $this->matches_by_version;
 
 		// try to match out of saved matches.
-		if ( ! isset( $matches_by_version[ $this->api->version ] ) ) {
-			$matches_by_version[ $this->api->version ] = array();
+		if ( ! isset( $matches_by_version[ $api_version ] ) ) {
+			$matches_by_version[ $api_version ] = array();
 		}
-		foreach ( $matches_by_version[ $this->api->version ] as $match ) {
+		foreach ( $matches_by_version[ $api_version ] as $match ) {
 			$regex = $match->regex;
 			if ( preg_match( "#^$regex\$#", $path ) ) {
 				$closest_endpoint_cache[ $template_path ][ $request_method ] = $match->version;
@@ -382,7 +383,7 @@ class WPCOM_JSON_API_Links {
 		// If the endpoint version is less than the requested endpoint version, return the max version found.
 		if ( ! empty( $max_version_found ) ) {
 			array_push(
-				$matches_by_version[ $this->api->version ],
+				$matches_by_version[ $api_version ],
 				(object) $max_version_found
 			);
 			$closest_endpoint_cache[ $template_path ][ $request_method ] = $max_version_found['version'];
@@ -417,7 +418,7 @@ class WPCOM_JSON_API_Links {
 			list( $path, $min_version, $max_version ) = unserialize( $key );         // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, see serialization at class.json-api.php.
 
 			// Grab the last component of the relative path to use as the top-level key.
-			$last_path_segment = $this->get_last_segment_of_relative_path( $path );
+			$last_path_segment = $this->get_last_segment_of_relative_path( $path ) ?? '';
 
 			$endpoint_path_versions[ $last_path_segment ][] = array(
 				'path'            => $path,
