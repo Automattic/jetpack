@@ -221,7 +221,7 @@ class Woocommerce_Analytics {
 
 		if ( ! $results ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
-				wc_get_logger()->error( 'Failed to copy the WooCommerce Analytics proxy speed module files.', array( 'source' => 'woocommerce-analytics' ) );
+				wc_get_logger()->error( 'Failed to copy the WooCommerce Analytics proxy speed module file.', array( 'source' => 'woocommerce-analytics' ) );
 			}
 			return;
 		}
