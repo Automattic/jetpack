@@ -233,8 +233,8 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
    ast
 
    ast support => enabled
-   extension version => 1.1.1
-   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   extension version => 1.1.3
+   AST version => Current version is 120. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100, 110, 120}
    ```
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
