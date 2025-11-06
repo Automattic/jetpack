@@ -105,6 +105,8 @@
 	display: flex;
 	container-type: inline-size;
 	flex-shrink: 0;
+	position: sticky;
+	left: 0;
 
 	@media (max-width: 782px) {
 		padding-inline: 24px; // Match mobile padding
@@ -361,6 +363,7 @@
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
+		overscroll-behavior: none;
 
 		@media (min-width: 782px) {
 			border-right: 1px solid var(--jp-gray-5);
