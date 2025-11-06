@@ -118,7 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$core_blocks = array_filter(
 			array_keys( WP_Block_Type_Registry::get_instance()->get_all_registered() ),
 			function ( $block_name ) {
-				return strpos( $block_name, 'core/' ) === 0;
+				return str_starts_with( $block_name, 'core/' );
 			}
 		);
 
@@ -166,44 +166,80 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 		global $wp_styles, $wp_scripts;
 
+		// Save current asset state
 		$current_wp_styles  = $wp_styles;
 		$current_wp_scripts = $wp_scripts;
 
-		// Preserve allowed plugin scripts registered during the `init` action
-		$preserved_scripts = array();
-		$preserved_styles  = array();
+		try {
+			// Preserve allowed plugin assets before reinitializing
+			$preserved = $this->preserve_allowed_plugin_assets();
 
-		foreach ( $current_wp_scripts->registered as $handle => $script ) {
-			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $script->src ) ) {
-				$preserved_scripts[ $handle ] = clone $script;
-			}
+			// Initialize fresh asset registries to control what gets loaded
+			$wp_styles  = new WP_Styles();
+			$wp_scripts = new WP_Scripts();
+
+			// Restore preserved plugin assets
+			$this->restore_preserved_assets( $preserved );
+
+			// Set up a block editor screen context to prevent errors when
+			// plugins/themes call get_current_screen() during asset enqueueing
+			$this->setup_block_editor_screen();
+
+			// Trigger wp_loaded action that plugins frequently use to enqueue assets.
+			// This must happen after screen setup and before we collect enqueued assets.
+			do_action( 'wp_loaded' );
+
+			// Enqueue all core WordPress editor assets
+			$this->enqueue_core_editor_assets();
+
+			// Trigger block editor asset actions with forced script/style loading
+			add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+			do_action( 'enqueue_block_assets' );
+			do_action( 'enqueue_block_editor_assets' );
+			remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+
+			// Enqueue editor-specific assets for all registered block types
+			$this->enqueue_block_type_editor_assets();
+
+			// Remove disallowed plugin assets before generating output
+			$this->unregister_disallowed_plugin_assets();
+
+			// Capture HTML output with absolute URLs
+			$html = $this->with_absolute_urls(
+				function () {
+					return array(
+						'styles'  => $this->capture_styles_output(),
+						'scripts' => $this->capture_scripts_output(),
+					);
+				}
+			);
+
+			return rest_ensure_response(
+				array(
+					'allowed_block_types' => array_merge(
+						$this->get_core_block_types(),
+						self::ALLOWED_PLUGIN_BLOCKS
+					),
+					'scripts'             => $html['scripts'],
+					'styles'              => $html['styles'],
+				)
+			);
+
+		} finally {
+			// Always restore original asset state, even if an exception occurred
+			$wp_styles  = $current_wp_styles;
+			$wp_scripts = $current_wp_scripts;
 		}
+	}
 
-		foreach ( $current_wp_styles->registered as $handle => $style ) {
-			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $style->src ) ) {
-				$preserved_styles[ $handle ] = clone $style;
-			}
-		}
-
-		// Initialize new instances to control which assets are loaded
-		$wp_styles  = new WP_Styles();
-		$wp_scripts = new WP_Scripts();
-
-		// Restore preserved plugin scripts
-		foreach ( $preserved_scripts as $handle => $script ) {
-			$wp_scripts->registered[ $handle ] = $script;
-		}
-
-		foreach ( $preserved_styles as $handle => $style ) {
-			$wp_styles->registered[ $handle ] = $style;
-		}
-
-		// Set up a block editor screen context to prevent errors when
-		// plugins/themes call get_current_screen() during asset enqueueing
-		$this->setup_block_editor_screen();
-
-		// Trigger an action frequently used by plugins to enqueue assets.
-		do_action( 'wp_loaded' );
+	/**
+	 * Enqueues core WordPress editor assets.
+	 *
+	 * This includes polyfills, block styles, theme styles, and foundational
+	 * post editor scripts and styles.
+	 */
+	private function enqueue_core_editor_assets() {
+		global $wp_styles;
 
 		// We generally do not need reset styles for the block editor. However, if
 		// it's a classic theme, margins will be added to every block, which is
@@ -230,15 +266,15 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		// Enqueue foundational post editor assets.
 		wp_enqueue_script( 'wp-edit-post' );
 		wp_enqueue_style( 'wp-edit-post' );
+	}
 
-		// Ensure the block editor scripts and styles are enqueued.
-		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
-		do_action( 'enqueue_block_assets' );
-		do_action( 'enqueue_block_editor_assets' );
-		remove_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
-
-		// Additionally, enqueue `editorStyle` and `editorScript` assets for all
-		// blocks, which contains editor-only styling for blocks (editor content).
+	/**
+	 * Enqueues editor-specific assets for all registered block types.
+	 *
+	 * This includes editor_style_handles and editor_script_handles for each
+	 * block, which contains editor-only styling and scripts.
+	 */
+	private function enqueue_block_type_editor_assets() {
 		$block_registry = WP_Block_Type_Registry::get_instance();
 		foreach ( $block_registry->get_all_registered() as $block_type ) {
 			if ( isset( $block_type->editor_style_handles ) && is_array( $block_type->editor_style_handles ) ) {
@@ -252,19 +288,104 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				}
 			}
 		}
+	}
 
+	/**
+	 * Captures the HTML output of enqueued scripts.
+	 *
+	 * @return string The HTML output of all enqueued scripts.
+	 */
+	private function capture_scripts_output() {
+		ob_start();
+		wp_print_head_scripts();
+		wp_print_footer_scripts();
+		return ob_get_clean();
+	}
+
+	/**
+	 * Preserves allowed plugin assets from the current asset registries.
+	 *
+	 * This method clones assets from allowed plugins that aren't core/Gutenberg
+	 * assets, so they can be restored after reinitializing the asset registries.
+	 *
+	 * @return array Array with 'scripts' and 'styles' keys containing cloned assets.
+	 */
+	private function preserve_allowed_plugin_assets() {
+		global $wp_scripts, $wp_styles;
+
+		$preserved = array(
+			'scripts' => array(),
+			'styles'  => array(),
+		);
+
+		foreach ( $wp_scripts->registered as $handle => $script ) {
+			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $script->src ) ) {
+				$preserved['scripts'][ $handle ] = clone $script;
+			}
+		}
+
+		foreach ( $wp_styles->registered as $handle => $style ) {
+			if ( $this->is_allowed_plugin_handle( $handle ) && ! $this->is_core_or_gutenberg_asset( $style->src ) ) {
+				$preserved['styles'][ $handle ] = clone $style;
+			}
+		}
+
+		return $preserved;
+	}
+
+	/**
+	 * Restores previously preserved plugin assets to the asset registries.
+	 *
+	 * @param array $preserved Array with 'scripts' and 'styles' keys containing preserved assets.
+	 */
+	private function restore_preserved_assets( $preserved ) {
+		global $wp_scripts, $wp_styles;
+
+		foreach ( $preserved['scripts'] as $handle => $script ) {
+			$wp_scripts->registered[ $handle ] = $script;
+		}
+
+		foreach ( $preserved['styles'] as $handle => $style ) {
+			$wp_styles->registered[ $handle ] = $style;
+		}
+	}
+
+	/**
+	 * Executes a callback with absolute URL filters temporarily enabled.
+	 *
+	 * This ensures that all asset URLs are converted to absolute URLs during
+	 * the callback execution, then removes the filters afterward.
+	 *
+	 * @param callable $callback The function to execute with absolute URL filters.
+	 * @return mixed The return value of the callback.
+	 */
+	private function with_absolute_urls( $callback ) {
+		add_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
+		add_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
+
+		$result = $callback();
+
+		remove_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10 );
+		remove_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10 );
+
+		return $result;
+	}
+
+	/**
+	 * Captures the HTML output of enqueued styles with emoji handling.
+	 *
+	 * This temporarily removes the emoji styles action to prevent deprecation
+	 * warnings, then restores it after capturing the output.
+	 *
+	 * @return string The HTML output of all enqueued styles.
+	 */
+	private function capture_styles_output() {
 		// Remove the deprecated `print_emoji_styles` handler. It avoids breaking
 		// style generation with a deprecation message.
 		$has_emoji_styles = has_action( 'wp_print_styles', 'print_emoji_styles' );
 		if ( $has_emoji_styles ) {
 			remove_action( 'wp_print_styles', 'print_emoji_styles' );
 		}
-
-		// Unregister disallowed plugin assets before proceeding with asset collection
-		$this->unregister_disallowed_plugin_assets();
-
-		add_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
-		add_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10, 2 );
 
 		ob_start();
 		wp_print_styles();
@@ -274,27 +395,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			add_action( 'wp_print_styles', 'print_emoji_styles' );
 		}
 
-		ob_start();
-		wp_print_head_scripts();
-		wp_print_footer_scripts();
-		$scripts = ob_get_clean();
-
-		remove_filter( 'script_loader_src', array( $this, 'make_url_absolute' ), 10 );
-		remove_filter( 'style_loader_src', array( $this, 'make_url_absolute' ), 10 );
-
-		$wp_styles  = $current_wp_styles;
-		$wp_scripts = $current_wp_scripts;
-
-		return rest_ensure_response(
-			array(
-				'allowed_block_types' => array_merge(
-					$this->get_core_block_types(),
-					self::ALLOWED_PLUGIN_BLOCKS
-				),
-				'scripts'             => $scripts,
-				'styles'              => $styles,
-			)
-		);
+		return $styles;
 	}
 
 	/**
@@ -379,10 +480,10 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 
 		return empty( $src ) ||
 			$src[0] === '/' ||
-			strpos( $src, 'wp-includes/' ) !== false ||
-			strpos( $src, 'wp-admin/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg/' ) !== false ||
-			strpos( $src, 'plugins/gutenberg-core/' ) !== false; // WPCOM-specific path
+			str_contains( $src, 'wp-includes/' ) ||
+			str_contains( $src, 'wp-admin/' ) ||
+			str_contains( $src, 'plugins/gutenberg/' ) ||
+			str_contains( $src, 'plugins/gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**
@@ -407,7 +508,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		}
 
 		foreach ( self::ALLOWED_PLUGIN_HANDLE_PREFIXES as $allowed_prefix ) {
-			if ( strpos( $handle, $allowed_prefix ) === 0 ) {
+			if ( str_starts_with( $handle, $allowed_prefix ) ) {
 				return true;
 			}
 		}
