@@ -25,7 +25,7 @@ function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
 		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
 			{ label }
-			<Badge variant="muted">{ formatNumberCompact( count || 0 ) }</Badge>
+			<Badge intent="default">{ formatNumberCompact( count || 0 ) }</Badge>
 		</span>
 	);
 }
