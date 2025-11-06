@@ -135,17 +135,18 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			$replacement_code_html[] = '</div>';
 		}
 
-		// Replace everything inside the CODE block, remove the PRE open tag, trim the end.
+		// Clear attributes from the PRE tag, replace everything inside the CODE block, trim the end.
 		$bm_pre_open = $processor->bookmarks['_pre_open'];
 		$bm_start    = $processor->bookmarks['_code_content_start'];
 		$bm_end      = $processor->bookmarks['_code_content_end'];
 		$start       = $bm_start->start + $bm_start->length;
 		$length      = $bm_end->start - $start;
 
+		// Remove all attributes from the PRE tag, rewrite it as a plain <pre>.
 		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$bm_pre_open->start,
 			$bm_pre_open->length,
-			''
+			'<pre>'
 		);
 		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$start,
@@ -160,7 +161,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		);
 
 		// Normalize to ensure HTML that is safer to embed with other HTML.
-		// This removes things like extraneous close tags.
+		// This ensures tags are correctly closed and extraneous close tags are not present.
 		$html = self::normalize( $processor->get_updated_html() );
 		if ( null === $html ) {
 			return null;
