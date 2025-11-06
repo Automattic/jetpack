@@ -19,13 +19,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Active_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Used to mock global functions inside a namespace.
-	 *
-	 * @see https://github.com/php-mock/php-mock-phpunit
-	 */
-	use \phpmock\phpunit\PHPMock;
-
-	/**
 	 * Admin user ID.
 	 *
 	 * @var int

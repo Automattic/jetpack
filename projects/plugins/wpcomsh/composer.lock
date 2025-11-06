@@ -2032,7 +2032,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/scheduled-updates",
-                "reference": "23e79cec756fee0825405c764a6fa7415f1360a3"
+                "reference": "3f52602bf5f9547ed9d5081beac4660a8887dcfb"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2046,7 +2046,6 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
-                "php-mock/php-mock-phpunit": "^2.10",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
