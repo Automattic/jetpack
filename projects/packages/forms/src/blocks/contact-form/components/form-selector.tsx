@@ -27,10 +27,6 @@ interface JetpackForm {
 	modified: string;
 }
 
-interface FormsResponse {
-	forms: JetpackForm[];
-}
-
 /**
  * Component to select a form from available jetpack_form CPTs
  *
@@ -217,6 +213,7 @@ export default function FormSelector( {
 					'jetpack-forms'
 				) }
 				disabled={ isLoading || isCreatingNew }
+				__next40pxDefaultSize={ true }
 			/>
 
 			<Button
@@ -248,6 +245,7 @@ export default function FormSelector( {
 								: __( 'Give your form a descriptive name.', 'jetpack-forms' )
 						}
 						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
 					/>
 					<div
 						style={ {

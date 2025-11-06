@@ -18,6 +18,7 @@ interface FormData {
 	};
 	content: {
 		rendered: string;
+		raw?: string; // Available when context=edit
 	};
 	meta: {
 		_jetpack_form_settings?: string;
@@ -59,10 +60,12 @@ interface UseFormLoaderReturn {
 }
 
 /**
+  /**
  * Hook to load form data from CPT and update block
  *
- * @param {string}   clientId      - Block client ID
- * @param {Function} setAttributes - Function to update block attributes
+ * @param {object}   props               - Hook properties.
+ * @param {string}   props.clientId      - Block client ID.
+ * @param {Function} props.setAttributes - Function to update block attributes.
  * @return {object} Hook state with loadForm function, loading state, and error
  */
 export default function useFormLoader( {
@@ -83,9 +86,9 @@ export default function useFormLoader( {
 			setError( null );
 
 			try {
-				// Fetch the form post data
+				// Fetch the form post data with edit context to get raw content
 				const formData = await apiFetch< FormData >( {
-					path: `/wp/v2/jetpack-forms/${ formId }`,
+					path: `/wp/v2/jetpack-forms/${ formId }?context=edit`,
 				} );
 
 				// Parse settings from meta
@@ -109,7 +112,9 @@ export default function useFormLoader( {
 				}
 
 				// Parse blocks from post content
-				const blocks = parse( formData.content.rendered || '' );
+				// Use raw content (unprocessed block markup) instead of rendered (processed HTML)
+				const contentToUse = formData.content.raw || formData.content.rendered || '';
+				const blocks = parse( contentToUse );
 
 				// Update block attributes with form settings and integrations
 				setAttributes( {
