@@ -32,7 +32,7 @@ const ExportResponsesButton = () => {
 
 	return (
 		<>
-			<Button 
+			<Button
 				size="compact"
 				variant="primary"
 				icon={ download }
