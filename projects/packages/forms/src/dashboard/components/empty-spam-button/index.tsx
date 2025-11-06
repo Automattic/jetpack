@@ -122,7 +122,7 @@ const EmptySpamButton = ( {
 	return (
 		<>
 			<Button
-				__next40pxDefaultSize
+				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
 				icon={ trash }
