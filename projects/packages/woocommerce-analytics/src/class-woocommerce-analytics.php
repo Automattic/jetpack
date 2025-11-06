@@ -210,7 +210,7 @@ class Woocommerce_Analytics {
 		$mu_plugin_dest_file = trailingslashit( WPMU_PLUGIN_DIR ) . 'woocommerce-analytics-proxy-speed-module.php';
 
 		// Verify source file exists before attempting to copy.
-		if ( ! $wp_filesystem->exists( $mu_plugin_src_file ) ) {
+		if ( ! file_exists( $mu_plugin_src_file ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
 				wc_get_logger()->error( 'WooCommerce Analytics proxy speed module source file not found.', array( 'source' => 'woocommerce-analytics' ) );
 			}
