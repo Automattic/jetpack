@@ -659,11 +659,9 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 	}
 
 	/**
-	 * For now, we return false for Atomic sites since the A/B experiment logic for Personal plans needs to be modified.
-	 *
-	 * @todo: Rework the logic for personal plans experiments on Atomic sites if we want to perform an A/B test on Atomic.
+	 * Allow Atomic sites to determine access via A/B experiment logic.
 	 */
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
 		return false;
 	}
 
@@ -687,6 +685,44 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 			$user = 'a8c'; // A non-empty string avoids storing the current user as author of the sticker change.
 			add_blog_sticker( 'wpcom-global-styles-personal-plan', $note, $user, $blog_id );
 			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Query WP.com ExPlat assignments API to check if the current user is assigned to an experiment.
+ *
+ * On success, returns true only if the assignment exists for the given experiment key
+ * and the variation is not null. Returns false on errors or when not assigned.
+ *
+ * @param string $experiment_key ExPlat experiment key to check.
+ * @return bool Whether the current user is assigned to a non-null variation for the experiment.
+ */
+function wpcom_global_styles_assignment_api_request( $experiment_key ) {
+	$path     = '/me/explat-assignments?experiment=' . rawurlencode( (string) $experiment_key );
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$path,
+		'v1',
+		array( 'method' => 'GET' ),
+		null,
+		'rest'
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return false;
+	}
+
+	$data = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! is_array( $data ) || empty( $data['assignments'] ) || ! is_array( $data['assignments'] ) ) {
+		return false;
+	}
+
+	foreach ( $data['assignments'] as $assignment ) {
+		if ( isset( $assignment['name'] ) && $assignment['name'] === $experiment_key ) {
+			// Consider it assigned only when variation is not null.
+			return array_key_exists( 'variation', $assignment ) && null !== $assignment['variation'];
 		}
 	}
 
@@ -727,11 +763,8 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
  * @return bool Whether the site has access to Global Styles with a Personal plan.
  */
 function is_global_styles_on_personal_plan( $blog_id = 0 ) {
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-		return false;
-	}
-
-	if ( ! function_exists( '\ExPlat\assign_given_user' ) ) {
+	// Support both WPCOM and Atomic; otherwise bail.
+	if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
 		return false;
 	}
 
@@ -739,11 +772,25 @@ function is_global_styles_on_personal_plan( $blog_id = 0 ) {
 		$blog_id = get_current_blog_id();
 	}
 
-	$cache_key                          = "global-styles-on-personal-03-2025-$blog_id";
+	$cache_key                          = "global-styles-on-personal-11-2025-$blog_id";
 	$found_in_cache                     = false;
 	$has_global_styles_in_personal_plan = wp_cache_get( $cache_key, 'a8c_experiments', false, $found_in_cache );
 	if ( $found_in_cache ) {
 		return $has_global_styles_in_personal_plan;
+	}
+
+	$experiment_key = 'calypso_plans_global_styles_personal_20251108_v4';
+
+	// Atomic: query WP.com ExPlat assignments endpoint for current user.
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		$has_global_styles_in_personal_plan = wpcom_global_styles_assignment_api_request( $experiment_key );
+		wp_cache_set( $cache_key, $has_global_styles_in_personal_plan, 'a8c_experiments', MONTH_IN_SECONDS );
+		return $has_global_styles_in_personal_plan;
+	}
+
+	// WPCOM: use ExPlat assignment logic as before.
+	if ( ! function_exists( '\ExPlat\assign_current_user' ) ) {
+		return false;
 	}
 
 	$owner_id = wpcom_get_blog_owner( $blog_id );
