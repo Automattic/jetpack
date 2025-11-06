@@ -1033,6 +1033,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 	/**
 	 * Test that conditional comments containing core scripts are excluded.
+	 *
+	 * @phan-suppress PhanPluginUnreachableCode Test is temporarily skipped
 	 */
 	public function test_conditional_comments_with_core_script_exclusion() {
 		$this->markTestSkipped( 'Fails on CI "PHP tests: PHP 8.2 WP trunk" only; need to find a fix. https://github.com/Automattic/jetpack/actions/runs/19121651646/job/54686608995' );
