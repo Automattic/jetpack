@@ -39,6 +39,13 @@ class Protect extends Hybrid_Product {
 	public static $slug = 'protect';
 
 	/**
+	 * The Jetpack module name
+	 *
+	 * @var string
+	 */
+	public static $module_name = 'protect';
+
+	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
