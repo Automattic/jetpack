@@ -139,11 +139,7 @@ class Creator extends Product {
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array(
 						'included'    => true,
-						'description' => sprintf(
-							/* translators: %s: Number of subscribers, e.g., "100" */
-							__( '%s subscribers', 'jetpack-my-jetpack' ),
-							number_format_i18n( 100 )
-						),
+						'description' => __( '100 subscribers', 'jetpack-my-jetpack' ),
 					),
 					self::UPGRADED_TIER_SLUG => array(
 						'included'    => true,
