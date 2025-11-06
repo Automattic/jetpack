@@ -941,7 +941,10 @@ class Feedback {
 		$ua_info = new User_Agent_Info( $this->user_agent );
 
 		// Get browser name.
-		$browser_name = $ua_info->get_browser_display_name();
+		$browser_name = User_Agent_Info::OTHER;
+		if ( method_exists( $ua_info, 'get_browser_display_name' ) ) {
+			$browser_name = $ua_info->get_browser_display_name();
+		}
 
 		if ( $browser_name === User_Agent_Info::OTHER ) {
 			return __( 'Unknown browser', 'jetpack-forms' );
