@@ -28,7 +28,7 @@ abstract class Code_Block {
 	 */
 	private static function should_load_block(): bool {
 		$filtered_value = apply_filters( 'jetpack_mu_wpcom_should_load_code_block', false );
-		return is_bool( $filtered_value ) ? $filtered_value : false;
+		return \is_bool( $filtered_value ) ? $filtered_value : false;
 	}
 
 	/**
@@ -301,7 +301,7 @@ abstract class Code_Block {
 	 * @param string $content The block content.
 	 */
 	public static function render_block( array $attributes, string $content ): string {
-		if ( ! is_array( $attributes['tokenizedLines'] ?? null ) ) {
+		if ( ! \is_array( $attributes['tokenizedLines'] ?? null ) ) {
 			return $content;
 		}
 
@@ -326,7 +326,7 @@ abstract class Code_Block {
 				: 1;
 
 			$max_line_number_width = floor(
-				log10( $line_numbers_start_at + ( count( $attributes['tokenizedLines'] ) - 1 ) )
+				log10( $line_numbers_start_at + ( \count( $attributes['tokenizedLines'] ) - 1 ) )
 			) + 1;
 
 			if ( $line_numbers_start_at !== 1 ) {
@@ -373,11 +373,11 @@ abstract class Code_Block {
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
 		$filename_html = ! empty( $attributes['filename'] )
-			? sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
+			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 
 		$copy_html = ( $attributes['showCopyButton'] ?? false )
-			? sprintf(
+			? \sprintf(
 				'<button class="%s element-button a8c/code__btn-copy" type="button" data-copy-text="%s" hidden>%s</button>',
 				WP_Theme_JSON::get_element_class_name( 'button' ),
 				esc_attr( $code_string ),
@@ -386,7 +386,7 @@ abstract class Code_Block {
 			: '';
 
 		$language_html = ( ( $attributes['showLanguageName'] ?? false ) && ! empty( $attributes['language'] ) )
-			? sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
+			? \sprintf( '<span>%s</span>', esc_html( $attributes['language'] ) )
 			: '';
 
 		$header_right_html = ( $copy_html || $language_html )

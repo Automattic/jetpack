@@ -86,10 +86,10 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			$replacement_code_html[] = '<div class="cm-line">';
 			foreach ( $line as $chunk ) {
 				if (
-					! is_array( $chunk ) ||
+					! \is_array( $chunk ) ||
 					! isset( $chunk[0] ) ||
-					! is_string( $chunk[0] ) ||
-					( isset( $chunk[1] ) && ! is_string( $chunk[1] ) )
+					! \is_string( $chunk[0] ) ||
+					( isset( $chunk[1] ) && ! \is_string( $chunk[1] ) )
 				) {
 					return null;
 				}
@@ -125,7 +125,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 				if ( ! $class_name ) {
 					$replacement_code_html[] = $html_encoded_code;
 				} else {
-					$replacement_code_html[] = sprintf(
+					$replacement_code_html[] = \sprintf(
 						'<span class="%s">%s</span>',
 						esc_attr( $class_name ),
 						$html_encoded_code
