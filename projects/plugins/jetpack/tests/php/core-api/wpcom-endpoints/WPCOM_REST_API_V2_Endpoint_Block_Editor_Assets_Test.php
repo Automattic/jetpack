@@ -1030,4 +1030,112 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Jetpack should still be present
 		$this->assertStringContainsString( 'jetpack-test-script', $data['scripts'] );
 	}
+
+	/**
+	 * Test that conditional comments containing core scripts are excluded.
+	 */
+	public function test_conditional_comments_with_core_script_exclusion() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// First, verify conditional comment IS present without exclusion
+		$request_without_exclude  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response_without_exclude = $this->server->dispatch( $request_without_exclude );
+		$data_without_exclude     = $response_without_exclude->get_data();
+
+		// Look for the conditional comment wrapper (IE conditional comments are preserved in output)
+		$this->assertStringContainsString( '<!--[if lt IE 8]>', $data_without_exclude['scripts'], 'Conditional comment should be present without exclusion' );
+		$this->assertStringContainsString( 'wp-includes/js/json2.js', $data_without_exclude['scripts'], 'Core script inside conditional comment should be present without exclusion' );
+
+		// Now verify conditional comment IS excluded with 'exclude=core'
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Conditional comment containing core script should be completely removed
+		$this->assertStringNotContainsString( 'json2.js', $data['scripts'], 'Core script inside conditional comment should be excluded' );
+	}
+
+	/**
+	 * Test that conditional comments containing Gutenberg scripts are excluded.
+	 */
+	public function test_conditional_comments_with_gutenberg_script_exclusion() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add a mock Gutenberg script wrapped in a conditional comment
+		add_filter(
+			'script_loader_tag',
+			function ( $tag, $handle ) {
+				if ( 'gutenberg-ie-test' === $handle ) {
+					return '<!--[if lt IE 9]>' . $tag . '<![endif]-->';
+				}
+				return $tag;
+			},
+			10,
+			2
+		);
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				$gutenberg_url = plugins_url( 'gutenberg' );
+				wp_register_script( 'gutenberg-ie-test', $gutenberg_url . '/ie-compat.js', array(), '1.0', true );
+				wp_enqueue_script( 'gutenberg-ie-test' );
+			}
+		);
+
+		// First, verify conditional comment IS present without exclusion
+		$request_without_exclude  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response_without_exclude = $this->server->dispatch( $request_without_exclude );
+		$data_without_exclude     = $response_without_exclude->get_data();
+
+		$this->assertStringContainsString( 'gutenberg/ie-compat.js', $data_without_exclude['scripts'], 'Gutenberg script in conditional comment should be present without exclusion' );
+
+		// Now verify it's excluded with 'exclude=gutenberg'
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertStringNotContainsString( 'gutenberg/ie-compat.js', $data['scripts'], 'Gutenberg script in conditional comment should be excluded' );
+		$this->assertStringNotContainsString( 'gutenberg-ie-test', $data['scripts'], 'Gutenberg script handle in conditional comment should be excluded' );
+	}
+
+	/**
+	 * Test that conditional comments are preserved when they contain non-excluded scripts.
+	 */
+	public function test_conditional_comments_preserved_for_non_excluded_scripts() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add a Jetpack script wrapped in a conditional comment
+		add_filter(
+			'script_loader_tag',
+			function ( $tag, $handle ) {
+				if ( 'jetpack-ie-compat' === $handle ) {
+					return '<!--[if lt IE 9]>' . $tag . '<![endif]-->';
+				}
+				return $tag;
+			},
+			10,
+			2
+		);
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'jetpack-ie-compat', 'http://example.org/jetpack-ie.js', array(), '1.0', true );
+				wp_enqueue_script( 'jetpack-ie-compat' );
+			}
+		);
+
+		// Use exclude=core (should NOT exclude Jetpack)
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'core' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Jetpack script in conditional comment should still be present
+		$this->assertStringContainsString( 'jetpack-ie.js', $data['scripts'], 'Jetpack script in conditional comment should be preserved when excluding core' );
+		$this->assertStringContainsString( 'jetpack-ie-compat', $data['scripts'], 'Jetpack script handle should be preserved' );
+	}
 }
