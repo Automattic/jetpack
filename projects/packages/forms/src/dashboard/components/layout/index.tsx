@@ -74,7 +74,7 @@ const Layout = () => {
 			<Header
 				title={
 					<div className="jp-forms__layout-header-title">
-						<JetpackLogo showText={ false } width={ 24 } /> Forms
+						<JetpackLogo showText={ false } width={ 20 } /> Forms
 					</div>
 				}
 				subTitle={ __(
