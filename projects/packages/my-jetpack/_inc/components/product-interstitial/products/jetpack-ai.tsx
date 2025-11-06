@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { formatNumberCompact } from '@automattic/number-formatters';
 import { ExternalLink } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import logo from '../logos/jetpack-ai-logo';
 import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
@@ -41,14 +40,7 @@ export function getJetpackAiConfig(): ProductConfig {
 						</ExternalLink>
 					</>
 				),
-				free: {
-					included: true,
-					label: sprintf(
-						/* translators: %s: Number of requests in compact form, e.g., "20" */
-						__( '%s requests', 'jetpack-my-jetpack' ),
-						formatNumberCompact( 20 )
-					),
-				},
+				free: { included: true, label: __( '20 requests', 'jetpack-my-jetpack' ) },
 				paid: { included: true, label: __( 'High request capacity', 'jetpack-my-jetpack' ) },
 				bundle: { included: true, label: __( 'All AI Assistant features', 'jetpack-my-jetpack' ) },
 			},
