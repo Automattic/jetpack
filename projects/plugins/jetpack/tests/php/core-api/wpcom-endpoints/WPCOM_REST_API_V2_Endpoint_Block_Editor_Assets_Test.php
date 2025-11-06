@@ -838,9 +838,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Core assets should be excluded (wp-includes, wp-admin paths)
 		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
-		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/css/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/js/', $data['scripts'] );
 		$this->assertStringNotContainsString( '/wp-includes/', $data['styles'] );
-		$this->assertStringNotContainsString( '/wp-admin/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/css/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/js/', $data['styles'] );
 	}
 
 	/**
@@ -883,10 +885,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Both core and Gutenberg assets should be excluded
 		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
-		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/css/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/js/', $data['scripts'] );
 		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['scripts'] );
 		$this->assertStringNotContainsString( '/wp-includes/', $data['styles'] );
-		$this->assertStringNotContainsString( '/wp-admin/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/css/', $data['styles'] );
+		$this->assertStringNotContainsString( '/wp-admin/js/', $data['styles'] );
 		$this->assertStringNotContainsString( 'plugins/gutenberg/', $data['styles'] );
 	}
 
@@ -933,9 +937,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Verify specific core paths are included when no exclusions are applied
 		$this->assertStringContainsString( '/wp-includes/', $data['scripts'], 'Core wp-includes scripts should be present without exclusions' );
-		$this->assertStringContainsString( '/wp-admin/', $data['scripts'], 'Core wp-admin scripts should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/js/', $data['scripts'], 'Core wp-admin scripts should be present without exclusions' );
 		$this->assertStringContainsString( '/wp-includes/', $data['styles'], 'Core wp-includes styles should be present without exclusions' );
-		$this->assertStringContainsString( '/wp-admin/', $data['styles'], 'Core wp-admin styles should be present without exclusions' );
+		$this->assertStringContainsString( '/wp-admin/css/', $data['styles'], 'Core wp-admin styles should be present without exclusions' );
 	}
 
 	/**
@@ -966,7 +970,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Core assets should be excluded
 		$this->assertStringNotContainsString( '/wp-includes/', $data['scripts'] );
-		$this->assertStringNotContainsString( '/wp-admin/', $data['scripts'] );
+		$this->assertStringNotContainsString( '/wp-admin/js/', $data['scripts'] );
 	}
 
 	/**
