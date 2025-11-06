@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2061c0b4785c464691d7518f1ad4313f",
+    "content-hash": "bd335716107bb9dff976359b66d1ddac",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1462,7 +1462,8 @@
         "automattic/jetpack-classic-theme-helper": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
-        "automattic/jetpack-plugins-installer": 20
+        "automattic/jetpack-plugins-installer": 20,
+        "automattic/jetpack-videopress": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

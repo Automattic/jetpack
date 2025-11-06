@@ -16,6 +16,7 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev",
+		"automattic/jetpack-videopress": "@dev",
 		"tubalmartin/cssmin": "^4.1"
 	},
 	"require-dev": {

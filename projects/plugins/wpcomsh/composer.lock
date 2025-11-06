@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "73f7b19533abcfcc07b1cffb4e24411d",
+    "content-hash": "6e8f4a21286a76142663f60dc9ecb95c",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -5099,6 +5099,7 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-mu-wpcom": 20,
         "automattic/jetpack-post-list": 20,
+        "automattic/jetpack-videopress": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

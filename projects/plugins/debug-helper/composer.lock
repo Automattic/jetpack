@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "90508ab73efdc01ec5346540c36554d7",
+    "content-hash": "2af8d778c98cef25552e272b100f4470",
     "packages": [],
     "packages-dev": [
         {
@@ -886,7 +886,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "automattic/jetpack-changelogger": 20
+        "automattic/jetpack-changelogger": 20,
+        "automattic/jetpack-videopress": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

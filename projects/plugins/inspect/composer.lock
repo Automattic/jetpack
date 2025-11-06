@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c504b18b52f086f859affcf4437c5dd6",
+    "content-hash": "689ed429f792e77cee2830fcbb69f784",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -3491,6 +3491,7 @@
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
+        "automattic/jetpack-videopress": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

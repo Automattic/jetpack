@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19e0f29c4de0f77715e0e92266e7be87",
+    "content-hash": "242afc811460d304afcda7a58e2b25c1",
     "packages": [
         {
             "name": "automattic/jetpack-device-detection",
@@ -2836,6 +2836,7 @@
     "stability-flags": {
         "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-device-detection": 20,
+        "automattic/jetpack-videopress": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

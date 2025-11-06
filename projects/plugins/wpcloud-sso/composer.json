@@ -9,7 +9,8 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-videopress": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev"

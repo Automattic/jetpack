@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "978cef4d06320a5da125d01255a16d09",
+    "content-hash": "f32cdc72d4b1bea7444c331b72918f36",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
@@ -2906,6 +2906,7 @@
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-logo": 20,
+        "automattic/jetpack-videopress": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

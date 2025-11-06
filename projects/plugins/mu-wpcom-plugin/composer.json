@@ -6,7 +6,8 @@
 	"require": {
 		"php": ">=8.1",
 		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev"
+		"automattic/jetpack-mu-wpcom": "@dev",
+		"automattic/jetpack-videopress": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

@@ -6,9 +6,10 @@
 	"require": {
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-paypal-payments": "@dev",
-		"automattic/jetpack-blocks": "@dev"
+		"automattic/jetpack-videopress": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

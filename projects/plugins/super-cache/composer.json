@@ -4,7 +4,8 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-device-detection": "@dev"
+		"automattic/jetpack-device-detection": "@dev",
+		"automattic/jetpack-videopress": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
