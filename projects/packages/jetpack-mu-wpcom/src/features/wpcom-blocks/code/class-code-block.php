@@ -143,26 +143,25 @@ abstract class Code_Block {
 	 * @see https://core.trac.wordpress.org/browser/tags/6.8.3/src/wp-includes/global-styles-and-settings.php#L322
 	 */
 	public static function override_block_style() {
-		$wp_styles = wp_styles();
+		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
+		// What do do about these extras?
+		// extra['rtl'] === 'replace'
+		// extra['path'] === '…path…'
+		wp_deregister_style( 'wp-block-code' );
 
 		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
 		$src              = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
 		$version          = $style_asset_file['version'];
 
-		if ( ! isset( $wp_styles->registered['wp-block-code'] ) ) {
-			wp_register_style(
-				self::MODULE_PREFIX . 'style',
-				$src,
-				array(),
-				$version
-			);
-			return;
+		wp_register_style(
+			'wp-block-code',
+			$src,
+			array(),
+			$version
+		);
+		if ( $was_enqueued ) {
+			wp_enqueue_style( 'wp-block-code' );
 		}
-
-		$src = add_query_arg( 'ver', $version, $src );
-		$wp_styles->registered['wp-block-code']->src = $src;
-
-		$wp_styles->registered['wp-block-code']->extra['path'] = Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css';
 	}
 
 	/**
