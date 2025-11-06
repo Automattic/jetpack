@@ -254,6 +254,13 @@ export function useSupportedServices(): Array< SupportedService > {
 				),
 			],
 		},
+		{
+			...availableServices.twitter,
+			needsCustomInputs: false,
+			icon: props => <SocialServiceIcon serviceName="twitter" { ...props } />,
+			description: 'Testing Twitter removal.',
+			examples: [],
+		},
 	];
 	return supportedServices.filter(
 		// Return only the ones that are present in the available services.
