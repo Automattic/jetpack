@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon } from '@wordpress/components';
@@ -5,10 +8,17 @@ import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+/**
+ * Internal dependencies
+ */
 import { notSpam, spam } from '../../icons';
 import { store as dashboardStore } from '../../store';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
 import { defaultView } from './views';
+/**
+ * Types
+ */
+import type { Action, QueryParams, Registry } from './types';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -16,8 +26,9 @@ import { defaultView } from './views';
  * @param {object} currentQuery - The current query from the store.
  * @return {object} Query params relevant for count caching.
  */
-const getCountQueryParams = currentQuery => {
-	const queryParams = {};
+const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
+	const queryParams: QueryParams = {};
+
 	if ( currentQuery?.search ) {
 		queryParams.search = currentQuery.search;
 	}
@@ -33,6 +44,7 @@ const getCountQueryParams = currentQuery => {
 	if ( currentQuery?.is_unread !== undefined ) {
 		queryParams.is_unread = currentQuery.is_unread;
 	}
+
 	return queryParams;
 };
 
@@ -45,11 +57,11 @@ const getCountQueryParams = currentQuery => {
  * @param {string} statusBeingRemovedFrom - The status items are being removed from ('trash', 'spam', or 'inbox').
  */
 const invalidateCacheAndNavigate = (
-	registry,
-	currentQuery,
-	queryParams,
-	statusBeingRemovedFrom
-) => {
+	registry: Registry,
+	currentQuery: QueryParams,
+	queryParams: QueryParams,
+	statusBeingRemovedFrom: string
+): void => {
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
@@ -78,42 +90,9 @@ const invalidateCacheAndNavigate = (
 	}
 };
 
-export const BULK_ACTIONS = {
-	markAsSpam: 'mark_as_spam',
-	markAsNotSpam: 'mark_as_not_spam',
-};
-
-export const viewAction = {
-	id: 'view-response',
-	icon: <Icon icon={ commentContent } />,
-	isPrimary: true,
-	label: __( 'View response', 'jetpack-forms' ),
-	modalHeader: __( 'Response', 'jetpack-forms' ),
-};
-
-export const editFormAction = {
-	id: 'edit-form',
-	label: __( 'Edit form', 'jetpack-forms' ),
-	icon: <Icon icon={ backup } />,
-	isEligible: item => !! item?.edit_form_url,
-	supportsBulk: false,
-	async callback( items ) {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-			action: 'edit-form',
-			multiple: false,
-		} );
-		const [ item ] = items;
-		if ( item?.edit_form_url ) {
-			const url = new URL( item.edit_form_url, window.location.origin );
-			// redirect to the form edit page
-			window.location.href = url.toString();
-		}
-	},
-};
-
 // TODO: We should probably have better error messages in case of failure.
-const getGenericErrorMessage = numberOfErrors => {
-	return numberOfErrors.length === 1
+const getGenericErrorMessage = ( numberOfErrors: number ): string => {
+	return numberOfErrors === 1
 		? __( 'An error occurred.', 'jetpack-forms' )
 		: sprintf(
 				/* translators: %d: the number of responses. */
@@ -127,17 +106,55 @@ const getGenericErrorMessage = numberOfErrors => {
 		  );
 };
 
-export const markAsSpamAction = {
+export const BULK_ACTIONS = {
+	markAsSpam: 'mark_as_spam',
+	markAsNotSpam: 'mark_as_not_spam',
+};
+
+export const viewAction: Action = {
+	id: 'view-response',
+	isPrimary: true,
+	icon: <Icon icon={ commentContent } />,
+	label: __( 'View', 'jetpack-forms' ),
+	modalHeader: __( 'Response', 'jetpack-forms' ),
+};
+
+export const editFormAction: Action = {
+	id: 'edit-form',
+	isPrimary: false,
+	icon: <Icon icon={ backup } />,
+	label: __( 'Edit form', 'jetpack-forms' ),
+	isEligible: item => !! item?.edit_form_url,
+	supportsBulk: false,
+	async callback( items ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'edit-form',
+			multiple: false,
+		} );
+
+		const [ item ] = items;
+
+		if ( item?.edit_form_url ) {
+			const url = new URL( item.edit_form_url, window.location.origin );
+			// redirect to the form edit page
+			window.location.href = url.toString();
+		}
+	},
+};
+
+export const markAsSpamAction: Action = {
 	id: 'mark-as-spam',
-	label: __( 'Mark as spam', 'jetpack-forms' ),
+	isPrimary: true,
+	icon: <Icon icon={ spam } />,
+	label: __( 'Spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
-	icon: <Icon icon={ spam } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-spam',
 			multiple: items.length > 1,
 		} );
+
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -149,10 +166,13 @@ export const markAsSpamAction = {
 			updateCountsOptimistically( item.status, 'spam', 1, queryParams );
 		} );
 
-		const promises = await Promise.allSettled(
+		const promises = ( await Promise.allSettled(
 			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
-		);
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		) ) as PromiseSettledResult< { id: string } >[];
+
+		const itemsUpdated = promises.filter(
+			( { status } ) => status === 'fulfilled'
+		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -178,6 +198,7 @@ export const markAsSpamAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-spam-action',
@@ -194,8 +215,10 @@ export const markAsSpamAction = {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
+
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
@@ -206,17 +229,19 @@ export const markAsSpamAction = {
 	},
 };
 
-export const markAsNotSpamAction = {
+export const markAsNotSpamAction: Action = {
 	id: 'mark-as-not-spam',
+	isPrimary: true,
+	icon: <Icon icon={ notSpam } />,
 	label: __( 'Not spam', 'jetpack-forms' ),
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
-	icon: <Icon icon={ notSpam } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
 			multiple: items.length > 1,
 		} );
+
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -228,12 +253,15 @@ export const markAsNotSpamAction = {
 			updateCountsOptimistically( 'spam', 'publish', 1, queryParams );
 		} );
 
-		const promises = await Promise.allSettled(
+		const promises = ( await Promise.allSettled(
 			items.map( ( { id } ) =>
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
-		);
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+		) ) as PromiseSettledResult< { id: string } >[];
+
+		const itemsUpdated = promises.filter(
+			( { status } ) => status === 'fulfilled'
+		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -255,6 +283,7 @@ export const markAsNotSpamAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-not-spam-action',
@@ -271,6 +300,7 @@ export const markAsNotSpamAction = {
 			// There is at least one failure.
 			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
@@ -283,17 +313,19 @@ export const markAsNotSpamAction = {
 	},
 };
 
-export const restoreAction = {
+export const restoreAction: Action = {
 	id: 'restore',
+	isPrimary: true,
+	icon: <Icon icon={ backup } />,
 	label: __( 'Restore', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	icon: <Icon icon={ backup } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'restore',
 			multiple: items.length > 1,
 		} );
+
 		const { saveEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -310,6 +342,7 @@ export const restoreAction = {
 				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
 			)
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
@@ -331,6 +364,7 @@ export const restoreAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'restore-action',
@@ -343,27 +377,31 @@ export const restoreAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const moveToTrashAction = {
+export const moveToTrashAction: Action = {
 	id: 'move-to-trash',
-	label: __( 'Move to trash', 'jetpack-forms' ),
-	isEligible: item => item.status !== 'trash',
 	isPrimary: true,
-	supportsBulk: true,
 	icon: <Icon icon={ trash } />,
+	label: __( 'Trash', 'jetpack-forms' ),
+	isEligible: item => item.status !== 'trash',
+	supportsBulk: true,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'move-to-trash',
 			multiple: items.length > 1,
 		} );
+
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
@@ -406,6 +444,7 @@ export const moveToTrashAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'move-to-trash-action',
@@ -418,26 +457,31 @@ export const moveToTrashAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const deleteAction = {
+export const deleteAction: Action = {
 	id: 'delete',
-	label: __( 'Delete permanently', 'jetpack-forms' ),
+	isPrimary: true,
+	icon: <Icon icon={ trash } />,
+	label: __( 'Delete', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	icon: <Icon icon={ trash } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'delete',
 			multiple: items.length > 1,
 		} );
+
 		const { deleteEntityRecord } = registry.dispatch( coreStore );
 		const { invalidateFilters, updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
@@ -454,12 +498,15 @@ export const deleteAction = {
 				deleteEntityRecord( 'postType', 'feedback', id, { force: true }, { throwOnError: true } )
 			)
 		);
+
 		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
+
 		// If there is at least one successful update, invalidate the cache for filters.
 		if ( itemsUpdated.length ) {
 			invalidateFilters();
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 		}
+
 		if ( itemsUpdated.length === items.length ) {
 			// Every request was successful.
 			const successMessage =
@@ -475,6 +522,7 @@ export const deleteAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
 
 			// Update the URL to remove references to deleted items.
@@ -497,27 +545,30 @@ export const deleteAction = {
 
 			const hashString = hashParams.toString();
 			window.location.hash = hashString ? `${ hashBase }?${ hashString }` : hashBase;
+
 			return;
 		}
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const markAsReadAction = {
+export const markAsReadAction: Action = {
 	id: 'mark-as-read',
+	isPrimary: false,
+	icon: <Icon icon={ seen } />,
 	label: __( 'Mark as read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ seen } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-read',
 			multiple: items.length > 1,
 		} );
-		// const { receiveEntityRecords, editEntityRecord } = registry.dispatch( coreStore );
+
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -562,6 +613,7 @@ export const markAsReadAction = {
 								updateMenuCounterOptimistically( 1 );
 							}
 						}
+
 						throw new Error( 'Failed to mark as read' );
 					} );
 			} )
@@ -571,9 +623,11 @@ export const markAsReadAction = {
 		if ( promises.some( ( { status } ) => status === 'fulfilled' ) ) {
 			invalidateCounts();
 			// Mark successfully updated records as invalid instead of removing from view
+
 			const updatedIds = items
 				.filter( ( _, index ) => promises[ index ]?.status === 'fulfilled' )
 				.map( item => item.id );
+
 			markRecordsAsInvalid( updatedIds );
 		}
 
@@ -592,6 +646,7 @@ export const markAsReadAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-read-action',
@@ -604,26 +659,31 @@ export const markAsReadAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
-export const markAsUnreadAction = {
+export const markAsUnreadAction: Action = {
 	id: 'mark-as-unread',
+	isPrimary: false,
+	icon: <Icon icon={ unseen } />,
 	label: __( 'Mark as unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,
-	icon: <Icon icon={ unseen } />,
 	async callback( items, { registry } ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-unread',
 			multiple: items.length > 1,
 		} );
+
 		const { editEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
@@ -668,10 +728,12 @@ export const markAsUnreadAction = {
 								updateMenuCounterOptimistically( -1 );
 							}
 						}
+
 						throw new Error( 'Failed to mark as unread' );
 					} );
 			} )
 		);
+
 		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
 			// Invalidate counts cache to ensure counts are refetched and stay accurate
 			invalidateCounts();
@@ -692,6 +754,7 @@ export const markAsUnreadAction = {
 							),
 							items.length
 					  );
+
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
 				id: 'mark-as-unread-action',
@@ -704,11 +767,14 @@ export const markAsUnreadAction = {
 					},
 				],
 			} );
+
 			return;
 		}
+
 		// There is at least one failure.
 		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
+
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };

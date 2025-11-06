@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Disable tests on PHP 8.5 due to dependency constraints.

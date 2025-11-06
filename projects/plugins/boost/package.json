@@ -41,7 +41,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@react-spring/core": "9.7.5",
 		"@react-spring/web": "9.7.5",
-		"@types/react": "18.3.25",
+		"@types/react": "18.3.26",
 		"@wordpress/components": "30.4.0",
 		"@wordpress/element": "6.31.0",
 		"clsx": "2.1.1",

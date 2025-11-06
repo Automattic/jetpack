@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
@@ -19,6 +19,7 @@ const EMPTY_ARRAY: Integration[] = [];
 
 const Integrations = () => {
 	const navigate = useNavigate();
+	const [ isOpen, setIsOpen ] = useState( false );
 	const { integrations } = useSelect( ( select: SelectIntegrations ) => {
 		const store = select( INTEGRATIONS_STORE );
 		return {
@@ -27,13 +28,18 @@ const Integrations = () => {
 	}, [] ) as { integrations: Integration[] };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 
+	useEffect( () => {
+		setIsOpen( true );
+	}, [] );
+
 	const handleClose = useCallback( () => {
+		setIsOpen( false );
 		navigate( '/responses' );
 	}, [ navigate ] );
 
 	return (
 		<IntegrationsModal
-			isOpen={ true }
+			isOpen={ isOpen }
 			onClose={ handleClose }
 			attributes={ undefined }
 			setAttributes={ undefined }

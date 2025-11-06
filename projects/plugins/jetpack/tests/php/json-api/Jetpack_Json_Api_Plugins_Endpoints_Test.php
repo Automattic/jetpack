@@ -71,10 +71,16 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
+		}
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -143,10 +149,16 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
+		}
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -225,10 +237,16 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
+		}
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
@@ -318,16 +336,25 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$class = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Install_Endpoint' );
 
 		$plugins_property = $class->getProperty( 'plugins' );
-		$plugins_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugins_property->setAccessible( true );
+		}
 		$plugins_property->setValue( $endpoint, array( $the_plugin_slug ) );
 
 		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
-		$validate_plugins_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$validate_plugins_method->setAccessible( true );
+		}
 		$result = $validate_plugins_method->invoke( $endpoint );
 		$this->assertTrue( $result );
 
 		$install_plugin_method = $class->getMethod( 'install' );
-		$install_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$install_plugin_method->setAccessible( true );
+		}
 
 		$result = $install_plugin_method->invoke( $endpoint );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Invoices: Ensure object owner is properly set.

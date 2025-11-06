@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Ensure PHP 8.5 compatibility.

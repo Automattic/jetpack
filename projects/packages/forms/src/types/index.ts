@@ -114,6 +114,8 @@ export interface FormResponse {
 	is_unread: boolean;
 	/** The fields of the response. */
 	fields: Record< string, unknown >;
+	/** The URL to edit the form that the response was submitted to. */
+	edit_form_url: string;
 }
 
 /**

@@ -20,9 +20,10 @@ import {
  * Types
  */
 import type { FormResponse } from '../../../types';
+import type { Registry } from '../../inbox/dataviews/types';
 
 type ResponseNavigationProps = {
-	onActionComplete?: ( FormResponse ) => void;
+	onActionComplete?: ( response: FormResponse ) => void;
 	response: FormResponse;
 };
 
@@ -37,7 +38,7 @@ const ResponseActions = ( {
 	const [ isDeleting, setIsDeleting ] = useState( false );
 	const [ isTogglingReadStatus, setIsTogglingReadStatus ] = useState( false );
 
-	const registry = useRegistry();
+	const registry = useRegistry() as unknown as Registry;
 
 	const handleMarkAsSpam = useCallback( async () => {
 		onActionComplete?.( response );

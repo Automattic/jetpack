@@ -96,7 +96,6 @@ return [
     // PhanNoopVariable : 1 occurrence
     // PhanPluginDuplicateArrayKey : 1 occurrence
     // PhanPluginDuplicateCatchStatementBody : 1 occurrence
-    // PhanPluginDuplicateIfCondition : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanRedefineFunctionInternal : 1 occurrence
     // PhanSuspiciousWeakTypeComparisonInLoop : 1 occurrence
@@ -186,7 +185,7 @@ return [
         'includes/ZeroBSCRM.DataIOValidation.php' => ['PhanTypeMismatchArgument'],
         'includes/ZeroBSCRM.Database.php' => ['PhanRedundantCondition', 'PhanSuspiciousValueComparison'],
         'includes/ZeroBSCRM.Delete.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
-        'includes/ZeroBSCRM.Edit.php' => ['PhanPluginDuplicateIfCondition', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
+        'includes/ZeroBSCRM.Edit.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal'],
         'includes/ZeroBSCRM.Encryption.php' => ['PhanUndeclaredConstant'],
         'includes/ZeroBSCRM.ExternalSources.php' => ['PhanPluginMixedKeyNoKey', 'PhanPluginUnreachableCode'],
         'includes/ZeroBSCRM.FileUploads.php' => ['PhanTypeComparisonFromArray', 'PhanTypeMismatchDimFetch'],
