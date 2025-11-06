@@ -385,10 +385,28 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
+		overflow: hidden;
 
 		&--mobile {
 			text-decoration: underline;
 		}
+	}
+
+	.jp-forms__inbox__author-info-container {
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jp-forms__inbox__author-info,
+	.jp-forms__inbox__author-field__email {
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	.jp-forms__inbox__author-field__email {
+		font-size: 11px;
+		filter: opacity(0.8);
 	}
 
 	.jp-forms__inbox__unread-indicator {
