@@ -20,6 +20,7 @@ import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
 import IntegrationsButton from '../integrations-button';
+import Header from './header';
 
 import './style.scss';
 // eslint-disable-next-line import/no-unresolved -- aliased to the package's built asset in webpack config.
@@ -69,16 +70,19 @@ const Layout = () => {
 	);
 
 	return (
-		<Page
-			className="jp-forms__layout"
-			title={
-				<div className="jp-forms__layout-header-title">
-					<JetpackLogo showText={ false } width={ 24 } /> Forms
-				</div>
-			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
-			actions={ headerActions }
-		>
+		<Page className="jp-forms__layout">
+			<Header
+				title={
+					<div className="jp-forms__layout-header-title">
+						<JetpackLogo showText={ false } width={ 24 } /> Forms
+					</div>
+				}
+				subTitle={ __(
+					'View and manage all your form submissions in one place.',
+					'jetpack-forms'
+				) }
+				actions={ headerActions }
+			/>
 			<NavigableRegion
 				className="admin-ui-page__content"
 				ariaLabel={ __( 'Forms dashboard content', 'jetpack-forms' ) }

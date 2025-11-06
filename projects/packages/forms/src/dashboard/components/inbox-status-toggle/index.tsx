@@ -4,6 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
@@ -22,10 +23,10 @@ import * as Tabs from '../tabs';
  */
 function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
-		<>
+		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
 			{ label }
-			<span className="jp-forms__inbox-status-count">{ formatNumberCompact( count || 0 ) }</span>
-		</>
+			<Badge variant="muted">{ formatNumberCompact( count || 0 ) }</Badge>
+		</span>
 	);
 }
 

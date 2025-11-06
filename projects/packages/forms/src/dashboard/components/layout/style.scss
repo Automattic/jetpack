@@ -23,6 +23,8 @@ body.jetpack_page_jetpack-forms-admin {
 	padding: 0;
 	width: 100%;
 	min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0px));
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 
 	.jp-forms__layout-header-title {
 		display: flex;
@@ -42,14 +44,13 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 #jp-forms-dashboard .jp-forms__layout {
-	background: #fff;
 
 	.admin-ui-page__content {
 		display: flex;
 		flex: 1 1 auto;
 		flex-direction: column;
 		min-height: 0;
-		background: var(--jp-white);
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 		// Ensure Outlet renders as flex child that expands
 		> * {
@@ -68,13 +69,20 @@ body.jetpack_page_jetpack-forms-admin {
 	.admin-ui-page__header {
 		box-sizing: border-box;
 		margin: 0;
-		padding: 16px 48px 4px;
+		padding: 8px 20px;
 		width: 100%;
-		background: transparent;
+		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+		border-bottom: none;
 
 		@media (max-width: 782px) {
-			padding: 8px 24px 0;
+			padding: 12px 24px;
 		}
+	}
+
+	.admin-ui-page__header-subtitle {
+		color: var(--wpds-color-fg-content-neutral-weak, #757575);
+		margin: 0;
+		padding-block-end: 8px;
 	}
 
 
