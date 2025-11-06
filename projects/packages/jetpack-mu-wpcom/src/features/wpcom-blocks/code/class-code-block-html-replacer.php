@@ -45,15 +45,14 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		if ( $processor->get_tag() !== 'PRE' ) {
 			return null;
 		} else {
-			$processor->remove_attribute( 'class' );
-			$processor->remove_attribute( 'style' );
+			$processor->set_bookmark( 'pre_open' );
 		}
 
 		// The next token should be the CODE tag opener.
 		if ( ! $processor->next_token() || $processor->get_tag() !== 'CODE' ) {
 			return null;
 		}
-		$processor->set_bookmark( 'code_block_html_replace_start' );
+		$processor->set_bookmark( 'code_content_start' );
 
 		// The code should be 1 HTML CODE element containing the text.
 		// <code>### text ###</code>.
@@ -71,12 +70,13 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		) {
 			return null;
 		}
-		$processor->set_bookmark( 'code_block_html_replace_end' );
+		$processor->set_bookmark( 'code_content_end' );
 
 		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
 		if ( ! isset(
-			$processor->bookmarks['_code_block_html_replace_start'],
-			$processor->bookmarks['_code_block_html_replace_end']
+			$processor->bookmarks['_pre_open'],
+			$processor->bookmarks['_code_content_start'],
+			$processor->bookmarks['_code_content_end']
 		) ) {
 			return null;
 		}
@@ -135,18 +135,37 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 			$replacement_code_html[] = '</div>';
 		}
 
-		// We'll start at the end of the CODE opener.
-		$bm_start = $processor->bookmarks['_code_block_html_replace_start'];
-		$bm_end   = $processor->bookmarks['_code_block_html_replace_end'];
-		$start    = $bm_start->start + $bm_start->length;
-		$length   = $bm_end->start - $start;
+		// Replace everything inside the CODE block, remove the PRE open tag, trim the end.
+		$bm_pre_open = $processor->bookmarks['_pre_open'];
+		$bm_start    = $processor->bookmarks['_code_content_start'];
+		$bm_end      = $processor->bookmarks['_code_content_end'];
+		$start       = $bm_start->start + $bm_start->length;
+		$length      = $bm_end->start - $start;
 
+		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
+			$bm_pre_open->start,
+			$bm_pre_open->length,
+			''
+		);
 		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
 			$start,
 			$length,
 			implode( '', $replacement_code_html )
 		);
+		$processor->lexical_updates[] = new WP_HTML_Text_Replacement(
+			$bm_end->start + $bm_end->length,
+			// No need to calculate this precisely, just trim everything after this point.
+			\strlen( $processor->html ),
+			''
+		);
 
-		return array( $code_string, $processor->get_updated_html() );
+		// Normalize to ensure HTML that is safer to embed with other HTML.
+		// This removes things like extraneous close tags.
+		$html = self::normalize( $processor->get_updated_html() );
+		if ( null === $html ) {
+			return null;
+		}
+
+		return array( $code_string, $html );
 	}
 }
