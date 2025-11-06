@@ -40,6 +40,7 @@ abstract class Code_Block {
 		}
 
 		self::init();
+		add_filter( 'init', array( __CLASS__, 'override_block_style' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 		add_action(
@@ -104,14 +105,6 @@ abstract class Code_Block {
 			$jetpack_wpcom_modules_asset_file['wpcom-blocks-code-edit-function/wpcom-blocks-code-edit-function.js']['version']
 		);
 
-		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
-		wp_register_style(
-			self::MODULE_PREFIX . 'style',
-			plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
-			array(),
-			$style_asset_file['version']
-		);
-
 		$editor_style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-editor-style/wpcom-blocks-code-editor-style.asset.php';
 		wp_register_style(
 			self::MODULE_PREFIX . 'editor',
@@ -140,6 +133,39 @@ abstract class Code_Block {
 	}
 
 	/**
+	 * Set up the block view styles.
+	 *
+	 * Core's `wp-block-code` handle must be used in order to work with the global styles system.
+	 * It relies on checking whether this style is enqueued to add the associated global styles to the page.
+	 *
+	 * Instead of using a different style handle, replace the registered style for `wp-block-code`.
+	 *
+	 * @see https://core.trac.wordpress.org/browser/tags/6.8.3/src/wp-includes/global-styles-and-settings.php#L322
+	 */
+	public static function override_block_style() {
+		$wp_styles = wp_styles();
+
+		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
+		$src              = plugins_url( 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css', Jetpack_Mu_Wpcom::BASE_FILE );
+		$version          = $style_asset_file['version'];
+
+		if ( ! isset( $wp_styles->registered['wp-block-code'] ) ) {
+			wp_register_style(
+				self::MODULE_PREFIX . 'style',
+				$src,
+				array(),
+				$version
+			);
+			return;
+		}
+
+		$src = add_query_arg( 'ver', $version, $src );
+		$wp_styles->registered['wp-block-code']->src = $src;
+
+		$wp_styles->registered['wp-block-code']->extra['path'] = Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.css';
+	}
+
+	/**
 	 * Filter for block registration to modify the core/code block.
 	 *
 	 * @param array  $args The block type arguments.
@@ -156,7 +182,7 @@ abstract class Code_Block {
 		$args['editor_script_handles'] = array_merge( array( self::MODULE_PREFIX . 'block-definition' ), $args['editor_script_handles'] ?? array() );
 
 		$args['editor_style_handles'] = array( self::MODULE_PREFIX . 'editor' );
-		$args['style_handles']        = array( self::MODULE_PREFIX . 'style' );
+		$args['style_handles']        = array( 'wp-block-code' );
 		unset( $args['view_style_handles'] );
 
 		/**
