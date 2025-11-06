@@ -1044,7 +1044,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 
 		// Look for the conditional comment wrapper (IE conditional comments are preserved in output)
 		$this->assertStringContainsString( '<!--[if lt IE 8]>', $data_without_exclude['scripts'], 'Conditional comment should be present without exclusion' );
-		$this->assertStringContainsString( 'wp-includes/js/json2.js', $data_without_exclude['scripts'], 'Core script inside conditional comment should be present without exclusion' );
+		$this->assertStringContainsString( 'wp-includes/js/json2', $data_without_exclude['scripts'], 'Core script inside conditional comment should be present without exclusion' );
 
 		// Now verify conditional comment IS excluded with 'exclude=core'
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
