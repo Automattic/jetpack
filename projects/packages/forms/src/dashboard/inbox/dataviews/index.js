@@ -178,13 +178,8 @@ export default function InboxView() {
 
 	const onChangeSelection = useCallback(
 		items => {
-			// Set the side panel item only when we are not on mobile.
-			if ( ! isMobile ) {
-				setSidePanelItem(
-					!! items?.length &&
-						records?.find( record => getItemId( record ) === items[ items.length - 1 ] )
-				);
-			}
+			// Update URL params with selected items
+			// The useEffect above will handle updating the sidebar
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
 				if ( items.length ) {
@@ -195,44 +190,45 @@ export default function InboxView() {
 				return _searchParams;
 			} );
 		},
-		[ records, setSearchParams, isMobile ]
+		[ setSearchParams ]
 	);
 
 	const [ sidePanelItem, setSidePanelItem ] = useState();
-	// Because selection is in sync with the URL and data takes some time to load,
-	// We need to carefully (avoid infinite loops by always updating the state)
-	// set the sidePanelItem when we have data and selection.
-	// We don't need to do this in `mobile`,  because we don't render the side panel.
-	if ( ! isMobile && !! records && !! selection.length ) {
-		// Find the last (most recently selected) valid selection instead of the first
-		const lastValidSelection = selection
-			.slice()
-			.reverse()
-			.find( id => records.some( record => getItemId( record ) === id ) );
-		const recordToShow = records?.find( record => getItemId( record ) === lastValidSelection );
-		if ( ! sidePanelItem && recordToShow ) {
-			setSidePanelItem( recordToShow );
-		} else if ( !! sidePanelItem && ! recordToShow ) {
-			// This case handles the case where we were having a side panel item
-			// visible but the data have changed and the item is not there anymore.
-			setSidePanelItem();
-		} else if (
-			!! sidePanelItem &&
-			!! recordToShow &&
-			getItemId( sidePanelItem ) === getItemId( recordToShow ) &&
+
+	// Manage sidebar visibility based on selection
+	// Only show sidebar when exactly one item is selected on desktop
+	useEffect( () => {
+		if ( isMobile ) {
+			// Don't manage sidebar on mobile
+			return;
+		}
+
+		if ( ! records || selection.length !== 1 ) {
+			// Clear sidebar if no records, no selection, or multiple selections
+			setSidePanelItem( null );
+			return;
+		}
+
+		// Single item selected - find it in records
+		const selectedId = selection[ 0 ];
+		const recordToShow = records.find( record => getItemId( record ) === selectedId );
+
+		if ( ! recordToShow ) {
+			// Selected item not in current records - clear sidebar
+			setSidePanelItem( null );
+			return;
+		}
+
+		// Update sidebar if item changed or needs refresh
+		if (
+			! sidePanelItem ||
+			getItemId( sidePanelItem ) !== getItemId( recordToShow ) ||
 			sidePanelItem !== recordToShow
 		) {
-			// Update side panel item if the data has been refreshed for the SAME item (e.g., after an action)
-			// This ensures the side panel shows the latest version of the same entity
-			setSidePanelItem( recordToShow );
-		} else if (
-			!! recordToShow &&
-			( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) )
-		) {
-			// Set side panel item when selecting a different item
 			setSidePanelItem( recordToShow );
 		}
-	}
+	}, [ isMobile, records, selection, sidePanelItem ] );
+
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
 		[ totalItems, totalPages ]
@@ -244,6 +240,7 @@ export default function InboxView() {
 		}
 		return itemValue;
 	};
+
 	const fields = useMemo(
 		() => [
 			{
@@ -414,9 +411,9 @@ export default function InboxView() {
 
 				const [ item ] = items;
 				const selectedId = item.id.toString();
-				const selectionWithoutSelectedId = selection.filter( id => id !== selectedId );
 
-				onChangeSelection( [ ...selectionWithoutSelectedId, selectedId ] );
+				// Select only this item to show it in the sidebar
+				onChangeSelection( [ selectedId ] );
 			},
 		};
 
@@ -439,7 +436,7 @@ export default function InboxView() {
 					...secondaryActions,
 				];
 		}
-	}, [ isMobile, onChangeSelection, selection, statusFilter ] );
+	}, [ isMobile, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -507,7 +504,7 @@ export default function InboxView() {
 				) }
 			</div>
 			<SingleResponseView
-				sidePanelItem={ selection.length && sidePanelItem }
+				sidePanelItem={ selection.length === 1 && sidePanelItem }
 				setSidePanelItem={ setSidePanelItem }
 				isLoadingData={ isLoadingData }
 				isMobile={ isMobile }
