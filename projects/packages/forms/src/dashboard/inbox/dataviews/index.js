@@ -254,6 +254,12 @@ export default function InboxView() {
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const secondaryInfo =
+						authorInfo === decodeEntities( item.author_name ) && item.author_email ? (
+							<span className="jp-forms__inbox__author-field__email">
+								{ decodeEntities( item.author_email ) }
+							</span>
+						) : null;
 
 					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
 
@@ -286,7 +292,12 @@ export default function InboxView() {
 								size={ 32 }
 								useHovercard={ false }
 							/>
-							{ wrapperUnread( item.is_unread, authorInfo ) }
+							<div className="jp-forms__inbox__author-info-container">
+								<span className="jp-forms__inbox__author-info">
+									{ wrapperUnread( item.is_unread, authorInfo ) }
+								</span>
+								{ secondaryInfo }
+							</div>
 						</div>
 					);
 				},
