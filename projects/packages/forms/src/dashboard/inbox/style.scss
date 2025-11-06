@@ -105,6 +105,8 @@
 	display: flex;
 	container-type: inline-size;
 	flex-shrink: 0;
+	position: sticky;
+	left: 0;
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 	@media (max-width: 782px) {
@@ -355,6 +357,7 @@
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
+		overscroll-behavior: none;
 
 		@media (min-width: 782px) {
 			border-right: 1px solid var(--jp-gray-5);
