@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Ignore the shop_order_placehold post-type from Woo.
