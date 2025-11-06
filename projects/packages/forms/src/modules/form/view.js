@@ -183,6 +183,11 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return true;
+			}
+
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
 		},
 
@@ -232,6 +237,11 @@ const { state, actions } = store( NAMESPACE, {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
+
+			// For single input forms, show submission errors in the field error div
+			if ( context.isSingleInputForm && context.submissionError ) {
+				return context.submissionError;
+			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
 				return '';
