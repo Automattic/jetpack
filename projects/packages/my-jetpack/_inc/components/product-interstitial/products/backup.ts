@@ -1,4 +1,5 @@
-import { __ } from '@wordpress/i18n';
+import { formatNumberCompact } from '@automattic/number-formatters';
+import { __, sprintf } from '@wordpress/i18n';
 import logo from '../logos/backup-logo';
 import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
@@ -23,13 +24,27 @@ export function getBackupConfig(): ProductConfig {
 			},
 			{
 				name: __( 'Cloud backup storage', 'jetpack-my-jetpack' ),
-				paid: { included: true, label: __( '10 GB', 'jetpack-my-jetpack' ) },
+				paid: {
+					included: true,
+					label: sprintf(
+						/* translators: %s: Storage amount in GB in compact form, e.g., "10" */
+						__( '%s GB', 'jetpack-my-jetpack' ),
+						formatNumberCompact( 10 )
+					),
+				},
 				bundle: { included: true, label: __( 'Real-time cloud backups', 'jetpack-my-jetpack' ) },
 			},
 			{
 				name: __( 'One-click restores', 'jetpack-my-jetpack' ),
 				paid: { included: true, label: __( '30-day history', 'jetpack-my-jetpack' ) },
-				bundle: { included: true, label: __( '10GB of backup storage', 'jetpack-my-jetpack' ) },
+				bundle: {
+					included: true,
+					label: sprintf(
+						/* translators: %s: Storage amount in GB in compact form, e.g., "10" */
+						__( '%sGB of backup storage', 'jetpack-my-jetpack' ),
+						formatNumberCompact( 10 )
+					),
+				},
 			},
 			{
 				name: __( 'Backup history', 'jetpack-my-jetpack' ),
