@@ -1754,9 +1754,14 @@ class Contact_Form_Plugin {
 			 */
 			do_action( 'jetpack_forms_log', 'submission_failed', $error_code, $error_details );
 
+			// Use a specific error message for invalid JWT tokens
+			$error_message = ( 'invalid_jwt' === $error_code )
+				? __( 'An error occurred. Please reload the page and try again — data entered may be lost.', 'jetpack-forms' )
+				: __( 'An error occurred. Please try again later.', 'jetpack-forms' );
+
 			$accepts_json && wp_send_json_error(
 				array(
-					'error' => __( 'An error occurred. Please try again later.', 'jetpack-forms' ),
+					'error' => $error_message,
 					'code'  => $error_code,
 				),
 				500
@@ -1765,7 +1770,7 @@ class Contact_Form_Plugin {
 			// Non-JSON request, output the error message directly.
 			header( 'HTTP/1.1 500 Server Error', true, 500 );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
-			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
+			echo esc_html( $error_message );
 			echo '</li></ul></div>';
 
 			die();

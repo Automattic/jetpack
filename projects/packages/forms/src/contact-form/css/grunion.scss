@@ -1198,6 +1198,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	min-width: 100%;
 	box-sizing: inherit;
 	margin-block-end: 0.5em;
+	text-wrap: pretty;
 }
 
 .contact-form__error ul {
