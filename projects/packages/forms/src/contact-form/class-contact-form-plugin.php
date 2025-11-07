@@ -2650,36 +2650,48 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	public function get_export_feedback_data( $feedback_ids ) {
-		$feedback_data = array();
-		$field_names   = array();
+		$feedback_data   = array();
+		$all_field_names = array();
 
+		// Collect all feedback responses and their compiled fields
 		foreach ( $feedback_ids as $feedback_id ) {
 			$response = Feedback::get( $feedback_id );
 			if ( ! $response instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
 			}
-			$feedback_data[ $feedback_id ] = $response;
-			$field_names                   = array_merge( $field_names, $response->get_compiled_fields( 'csv', 'label' ) );
+
+			// Get fields with automatic duplicate handling (label-value shape includes counts)
+			$compiled_fields = $response->get_compiled_fields( 'csv', 'label-value' );
+
+			$feedback_data[ $feedback_id ] = array(
+				'response' => $response,
+				'fields'   => $compiled_fields,
+			);
+
+			// Collect all unique field names across all responses
+			$all_field_names = array_merge( $all_field_names, array_keys( $compiled_fields ) );
 		}
 
-		/**
-		 * Make sure the field names are unique, because we don't want duplicate data.
-		 */
-		$field_names = array_unique( $field_names );
-		return $this->format_feedback_data_for_csv( $feedback_data, $field_names );
+		// Get unique field names (this preserves the incremented labels like "Name (2)")
+		$all_field_names = array_unique( $all_field_names );
+
+		return $this->format_feedback_data_for_csv( $feedback_data, $all_field_names );
 	}
 
 	/**
 	 * Returns an array of feedback data for CSV export.
 	 *
-	 * @param array $feedback_data Array of feedback data to fetch the results for.
+	 * @param array $feedback_data Array of feedback data with 'response' and 'fields' keys.
 	 * @param array $field_names   Array of field names to include in the results.
 	 *
 	 * @return array
 	 */
 	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
 		$results = array();
-		foreach ( $feedback_data as $feedback_id => $feedback ) {
+		foreach ( $feedback_data as $feedback_id => $data ) {
+
+			$feedback        = $data['response'];
+			$compiled_fields = $data['fields'];
 
 			if ( ! $feedback instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
@@ -2699,7 +2711,8 @@ class Contact_Form_Plugin {
 				if ( ! isset( $results[ $single_field_name ] ) ) {
 					$results[ $single_field_name ] = array();
 				}
-				$results[ $single_field_name ][] = $feedback->get_field_value_by_label( $single_field_name, 'csv' );
+				// Use the compiled fields directly (which already have incremented labels)
+				$results[ $single_field_name ][] = isset( $compiled_fields[ $single_field_name ] ) ? $compiled_fields[ $single_field_name ] : '';
 			}
 
 			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
@@ -3019,7 +3032,7 @@ class Contact_Form_Plugin {
 	public function esc_csv( $field ) {
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
-		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
+		if ( $field && in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
 			$field = "'" . $field;
 		}
 
