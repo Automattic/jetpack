@@ -6,9 +6,16 @@ import useInboxData from './use-inbox-data';
 interface UseResponseNavigationProps {
 	onChangeSelection: ( responses: string[] ) => void | null;
 	record: FormResponse;
+	setRecord: ( response: FormResponse ) => void;
+	isMobile?: boolean;
 }
 
-const useResponseNavigation = ( { onChangeSelection, record }: UseResponseNavigationProps ) => {
+const useResponseNavigation = ( {
+	onChangeSelection,
+	record,
+	setRecord,
+	isMobile = false,
+}: UseResponseNavigationProps ) => {
 	const { records } = useInboxData();
 	const currentIndex = useMemo(
 		() =>
@@ -28,21 +35,29 @@ const useResponseNavigation = ( { onChangeSelection, record }: UseResponseNaviga
 		if ( hasNext && records && currentIndex >= 0 ) {
 			const nextItem = records[ currentIndex + 1 ];
 			if ( nextItem ) {
-				// Only update selection - let parent's useEffect handle sidePanelItem
+				// Only call setRecord on mobile (where parent's useEffect doesn't run)
+				// On desktop, parent's useEffect handles it via onChangeSelection
+				if ( isMobile ) {
+					setRecord( nextItem );
+				}
 				onChangeSelection?.( [ getItemId( nextItem ) ] );
 			}
 		}
-	}, [ hasNext, records, currentIndex, onChangeSelection ] );
+	}, [ hasNext, records, currentIndex, isMobile, setRecord, onChangeSelection ] );
 
 	const handlePrevious = useCallback( () => {
 		if ( hasPrevious && records && currentIndex >= 0 ) {
 			const prevItem = records[ currentIndex - 1 ];
 			if ( prevItem ) {
-				// Only update selection - let parent's useEffect handle sidePanelItem
+				// Only call setRecord on mobile (where parent's useEffect doesn't run)
+				// On desktop, parent's useEffect handles it via onChangeSelection
+				if ( isMobile ) {
+					setRecord( prevItem );
+				}
 				onChangeSelection?.( [ getItemId( prevItem ) ] );
 			}
 		}
-	}, [ hasPrevious, records, currentIndex, onChangeSelection ] );
+	}, [ hasPrevious, records, currentIndex, isMobile, setRecord, onChangeSelection ] );
 
 	return {
 		currentIndex,

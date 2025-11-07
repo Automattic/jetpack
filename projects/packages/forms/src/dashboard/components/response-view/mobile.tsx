@@ -32,11 +32,13 @@ const ResponseMobileView = ( { response, closeModal } ) => {
 			) as unknown as FormResponse,
 		[ currentResponseId ]
 	);
+
 	// Use the navigation hook
 	const navigation = useResponseNavigation( {
-		onChangeSelection: null,
+		onChangeSelection: setCurrentResponseId,
 		record: responseRecord,
-		setRecord: record => setCurrentResponseId( record.id ),
+		setRecord: () => {}, // No-op for this mobile view - state is managed by onChangeSelection
+		isMobile: true,
 	} );
 
 	const { hasNext, hasPrevious, handleNext, handlePrevious } = navigation;

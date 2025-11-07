@@ -70,6 +70,8 @@ const SingleResponseView = ( {
 	const navigation = useResponseNavigation( {
 		onChangeSelection,
 		record: sidePanelItem,
+		setRecord: setSidePanelItem,
+		isMobile,
 	} );
 
 	// Add keyboard navigation using refs to avoid re-registering listeners
