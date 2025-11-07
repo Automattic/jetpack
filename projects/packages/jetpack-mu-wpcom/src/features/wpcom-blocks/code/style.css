@@ -76,6 +76,10 @@
 		padding: 0 !important;
 		line-height: inherit !important;
 		font-family: inherit !important;
+		background: transparent !important;
+		color: inherit !important;
+		border: none;
+		border-radius: 0;
 	}
 
 	/* prevent empty lines from collapsing vertically in rendered views */
