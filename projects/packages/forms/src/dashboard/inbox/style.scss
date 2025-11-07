@@ -145,12 +145,8 @@
 }
 
 .jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: 48px; // Match header padding
+	padding-inline: 20px; // Match header padding
 	padding-block: 12px;
-
-	@media (max-width: 782px) {
-		padding-inline: 24px;
-	}
 }
 
 .jp-forms__inbox-response-name {
