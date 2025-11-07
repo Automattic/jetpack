@@ -344,12 +344,12 @@ class WooCommerce_HPOS_Orders extends Module {
 		$previous = get_transient( $cache_key );
 
 		// If no substantive changes, skip enqueue.
-		if ( (string) $previous === (string) $checksum ) {
+		if ( is_string( $previous ) && hash_equals( $previous, $checksum ) ) {
 			return false;
 		}
 
 		// Remember current signature briefly to avoid "Update" or "Recalculate" clicks syncing again with no changes.
-		set_transient( $cache_key, (string) $checksum, 5 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, $checksum, 5 * MINUTE_IN_SECONDS );
 
 		$processed[ $order_id ] = true;
 
