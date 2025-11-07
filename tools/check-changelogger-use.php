@@ -172,9 +172,13 @@ if ( ! $p ) {
 }
 fclose( $pipes[0] );
 
+// WARNING: Be very careful adding files to this list!
+// Much of our tooling relies on the existence of the changelog entry to identify that there's a change to the project.
+// Adding a file to this list may result in the project not getting released if there are no other changes, or other oddities.
+$files_to_ignore = array( 'projects/plugins/jetpack/to-test.md' );
+
 $ok_projects      = array();
 $touched_projects = array();
-$files_to_ignore  = array( 'projects/plugins/jetpack/to-test.md' );
 // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 while ( ( $line = fgets( $pipes[1] ) ) ) {
 	$line                  = trim( $line );
