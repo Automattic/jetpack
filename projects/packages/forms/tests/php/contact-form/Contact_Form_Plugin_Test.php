@@ -750,6 +750,44 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_export_feedback_data with duplicate field labels (legacy format).
+	 * Ensures that when the same label appears multiple times in a form response,
+	 * the duplicates are incremented with "(2)", "(3)", etc.
+	 */
+	public function test_get_export_feedback_data_same_fields() {
+		$current_post = Utility::create_post_context();
+
+		// Create two feedback entries with duplicate "Name" fields
+		$post_id_1 = Utility::create_legacy_feedback(
+			array(
+				'1_Name' => 'User 1',
+				'2_Name' => 'First message',
+			)
+		);
+
+		$post_id_2 = Utility::create_legacy_feedback(
+			array(
+				'1_Name' => 'User 2',
+				'2_Name' => '123-456-7890',
+			)
+		);
+		$plugin    = Contact_Form_Plugin::init();
+		$result    = $plugin->get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
+
+		// Verify that the result contains the expected fields with incremented labels
+		$this->assertIsArray( $result );
+		$this->assertTrue( isset( $result['Name'] ), 'First Name field should exist' );
+		$this->assertCount( 2, $result['Name'] );
+		$this->assertEquals( array( 'User 1', 'User 2' ), $result['Name'] );
+
+		$this->assertTrue( isset( $result['Name (2)'] ), 'Second Name field should be incremented to "Name (2)"' );
+		$this->assertCount( 2, $result['Name (2)'] );
+		$this->assertEquals( array( 'First message', '123-456-7890' ), $result['Name (2)'] );
+
+		Utility::destroy_post_context( $current_post );
+	}
+
+	/**
 	 * Test get_export_feedback_data returns correct structure
 	 */
 	public function test_get_export_feedback_data_structure() {
