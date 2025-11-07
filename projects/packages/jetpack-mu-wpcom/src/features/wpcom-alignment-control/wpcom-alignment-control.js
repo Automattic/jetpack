@@ -14,15 +14,12 @@ addFilter(
 	'jetpack/hide-text-align-css',
 	BlockEdit => {
 		if ( ! document.getElementById( 'jetpack-hide-text-align-css' ) ) {
+			const label = __( 'Align text', 'jetpack-mu-wpcom' );
 			const style = document.createElement( 'style' );
 
 			style.id = 'jetpack-hide-text-align-css';
 			style.textContent = `
-                /* Hide text alignment controls */
-                :not(.jetpack-enhanced-alignment-control) > .components-dropdown .components-button[aria-label*="${ __(
-									'Align text',
-									'jetpack-mu-wpcom'
-								) }"] {
+                :not(.jetpack-enhanced-alignment-control) > .components-dropdown .components-button[aria-label*="${ label }"] {
                     display: none !important;
                 }
             `;
