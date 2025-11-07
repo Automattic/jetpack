@@ -402,14 +402,6 @@
 		font-size: 11px;
 		filter: opacity(0.8);
 	}
-
-	.jp-forms__inbox__unread-indicator {
-		color: #d63638;
-		font-size: 8px;
-		position: absolute;
-		left: -12px;
-		cursor: pointer;
-	}
 }
 
 /*
@@ -583,8 +575,3 @@ body.jetpack_page_jetpack-forms-admin {
 	gap: 16px;
 	align-items: center;
 }
-
-.jp-forms__inbox__unread {
-	font-weight: 600;
-}
-
