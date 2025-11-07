@@ -228,6 +228,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -243,6 +244,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -309,6 +311,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: null,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -323,6 +326,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: undefined,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
