@@ -17,7 +17,6 @@ import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -25,6 +24,7 @@ import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
+import { useSearchParams } from '../../hooks/use-routing';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
 import {

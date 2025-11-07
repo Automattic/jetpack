@@ -6,11 +6,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import { store as dashboardStore } from '../store';
+import { useSearchParams } from './use-routing';
 /**
  * Types
  */

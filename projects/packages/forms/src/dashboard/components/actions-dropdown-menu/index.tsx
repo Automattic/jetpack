@@ -6,13 +6,13 @@ import { DropdownMenu } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { menu, plus, download, plugins } from '@wordpress/icons';
-import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import { useNavigate } from '../../hooks/use-routing';
 import ExportResponsesModal from '../export-responses-modal';
 
 type ActionsDropdownMenuProps = {

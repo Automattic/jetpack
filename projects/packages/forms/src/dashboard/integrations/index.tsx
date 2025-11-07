@@ -3,12 +3,12 @@
  */
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal';
 import { INTEGRATIONS_STORE } from '../../store/integrations';
+import { useNavigate } from '../hooks/use-routing';
 /**
  * Types
  */

@@ -7,13 +7,14 @@ import { NavigableRegion, Page } from '@wordpress/admin-ui';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Outlet, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
+import { useLocation } from '../../hooks/use-routing';
+import Inbox from '../../inbox';
 import ExportResponsesButton from '../../inbox/export-responses';
 import Integrations from '../../integrations';
 import { store as dashboardStore } from '../../store';
@@ -87,7 +88,7 @@ const Layout = () => {
 				className="admin-ui-page__content"
 				ariaLabel={ __( 'Forms dashboard content', 'jetpack-forms' ) }
 			>
-				{ ! isLoadingConfig && <Outlet /> }
+				{ ! isLoadingConfig && <Inbox /> }
 			</NavigableRegion>
 			{ isIntegrationsOpen && <Integrations /> }
 		</Page>

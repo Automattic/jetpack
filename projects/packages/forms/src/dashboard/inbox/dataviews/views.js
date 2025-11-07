@@ -3,7 +3,10 @@
  */
 import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router';
+/**
+ * Internal dependencies
+ */
+import { useSearchParams } from '../../hooks/use-routing';
 
 const LAYOUT_TABLE = 'table';
 

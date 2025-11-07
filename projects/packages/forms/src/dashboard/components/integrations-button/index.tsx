@@ -5,7 +5,10 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useNavigate } from 'react-router';
+/**
+ * Internal dependencies
+ */
+import { useNavigate } from '../../hooks/use-routing';
 
 /**
  * Renders a button to navigate to the integrations page.

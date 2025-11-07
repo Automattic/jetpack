@@ -7,11 +7,11 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import useInboxData from '../../hooks/use-inbox-data';
+import { useSearchParams } from '../../hooks/use-routing';
 import * as Tabs from '../tabs';
 
 /**
