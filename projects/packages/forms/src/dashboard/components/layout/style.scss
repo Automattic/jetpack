@@ -92,4 +92,19 @@ body.jetpack_page_jetpack-forms-admin {
 	.dataviews-wrapper .dataviews-view-table tr th:last-child {
 		padding-inline-end: 20px;
 	}
+
+	// these override to have rows marked as unread
+	.dataviews-wrapper .dataviews-view-table tr:has(.is-unread) {
+		font-weight: 600;
+		color: var(--jp-gray-50, #646970);
+
+		&:not(.is-selected) {
+			background-color: var(--jp-gray-5, #f0f0f0);
+
+			.dataviews-view-table__actions-column {
+				background-color: var(--jp-gray-5, #f0f0f0);
+			}
+		}
+
+	}
 }
