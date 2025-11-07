@@ -215,7 +215,7 @@ abstract class Code_Block {
 		 * Text decoration is probalematic with additional UI elements like buttons and
 		 * line numbers. Disable.
 		 */
-		if ( \is_array( $args['supports']['typography'] ) ) {
+		if ( isset( $args['supports']['typography'] ) && \is_array( $args['supports']['typography'] ) ) {
 			$args['supports']['typography']['lineHeight']                   = false;
 			$args['supports']['typography']['__experimentalLetterSpacing']  = false;
 			$args['supports']['typography']['letterSpacing']                = false;
