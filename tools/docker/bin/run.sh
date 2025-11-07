@@ -13,7 +13,11 @@ user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
 
 # Download WordPress
-[ -f /var/www/html/xmlrpc.php ] || wp core download
+# Sometimes it fails, and a retry would be nice:
+#   https://github.com/wp-cli/core-command/pull/258
+#   https://github.com/wp-cli/wp-cli/pull/6140
+# For now this should work well enough
+[ -f /var/www/html/xmlrpc.php ] || wp core download || wp core download
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
