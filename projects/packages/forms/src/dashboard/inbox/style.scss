@@ -109,10 +109,6 @@
 	left: 0;
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
-	@media (max-width: 782px) {
-		padding: 0 24px; // Match mobile padding
-	}
-
 	// On small stacks, switch to column stacking
 	flex-direction: row;
 

@@ -73,10 +73,6 @@ body.jetpack_page_jetpack-forms-admin {
 		width: 100%;
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: none;
-
-		@media (max-width: 782px) {
-			padding: 12px 24px;
-		}
 	}
 
 	.admin-ui-page__header-subtitle {
