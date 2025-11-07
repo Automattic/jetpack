@@ -86,5 +86,14 @@ body.jetpack_page_jetpack-forms-admin {
 		line-height: 20px;
 	}
 
+	// these overrides mimic the ones in new admin packages
+	.dataviews-wrapper .dataviews-view-table tr td:first-child,
+	.dataviews-wrapper .dataviews-view-table tr th:first-child {
+		padding-inline-start: 20px;
+	}
 
+	.dataviews-wrapper .dataviews-view-table tr td:last-child,
+	.dataviews-wrapper .dataviews-view-table tr th:last-child {
+		padding-inline-end: 20px;
+	}
 }
