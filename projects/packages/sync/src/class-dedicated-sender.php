@@ -43,7 +43,7 @@ class Dedicated_Sender {
 	 *
 	 * 5 seconds as default value seems sane, but we might want to adjust that in the future.
 	 */
-	const DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT = 5;
+	const DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT = 60;
 
 	/**
 	 * The query parameter name to use when passing the current lock id.
@@ -211,12 +211,14 @@ class Dedicated_Sender {
 				// Cache lock has been claimed already.
 				return false;
 			}
+
+			return $current_microtime;
 		}
 
 		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 
 		if ( ! empty( $current_lock_value ) ) {
-			// Check if time has passed to overwrite the lock - min 5s?
+			// Check if time has passed to overwrite the lock.
 			if ( is_numeric( $current_lock_value ) && ( ( $current_microtime - $current_lock_value ) < self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
 				// Still in previous lock, quit
 				return false;
@@ -227,16 +229,8 @@ class Dedicated_Sender {
 
 		// Update. We don't want it to autoload, as we want to fetch it right before the checks.
 		\Jetpack_Options::update_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, false );
-		// Give some time for the update to happen
-		usleep( wp_rand( 1000, 3000 ) );
 
-		$updated_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
-
-		if ( $updated_value === $current_microtime ) {
-			return $current_microtime;
-		}
-
-		return false;
+		return $current_microtime;
 	}
 
 	/**
@@ -260,7 +254,11 @@ class Dedicated_Sender {
 		if ( wp_using_ext_object_cache() ) {
 			if ( (string) $lock_id === wp_cache_get( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack', true ) ) {
 				wp_cache_delete( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack' );
+
+				return true;
 			}
+
+			return false;
 		}
 
 		// If this is the flow that has the lock, let's release it so we can spawn other requests afterwards

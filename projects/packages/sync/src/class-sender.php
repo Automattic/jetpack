@@ -418,11 +418,11 @@ class Sender {
 			session_write_close();
 		}
 
-		// Output not used right now. Try to release dedicated sync lock
-		Dedicated_Sender::try_release_lock_spawn_request();
-
 		// Actually try to send Sync events.
 		$result = $this->do_sync_and_set_delays( $this->sync_queue );
+
+		// Output not used right now. Try to release dedicated sync lock
+		Dedicated_Sender::try_release_lock_spawn_request();
 
 		// If no errors occurred, re-spawn a dedicated Sync request.
 		if ( true === $result ) {
