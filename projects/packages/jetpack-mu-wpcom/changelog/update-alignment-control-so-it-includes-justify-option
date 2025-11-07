@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Override the AlignmentControl core component so it includes the justify option.
