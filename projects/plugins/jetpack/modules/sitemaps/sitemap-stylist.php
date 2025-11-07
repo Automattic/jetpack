@@ -713,7 +713,7 @@ XSL;
 	 * @return string The CSS.
 	 */
 	public static function sitemap_xsl_css() {
-		return <<<CSS
+		return <<<'CSS'
 		body {
 			font: 14px 'Open Sans', Helvetica, Arial, sans-serif;
 			margin: 0;

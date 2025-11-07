@@ -2253,7 +2253,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_grunion_contact_form_apply_block_attribute() {
 		// No contact form block.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2274,7 +2274,7 @@ class Contact_Form_Test extends BaseTestCase {
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2300,7 +2300,7 @@ EOT;
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block without attributes.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2329,7 +2329,7 @@ EOT;
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2363,7 +2363,7 @@ EOT;
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block with attributes.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2392,7 +2392,7 @@ EOT;
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->

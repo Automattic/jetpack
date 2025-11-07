@@ -115,7 +115,7 @@ function load_assets( $attr, $content ) {
 			esc_attr( $classes ),
 			esc_attr( $block_id )
 		);
-		$script            = <<<JS_END
+		$script            = <<<'JS_END'
 jetpackInitCalendly( %s, %s );
 JS_END;
 		$json_encode_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;

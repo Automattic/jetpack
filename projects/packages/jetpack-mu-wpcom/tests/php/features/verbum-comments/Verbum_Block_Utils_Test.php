@@ -76,7 +76,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 	 * Ensure innerBlocks are removed if not allowed
 	 */
 	public function test_pre_comment_content_inner_blocks() {
-		$comment_content = <<<HTML
+		$comment_content = <<<'HTML'
 <!-- wp:quote -->
 <blockquote class="wp-block-quote">
 	<p>Allowed outer quote block</p>
@@ -87,7 +87,7 @@ class Verbum_Block_Utils_Test extends \WorDBless\BaseTestCase {
 <!-- /wp:quote -->
 HTML;
 
-		$expected_content = <<<HTML
+		$expected_content = <<<'HTML'
 <!-- wp:quote -->
 <blockquote class="wp-block-quote">
 	<p>Allowed outer quote block</p>

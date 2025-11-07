@@ -77,7 +77,7 @@ function wpcom_enqueue_admin_bar_assets() {
 	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 		wp_add_inline_style(
 			'wpcom-admin-bar',
-			<<<CSS
+			<<<'CSS'
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
 					display: flex;
 				}

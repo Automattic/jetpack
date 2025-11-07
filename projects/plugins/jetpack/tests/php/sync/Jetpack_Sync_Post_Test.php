@@ -1048,7 +1048,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function test_customizer_changeset_to_widget_edited() {
-		$post_content = <<<POST_CONTENT
+		$post_content = <<<'POST_CONTENT'
 {
     "widget_archives[2]": {
         "value": {
