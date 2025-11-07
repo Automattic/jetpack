@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Code block: Remove active line highlight when block is unselected.
