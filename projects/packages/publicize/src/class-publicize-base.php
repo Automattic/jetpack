@@ -910,7 +910,7 @@ abstract class Publicize_Base {
 							get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true )
 							||
 							// Old flags.
-							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
+							get_post_meta( $post->ID, $this->POST_SKIP . $service_name, false )
 						)
 					)
 					||
