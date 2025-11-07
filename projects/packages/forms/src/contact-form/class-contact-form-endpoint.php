@@ -489,6 +489,16 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['author_display_name'] = array(
+			'description' => __( 'The display name of the person who submitted the form. Either the name or the email if the name is not set.', 'jetpack-forms' ),
+			'type'        => 'string',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['author_email'] = array(
 			'description' => __( 'The email address of the person who submitted the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -788,42 +798,59 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( rest_is_field_included( 'uid', $fields ) ) {
 			$data['uid'] = $feedback_response->get_feedback_id();
 		}
+
 		if ( rest_is_field_included( 'author_name', $fields ) ) {
-			$data['author_name'] = $feedback_response->get_author();
+			$data['author_name'] = $feedback_response->get_author_name();
 		}
+
+		if ( rest_is_field_included( 'author_display_name', $fields ) ) {
+			$data['author_display_name'] = $feedback_response->get_author();
+		}
+
 		if ( rest_is_field_included( 'author_email', $fields ) ) {
 			$data['author_email'] = $feedback_response->get_author_email();
 		}
+
 		if ( rest_is_field_included( 'author_url', $fields ) ) {
 			$data['author_url'] = $feedback_response->get_author_url();
 		}
+
 		if ( rest_is_field_included( 'author_avatar', $fields ) ) {
 			$data['author_avatar'] = $feedback_response->get_author_avatar();
 		}
+
 		if ( rest_is_field_included( 'email_marketing_consent', $fields ) ) {
 			$data['email_marketing_consent'] = $feedback_response->has_consent() ? '1' : '';
 		}
+
 		if ( rest_is_field_included( 'ip', $fields ) ) {
 			$data['ip'] = $feedback_response->get_ip_address();
 		}
+
 		if ( rest_is_field_included( 'country_code', $fields ) ) {
 			$data['country_code'] = $feedback_response->get_country_code();
 		}
+
 		if ( rest_is_field_included( 'browser', $fields ) ) {
 			$data['browser'] = $feedback_response->get_browser();
 		}
+
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
 			$data['entry_title'] = $feedback_response->get_entry_title();
 		}
+
 		if ( rest_is_field_included( 'entry_permalink', $fields ) ) {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
+
 		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
 			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
+
 		if ( rest_is_field_included( 'subject', $fields ) ) {
 			$data['subject'] = $feedback_response->get_subject();
 		}
+
 		if ( rest_is_field_included( 'fields', $fields ) ) {
 			$data['fields'] = $feedback_response->get_compiled_fields( 'api', 'label-value' );
 		}

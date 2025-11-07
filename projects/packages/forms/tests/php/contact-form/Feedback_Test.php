@@ -592,6 +592,64 @@ class Feedback_Test extends BaseTestCase {
 		$this->assertEquals( $author, $saved_response->get_author(), 'Author should match the legacy feedback post author' );
 	}
 
+	public function test_author_name() {
+		$author  = 'Mikey Mouse';
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'    => $author,
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertEquals( $author, $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertEquals( $author, $saved_response->get_author_name(), 'Author name should match the saved form submission' );
+	}
+
+	public function test_author_name_with_email() {
+		$form_id = Utility::get_form_id();
+		// Create a form submission
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => 'email@email.com',
+				'message' => 'Test message',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		// Create a contact form
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		$this->assertSame( '', $response->get_author_name(), 'Author name should match the form submission' );
+		$this->assertSame( '', $saved_response->get_author_name(), 'Author name should match the saved form submission' );
+	}
+
 	public function test_computed_name() {
 		$author = 'Mikey Mouse';
 

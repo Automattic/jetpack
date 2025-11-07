@@ -721,6 +721,15 @@ class Feedback {
 	}
 
 	/**
+	 * Get the author name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_name() {
+		return $this->author_data->get_name();
+	}
+
+	/**
 	 * Get the author email of a feedback entry.
 	 *
 	 * @return string

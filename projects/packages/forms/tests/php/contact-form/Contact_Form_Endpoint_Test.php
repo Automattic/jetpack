@@ -155,6 +155,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$schema_properties = $data['schema']['properties'];
 		$this->assertArrayHasKey( 'uid', $schema_properties );
 		$this->assertArrayHasKey( 'author_name', $schema_properties );
+		$this->assertArrayHasKey( 'author_display_name', $schema_properties );
 		$this->assertArrayHasKey( 'author_email', $schema_properties );
 		$this->assertArrayHasKey( 'author_url', $schema_properties );
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
