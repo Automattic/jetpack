@@ -8,15 +8,16 @@ import { alignCenter, alignJustify, alignLeft, alignRight } from '@wordpress/ico
 
 import './style.scss';
 
-// TODO: Find an alternative, but this works...
-// Add CSS to hide text alignment controls
+/**
+ * Hide the default text alignment controls for paragraph blocks.
+ */
 addFilter(
 	'editor.BlockEdit',
 	'jetpack/hide-text-align-css',
 	BlockEdit => {
-		// Add CSS to hide text alignment controls
 		if ( ! document.getElementById( 'jetpack-hide-text-align-css' ) ) {
 			const style = document.createElement( 'style' );
+
 			style.id = 'jetpack-hide-text-align-css';
 			style.textContent = `
                 /* Hide text alignment controls */
@@ -27,6 +28,7 @@ addFilter(
                     display: none !important;
                 }
             `;
+
 			document.head.appendChild( style );
 		}
 
@@ -34,18 +36,7 @@ addFilter(
 	},
 	1
 );
-/**
- * Custom JavaScript to manually render AlignmentControl with 'justify' option
- * for the core/paragraph block.
- */
 
-const JUSTIFY_ALIGNMENT_CONTROL = {
-	icon: alignJustify,
-	title: __( 'Justify text', 'jetpack-mu-wpcom' ),
-	align: 'justify',
-};
-
-// Define the full array of alignment controls (objects)
 const ALIGNMENT_CONTROLS = [
 	{ icon: alignLeft, title: __( 'Align text left', 'jetpack-mu-wpcom' ), align: 'left' },
 	{
@@ -54,12 +45,18 @@ const ALIGNMENT_CONTROLS = [
 		align: 'center',
 	},
 	{ icon: alignRight, title: __( 'Align text right', 'jetpack-mu-wpcom' ), align: 'right' },
-	JUSTIFY_ALIGNMENT_CONTROL,
+	{
+		icon: alignJustify,
+		title: __( 'Justify text', 'jetpack-mu-wpcom' ),
+		align: 'justify',
+	},
 ];
 
+/**
+ * Enhance the alignment control for paragraph blocks adding the Justify option.
+ */
 const withEnhancedAlignmentControl = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		// Only target the core/paragraph block -- sure about this!?
 		if ( props.name !== 'core/paragraph' ) {
 			return <BlockEdit { ...props } />;
 		}
@@ -67,29 +64,24 @@ const withEnhancedAlignmentControl = createHigherOrderComponent( BlockEdit => {
 		const { attributes, setAttributes } = props;
 		const { align } = attributes;
 
-		// 1. Manually render the enhanced AlignmentControl
-		const customControls = (
-			<BlockControls group="block" key="custom-alignment-controls">
-				<ToolbarGroup className="jetpack-enhanced-alignment-control">
-					<AlignmentControl
-						value={ align }
-						onChange={ newAlign => setAttributes( { align: newAlign } ) }
-						alignmentControls={ ALIGNMENT_CONTROLS }
-					/>
-				</ToolbarGroup>
-			</BlockControls>
-		);
-
 		return (
 			<Fragment>
-				{ customControls }
+				<BlockControls group="block" key="custom-alignment-controls">
+					<ToolbarGroup className="jetpack-enhanced-alignment-control">
+						<AlignmentControl
+							value={ align }
+							onChange={ newAlign => setAttributes( { align: newAlign } ) }
+							alignmentControls={ ALIGNMENT_CONTROLS }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+
 				<BlockEdit { ...props } />
 			</Fragment>
 		);
 	};
 }, 'withEnhancedAlignmentControl' );
 
-// Apply the filter
 addFilter(
 	'editor.BlockEdit',
 	'my-plugin/enhanced-alignment-control',
