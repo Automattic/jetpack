@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Protect card showing as active when Jetpack modules are disabled.

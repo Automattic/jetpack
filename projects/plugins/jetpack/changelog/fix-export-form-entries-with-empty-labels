@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: fix a bug where we were not showing duplicate form field values on export

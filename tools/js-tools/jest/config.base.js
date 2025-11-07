@@ -26,6 +26,7 @@ module.exports = {
 			},
 		],
 	},
+	// Unignore uplot css for packages/components. Globally because the monorepo build recompiles in every consumer.
 	transformIgnorePatterns: [ '/node_modules/(?!.*uplot.*\\.css)' ],
 	testMatch: [
 		// Note: Keep the patterns here in sync with ./config.coverage.js and tools/js-tools/eslintrc/base.mjs.

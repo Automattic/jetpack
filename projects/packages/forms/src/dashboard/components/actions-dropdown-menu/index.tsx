@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router';
  */
 import useCreateForm from '../../hooks/use-create-form';
 import useExportResponses from '../../hooks/use-export-responses';
+import useInboxData from '../../hooks/use-inbox-data';
 import ExportResponsesModal from '../export-responses-modal';
 
 type ActionsDropdownMenuProps = {
@@ -23,6 +24,8 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 	const { showExportModal, openModal, closeModal, onExport, autoConnectGdrive, exportLabel } =
 		useExportResponses();
 	const navigate = useNavigate();
+	const { totalItems, isLoadingData } = useInboxData();
+	const hasItems = ! isLoadingData && totalItems > 0;
 
 	const analyticsEvent = useCallback( () => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
@@ -45,11 +48,16 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 
 	const controls = [
 		{
+			icon: plus,
+			onClick: onCreateFormClick,
+			title: __( 'Create form', 'jetpack-forms' ),
+		},
+		{
 			icon: plugins,
 			onClick: onIntegrationsClick,
 			title: __( 'Integrations', 'jetpack-forms' ),
 		},
-		...( exportData.show
+		...( exportData.show && hasItems
 			? [
 					{
 						icon: download,
@@ -58,11 +66,6 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 					},
 			  ]
 			: [] ),
-		{
-			icon: plus,
-			onClick: onCreateFormClick,
-			title: __( 'Create form', 'jetpack-forms' ),
-		},
 	];
 
 	return (
