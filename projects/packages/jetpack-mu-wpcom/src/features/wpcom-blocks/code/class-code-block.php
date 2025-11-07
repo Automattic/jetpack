@@ -356,7 +356,7 @@ abstract class Code_Block {
 			return $content;
 		}
 
-		$processed_content = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'] );
+		$processed_content = Code_Block_HTML_Replacer::get_updated_html_with_replaced_content( $content, $attributes['tokenizedLines'], $attributes['language'] );
 		if ( null === $processed_content ) {
 			return $content;
 		}

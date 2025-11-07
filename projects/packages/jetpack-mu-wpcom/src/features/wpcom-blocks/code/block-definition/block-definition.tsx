@@ -419,19 +419,16 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
  * This function wraps the code content when it is not managed by CodeMirror.
  *
  * @param props              - Component props.
- * @param props.attributes   - Block attributes.
  * @param props.children     - Component children, the contents of the block.
  * @param props.wrapperProps - Props to pass to the PRE container element.
  *
  * @return UI.
  */
 function CodeWrapper( {
-	attributes: { language },
 	children: code,
 	wrapperProps,
 }: {
 	children: string;
-	attributes: Pick< EditBlockProps[ 'attributes' ], 'language' >;
 	wrapperProps?: React.HTMLAttributes< HTMLPreElement >;
 } ): React.JSX.Element {
 	if ( code.endsWith( '\n' ) ) {
@@ -440,15 +437,7 @@ function CodeWrapper( {
 
 	return (
 		<pre { ...wrapperProps }>
-			<code
-				className={
-					language
-						? `language-${ language.toLowerCase().replaceAll( /[ \t\n\r\f]/g, '_' ) }`
-						: undefined
-				}
-			>
-				{ code }
-			</code>
+			<code>{ code }</code>
 		</pre>
 	);
 }

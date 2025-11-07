@@ -23,12 +23,13 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	 * with the tokenized HTML inserted. The HTML structure and replacement
 	 * contents are checked to ensure safety.
 	 *
-	 * @param string $html The tokenized code data.
-	 * @param array  $tokenized_code_data The tokenized code data.
+	 * @param string      $html The tokenized code data.
+	 * @param array       $tokenized_code_data The tokenized code data.
+	 * @param string|null $language_name The language name, if any.
 	 * @return null|array{0: string, 1: string} Null on failure, or array with original code string
 	 *                                          and the tokenized HTML markup.
 	 */
-	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data ): ?array {
+	public static function get_updated_html_with_replaced_content( string $html, array $tokenized_code_data, ?string $language_name ): ?array {
 		$processor = self::create_fragment( $html );
 
 		// Skip leading whitespace
@@ -51,6 +52,22 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		// The next token should be the CODE tag opener.
 		if ( ! $processor->next_token() || $processor->get_tag() !== 'CODE' ) {
 			return null;
+		}
+
+		if ( $language_name ) {
+			$processor->add_class(
+				\strtr(
+					\strtolower( $language_name ),
+					array(
+						' '  => '_',
+						"\t" => '_',
+						"\n" => '_',
+						"\r" => '_',
+						"\f" => '_',
+					)
+				)
+			);
+			$processor->get_updated_html();
 		}
 		$processor->set_bookmark( 'code_content_start' );
 
