@@ -80,7 +80,7 @@ class CoverageHandler extends Handler {
 			case CoversFunction::class:
 			case UsesFunction::class:
 				$ret->type     = 'function';
-				$ret->function = ltrim( $this->parseAttributeStringParameter( $phpcsFile, $data, 1, 'functionName' ), '\\' );
+				$ret->function = ltrim( (string) $this->parseAttributeStringParameter( $phpcsFile, $data, 1, 'functionName' ), '\\' );
 				break;
 
 			case CoversMethod::class:
