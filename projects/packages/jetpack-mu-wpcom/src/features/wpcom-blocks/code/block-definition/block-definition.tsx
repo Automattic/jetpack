@@ -6,7 +6,6 @@ import * as wpBlockEditor from '@wordpress/block-editor';
 import * as wpBlocks from '@wordpress/blocks';
 import {
 	CustomSelectControl,
-	Notice,
 	PanelBody,
 	SelectControl,
 	TextControl,
@@ -223,10 +222,6 @@ const blockEdit = withColors(
 			<React.Suspense fallback={ <Loading { ...props } /> }>
 				<Chrome { ...props }>
 					<EditCodeMirror { ...props } />
-					<Notice status="warning" isDismissible={ false }>
-						<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content
-						may break.
-					</Notice>
 				</Chrome>
 			</React.Suspense>
 		</>
@@ -407,10 +402,6 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
 	return (
 		<Chrome isLoading { ...props }>
 			<CodeWrapper { ...props }>{ code }</CodeWrapper>
-			<Notice status="warning" isDismissible={ false }>
-				<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content may
-				break.
-			</Notice>
 		</Chrome>
 	);
 }
