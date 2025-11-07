@@ -10,7 +10,7 @@ require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
  * Testing CRUD on Comments
  *
  * @group jetpack-sync
- * @covers \Automattic\Jetpack\Sync\Modules\Comments
+ * @covers Automattic\Jetpack\Sync\Modules\Comments
  */
 #[Group( 'jetpack-sync' )]
 #[CoversClass( Modules\Comments::class )]
