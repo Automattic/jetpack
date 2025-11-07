@@ -185,26 +185,65 @@ abstract class Code_Block {
 		unset( $args['view_style_handles'] );
 
 		/*
-		 * Add selectors for typography targetting the descendent PRE element.
-		 * This is important to ensure that global styles targeting code blocks also apply to
-		 * the inner `pre` element. This allows for user agent base styles like `monospace` fonts,
-		 * classic themes with styling for PRE elements, and theme.json and global
-		 * styles to all work correctly.
+		 * Add selectors for typography targetting problematic elements.
+		 *
+		 * - The descendent PRE element needs font-family styling like this to ensure it receives
+		 *   user agent default styling like monospace, as well as PRE element styling from themes,
+		 *   and can also be styled by global styles and theme.json.
 		 */
 		$args['selectors'] = array(
 			'root'       => '.wp-block-code',
-			'typography' => '.wp-block-code, .wp-block-code pre',
+			'typography' => array(
+				'root'        => '.wp-block-code',
+
+				/*
+				 * These are experimental at the moment. The camelCase form appears to be used, but
+				 * it's possible the kebab-case currently used in documentation may be used when
+				 * they're stabilized.
+				 */
+				'fontFamily'  => '.wp-block-code, .wp-block-code pre',
+				'font-family' => '.wp-block-code, .wp-block-code pre',
+			),
 		);
 
 		/**
 		 * Typography support:
-		 * - fontSize: Supported.
-		 * - fontFamily: Unsupported, should be supported.
-		 * - lineHeight: Unsupported. No plans to support.
 		 *
-		 * @todo support fontFamily
+		 * Line height and letter spacing may be problematic for rendering in the editor,
+		 * line numbers, etc. Disable them.
+		 *
+		 * Text decoration is probalematic with additional UI elements like buttons and
+		 * line numbers. Disable.
 		 */
-		$args['supports']['typography'] = array( 'fontSize' => true );
+		if ( \is_array( $args['supports']['typography'] ) ) {
+			$args['supports']['typography']['lineHeight']                   = false;
+			$args['supports']['typography']['__experimentalLetterSpacing']  = false;
+			$args['supports']['typography']['letterSpacing']                = false;
+			$args['supports']['typography']['__experimentalTextDecoration'] = false;
+			$args['supports']['typography']['textDecoration']               = false;
+		} else {
+			$args['supports']['typography'] = array(
+				'fontSize'                      => true,
+				'lineHeight'                    => false,
+
+				// Currently experimental, but include likely stable forms as well.
+				'__experimentalFontFamily'      => true,
+				'__experimentalFontWeight'      => true,
+				'__experimentalFontStyle'       => true,
+				'__experimentalTextTransform'   => true,
+				'fontFamily'                    => true,
+				'fontWeight'                    => true,
+				'fontStyle'                     => true,
+				'textTransform'                 => true,
+
+				'__experimentalDefaultControls' => array(
+					'fontSize' => true,
+				),
+				'defaultControls'               => array(
+					'fontSize' => true,
+				),
+			);
+		}
 
 		$args['attributes'] = array(
 			// Content attribute is preserved for compatibility with the core/code block and transforms.

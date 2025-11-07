@@ -44,7 +44,7 @@
 		}
 	}
 
-	/* Override CodeMirror's font family to respect them and editor settings. */
+	/* Override CodeMirror's font family to respect theme and editor settings. */
 	.cm-scroller {
 		font-family: inherit;
 	}
@@ -58,6 +58,13 @@
 	.cm-gutterElement {
 		backdrop-filter: blur(1em);
 	}
+}
+
+.a8c\/code__btn-copy {
+	text-transform: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+	font-size: inherit;
 }
 
 .a8c\/code__filename.components-base-control {
