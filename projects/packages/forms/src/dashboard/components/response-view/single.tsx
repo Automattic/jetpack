@@ -3,7 +3,7 @@ import {
 	__experimentalHStack as HStack,
 	Modal,
 } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
@@ -71,7 +71,48 @@ const SingleResponseView = ( {
 		onChangeSelection,
 		record: sidePanelItem,
 		setRecord: setSidePanelItem,
+		isMobile,
 	} );
+
+	// Add keyboard navigation using refs to avoid re-registering listeners
+	const handleNextRef = useRef( navigation.handleNext );
+	const handlePreviousRef = useRef( navigation.handlePrevious );
+	const hasNextRef = useRef( navigation.hasNext );
+	const hasPreviousRef = useRef( navigation.hasPrevious );
+	const onRequestCloseRef = useRef( onRequestClose );
+
+	// Update refs when values change
+	useEffect( () => {
+		handleNextRef.current = navigation.handleNext;
+		handlePreviousRef.current = navigation.handlePrevious;
+		hasNextRef.current = navigation.hasNext;
+		hasPreviousRef.current = navigation.hasPrevious;
+		onRequestCloseRef.current = onRequestClose;
+	} );
+
+	// Register keyboard event listener only once
+	useEffect( () => {
+		const handleKeyDown = event => {
+			// Prevent default behavior for arrow keys to avoid scrolling
+			if ( event.key === 'ArrowUp' || event.key === 'ArrowDown' ) {
+				event.preventDefault();
+			}
+
+			if ( event.key === 'ArrowUp' && hasPreviousRef.current ) {
+				handlePreviousRef.current();
+			} else if ( event.key === 'ArrowDown' && hasNextRef.current ) {
+				handleNextRef.current();
+			} else if ( event.key === 'Escape' ) {
+				onRequestCloseRef.current();
+			}
+		};
+
+		window.addEventListener( 'keydown', handleKeyDown );
+
+		return () => {
+			window.removeEventListener( 'keydown', handleKeyDown );
+		};
+	}, [] ); // Empty dependencies - listener registered only once
 
 	if ( ! sidePanelItem ) {
 		return null;
