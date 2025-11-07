@@ -17,7 +17,6 @@ const mockedUseInboxData = useInboxData;
 const mockedGetItemId = getItemId;
 
 describe( 'useResponseNavigation', () => {
-	const mockSetRecord = jest.fn();
 	const mockOnChangeSelection = jest.fn();
 
 	// Mock response data
@@ -102,7 +101,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -116,7 +114,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -130,7 +127,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 2 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -149,7 +145,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: unknownRecord,
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -180,7 +175,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -211,7 +205,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -227,13 +220,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			result.current.handleNext();
 
-			expect( mockSetRecord ).toHaveBeenCalledWith( mockRecords[ 1 ] );
 			expect( mockOnChangeSelection ).toHaveBeenCalledWith( [ '2' ] );
 		} );
 
@@ -242,13 +233,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			result.current.handlePrevious();
 
-			expect( mockSetRecord ).toHaveBeenCalledWith( mockRecords[ 0 ] );
 			expect( mockOnChangeSelection ).toHaveBeenCalledWith( [ '1' ] );
 		} );
 
@@ -257,13 +246,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 2 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			result.current.handleNext();
 
-			expect( mockSetRecord ).not.toHaveBeenCalled();
 			expect( mockOnChangeSelection ).not.toHaveBeenCalled();
 		} );
 
@@ -272,13 +259,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			result.current.handlePrevious();
 
-			expect( mockSetRecord ).not.toHaveBeenCalled();
 			expect( mockOnChangeSelection ).not.toHaveBeenCalled();
 		} );
 
@@ -292,14 +277,12 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: unknownRecord,
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			result.current.handleNext();
 			result.current.handlePrevious();
 
-			expect( mockSetRecord ).not.toHaveBeenCalled();
 			expect( mockOnChangeSelection ).not.toHaveBeenCalled();
 		} );
 
@@ -308,13 +291,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: null,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			// Should not throw when onChangeSelection is null
 			expect( () => result.current.handleNext() ).not.toThrow();
-			expect( mockSetRecord ).toHaveBeenCalledWith( mockRecords[ 1 ] );
 		} );
 
 		it( 'should handle undefined onChangeSelection callback', () => {
@@ -322,13 +303,11 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: undefined,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
 			// Should not throw when onChangeSelection is undefined
 			expect( () => result.current.handleNext() ).not.toThrow();
-			expect( mockSetRecord ).toHaveBeenCalledWith( mockRecords[ 1 ] );
 		} );
 	} );
 
@@ -355,7 +334,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -366,7 +344,7 @@ describe( 'useResponseNavigation', () => {
 			// Navigation should not work with null records
 			result.current.handleNext();
 			result.current.handlePrevious();
-			expect( mockSetRecord ).not.toHaveBeenCalled();
+			expect( mockOnChangeSelection ).not.toHaveBeenCalled();
 		} );
 
 		it( 'should handle record being null', () => {
@@ -374,7 +352,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: null,
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -389,7 +366,6 @@ describe( 'useResponseNavigation', () => {
 					useResponseNavigation( {
 						onChangeSelection: mockOnChangeSelection,
 						record,
-						setRecord: mockSetRecord,
 					} ),
 				{
 					initialProps: { record: mockRecords[ 0 ] },
@@ -413,7 +389,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 
@@ -452,7 +427,6 @@ describe( 'useResponseNavigation', () => {
 				useResponseNavigation( {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
-					setRecord: mockSetRecord,
 				} )
 			);
 

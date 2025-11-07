@@ -6,14 +6,9 @@ import useInboxData from './use-inbox-data';
 interface UseResponseNavigationProps {
 	onChangeSelection: ( responses: string[] ) => void | null;
 	record: FormResponse;
-	setRecord: ( response: FormResponse ) => void;
 }
 
-const useResponseNavigation = ( {
-	onChangeSelection,
-	record,
-	setRecord,
-}: UseResponseNavigationProps ) => {
+const useResponseNavigation = ( { onChangeSelection, record }: UseResponseNavigationProps ) => {
 	const { records } = useInboxData();
 	const currentIndex = useMemo(
 		() =>
@@ -33,21 +28,21 @@ const useResponseNavigation = ( {
 		if ( hasNext && records && currentIndex >= 0 ) {
 			const nextItem = records[ currentIndex + 1 ];
 			if ( nextItem ) {
-				setRecord( nextItem );
+				// Only update selection - let parent's useEffect handle sidePanelItem
 				onChangeSelection?.( [ getItemId( nextItem ) ] );
 			}
 		}
-	}, [ hasNext, records, currentIndex, setRecord, onChangeSelection ] );
+	}, [ hasNext, records, currentIndex, onChangeSelection ] );
 
 	const handlePrevious = useCallback( () => {
 		if ( hasPrevious && records && currentIndex >= 0 ) {
 			const prevItem = records[ currentIndex - 1 ];
 			if ( prevItem ) {
-				setRecord( prevItem );
+				// Only update selection - let parent's useEffect handle sidePanelItem
 				onChangeSelection?.( [ getItemId( prevItem ) ] );
 			}
 		}
-	}, [ hasPrevious, records, currentIndex, setRecord, onChangeSelection ] );
+	}, [ hasPrevious, records, currentIndex, onChangeSelection ] );
 
 	return {
 		currentIndex,
