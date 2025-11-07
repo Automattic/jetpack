@@ -878,4 +878,120 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Contact_Form_Plugin::recalculate_unread_count();
 		$this->assertSame( 0, Contact_Form_Plugin::get_unread_count() );
 	}
+
+	/**
+	 * Test get_export_feedback_data with duplicate field labels and empty labels.
+	 * Ensures that duplicate labels are incremented (e.g., "Name", "Name (2)", "Name (3)")
+	 * and empty labels are replaced with "Field", "Field (2)", etc.
+	 */
+	public function test_get_export_feedback_data_duplicate_and_empty_labels() {
+		global $post;
+		$current_post = Utility::create_post_context();
+
+		// Create feedback with duplicate field labels manually
+		$feedback_time_1  = current_time( 'mysql' );
+		$feedback_title_1 = 'Test User 1 - ' . $feedback_time_1;
+		$feedback_id_1    = md5( $feedback_title_1 );
+
+		// Create fields with duplicates and empty labels
+		$fields_1 = array(
+			( new Feedback_Field( '1_question', 'Question', 'Answer 1', 'text', array(), 'question' ) )->serialize(),
+			( new Feedback_Field( '2_email', 'Email', 'user1@example.com', 'email', array(), 'email' ) )->serialize(),
+			( new Feedback_Field( '3_question', 'Question', 'Answer 2', 'text', array(), 'question' ) )->serialize(), // Duplicate label
+			( new Feedback_Field( '4_empty', '', 'Hidden value 1', 'text', array(), 'empty' ) )->serialize(), // Empty label
+			( new Feedback_Field( '5_question', 'Question', 'Answer 3', 'text', array(), 'question' ) )->serialize(), // Another duplicate
+			( new Feedback_Field( '6_empty', '', 'Hidden value 2', 'text', array(), 'empty' ) )->serialize(), // Another empty label
+		);
+
+		$content_1 = array(
+			'subject'     => 'Test Subject',
+			'ip'          => 'https://127.0.0.1',
+			'entry_title' => 'Cool Post Title',
+			'entry_page'  => 1,
+			'fields'      => $fields_1,
+		);
+
+		$post_id_1 = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title_1, array() ) ),
+				'post_date'      => $feedback_time_1,
+				'post_name'      => $feedback_id_1,
+				'post_content'   => wp_json_encode( $content_1 ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+
+		// Create another feedback with different duplicate pattern
+		$feedback_time_2  = current_time( 'mysql' );
+		$feedback_title_2 = 'Test User 2 - ' . $feedback_time_2;
+		$feedback_id_2    = md5( $feedback_title_2 );
+
+		$fields_2 = array(
+			( new Feedback_Field( '1_name', 'Name', 'John Doe', 'text', array(), 'name' ) )->serialize(),
+			( new Feedback_Field( '2_question', 'Question', 'What is this?', 'text', array(), 'question' ) )->serialize(),
+			( new Feedback_Field( '3_empty', '', 'Some data', 'text', array(), 'empty' ) )->serialize(), // Empty label
+		);
+
+		$content_2 = array(
+			'subject'     => 'Test Subject 2',
+			'ip'          => 'https://127.0.0.2',
+			'entry_title' => 'Cool Post Title',
+			'entry_page'  => 1,
+			'fields'      => $fields_2,
+		);
+
+		$post_id_2 = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title_2, array() ) ),
+				'post_date'      => $feedback_time_2,
+				'post_name'      => $feedback_id_2,
+				'post_content'   => wp_json_encode( $content_2 ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->get_export_feedback_data( array( $post_id_1, $post_id_2 ) );
+
+		// Verify that the result contains the expected fields with incremented labels
+		$this->assertIsArray( $result );
+
+		// Check that duplicate "Question" labels are incremented
+		$this->assertTrue( isset( $result['Question'] ), 'First Question field should exist' );
+		$this->assertTrue( isset( $result['Question (2)'] ), 'Second Question field should be incremented' );
+		$this->assertTrue( isset( $result['Question (3)'] ), 'Third Question field should be incremented' );
+
+		// Check that empty labels are replaced with "Field" and incremented
+		$this->assertTrue( isset( $result['Field'] ), 'First empty field should be "Field"' );
+		$this->assertTrue( isset( $result['Field (2)'] ), 'Second empty field should be "Field (2)"' );
+
+		// Check regular fields
+		$this->assertTrue( isset( $result['Email'] ), 'Email field should exist' );
+		$this->assertTrue( isset( $result['Name'] ), 'Name field should exist' );
+
+		// Verify the data integrity - all fields should have 2 entries (one per feedback)
+		$this->assertCount( 2, $result['Question'], 'Question should have 2 entries' );
+		$this->assertCount( 2, $result['Question (2)'], 'Question (2) should have 2 entries' );
+		$this->assertCount( 2, $result['Question (3)'], 'Question (3) should have 2 entries' );
+
+		// Verify the actual values for the first feedback
+		$this->assertEquals( 'Answer 1', $result['Question'][0], 'First Question should have correct value' );
+		$this->assertEquals( 'Answer 2', $result['Question (2)'][0], 'Second Question should have correct value' );
+		$this->assertEquals( 'Answer 3', $result['Question (3)'][0], 'Third Question should have correct value' );
+		$this->assertEquals( 'Hidden value 1', $result['Field'][0], 'First Field should have correct value' );
+		$this->assertEquals( 'Hidden value 2', $result['Field (2)'][0], 'Second Field should have correct value' );
+
+		// Verify the second feedback has empty values for fields it doesn't have
+		$this->assertEquals( 'What is this?', $result['Question'][1], 'Second feedback Question should have value' );
+		$this->assertSame( '', $result['Question (2)'][1], 'Second feedback should have empty Question (2)' );
+		$this->assertSame( '', $result['Question (3)'][1], 'Second feedback should have empty Question (3)' );
+
+		Utility::destroy_post_context( $current_post );
+	}
 }
