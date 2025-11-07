@@ -451,6 +451,11 @@ class Manager {
 			return false;
 		}
 
+		// OAuth2 app authorization flow - skip signature verification.
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'jetpack_json_api_authorization' ) {
+			return false;
+		}
+
 		$signature_details = array(
 			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
