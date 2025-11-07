@@ -102,7 +102,8 @@ describe( 'useChartMargin', () => {
 		const height = 300;
 		const theme = baseTheme;
 		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
-		expect( result.current.top ).toBe( 20 );
+		// 12px font → ~15px line-height + 8 tick length + 8 padding = 31
+		expect( result.current.top ).toBe( 31 );
 		expect( result.current.bottom ).toBe( 10 );
 	} );
 
@@ -113,7 +114,8 @@ describe( 'useChartMargin', () => {
 		const { result } = renderHook( () => useChartMargin( height, options, data, theme ) );
 		expect( result.current.left ).toBe( 48 );
 		expect( result.current.top ).toBe( 10 );
-		expect( result.current.bottom ).toBe( 20 );
+		// 12px font → ~15px line-height + 8 tick length + 8 padding = 31
+		expect( result.current.bottom ).toBe( 31 );
 		expect( result.current.right ).toBe( 20 );
 	} );
 } );

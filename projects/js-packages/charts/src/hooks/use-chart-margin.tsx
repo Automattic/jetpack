@@ -54,9 +54,48 @@ export const useChartMargin = (
 			defaultMargin.left = yMarginValue;
 		}
 
-		if ( options.axis?.x?.orientation === 'top' ) {
-			defaultMargin.top = 20;
-			defaultMargin.bottom = 10;
+		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
+		// This mirrors Y-axis behavior where margin is based on label size and tick length.
+		const xOrientation = options.axis?.x?.orientation || 'bottom';
+		// Attempt to read axis label styles from theme; fallback to svgLabelSmall when not defined.
+		// XYChartTheme type keeps axisStyles optional, so we need to guard access.
+		type AxisStyleLike = { axisLabel?: { fontSize?: number | string }; tickLength?: number };
+		type ThemeWithOptionalX = XYChartTheme & {
+			axisStyles?: { x?: { top?: AxisStyleLike; bottom?: AxisStyleLike } };
+			svgLabelSmall?: { fontSize?: number | string };
+			tickLength?: number;
+		};
+		const themeWithX = theme as ThemeWithOptionalX;
+		const xAxisStyles: AxisStyleLike | undefined =
+			xOrientation === 'top' ? themeWithX.axisStyles?.x?.top : themeWithX.axisStyles?.x?.bottom;
+
+		// Resolve a numeric font size to approximate label height.
+		const resolveFontSize = ( val?: unknown ): number | undefined => {
+			if ( typeof val === 'number' && ! isNaN( val ) ) return val;
+			if ( typeof val === 'string' ) {
+				const parsed = parseFloat( val );
+				return isNaN( parsed ) ? undefined : parsed;
+			}
+			return undefined;
+		};
+
+		const labelFontSize =
+			resolveFontSize( xAxisStyles?.axisLabel?.fontSize ) ||
+			resolveFontSize( themeWithX.svgLabelSmall?.fontSize ) ||
+			12;
+		const labelLineHeight = Math.round( labelFontSize * 1.25 );
+		const xTickLength =
+			// Prefer axis-specific tick length when present, else theme fallback
+			xAxisStyles?.tickLength ?? themeWithX.tickLength ?? 8;
+		const xPadding = 8;
+		const computedXMargin = labelLineHeight + xTickLength + xPadding;
+
+		if ( xOrientation === 'top' ) {
+			// Preserve a small bottom margin for layout breathing room
+			defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
+			defaultMargin.bottom = Math.max( defaultMargin.bottom, 10 );
+		} else {
+			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
 		}
 
 		return defaultMargin;
