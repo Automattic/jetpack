@@ -44,8 +44,8 @@ class Abilities {
 		wp_register_ability(
 			'jetpack/list-form-responses',
 			array(
-				'label'               => __( 'List Form Responses', 'jetpack-forms' ),
-				'description'         => __( 'Retrieve form responses from a specific site.', 'jetpack-forms' ),
+				'label'               => __( 'List Jetpack Form Responses', 'jetpack-forms' ),
+				'description'         => __( 'Retrieve Jetpack form responses from a specific site.', 'jetpack-forms' ),
 				'category'            => 'jetpack-forms',
 				'input_schema'        => array(
 					'type'       => 'object',
