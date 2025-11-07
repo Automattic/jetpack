@@ -1,3 +1,13 @@
+/*
+ * Add base monospace styling.
+ * In the frontent this should be handled by the theme
+ * or user agent base styling because a PRE element is used.
+ * That's not the case in the editor, so a base style is provided.
+ */
+:root :where(.wp-block-code) {
+	font-family: monospace;
+}
+
 .wp-block-code {
 
 	/* A notice is used to warn of experimental status. */

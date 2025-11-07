@@ -61,11 +61,9 @@
 		border: none;
 		word-wrap: normal;
 		color: inherit;
-		font-family: inherit !important;
 
 		/* These are essential for layout */
 		white-space: pre !important;
-		font-size: inherit !important;
 		margin: 0 !important;
 		padding: 4px 0 !important;
 		line-height: inherit !important;

@@ -184,6 +184,18 @@ abstract class Code_Block {
 		$args['style_handles']        = array( 'wp-block-code' );
 		unset( $args['view_style_handles'] );
 
+		/*
+		 * Add selectors for typography targetting the descendent PRE element.
+		 * This is important to ensure that global styles targeting code blocks also apply to
+		 * the inner `pre` element. This allows for user agent base styles like `monospace` fonts,
+		 * classic themes with styling for PRE elements, and theme.json and global
+		 * styles to all work correctly.
+		 */
+		$args['selectors'] = array(
+			'root'       => '.wp-block-code',
+			'typography' => '.wp-block-code, .wp-block-code pre',
+		);
+
 		/**
 		 * Typography support:
 		 * - fontSize: Supported.
