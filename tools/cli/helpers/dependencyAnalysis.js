@@ -191,6 +191,7 @@ export function getBuildOrder( deps ) {
  * Get the max "depth" of all projects from a set of targets.
  *
  * If there are cycles, the "depth" for affected projects will be `deps.size + 1`.
+ * Any projects not reachable from any target will have a depth of Infinity.
  *
  * @param {Map}      deps    - Project dependency map.
  * @param {Iterable} targets - Targets.
@@ -204,22 +205,22 @@ export function getDependencyDepths( deps, targets ) {
 	}
 
 	const maxDepth = deps.size + 1;
-	const stack = [];
-	for ( const p of targets.values() ) {
+	const queue = [];
+	for ( const p of targets ) {
 		if ( deps.has( p ) ) {
 			depths.set( p, 0 );
-			stack.push( p );
+			queue.push( p );
 		}
 	}
 
-	while ( stack.length > 0 ) {
-		const p = stack.shift();
+	while ( queue.length > 0 ) {
+		const p = queue.shift();
 		const depth = Math.min( depths.get( p ) + 1, maxDepth );
 		for ( const p2 of deps.get( p ) ) {
 			const d2 = depths.get( p2 );
 			if ( d2 < depth || d2 === Infinity ) {
 				depths.set( p2, depth );
-				stack.push( p2 );
+				queue.push( p2 );
 			}
 		}
 	}
