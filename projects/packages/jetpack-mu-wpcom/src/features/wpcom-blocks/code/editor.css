@@ -59,6 +59,11 @@
 	.cm-gutterElement {
 		backdrop-filter: blur(1em);
 	}
+
+	/* Disable active line highlight on inactive blocks. */
+	&:not(.is-selected) .cm-activeLine {
+		background-color: transparent !important;
+	}
 }
 
 .a8c\/code__header {
