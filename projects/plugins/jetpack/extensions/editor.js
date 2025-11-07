@@ -11,7 +11,6 @@ import './extended-blocks/core-embed';
 import './extended-blocks/core-site-logo/index.tsx';
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
-import './extended-blocks/core-alignment-control';
 import './shared/styles/slideshow-fix.scss';
 // Register media source store to the centralized data registry.
 import './store/media-source';
