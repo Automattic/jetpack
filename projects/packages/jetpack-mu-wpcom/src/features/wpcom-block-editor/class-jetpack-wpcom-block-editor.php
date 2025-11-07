@@ -353,7 +353,6 @@ class Jetpack_WPCOM_Block_Editor {
 				'wpcomGutenberg',
 				array(
 					'richTextToolbar' => array(
-						'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
 						'underline' => __( 'Underline', 'jetpack-mu-wpcom' ),
 					),
 				)
