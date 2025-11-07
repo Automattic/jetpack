@@ -12,11 +12,18 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  */
 function wpcom_enqueue_alignment_control_assets() {
 	wp_enqueue_script(
-		'wpcom-alignment-control-script',
+		'wpcom-alignment-control',
 		plugins_url( 'build/wpcom-alignment-control/wpcom-alignment-control.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
 		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-alignment-control/wpcom-alignment-control.js' ),
 		true
+	);
+
+	wp_enqueue_style(
+		'wpcom-alignment-control',
+		plugins_url( 'build/wpcom-alignment-control/wpcom-alignment-control.css', Jetpack_Mu_Wpcom::BASE_FILE ),
+		array(),
+		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-alignment-control/wpcom-alignment-control.css' )
 	);
 }
 

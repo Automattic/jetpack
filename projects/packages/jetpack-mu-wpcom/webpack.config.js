@@ -37,8 +37,10 @@ module.exports = async () => {
 					'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 				'tags-education': './src/features/tags-education/tags-education.js',
 				'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.js',
-				'wpcom-alignment-control':
+				'wpcom-alignment-control': [
 					'./src/features/wpcom-alignment-control/wpcom-alignment-control.js',
+					'./src/features/wpcom-alignment-control/style.scss',
+				],
 				'wpcom-blocks-code-block-definition':
 					'./src/features/wpcom-blocks/code/block-definition/block-definition.tsx',
 				'wpcom-blocks-code-editor-style': './src/features/wpcom-blocks/code/editor.css',

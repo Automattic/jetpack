@@ -6,8 +6,6 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { alignCenter, alignJustify, alignLeft, alignRight } from '@wordpress/icons';
 
-import './style.scss';
-
 /**
  * Hide the default text alignment controls for paragraph blocks.
  */
