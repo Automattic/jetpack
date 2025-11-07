@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: remove unread indicator, use CSS selector to show rows with a different background
