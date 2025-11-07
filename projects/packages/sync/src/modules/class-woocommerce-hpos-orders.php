@@ -24,6 +24,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	const WOOCOMMERCE_SUBSCRIPTIONS_PATH = 'woocommerce-subscriptions/woocommerce-subscriptions.php';
 
 	/**
+	 * Cache key prefix for storing order checksums to avoid resyncing unchanged orders.
+	 */
+	const HPOS_CACHE_KEY = 'jetpack_sync_hpos_cache_key_';
+
+	/**
 	 * Order table name. There are four order tables (order, addresses, operational_data and meta), but for sync purposes we only care about the main table since it has the order ID.
 	 *
 	 * @access private
@@ -324,6 +329,27 @@ class WooCommerce_HPOS_Orders extends Module {
 		if ( isset( $processed[ $order_id ] ) ) {
 			return false;
 		}
+
+		$filtered = $this->filter_order_data( $order_object );
+
+		unset(
+			$filtered['date_modified'],
+			$filtered['date_updated_gmt']
+		);
+
+		// md5 of the date-stripped order payload to detect no-change saves (ignores timestamp-only changes)
+		$checksum  = md5( wp_json_encode( $filtered ) );
+		$cache_key = self::HPOS_CACHE_KEY . $order_id;
+
+		$previous = get_transient( $cache_key );
+
+		// If no substantive changes, skip enqueue.
+		if ( (string) $previous === (string) $checksum ) {
+			return false;
+		}
+
+		// Remember current signature briefly to avoid "Update" or "Recalculate" clicks syncing again with no changes.
+		set_transient( $cache_key, (string) $checksum, 5 * MINUTE_IN_SECONDS );
 
 		$processed[ $order_id ] = true;
 
