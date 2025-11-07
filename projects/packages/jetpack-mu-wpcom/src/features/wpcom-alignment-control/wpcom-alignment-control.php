@@ -20,4 +20,4 @@ function wpcom_enqueue_alignment_control_assets() {
 	);
 }
 
-add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_alignment_control_assets' );
+add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_alignment_control_assets' );
