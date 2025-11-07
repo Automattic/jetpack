@@ -4,7 +4,9 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n'; // Import for internationalization
-import { alignJustify } from '@wordpress/icons'; // Import a justified text icon
+import { alignCenter, alignJustify, alignLeft, alignRight } from '@wordpress/icons'; // Import a justified text icon
+
+import './index.scss';
 
 // function alignmentControl1( settings, name ) {
 // 	if ( 'core/paragraph' === name ) {
@@ -99,7 +101,6 @@ import { alignJustify } from '@wordpress/icons'; // Import a justified text icon
 // // 4. Apply the HOC using the 'editor.BlockEdit' filter
 // addFilter( 'editor.BlockEdit', 'my-plugin/with-justify-control', withJustifyControl );
 
-// TODO: Add the actual css so the text is justified
 // TODO: Find an alternative, but this works...
 // Add CSS to hide text alignment controls
 addFilter(
@@ -139,19 +140,19 @@ const JUSTIFY_ALIGNMENT_CONTROL = {
 
 // Define the full array of alignment controls (objects)
 const ALIGNMENT_CONTROLS = [
-	{ icon: 'editor-alignleft', title: __( 'Align text left', 'jetpack' ), align: 'left' },
+	{ icon: alignLeft, title: __( 'Align text left', 'jetpack' ), align: 'left' },
 	{
-		icon: 'editor-aligncenter',
+		icon: alignCenter,
 		title: __( 'Align text center', 'jetpack' ),
 		align: 'center',
 	},
-	{ icon: 'editor-alignright', title: __( 'Align text right', 'jetpack' ), align: 'right' },
+	{ icon: alignRight, title: __( 'Align text right', 'jetpack' ), align: 'right' },
 	JUSTIFY_ALIGNMENT_CONTROL,
 ];
 
 const withEnhancedAlignmentControl = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		// Only target the core/paragraph block
+		// Only target the core/paragraph block -- sure about this!?
 		if ( props.name !== 'core/paragraph' ) {
 			return <BlockEdit { ...props } />;
 		}
@@ -187,3 +188,9 @@ addFilter(
 	'my-plugin/enhanced-alignment-control',
 	withEnhancedAlignmentControl
 );
+
+// why is it defined on
+// createBlockEditFilter
+// createBlockListBlockFilter
+// createBlockSaveFilter
+// need to check that the saved text is justified too?
