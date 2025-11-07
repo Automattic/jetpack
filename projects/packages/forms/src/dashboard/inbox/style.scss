@@ -363,6 +363,9 @@
 		position: fixed;
 		bottom: 0;
 
+		// Match .admin-ui-page__header padding
+		padding-inline: 20px;
+
 		// Compensation for the width of the sidebar
 		// Set left position when auto-fold is not on the body element.
 		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
