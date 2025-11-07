@@ -580,7 +580,7 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		 * @phan-suppress PhanRedefineFunction
 		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
 		 */
-		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		function amp_get_permalink( $post_id ) { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			return "http://example.com/?p=$post_id&amp";
 		}
 
