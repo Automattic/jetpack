@@ -51,23 +51,22 @@ export default ( { siteDomain, sitePlan } ) => {
 					}
 				) }
 			</p>
-			<p style={ { position: 'relative' } }>
-				{ /* To do: convert to SVG.  */ }
-				<span
-					style={ {
-						position: 'absolute',
-						transform: 'translate(130px, 14px)',
-						fontSize: '16px',
-					} }
+			<div style={ { position: 'relative', margin: '1em 0' } }>
+				<svg
+					viewBox="0 0 40 17"
+					id="map"
+					style={ { height: '43%', left: '24%', position: 'absolute', top: '17%', width: '70%' } }
 				>
-					{ domain }
-				</span>
+					<text x="-95" y="15" textAnchor="start" direction="ltr">
+						asdf572.com.br
+					</text>
+				</svg>
 				<img
 					src="https://wordpress.com/calypso/images/illustration--feature-domain-upsell-3eff1284ca73c71a3c77.svg"
 					alt={ domain }
 					style={ { width: '100%' } }
 				/>
-			</p>
+			</div>
 			<div>
 				<a href={ getLink } className="button button-primary">
 					{ __( 'Get this domain', 'jetpack-mu-wpcom' ) }
