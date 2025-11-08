@@ -186,6 +186,13 @@ export const WithPatterns: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const ErrorStates: StoryObj< typeof BarChart > = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '20px' } }>
