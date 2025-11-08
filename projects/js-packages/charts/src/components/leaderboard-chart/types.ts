@@ -16,12 +16,8 @@ export interface LeaderboardChartProps
 		| 'height'
 		| 'size'
 		| 'legendInteractive'
+		| 'animation'
 	> {
-	/**
-	 * Whether to show animation or not
-	 */
-	animation?: boolean;
-
 	/**
 	 * Whether to show comparison data
 	 */

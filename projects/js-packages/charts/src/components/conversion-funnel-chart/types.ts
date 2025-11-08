@@ -57,7 +57,7 @@ export interface TooltipRenderProps {
  * Props for the ConversionFunnelChart component
  */
 export interface ConversionFunnelChartProps
-	extends Pick< BaseChartProps, 'className' | 'chartId' > {
+	extends Pick< BaseChartProps, 'className' | 'chartId' | 'animation' > {
 	/** Main conversion rate to highlight */
 	mainRate: number;
 	/** Change indicator (e.g., +2%, -1.5%) */
@@ -68,8 +68,6 @@ export interface ConversionFunnelChartProps
 	loading?: boolean;
 	/** Custom styling */
 	style?: React.CSSProperties;
-	/** Whether to show animation or not */
-	animation?: boolean;
 	/** Custom render function for step labels */
 	renderStepLabel?: ( props: StepLabelRenderProps ) => React.ReactNode;
 	/** Custom render function for step rates */

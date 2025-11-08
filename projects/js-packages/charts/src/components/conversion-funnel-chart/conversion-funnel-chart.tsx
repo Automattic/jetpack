@@ -23,7 +23,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.changeIndicator  - Change indicator (e.g., +2%, -1.5%)
  * @param props.steps            - Array of funnel steps
  * @param props.loading          - Whether the chart is in loading state
- * @param props.animation        - Whether to show animation or not
+ * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
@@ -37,7 +37,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	changeIndicator,
 	steps,
 	loading = false,
-	animation = true,
+	animation,
 	className,
 	chartId: providedChartId,
 	style,
@@ -349,10 +349,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
-										className={ clsx(
-											styles[ 'funnel-bar' ],
-											animation && ! loading ? styles[ 'funnel-bar__animated' ] : ''
-										) }
+										className={ clsx( styles[ 'funnel-bar' ], {
+											[ styles[ 'funnel-bar__animated' ] ]: animation && ! loading,
+										} ) }
 										style={ {
 											height: `${ barHeight }%`,
 											backgroundColor: barColor,
