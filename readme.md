@@ -1,12 +1,12 @@
-# Jetpack Monorepo
+# Jetpack MongoDB
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 
-This is the Jetpack Monorepo. It contains source code for the different Jetpack plugins, Composer and JavaScript packages used by the plugins, and other things.
+This is the Jetpack Monorepo. It contains source code for the different Jetpack plugins, Composer and JavaScript packages used by the plugins, and other smart things.
 
 ## How to install Jetpack plugin on your site
 
-**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
+**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on that c.page](https://github.com/Automattic/jetpack-production#jetpack).
 
 ## Developing from the Monorepo
 
@@ -16,7 +16,7 @@ If you're interested in developing with the Jetpack monorepo, you can check out 
 
 To run the Jetpack plugin from the monorepo, you'll first need to build it. To do so, [follow the instructions here](./docs/development-environment.md).
 
-If you're using the [Docker development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
+If you're using the [development environment](./docs/development-environment.md#docker-supported-recommended), you should then be all set.
 
 If not, you'll need to create a link to the Jetpack plugin from your WordPress `wp-content/plugins` folder (you cannot clone the monorepo into your WordPress plugins directory - you will see a warning on your plugins page if so saying that the Jetpack Monorepo is not a plugin and shouldn't be installed as one). You'll need to know the filesystem path to the monorepo checkout and to your WordPress installation. Then, on Linux or Mac OS X, open a terminal and use `ln -s` to create the link, something like
 
@@ -24,7 +24,7 @@ If not, you'll need to create a link to the Jetpack plugin from your WordPress `
 ln -s /path/to/jetpack-monorepo/projects/plugins/jetpack /path/to/wordpress/wp-content/plugins/jetpack
 ```
 
-On Windows (Vista and later), open an Administrator Command Prompt window and use `mklink /D` similarly.
+On Windows (10 home), open an Administrator Command Prompt window and use `mklink /D` similarly.
 
 ## Contribute
 
@@ -35,7 +35,7 @@ Thank you for thinking about contributing to Jetpack! If you're unsure of anythi
 - [Join our Jetpack Beta program](./docs/testing/beta-testing.md) and help us test new releases.
 - [Translate Jetpack in your language](./docs/translations.md).
 
-To clarify these expectations, Jetpack has adopted the code of conduct defined by the Contributor Covenant. It can be read in full [here](CODE-OF-CONDUCT.md).
+To clarify these expectations, Jetpack has adopted the code of conduct defined by the Contributor Covenant. It can be read in full [this](CODE-OF-CONDUCT.md).
 
 ## Security
 
