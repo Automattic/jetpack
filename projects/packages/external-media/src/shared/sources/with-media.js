@@ -156,6 +156,18 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 				this.setState( { isLoading: false, isCopying: false } );
 			};
 
+			selectMediaForMode = result => {
+				const { value, addToGallery, multiple, mode } = this.props;
+				const isReplaceMode = mode === 'replace';
+				const media = multiple ? result : result[ 0 ];
+
+				// In replace mode, always select single item. Otherwise use the existing logic.
+				if ( isReplaceMode ) {
+					return result[ 0 ];
+				}
+				return addToGallery ? value.concat( result ) : media;
+			};
+
 			getMediaRequest = url => {
 				const { nextHandle, media } = this.state;
 
@@ -239,9 +251,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 							} ) );
 						}
 
-						const { value, addToGallery, multiple } = this.props;
-						const media = multiple ? result : result[ 0 ];
-
 						const itemWithErrors = result.find( item => item.errors );
 						if ( itemWithErrors ) {
 							const { errors } = itemWithErrors;
@@ -254,8 +263,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						}
 
 						this.props.onClose();
-						// Select the image(s). This will close the modal
-						this.props.onSelect( addToGallery ? value.concat( result ) : media );
+						this.props.onSelect( this.selectMediaForMode( result ) );
 					} )
 					.catch( this.handleApiError );
 			};
@@ -338,11 +346,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					result = [ this.mapImageToResult( items ) ];
 				}
 
-				const { value, multiple, addToGallery } = this.props;
-				const media = multiple ? result : result[ 0 ];
-
 				this.props.onClose();
-				this.props.onSelect( addToGallery ? value.concat( result ) : media );
+				this.props.onSelect( this.selectMediaForMode( result ) );
 				// end insert media
 			};
 

@@ -176,6 +176,18 @@ export const GOOGLE_PHOTOS_DATE_PRESETS = [
 
 export const CURRENT_YEAR = new Date().getFullYear();
 
+export const ALLOWED_BLOCKS = [
+	'core/cover',
+	'core/image',
+	'core/gallery',
+	'core/media-text',
+	'jetpack/image-compare',
+	'jetpack/slideshow',
+	'jetpack/story',
+	'jetpack/tiled-gallery',
+	'videopress/video',
+];
+
 export const MONTH_SELECT_OPTIONS = [
 	{ label: __( 'Any Month', 'jetpack-external-media' ), value: -1 },
 	...Array.from( Array( 12 ), ( _, value ) => ( {
