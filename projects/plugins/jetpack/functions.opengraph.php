@@ -15,6 +15,7 @@ use Automattic\Block_Scanner;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -604,6 +605,10 @@ function jetpack_og_get_available_templates() {
  * @return string|WP_Error The social image token, or a WP_Error if the token could not be generated.
  */
 function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
+
+	if ( ( new Status() )->is_offline_mode() ) {
+		return new WP_Error( 'jetpack_og_get_social_image_token_error', __( 'Cannot generate social image token while in Offline Mode.', 'jetpack' ) );
+	}
 	// Let's check if we have a cached token.
 	$cache_key      = wp_hash( $site_title . $image_url . $template );
 	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
