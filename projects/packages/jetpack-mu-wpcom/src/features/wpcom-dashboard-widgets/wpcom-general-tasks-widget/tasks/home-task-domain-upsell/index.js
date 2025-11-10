@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 export default ( { siteDomain, sitePlan } ) => {
@@ -51,14 +51,26 @@ export default ( { siteDomain, sitePlan } ) => {
 					}
 				) }
 			</p>
-			<div style={ { position: 'relative', margin: '1em 0' } }>
+			<div
+				style={ {
+					position: 'relative',
+					margin: '1em 0',
+					transform: isRTL() ? 'scale(-1, 1)' : 'none',
+				} }
+			>
 				<svg
 					viewBox="0 0 40 17"
 					id="map"
 					style={ { height: '43%', left: '24%', position: 'absolute', top: '17%', width: '70%' } }
 				>
-					<text x="-95" y="15" textAnchor="start" direction="ltr">
-						asdf572.com.br
+					<text
+						x={ isRTL() ? '95' : '-95' }
+						y="15"
+						textAnchor={ isRTL() ? 'end' : 'start' }
+						direction="ltr"
+						style={ { transform: isRTL() ? 'scale(-1, 1)' : 'none' } }
+					>
+						{ domain }
 					</text>
 				</svg>
 				<img
