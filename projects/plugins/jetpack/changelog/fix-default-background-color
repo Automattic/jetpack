@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: set the correct default backfround color for inputs
