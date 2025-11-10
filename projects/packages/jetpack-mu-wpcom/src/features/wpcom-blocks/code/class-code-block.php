@@ -367,7 +367,7 @@ abstract class Code_Block {
 		}
 
 		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
-		if ( $show_line_numbers && ! empty( $attributes['tokenizedLines'] ) ) {
+		if ( $show_line_numbers ) {
 			$extra_attrs['class']  = 'show-line-numbers';
 			$line_numbers_start_at = isset( $attributes['lineNumbersStartAt'] )
 				? max( 0, min( 10000, (int) $attributes['lineNumbersStartAt'] ) )
