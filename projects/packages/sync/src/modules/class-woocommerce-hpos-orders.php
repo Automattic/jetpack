@@ -29,7 +29,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	const HPOS_CACHE_KEY = 'jetpack_sync_hpos_cache_key_';
 
 	/**
-	 * Cache expiration time for storing order checksums.
+	 * Cache expiration for storing order content signatures.
 	 */
 	const CACHE_EXPIRATION = 5 * MINUTE_IN_SECONDS;
 
@@ -342,25 +342,25 @@ class WooCommerce_HPOS_Orders extends Module {
 		);
 
 		// md5 of the date-stripped order payload to detect no-change saves (ignores timestamp-only changes)
-		$checksum  = md5( wp_json_encode( $filtered ) );
-		$cache_key = self::HPOS_CACHE_KEY . $order_id;
+		$current_signature = md5( wp_json_encode( $filtered ) );
+		$cache_key         = self::HPOS_CACHE_KEY . $order_id;
 
 		$group = 'jetpack_sync_hpos';
 
-		$previous = wp_using_ext_object_cache()
+		$previous_signature = wp_using_ext_object_cache()
 		? wp_cache_get( $cache_key, $group )
 		: get_transient( $cache_key );
 
 		// If no substantive changes, skip enqueue.
-		if ( is_string( $previous ) && hash_equals( $previous, $checksum ) ) {
+		if ( is_string( $previous_signature ) && hash_equals( $previous_signature, $current_signature ) ) {
 			return false;
 		}
 
 		// Remember current signature briefly to avoid "Update" or "Recalculate" clicks syncing again with no changes.
 		if ( wp_using_ext_object_cache() ) {
-			wp_cache_set( $cache_key, $checksum, $group, self::CACHE_EXPIRATION );
+			wp_cache_set( $cache_key, $current_signature, $group, self::CACHE_EXPIRATION );
 		} else {
-			set_transient( $cache_key, $checksum, self::CACHE_EXPIRATION );
+			set_transient( $cache_key, $current_signature, self::CACHE_EXPIRATION );
 		}
 
 		$processed[ $order_id ] = true;
