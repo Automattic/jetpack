@@ -29,6 +29,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	const HPOS_CACHE_KEY = 'jetpack_sync_hpos_cache_key_';
 
 	/**
+	 * Cache expiration time for storing order checksums.
+	 */
+	const CACHE_EXPIRATION = 5 * MINUTE_IN_SECONDS;
+
+	/**
 	 * Order table name. There are four order tables (order, addresses, operational_data and meta), but for sync purposes we only care about the main table since it has the order ID.
 	 *
 	 * @access private
@@ -340,7 +345,11 @@ class WooCommerce_HPOS_Orders extends Module {
 		$checksum  = md5( wp_json_encode( $filtered ) );
 		$cache_key = self::HPOS_CACHE_KEY . $order_id;
 
-		$previous = get_transient( $cache_key );
+		$group = 'jetpack_sync_hpos';
+
+		$previous = wp_using_ext_object_cache()
+		? wp_cache_get( $cache_key, $group )
+		: get_transient( $cache_key );
 
 		// If no substantive changes, skip enqueue.
 		if ( is_string( $previous ) && hash_equals( $previous, $checksum ) ) {
@@ -348,7 +357,11 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 
 		// Remember current signature briefly to avoid "Update" or "Recalculate" clicks syncing again with no changes.
-		set_transient( $cache_key, $checksum, 5 * MINUTE_IN_SECONDS );
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_set( $cache_key, $checksum, $group, self::CACHE_EXPIRATION );
+		} else {
+			set_transient( $cache_key, $checksum, self::CACHE_EXPIRATION );
+		}
 
 		$processed[ $order_id ] = true;
 
