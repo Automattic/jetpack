@@ -394,7 +394,9 @@ function get_read_access_cookies( $args ) {
 function is_jetpack_admin_ajax_request() {
 	// phpcs:disable WordPress.Security
 	return (
+		isset( $_SERVER['REQUEST_URI'] ) &&
 		substr( $_SERVER['REQUEST_URI'], 0, 24 ) === '/wp-admin/admin-ajax.php' &&
+		isset( $_SERVER['HTTP_AUTHORIZATION'] ) &&
 		substr( $_SERVER['HTTP_AUTHORIZATION'], 0, 9 ) === 'X_JETPACK' &&
 		array_key_exists( 'action', $_POST ) &&
 		substr( $_POST['action'], 0, 8 ) === 'jetpack_'
