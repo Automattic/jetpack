@@ -92,4 +92,24 @@ body.jetpack_page_jetpack-forms-admin {
 	.dataviews-wrapper .dataviews-view-table tr th:last-child {
 		padding-inline-end: 20px;
 	}
+
+	// these override to have rows marked as unread
+	.dataviews-wrapper .dataviews-view-table tr:has(.is-triggering-remove) {
+		// add an animation to collapse the row
+		animation: collapse 0.3s ease-in-out;
+		animation-fill-mode: forwards;
+
+		@keyframes collapse {
+
+			from {
+				opacity: 1;
+				height: 100%;
+			}
+
+			to {
+				opacity: 0;
+				height: 0;
+			}
+		}
+	}
 }

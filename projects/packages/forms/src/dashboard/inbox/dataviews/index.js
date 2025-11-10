@@ -264,7 +264,8 @@ export default function InboxView() {
 						<div
 							className={ clsx(
 								'jp-forms__inbox__author-field',
-								isMobileViewport && 'jp-forms__inbox__author-field--mobile'
+								isMobileViewport && 'jp-forms__inbox__author-field--mobile',
+								item.is_triggering_remove === true && 'is-triggering-remove'
 							) }
 							{ ...( isMobileViewport && {
 								onClick: handleClick,
