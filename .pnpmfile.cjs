@@ -41,7 +41,8 @@ async function fixDeps( pkg ) {
 	if (
 		pkg.name === '@automattic/social-previews' ||
 		pkg.name === '@automattic/components' ||
-		pkg.name === '@automattic/launchpad'
+		pkg.name === '@automattic/launchpad' ||
+		pkg.name === '@automattic/api-core'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {

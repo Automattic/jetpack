@@ -7,7 +7,7 @@ settings:
 overrides:
   esbuild-sass-plugin>sass: npm:sass-embedded@1.87.0
 
-pnpmfileChecksum: sha256-nPiFqaqhLj4UEJeog4PMfWORyCIF+eogQetpZ7oWhFk=
+pnpmfileChecksum: sha256-OjuMXsYOuLhsNBmjMK1VUiUw131I1z85W3P+nzQSVkM=
 
 patchedDependencies:
   '@wordpress/dataviews':
@@ -9829,12 +9829,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/dataviews@10.1.0':
-    resolution: {integrity: sha512-RYjPsO56xayphKgGLWa1KDrDDx9YFlRlwcJH2EVppFzsu657wK8z7FfLF0lwDsRdnhPQ2sW+db6LmQrnfmK3yQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-
   '@wordpress/dataviews@10.2.0':
     resolution: {integrity: sha512-Kwt5tB4SRkyWFVVqgGNraRajNm5lACObrzLV1f2A2343dQ88cgiS5iukI9qdhzy7CiGIHN7UrQaFbpDoTtOKAA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -17415,8 +17409,8 @@ snapshots:
   '@automattic/api-core@1.0.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/dataviews': 10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.26)(react@18.3.1)
-      '@wordpress/i18n': 5.26.0
+      '@wordpress/dataviews': 10.2.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.26)(react@18.3.1)
+      '@wordpress/i18n': 6.4.0
       he: 1.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -23703,53 +23697,6 @@ snapshots:
       redux: 5.0.1
       rememo: 4.0.2
       use-memo-one: 1.1.3(react@18.3.1)
-
-  '@wordpress/dataviews@10.1.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.26)(react@18.3.1)':
-    dependencies:
-      '@ariakit/react': 0.4.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/base-styles': 6.10.0
-      '@wordpress/components': 30.7.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 7.34.0(react@18.3.1)
-      '@wordpress/data': 10.34.0(react@18.3.1)
-      '@wordpress/element': 6.34.0
-      '@wordpress/i18n': 6.7.0
-      '@wordpress/icons': 11.1.0(react@18.3.1)
-      '@wordpress/keycodes': 4.34.0
-      '@wordpress/primitives': 4.34.0(react@18.3.1)
-      '@wordpress/private-apis': 1.34.0
-      '@wordpress/url': 4.34.0
-      '@wordpress/warning': 3.34.0
-      clsx: 2.1.1
-      react: 18.3.1
-      remove-accents: 0.5.0
-    optionalDependencies:
-      '@emotion/cache': 11.14.0
-      '@emotion/css': 11.13.5
-      '@emotion/react': 11.14.0(@types/react@18.3.26)(react@18.3.1)
-      '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@18.3.26)(react@18.3.1))(@types/react@18.3.26)(react@18.3.1)
-      '@emotion/utils': 1.4.2
-      '@floating-ui/react-dom': 2.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@use-gesture/react': 10.3.1(react@18.3.1)
-      '@wordpress/date': 5.34.0
-      '@wordpress/hooks': 4.34.0
-      change-case: 4.1.2
-      colord: 2.9.3
-      date-fns: 4.1.0
-      deepmerge: 4.3.1
-      fast-deep-equal: 3.1.3
-      framer-motion: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      highlight-words-core: 1.2.3
-      is-plain-object: 5.0.0
-      memize: 2.1.1
-      react-colorful: 5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-day-picker: 9.11.1(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
-      use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - supports-color
 
   '@wordpress/dataviews@10.2.0(patch_hash=9971bdb899e2fb0a4421ab8b7f0a54a41f03b10ef1b51d72946e94f4279e05c1)(@types/react@18.3.26)(react@18.3.1)':
     dependencies:
