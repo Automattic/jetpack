@@ -144,9 +144,6 @@ abstract class Code_Block {
 	 */
 	public static function override_block_style() {
 		$was_enqueued = wp_style_is( 'wp-block-code', 'enqueued' );
-		// What do do about these extras?
-		// extra['rtl'] === 'replace'
-		// extra['path'] === '…path…'
 		wp_deregister_style( 'wp-block-code' );
 
 		$style_asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-blocks-code-style/wpcom-blocks-code-style.asset.php';
