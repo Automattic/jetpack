@@ -42,7 +42,7 @@ const IntegrationsModal = ( {
 		<Modal
 			title={ __( 'Manage integrations', 'jetpack-forms' ) }
 			onRequestClose={ onClose }
-			style={ { width: '700px' } }
+			size="large"
 			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
