@@ -12,9 +12,9 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
 import * as React from 'react';
-import blockJson from '../common/block.json';
 import {
 	type Attributes,
 	BLOCK_NAME,
@@ -31,33 +31,12 @@ const {
 	__experimentalGetElementClassName,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
-const { registerBlockType, registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
+const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const LINE_NUMBER_START_MIN = 0;
 const LINE_NUMBER_START_MAX = 10_000;
 
 type Props = EditBlockProps | SaveBlockProps;
-
-const exampleBlock = {
-	attributes: {
-		code: `// ✨ Code is poetry. ✨
-/**
- * Find the nth fibonacci number (inefficiently)
- */
-const fibonacci = ( n ) => n < 1 ? 0
-  : n > 3 ? 1
-  : fibonacci( n - 1 ) + fibonacci( n - 2 );`,
-		language: 'JavaScript',
-		languageConfidence: 'certain',
-		filename: 'example.js',
-	} satisfies Partial< Attributes >,
-};
-
-const icon = (
-	<svg width="24" height="24">
-		<path d="m8.53 7.531-4.293 4.277a.25.25 0 0 0 0 .353l4.294 4.31-1.062 1.058-4.294-4.31a1.75 1.75 0 0 1-.116-2.342l.12-.132L7.47 6.47 8.529 7.53ZM18.53 5.53l-1.292 1.292a.25.25 0 0 0 .001.354l3.582 3.57.12.131a1.75 1.75 0 0 1-.116 2.343l-4.294 4.31-1.062-1.06 4.294-4.309a.25.25 0 0 0 .031-.314l-.031-.04-3.582-3.569a1.75 1.75 0 0 1-.003-2.476L17.47 4.47l1.06 1.06Z" />
-	</svg>
-);
 
 const emptyLanguageOption = {
 	key: '',
@@ -89,130 +68,181 @@ const selectLanguageOptions: ReadonlyArray< {
 	label: name,
 } ) );
 
-registerBlockType( blockJson, {
-	icon,
-	example: exampleBlock,
-	transforms,
-	edit: withColors(
-		...( [
-			'colorComment',
-			'colorKeyword',
-			'colorBoolean',
-			'colorLiteral',
-			'colorString',
-			'colorSpecialString',
-			'colorMacroName',
-			'colorVariableDefinition',
-			'colorTypeName',
-			'colorClassName',
-			'colorInvalid',
-		] satisfies ReadonlyArray< `${ keyof Pick<
-			Attributes,
-			Extract< keyof Attributes, `color${ Capitalize< string > }` >
-		> }` > )
-	)( ( props: EditBlockProps ) => {
-		const { setAttributes, attributes } = props;
+/**
+ * Filter to enhance the core code block.
+ *
+ * @param settings - Block settings
+ * @return Modified settings.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- No good interface available for this type now.
+function filterBlockRegistration( settings: any ) {
+	/*
+	 * The enhanced code block includes a "from" transform that handles things like language
+	 * name, line number settings, etc. Remove the "to" transform provided by syntaxhighlighter/code
+	 * so that simpler transform is not applied.
+	 */
+	if ( settings.name === 'syntaxhighlighter/code' ) {
+		if ( settings.transforms?.to ) {
+			settings.transforms.to = settings.transforms.to.filter(
+				( transform: { type: string; blocks?: unknown } ) =>
+					! (
+						transform.type === 'block' &&
+						Array.isArray( transform.blocks ) &&
+						transform.blocks.length === 1 &&
+						transform.blocks[ 0 ] === 'core/code'
+					)
+			);
+		}
+		return settings;
+	}
+	if ( settings.name !== 'core/code' ) {
+		return settings;
+	}
 
-		return (
-			<>
-				<InspectorControls group="color">
-					<ColorTools { ...props } />
-				</InspectorControls>
-				<InspectorControls>
-					<PanelBody title="Code Settings">
-						<SelectControl
-							label={ __( 'Language', 'jetpack-mu-wpcom' ) }
-							value={ attributes.language }
-							options={ selectLanguageOptions }
-							onChange={ ( newLanguage: string ) => {
-								setAttributes( {
-									language: newLanguage,
-									languageConfidence: 'certain',
-								} );
-							} }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showLanguageName }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showLanguageName: next,
-								} )
+	settings.edit = blockEdit;
+	settings.save = blockSave;
+	if ( settings.example?.content ) {
+		settings.example.language = 'JavaScript';
+		settings.example.languageConfidence = 'certain';
+		settings.example.filename = 'example.js';
+	}
+
+	if ( ! settings.transforms ) {
+		settings.transforms = { from: transforms.from };
+	} else if ( ! settings.transforms.from ) {
+		settings.transforms.from = transforms.from;
+	} else {
+		settings.transforms.from.push( ...transforms.from );
+	}
+
+	return settings;
+}
+
+const blockEdit = withColors(
+	...( [
+		'colorComment',
+		'colorKeyword',
+		'colorBoolean',
+		'colorLiteral',
+		'colorString',
+		'colorSpecialString',
+		'colorMacroName',
+		'colorVariableDefinition',
+		'colorTypeName',
+		'colorClassName',
+		'colorInvalid',
+	] satisfies ReadonlyArray< `${ keyof Pick<
+		Attributes,
+		Extract< keyof Attributes, `color${ Capitalize< string > }` >
+	> }` > )
+)( ( props: EditBlockProps ) => {
+	const { setAttributes, attributes } = props;
+
+	return (
+		<>
+			<InspectorControls group="color">
+				<ColorTools { ...props } />
+			</InspectorControls>
+			<InspectorControls>
+				<PanelBody title="Code Settings">
+					<SelectControl
+						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
+						value={ attributes.language }
+						options={ selectLanguageOptions }
+						onChange={ ( newLanguage: string ) => {
+							setAttributes( {
+								language: newLanguage,
+								languageConfidence: 'certain',
+							} );
+						} }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showLanguageName }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showLanguageName: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showCopyButton }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showCopyButton: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showLineNumbers }
+						onChange={ ( next: boolean ) =>
+							setAttributes( {
+								showLineNumbers: next,
+							} )
+						}
+						__nextHasNoMarginBottom
+					/>
+					<TextControl
+						label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
+						type="number"
+						value={ attributes.lineNumbersStartAt }
+						disabled={ ! attributes.showLineNumbers }
+						onChange={ ( _nextLineNumbersStartAt: string ) => {
+							let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
+
+							if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
+								nextLineNumbersStartAt = 1;
 							}
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showCopyButton }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showCopyButton: next,
-								} )
+							if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
+								nextLineNumbersStartAt = 1;
 							}
-							__nextHasNoMarginBottom
-						/>
-						<ToggleControl
-							label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
-							checked={ attributes.showLineNumbers }
-							onChange={ ( next: boolean ) =>
-								setAttributes( {
-									showLineNumbers: next,
-								} )
-							}
-							__nextHasNoMarginBottom
-						/>
-						<TextControl
-							label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
-							type="number"
-							value={ attributes.lineNumbersStartAt }
-							disabled={ ! attributes.showLineNumbers }
-							onChange={ ( _nextLineNumbersStartAt: string ) => {
-								let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
 
-								if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
-									nextLineNumbersStartAt = 1;
-								}
-								if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
-									nextLineNumbersStartAt = 1;
-								}
+							// Clamp to the allowed range
+							nextLineNumbersStartAt = Math.max(
+								LINE_NUMBER_START_MIN,
+								Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
+							);
 
-								// Clamp to the allowed range
-								nextLineNumbersStartAt = Math.max(
-									LINE_NUMBER_START_MIN,
-									Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
-								);
-
-								setAttributes( {
-									lineNumbersStartAt: nextLineNumbersStartAt,
-								} );
-							} }
-							min={ LINE_NUMBER_START_MIN }
-							max={ LINE_NUMBER_START_MAX }
-							__next40pxDefaultSize
-							__nextHasNoMarginBottom
-						/>
-					</PanelBody>
-				</InspectorControls>
-				<React.Suspense fallback={ <Loading { ...props } /> }>
-					<Chrome { ...props }>
-						<EditCodeMirror { ...props } />
-						<Notice status="warning" isDismissible={ false }>
-							<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content
-							may break.
-						</Notice>
-					</Chrome>
-				</React.Suspense>
-			</>
-		);
-	} ),
-
-	save: ( props: SaveBlockProps ) => {
-		const { code } = props.attributes;
-		return <CodeWrapper { ...props }>{ htmlEncode( code ) }</CodeWrapper>;
-	},
+							setAttributes( {
+								lineNumbersStartAt: nextLineNumbersStartAt,
+							} );
+						} }
+						min={ LINE_NUMBER_START_MIN }
+						max={ LINE_NUMBER_START_MAX }
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<React.Suspense fallback={ <Loading { ...props } /> }>
+				<Chrome { ...props }>
+					<EditCodeMirror { ...props } />
+					<Notice status="warning" isDismissible={ false }>
+						<b>Caution!</b> This block is experimental and <em>will</em> change. Existing content
+						may break.
+					</Notice>
+				</Chrome>
+			</React.Suspense>
+		</>
+	);
 } );
+
+const blockSave = ( props: SaveBlockProps ) => {
+	const {
+		content: { text: code },
+	} = props.attributes;
+	return (
+		<CodeWrapper wrapperProps={ useBlockProps.save() } { ...props }>
+			{ htmlEncode( code ) }
+		</CodeWrapper>
+	);
+};
 
 registerBlockStyle( BLOCK_NAME, {
 	name: 'no-highlight',
@@ -370,7 +400,7 @@ const DisplayLanguage = ( props: Props ) => {
  * @return Loading state UI.
  */
 function Loading( props: EditBlockProps ): React.JSX.Element {
-	let code = props.attributes.code;
+	let code = props.attributes.content.text;
 	if ( ! code ) {
 		code = __( 'Loading…', 'jetpack-mu-wpcom' );
 	}
@@ -388,34 +418,26 @@ function Loading( props: EditBlockProps ): React.JSX.Element {
 /**
  * This function wraps the code content when it is not managed by CodeMirror.
  *
- * @param props            - Component props.
- * @param props.attributes -- Block attributes.
- * @param props.children   -- Component children, the contents of the block.
+ * @param props              - Component props.
+ * @param props.children     - Component children, the contents of the block.
+ * @param props.wrapperProps - Props to pass to the PRE container element.
  *
  * @return UI.
  */
 function CodeWrapper( {
-	attributes: { language },
 	children: code,
+	wrapperProps,
 }: {
 	children: string;
-	attributes: Pick< EditBlockProps[ 'attributes' ], 'language' >;
+	wrapperProps?: React.HTMLAttributes< HTMLPreElement >;
 } ): React.JSX.Element {
 	if ( code.endsWith( '\n' ) ) {
 		code += '\n';
 	}
 
 	return (
-		<pre className="cm-content">
-			<code
-				className={
-					language
-						? `language-${ language.toLowerCase().replaceAll( /[ \t\n\r\f]/g, '_' ) }`
-						: undefined
-				}
-			>
-				{ code }
-			</code>
+		<pre { ...wrapperProps }>
+			<code>{ code }</code>
 		</pre>
 	);
 }
@@ -520,3 +542,5 @@ const EditCodeMirror = React.lazy(
 	// eslint-disable-next-line import/no-unresolved -- The feature registers this module for import.
 	() => import( /* webpackIgnore: true */ '@a8cCodeBlock/block-edit-function' )
 );
+
+addFilter( 'blocks.registerBlockType', 'jetpack/enhance-core-code-block', filterBlockRegistration );

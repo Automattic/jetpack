@@ -1,4 +1,15 @@
-.wp-block-a8c-code {
+/*
+ * Add base monospace styling.
+ *
+ * In the frontend this is be handled by the user agent styles
+ * because a PRE element is used.
+ * The editor does not use PRE, so a base style is provided.
+ */
+:root :where(.wp-block-code) {
+	font-family: monospace;
+}
+
+.wp-block-code {
 
 	/* A notice is used to warn of experimental status. */
 	.components-notice {
@@ -33,6 +44,32 @@
 			color: hsl(from currentColor h s l / 0.6);
 		}
 	}
+
+	/* Override CodeMirror's font family to respect theme and editor settings. */
+	.cm-scroller {
+		font-family: inherit;
+	}
+
+	.cm-gutters {
+		color: oklch(from currentColor l c h / 0.6);
+		background-color: transparent;
+		border: none;
+	}
+
+	.cm-gutterElement {
+		backdrop-filter: blur(1em);
+	}
+}
+
+.a8c\/code__header {
+	padding: 0 12px;
+}
+
+.a8c\/code__btn-copy {
+	text-transform: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+	font-size: inherit;
 }
 
 .a8c\/code__filename.components-base-control {
@@ -47,6 +84,3 @@
 		color: inherit;
 	}
 }
-
-/* vi: ts=2 sw=2 noet
- */
