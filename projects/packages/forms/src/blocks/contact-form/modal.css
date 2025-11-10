@@ -1,0 +1,50 @@
+body.jetpack-contact-form-modal-open {
+	overflow: hidden;
+}
+
+.jetpack-contact-form-modal {
+	visibility: hidden;
+	position: fixed;
+	z-index: 50000; /* Same as WP.com Action bar */
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: transparent;
+	transition: all 0.4s;
+}
+
+.jetpack-contact-form-modal.open {
+	background-color: rgba(0, 0, 0, 0.3);
+	visibility: visible;
+}
+
+.jetpack-contact-form-modal__modal-content {
+	position: relative;
+	visibility: hidden;
+	overflow: hidden;
+	top: 100%;
+	background-color: #fefefe;
+	margin: 15% auto;
+	width: 100%;
+	max-width: 600px;
+	border-radius: 10px;
+	box-sizing: border-box;
+	transition: all 0.4s;
+	text-wrap: balance;
+	padding: 32px;
+}
+
+.jetpack-contact-form-modal.open .jetpack-contact-form-modal__modal-content {
+	top: 0;
+	visibility: visible;
+}
+
+@media screen and (max-width: 640px) {
+
+	.jetpack-contact-form-modal__modal-content {
+		width: 94%;
+	}
+}
+

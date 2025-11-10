@@ -653,6 +653,13 @@ class Contact_Form_Block {
 	private static $form_step_count = 1;
 
 	/**
+	 * Static storage for modal form HTML.
+	 *
+	 * @var string
+	 */
+	private static $modal_form_html = '';
+
+	/**
 	 * Hook into pre_render_block to count form steps before inner blocks render.
 	 *
 	 * @param string|null $pre_render   The pre-rendered content. Default null.
@@ -703,6 +710,25 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Check if form should render in modal mode.
+	 *
+	 * @param array $atts Block attributes.
+	 * @return bool
+	 */
+	private static function should_render_in_modal( $atts ) {
+		/**
+		 * Filter to enable modal mode for contact form blocks.
+		 * For testing purposes, return true to enable modal mode.
+		 *
+		 * @since 0.49.0
+		 *
+		 * @param bool  $should_render_in_modal Whether to render form in modal.
+		 * @param array $atts                   Block attributes.
+		 */
+		return apply_filters( 'jetpack_contact_form_render_in_modal', false, $atts );
+	}
+
+	/**
 	 * Render the gutenblock form.
 	 *
 	 * @param array  $atts - the block attributes.
@@ -727,7 +753,28 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		$form_html = Contact_Form::parse( $atts, do_blocks( $content ) );
+
+		// Check if form should render in modal mode.
+		if ( self::should_render_in_modal( $atts ) ) {
+			// Store form HTML for footer output.
+			self::$modal_form_html = $form_html;
+			// Enqueue modal CSS.
+			wp_enqueue_style(
+				'jetpack-contact-form-modal',
+				plugins_url( 'modal.css', __FILE__ ),
+				array(),
+				\JETPACK__VERSION
+			);
+			// Hook into wp_footer to output modal (only once).
+			if ( ! has_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) ) ) {
+				add_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) );
+			}
+			// Return empty string - form will be rendered in footer.
+			return '';
+		}
+
+		return $form_html;
 	}
 
 	/**
@@ -806,6 +853,24 @@ class Contact_Form_Block {
 		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
 		$paths[] = array( '/wp/v2/feedback/config?_locale=user', 'GET' );
 		return $paths;
+	}
+
+	/**
+	 * Adds modal HTML to footer.
+	 *
+	 * @return void
+	 */
+	public static function add_modal_to_footer() {
+		if ( empty( self::$modal_form_html ) ) {
+			return;
+		}
+		?>
+		<div class="jetpack-contact-form-modal">
+			<div class="jetpack-contact-form-modal__modal-content">
+				<?php echo self::$modal_form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
