@@ -170,7 +170,7 @@ function fetch_option_from_wpcom( $option ) {
 	}
 	$options = $jetpack->get_cloud_site_options( array( $option ) );
 
-	return $options[ $option ];
+	return $options[ $option ] ?? false;
 }
 
 /**
