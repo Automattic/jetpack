@@ -23,7 +23,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 	 * with the tokenized HTML inserted. The HTML structure and replacement
 	 * contents are checked to ensure safety.
 	 *
-	 * @param string      $html The tokenized code data.
+	 * @param string      $html The HTML string containing the code block.
 	 * @param array       $tokenized_code_data The tokenized code data.
 	 * @param string|null $language_name The language name, if any.
 	 * @return null|array{0: string, 1: string} Null on failure, or array with original code string
