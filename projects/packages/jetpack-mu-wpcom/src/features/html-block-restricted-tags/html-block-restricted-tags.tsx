@@ -91,14 +91,15 @@ const htmlBlockRestrictedTags = createHigherOrderComponent( BlockEdit => {
 		const hasRestrictedTags = restrictedTags.length > 0;
 
 		const { id: blockId } = useBlockProps();
-		const blockElement = document.getElementById( blockId );
+		const editor = window[ 'editor-canvas' ] ? window[ 'editor-canvas' ].document : document;
+		const blockElement = editor.getElementById( blockId );
 
 		let noticeContainer = null;
 		if ( blockElement ) {
 			noticeContainer = blockElement.querySelector( '.wpcom-html-block-restricted-tags-notice' );
 
 			if ( ! noticeContainer ) {
-				noticeContainer = document.createElement( 'div' );
+				noticeContainer = editor.createElement( 'div' );
 				noticeContainer.classList.add( 'wpcom-html-block-restricted-tags-notice' );
 				noticeContainer.style.marginBottom = '8px';
 				blockElement.prepend( noticeContainer );
