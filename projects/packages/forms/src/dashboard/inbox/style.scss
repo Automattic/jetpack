@@ -459,7 +459,10 @@
 		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
+}
 
+.jp-forms__inbox__dataviews-response,
+.jp-forms__inbox__response-mobile {
 	.components-tip {
 		align-items: anchor-center;
 		border-top: 1px solid var(--jp-forms-border-color);
