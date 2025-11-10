@@ -29,6 +29,12 @@
 	gap: 32px;
 	align-items: center;
 	justify-content: space-between;
+
+	@media (max-width: 782px) {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 20px;
+	}
 }
 
 .jp-forms__export-modal-card-body-description {
@@ -40,6 +46,10 @@
 	letter-spacing: -0.02em;
 	color: #000;
 	max-width: 60%;
+
+	@media (max-width: 782px) {
+		max-width: 100%;
+	}
 }
 
 .jp-forms__export-modal-card-body-description a {
@@ -48,6 +58,10 @@
 
 .jp-forms__export-modal-card-body-cta {
 	align-self: flex-end;
+
+	@media (max-width: 782px) {
+		align-self: flex-start;
+	}
 
 	a.export-gdrive {
 		display: flex;
