@@ -57,15 +57,15 @@ const Layout = () => {
 		</>
 	) : (
 		<>
-			{ isResponsesTrashView && <EmptyTrashButton /> }
-			{ isResponsesSpamView && <EmptySpamButton /> }
 			{ ! isResponsesTrashView && ! isResponsesSpamView && (
 				<>
 					{ enableIntegrationsTab && <IntegrationsButton /> }
 					<CreateFormButton label={ __( 'Create form', 'jetpack-forms' ) } />
 				</>
 			) }
-			<ExportResponsesButton />
+			<ExportResponsesButton isPrimary={ ! isResponsesTrashView && ! isResponsesSpamView } />
+			{ isResponsesTrashView && <EmptyTrashButton /> }
+			{ isResponsesSpamView && <EmptySpamButton /> }
 		</>
 	);
 
