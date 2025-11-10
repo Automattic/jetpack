@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Improve the invalid_jwt error message that we show to the user. 

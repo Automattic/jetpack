@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: CI: Use locking to avoid multiple instances of Jetpack_Sync_Themes_Test from interfering with each other.
-
-

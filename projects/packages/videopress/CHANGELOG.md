@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.13] - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+- Update package dependencies. [#45756]
+
 ## [0.32.12] - 2025-11-03
 ### Changed
 - Update package dependencies. [#45652]
@@ -1768,6 +1774,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.32.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.12...v0.32.13
 [0.32.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.11...v0.32.12
 [0.32.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.10...v0.32.11
 [0.32.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.9...v0.32.10

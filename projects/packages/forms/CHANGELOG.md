@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.16.0] - 2025-11-10
+### Added
+- Form: add up and down and esc keyboard navigation to view responses quickly [#45811]
+- Forms: add dev docs [#44841]
+- Forms: Add email as secondary information on dashboard [#45802]
+- Forms: add integrations to dashboard mobile menu. [#45744]
+- Forms: add subtitle to dashboard page [#45773]
+
+### Changed
+- Forms: add browser info to the form response email notification. [#45710]
+- Forms: add IP lookup link to IP address in form notification email footer. [#45762]
+- Forms: adjust dataviews paddings for consistent spacing with the header [#45824]
+- Forms: change integrations modal width. [#45855]
+- Forms: default multistep forms to single step view in the editor and prevent viewport jumping during step navigation. [#45693]
+- Forms: disable export button if no form entries. [#45777]
+- Forms: let there be only 1 primary header CTA and make it to the right [#45849]
+- Forms: modernize responses header with tabs, compact number formatting, and improved mobile layout. [#45748]
+- Forms: Move integrations from tab to button and display in modal [#45717]
+- Forms: remove un-used CSS from forms dashboard [#45853]
+- Forms: update arrows to be up and down vs left and right. [#45812]
+- Forms: Update dataview actions [#45670]
+- Reduced logo size to 20px for better visual balance in the dashboard header [#45790]
+- Updated dashboard styling for visual consistency - improved header, buttons, tabs, and color variables [#45783]
+- Update package dependencies. [#45735]
+- Update package dependencies. [#45737]
+- Update package dependencies. [#45756]
+
+### Fixed
+- Form: fix export modal styling. [#45852]
+- Forms: Add gravatar everywhere to improve consistency [#45823]
+- Forms: animated and outlined styles need maintenance [#45743]
+- Forms: apply tip-styles on mobile responses as well [#45846]
+- Forms: dashboard fix visible sidebar when multiple items are selected [#45806]
+- Forms: fix a bug where we were not showing duplicate form field values [#45809]
+- Forms: Fix author name on feedback endpoint [#45832]
+- Forms: Fix duplicated email on dashboard [#45821]
+- Forms: Fix hidden unread dot [#45856]
+- Forms: fix horizontal scroll on mobile [#45788]
+- Forms: fix integrations modal flash. [#45775]
+- Forms: fix last page invalidation error when items are removed [#45740]
+- Forms: Fix mobile response view modal spacing [#45778]
+- Forms: fix phone field extra controls option to append to shared field controls [#45764]
+- Forms: Improve the invalid_jwt error message that we show to the user. [#45781]
+- Forms: revert recently added css overscroll-behavior [#45808]
+- Forms: single input forms don't show general errors, move general form error into field error when necessary [#45796]
+
 ## [6.15.0] - 2025-11-04
 ### Changed
 - Change field's attribute width to enum to support both integers and string. [#45741]
@@ -1804,6 +1850,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.16.0]: https://github.com/automattic/jetpack-forms/compare/v6.15.0...v6.16.0
 [6.15.0]: https://github.com/automattic/jetpack-forms/compare/v6.14.0...v6.15.0
 [6.14.0]: https://github.com/automattic/jetpack-forms/compare/v6.13.0...v6.14.0
 [6.13.0]: https://github.com/automattic/jetpack-forms/compare/v6.12.0...v6.13.0

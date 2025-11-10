@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix a bug where we were not showing duplicate form field values
