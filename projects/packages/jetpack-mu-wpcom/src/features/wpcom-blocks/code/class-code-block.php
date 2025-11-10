@@ -349,7 +349,7 @@ abstract class Code_Block {
 	 * @param string $content The block content.
 	 */
 	public static function render_block( array $attributes, string $content ): string {
-		if ( ! \is_array( $attributes['tokenizedLines'] ?? null ) ) {
+		if ( empty( $attributes['tokenizedLines'] ) || ! \is_array( $attributes['tokenizedLines'] ) ) {
 			return $content;
 		}
 
