@@ -1100,6 +1100,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	left: 0;
 }
 
+.contact-form .grunion-field-wrap:not(.is-style-plain) input.radio:checked::after {
+	display: none; /* Prevent themes style from being added to the radio button as well */
+}
+
 .contact-form .grunion-field-wrap.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .contact-form-field,
 .contact-form .grunion-field-wrap.grunion-field-radio-wrap.is-style-button-wrap .contact-form-field {
 	display: inline-flex;
