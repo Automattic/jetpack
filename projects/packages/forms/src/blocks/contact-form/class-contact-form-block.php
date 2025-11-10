@@ -654,10 +654,18 @@ class Contact_Form_Block {
 
 	/**
 	 * Static storage for modal form HTML.
+	 * Array of form HTML indexed by unique form ID.
 	 *
-	 * @var string
+	 * @var array
 	 */
-	private static $modal_form_html = '';
+	private static $modal_forms = array();
+
+	/**
+	 * Flag to track if modal CSS has been enqueued.
+	 *
+	 * @var bool
+	 */
+	private static $modal_css_enqueued = false;
 
 	/**
 	 * Hook into pre_render_block to count form steps before inner blocks render.
@@ -757,15 +765,20 @@ class Contact_Form_Block {
 
 		// Check if form should render in modal mode.
 		if ( self::should_render_in_modal( $atts ) ) {
-			// Store form HTML for footer output.
-			self::$modal_form_html = $form_html;
-			// Enqueue modal CSS.
-			wp_enqueue_style(
-				'jetpack-contact-form-modal',
-				plugins_url( 'modal.css', __FILE__ ),
-				array(),
-				\JETPACK__VERSION
-			);
+			// Generate unique ID for this form.
+			$form_id = uniqid( 'jetpack-contact-form-modal-', true );
+			// Store form HTML for footer output with unique ID.
+			self::$modal_forms[ $form_id ] = $form_html;
+			// Enqueue modal CSS only once.
+			if ( ! self::$modal_css_enqueued ) {
+				wp_enqueue_style(
+					'jetpack-contact-form-modal',
+					plugins_url( 'modal.css', __FILE__ ),
+					array(),
+					\JETPACK__VERSION
+				);
+				self::$modal_css_enqueued = true;
+			}
 			// Hook into wp_footer to output modal (only once).
 			if ( ! has_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) ) ) {
 				add_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) );
@@ -861,16 +874,18 @@ class Contact_Form_Block {
 	 * @return void
 	 */
 	public static function add_modal_to_footer() {
-		if ( empty( self::$modal_form_html ) ) {
+		if ( empty( self::$modal_forms ) ) {
 			return;
 		}
-		?>
-		<div class="jetpack-contact-form-modal">
-			<div class="jetpack-contact-form-modal__modal-content">
-				<?php echo self::$modal_form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		foreach ( self::$modal_forms as $form_id => $form_html ) {
+			?>
+			<div class="jetpack-contact-form-modal" data-form-id="<?php echo esc_attr( $form_id ); ?>">
+				<div class="jetpack-contact-form-modal__modal-content">
+					<?php echo $form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				</div>
 			</div>
-		</div>
-		<?php
+			<?php
+		}
 	}
 
 	/**
