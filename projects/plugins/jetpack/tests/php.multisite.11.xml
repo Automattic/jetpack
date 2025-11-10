@@ -136,4 +136,6 @@
 			<directory suffix=".php">../views</directory>
 		</include>
 	</source>
+	<coverage ignoreDeprecatedCodeUnits="true">
+	</coverage>
 </phpunit>
