@@ -461,15 +461,20 @@
 	}
 }
 
-.jp-forms__inbox__dataviews-response,
-.jp-forms__inbox__response-mobile {
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: balance;
+
 	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
 	.components-tip {
 		align-items: anchor-center;
-		border-top: 1px solid var(--jp-forms-border-color);
-		margin: 8px 0 56px 0;
-		padding: 16px;
-		text-wrap: pretty;
+	}
+
+	@media (min-width: 782px) {
+		padding: 16px 32px;
+		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -484,7 +489,6 @@
 		width: auto;
 	}
 }
-
 
 /*
  * We need to make the available canvas 100% tall. Without this,
