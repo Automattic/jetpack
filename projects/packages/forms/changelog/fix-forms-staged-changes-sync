@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: toggling read/unread currently leaves dirty records, fix depends on core store unstable mechanics
