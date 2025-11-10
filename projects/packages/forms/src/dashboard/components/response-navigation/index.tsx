@@ -20,40 +20,39 @@ const ResponseNavigation = ( {
 	onNext,
 	onPrevious,
 }: ResponseNavigationProps ): JSX.Element => {
+	const sharedProps = {
+		accessibleWhenDisabled: true,
+		iconSize: 24,
+		showTooltip: true,
+		size: 'compact',
+	};
+
 	return (
 		<div>
 			{ onPrevious && (
 				<Button
-					accessibleWhenDisabled={ true }
+					{ ...sharedProps }
 					disabled={ ! hasPrevious }
 					icon={ chevronUp }
 					label={ __( 'Previous', 'jetpack-forms' ) }
 					onClick={ onPrevious }
-					showTooltip={ true }
-					size="compact"
-					variant="tertiary"
 				></Button>
 			) }
 			{ onNext && (
 				<Button
-					accessibleWhenDisabled={ true }
+					{ ...sharedProps }
 					disabled={ ! hasNext }
 					icon={ chevronDown }
 					label={ __( 'Next', 'jetpack-forms' ) }
 					onClick={ onNext }
-					showTooltip={ true }
-					size="compact"
-					variant="tertiary"
 				></Button>
 			) }
 			{ onClose && (
 				<Button
+					{ ...sharedProps }
 					icon={ close }
 					label={ __( 'Close', 'jetpack-forms' ) }
 					onClick={ onClose }
-					showTooltip={ true }
-					size="compact"
-					variant="tertiary"
 				></Button>
 			) }
 		</div>

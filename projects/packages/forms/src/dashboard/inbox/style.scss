@@ -1,21 +1,8 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/colors";
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
-
-.jp-forms__inbox {
-	// visual aid for focus, currently only export button
-	.button-primary.export-button:focus {
-		box-shadow: var(--jp-forms-focus-shadow);
-	}
-
-	.components-dropdown-menu {
-
-		.components-menu-item__button {
-			font-size: var(--jp-forms-font-size-regular);
-		}
-	}
-}
 
 .jp-forms__inbox-response {
 	box-sizing: border-box;
@@ -23,7 +10,7 @@
 	flex-direction: column;
 	min-height: 300px;
 	overflow: hidden;
-	background-color: #fff;
+	background-color: colors.$white;
 	position: relative;
 }
 
@@ -109,7 +96,6 @@
 
 .jp-forms__inbox-response-email {
 	align-items: center;
-	color: #646970;
 	display: flex;
 	flex-shrink: 0;
 	gap: 4px;

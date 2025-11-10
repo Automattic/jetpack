@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: use core WP colors for basic primitive components such as buttons at Forms dashboard.
