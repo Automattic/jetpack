@@ -2,6 +2,8 @@
 
 set -eo pipefail
 
+export PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL=true
+
 # To run the PHP tests in parallel, we need to create custom configs for each.
 for test in lfs multi; do
 	P="${WP_TESTS_CONFIG_FILE_PATH%.php}.$test.php"

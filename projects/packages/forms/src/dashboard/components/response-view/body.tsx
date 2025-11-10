@@ -536,21 +536,25 @@ const ResponseViewBody = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				</div>
 			) }
 			{ response.status === 'trash' && (
-				<Tip>
-					{ sprintf(
-						/* translators: %d number of days. */
-						_n(
-							'Items in trash are permanently deleted after %d day.',
-							'Items in trash are permanently deleted after %d days.',
-							emptyTrashDays,
-							'jetpack-forms'
-						),
-						emptyTrashDays
-					) }
-				</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
 			) }
 		</>
 	);

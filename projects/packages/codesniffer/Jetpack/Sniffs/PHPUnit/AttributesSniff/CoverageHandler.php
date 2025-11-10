@@ -80,7 +80,7 @@ class CoverageHandler extends Handler {
 			case CoversFunction::class:
 			case UsesFunction::class:
 				$ret->type     = 'function';
-				$ret->function = $this->parseAttributeStringParameter( $phpcsFile, $data, 1, 'functionName' );
+				$ret->function = ltrim( (string) $this->parseAttributeStringParameter( $phpcsFile, $data, 1, 'functionName' ), '\\' );
 				break;
 
 			case CoversMethod::class:
@@ -146,7 +146,7 @@ class CoverageHandler extends Handler {
 				if ( $class === '' ) {
 					// Might be defaultClassed, but we'll munge that later.
 					$ret->type     = 'function';
-					$ret->function = $method;
+					$ret->function = ltrim( $method, '\\' );
 				} else {
 					$ret->type                       = 'method';
 					list( $ret->class, $ret->alias ) = $this->parseAnnotationClass( $phpcsFile, $data, $class );

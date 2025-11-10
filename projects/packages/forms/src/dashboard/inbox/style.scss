@@ -17,24 +17,6 @@
 	}
 }
 
-@keyframes jp-forms__slide-in {
-
-	from {
-		transform: translateY(150px);
-	}
-}
-
-@keyframes jp-forms__fade-in {
-
-	from {
-		opacity: 0;
-	}
-
-	35% {
-		opacity: 1;
-	}
-}
-
 .jp-forms__inbox-response {
 	box-sizing: border-box;
 	display: flex;
@@ -43,38 +25,6 @@
 	overflow: hidden;
 	background-color: #fff;
 	position: relative;
-
-	&.exit-active {
-		display: none;
-	}
-
-	@media (min-width: 1025px) {
-
-		&.enter,
-		&.enter-active {
-			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: none;
-			}
-		}
-
-		&.exit,
-		&.exit-active,
-		&.exit-done {
-			display: flex;
-			position: absolute;
-			top: 0 !important;
-			left: 0;
-			z-index: -1;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in 0.2s ease-out forwards reverse, jp-forms__fade-in 0.2s ease-in forwards reverse;
-				z-index: 1;
-			}
-		}
-	}
-
 }
 
 .jp-forms__inbox-response-header {
@@ -459,13 +409,22 @@
 		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
+}
 
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: balance;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
 	.components-tip {
 		align-items: anchor-center;
-		border-top: 1px solid var(--jp-forms-border-color);
-		margin: 8px 0 56px 0;
-		padding: 16px;
-		text-wrap: pretty;
+	}
+
+	@media (min-width: 782px) {
+		padding: 16px 32px;
+		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -480,7 +439,6 @@
 		width: auto;
 	}
 }
-
 
 /*
  * We need to make the available canvas 100% tall. Without this,

@@ -76,6 +76,7 @@
 		"@wordpress/plugins": "7.31.0",
 		"@wordpress/primitives": "4.31.0",
 		"@wordpress/private-apis": "^1.8.1",
+		"@wordpress/rich-text": "7.31.0",
 		"@wordpress/router": "^1.8.11",
 		"@wordpress/url": "4.31.0",
 		"canvas-confetti": "^1.9.4",
