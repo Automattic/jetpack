@@ -44,8 +44,12 @@ async function fixDeps( pkg ) {
 		pkg.name === '@automattic/launchpad'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
-				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
 			}
 		}
 	}
