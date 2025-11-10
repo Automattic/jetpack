@@ -810,13 +810,6 @@ function is_global_styles_on_personal_plan() {
 	$cached = wp_cache_get( $cache_key, $cache_group, false, $found );
 	$found  = apply_filters( 'wpcom_global_styles_experiment_cache', $found );
 	if ( true === $found ) {
-		/**
-		 * Filter to override for testing.
-		 *
-		 * @param bool $enabled
-		 * @param int $user_id
-		 * @param int $blog_id
-		 */
 		return (bool) $cached;
 	}
 
