@@ -92,7 +92,10 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 
 	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
 	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
-	const inputBackground = window.getComputedStyle( inputNode ).backgroundColor;
+
+	const inputElementBackground = window.getComputedStyle( inputNode ).backgroundColor;
+	const inputBackground =
+		inputElementBackground === 'rgba(0, 0, 0, 0)' ? '#FFF' : inputElementBackground;
 	const bodyTextColor = window.getComputedStyle( formRootNode ).color;
 	const invertedBodyTextColor = window.jetpackForms.getInverseReadableColor( bodyTextColor );
 	const {
