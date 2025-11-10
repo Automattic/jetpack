@@ -333,8 +333,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		$filtered = $this->filter_order_data( $order_object );
 
 		unset(
-			$filtered['date_modified'],
-			$filtered['date_updated_gmt']
+			$filtered['date_modified']
 		);
 
 		// md5 of the date-stripped order payload to detect no-change saves (ignores timestamp-only changes)
