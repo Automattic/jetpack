@@ -211,7 +211,7 @@ const ResponseViewBody = ( {
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
 
-	const { editEntityRecord } = useDispatch( 'core' );
+	const { editEntityRecord, saveEditedEntityRecord } = useDispatch( 'core' );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 
@@ -376,10 +376,13 @@ const ResponseViewBody = ( {
 		}
 
 		// Then update on server
-		apiFetch( {
-			path: `/wp/v2/feedback/${ response.id }/read`,
-			method: 'POST',
-			data: { is_unread: false },
+		saveEditedEntityRecord( 'postType', 'feedback', response.id, {
+			__unstableFetch: () =>
+				apiFetch( {
+					path: `/wp/v2/feedback/${ response.id }/read`,
+					method: 'POST',
+					data: { is_unread: false },
+				} ),
 		} )
 			.then( ( { count }: { count: number } ) => {
 				// Update menu counter with accurate count from server
@@ -407,6 +410,7 @@ const ResponseViewBody = ( {
 		invalidateCounts,
 		markRecordsAsInvalid,
 		currentQuery,
+		saveEditedEntityRecord,
 	] );
 
 	const handelImageLoaded = useCallback( () => {

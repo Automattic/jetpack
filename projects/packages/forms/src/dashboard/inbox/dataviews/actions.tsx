@@ -569,7 +569,7 @@ export const markAsReadAction: Action = {
 			multiple: items.length > 1,
 		} );
 
-		const { editEntityRecord } = registry.dispatch( coreStore );
+		const { editEntityRecord, saveEditedEntityRecord } = registry.dispatch( coreStore );
 		const { getEntityRecord } = registry.select( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { invalidateCounts, markRecordsAsInvalid } = registry.dispatch( dashboardStore );
@@ -592,12 +592,15 @@ export const markAsReadAction: Action = {
 				}
 
 				// Update on server
-				return apiFetch( {
-					path: `/wp/v2/feedback/${ id }/read`,
-					method: 'POST',
-					data: { is_unread: false },
+				return saveEditedEntityRecord( 'postType', 'feedback', id, {
+					__unstableFetch: () =>
+						apiFetch( {
+							path: `/wp/v2/feedback/${ id }/read`,
+							method: 'POST',
+							data: { is_unread: false },
+						} ),
 				} )
-					.then( ( { count } ) => {
+					.then( ( { count }: { count: number } ) => {
 						// Update menu counter with accurate count from server.
 						updateMenuCounter( count );
 					} )

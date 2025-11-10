@@ -35,6 +35,12 @@ export type Registry = {
 			name: string,
 			record: Record< string, unknown >
 		) => Promise< void >;
+		saveEditedEntityRecord: (
+			kind: string,
+			name: string,
+			recordId: number,
+			options?: { __unstableFetch?: () => Promise< void > }
+		) => Promise< { id: string; count: number } >;
 		deleteEntityRecord: (
 			kind: string,
 			name: string,
