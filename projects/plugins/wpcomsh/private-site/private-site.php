@@ -321,6 +321,10 @@ function register_additional_jetpack_xmlrpc_methods( $methods ) {
  * @return array|false
  */
 function get_closest_thumbnail_size_url( $args ) {
+	if ( ! isset( $args['url'] ) || ! isset( $args['width'] ) || ! isset( $args['height'] ) ) {
+		return false;
+	}
+
 	$id = attachment_url_to_postid( $args['url'] );
 	if ( ! $id ) {
 		return false;
