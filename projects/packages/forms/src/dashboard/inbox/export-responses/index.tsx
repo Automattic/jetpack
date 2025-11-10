@@ -13,7 +13,7 @@ import useInboxData from '../../hooks/use-inbox-data';
 
 import './style.scss';
 
-const ExportResponsesButton = () => {
+const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } ) => {
 	const {
 		showExportModal,
 		openModal,
@@ -34,7 +34,7 @@ const ExportResponsesButton = () => {
 		<>
 			<Button
 				size="compact"
-				variant="primary"
+				variant={ isPrimary ? 'primary' : 'secondary' }
 				icon={ download }
 				onClick={ openModal }
 				accessibleWhenDisabled
