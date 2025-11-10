@@ -302,7 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ setup, find_artifact, prepare_upgrade_test ]
     if: needs.find_artifact.outputs.any_plugins == 'true'
-    timeout-minutes: 15  # 2022-08-26: Successful runs seem to take about 6 minutes, but give some extra time for the downloads.
+    timeout-minutes: 15  # 2025-11-06: Successful runs seem to take about 3 minutes, but give some extra time for the downloads.
     strategy:
       fail-fast: false
       matrix:

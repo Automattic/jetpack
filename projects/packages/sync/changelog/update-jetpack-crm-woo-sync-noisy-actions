@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: prevent unnecessary sync actions running via Jetpack CRM's WooSync

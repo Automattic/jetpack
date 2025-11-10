@@ -98,7 +98,7 @@ class Feedback_Field {
 
 		$postfix = $count > 1 ? " ({$count})" : '';
 
-		if ( 'api' === $context ) {
+		if ( in_array( $context, array( 'api', 'csv' ), true ) ) {
 			if ( empty( $this->label ) ) {
 				return __( 'Field', 'jetpack-forms' ) . $postfix;
 			}

@@ -39,7 +39,6 @@ add_action( 'init', __NAMESPACE__ . '\register_blocks' );
  * @return string
  */
 function render_callback( $attributes ) {
-
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 	wp_localize_script(
 		'jetpack-block-' . sanitize_title_with_dashes( Blocks::get_block_feature( __DIR__ ) ),
@@ -52,7 +51,7 @@ function render_callback( $attributes ) {
 	$url          = empty( $attributes['url'] ) ? '' : map_gsuite_url( $attributes['url'] );
 	$aspect_ratio = empty( $attributes['aspectRatio'] ) ? '' : $attributes['aspectRatio'];
 
-	switch ( $attributes['variation'] ?? 'google-docs' ) {
+	switch ( str_replace( 'jetpack/', '', $attributes['variation'] ?? 'google-docs' ) ) {
 		case 'google-docs':
 		default:
 			$pattern = '/^http[s]?:\/\/((?:www\.)?docs\.google\.com(?:.*)?(?:document)\/[a-z0-9\/\?=_\-\.\,&%$#\@\!\+]*)\/preview/i';

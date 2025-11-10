@@ -428,19 +428,21 @@ const ResponseViewBody = ( {
 	}
 
 	const displayName = getDisplayName( response );
+	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
+	const gravatarEmail = response.author_email || response.ip;
+	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
 
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">
-						{ response.author_email && (
-							<Gravatar
-								email={ response.author_email }
-								displayName={ displayName }
-								key={ response.author_email }
-							/>
-						) }
+						<Gravatar
+							email={ gravatarEmail }
+							defaultImage={ defaultImage }
+							displayName={ displayName }
+							key={ gravatarEmail }
+						/>
 						<VStack spacing="0" className="jp-forms__inbox-response-header-title">
 							<h3 className="jp-forms__inbox-response-name">{ displayName }</h3>
 							{ response.author_email && displayName !== response.author_email && (

@@ -806,6 +806,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'submissionSuccess'       => $submission_success,
 			'submissionError'         => null,
 			'elementId'               => $element_id,
+			'isSingleInputForm'       => $is_single_input_form,
 		);
 
 		if ( $is_multistep ) {

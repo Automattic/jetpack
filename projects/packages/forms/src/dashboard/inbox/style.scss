@@ -97,18 +97,17 @@
 }
 
 .jp-forms__inbox__view-actions {
-	border-bottom: 1px solid var(--jp-forms-border-color);
-	padding-inline: 48px; // Match .admin-ui-page__header padding
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+	padding: 0 20px; // Match .admin-ui-page__header padding
 	overflow-x: auto;
 	width: 100%;
 	box-sizing: border-box;
 	display: flex;
 	container-type: inline-size;
 	flex-shrink: 0;
-
-	@media (max-width: 782px) {
-		padding-inline: 24px; // Match mobile padding
-	}
+	position: sticky;
+	left: 0;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 	// On small stacks, switch to column stacking
 	flex-direction: row;
@@ -142,23 +141,12 @@
 		&:hover:not([data-active="true"]) {
 			color: var(--wpds-color-fg-interactive-neutral-active);
 		}
-
-		.jp-forms__inbox-status-count {
-			padding: 2px 6px;
-			margin-left: 4px;
-			background-color: var(--jp-gray-5);
-			border-radius: 2px;
-		}
 	}
 }
 
 .jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: 48px; // Match header padding
+	padding-inline: 20px; // Match header padding
 	padding-block: 12px;
-
-	@media (max-width: 782px) {
-		padding-inline: 24px;
-	}
 }
 
 .jp-forms__inbox-response-name {
@@ -371,6 +359,9 @@
 		position: fixed;
 		bottom: 0;
 
+		// Match .admin-ui-page__header padding
+		padding-inline: 20px;
+
 		// Compensation for the width of the sidebar
 		// Set left position when auto-fold is not on the body element.
 		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
@@ -388,10 +379,28 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
+		overflow: hidden;
 
 		&--mobile {
 			text-decoration: underline;
 		}
+	}
+
+	.jp-forms__inbox__author-info-container {
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jp-forms__inbox__author-info,
+	.jp-forms__inbox__author-field__email {
+		text-overflow: ellipsis;
+		overflow: hidden;
+	}
+
+	.jp-forms__inbox__author-field__email {
+		font-size: 11px;
+		filter: opacity(0.8);
 	}
 
 	.jp-forms__inbox__unread-indicator {
@@ -465,6 +474,10 @@
 	.jp-forms__inbox__response-mobile__header-heading {
 		font-size: 1.2rem;
 		font-weight: 600;
+	}
+
+	.jp-forms__inbox__response-mobile__header-actions {
+		width: auto;
 	}
 }
 
