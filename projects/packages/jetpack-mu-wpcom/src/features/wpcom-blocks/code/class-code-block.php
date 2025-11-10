@@ -209,7 +209,7 @@ abstract class Code_Block {
 		 * Line height and letter spacing may be problematic for rendering in the editor,
 		 * line numbers, etc. Disable them.
 		 *
-		 * Text decoration is probalematic with additional UI elements like buttons and
+		 * Text decoration is problematic with additional UI elements like buttons and
 		 * line numbers. Disable.
 		 */
 		if ( isset( $args['supports']['typography'] ) && \is_array( $args['supports']['typography'] ) ) {
