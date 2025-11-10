@@ -146,8 +146,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 		( code: string ) => {
 			const tree = currentLanguageRef.current?.language.parser.parse( code ) ?? null;
 
-			let currentLine: Array< NonNullable< Attributes[ 'tokenizedLines' ] >[ number ][ number ] > =
-				[];
+			let currentLine: Array< Attributes[ 'tokenizedLines' ][ number ][ number ] > = [];
 			const lines: Array< typeof currentLine > = [];
 
 			if ( tree !== null ) {

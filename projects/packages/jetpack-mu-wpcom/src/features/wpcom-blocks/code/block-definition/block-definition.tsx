@@ -263,10 +263,7 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 	const maxLineNumberWidth =
 		Math.floor(
 			Math.log10(
-				props.attributes.lineNumbersStartAt +
-					( props.attributes.tokenizedLines?.length
-						? props.attributes.tokenizedLines.length - 1
-						: 0 )
+				props.attributes.lineNumbersStartAt + ( props.attributes.tokenizedLines.length - 1 )
 			)
 		) + 1;
 
@@ -275,7 +272,7 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 			.filter( x => Boolean( x ) )
 			.join( ' ' ),
 		...( props.attributes.showLineNumbers &&
-			props.attributes.tokenizedLines?.length && {
+			props.attributes.tokenizedLines.length && {
 				'data-line-numbers-start-at': props.attributes.lineNumbersStartAt,
 				'data-max-line-number-char-size': maxLineNumberWidth,
 			} ),
@@ -483,7 +480,7 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
 		'--colorInvalid': attributes.colorInvalid,
 	} satisfies React.CSSProperties;
 
-	if ( attributes.showLineNumbers && attributes.tokenizedLines?.length ) {
+	if ( attributes.showLineNumbers && attributes.tokenizedLines.length ) {
 		const maxLineNumberWidth =
 			Math.floor(
 				Math.log10( attributes.lineNumbersStartAt + ( attributes.tokenizedLines.length - 1 ) )
