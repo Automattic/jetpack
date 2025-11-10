@@ -79,7 +79,7 @@ function filterBlockRegistration( settings: any ) {
 	/*
 	 * The enhanced code block includes a "from" transform that handles things like language
 	 * name, line number settings, etc. Remove the "to" transform provided by syntaxhighlighter/code
-	 * so that simpler trnasform is not applied.
+	 * so that simpler transform is not applied.
 	 */
 	if ( settings.name === 'syntaxhighlighter/code' ) {
 		if ( settings.transforms?.to ) {
