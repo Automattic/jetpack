@@ -374,7 +374,7 @@ abstract class Code_Block {
 				: 1;
 
 			$max_line_number_width = floor(
-				log10( $line_numbers_start_at + ( \count( $attributes['tokenizedLines'] ) - 1 ) )
+				log10( $line_numbers_start_at + \count( $attributes['tokenizedLines'] ) - 1 )
 			) + 1;
 
 			if ( $line_numbers_start_at !== 1 ) {
