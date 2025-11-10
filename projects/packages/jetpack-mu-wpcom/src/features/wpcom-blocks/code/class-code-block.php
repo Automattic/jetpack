@@ -40,7 +40,7 @@ abstract class Code_Block {
 		}
 
 		self::init();
-		add_filter( 'init', array( __CLASS__, 'override_block_style' ) );
+		add_action( 'init', array( __CLASS__, 'override_block_style' ) );
 		add_filter( 'register_block_type_args', array( __CLASS__, 'register_block_type_args' ), 150, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
 		add_action(
