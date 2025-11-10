@@ -48,6 +48,13 @@ export type Registry = {
 			recordId: number,
 			edits: Record< string, unknown >
 		) => Promise< void >;
+		receiveEntityRecords: (
+			kind: string,
+			name: string,
+			records: FormResponse[],
+			query?: QueryParams,
+			invalidateCache?: boolean
+		) => Promise< void >;
 
 		// Dashboard store actions
 		updateCountsOptimistically: (

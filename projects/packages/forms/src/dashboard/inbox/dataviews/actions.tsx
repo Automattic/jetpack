@@ -326,14 +326,18 @@ export const restoreAction: Action = {
 			multiple: items.length > 1,
 		} );
 
-		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { saveEntityRecord, editEntityRecord, receiveEntityRecords } =
+			registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
-		items.forEach( () => {
+		items.forEach( item => {
+			editEntityRecord( 'postType', 'feedback', item.id, {
+				is_triggering_remove: true,
+			} );
 			updateCountsOptimistically( 'trash', 'publish', 1, queryParams );
 		} );
 
@@ -378,6 +382,14 @@ export const restoreAction: Action = {
 				],
 			} );
 
+			const restoreItems = items.map( item => {
+				return {
+					...item,
+					is_triggering_remove: false,
+				};
+			} );
+			receiveEntityRecords( 'postType', 'feedback', restoreItems, queryParams, true );
+
 			return;
 		}
 
@@ -402,7 +414,8 @@ export const moveToTrashAction: Action = {
 			multiple: items.length > 1,
 		} );
 
-		const { deleteEntityRecord } = registry.dispatch( coreStore );
+		const { deleteEntityRecord, editEntityRecord, receiveEntityRecords } =
+			registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
@@ -410,6 +423,9 @@ export const moveToTrashAction: Action = {
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
 		items.forEach( item => {
+			editEntityRecord( 'postType', 'feedback', item.id, {
+				is_triggering_remove: true,
+			} );
 			updateCountsOptimistically( item.status, 'trash', 1, queryParams );
 		} );
 
@@ -457,6 +473,14 @@ export const moveToTrashAction: Action = {
 					},
 				],
 			} );
+
+			const restoreItems = items.map( item => {
+				return {
+					...item,
+					is_triggering_remove: false,
+				};
+			} );
+			receiveEntityRecords( 'postType', 'feedback', restoreItems, queryParams, true );
 
 			return;
 		}
