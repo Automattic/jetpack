@@ -61,6 +61,10 @@
 	}
 }
 
+.a8c\/code__header {
+	padding: 0 12px;
+}
+
 .a8c\/code__btn-copy {
 	text-transform: inherit;
 	font-style: inherit;

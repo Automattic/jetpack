@@ -65,7 +65,6 @@
 		/* These are essential for layout */
 		white-space: pre !important;
 		margin: 0 !important;
-		padding: 4px 0 !important;
 		line-height: inherit !important;
 
 	}
@@ -95,7 +94,6 @@
 	}
 
 	.cm-line {
-		display: block;
 		padding: 0 2px 0 6px;
 	}
 
@@ -321,7 +319,6 @@
 	justify-content: flex-end;
 	font-size: 0.8em;
 	min-height: 40px;
-	padding: 0 12px;
 
 	.a8c\/code__language-select {
 		margin-right: -12px;
