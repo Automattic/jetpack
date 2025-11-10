@@ -245,10 +245,11 @@ abstract class Code_Block {
 		$args['attributes'] = array(
 			// Content attribute is preserved for compatibility with the core/code block and transforms.
 			'content'                 => $args['attributes']['content'],
+			// Do not include a default `array()`.
+			// This allows content from the regular code block to be differentiated from
+			// enhanced code block content.
 			'tokenizedLines'          => array(
-				'type'    => 'array',
-				'default' =>
-				array(),
+				'type' => 'array',
 			),
 			'language'                => array(
 				'type'    => 'string',
