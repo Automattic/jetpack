@@ -1,10 +1,12 @@
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
+	Animate,
 	Modal,
 } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import useResponseNavigation from '../../hooks/use-response-navigation';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
@@ -136,17 +138,33 @@ const SingleResponseView = ( {
 
 	if ( ! isMobile ) {
 		return (
-			<div className="jp-forms__inbox__dataviews-response">
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
-					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
-					</HStack>
-				</HStack>
-				{ contents }
-			</div>
+			<Animate
+				options={ {
+					origin: 'left',
+				} }
+				type="slide-in"
+			>
+				{ ( { className } ) => (
+					<div className={ clsx( 'jp-forms__inbox__dataviews-response', className ) }>
+						<HStack
+							spacing="0"
+							justify="space-between"
+							className="jp-forms__inbox-response-actions"
+						>
+							<HStack alignment="left">
+								<ResponseActions
+									onActionComplete={ handleActionComplete }
+									response={ sidePanelItem }
+								/>
+							</HStack>
+							<HStack alignment="right">
+								<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
+							</HStack>
+						</HStack>
+						{ contents }
+					</div>
+				) }
+			</Animate>
 		);
 	}
 
