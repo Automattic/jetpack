@@ -329,7 +329,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		overflow: hidden;
+		max-width: 100%;
 
 		&--mobile {
 			text-decoration: underline;
