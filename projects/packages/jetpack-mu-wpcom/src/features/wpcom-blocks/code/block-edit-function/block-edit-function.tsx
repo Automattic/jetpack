@@ -340,7 +340,7 @@ function EditCodeMirror( props: EditBlockProps ) {
 			}
 
 			viewRef.current = new View.EditorView( {
-				doc: attributes.content.text,
+				doc: attributes.content?.text ?? '',
 				extensions: makeExtensions(),
 				parent: ref.current,
 			} );
