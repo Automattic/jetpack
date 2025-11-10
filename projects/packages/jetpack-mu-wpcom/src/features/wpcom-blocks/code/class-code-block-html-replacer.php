@@ -95,12 +95,11 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		}
 		$processor->set_bookmark( 'code_content_end' );
 
-		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
-		if ( ! isset(
-			$processor->bookmarks['_pre_open'],
-			$processor->bookmarks['_code_content_start'],
-			$processor->bookmarks['_code_content_end']
-		) ) {
+		if (
+			! isset( $processor->bookmarks['_pre_open'] ) ||
+			! isset( $processor->bookmarks['_code_content_start'] ) ||
+			! isset( $processor->bookmarks['_code_content_end'] )
+		) {
 			return null;
 		}
 
