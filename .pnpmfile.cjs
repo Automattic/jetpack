@@ -48,7 +48,7 @@ async function fixDeps( pkg ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
 				if ( ver.startsWith( '^' ) ) {
 					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
-				} else {
+				} else if ( ver.match( /^\d/ ) ) {
 					pkg.dependencies[ dep ] = '>=' + ver;
 				}
 			}

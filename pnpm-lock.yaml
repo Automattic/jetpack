@@ -7,7 +7,7 @@ settings:
 overrides:
   esbuild-sass-plugin>sass: npm:sass-embedded@1.87.0
 
-pnpmfileChecksum: sha256-OjuMXsYOuLhsNBmjMK1VUiUw131I1z85W3P+nzQSVkM=
+pnpmfileChecksum: sha256-1yeYp+9XIFarJCACoFBJ9eO8+wXB07gz8VYLmNwxM2Q=
 
 patchedDependencies:
   '@wordpress/dataviews':
