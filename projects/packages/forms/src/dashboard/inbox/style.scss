@@ -259,10 +259,6 @@
 	}
 }
 
-.jp-forms__header-subtext {
-	margin-bottom: 0;
-}
-
 .jp-forms__inbox__dataviews__container {
 	box-sizing: border-box;
 	justify-content: unset;
@@ -458,29 +454,14 @@ body.jetpack_page_jetpack-forms-admin {
 	aspect-ratio: 16 / 9;
 }
 
-.jp-forms__inbox-file-preview-container-iframe.is-loading,
 .jp-forms__inbox-file-preview-container.is-loading {
 	display: none;
-}
-
-.jp-forms__inbox-file-preview-container-iframe {
-	margin-bottom: 16px;
-	max-height: 70vh;
 }
 
 .jp-forms__inbox-file-preview-image {
 	height: 100%;
 	width: 100%;
 	max-height: 66vh;
-	object-fit: contain;
-}
-
-.jp-forms__inbox-file-preview-iframe {
-	display: block;
-	width: 100%;
-	min-width: 80vw;
-	min-height: 50vh;
-	border: none;
 	object-fit: contain;
 }
 
@@ -517,15 +498,6 @@ body.jetpack_page_jetpack-forms-admin {
 
 .jp-forms__inbox-spinner.jp-forms__inbox-spinner {
 	margin-top: 0;
-}
-
-.jp-forms__inbox-file-preview-fallback {
-	padding: 20px;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	align-items: center;
 }
 
 .jp-forms__inbox__unread {
