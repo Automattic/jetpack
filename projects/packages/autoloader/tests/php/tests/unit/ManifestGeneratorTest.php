@@ -37,7 +37,7 @@ $baseDir   = dirname($vendorDir);
 return array(
 	'TestFile' => array(
 		'version' => '1.0.0.0',
-        'path'    => $vendorDir . '/path_to_file.php'
+		'path'    => $vendorDir . '/path_to_file.php'
 	),
 );
 
@@ -68,9 +68,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir   = dirname($vendorDir);
 
 return array(
-    'Automattic\\Jetpack\\' => array(
+	'Automattic\\Jetpack\\' => array(
 		'version' => '1.0.0.0',
-        'path'    => array( $vendorDir . '/src' )
+		'path'    => array( $vendorDir . '/src' )
 	),
 );
 
@@ -103,7 +103,7 @@ $baseDir   = dirname($vendorDir);
 return array(
 	'123d5a6s7vd' => array(
 		'version' => '1.0.0.0',
-        'path'    => $vendorDir . '/path_to_file.php'
+		'path'    => $vendorDir . '/path_to_file.php'
 	),
 );
 
