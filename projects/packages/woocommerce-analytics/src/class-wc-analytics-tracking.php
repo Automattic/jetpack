@@ -192,17 +192,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			self::queue_pixel_for_batch( $pixel );
 		} else {
 			// Send immediately as batching is not supported.
-			$pixel_with_timestamp = WC_Tracks_Client::add_request_timestamp_and_nocache( $pixel );
-			wp_remote_get(
-				$pixel_with_timestamp,
-				array(
-					'blocking'    => true,
-					'timeout'     => 1,
-					'redirection' => 2,
-					'httpversion' => '1.1',
-					'sslverify'   => true,
-				)
-			);
+			return WC_Tracks_Client::record_event( $event ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		}
 
 		return true;
