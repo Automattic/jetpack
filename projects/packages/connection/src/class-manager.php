@@ -451,7 +451,9 @@ class Manager {
 			return false;
 		}
 
-		// OAuth2 app authorization flow - skip signature verification.
+		// Skip XML-RPC signature verification for OAuth authorization flow.
+		// OAuth uses GET requests without body-hash and has its own
+		// signature verification in Authorize_Json_Api class.
 		if ( isset( $_GET['action'] ) && $_GET['action'] === 'jetpack_json_api_authorization' ) {
 			return false;
 		}
