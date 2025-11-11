@@ -719,6 +719,11 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
  * @return bool Whether the current user is assigned to a non-null variation for the experiment.
  */
 function wpcom_global_styles_assignment_api_request( $experiment_key ) {
+	$connection_manager = new Automattic\Jetpack\Connection\Manager();
+	if ( ! $connection_manager->is_user_connected() ) {
+		return false;
+	}
+
 	$path     = '/me/explat-assignments';
 	$body     = array( 'experiment' => (string) $experiment_key );
 	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
