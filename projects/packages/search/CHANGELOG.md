@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.54.1] - 2025-11-10
 ### Changed
-- Changed css to be loaded by WordPress [#45694]
-- number formatting in pricing/plan features [#45794]
+- Use native WordPress API to load CSS/ [#45694]
+- Use number formatting in pricing/plan features. [#45794]
 - Tests: Ensure PHP 8.5 compatibility. [#45769]
 - Update package dependencies. [#45756]
 

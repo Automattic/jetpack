@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.22.4] - 2025-11-10
 ### Changed
-- Sync: Ignore the shop_order_placehold post-type from Woo. [#45772]
-- Sync: prevent unnecessary sync actions running via Jetpack CRM's WooSync [#45761]
+- Sync: Ignore the `shop_order_placehold` post-type from Woo. [#45772]
+- Sync: Prevent unnecessary sync actions from running via Jetpack CRM's WooSync. [#45761]
 - Tests: Ensure PHP 8.5 compatibility. [#45769]
 
 ## [4.22.3] - 2025-11-03
