@@ -428,19 +428,21 @@ const ResponseViewBody = ( {
 	}
 
 	const displayName = getDisplayName( response );
+	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
+	const gravatarEmail = response.author_email || response.ip;
+	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
 
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<div className="jp-forms__inbox-response-header">
 					<HStack alignment="topLeft" spacing="3">
-						{ response.author_email && (
-							<Gravatar
-								email={ response.author_email }
-								displayName={ displayName }
-								key={ response.author_email }
-							/>
-						) }
+						<Gravatar
+							email={ gravatarEmail }
+							defaultImage={ defaultImage }
+							displayName={ displayName }
+							key={ gravatarEmail }
+						/>
 						<VStack spacing="0" className="jp-forms__inbox-response-header-title">
 							<h3 className="jp-forms__inbox-response-name">{ displayName }</h3>
 							{ response.author_email && displayName !== response.author_email && (
@@ -534,21 +536,25 @@ const ResponseViewBody = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				</div>
 			) }
 			{ response.status === 'trash' && (
-				<Tip>
-					{ sprintf(
-						/* translators: %d number of days. */
-						_n(
-							'Items in trash are permanently deleted after %d day.',
-							'Items in trash are permanently deleted after %d days.',
-							emptyTrashDays,
-							'jetpack-forms'
-						),
-						emptyTrashDays
-					) }
-				</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
 			) }
 		</>
 	);

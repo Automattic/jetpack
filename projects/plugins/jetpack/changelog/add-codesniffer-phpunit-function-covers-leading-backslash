@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove erroneous leading backslash from `@covers ::function` and `#[CoversFunction()]`.
+
+

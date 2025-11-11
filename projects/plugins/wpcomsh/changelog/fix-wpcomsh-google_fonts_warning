@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent PHP errors when handling Google Fonts URLs.

@@ -13,11 +13,11 @@ use WorDBless\BaseTestCase;
 require __DIR__ . '/../../src/compatibility/breakdance.php';
 
 /**
- * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat
- * @covers ::\Automattic\Jetpack\Image_CDN\Compatibility\use_image_cdn
+ * @covers ::Automattic\Jetpack\Image_CDN\Compatibility\load_breakdance_compat
+ * @covers ::Automattic\Jetpack\Image_CDN\Compatibility\use_image_cdn
  */
-#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
-#[CoversFunction( '\\Automattic\\Jetpack\\Image_CDN\\Compatibility\\use_image_cdn' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Image_CDN\\Compatibility\\load_breakdance_compat' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Image_CDN\\Compatibility\\use_image_cdn' )]
 class Breakdance_Compat_Test extends BaseTestCase {
 	/**
 	 * Test that CDN is enabled for Breakdance content by default.

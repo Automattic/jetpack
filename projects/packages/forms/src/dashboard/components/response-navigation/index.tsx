@@ -3,7 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { close, chevronLeft, chevronRight } from '@wordpress/icons';
+import { close, chevronUp, chevronDown } from '@wordpress/icons';
 
 type ResponseNavigationProps = {
 	hasNext: boolean;
@@ -26,7 +26,7 @@ const ResponseNavigation = ( {
 				<Button
 					accessibleWhenDisabled={ true }
 					disabled={ ! hasPrevious }
-					icon={ chevronLeft }
+					icon={ chevronUp }
 					label={ __( 'Previous', 'jetpack-forms' ) }
 					onClick={ onPrevious }
 					showTooltip={ true }
@@ -38,7 +38,7 @@ const ResponseNavigation = ( {
 				<Button
 					accessibleWhenDisabled={ true }
 					disabled={ ! hasNext }
-					icon={ chevronRight }
+					icon={ chevronDown }
 					label={ __( 'Next', 'jetpack-forms' ) }
 					onClick={ onNext }
 					showTooltip={ true }

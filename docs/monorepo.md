@@ -213,7 +213,7 @@ On most Linux distributions, you can install the PHP ast extension using your pa
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-ast
+  sudo apt-get install php8.4-ast
   ```
 - For Arch Linux:
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
@@ -226,15 +226,15 @@ Mac users have reported having trouble installing the PHP ast extension. See the
 
 <details><summary>Installing the PHP ast extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
    ```
    ast
 
    ast support => enabled
-   extension version => 1.1.1
-   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   extension version => 1.1.3
+   AST version => Current version is 120. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100, 110, 120}
    ```
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
@@ -326,7 +326,7 @@ On most Linux distributions, you can install the PHP pcov extension using your p
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-pcov
+  sudo apt-get install php8.4-pcov
   ```
 - For Arch Linux:
   Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
@@ -339,7 +339,7 @@ Mac users have reported having trouble installing the PHP pcov extension. See th
 
 <details><summary>Installing the PHP pcov extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
    ```
