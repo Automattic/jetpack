@@ -734,6 +734,12 @@ function wpcom_global_styles_assignment_api_request( $experiment_key ) {
 		'rest'
 	);
 
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 !== $response_code ) {
+		return false;
+	}
+
 	if ( is_wp_error( $response ) ) {
 		return false;
 	}
@@ -796,17 +802,11 @@ function is_global_styles_on_personal_plan() {
 		return false;
 	}
 
-	$cutoff_ts     = strtotime( '2025-11-18 00:00:00' );
-	$cutoff_ts     = apply_filters( 'wpcom_global_styles_experiment_cutoff_date', $cutoff_ts );
-	$registered_ts = strtotime( $user->user_registered );
-	if ( $registered_ts && $registered_ts < $cutoff_ts ) {
-		return false;
-	}
-
 	$experiment_key = 'calypso_plans_global_styles_personal_20251108_v4';
 	$cache_group    = 'a8c_experiments';
-	$cache_key      = sprintf(
-		'global-styles-personal-user-%d',
+	// @TODO Update key once experiment is launched.
+	$cache_key = sprintf(
+		'global-styles-personal-user-tmp-%d',
 		$user->ID
 	);
 
