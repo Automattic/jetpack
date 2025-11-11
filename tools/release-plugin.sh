@@ -66,7 +66,7 @@ function preflight_checks {
 		yellow "This tool requires the GitHub CLI, which was not found."
 		if command -v brew &> /dev/null; then
 			proceed_p "Install the GitHub CLI via brew?" "" Y
-			brew install gh
+			brew install gh || die 'Unable to install gh!'
 		else
 			die "Please install the GitHub CLI before proceeding"
 		fi
