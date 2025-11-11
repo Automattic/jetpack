@@ -369,7 +369,7 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.
