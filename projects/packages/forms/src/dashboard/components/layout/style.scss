@@ -10,8 +10,8 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__layout {
-	display: flex;
-	flex-direction: column;
+
+	@include mixins.flex-column;
 	flex: 1 1 auto;
 	margin: 0;
 	padding: 0;
@@ -22,8 +22,8 @@ body.jetpack_page_jetpack-forms-admin {
 	overflow: auto;
 
 	.jp-forms__layout-header-title {
-		display: flex;
-		align-items: center;
+
+		@include mixins.flex-center;
 		gap: 8px;
 	}
 }

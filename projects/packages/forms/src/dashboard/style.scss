@@ -38,6 +38,13 @@
 	--wpds-spacing-20: 16px;
 	--wpds-spacing-50: 40px;
 	--wpds-spacing-60: 48px;
+
+	// Z-index scale for consistent stacking
+	--jp-forms-z-base: 1;
+	--jp-forms-z-negative: -1;
+	--jp-forms-z-dropdown: 100;
+	--jp-forms-z-modal-backdrop: 10005;
+	--jp-forms-z-modal: 10010;
 }
 
 body[class*="_page_jetpack-forms"],
