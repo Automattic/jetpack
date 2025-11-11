@@ -53,9 +53,6 @@
 			"svelte-preprocess",
 			"swiper",
 			"unrs-resolver"
-		],
-		"overrides": {
-			"esbuild-sass-plugin>sass": "npm:sass-embedded@1.87.0"
-		}
+		]
 	}
 }
