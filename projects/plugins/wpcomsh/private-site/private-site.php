@@ -170,7 +170,7 @@ function fetch_option_from_wpcom( $option ) {
 	}
 	$options = $jetpack->get_cloud_site_options( array( $option ) );
 
-	return $options[ $option ];
+	return $options[ $option ] ?? false;
 }
 
 /**
@@ -321,6 +321,10 @@ function register_additional_jetpack_xmlrpc_methods( $methods ) {
  * @return array|false
  */
 function get_closest_thumbnail_size_url( $args ) {
+	if ( ! isset( $args['url'] ) || ! isset( $args['width'] ) || ! isset( $args['height'] ) ) {
+		return false;
+	}
+
 	$id = attachment_url_to_postid( $args['url'] );
 	if ( ! $id ) {
 		return false;
@@ -394,7 +398,9 @@ function get_read_access_cookies( $args ) {
 function is_jetpack_admin_ajax_request() {
 	// phpcs:disable WordPress.Security
 	return (
+		isset( $_SERVER['REQUEST_URI'] ) &&
 		substr( $_SERVER['REQUEST_URI'], 0, 24 ) === '/wp-admin/admin-ajax.php' &&
+		isset( $_SERVER['HTTP_AUTHORIZATION'] ) &&
 		substr( $_SERVER['HTTP_AUTHORIZATION'], 0, 9 ) === 'X_JETPACK' &&
 		array_key_exists( 'action', $_POST ) &&
 		substr( $_POST['action'], 0, 8 ) === 'jetpack_'
