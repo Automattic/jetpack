@@ -5,10 +5,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * @covers \Automattic\Jetpack\Blocks
  * @covers \Jetpack_Gutenberg
  */
-#[CoversClass( Blocks::class )]
 #[CoversClass( Jetpack_Gutenberg::class )]
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

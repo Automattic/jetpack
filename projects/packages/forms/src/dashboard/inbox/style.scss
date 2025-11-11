@@ -1,39 +1,8 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/colors";
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
-
-.jp-forms__inbox {
-	// visual aid for focus, currently only export button
-	.button-primary.export-button:focus {
-		box-shadow: var(--jp-forms-focus-shadow);
-	}
-
-	.components-dropdown-menu {
-
-		.components-menu-item__button {
-			font-size: var(--jp-forms-font-size-regular);
-		}
-	}
-}
-
-@keyframes jp-forms__slide-in {
-
-	from {
-		transform: translateY(150px);
-	}
-}
-
-@keyframes jp-forms__fade-in {
-
-	from {
-		opacity: 0;
-	}
-
-	35% {
-		opacity: 1;
-	}
-}
 
 .jp-forms__inbox-response {
 	box-sizing: border-box;
@@ -41,40 +10,8 @@
 	flex-direction: column;
 	min-height: 300px;
 	overflow: hidden;
-	background-color: #fff;
+	background-color: colors.$white;
 	position: relative;
-
-	&.exit-active {
-		display: none;
-	}
-
-	@media (min-width: 1025px) {
-
-		&.enter,
-		&.enter-active {
-			animation: jp-forms__slide-in 0.2s ease-out forwards, jp-forms__fade-in 0.2s ease-in forwards;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: none;
-			}
-		}
-
-		&.exit,
-		&.exit-active,
-		&.exit-done {
-			display: flex;
-			position: absolute;
-			top: 0 !important;
-			left: 0;
-			z-index: -1;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in 0.2s ease-out forwards reverse, jp-forms__fade-in 0.2s ease-in forwards reverse;
-				z-index: 1;
-			}
-		}
-	}
-
 }
 
 .jp-forms__inbox-response-header {
@@ -108,10 +45,6 @@
 	position: sticky;
 	left: 0;
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-
-	@media (max-width: 782px) {
-		padding: 0 24px; // Match mobile padding
-	}
 
 	// On small stacks, switch to column stacking
 	flex-direction: row;
@@ -149,12 +82,8 @@
 }
 
 .jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: 48px; // Match header padding
+	padding-inline: 20px; // Match header padding
 	padding-block: 12px;
-
-	@media (max-width: 782px) {
-		padding-inline: 24px;
-	}
 }
 
 .jp-forms__inbox-response-name {
@@ -167,7 +96,6 @@
 
 .jp-forms__inbox-response-email {
 	align-items: center;
-	color: #646970;
 	display: flex;
 	flex-shrink: 0;
 	gap: 4px;
@@ -367,6 +295,9 @@
 		position: fixed;
 		bottom: 0;
 
+		// Match .admin-ui-page__header padding
+		padding-inline: 20px;
+
 		// Compensation for the width of the sidebar
 		// Set left position when auto-fold is not on the body element.
 		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
@@ -384,7 +315,7 @@
 		display: flex;
 		align-items: center;
 		gap: 12px;
-		overflow: hidden;
+		max-width: 100%;
 
 		&--mobile {
 			text-decoration: underline;
@@ -464,13 +395,22 @@
 		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
+}
 
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: balance;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
 	.components-tip {
 		align-items: anchor-center;
-		border-top: 1px solid var(--jp-forms-border-color);
-		margin: 8px 0 56px 0;
-		padding: 16px;
-		text-wrap: pretty;
+	}
+
+	@media (min-width: 782px) {
+		padding: 16px 32px;
+		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -485,7 +425,6 @@
 		width: auto;
 	}
 }
-
 
 /*
  * We need to make the available canvas 100% tall. Without this,

@@ -19,6 +19,8 @@ module.exports = async () => {
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
+				'html-block-restricted-tags':
+					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
 				'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 				'jetpack-global-styles-customizer-fonts':
 					'./src/features/jetpack-global-styles/customizer-fonts/index.js',

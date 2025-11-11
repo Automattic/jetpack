@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-a.1 - 2025-11-10
+### Enhancements
+- Forms: Add browser info to the form response email notification. [#45710]
+- Forms: Add integrations to dashboard mobile menu. [#45744]
+- Forms: Add keyboard navigation to go through reponses quickly. [#45811]
+- Forms: Change integrations modal width. [#45855]
+
+### Improved compatibility
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+
+### Bug fixes
+- Forms: Ensure we show duplicate form field values on export. [#45809]
+- Forms: Fix integrations modal flash. [#45775]
+- Google Docs: Ensure that slides/sheets embeds render on the front-end. [#45776]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- About page: Remove Co-Authors Plus from and add ActivityPub to list of featured plugins. [#45792]
+- Editor assets endpoint: Filter returned assets with exclude query parameter. [#45715]
+- Editor assets endpoint: Refactor to reduce complexity. [#45714]
+- Improve PHP 8.5 compatibility. [#45771]
+- Jetpack AI: Remove tooltip for reading grade score. [#45847]
+- Shortcodes: Extract the jmpress.js dependency into pnpm. [#45707]
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45737] [#45756] [#45758]
+
 ## 15.2 - 2025-11-04
 ### Enhancements
 - Forms: Add browser info to form responses exports. [#45709]

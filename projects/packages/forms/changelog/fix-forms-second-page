@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: fix last page invalidation error when items are removed

@@ -27,6 +27,7 @@ describe( 'useResponseNavigation', () => {
 			status: 'publish',
 			date: '2025-01-01T00:00:00',
 			date_gmt: '2025-01-01T00:00:00',
+			author_display_name: 'John Doe',
 			author_name: 'John Doe',
 			author_email: 'john@example.com',
 			author_url: 'https://example.com',
@@ -43,6 +44,7 @@ describe( 'useResponseNavigation', () => {
 			status: 'publish',
 			date: '2025-01-02T00:00:00',
 			date_gmt: '2025-01-02T00:00:00',
+			author_display_name: 'Jane Smith',
 			author_name: 'Jane Smith',
 			author_email: 'jane@example.com',
 			author_url: 'https://example.com',
@@ -59,6 +61,7 @@ describe( 'useResponseNavigation', () => {
 			status: 'publish',
 			date: '2025-01-03T00:00:00',
 			date_gmt: '2025-01-03T00:00:00',
+			author_display_name: 'Bob Johnson',
 			author_name: 'Bob Johnson',
 			author_email: 'bob@example.com',
 			author_url: 'https://example.com',
@@ -228,6 +231,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -243,6 +247,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: mockOnChangeSelection,
 					record: mockRecords[ 1 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -309,6 +314,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: null,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -323,6 +329,7 @@ describe( 'useResponseNavigation', () => {
 					onChangeSelection: undefined,
 					record: mockRecords[ 0 ],
 					setRecord: mockSetRecord,
+					isMobile: true,
 				} )
 			);
 
@@ -367,6 +374,7 @@ describe( 'useResponseNavigation', () => {
 			result.current.handleNext();
 			result.current.handlePrevious();
 			expect( mockSetRecord ).not.toHaveBeenCalled();
+			expect( mockOnChangeSelection ).not.toHaveBeenCalled();
 		} );
 
 		it( 'should handle record being null', () => {

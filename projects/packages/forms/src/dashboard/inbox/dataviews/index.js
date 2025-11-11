@@ -252,7 +252,7 @@ export default function InboxView() {
 					);
 					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
 					const secondaryInfo =
-						authorInfo === decodeEntities( item.author_name ) && item.author_email ? (
+						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">
 								{ decodeEntities( item.author_email ) }
 							</span>

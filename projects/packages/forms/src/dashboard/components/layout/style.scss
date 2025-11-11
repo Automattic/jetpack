@@ -25,6 +25,7 @@ body.jetpack_page_jetpack-forms-admin {
 	min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0px));
 	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
+	overflow: auto;
 
 	.jp-forms__layout-header-title {
 		display: flex;
@@ -73,10 +74,6 @@ body.jetpack_page_jetpack-forms-admin {
 		width: 100%;
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: none;
-
-		@media (max-width: 782px) {
-			padding: 12px 24px;
-		}
 	}
 
 	.admin-ui-page__header-subtitle {
@@ -86,5 +83,14 @@ body.jetpack_page_jetpack-forms-admin {
 		line-height: 20px;
 	}
 
+	// these overrides mimic the ones in new admin packages
+	.dataviews-wrapper .dataviews-view-table tr td:first-child,
+	.dataviews-wrapper .dataviews-view-table tr th:first-child {
+		padding-inline-start: 20px;
+	}
 
+	.dataviews-wrapper .dataviews-view-table tr td:last-child,
+	.dataviews-wrapper .dataviews-view-table tr th:last-child {
+		padding-inline-end: 20px;
+	}
 }
