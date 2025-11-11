@@ -298,30 +298,29 @@ jetpack docker jt-up
 
 ### Troubleshooting Jurassic Tube
 
-If you're an Automattician and when connecting Jetpack to WordPress.com you receive the cURL error:
+If you're an Automattician and receive this cURL error when connecting Jetpack to WordPress.com:
 
 > cURL error 35: OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to jetpack.wordpress.com:443 (Status 500)
 
-There are two solutions available:
+You can resolve it using either of these methods:
 
-**Solution 1: Update Docker's Proxy Settings**
+**Method 1: Configure Docker Desktop Proxy Settings**
 
 1. Open Docker Desktop
 2. Click the gear icon in the top right
-3. Click the "Resources" tab
-4. Click the "Proxy" tab
-5. Toggle "Manual proxy configuration"
+3. Navigate to **Resources** → **Proxy**
+4. Enable "Manual proxy configuration"
 
-**Solution 2: Add Proxy Configuration to wp-config.php**
+**Method 2: Configure Proxy in wp-config.php**
 
-Add the following to `tools/docker/wordpress/wp-config.php`:
+Add the following lines to `tools/docker/wordpress/wp-config.php`:
 
 ```php
 define( 'WP_PROXY_HOST', 'socks://host.docker.internal' );
 define( 'WP_PROXY_PORT', '8080' );
 ```
 
-**Note:** Be sure to restart the Docker container after making the changes:
+After applying either method, restart your Docker containers:
 
 ```bash
 jetpack docker down
