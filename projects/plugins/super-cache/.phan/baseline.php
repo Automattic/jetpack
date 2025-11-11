@@ -15,6 +15,7 @@ return [
     // PhanUndeclaredVariable : 20+ occurrences
     // PhanTypeMismatchArgument : 10+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 10+ occurrences
+    // PhanTypeMismatchReturn : 10+ occurrences
     // PhanTypeNonVarPassByRef : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 10+ occurrences
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
@@ -37,7 +38,6 @@ return [
     // PhanPluginUnreachableCode : 2 occurrences
     // PhanPossiblyUndeclaredGlobalVariable : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
     // PhanTypeSuspiciousStringExpression : 2 occurrences
     // PhanCommentParamWithoutRealParam : 1 occurrence
     // PhanTypeConversionFromArray : 1 occurrence
@@ -46,6 +46,7 @@ return [
     // PhanTypeInvalidRightOperandOfBitwiseOp : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchDimAssignment : 1 occurrence
+    // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredConstant : 1 occurrence
 
@@ -68,6 +69,7 @@ return [
         'rest/class.wp-super-cache-rest-get-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanSuspiciousValueComparison', 'PhanTypeNonVarPassByRef', 'PhanUndeclaredVariable'],
         'rest/class.wp-super-cache-rest-test-cache.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeConversionFromArray', 'PhanTypePossiblyInvalidDimOffset', 'PhanUndeclaredVariableDim'],
         'rest/class.wp-super-cache-rest-update-settings.php' => ['PhanCommentParamWithoutRealParam', 'PhanPluginSimplifyExpressionBool', 'PhanTypeMissingReturn'],
+        'src/device-detection/class-user-agent-info.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturn'],
         'tests/e2e/tools/mu-test-helpers.php' => ['PhanTypeMismatchArgument'],
         'wp-cache-base.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'wp-cache-phase1.php' => ['PhanTypeNonVarPassByRef'],
