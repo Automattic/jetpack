@@ -1,9 +1,4 @@
-@mixin mobile {
-
-	@media (max-width: 599px) {
-		@content;
-	}
-}
+@use "../../mixins";
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
@@ -15,7 +10,6 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 .jp-forms__layout {
-	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 auto;
@@ -58,9 +52,8 @@ body.jetpack_page_jetpack-forms-admin {
 	}
 
 	.admin-ui-page__header {
-		box-sizing: border-box;
 		margin: 0;
-		padding: 8px 20px;
+		padding: 8px var(--jp-forms-page-padding-inline);
 		width: 100%;
 		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
 		border-bottom: none;
@@ -76,11 +69,11 @@ body.jetpack_page_jetpack-forms-admin {
 	// these overrides mimic the ones in new admin packages
 	.dataviews-wrapper .dataviews-view-table tr td:first-child,
 	.dataviews-wrapper .dataviews-view-table tr th:first-child {
-		padding-inline-start: 20px;
+		padding-inline-start: var(--jp-forms-page-padding-inline);
 	}
 
 	.dataviews-wrapper .dataviews-view-table tr td:last-child,
 	.dataviews-wrapper .dataviews-view-table tr th:last-child {
-		padding-inline-end: 20px;
+		padding-inline-end: var(--jp-forms-page-padding-inline);
 	}
 }

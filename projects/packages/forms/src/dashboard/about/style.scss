@@ -1,9 +1,4 @@
-@mixin mobile {
-
-	@media (max-width: 599px) {
-		@content;
-	}
-}
+@use "../mixins";
 
 .jp-forms__about {
 	--section-spacing-horizontal: calc(var(--spacing-base) * 9); // 72px
@@ -11,7 +6,7 @@
 	background-color: var(--jp-white);
 	flex-grow: 1;
 
-	@include mobile {
+	@include mixins.mobile {
 		--section-spacing-horizontal: calc(var(--spacing-base) * 4); // 32px
 	}
 
@@ -94,7 +89,7 @@
 				grid-template-columns: 1fr 1fr;
 			}
 
-			@include mobile {
+			@include mixins.mobile {
 				grid-template-columns: 1fr;
 			}
 
@@ -135,7 +130,7 @@
 				"co co co co co da da da da ak ak ak"
 				"ex ex ex no no no no de de de va va";
 
-			@include mobile {
+			@include mixins.mobile {
 				grid-template-areas:
 					"co"
 					"da"

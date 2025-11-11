@@ -1,0 +1,14 @@
+/**
+ * Shared mixins for the Forms dashboard
+ */
+
+/**
+ * Mobile breakpoint mixin
+ * Use for styles that should only apply on mobile devices (max-width: 599px)
+ */
+@mixin mobile {
+
+	@media (max-width: 599px) {
+		@content;
+	}
+}

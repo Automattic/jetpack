@@ -5,7 +5,6 @@
 @import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox-response {
-	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	min-height: 300px;
@@ -18,7 +17,7 @@
 	margin: 24px 0 0;
 	padding: 0 32px 0 0;
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 0 32px;
 	}
 }
@@ -29,16 +28,15 @@
 
 .jp-forms__inbox-response-actions {
 	border-bottom: 1px solid var(--jp-forms-border-color);
-	padding: 8px 20px;
+	padding: 8px var(--jp-forms-page-padding-inline);
 	width: 100%;
 }
 
 .jp-forms__inbox__view-actions {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
-	padding: 0 20px; // Match .admin-ui-page__header padding
+	padding: 0 var(--jp-forms-page-padding-inline); // Match .admin-ui-page__header padding
 	overflow-x: auto;
 	width: 100%;
-	box-sizing: border-box;
 	display: flex;
 	container-type: inline-size;
 	flex-shrink: 0;
@@ -82,7 +80,7 @@
 }
 
 .jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: 20px; // Match header padding
+	padding-inline: var(--jp-forms-page-padding-inline); // Match header padding
 	padding-block: 12px;
 }
 
@@ -191,7 +189,7 @@
 		background-repeat: no-repeat;
 		background-position: center;
 
-		@media (min-width: 782px) {
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 			width: 40px;
 			min-width: 40px;
 			height: 40px;
@@ -260,7 +258,6 @@
 }
 
 .jp-forms__inbox__dataviews__container {
-	box-sizing: border-box;
 	justify-content: unset;
 	align-items: unset;
 }
@@ -274,7 +271,7 @@
 	// so the last row is not hidden by the footer.
 	margin-bottom: 97px;
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		margin-bottom: 57px;
 	}
 
@@ -282,7 +279,7 @@
 		background: var(--jp-white);
 		flex-grow: 1;
 
-		@media (min-width: 782px) {
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 			border-right: 1px solid var(--jp-gray-5);
 		}
 	}
@@ -292,7 +289,7 @@
 		bottom: 0;
 
 		// Match .admin-ui-page__header padding
-		padding-inline: 20px;
+		padding-inline: var(--jp-forms-page-padding-inline);
 
 		// Compensation for the width of the sidebar
 		// Set left position when auto-fold is not on the body element.
@@ -387,7 +384,7 @@
 	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
 	margin-bottom: 97px;
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
 		margin-bottom: 57px;
 	}
@@ -404,7 +401,7 @@
 		align-items: anchor-center;
 	}
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 16px 32px;
 		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}

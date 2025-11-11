@@ -1,4 +1,5 @@
 :root {
+	// Forms-specific variables
 	--jp-forms-font-size-regular: 14px;
 	--jp-forms-border-color: #dcdcde;
 	--jp-forms-border-radius: var(--jp-border-radius, 4px);
@@ -6,16 +7,47 @@
 	--jp-forms-white-off: var(--jp-white-off, #f9f9f6);
 	--jp-forms-input-wrapper-height: var(--jp-input-wrapper-height, 40px);
 	--jp-forms-spacing-base: var(--spacing-base, 8px);
+	--jp-forms-page-padding-inline: 20px;
 	--jp-forms-black: var(--jp-black, #000);
 
 	--jp-forms-color-darker-10: var(--jp-black-80, #2c3338);
 	--jp-forms-color-darker-20: var(--jp-black-80, #2c3338);
 
 	--jp-forms-focus-shadow: 0 0 0 1px var(--jp-forms-white), 0 0 0 3px var(--jp-forms-color-darker-10);// jetpack color would be nicer: #0b9e08;
+
+	// WordPress Admin theme color overrides
+	--wp-admin-theme-color: var(--jp-forms-black);
+	--wp-admin-theme-color--rgb: 0, 0, 0;
+	--wp-admin-theme-color-darker-10: var(--jp-forms-color-darker-10);
+	--wp-admin-theme-color-darker-10--rgb: 44, 51, 56;
+	--wp-admin-theme-color-darker-20: var(--jp-forms-color-darker-10);
+	--wp-admin-theme-color-darker-20--rgb: 44, 51, 56;
+
+	// WPDS design tokens (used by tabs component)
+	--wpds-border-width-focus: 1.5px;
+	--wpds-color-stroke-interactive-neutral-strong: #1e1e1e;
+	--wpds-color-fg-interactive-neutral: #50575e;
+	--wpds-color-fg-interactive-neutral-active: #1e1e1e;
+	--wpds-color-fg-interactive-neutral-disabled: #ccc;
+	--wpds-color-stroke-focus-brand: #2271b1;
+	--wpds-color-bg-interactive-neutral-weak-active: #f0f0f1;
+	--wpds-border-radius-small: 2px;
+	--wpds-spacing-05: 4px;
+	--wpds-spacing-10: 8px;
+	--wpds-spacing-15: 12px;
+	--wpds-spacing-20: 16px;
+	--wpds-spacing-50: 40px;
+	--wpds-spacing-60: 48px;
 }
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
+	// Apply box-sizing globally for all dashboard elements
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
 
 	#wpbody-content {
 		padding-bottom: 0;
