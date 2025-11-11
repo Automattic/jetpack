@@ -274,27 +274,6 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	}
 
 	/**
-	 * Send pixels using individual non-blocking wp_remote_get() calls.
-	 * This is the fallback when Requests::request_multiple() is not available.
-	 *
-	 * @param array $pixels Array of pixel URLs to send.
-	 */
-	private static function send_with_individual_requests( $pixels ) {
-		foreach ( $pixels as $pixel ) {
-			wp_remote_get(
-				$pixel,
-				array(
-					'blocking'    => false,
-					'timeout'     => 1,
-					'redirection' => 2,
-					'httpversion' => '1.1',
-					'sslverify'   => true,
-				)
-			);
-		}
-	}
-
-	/**
 	 * Get all properties for the event including filtered and identity properties.
 	 *
 	 * @param string $event_name Event name.
