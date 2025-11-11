@@ -451,6 +451,13 @@ class Manager {
 			return false;
 		}
 
+		// Skip XML-RPC signature verification for OAuth authorization flow.
+		// OAuth uses GET requests without body-hash and has its own
+		// signature verification in Authorize_Json_Api class.
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'jetpack_json_api_authorization' ) {
+			return false;
+		}
+
 		$signature_details = array(
 			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',

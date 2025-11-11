@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+OAuth: fix the 'body-hash' error triggered during app authorization.
