@@ -82,7 +82,7 @@ function preflight_checks {
 	if ! gh auth status --hostname github.com &> /dev/null; then
 		yellow "You are not signed into the GitHub CLI."
 		proceed_p "Sign in to the GitHub CLI?" "" Y
-		gh auth login
+		gh auth login || die 'Failed to log in!'
 	fi
 }
 
