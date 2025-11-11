@@ -268,10 +268,8 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			} elseif ( class_exists( 'Requests' ) ) {
 				\Requests::request_multiple( $requests, $options ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.requestsDeprecated
 			}
-		} catch ( \Exception $e ) {
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// Silently fail - tracking pixels should not break the site.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'WooCommerce Analytics: Batch pixel request failed - ' . $e->getMessage() );
 		}
 	}
 
