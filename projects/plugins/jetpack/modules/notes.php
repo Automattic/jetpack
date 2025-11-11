@@ -232,17 +232,22 @@ class Jetpack_Notifications {
 	 */
 	public function print_js() {
 		$link_accounts_url = is_user_logged_in() && ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ? Jetpack::admin_url() : false;
+		ob_start();
 		?>
-<script data-ampdevmode type="text/javascript">
-/* <![CDATA[ */
-	var wpNotesIsJetpackClient = true;
-	var wpNotesIsJetpackClientV2 = true;
+		<script>
+		var wpNotesIsJetpackClient = true;
+		var wpNotesIsJetpackClientV2 = true;
 		<?php if ( $link_accounts_url ) : ?>
-	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
-<?php endif; ?>
-/* ]]> */
-</script>
+			var wpNotesLinkAccountsURL = <?php echo wp_json_encode( $link_accounts_url, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ); ?>;
+		<?php endif; ?>
+		</script>
 		<?php
+		wp_print_inline_script_tag(
+			str_replace( array( '<script>', '</script>' ), '', ob_get_clean() ),
+			array(
+				'data-ampdevmode' => true,
+			)
+		);
 	}
 
 	/**
