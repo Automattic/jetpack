@@ -177,7 +177,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * @return bool|WP_Error True for success or WP_Error if the event pixel could not be fired.
 	 */
 	private static function record_event_pixel( $event ) {
-		$pixel = $event->build_pixel_url( $event );
+		$pixel = $event->build_pixel_url();
 
 		if ( ! $pixel ) {
 			return new WP_Error( 'invalid_pixel', 'cannot generate tracks pixel for given input', 400 );
