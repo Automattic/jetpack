@@ -466,13 +466,26 @@ HTML;
 	 * This is not essential, but does save some HTML on the page and a network request.
 	 * The dummy module is only used to signal that some additional modules
 	 * should be included in the importmap.
-	 *
-	 * @TODO: Be safer. Check the return (bool: was removed) and behave accordingly.
 	 */
 	public static function after_setup_theme() {
 		foreach ( array( 'wp_head', 'wp_footer', 'admin_print_footer_scripts' ) as $hook ) {
-			remove_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ) );
-			remove_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) );
+			/*
+			 * Script module actions are expected in this order:
+			 *
+			 * - WP_Script_Modules::print_import_map
+			 * - WP_Script_Modules::print_script_module_preloads
+			 * - WP_Script_Modules::print_enqueued_script_modules
+			 *
+			 * Attempt to remove actions starting from the end to that if a removal fails,
+			 * the action can be restored to the expected position by adding it again.
+			 */
+			if ( ! remove_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) ) ) {
+				continue;
+			}
+			if ( ! remove_action( $hook, array( wp_script_modules(), 'print_enqueued_script_modules' ) ) ) {
+				add_action( $hook, array( wp_script_modules(), 'print_script_module_preloads' ) );
+				continue;
+			}
 
 			add_action(
 				$hook,
