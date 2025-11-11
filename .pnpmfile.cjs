@@ -41,22 +41,18 @@ async function fixDeps( pkg ) {
 	if (
 		pkg.name === '@automattic/social-previews' ||
 		pkg.name === '@automattic/components' ||
-		pkg.name === '@automattic/launchpad'
+		pkg.name === '@automattic/launchpad' ||
+		pkg.name === '@automattic/api-core'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
-				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
 			}
 		}
-	}
-
-	// Currently v3 of @automattic/components has some issues:
-	// https://github.com/Automattic/wp-calypso/pull/103385
-	if (
-		pkg.name.startsWith( '@automattic/calypso-products' ) ||
-		pkg.name.startsWith( '@automattic/launchpad' )
-	) {
-		pkg.dependencies[ '@automattic/components' ] = '^2.2.0';
 	}
 
 	// Outdated dependency version causing dependabot warnings.
@@ -114,15 +110,6 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies.typescript = '*';
 	}
 
-	// Missing dep. Already fixed upstream, pending release.
-	// https://github.com/typescript-eslint/typescript-eslint/issues/11382
-	if (
-		pkg.name === '@typescript-eslint/type-utils' &&
-		! pkg.dependencies[ '@typescript-eslint/types' ]
-	) {
-		pkg.dependencies[ '@typescript-eslint/types' ] = '8.36.0';
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -170,8 +157,7 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seemingly unmaintained upstream, and has strict deps that are outdated.
-	// https://github.com/mbalabash/estimo/issues/50
+	// Unnecessary strict deps.
 	if ( pkg.name === 'estimo' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( ver.match( /^\d+(\.\d+)+$/ ) ) {
