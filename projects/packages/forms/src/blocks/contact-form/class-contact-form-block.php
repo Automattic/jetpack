@@ -766,7 +766,7 @@ class Contact_Form_Block {
 
 		if ( self::should_render_in_modal( $atts ) ) {
 			$form_id = uniqid( 'jetpack-contact-form-modal-', true );
-			$trigger = isset( $atts['modalTrigger'] ) ? $atts['modalTrigger'] : 'immediate';
+			$trigger = $atts['modalTrigger'] ?? 'immediate';
 
 			self::$modal_forms[ $form_id ] = array(
 				'html'    => $form_html,
@@ -886,7 +886,7 @@ class Contact_Form_Block {
 
 		foreach ( self::$modal_forms as $form_id => $form_data ) {
 			$form_html = $form_data['html'];
-			$trigger   = isset( $form_data['trigger'] ) ? $form_data['trigger'] : 'immediate';
+			$trigger   = $form_data['trigger'] ?? 'immediate';
 
 			?>
 			<div class="jetpack-contact-form-modal" data-form-id="<?php echo esc_attr( $form_id ); ?>" data-trigger="<?php echo esc_attr( $trigger ); ?>">
