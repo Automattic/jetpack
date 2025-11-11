@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.2-beta] - 2025-11-11
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45676] [#45737] [#45756]
+
+### Fixed
+- LCP Optimization: Prevent requesting analysis for the same pages multiple times. [#45702]
+
 ## [4.5.1] - 2025-10-29
 ### Added
 - Tested up to WordPress 6.9 [#45571]
@@ -843,6 +851,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.5.2-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.1...4.5.2-beta
 [4.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.0...4.5.1
 [4.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.4.0...4.5.0
 [4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
