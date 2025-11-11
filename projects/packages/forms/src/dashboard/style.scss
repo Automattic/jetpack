@@ -22,12 +22,6 @@
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
-	// Apply box-sizing globally for all dashboard elements
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
 
 	#wpbody-content {
 		padding-bottom: 0;
