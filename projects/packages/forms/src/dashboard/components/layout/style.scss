@@ -1,5 +1,23 @@
 @use "../../mixins";
 
+:root {
+	// WPDS design tokens (used by tabs component, remove when possible)
+	--wpds-border-width-focus: 1.5px;
+	--wpds-color-stroke-interactive-neutral-strong: #1e1e1e;
+	--wpds-color-fg-interactive-neutral: #50575e;
+	--wpds-color-fg-interactive-neutral-active: #1e1e1e;
+	--wpds-color-fg-interactive-neutral-disabled: #ccc;
+	--wpds-color-stroke-focus-brand: #2271b1;
+	--wpds-color-bg-interactive-neutral-weak-active: #f0f0f1;
+	--wpds-border-radius-small: 2px;
+	--wpds-spacing-05: 4px;
+	--wpds-spacing-10: 8px;
+	--wpds-spacing-15: 12px;
+	--wpds-spacing-20: 16px;
+	--wpds-spacing-50: 40px;
+	--wpds-spacing-60: 48px;
+}
+
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
 	background-color: #fff;
