@@ -143,6 +143,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendValueDisplay = 'percentage',
 	legendInteractive = false,
 	label,
+	animation,
 	note,
 	className,
 	children,
@@ -377,6 +378,21 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 							</>
 						) }
 					</Group>
+
+					{ animation && (
+						<circle
+							cx={ width / 2 }
+							cy={ radius }
+							r={ ( radius - innerRadius ) / 2 + innerRadius }
+							pathLength="100"
+							fill="transparent"
+							style={ {
+								stroke: 'white',
+								strokeWidth: radius - innerRadius,
+							} }
+							className={ styles.overlayCircle }
+						/>
+					) }
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (

@@ -60,6 +60,13 @@ export const Default: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const WithTooltips: Story = {
 	args: {
 		...Default.args,
