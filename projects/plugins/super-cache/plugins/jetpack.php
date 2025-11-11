@@ -66,7 +66,7 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		}
 	}
 
-	if ( ! class_exists( 'Automattic\\WPSC\\Device_Detection' ) ) {
+	if ( ! class_exists( 'Automattic\WPSC\Device_Detection' ) ) {
 		return 'normal';
 	}
 
