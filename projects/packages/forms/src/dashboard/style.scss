@@ -15,10 +15,7 @@
 
 	--jp-forms-focus-shadow: 0 0 0 1px var(--jp-forms-white), 0 0 0 3px var(--jp-forms-color-darker-10);// jetpack color would be nicer: #0b9e08;
 
-	// Z-index scale for consistent stacking
-	--jp-forms-z-base: 1;
-	--jp-forms-z-negative: -1;
-	--jp-forms-z-dropdown: 100;
+	// Z-index values for modal stacking
 	--jp-forms-z-modal-backdrop: 10005;
 	--jp-forms-z-modal: 10010;
 }

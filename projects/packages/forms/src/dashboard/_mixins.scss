@@ -5,17 +5,6 @@
 @use "@wordpress/base-styles/breakpoints";
 
 /**
- * Mobile breakpoint mixin
- * Use for styles that should only apply on mobile devices (max-width: 599px)
- */
-@mixin mobile {
-
-	@media (max-width: 599px) {
-		@content;
-	}
-}
-
-/**
  * DataViews footer spacing mixin
  * Applies consistent bottom margin for elements that need to compensate
  * for fixed footer.
