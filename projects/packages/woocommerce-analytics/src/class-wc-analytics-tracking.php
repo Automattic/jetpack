@@ -192,7 +192,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			self::queue_pixel_for_batch( $pixel );
 		} else {
 			// Send immediately as batching is not supported.
-			return WC_Tracks_Client::record_event( $event ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+			return WC_Tracks_Client::record_event( $event ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		}
 
 		return true;
