@@ -806,7 +806,7 @@ function is_global_styles_on_personal_plan() {
 	);
 
 	// Cache lookup.
-	$found  = null;
+	$found  = false;
 	$cached = wp_cache_get( $cache_key, $cache_group, false, $found );
 	$found  = apply_filters( 'wpcom_global_styles_experiment_cache', $found );
 	if ( true === $found ) {
