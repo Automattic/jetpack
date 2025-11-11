@@ -21,12 +21,13 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
+import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -368,7 +369,7 @@ export default function InboxView() {
 						<>
 							<span className="response-country-flag">
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && getCountryFlagEmoji( item.country_code ) }
+								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
 							{ item.ip || '' }
 						</>

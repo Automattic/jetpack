@@ -28,15 +28,11 @@ import photon from 'photon';
  */
 import useConfigValue from '../../../hooks/use-config-value';
 import CopyClipboardButton from '../../components/copy-clipboard-button';
+import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import useInboxData from '../../hooks/use-inbox-data';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
-import {
-	getPath,
-	updateMenuCounter,
-	updateMenuCounterOptimistically,
-	getCountryFlagEmoji,
-} from '../../inbox/utils';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
 import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
 
@@ -482,7 +478,7 @@ const ResponseViewBody = ( {
 								<td>
 									{ response.country_code && (
 										<span className="jp-forms__inbox-response-meta-country-flag response-country-flag">
-											{ getCountryFlagEmoji( response.country_code ) }
+											<Flag countryCode={ response.country_code } />
 										</span>
 									) }
 									<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
