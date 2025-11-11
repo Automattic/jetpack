@@ -1120,7 +1120,7 @@ class Defaults {
 	 *
 	 * @var int Number of seconds.
 	 */
-	public static $default_sync_wait_threshold = 10;
+	public static $default_sync_wait_threshold = 15;
 
 	/**
 	 * Default wait between attempting to continue a full sync via requests.
