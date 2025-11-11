@@ -71,30 +71,35 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 		}
 		$processor->set_bookmark( 'code_content_start' );
 
-		// The code should be 1 HTML CODE element containing the text.
-		// <code>### text ###</code>.
-		if (
-			! $processor->next_token() ||
-			$processor->get_token_type() !== '#text'
-		) {
+		/*
+		 * The code should be 1 HTML CODE element containing the text.
+		 * <code>### text ###</code>.
+		 * OR it can be an empty CODE element:
+		 * <code></code>
+		 */
+		if ( ! $processor->next_token() ) {
 			return null;
 		}
-		$code_string = $processor->get_modifiable_text();
-		if (
-			! $processor->next_token() ||
-			$processor->get_tag() !== 'CODE' ||
-			! $processor->is_tag_closer()
-		) {
+		if ( $processor->get_token_type() === '#text' ) {
+			$code_string = $processor->get_modifiable_text();
+			if ( ! $processor->next_token() ) {
+				return null;
+			}
+		} else {
+			$code_string = '';
+		}
+
+		// This must be the closing CODE tag of <code>…text…</code> or empty <code></code>.
+		if ( $processor->get_tag() !== 'CODE' || ! $processor->is_tag_closer() ) {
 			return null;
 		}
 		$processor->set_bookmark( 'code_content_end' );
 
-		// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.isset
-		if ( ! isset(
-			$processor->bookmarks['_pre_open'],
-			$processor->bookmarks['_code_content_start'],
-			$processor->bookmarks['_code_content_end']
-		) ) {
+		if (
+			! isset( $processor->bookmarks['_pre_open'] ) ||
+			! isset( $processor->bookmarks['_code_content_start'] ) ||
+			! isset( $processor->bookmarks['_code_content_end'] )
+		) {
 			return null;
 		}
 

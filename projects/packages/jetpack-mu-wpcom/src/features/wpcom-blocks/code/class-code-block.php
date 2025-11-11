@@ -349,7 +349,7 @@ abstract class Code_Block {
 	 * @param string $content The block content.
 	 */
 	public static function render_block( array $attributes, string $content ): string {
-		if ( ! \is_array( $attributes['tokenizedLines'] ?? null ) ) {
+		if ( empty( $attributes['tokenizedLines'] ) || ! \is_array( $attributes['tokenizedLines'] ) ) {
 			return $content;
 		}
 
@@ -367,14 +367,14 @@ abstract class Code_Block {
 		}
 
 		$show_line_numbers = $attributes['showLineNumbers'] ?? false;
-		if ( $show_line_numbers && ! empty( $attributes['tokenizedLines'] ) ) {
+		if ( $show_line_numbers ) {
 			$extra_attrs['class']  = 'show-line-numbers';
 			$line_numbers_start_at = isset( $attributes['lineNumbersStartAt'] )
 				? max( 0, min( 10000, (int) $attributes['lineNumbersStartAt'] ) )
 				: 1;
 
 			$max_line_number_width = floor(
-				log10( $line_numbers_start_at + ( \count( $attributes['tokenizedLines'] ) - 1 ) )
+				log10( $line_numbers_start_at + \count( $attributes['tokenizedLines'] ) - 1 )
 			) + 1;
 
 			if ( $line_numbers_start_at !== 1 ) {
