@@ -1,13 +1,13 @@
 @use "@wordpress/base-styles/breakpoints";
 @use "@wordpress/base-styles/variables";
 @use "@wordpress/base-styles/colors";
+@use "../mixins";
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
 .jp-forms__inbox-response {
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
+
+	@include mixins.flex-column;
 	min-height: 300px;
 	overflow: hidden;
 	background-color: colors.$white;
@@ -18,7 +18,7 @@
 	margin: 24px 0 0;
 	padding: 0 32px 0 0;
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 0 32px;
 	}
 }
@@ -29,16 +29,15 @@
 
 .jp-forms__inbox-response-actions {
 	border-bottom: 1px solid var(--jp-forms-border-color);
-	padding: 8px 20px;
+	padding: 8px var(--jp-forms-page-padding-inline);
 	width: 100%;
 }
 
 .jp-forms__inbox__view-actions {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
-	padding: 0 20px; // Match .admin-ui-page__header padding
+	padding: 0 var(--jp-forms-page-padding-inline); // Match .admin-ui-page__header padding
 	overflow-x: auto;
 	width: 100%;
-	box-sizing: border-box;
 	display: flex;
 	container-type: inline-size;
 	flex-shrink: 0;
@@ -67,8 +66,8 @@
 
 	// Tab styling
 	button[role="tab"] {
-		padding: 12px 0;
 		margin: 0;
+		padding: 12px 0;
 		color: var(--wpds-color-fg-interactive-neutral);
 
 		&[data-active="true"] {
@@ -82,29 +81,32 @@
 }
 
 .jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: 20px; // Match header padding
+	padding-inline: var(--jp-forms-page-padding-inline); // Match header padding
 	padding-block: 12px;
+}
+
+// Reset margins and padding for response header elements
+.jp-forms__inbox-response-name,
+.jp-forms__inbox-response-email {
+	margin: 0;
+	padding: 0;
 }
 
 .jp-forms__inbox-response-name {
 	font-size: 24px;
 	font-weight: 700;
 	line-height: 24px;
-	margin: 0;
-	padding: 0;
 }
 
 .jp-forms__inbox-response-email {
-	align-items: center;
-	display: flex;
+
+	@include mixins.flex-center;
 	flex-shrink: 0;
 	gap: 4px;
 	font-size: 14px;
 	font-weight: 500;
 	height: 24px;
 	line-height: 24px;
-	margin: 0;
-	padding: 0;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
@@ -134,9 +136,9 @@
 
 .jp-forms__inbox-response-data {
 	border-top: 1px solid var(--jp-forms-border-color);
-	display: flex;
+
+	@include mixins.flex-column;
 	font-size: var(--jp-forms-font-size-regular);
-	flex-direction: column;
 	line-height: 24px;
 	padding: 24px 32px;
 	row-gap: 24px;
@@ -151,9 +153,9 @@
 }
 
 .jp-forms__inbox-response-data-value .email-field {
-	display: flex;
+
+	@include mixins.flex-center;
 	gap: 4px;
-	align-items: center;
 }
 
 .response-country-flag {
@@ -191,7 +193,7 @@
 		background-repeat: no-repeat;
 		background-position: center;
 
-		@media (min-width: 782px) {
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 			width: 40px;
 			min-width: 40px;
 			height: 40px;
@@ -246,7 +248,6 @@
 
 	.file-field__info {
 		display: flex;
-		flex-direction: row;
 		gap: 12px;
 	}
 }
@@ -259,34 +260,25 @@
 	}
 }
 
-.jp-forms__header-subtext {
-	margin-bottom: 0;
-}
-
 .jp-forms__inbox__dataviews__container {
-	box-sizing: border-box;
 	justify-content: unset;
 	align-items: unset;
 }
 
 .jp-forms__inbox__dataviews {
-	display: flex;
-	flex-direction: column;
+
+	@include mixins.flex-column;
 	flex: 1 1 60%;
 
 	// Optionally, fix the footer to bottom of the page and add margin
 	// so the last row is not hidden by the footer.
-	margin-bottom: 97px;
-
-	@media (min-width: 782px) {
-		margin-bottom: 57px;
-	}
+	@include mixins.dataviews-footer-spacing;
 
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
 
-		@media (min-width: 782px) {
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 			border-right: 1px solid var(--jp-gray-5);
 		}
 	}
@@ -296,7 +288,7 @@
 		bottom: 0;
 
 		// Match .admin-ui-page__header padding
-		padding-inline: 20px;
+		padding-inline: var(--jp-forms-page-padding-inline);
 
 		// Compensation for the width of the sidebar
 		// Set left position when auto-fold is not on the body element.
@@ -312,8 +304,8 @@
 
 	.jp-forms__inbox__author-field {
 		position: relative;
-		display: flex;
-		align-items: center;
+
+		@include mixins.flex-center;
 		gap: 12px;
 		max-width: 100%;
 
@@ -324,8 +316,8 @@
 
 	.jp-forms__inbox__author-info-container {
 		overflow: hidden;
-		display: flex;
-		flex-direction: column;
+
+		@include mixins.flex-column;
 	}
 
 	.jp-forms__inbox__author-info,
@@ -389,11 +381,10 @@
 	top: var(--wp-admin--admin-bar--height, 32px);
 	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
 	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
-	margin-bottom: 97px;
+	@include mixins.dataviews-footer-spacing;
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
-		margin-bottom: 57px;
 	}
 }
 
@@ -408,7 +399,7 @@
 		align-items: anchor-center;
 	}
 
-	@media (min-width: 782px) {
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 		padding: 16px 32px;
 		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
@@ -442,8 +433,8 @@ body.jetpack_page_jetpack-forms-admin {
 }
 
 #jp-forms-dashboard {
-	display: flex;
-	flex-direction: column;
+
+	@include mixins.flex-column;
 	width: 100%;
 }
 
@@ -458,29 +449,14 @@ body.jetpack_page_jetpack-forms-admin {
 	aspect-ratio: 16 / 9;
 }
 
-.jp-forms__inbox-file-preview-container-iframe.is-loading,
 .jp-forms__inbox-file-preview-container.is-loading {
 	display: none;
-}
-
-.jp-forms__inbox-file-preview-container-iframe {
-	margin-bottom: 16px;
-	max-height: 70vh;
 }
 
 .jp-forms__inbox-file-preview-image {
 	height: 100%;
 	width: 100%;
 	max-height: 66vh;
-	object-fit: contain;
-}
-
-.jp-forms__inbox-file-preview-iframe {
-	display: block;
-	width: 100%;
-	min-width: 80vw;
-	min-height: 50vh;
-	border: none;
 	object-fit: contain;
 }
 
@@ -498,13 +474,13 @@ body.jetpack_page_jetpack-forms-admin {
 	.jp-forms__inbox-file-preview-modal {
 		max-width: 90vw;
 		width: auto;
-		z-index: 100010; // Higher than parent modal
+		z-index: var(--jp-forms-z-modal); // Higher than parent modal
 	}
 }
 
 // Ensure backdrop is below the file preview modal but above the response modal
 .components-modal__screen-overlay:nth-of-type(2) {
-	z-index: 100005;
+	z-index: var(--jp-forms-z-modal-backdrop);
 }
 
 .jp-forms__inbox-file-loading {
@@ -517,15 +493,6 @@ body.jetpack_page_jetpack-forms-admin {
 
 .jp-forms__inbox-spinner.jp-forms__inbox-spinner {
 	margin-top: 0;
-}
-
-.jp-forms__inbox-file-preview-fallback {
-	padding: 20px;
-	text-align: center;
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	align-items: center;
 }
 
 .jp-forms__inbox__unread {
