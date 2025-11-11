@@ -81,6 +81,8 @@ domReady( () => {
 
 	// Set up event handlers for each modal
 	modals.forEach( modal => {
+		const trigger = modal.getAttribute( 'data-trigger' ) || 'immediate';
+
 		function closeOnBackdropClick( event: MouseEvent ) {
 			if ( event.target === modal ) {
 				closeModal( modal );
@@ -88,11 +90,32 @@ domReady( () => {
 		}
 
 		modal.addEventListener( 'click', closeOnBackdropClick );
+
+		// Handle "leave" trigger - open modal when cursor leaves the page
+		if ( trigger === 'leave' ) {
+			let hasLeftPage = false;
+
+			function handleMouseLeave( event: MouseEvent ) {
+				// Check if mouse is leaving the viewport (not just moving between elements)
+				if ( ! event.relatedTarget && ! hasLeftPage ) {
+					hasLeftPage = true;
+					openModal( modal );
+					// Remove listener after opening once
+					modal.ownerDocument.activeElement?.removeEventListener( 'mouseleave', handleMouseLeave );
+				}
+			}
+
+			modal.ownerDocument.activeElement?.addEventListener( 'mouseleave', handleMouseLeave );
+		}
 	} );
 
-	// Auto-open all modals on load for testing (minimal implementation)
+	// Auto-open modals with "immediate" trigger on load
 	modals.forEach( modal => {
-		openModal( modal );
+		const trigger = modal.getAttribute( 'data-trigger' ) || 'immediate';
+
+		if ( trigger === 'immediate' ) {
+			openModal( modal );
+		}
 	} );
 
 	// Close on Escape key (shared handler)

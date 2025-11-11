@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
+
+const isModalFeatureFlagEnabled = hasFeatureFlag( 'jetpack-forms-modal-feature' );
 
 export default {
 	subject: {
@@ -85,4 +88,16 @@ export default {
 		type: 'array',
 		default: [],
 	},
+	...( isModalFeatureFlagEnabled
+		? {
+				modalEnabled: {
+					type: 'boolean',
+					default: false,
+				},
+				modalTrigger: {
+					type: 'string',
+					default: 'immediate',
+				},
+		  }
+		: {} ),
 };

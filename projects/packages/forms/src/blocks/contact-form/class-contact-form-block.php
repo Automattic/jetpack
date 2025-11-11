@@ -60,6 +60,8 @@ class Contact_Form_Block {
 	 * @return array
 	 */
 	public static function register_feature( $features ) {
+		// Features under feature flag.
+		$features['jetpack-forms-modal-feature'] = apply_filters( 'jetpack_contact_form_render_in_modal', false );
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 
@@ -654,7 +656,8 @@ class Contact_Form_Block {
 
 	/**
 	 * Static storage for modal form HTML.
-	 * Array of form HTML indexed by unique form ID.
+	 * Array of form data indexed by unique form ID.
+	 * Each entry contains 'html' and 'trigger'.
 	 *
 	 * @var array
 	 */
@@ -724,16 +727,14 @@ class Contact_Form_Block {
 	 * @return bool
 	 */
 	private static function should_render_in_modal( $atts ) {
-		/**
-		 * Filter to enable modal mode for contact form blocks.
-		 * For testing purposes, return true to enable modal mode.
-		 *
-		 * @since 0.49.0
-		 *
-		 * @param bool  $should_render_in_modal Whether to render form in modal.
-		 * @param array $atts                   Block attributes.
-		 */
-		return apply_filters( 'jetpack_contact_form_render_in_modal', false, $atts );
+		if ( apply_filters( 'jetpack_contact_form_render_in_modal', false ) ) {
+			// Check if modal is enabled via block attribute.
+			if ( $atts['modalEnabled'] === true ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -763,12 +764,15 @@ class Contact_Form_Block {
 
 		$form_html = Contact_Form::parse( $atts, do_blocks( $content ) );
 
-		// Check if form should render in modal mode.
 		if ( self::should_render_in_modal( $atts ) ) {
-			// Generate unique ID for this form.
 			$form_id = uniqid( 'jetpack-contact-form-modal-', true );
-			// Store form HTML for footer output with unique ID.
-			self::$modal_forms[ $form_id ] = $form_html;
+			$trigger = isset( $atts['modalTrigger'] ) ? $atts['modalTrigger'] : 'immediate';
+
+			self::$modal_forms[ $form_id ] = array(
+				'html'    => $form_html,
+				'trigger' => $trigger,
+			);
+
 			// Enqueue modal CSS only once.
 			if ( ! self::$modal_css_enqueued ) {
 				wp_enqueue_style(
@@ -779,10 +783,12 @@ class Contact_Form_Block {
 				);
 				self::$modal_css_enqueued = true;
 			}
+
 			// Hook into wp_footer to output modal (only once).
 			if ( ! has_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) ) ) {
 				add_action( 'wp_footer', array( __CLASS__, 'add_modal_to_footer' ) );
 			}
+
 			// Return empty string - form will be rendered in footer.
 			return '';
 		}
@@ -877,9 +883,13 @@ class Contact_Form_Block {
 		if ( empty( self::$modal_forms ) ) {
 			return;
 		}
-		foreach ( self::$modal_forms as $form_id => $form_html ) {
+
+		foreach ( self::$modal_forms as $form_id => $form_data ) {
+			$form_html = $form_data['html'];
+			$trigger   = isset( $form_data['trigger'] ) ? $form_data['trigger'] : 'immediate';
+
 			?>
-			<div class="jetpack-contact-form-modal" data-form-id="<?php echo esc_attr( $form_id ); ?>">
+			<div class="jetpack-contact-form-modal" data-form-id="<?php echo esc_attr( $form_id ); ?>" data-trigger="<?php echo esc_attr( $trigger ); ?>">
 				<div class="jetpack-contact-form-modal__modal-content">
 					<?php echo $form_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>

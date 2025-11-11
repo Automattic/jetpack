@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { hasFeatureFlag, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -18,6 +18,7 @@ import { createBlock } from '@wordpress/blocks';
 import {
 	ExternalLink,
 	PanelBody,
+	SelectControl,
 	TextareaControl,
 	TextControl,
 	ToggleControl,
@@ -133,6 +134,8 @@ type JetpackContactFormAttributes = {
 	disableGoBack: boolean;
 	disableSummary: boolean;
 	notificationRecipients: string[];
+	modalEnabled: boolean;
+	modalTrigger: 'immediate' | 'leave';
 };
 type JetpackContactFormEditProps = {
 	name: string;
@@ -141,6 +144,8 @@ type JetpackContactFormEditProps = {
 	clientId: string;
 	className: string;
 };
+
+const isModalFeatureFlagEnabled = hasFeatureFlag( 'jetpack-forms-modal-feature' );
 
 function JetpackContactFormEdit( {
 	name,
@@ -166,6 +171,8 @@ function JetpackContactFormEdit( {
 		disableGoBack,
 		disableSummary,
 		notificationRecipients,
+		modalEnabled,
+		modalTrigger,
 	} = attributes;
 	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
@@ -923,6 +930,42 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
+					{ isModalFeatureFlagEnabled && (
+						<PanelBody
+							title={ __( 'Modal settings', 'jetpack-forms' ) }
+							className="jetpack-contact-form__panel jetpack-contact-form__modal-panel"
+							initialOpen={ false }
+						>
+							<ToggleControl
+								label={ __( 'Display form in modal', 'jetpack-forms' ) }
+								checked={ modalEnabled || false }
+								onChange={ ( value: boolean ) => setAttributes( { modalEnabled: value } ) }
+								__nextHasNoMarginBottom={ true }
+								__next40pxDefaultSize={ true }
+							/>
+							{ modalEnabled && (
+								<SelectControl
+									label={ __( 'Modal trigger', 'jetpack-forms' ) }
+									value={ modalTrigger || 'immediate' }
+									options={ [
+										{
+											label: __( 'When form is loaded', 'jetpack-forms' ),
+											value: 'immediate',
+										},
+										{
+											label: __( 'When cursor leaves the page', 'jetpack-forms' ),
+											value: 'leave',
+										},
+									] }
+									onChange={ ( value: 'immediate' | 'leave' ) =>
+										setAttributes( { modalTrigger: value } )
+									}
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+							) }
+						</PanelBody>
+					) }
 				</InspectorControls>
 				<InspectorAdvancedControls>
 					<TextControl
