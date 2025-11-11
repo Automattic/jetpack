@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.8] - 2025-11-10
+### Fixed
+- Tests: Improve compatibility with PHP 8.5. [#45771]
+
 ## [6.0.7] - 2025-09-15
 ### Changed
 - Internal updates.
@@ -295,6 +299,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[6.0.8]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.7...6.0.8
 [6.0.7]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.6...6.0.7
 [6.0.6]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.5...6.0.6
 [6.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.4...6.0.5

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-GDoc embeds: ensure that slides/sheets render on the front-end

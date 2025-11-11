@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Shortcodes: extract the jmpress.js dependency into pnpm.
