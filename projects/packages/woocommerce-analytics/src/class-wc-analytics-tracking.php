@@ -183,8 +183,18 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return new WP_Error( 'invalid_pixel', 'cannot generate tracks pixel for given input', 400 );
 		}
 
-		// Queue the pixel and send on shutdown.
-		self::queue_pixel_for_batch( $pixel );
+		// Check if batching is supported.
+		$can_batch = ( class_exists( 'WpOrg\Requests\Requests' ) && method_exists( 'WpOrg\Requests\Requests', 'request_multiple' ) )
+			|| ( class_exists( 'Requests' ) && method_exists( 'Requests', 'request_multiple' ) );
+
+		if ( $can_batch ) {
+			// Queue the pixel and send on shutdown.
+			self::queue_pixel_for_batch( $pixel );
+		} else {
+			// Send immediately as batching is not supported.
+			return WC_Tracks_Client::record_event( $event ); // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
+		}
+
 		return true;
 	}
 
@@ -207,8 +217,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 	 * Send all queued pixels using batched non-blocking requests.
 	 * This runs on the shutdown hook to batch all requests together.
 	 *
-	 * Uses Requests library's request_multiple() when available for true parallel
-	 * batching via curl_multi, otherwise falls back to sequential non-blocking requests.
+	 * Uses Requests library's request_multiple() for true parallel batching via curl_multi.
 	 */
 	public static function send_batched_pixels() {
 		if ( empty( self::$pixel_batch_queue ) ) {
@@ -221,16 +230,8 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			$pixels_to_send[] = WC_Tracks_Client::add_request_timestamp_and_nocache( $pixel );
 		}
 
-		// Try to use Requests library for true parallel batching.
-		$can_batch = ( class_exists( 'WpOrg\Requests\Requests' ) && method_exists( 'WpOrg\Requests\Requests', 'request_multiple' ) )
-			|| ( class_exists( 'Requests' ) && method_exists( 'Requests', 'request_multiple' ) );
-
-		if ( $can_batch ) {
-			self::send_with_requests_multiple( $pixels_to_send );
-		} else {
-			// Fallback: send individual non-blocking requests.
-			self::send_with_individual_requests( $pixels_to_send );
-		}
+		// Send with Requests library for true parallel batching.
+		self::send_with_requests_multiple( $pixels_to_send );
 
 		// Clear the queue.
 		self::$pixel_batch_queue = array();
