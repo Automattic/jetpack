@@ -157,15 +157,16 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			};
 
 			selectMediaForMode = result => {
-				const { value, addToGallery, multiple, mode } = this.props;
-				const isReplaceMode = mode === 'replace';
-				const media = multiple ? result : result[ 0 ];
+				const { addToGallery, multiple, existingMedia } = this.props;
 
-				// In replace mode, always select single item. Otherwise use the existing logic.
-				if ( isReplaceMode ) {
-					return result[ 0 ];
+				if ( multiple ) {
+					// For galleries, merge existing images with new selections
+					if ( addToGallery && existingMedia && existingMedia.length > 0 ) {
+						return existingMedia.concat( result );
+					}
+					return result;
 				}
-				return addToGallery ? value.concat( result ) : media;
+				return result[ 0 ];
 			};
 
 			getMediaRequest = url => {
@@ -472,15 +473,32 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			}
 		}
 
-		return withSelect( select => {
+		return withSelect( ( select, ownProps ) => {
 			const currentPost = select( 'core/editor' ).getCurrentPost();
 			// Templates and template parts' numerical ID is stored in `wp_id`.
 			const currentPostId =
 				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
 
+			// we only get the ids in the value prop, so we need to fetch the media objects
+			let existingMedia = [];
+			if ( ownProps.addToGallery && ownProps.value && ownProps.value.length > 0 ) {
+				const coreSelect = select( 'core' );
+				existingMedia = ownProps.value
+					.map( id => coreSelect?.getMedia?.( id ) )
+					.filter( Boolean )
+					.map( media => ( {
+						id: media.id,
+						url: media.source_url,
+						alt: media.alt_text || '',
+						caption: media.caption?.raw || '',
+						type: 'image',
+					} ) );
+			}
+
 			return {
 				postId: currentPostId ?? 0,
 				pickerSession: getGooglePhotosPickerSession(),
+				existingMedia,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

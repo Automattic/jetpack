@@ -109,8 +109,9 @@ if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 								onSelect={ props.onSelect }
 								onClose={ () => setSelectedSource( null ) }
 								allowedTypes={ props.allowedTypes }
-								multiple={ false }
-								mode="replace"
+								multiple={ props.multiple }
+								addToGallery={ props.addToGallery }
+								value={ props.mediaIds }
 								externalSource={ externalSource }
 							/>
 						) }
