@@ -371,7 +371,7 @@ class Jetpack_PostImages {
 			// Let's try to use the postmeta if we can, since it seems to be
 			// more reliable
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$featured_image = get_post_meta( $post->ID, '_jetpack_featured_image' );
+				$featured_image = get_post_meta( $post->ID, '_jetpack_featured_image', false );
 				if ( $featured_image ) {
 					$url = $featured_image[0];
 				} else {
