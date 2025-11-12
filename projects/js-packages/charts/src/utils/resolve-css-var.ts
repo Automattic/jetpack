@@ -9,6 +9,10 @@ export const resolveCssVariable = ( cssVar: string ): string | null => {
 		return null;
 	}
 
+	if ( cssVar.length > 1000 ) {
+		throw new Error( 'CSS variable is too long' );
+	}
+
 	// Extract the variable name from var(--variable-name)
 	const match = cssVar.match( /var\(\s*(--[^),\s]+)\s*(?:,\s*([^)]+))?\s*\)/ );
 	if ( ! match ) {
