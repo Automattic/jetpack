@@ -169,6 +169,9 @@ class VaultPress_Database {
 		if ( !is_object( $data ) || !is_object( $datatypes ) )
 			return false;
 
+		$keys = array();
+		$vals = array();
+
 		foreach ( array_keys( (array)$data ) as $key )
 			$keys[] = sprintf( "`%s`", esc_sql( $key ) );
 		foreach ( (array)$data as $key => $val ) {

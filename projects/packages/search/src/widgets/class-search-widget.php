@@ -325,6 +325,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 8.3.0
 	 */
 	public function widget_non_instant( $args, $instance ) {
+		$filters         = array();
 		$display_filters = false;
 
 		// Search instance must have been initialized before widget render.

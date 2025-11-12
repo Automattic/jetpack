@@ -651,7 +651,7 @@ final class Image_CDN {
 					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
 						$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
 
-						if ( $placeholder_src !== $placeholder_src_orig ) {
+						if ( isset( $placeholder_src_orig ) && $placeholder_src !== $placeholder_src_orig ) {
 							$processor->set_attribute( $source_type, $placeholder_src );
 						}
 

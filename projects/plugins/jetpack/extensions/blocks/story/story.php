@@ -196,7 +196,7 @@ function render_image( $media ) {
 	}
 
 	// if image does not match.
-	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ) ) {
+	if ( ! $image || isset( $media['url'] ) && ! is_same_resource( $media['url'], $src ?? '' ) ) {
 		$width  = isset( $media['width'] ) ? $media['width'] : null;
 		$height = isset( $media['height'] ) ? $media['height'] : null;
 		$title  = isset( $media['title'] ) ? $media['title'] : '';
@@ -215,6 +215,7 @@ function render_image( $media ) {
 		);
 	}
 
+	// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $width and $height are set when $image is truthy, and other scenarios return early.
 	$crop_class = get_image_crop_class( $width, $height );
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images

@@ -36,6 +36,7 @@ class Differences extends PersistentList {
 			$moved                 = false;
 			$moved_with_empty_file = false;
 			$deprecated            = false;
+			$new_declaration       = false;
 			foreach ( $new_declarations->get() as $new_declaration ) {
 
 				if ( $prev_declaration->match( $new_declaration ) ) {
@@ -69,7 +70,7 @@ class Differences extends PersistentList {
 			}
 
 			// Add differences for any detected deprecations.
-			if ( $deprecated ) {
+			if ( $deprecated && $new_declaration ) {
 				switch ( $new_declaration->type() ) {
 					case 'method':
 						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration ) );
@@ -82,7 +83,7 @@ class Differences extends PersistentList {
 				}
 				$deprecated_total++;
 
-			} elseif ( $matched && $moved ) {
+			} elseif ( $matched && $moved && $new_declaration ) {
 				switch ( $prev_declaration->type() ) {
 					case 'class':
 						$this->add( new Differences\Class_Moved( $prev_declaration, $new_declaration ) );
