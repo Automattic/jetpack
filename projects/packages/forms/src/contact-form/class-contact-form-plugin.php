@@ -569,11 +569,13 @@ class Contact_Form_Plugin {
 
 				// The following handles when option blocks are a direct inner block for a field e.g. singular checkbox field.
 				if ( 'jetpack/option' === $block_name ) {
-					$atts['label']                            = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
-					$option_attrs                             = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
-					$atts['optionclasses']                    = 'wp-block-jetpack-option';
-					$atts['optionclasses']                   .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
-					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
+					$atts['label']          = $inner_block['attrs']['label'] ?? $inner_block['attrs']['defaultLabel'] ?? '';
+					$option_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
+					$atts['optionclasses']  = 'wp-block-jetpack-option';
+					$atts['optionclasses'] .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
+					$atts['optionstyles']   = $option_attrs['style'] ?? null;
+
+					$atts['requiredText']                     = $inner_block['attrs']['requiredText'] ?? ( $atts['requiredText'] ?? null );
 					$add_block_style_classes_to_field_wrapper = true;
 
 					continue;
