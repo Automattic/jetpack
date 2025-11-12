@@ -443,6 +443,11 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
+	// Return the site image if we are in offline mode instead of attempting to generate a dynamic one.
+	if ( ( new Status() )->is_offline_mode() ) {
+		return $site_image;
+	}
+
 	/*
 	 * Only attempt to generate a dynamic fallback image
 	 * if we have a healthy connection to WPCOM.
@@ -606,9 +611,6 @@ function jetpack_og_get_available_templates() {
  */
 function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
 
-	if ( ( new Status() )->is_offline_mode() ) {
-		return new WP_Error( 'jetpack_og_get_social_image_token_error', __( 'Cannot generate social image token while in Offline Mode.', 'jetpack' ) );
-	}
 	// Let's check if we have a cached token.
 	$cache_key      = wp_hash( $site_title . $image_url . $template );
 	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
