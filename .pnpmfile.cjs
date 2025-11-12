@@ -55,6 +55,14 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Breaking change in @wordpress/icons v11.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies[ '@wordpress/icons' ]?.startsWith( '>=10' )
+	) {
+		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
+	}
+
 	// Outdated dependency version causing dependabot warnings.
 	// https://github.com/WordPress/gutenberg/issues/69557
 	if (
