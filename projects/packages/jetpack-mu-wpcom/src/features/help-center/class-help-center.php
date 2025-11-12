@@ -7,7 +7,9 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Help_Center
@@ -278,21 +280,22 @@ class Help_Center {
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'        => boolval( self::is_proxied() ),
-						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin'      => $is_next_admin,
-						'isCommerceGarden' => $is_commerce_garden,
-						'currentUser'      => array(
+						'isProxied'          => boolval( self::is_proxied() ),
+						'isSU'               => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'              => isset( $_COOKIE['ssp'] ),
+						'sectionName'        => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin'        => $is_next_admin,
+						'isCommerceGarden'   => $is_commerce_garden,
+						'currentUser'        => array(
 							'ID'           => $user_id,
 							'username'     => $username,
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
 						),
-						'site'             => $this->get_current_site(),
-						'locale'           => self::determine_iso_639_locale(),
+						'site'               => $this->get_current_site(),
+						'locale'             => self::determine_iso_639_locale(),
+						'isMenuPanelEnabled' => $this->is_menu_panel_enabled(),
 					)
 				),
 				'before'
@@ -314,6 +317,47 @@ class Help_Center {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Returns whether the menu panel experiment is enabled for the current user.
+	 *
+	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
+	 */
+	private function is_menu_panel_enabled() {
+		$experiment_name      = 'calypso_help_center_menu_popover';
+		$experiment_variation = 'menu_popover';
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		}
+
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return false;
+		}
+
+		$request_path = '/experiments/0.1.0/assignments/calypso';
+		$response     = Client::wpcom_json_api_request_as_user(
+			add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
+			'v2'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return false;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+			$variation = $data['variations'][ $experiment_name ];
+			return $experiment_variation === $variation;
+		}
+
+		return false;
 	}
 
 	/**
