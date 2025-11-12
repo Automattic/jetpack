@@ -320,7 +320,7 @@ define( 'WP_PROXY_HOST', 'socks://host.docker.internal' );
 define( 'WP_PROXY_PORT', '8080' );
 ```
 
-After applying either method, restart your Docker containers:
+After applying either method, restart your Docker container:
 
 ```bash
 jetpack docker down
