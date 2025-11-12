@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.3] - 2025-11-12
+### Changed
+- Internal updates.
+
 ## [0.46.2] - 2025-11-10
 ### Changed
 - Update package dependencies. [#45737]
@@ -15,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.46.0] - 2025-10-28
 ### Added
-- Charts: Add interactive legend support to LeaderboardChart [#45581]
+- Add interactive legend support to LeaderboardChart. [#45581]
 
 ### Changed
 - Update package dependencies. [#45652]
@@ -35,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show ticks in year format when the interval is more than a year. [#45529]
 
 ### Changed
-- Charts: Group Storybook controls. [#45503]
+- Add Group Storybook controls. [#45503]
 
 ## [0.42.0] - 2025-10-14
 ### Changed
@@ -543,6 +547,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.46.3]: https://github.com/Automattic/charts/compare/v0.46.2...v0.46.3
 [0.46.2]: https://github.com/Automattic/charts/compare/v0.46.1...v0.46.2
 [0.46.1]: https://github.com/Automattic/charts/compare/v0.46.0...v0.46.1
 [0.46.0]: https://github.com/Automattic/charts/compare/v0.45.0...v0.46.0

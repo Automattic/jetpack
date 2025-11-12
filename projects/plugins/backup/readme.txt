@@ -175,25 +175,15 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 3.5 - 2025-09-08
+### 3.6 - 2025-11-12
 #### Added
-- My Jetpack: Added analytics for empty product search results.
+- Tested up to WordPress 6.9.
 
 #### Changed
-- - Remove CRM installation nudge for Complete plan users.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Sync: Ignore the ActivityPub Outbox CPT.
 - Update package dependencies.
 
 #### Fixed
-- JITM: Fix ineffective caching due to expired plugin sync transient/
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link.
-- JITM: Remove jQuery dependency.
+- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin.
 
 --------
 
