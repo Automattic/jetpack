@@ -324,7 +324,7 @@ After applying either method, restart your Docker containers:
 
 ```bash
 jetpack docker down
-jetpack docker up
+jetpack docker up -d
 ```
 
 ## Using Ngrok with Jetpack
