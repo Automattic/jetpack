@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Simplify DataViews footer positioning by using default sticky behavior

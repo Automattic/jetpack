@@ -67,35 +67,12 @@
 	@include mixins.flex-column;
 	flex: 1 1 60%;
 
-	// Optionally, fix the footer to bottom of the page and add margin
-	// so the last row is not hidden by the footer.
-	@include mixins.dataviews-footer-spacing;
-
 	.dataviews-wrapper {
 		background: var(--jp-white);
 		flex-grow: 1;
 
 		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 			border-right: 1px solid var(--jp-gray-5);
-		}
-	}
-
-	.dataviews-footer {
-		position: fixed;
-		bottom: 0;
-
-		// Match .admin-ui-page__header padding
-		padding-inline: var(--jp-forms-page-padding-inline);
-
-		// Compensation for the width of the sidebar
-		// Set left position when auto-fold is not on the body element.
-		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
-		left: 0;
-		width: 100%;
-
-		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
 		}
 	}
 
@@ -137,37 +114,6 @@
 	}
 }
 
-/*
- * Compensation for the width of the sidebar
- * Auto fold is when on smaller breakpoints, nav menu auto collapses.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
-
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
-
-	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
-	}
-}
-
-/*
- * Compensation for the width of the sidebar when the Sidebar
- * is manually collapsed.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.folded .jp-forms__inbox__dataviews .dataviews-footer {
-	left: 0;
-
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
-}
 
 /*
  * We need to make the available canvas 100% tall. Without this,
