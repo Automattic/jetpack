@@ -20,7 +20,7 @@ class Instant_Search_Add_Search_Block_Test extends TestCase {
 	 */
 	public function test_inject_search_widget_to_block_single_group() {
 		// 2022 theme.
-		$footer_content                   = <<<EOT
+		$footer_content                   = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:site-title {"level":0} /-->
@@ -29,7 +29,7 @@ class Instant_Search_Add_Search_Block_Test extends TestCase {
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_with_search_block = <<<EOT
+		$footer_content_with_search_block = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 
@@ -48,7 +48,7 @@ EOT;
 	 */
 	public function test_inject_search_widget_to_block_nested_group() {
 		// 2022 footer.
-		$footer_content                   = <<<EOT
+		$footer_content                   = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->
@@ -59,7 +59,7 @@ EOT;
 <!-- /wp:paragraph --></div></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_with_search_block = <<<EOT
+		$footer_content_with_search_block = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->

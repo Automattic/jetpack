@@ -692,7 +692,7 @@ EOT;
 	public function print_setting_html() {
 		$options = $this->get_options();
 
-		$ui_settings_template = <<<EOT
+		$ui_settings_template = <<<'EOT'
 <p class="description">%s</p>
 <ul id="settings-reading-relatedposts-customize">
 	<li>
@@ -728,7 +728,7 @@ EOT;
 		);
 
 		if ( ! $this->allow_feature_toggle() ) {
-			$template = <<<EOT
+			$template = <<<'EOT'
 <input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
 %s
 EOT;
@@ -737,7 +737,7 @@ EOT;
 				$ui_settings // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- data is escaped when variable is set.
 			);
 		} else {
-			$template = <<<EOT
+			$template = <<<'EOT'
 <ul id="settings-reading-relatedposts">
 	<li>
 		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>

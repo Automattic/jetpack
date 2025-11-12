@@ -156,7 +156,7 @@ function replace_site_visibility() {
 	} elseif ( ! is_jetpack_connected() ) {
 		return;
 	} else {
-		$escaped_content = <<<HTML
+		$escaped_content = <<<'HTML'
 <fieldset id="wpcom-site-visibility">
 	<img src="images/loading.gif" alt="Loading..." width="16" height="16">
 </fieldset>

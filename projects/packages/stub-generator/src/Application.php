@@ -65,7 +65,7 @@ class Application extends SingleCommandApplication {
 			->addOption( 'json', null, InputOption::VALUE_NONE, 'Definition file is a JSON file.' )
 			->addOption( 'output', null, InputOption::VALUE_REQUIRED, 'Write output to this file rather than standard output.' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 				Generate stubs for specific functions/classes/etc from a codebase.
 
 				The <info>file</info> specifies which files to scan and which functions,
