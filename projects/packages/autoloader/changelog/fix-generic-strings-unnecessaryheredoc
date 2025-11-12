@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix `Generic.Strings.UnnecessaryHeredoc` sniff, being added in WPCS 3.2.
-
-

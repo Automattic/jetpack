@@ -32,7 +32,10 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 4.0.3 - 2025-09-09
+### 4.0.4 - 2025-11-12
+#### Added
+- Tested up to WordPress 6.9.
+
 #### Changed
 - Update package dependencies.
 
