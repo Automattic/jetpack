@@ -804,9 +804,8 @@ function is_global_styles_on_personal_plan() {
 
 	$experiment_key = 'calypso_plans_global_styles_personal_20251108_v4';
 	$cache_group    = 'a8c_experiments';
-	// @TODO Update key once experiment is launched.
-	$cache_key = sprintf(
-		'global-styles-personal-user-tmp-%d',
+	$cache_key      = sprintf(
+		'global-styles-personal-user-%d',
 		$user->ID
 	);
 
