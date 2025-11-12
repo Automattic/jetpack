@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.2-beta - 2025-11-11
+### 4.5.2 - 2025-11-12
 #### Changed
 - Tests: Ensure PHP 8.5 compatibility.
 - Update package dependencies.
