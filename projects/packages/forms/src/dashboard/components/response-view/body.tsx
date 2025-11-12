@@ -9,7 +9,6 @@ import {
 	Modal,
 	Tooltip,
 	Spinner,
-	Icon,
 	Tip,
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -20,7 +19,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { download, image } from '@wordpress/icons';
+import { image } from '@wordpress/icons';
 import clsx from 'clsx';
 import photon from 'photon';
 /**
@@ -30,6 +29,7 @@ import useConfigValue from '../../../hooks/use-config-value';
 import CopyClipboardButton from '../../components/copy-clipboard-button';
 import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
+import FieldFile from '../../components/response-view/field-file';
 import useInboxData from '../../hooks/use-inbox-data';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
@@ -91,7 +91,7 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 		<div className="jp-forms__inbox-file-preview-shell">
 			{ isLoading && (
 				<div className="jp-forms__inbox-file-loading">
-					<Spinner className="jp-forms__inbox-spinner" />
+					<Spinner className="jp-forms__inbox-file-spinner" />
 					<div className="jp-forms__inbox-file-loading-message ">
 						{ __( 'Loading preview…', 'jetpack-forms' ) }
 					</div>
@@ -106,77 +106,6 @@ const PreviewFile = ( { file, isLoading, onImageLoaded } ) => {
 					className="jp-forms__inbox-file-preview-image"
 				/>
 			</div>
-		</div>
-	);
-};
-
-const FileField = ( { file, onClick } ) => {
-	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
-	const fileType = file.type.split( '/' )[ 0 ];
-
-	const iconMap = {
-		image: 'png',
-		video: 'mp4',
-		audio: 'mp3',
-		document: 'pdf',
-		application: 'txt',
-	};
-
-	const extensionMap = {
-		pdf: 'pdf',
-		png: 'png',
-		jpg: 'png',
-		jpeg: 'png',
-		gif: 'png',
-		mp4: 'mp4',
-		mp3: 'mp3',
-		webm: 'webm',
-		doc: 'doc',
-		docx: 'doc',
-		txt: 'txt',
-		ppt: 'ppt',
-		pptx: 'ppt',
-		xls: 'xls',
-		xlsx: 'xls',
-		csv: 'xls',
-		zip: 'zip',
-		sql: 'sql',
-		cal: 'cal',
-	};
-	const iconType = extensionMap[ fileExtension ] || iconMap[ fileType ] || 'txt';
-	const iconClass = clsx( 'file-field__icon', 'icon-' + iconType );
-	return (
-		<div className="file-field__item">
-			<div className="file-field__info">
-				<div className={ iconClass }></div>
-				<div className="file-field__name">
-					{ file.is_previewable && (
-						<Button target="_blank" variant="link" onClick={ onClick }>
-							{ decodeEntities( file.name ) }
-						</Button>
-					) }
-					{ ! file.is_previewable && (
-						<ExternalLink href={ file.url + '&preview=true' }>
-							{ decodeEntities( file.name ) }
-						</ExternalLink>
-					) }
-					<div className="file-field__meta-info">
-						{ sprintf(
-							/* translators: %1$s size of the file and %2$s is the file extension */
-							__( '%1$s, %2$s', 'jetpack-forms' ),
-							file.size,
-							fileExtension.toUpperCase()
-						) }
-					</div>
-				</div>
-			</div>
-			<span className="file-field__item-actions">
-				<Tooltip text={ __( 'Download', 'jetpack-forms' ) }>
-					<Button variant="secondary" href={ file.url } target="_blank">
-						<Icon icon={ download } />
-					</Button>
-				</Tooltip>
-			</span>
 		</div>
 	);
 };
@@ -298,25 +227,9 @@ const ResponseViewBody = ( {
 			);
 		}
 
+		// File uploads
 		if ( isFileUploadField( value ) ) {
-			return (
-				<div className="file-field">
-					{ value.files?.length
-						? value.files.map( file => {
-								if ( ! file || ! file.name ) {
-									return '-';
-								}
-								return (
-									<FileField
-										file={ file }
-										onClick={ handleFilePreview( file ) }
-										key={ file.file_id }
-									/>
-								);
-						  } )
-						: '-' }
-				</div>
-			);
+			return <FieldFile files={ value?.files } handleFilePreview={ handleFilePreview } />;
 		}
 
 		// Emails
