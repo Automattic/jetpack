@@ -75,7 +75,9 @@ async function fixDeps( pkg ) {
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' ||
+			pkg.name === '@wordpress/media-utils' ||
+			pkg.name === '@wordpress/admin-ui' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
