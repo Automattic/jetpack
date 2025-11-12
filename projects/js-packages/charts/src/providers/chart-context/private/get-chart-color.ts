@@ -140,10 +140,13 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 			// Handle hue wrap-around (e.g., if colors span across 0 degrees)
 			let hueRange = maxHue - minHue;
 
-			// If the range is very large, it might be wrapping around the color wheel
-			// Check if a smaller range exists when considering wrap-around
-			if ( hueRange > HUE_WRAP_THRESHOLD_DEGREES ) {
-				// Try the alternative: wrap around the full rotation
+			// If there's only one color, use a much wider hue range for more variety
+			if ( hues.length === 1 ) {
+				// Use nearly the full color wheel for maximum variety
+				hueRange = FULL_HUE_ROTATION_DEGREES * 0.9; // 90% of the color wheel (324 degrees)
+			} else if ( hueRange > HUE_WRAP_THRESHOLD_DEGREES ) {
+				// If the range is very large, it might be wrapping around the color wheel
+				// Check if a smaller range exists when considering wrap-around
 				const altMinHue = Math.min( ...hues.filter( h => h > HUE_WRAP_THRESHOLD_DEGREES ) );
 				const altMaxHue =
 					Math.max( ...hues.filter( h => h < HUE_WRAP_THRESHOLD_DEGREES ) ) +

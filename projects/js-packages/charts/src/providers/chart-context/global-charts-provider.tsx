@@ -1,5 +1,11 @@
 import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
-import { getItemShapeStyles, getSeriesLineStyles, mergeThemes, hexToHsl } from '../../utils';
+import {
+	getItemShapeStyles,
+	getSeriesLineStyles,
+	mergeThemes,
+	hexToHsl,
+	resolveCssVariable,
+} from '../../utils';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
@@ -27,6 +33,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	// Cache expensive color computations that only change when theme colors change
 	const colorCache: ColorCache = useMemo( () => {
 		const { colors } = providerTheme;
+		const resolvedColors: string[] = [];
 		const hues: number[] = [];
 		const existingHslColors: Array< [ number, number, number ] > = [];
 		let minHue = 360;
@@ -35,18 +42,33 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		// Process all colors once and cache the results
 		if ( Array.isArray( colors ) ) {
 			for ( const color of colors ) {
-				if ( color && typeof color === 'string' && color.startsWith( '#' ) ) {
-					const hslColor = hexToHsl( color );
-					hues.push( hslColor[ 0 ] );
-					existingHslColors.push( hslColor );
-					minHue = Math.min( minHue, hslColor[ 0 ] );
-					maxHue = Math.max( maxHue, hslColor[ 0 ] );
+				if ( color && typeof color === 'string' ) {
+					let colorValue = color;
+
+					// Handle CSS custom properties (variables) - resolve them to actual values
+					if ( color.includes( 'var(' ) ) {
+						const resolved = resolveCssVariable( color );
+						if ( ! resolved ) {
+							continue; // Skip if variable can't be resolved
+						}
+						colorValue = resolved;
+					}
+
+					// Process hex colors
+					if ( colorValue.startsWith( '#' ) ) {
+						resolvedColors.push( colorValue );
+						const hslColor = hexToHsl( colorValue );
+						hues.push( hslColor[ 0 ] );
+						existingHslColors.push( hslColor );
+						minHue = Math.min( minHue, hslColor[ 0 ] );
+						maxHue = Math.max( maxHue, hslColor[ 0 ] );
+					}
 				}
 			}
 		}
 
 		return {
-			colors: colors || [],
+			colors: resolvedColors,
 			hues,
 			existingHslColors,
 			minHue,

@@ -89,6 +89,15 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 
 	return (
 		<LocaleInitializer theme={ theme }>
+			{ themeName === 'custom' && (
+				<style>
+					{ `
+						:root {
+							--wpds-color-bg-interactive-brand-strong: #3ac200;
+						}
+					` }
+				</style>
+			) }
 			<Story />
 		</LocaleInitializer>
 	);

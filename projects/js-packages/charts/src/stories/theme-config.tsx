@@ -5,7 +5,7 @@ import type { ChartTheme } from '../types';
  * Custom theme with earth tones and dashed line styles for demonstration
  */
 export const customTheme: ChartTheme = {
-	colors: [ '#073B3A', '#0B6E4F', '#08A045', '#6BBF59', '#DDB771' ],
+	colors: [ 'var(--wpds-color-bg-interactive-brand-strong)' ],
 	seriesLineStyles: [
 		{
 			strokeWidth: 1,
