@@ -107,8 +107,6 @@ class Nonce_Handler {
 						'no'
 					)
 				);
-			} else {
-				$return = false;
 			}
 		} finally {
 			$this->db->show_errors( $show_errors );
