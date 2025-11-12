@@ -30,7 +30,7 @@ function disable_defer_js_for_divi_builder( $should_defer_js ) {
 		return false;
 	}
 
-	if ( function_exists( 'is_et_pb_preview' ) && is_et_pb_preview() ) {
+	if ( function_exists( 'is_et_pb_preview' ) && call_user_func( 'is_et_pb_preview' ) ) {
 		return false;
 	}
 
