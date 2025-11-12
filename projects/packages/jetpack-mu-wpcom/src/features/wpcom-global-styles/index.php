@@ -726,15 +726,19 @@ function wpcom_global_styles_assignment_api_request( $experiment_key, $user_id )
 		return false;
 	}
 
-	$request_path = add_query_arg(
-		array(
-			'experiment_name' => $experiment_key,
-			'user_id'         => $user_id,
-		),
-		'/experiments/0.1.0/assignments/calypso'
+	$path     = '/me/explat-assignments';
+	$body     = array(
+		'experiment' => (string) $experiment_key,
+		'user_id'    => (int) $user_id,
+	);
+	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		$path,
+		'v1',
+		array( 'method' => 'POST' ),
+		$body,
+		'rest'
 	);
 
-	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user( $request_path, 'v2' );
 	if ( is_wp_error( $response ) ) {
 		return false;
 	}
@@ -750,9 +754,13 @@ function wpcom_global_styles_assignment_api_request( $experiment_key, $user_id )
 		return false;
 	}
 
-	$variation = $data['variations'][ $experiment_key ] ?? null;
+	foreach ( $data as $assignment ) {
+		if ( isset( $assignment['name'] ) && $assignment['name'] === $experiment_key ) {
+			return array_key_exists( 'variation', $assignment ) && null !== $assignment['variation'];
+		}
+	}
 
-	return 'treatment' === $variation;
+	return false;
 }
 
 /**
