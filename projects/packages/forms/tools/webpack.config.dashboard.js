@@ -61,6 +61,12 @@ module.exports = {
 	},
 	module: {
 		rules: [
+			// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+			{
+				test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
+				resolve: { fullySpecified: false },
+			},
+
 			// Transpile JavaScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
