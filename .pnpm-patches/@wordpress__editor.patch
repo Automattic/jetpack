@@ -1,0 +1,25 @@
+diff --git a/build-module/package.json b/build-module/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..ec566419b6da8e8e2bca9ba950ad82c0914ea410
+--- /dev/null
++++ b/build-module/package.json
+@@ -0,0 +1,19 @@
++{
++	"type": "module",
++	"sideEffects": [
++		"build-style/**",
++		"src/**/*.scss",
++		"src/index.js",
++		"src/store/index.js",
++		"src/hooks/**",
++		"src/bindings/**",
++		"build/index.js",
++		"build/store/index.js",
++		"build/hooks/**",
++		"build/bindings/**",
++		"build-module/index.js",
++		"build-module/store/index.js",
++		"build-module/hooks/**",
++		"build-module/bindings/**"
++	]
++}

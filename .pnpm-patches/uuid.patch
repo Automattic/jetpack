@@ -1,0 +1,7 @@
+diff --git a/dist/esm-browser/package.json b/dist/esm-browser/package.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..089153bcb5adf57dc25f206a9dad3114c9cff80d
+--- /dev/null
++++ b/dist/esm-browser/package.json
+@@ -0,0 +1 @@
++{"type":"module","sideEffects": false}
