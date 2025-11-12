@@ -2,10 +2,17 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
 
-jest.mock( '@wordpress/components/build/sandbox', () => ( {
-	__esModule: true,
-	default: props => <iframe title="Some title" { ...props } />,
-} ) );
+jest.mock( '@wordpress/components', () => {
+	const actual = jest.requireActual( '@wordpress/components' );
+	const mocks = {
+		SandBox: props => <iframe title="Some title" { ...props } />,
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 
 // Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
 jest.mock( '@automattic/jetpack-script-data', () => {
