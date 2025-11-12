@@ -184,7 +184,8 @@ class Help_Center {
 	 * @param string $version The version of the asset file to get.
 	 */
 	public function enqueue_script( $variant, $dependencies, $version ) {
-		$script_dependencies = $dependencies ?? array();
+		$script_dependencies   = $dependencies ?? array();
+		$is_menu_panel_enabled = $this->is_menu_panel_enabled();
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
 			add_action(
@@ -215,9 +216,11 @@ class Help_Center {
 				12
 			);
 
-			// Initialize the help center menu panel
-			require_once __DIR__ . '/class-help-center-menu-panel.php';
-			Help_Center_Menu_Panel::init( $variant );
+			if ( $is_menu_panel_enabled ) {
+				// Initialize the help center menu panel
+				require_once __DIR__ . '/class-help-center-menu-panel.php';
+				Help_Center_Menu_Panel::init( $variant );
+			}
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
@@ -295,7 +298,7 @@ class Help_Center {
 						),
 						'site'               => $this->get_current_site(),
 						'locale'             => self::determine_iso_639_locale(),
-						'isMenuPanelEnabled' => $this->is_menu_panel_enabled(),
+						'isMenuPanelEnabled' => $is_menu_panel_enabled,
 					)
 				),
 				'before'
