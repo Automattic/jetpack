@@ -214,6 +214,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			// Enqueue all core WordPress editor assets
 			$this->enqueue_core_editor_assets();
 
+			// Remove problematic plugin hooks before triggering block editor asset actions
+			$this->remove_problematic_plugin_hooks();
+
 			// Trigger block editor asset actions with forced script/style loading
 			add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
 			do_action( 'enqueue_block_assets' );
@@ -467,6 +470,86 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$current_screen->is_block_editor( true );
 			$current_screen->post_type = $post_type;
 		}
+	}
+
+	/**
+	 * Removes hooks from problematic plugins that cause errors in this endpoint.
+	 *
+	 * This method removes hooks from specific plugins that are known to cause
+	 * 500 errors when the enqueue_block_editor_assets action is triggered in
+	 * the REST API context.
+	 */
+	private function remove_problematic_plugin_hooks() {
+		global $wp_filter;
+
+		// List of problematic plugins and their callback patterns
+		$problematic_plugins = array(
+			'wpforms-lite' => array(
+				'enqueue_block_editor_assets',
+			),
+		);
+
+		foreach ( $problematic_plugins as $plugin_slug => $hook_names ) {
+			foreach ( $hook_names as $hook_name ) {
+				if ( ! isset( $wp_filter[ $hook_name ] ) ) {
+					continue;
+				}
+
+				// Iterate through all priorities for this hook
+				foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {
+					foreach ( $callbacks as $callback_data ) {
+						// Check if this callback belongs to the problematic plugin
+						if ( $this->is_callback_from_plugin( $callback_data['function'], $plugin_slug ) ) {
+							remove_action( $hook_name, $callback_data['function'], $priority );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Checks if a callback function belongs to a specific plugin.
+	 *
+	 * @param callable|array $callback The callback to check.
+	 * @param string         $plugin_slug The plugin slug to match against.
+	 * @return bool True if the callback belongs to the plugin, false otherwise.
+	 */
+	private function is_callback_from_plugin( $callback, $plugin_slug ) {
+		// Handle object method callbacks [object, 'method_name']
+		if ( is_array( $callback ) && count( $callback ) === 2 ) {
+			$object = $callback[0];
+			if ( is_object( $object ) ) {
+				$reflection = new ReflectionClass( $object );
+				$file_path  = $reflection->getFileName();
+				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+					return true;
+				}
+			}
+		}
+
+		// Handle static method callbacks 'ClassName::method_name'
+		if ( is_string( $callback ) && str_contains( $callback, '::' ) ) {
+			list( $class_name, ) = explode( '::', $callback, 2 );
+			if ( class_exists( $class_name ) ) {
+				$reflection = new ReflectionClass( $class_name );
+				$file_path  = $reflection->getFileName();
+				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+					return true;
+				}
+			}
+		}
+
+		// Handle function name callbacks
+		if ( is_string( $callback ) && function_exists( $callback ) ) {
+			$reflection = new ReflectionFunction( $callback );
+			$file_path  = $reflection->getFileName();
+			if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
