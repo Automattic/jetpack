@@ -55,7 +55,7 @@
 
 	/* Essential layout and styling for PRE,CODE */
 	pre,
- code {
+	code {
 		margin: 0 !important;
 		padding: 0 !important;
 		line-height: inherit !important;
