@@ -110,6 +110,7 @@ class MailPoet_Integration {
 
 			// Normalize "subscribed" status using MailPoet constant when available.
 			$status_subscribed = class_exists( '\MailPoet\Entities\SubscriberEntity' )
+				// @phan-suppress-next-line PhanUndeclaredClassConstant
 				? \MailPoet\Entities\SubscriberEntity::STATUS_SUBSCRIBED
 				: 'subscribed';
 
