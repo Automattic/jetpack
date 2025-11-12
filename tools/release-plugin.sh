@@ -17,7 +17,7 @@ VERSION_REGEX='^[0-9]+(\.[0-9]+)+(-.*)?$'
 CUR_STEP=0
 
 RELEASE_STEPS=(
-	'do_trunk_and_prelease_branch_prep'
+	'do_trunk_and_prelease_branch_prep' 
 	'do_changelogs'
 	'do_readme'
 	'do_commit_changelog_and_readme'
@@ -66,7 +66,7 @@ function preflight_checks {
 		yellow "This tool requires the GitHub CLI, which was not found."
 		if command -v brew &> /dev/null; then
 			proceed_p "Install the GitHub CLI via brew?" "" Y
-			brew install gh
+			brew install gh || die 'Unable to install gh!'
 		else
 			die "Please install the GitHub CLI before proceeding"
 		fi
@@ -82,7 +82,7 @@ function preflight_checks {
 	if ! gh auth status --hostname github.com &> /dev/null; then
 		yellow "You are not signed into the GitHub CLI."
 		proceed_p "Sign in to the GitHub CLI?" "" Y
-		gh auth login
+		gh auth login || die 'Failed to log in!'
 	fi
 }
 
@@ -332,7 +332,7 @@ function do_final_instructions {
 	yellow "Release script complete!"
 
 	echo ''
-	echo 'Next you need to merge the above PR into trunk.'
+	echo 'Backport the changes into trunk by reviewing and merging the above PR.'
 
 	AUTO=()
 	MANUALTAG=()
@@ -371,9 +371,10 @@ function do_final_instructions {
 		cat <<-EOM
 
 		For these plugins: ${AUTO[*]}
-		The release will shortly be tagged to GitHub and released to SVN and you can
-		then smoke test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
-		to update the stable tag, and you're done!
+		  1. Wait for the release to be automatically tagged in GitHub.
+		  2. Wait for the changes to be automatically deployed to SVN.
+		  3. Smoke test.
+		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 
@@ -381,8 +382,8 @@ function do_final_instructions {
 		cat <<-EOM
 
 		For these plugins: ${MANUALTAGONLY[*]}
-		Wait for the changes to appear in the mirror repo and conduct a GitHub
-		release. Then you're done!
+		  1. Wait for the changes to appear in the mirror repo.
+		  2. Conduct a GitHub release.
 		EOM
 	fi
 
@@ -390,10 +391,11 @@ function do_final_instructions {
 		cat <<-EOM
 
 		For these plugins: ${MANUALTAG[*]}
-		Wait for the changes to appear in the mirror repo and conduct a GitHub
-		release. The changes will then be automatically released to SVN and you can
-		then smote test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
-		to update the stable tag, and you're done!
+		  1. Wait for the changes to appear in the mirror repo.
+		  2. Conduct a GitHub release.
+		  3. Wait for the changes to be automatically deployed to SVN.
+		  4. Smoke test.
+		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 
@@ -401,10 +403,10 @@ function do_final_instructions {
 		cat <<-EOM
 
 		For these plugins: ${MANUALPUB[*]}
-		The release will shortly be tagged to GitHub. Once the tag appears, deploy it
-		to SVN by running \`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test.
-		When ready, flip the stable tag with \`./tools/stable-tag.sh <plugin>\` and
-		you're all set.
+		  1. Wait for the release to be automatically tagged in GitHub.
+		  2. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
+		  3. Smoke test.
+		  4. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 
@@ -412,10 +414,11 @@ function do_final_instructions {
 		cat <<-EOM
 
 		For these plugins: ${MANUALBOTH[*]}
-		Wait for the changes to appear in the mirror repo, and conduct a GitHub
-		release. Next, deploy the tag to SVN by running
-		\`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test. When ready, flip
-		the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
+		  1. Wait for the changes to appear in the mirror repo.
+		  2. Conduct a GitHub release. 
+		  3. Deploy to SVN: \`./tools/deploy-to-svn.sh <plugin> <tag>\`
+		  4. Smoke test.
+		  5. Update the stable tag (if stable release): \`./tools/stable-tag.sh <plugin>\`
 		EOM
 	fi
 }

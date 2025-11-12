@@ -7,22 +7,11 @@
  * @package automattic/jetpack
  */
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tests Jetpack_VideoPress_Utility_Functions
- *
- * @covers ::jetpack_videopress_flash_embed_filter
- * @covers ::videopress_get_post_by_guid
- * @covers ::videopress_get_post_id_by_guid
- * @covers \VIDEOPRESS_PRIVACY
  */
-#[CoversClass( VIDEOPRESS_PRIVACY::class )]
-#[CoversFunction( 'jetpack_videopress_flash_embed_filter' )]
-#[CoversFunction( 'videopress_get_post_by_guid' )]
-#[CoversFunction( 'videopress_get_post_id_by_guid' )]
 class Jetpack_VideoPress_Utility_Functions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

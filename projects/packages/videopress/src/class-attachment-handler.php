@@ -194,7 +194,7 @@ class Attachment_Handler {
 	 */
 	public static function prepare_attachment_for_js( $post ) {
 		if ( 'video' === $post['type'] ) {
-			$guid = get_post_meta( $post['id'], 'videopress_guid' );
+			$guid = get_post_meta( $post['id'], 'videopress_guid', true );
 			if ( $guid ) {
 				$post['videopress_guid'] = $guid;
 			}

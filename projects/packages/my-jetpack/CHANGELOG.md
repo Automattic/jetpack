@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.28.1] - 2025-11-10
+### Changed
+- Use number formatting in pricing/plan features. [#45794]
+- Update package dependencies. [#45735] [#45737] [#45756]
+
+### Fixed
+- Fix Protect card showing as active when Jetpack modules are disabled. [#45795]
+
 ## [5.28.0] - 2025-11-03
 ### Changed
 - Don't translate product names. [#43961]
@@ -2400,6 +2408,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.28.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.0...5.28.1
 [5.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.10...5.28.0
 [5.27.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.9...5.27.10
 [5.27.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.8...5.27.9

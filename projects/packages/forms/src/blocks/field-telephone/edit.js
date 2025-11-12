@@ -15,13 +15,13 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
+import { getTranslatedCountryName } from '../../util/country-names-translated';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls';
 import useFieldSelected from '../shared/hooks/use-field-selected';
 import useFormWrapper from '../shared/hooks/use-form-wrapper';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
 import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
 import { countries } from './country-list';
-import { getTranslatedCountryName } from './country-names-translated';
 
 const EMPTY_ARRAY = [];
 

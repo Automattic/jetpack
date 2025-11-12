@@ -1,5 +1,8 @@
-/* Map design tokens to WordPress/Jetpack equivalents */
+/**
+ * Tabs component styles
+ */
 :root {
+	// WPDS design tokens used by the tabs component
 	--wpds-border-width-focus: 1.5px;
 	--wpds-color-stroke-interactive-neutral-strong: #1e1e1e;
 	--wpds-color-fg-interactive-neutral: #50575e;
@@ -110,7 +113,6 @@
 
 	.jp-forms-tabs__tablist[data-select-on-move="true"]:has(:focus-visible)
 	&[data-orientation="vertical"] {
-		box-sizing: border-box;
 		border:
 			var(--wpds-border-width-focus) solid
 			var(--wpds-color-stroke-focus-brand);

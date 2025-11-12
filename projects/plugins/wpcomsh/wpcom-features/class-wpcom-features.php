@@ -1318,6 +1318,9 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 			self::JETPACK_GROWTH_PLANS,
+			// A4A Jetpack Stats plans
+			self::A4A_JETPACK_STATS_MONTHLY,
+			self::A4A_JETPACK_STATS_YEARLY,
 		),
 		self::STUDIO_SYNC                       => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -1338,6 +1341,9 @@ class WPCOM_Features {
 				self::WPCOM_MIGRATION_TRIAL_PLANS,
 				self::WPCOM_HOSTING_TRIAL_PLANS,
 			),
+			// A4A Jetpack Stats plans
+			self::A4A_JETPACK_STATS_MONTHLY,
+			self::A4A_JETPACK_STATS_YEARLY,
 		),
 
 		self::SUBSCRIPTION_GIFTING              => array(

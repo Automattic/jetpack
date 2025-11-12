@@ -28,7 +28,7 @@ function check_invalid_chars {
 	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@-]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
-		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, and `-` are allowed.'
+		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, and `-` are allowed.'
 	fi
 }
 

@@ -183,15 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.1 - 2025-10-29
-#### Added
-- Tested up to WordPress 6.9
-
+### 4.5.2-beta - 2025-11-11
 #### Changed
+- Tests: Ensure PHP 8.5 compatibility.
 - Update package dependencies.
 
 #### Fixed
-- Concatenate JS: Fix incompatibility with WooCommerce Analytics.
+- LCP Optimization: Prevent requesting analysis for the same pages multiple times.
 
 --------
 

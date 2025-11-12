@@ -699,7 +699,7 @@ class Publicize extends Publicize_Base {
 		}
 		// Only do this when a post transitions to being published.
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
+		if ( get_post_meta( $post->ID, $this->PENDING, false ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}

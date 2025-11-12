@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: single input forms don't show general errors, move general form error into field error when necessary

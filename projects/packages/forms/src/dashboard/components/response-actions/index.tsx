@@ -89,30 +89,30 @@ const ResponseActions = ( {
 		onActionComplete?.( { ...response, is_unread: true } );
 	}, [ response, registry, onActionComplete ] );
 
+	const sharedProps = {
+		iconSize: 24,
+		showTooltip: true,
+		size: 'compact',
+	};
+
 	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
 				<Button
-					variant="tertiary"
+					{ ...sharedProps }
 					onClick={ handleMarkAsRead }
 					isBusy={ isTogglingReadStatus }
-					showTooltip={ true }
 					label={ markAsReadAction.label }
-					iconSize={ 24 }
 					icon={ markAsReadAction.icon }
-					size="compact"
 				></Button>
 			) }
 			{ ! response.is_unread && (
 				<Button
-					variant="tertiary"
+					{ ...sharedProps }
 					onClick={ handleMarkAsUnread }
 					isBusy={ isTogglingReadStatus }
-					showTooltip={ true }
 					label={ markAsUnreadAction.label }
-					iconSize={ 24 }
 					icon={ markAsUnreadAction.icon }
-					size="compact"
 				></Button>
 			) }
 		</>
@@ -124,24 +124,18 @@ const ResponseActions = ( {
 				<div>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMarkAsNotSpam }
 						isBusy={ isMarkingAsNotSpam }
-						showTooltip={ true }
 						label={ markAsNotSpamAction.label }
-						iconSize={ 24 }
 						icon={ markAsNotSpamAction.icon }
-						size="compact"
 					></Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						showTooltip={ true }
 						label={ moveToTrashAction.label }
-						iconSize={ 24 }
 						icon={ moveToTrashAction.icon }
-						size="compact"
 					></Button>
 				</div>
 			);
@@ -151,24 +145,18 @@ const ResponseActions = ( {
 				<div>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleRestore }
 						isBusy={ isRestoring }
-						showTooltip={ true }
 						label={ restoreAction.label }
-						iconSize={ 24 }
 						icon={ restoreAction.icon }
-						size="compact"
 					></Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleDelete }
-						showTooltip={ true }
 						isBusy={ isDeleting }
 						label={ deleteAction.label }
-						iconSize={ 24 }
 						icon={ deleteAction.icon }
-						size="compact"
 					></Button>
 				</div>
 			);
@@ -178,24 +166,18 @@ const ResponseActions = ( {
 				<div>
 					{ readUnreadButtons }
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMarkAsSpam }
 						isBusy={ isMarkingAsSpam }
-						showTooltip={ true }
 						label={ markAsSpamAction.label }
-						iconSize={ 24 }
 						icon={ markAsSpamAction.icon }
-						size="compact"
 					></Button>
 					<Button
-						variant="tertiary"
+						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						showTooltip={ true }
 						label={ moveToTrashAction.label }
-						iconSize={ 24 }
 						icon={ moveToTrashAction.icon }
-						size="compact"
 					></Button>
 				</div>
 			);

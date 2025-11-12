@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.19] - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
 ## [0.33.18] - 2025-11-03
 ### Changed
 - Update package dependencies. [#45652]
@@ -730,6 +735,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.33.19]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.18...v0.33.19
 [0.33.18]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.17...v0.33.18
 [0.33.17]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.16...v0.33.17
 [0.33.16]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.15...v0.33.16

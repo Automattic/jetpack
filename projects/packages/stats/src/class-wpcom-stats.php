@@ -498,7 +498,7 @@ class WPCOM_Stats {
 	protected function fetch_post_stats( $args, $post_id ) {
 		$endpoint    = $this->build_endpoint();
 		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
-		$stats_cache = get_post_meta( $post_id, $meta_name );
+		$stats_cache = get_post_meta( $post_id, $meta_name, false );
 
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );

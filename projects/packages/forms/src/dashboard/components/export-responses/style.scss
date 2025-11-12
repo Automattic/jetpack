@@ -1,0 +1,73 @@
+@use "@wordpress/base-styles/breakpoints";
+
+.jp-forms__export-modal-card {
+	border-radius: var(--jp-border-radius, 4px);
+	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	isolation: isolate;
+}
+
+.jp-forms__export-modal-card-body,
+.jp-forms__export-modal-card-header {
+	display: flex;
+}
+
+.jp-forms__export-modal-card-header {
+	align-items: center;
+	margin-bottom: 16px;
+	gap: 16px;
+}
+
+.jp-forms__export-modal-card-header-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 20px;
+	line-height: 30px;
+}
+
+.jp-forms__export-modal-card-body {
+	gap: 20px;
+	align-items: flex-start;
+	flex-direction: column;
+
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		gap: 32px;
+		align-items: center;
+		justify-content: space-between;
+		flex-direction: row;
+	}
+}
+
+.jp-forms__export-modal-card-body-description {
+	flex-grow: 1;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	color: #000;
+	max-width: 100%;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		max-width: 60%;
+	}
+}
+
+.jp-forms__export-modal-card-body-description a {
+	color: inherit;
+}
+
+.jp-forms__export-modal-card-body-cta {
+	align-self: flex-start;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		align-self: flex-end;
+	}
+
+	a.export-gdrive {
+		display: flex;
+	}
+}

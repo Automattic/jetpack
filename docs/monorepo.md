@@ -213,7 +213,7 @@ On most Linux distributions, you can install the PHP ast extension using your pa
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-ast
+  sudo apt-get install php8.4-ast
   ```
 - For Arch Linux:
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
@@ -226,7 +226,7 @@ Mac users have reported having trouble installing the PHP ast extension. See the
 
 <details><summary>Installing the PHP ast extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
    ```
@@ -326,7 +326,7 @@ On most Linux distributions, you can install the PHP pcov extension using your p
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-pcov
+  sudo apt-get install php8.4-pcov
   ```
 - For Arch Linux:
   Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
@@ -339,7 +339,7 @@ Mac users have reported having trouble installing the PHP pcov extension. See th
 
 <details><summary>Installing the PHP pcov extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
    ```
@@ -369,7 +369,7 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
-1. Create the mirror repo on GitHub. It will most likely be named like "https://github.com/Automattic/jetpack-_something_".
+1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
    1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
    2. The default branch should be `trunk`, matching the monorepo.
       * Note that you can't set the default branch until at least one branch is created in the repo.

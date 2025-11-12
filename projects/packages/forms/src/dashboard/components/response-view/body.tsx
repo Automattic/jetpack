@@ -28,17 +28,14 @@ import photon from 'photon';
  */
 import useConfigValue from '../../../hooks/use-config-value';
 import CopyClipboardButton from '../../components/copy-clipboard-button';
+import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import useInboxData from '../../hooks/use-inbox-data';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
-import {
-	getPath,
-	updateMenuCounter,
-	updateMenuCounterOptimistically,
-	getCountryFlagEmoji,
-} from '../../inbox/utils';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
 import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
+import './style.scss';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -482,7 +479,7 @@ const ResponseViewBody = ( {
 								<td>
 									{ response.country_code && (
 										<span className="jp-forms__inbox-response-meta-country-flag response-country-flag">
-											{ getCountryFlagEmoji( response.country_code ) }
+											<Flag countryCode={ response.country_code } />
 										</span>
 									) }
 									<Tooltip text={ __( 'Lookup IP address', 'jetpack-forms' ) }>
@@ -536,21 +533,25 @@ const ResponseViewBody = ( {
 				</ConfirmDialog>
 			</div>
 			{ response.status === 'spam' && (
-				<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+				</div>
 			) }
 			{ response.status === 'trash' && (
-				<Tip>
-					{ sprintf(
-						/* translators: %d number of days. */
-						_n(
-							'Items in trash are permanently deleted after %d day.',
-							'Items in trash are permanently deleted after %d days.',
-							emptyTrashDays,
-							'jetpack-forms'
-						),
-						emptyTrashDays
-					) }
-				</Tip>
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
 			) }
 		</>
 	);
