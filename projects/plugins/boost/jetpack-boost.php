@@ -251,6 +251,9 @@ function include_compatibility_files() {
 		require_once __DIR__ . '/compatibility/breakdance.php';
 	}
 
+	// Compatibility with Divi by Elegant Themes.
+	require_once __DIR__ . '/compatibility/divi.php';
+
 	// Exclude known scripts that causes problem when concatenated.
 	require_once __DIR__ . '/compatibility/js-concatenate.php';
 
