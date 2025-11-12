@@ -118,17 +118,20 @@ export class ApiClient {
 		const eventsToSend = [ ...this.eventQueue ];
 		this.eventQueue = [];
 
+		if ( ! window.wcAnalytics?.trackEndpoint ) {
+			debug( 'Track endpoint not available' );
+			return;
+		}
+
 		// Try sending via Beacon API first for guaranteed delivery
 		const beaconSuccess = this.sendEventsViaBeacon( eventsToSend );
 
 		if ( beaconSuccess ) {
 			debug( 'Sent %d events via Beacon API', eventsToSend.length );
-			return;
+		} else {
+			debug( 'Failed to send events via Beacon API, falling back to fetch with keepalive' );
+			this.sendEvents( eventsToSend );
 		}
-
-		debug( 'Failed to send events via Beacon API, falling back to fetch with keepalive' );
-		// Fallback to fetch with keepalive for request persistence
-		this.sendEvents( eventsToSend );
 	};
 
 	/**
