@@ -31,7 +31,7 @@
 
 .jp-forms__inbox-response-actions {
 	border-bottom: 1px solid var(--jp-forms-border-color);
-	padding: 8px var(--jp-forms-page-padding-inline);
+	padding: 8px 48px;
 	width: 100%;
 }
 
@@ -114,20 +114,10 @@
 	}
 }
 
-.jp-forms__inbox__dataviews-response {
-	background: var(--jp-white);
-	min-width: 300px !important;
-	overflow: auto;
-	flex: 1 1 40%;
-	position: sticky;
-	top: var(--wp-admin--admin-bar--height, 32px);
-	height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 97px);
-	// Same as the margin-bottom on the .jp-forms__inbox__dataviews
-	@include mixins.dataviews-footer-spacing;
-
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		height: calc(100vh - var(--wp-admin--admin-bar--height, 32px) - 57px);
-	}
+.jp-forms-response-content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
 }
 
 .jp-forms__inbox__tip-container {

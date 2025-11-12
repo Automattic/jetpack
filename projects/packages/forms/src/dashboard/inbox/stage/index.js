@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
@@ -22,10 +23,15 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import CreateFormButton from '../../components/create-form-button';
+import EmptySpamButton from '../../components/empty-spam-button';
+import EmptyTrashButton from '../../components/empty-trash-button';
+import ExportResponsesButton from '../../components/export-responses/button';
 import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
+import { ResponseMobileView, SingleResponseView } from '../../components/inspector';
+import Page from '../../components/page';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
 import { getPath, getItemId } from '../utils.js';
@@ -454,72 +460,105 @@ export default function InboxView() {
 	// Check if read_status filter is applied
 	const readStatusFilter = view.filters?.find( filter => filter.field === 'read_status' )?.value;
 
-	return (
-		<HStack
-			spacing={ 0 }
-			alignment="top"
-			justify="flex-start"
-			ref={ containerRef }
-			className="jp-forms__inbox__dataviews__container"
+	// Conditional header actions based on status filter
+	const headerActions = useMemo( () => {
+		const headerActionsArray = [
+			<CreateFormButton key="create" variant="primary" />,
+			<ExportResponsesButton key="export" />,
+		];
+
+		if ( statusFilter === 'trash' ) {
+			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
+		} else if ( statusFilter === 'spam' ) {
+			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
+		}
+
+		return headerActionsArray;
+	}, [ statusFilter ] );
+
+	const pageContent = (
+		<Page
+			title={
+				<div className="jp-forms-page-header-title">
+					<JetpackLogo showText={ false } width={ 20 } />
+					{ __( 'Forms', 'jetpack-forms' ) }
+				</div>
+			}
+			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			actions={ headerActions }
+			hasPadding={ false }
 		>
-			<div className="jp-forms__inbox__dataviews">
-				<DataViews
-					paginationInfo={ paginationInfo }
-					fields={ fields }
-					actions={ actions }
-					data={ records || EMPTY_ARRAY }
-					isLoading={ isLoadingData }
-					view={ view }
-					onChangeView={ setView }
-					selection={ selection }
-					onChangeSelection={ onChangeSelection }
-					getItemId={ getItemId }
-					defaultLayouts={ defaultLayouts }
-					empty={
-						<EmptyResponses
-							status={ statusFilter }
-							isSearch={ !! view.search }
-							readStatusFilter={ readStatusFilter }
-						/>
-					}
-				>
-					<HStack
-						className="jp-forms__inbox__view-actions"
-						spacing={ 2 }
-						alignment="center"
-						justify="space-between"
+			<DataViews
+				paginationInfo={ paginationInfo }
+				fields={ fields }
+				actions={ actions }
+				data={ records || EMPTY_ARRAY }
+				isLoading={ isLoadingData }
+				view={ view }
+				onChangeView={ setView }
+				selection={ selection }
+				onChangeSelection={ onChangeSelection }
+				getItemId={ getItemId }
+				defaultLayouts={ defaultLayouts }
+				empty={
+					<EmptyResponses
+						status={ statusFilter }
+						isSearch={ !! view.search }
+						readStatusFilter={ readStatusFilter }
+					/>
+				}
+			>
+				<div className="jp-forms-view-actions">
+					<div>
+						<InboxStatusToggle onChange={ resetPage } />
+					</div>
+					<div
+						style={ {
+							display: 'flex',
+							gap: '8px',
+							justifyContent: containerWidth < 600 ? 'space-between' : 'flex-end',
+						} }
 					>
-						<HStack spacing={ 2 }>
-							<InboxStatusToggle onChange={ resetPage } />
-						</HStack>
-						<HStack spacing={ 2 } justify={ containerWidth < 600 ? 'space-between' : 'flex-end' }>
-							<DataViews.Search />
-							<DataViews.FiltersToggle />
-							<DataViews.ViewConfig />
-						</HStack>
-					</HStack>
-					<DataViews.FiltersToggled className="jp-forms__inbox__filters-container" />
+						<DataViews.Search />
+						<DataViews.FiltersToggle />
+						<DataViews.ViewConfig />
+					</div>
+				</div>
+				<DataViews.FiltersToggled className="jp-forms-filters-container" />
+				<div className="jp-forms-dataviews-layout-container">
 					<DataViews.Layout />
 					<DataViews.Footer />
-				</DataViews>
-				{ isResponseModalOpen && (
-					<Modal
-						title={ __( 'Response', 'jetpack-forms' ) }
-						__experimentalHideHeader={ true }
-						onRequestClose={ closeResponseModal }
-					>
-						{ responseModal }
-					</Modal>
-				) }
+				</div>
+			</DataViews>
+		</Page>
+	);
+
+	return (
+		<>
+			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
+				{ pageContent }
 			</div>
-			<SingleResponseView
-				sidePanelItem={ selection.length === 1 && sidePanelItem }
-				setSidePanelItem={ setSidePanelItem }
-				isLoadingData={ isLoadingData }
-				isMobile={ isMobile }
-				onChangeSelection={ onChangeSelection }
-				selection={ selection }
-			/>
-		</HStack>
+			{ isResponseModalOpen && (
+				<Modal
+					title={ __( 'Response', 'jetpack-forms' ) }
+					__experimentalHideHeader={ true }
+					onRequestClose={ closeResponseModal }
+				>
+					{ responseModal }
+				</Modal>
+			) }
+			{ selection.length === 1 && sidePanelItem && ! isMobile && (
+				<div className="jp-forms-layout__surface is-inspector">
+					<SingleResponseView
+						sidePanelItem={ sidePanelItem }
+						setSidePanelItem={ setSidePanelItem }
+						isLoadingData={ isLoadingData }
+						isMobile={ isMobile }
+						onChangeSelection={ onChangeSelection }
+						selection={ selection }
+					/>
+				</div>
+			) }
+		</>
 	);
 }

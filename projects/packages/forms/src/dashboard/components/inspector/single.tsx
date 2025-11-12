@@ -2,10 +2,13 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	Modal,
+	Button,
 } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import useResponseNavigation from '../../hooks/use-response-navigation';
+import Page from '../page';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
 import { ResponseViewBody } from './index';
@@ -136,17 +139,34 @@ const SingleResponseView = ( {
 
 	if ( ! isMobile ) {
 		return (
-			<div className="jp-forms__inbox__dataviews-response">
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
+			<Page
+				title={ __( 'Response', 'jetpack-forms' ) }
+				actions={
+					<Button
+						icon={ close }
+						label={ __( 'Close', 'jetpack-forms' ) }
+						onClick={ onRequestClose }
+						iconSize={ 20 }
+						size="compact"
+					/>
+				}
+				showSidebarToggle={ false }
+			>
+				<div className="jp-forms-response-content">
+					<HStack spacing="0" justify="space-between" className="jp-forms-response-actions">
+						<HStack alignment="left">
+							<ResponseActions
+								onActionComplete={ handleActionComplete }
+								response={ sidePanelItem }
+							/>
+						</HStack>
+						<HStack alignment="right">
+							<ResponseNavigation { ...navigationProps } onClose={ null } />
+						</HStack>
 					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
-					</HStack>
-				</HStack>
-				{ contents }
-			</div>
+					{ contents }
+				</div>
+			</Page>
 		);
 	}
 

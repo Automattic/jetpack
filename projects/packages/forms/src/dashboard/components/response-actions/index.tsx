@@ -15,12 +15,12 @@ import {
 	deleteAction,
 	markAsReadAction,
 	markAsUnreadAction,
-} from '../../inbox/dataviews/actions';
+} from '../../inbox/stage/actions';
 /**
  * Types
  */
 import type { FormResponse } from '../../../types';
-import type { Registry } from '../../inbox/dataviews/types';
+import type { Registry } from '../../inbox/stage/types';
 
 type ResponseNavigationProps = {
 	onActionComplete?: ( response: FormResponse ) => void;
