@@ -108,13 +108,18 @@ class MailPoet_Integration {
 		try {
 			$existing = $mailpoet_api->getSubscriber( $email );
 
+			// Normalize "subscribed" status using MailPoet constant when available.
+			$status_subscribed = class_exists( '\MailPoet\Entities\SubscriberEntity' )
+				? \MailPoet\Entities\SubscriberEntity::STATUS_SUBSCRIBED
+				: 'subscribed';
+
 			// If already subscribed to list, do nothing.
 			if ( ! empty( $existing['subscriptions'] ) && is_array( $existing['subscriptions'] ) ) {
 				foreach ( $existing['subscriptions'] as $subscription ) {
 					if (
 						isset( $subscription['segment_id'] ) && isset( $subscription['status'] ) &&
 						(string) $subscription['segment_id'] === (string) $list_id &&
-						'subscribed' === $subscription['status']
+						$status_subscribed === $subscription['status']
 					) {
 						return $existing;
 					}
@@ -124,7 +129,7 @@ class MailPoet_Integration {
 			// Subscriber exists but is not on the target list, so add to list.
 			// If subscriber already confirmed ('subscribed'), do not resend confirmation.
 			$options = array();
-			if ( isset( $existing['status'] ) && 'subscribed' === $existing['status'] ) {
+			if ( isset( $existing['status'] ) && $existing['status'] === $status_subscribed ) {
 				$options['send_confirmation_email'] = false;
 			}
 
