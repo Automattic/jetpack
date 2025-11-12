@@ -210,7 +210,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 
 		// Register shutdown hook once.
 		if ( ! self::$shutdown_hook_registered ) {
-			add_action( 'shutdown', array( __CLASS__, 'send_batched_pixels' ), 1 );
+			add_action( 'shutdown', array( __CLASS__, 'send_batched_pixels' ), 20 );
 			self::$shutdown_hook_registered = true;
 		}
 	}
