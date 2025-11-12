@@ -14,11 +14,11 @@ import { Outlet, useLocation } from 'react-router';
 import useConfigValue from '../../../hooks/use-config-value';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
-import ExportResponsesButton from '../../inbox/export-responses';
 import Integrations from '../../integrations';
 import { store as dashboardStore } from '../../store';
 import ActionsDropdownMenu from '../actions-dropdown-menu';
 import CreateFormButton from '../create-form-button';
+import { ExportResponsesButton } from '../export-responses';
 import IntegrationsButton from '../integrations-button';
 import Header from './header';
 

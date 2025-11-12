@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: split styles into smaller files alongside their respective components

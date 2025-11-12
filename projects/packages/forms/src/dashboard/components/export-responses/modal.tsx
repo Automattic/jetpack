@@ -8,8 +8,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { INTEGRATIONS_STORE } from '../../../store/integrations';
-import CSVExport from '../../inbox/export-responses/csv';
-import GoogleDriveExport from '../../inbox/export-responses/google-drive';
+import CSVExport from './csv';
+import GoogleDriveExport from './google-drive';
 import type { SelectIntegrations } from '../../../store/integrations';
 import type { Integration } from '../../../types';
 

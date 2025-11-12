@@ -35,6 +35,7 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
 import { store as dashboardStore } from '../../store';
 import type { FormResponse } from '../../../types';
+import './style.scss';
 
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;

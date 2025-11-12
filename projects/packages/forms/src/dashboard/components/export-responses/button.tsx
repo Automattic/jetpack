@@ -7,9 +7,9 @@ import { download } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import ExportResponsesModal from '../../components/export-responses-modal';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import ExportResponsesModal from './modal';
 
 import './style.scss';
 
