@@ -1134,7 +1134,11 @@ class Actions {
 		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
 		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
 		// Dedicated sync locks.
-		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		$dedicated_sync_lock_option         = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_option = $dedicated_sync_lock_option . '_expires';
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_option );
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_expires_option );
+
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		// Lock for disabling Sync sending temporarily.
 		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
