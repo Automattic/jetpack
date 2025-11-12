@@ -30,8 +30,11 @@ function disable_defer_js_for_divi_builder( $should_defer_js ) {
 		return false;
 	}
 
-	if ( function_exists( 'is_et_pb_preview' ) && call_user_func( 'is_et_pb_preview' ) ) {
-		return false;
+	if ( function_exists( 'is_et_pb_preview' ) ) {
+		/** @phan-suppress-next-line PhanUndeclaredFunction */
+		if ( \is_et_pb_preview() ) {
+			return false;
+		}
 	}
 
 	return $should_defer_js;
