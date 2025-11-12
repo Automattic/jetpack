@@ -716,16 +716,21 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
  * and the variation is not null. Returns false on errors or when not assigned.
  *
  * @param string $experiment_key ExPlat experiment key to check.
+ * @param int    $user_id The user that will be assigned.
+ *
  * @return bool Whether the current user is assigned to a non-null variation for the experiment.
  */
-function wpcom_global_styles_assignment_api_request( $experiment_key ) {
+function wpcom_global_styles_assignment_api_request( $experiment_key, $user_id ) {
 	$connection_manager = new Automattic\Jetpack\Connection\Manager();
 	if ( ! $connection_manager->is_user_connected() ) {
 		return false;
 	}
 
 	$request_path = add_query_arg(
-		array( 'experiment_name' => $experiment_key ),
+		array(
+			'experiment_name' => $experiment_key,
+			'user_id'         => $user_id,
+		),
 		'/experiments/0.1.0/assignments/calypso'
 	);
 
@@ -788,17 +793,19 @@ function is_global_styles_on_personal_plan() {
 		return false;
 	}
 
-	// Must have a logged-in user.
-	$user = wp_get_current_user();
-	if ( ! $user || 0 === $user->ID ) {
+	$connection_manager  = new Automattic\Jetpack\Connection\Manager();
+	$wpcom_blog_owner_id = $connection_manager->get_connection_owner_id();
+	$wpcom_blog_id       = $connection_manager->get_site_id();
+
+	if ( ! $wpcom_blog_owner_id || ! $wpcom_blog_id ) {
 		return false;
 	}
 
 	$experiment_key = 'calypso_plans_global_styles_personal_20251108_v4';
 	$cache_group    = 'a8c_experiments';
 	$cache_key      = sprintf(
-		'global-styles-personal-user-%d',
-		$user->ID
+		'global-styles-personal-%d',
+		$wpcom_blog_id
 	);
 
 	// Cache lookup.
@@ -812,11 +819,12 @@ function is_global_styles_on_personal_plan() {
 	$enabled = false;
 
 	if ( $is_atomic ) {
-		// Atomic: ask WP.com assignment API for this user.
-		$enabled = wpcom_global_styles_assignment_api_request( $experiment_key );
-	} elseif ( function_exists( '\ExPlat\assign_current_user' ) ) {
+		// Atomic: ask WP.com assignment API for the blog owner.
+		$enabled = wpcom_global_styles_assignment_api_request( $experiment_key, $wpcom_blog_owner_id );
+	} elseif ( function_exists( '\ExPlat\assign_given_user' ) ) {
+		$wpcom_blog_owner = get_userdata( $wpcom_blog_owner_id );
 		// WP.com: Direct ExPlat assignment.
-		$assignment = \ExPlat\assign_current_user( $experiment_key );
+		$assignment = \ExPlat\assign_given_user( $experiment_key, $wpcom_blog_owner );
 		$enabled    = ( null !== $assignment );
 	}
 
