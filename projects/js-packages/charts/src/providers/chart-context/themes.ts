@@ -144,7 +144,7 @@ const wooTheme: ChartTheme = {
 	gridColor: '',
 	gridColorDark: '',
 	svgLabelSmall: { fill: '#757575' },
-	xTickLineStyles: { stroke: 'black' },
+	xTickLineStyles: { stroke: '' },
 	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 	legendLabelStyles: {
 		fontSize: '12px',
@@ -153,7 +153,28 @@ const wooTheme: ChartTheme = {
 	},
 	legendContainerStyles: {
 		gap: '8px',
+		rowGap: '8px',
+		columnGap: '16px',
 	},
+	seriesLineStyles: [
+		{
+			strokeWidth: 2,
+		},
+		{
+			strokeDasharray: '4 4',
+			strokeWidth: 1.5,
+			strokeLinecap: 'square',
+		},
+	],
+	legendShapeStyles: [
+		{
+			transform: 'translate(0, 1px)',
+		},
+		{
+			transform: 'translate(0, 1px)',
+			strokeDasharray: '2, 2, 3, 2, 3, 2, 2',
+		},
+	],
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'black',
@@ -188,6 +209,7 @@ const wooTheme: ChartTheme = {
 				strokeDasharray: '4 4',
 				strokeWidth: 1.5,
 				strokeLinecap: 'square',
+				strokeOpacity: 0.8,
 			},
 		},
 	},
