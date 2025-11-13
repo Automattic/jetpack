@@ -83,7 +83,7 @@ class REST_Controller {
 	public function get_assignments( $request ) {
 		$response          = null;
 		$is_user_connected = ( new Jetpack_Connection() )->is_user_connected();
-		$platform          = $request->get_param( 'platform' ) ?? 'jetpack';
+		$platform          = $request->get_param( 'platform' );
 		$request_path      = '/experiments/' . self::EXPLAT_API_VERSION . '/assignments/' . $platform;
 		$args              = array(
 			'experiment_name' => $request['experiment_name'],
