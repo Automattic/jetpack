@@ -471,10 +471,6 @@ class Help_Center {
 		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
 		$controller = new WP_REST_Help_Center_Ticket_CSAT();
 		$controller->register_rest_route();
-
-		require_once __DIR__ . '/class-wp-rest-help-center-experiment.php';
-		$controller = new WP_REST_Help_Center_Experiment();
-		$controller->register_rest_route();
 	}
 
 	/**
