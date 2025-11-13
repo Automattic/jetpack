@@ -66,7 +66,7 @@ class REST_Controller {
 					),
 					'platform'          => array(
 						'type'    => 'string',
-						'enum'    => array( 'jetpack', 'calypso' ),
+						'enum'    => array( 'jetpack', 'calypso', 'wpcom' ),
 						'default' => 'jetpack',
 					),
 				),
