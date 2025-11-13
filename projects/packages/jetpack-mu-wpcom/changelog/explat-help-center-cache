@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Adds caching to the experiment checking in the help center
