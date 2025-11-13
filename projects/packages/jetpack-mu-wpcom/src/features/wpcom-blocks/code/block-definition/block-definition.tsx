@@ -152,7 +152,7 @@ const blockEdit = withColors(
 								onClick={ onToggle }
 								aria-expanded={ isOpen }
 								aria-haspopup="true"
-								children={ props.attributes.language || emptyLanguageOption.name }
+								children={ props.attributes.language || emptyLanguageOption.label }
 							/>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
