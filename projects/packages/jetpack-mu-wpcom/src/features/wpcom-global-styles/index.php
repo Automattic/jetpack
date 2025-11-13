@@ -349,8 +349,6 @@ function wpcom_global_styles_in_use() {
  * @return bool Whether the site is exempt from Premium Global Styles.
  */
 function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
-	$is_simple = false;
-	$is_atomic = false;
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog      = get_blog_details( $blog_id, false );
 		$is_simple = is_blog_wpcom( $blog );
@@ -358,6 +356,9 @@ function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
 	} elseif ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$is_simple = false;
 		$is_atomic = true;
+	} else {
+		$is_simple = false;
+		$is_atomic = false;
 	}
 
 	if ( ! $is_simple && ! $is_atomic ) {
