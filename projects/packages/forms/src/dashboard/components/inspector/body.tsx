@@ -391,7 +391,7 @@ const ResponseViewBody = ( {
 								<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
 								<td>
 									{ response.country_code && (
-										<span className="jp-forms__inbox-response-meta-country-flag response-country-flag">
+										<span className="jp-forms__inbox-response-country-flag">
 											<Flag countryCode={ response.country_code } />
 										</span>
 									) }
