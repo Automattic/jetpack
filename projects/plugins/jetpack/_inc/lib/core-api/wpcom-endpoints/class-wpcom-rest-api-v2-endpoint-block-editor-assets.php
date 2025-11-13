@@ -520,10 +520,15 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		if ( is_array( $callback ) && count( $callback ) === 2 ) {
 			$object = $callback[0];
 			if ( is_object( $object ) ) {
-				$reflection = new ReflectionClass( $object );
-				$file_path  = $reflection->getFileName();
-				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
-					return true;
+				try {
+					$reflection = new ReflectionClass( $object );
+					$file_path  = $reflection->getFileName();
+					if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+						return true;
+					}
+				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Failed to reflect on this object (e.g., internal class, anonymous class).
+					// Continue checking other callback types.
 				}
 			}
 		}
@@ -532,20 +537,30 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		if ( is_string( $callback ) && str_contains( $callback, '::' ) ) {
 			list( $class_name, ) = explode( '::', $callback, 2 );
 			if ( class_exists( $class_name ) ) {
-				$reflection = new ReflectionClass( $class_name );
-				$file_path  = $reflection->getFileName();
-				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
-					return true;
+				try {
+					$reflection = new ReflectionClass( $class_name );
+					$file_path  = $reflection->getFileName();
+					if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+						return true;
+					}
+				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Failed to reflect on this class (e.g., internal class).
+					// Continue checking other callback types.
 				}
 			}
 		}
 
 		// Handle function name callbacks
 		if ( is_string( $callback ) && function_exists( $callback ) ) {
-			$reflection = new ReflectionFunction( $callback );
-			$file_path  = $reflection->getFileName();
-			if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
-				return true;
+			try {
+				$reflection = new ReflectionFunction( $callback );
+				$file_path  = $reflection->getFileName();
+				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+					return true;
+				}
+			} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+				// Failed to reflect on this function (e.g., internal function).
+				// Continue to return false.
 			}
 		}
 
