@@ -265,7 +265,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			legendInteractive = false,
-			animation = true,
+			animation,
 			options = {},
 			onPointerDown = undefined,
 			onPointerUp = undefined,
