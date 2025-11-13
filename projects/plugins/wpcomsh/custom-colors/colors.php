@@ -404,7 +404,7 @@ class Colors_Manager_Common {
 	 */
 	public static function get_colors() {
 		$opts   = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
-		$colors = ( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
+		$colors = ! empty( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
 		unset( $colors['undefined'] );
 		return $colors;
 	}
