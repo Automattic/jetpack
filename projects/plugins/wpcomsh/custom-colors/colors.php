@@ -1735,6 +1735,11 @@ class Colors_Manager_Common {
 				),
 			)
 		);
+
+		if ( empty( $top_palette ) ) {
+			return array();
+		}
+
 		$top_palette = $top_palette[0];
 
 		$equivalent_color_hex = $top_palette['colors'][ $role ];
