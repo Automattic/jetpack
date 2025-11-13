@@ -323,54 +323,30 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Drop stale _wp_attachment_metadata updates at send-time by comparing against current database value.
+	 * Drop bursts for _wp_attachment_metadata at send-time by sending the current DB state once per request.
 	 *
 	 * @param array $args The hook arguments: [ $meta_id, $object_id, $meta_key, $meta_value ].
-	 * @return array|false Return original args to send, or false to skip if stale.
+	 * @return array|false Return args to send once per attachment per request, or false to skip subsequent ones.
 	 */
 	public function drop_stale_attachment_metadata( $args ) {
-		if ( ! is_array( $args ) || count( $args ) < 4 ) { // The updated_postmeta do_aciton from core always sends four args.
+		if ( ! is_array( $args ) || count( $args ) < 4 ) { // The updated_postmeta do_action from core always sends four args.
 			return $args;
 		}
-		list( , $post_id, , $meta_value ) = $args;
+		list( , $post_id, ) = $args;
 
-		static $post_meta_cached = array();
+		static $sent_for_request = array();
 		$post_id                 = (int) $post_id;
-
-		if ( isset( $post_meta_cached[ $post_id ] ) ) {
-			$cached_value     = $post_meta_cached[ $post_id ]['value'];
-			$cached_signature = $post_meta_cached[ $post_id ]['signature'];
-		} else {
-			$current_value = wp_get_attachment_metadata( $post_id, true );
-			if ( ! is_array( $current_value ) ) {
-				return $args;
-			}
-			$cached_signature             = wp_json_encode( $current_value );
-			$post_meta_cached[ $post_id ] = array(
-				'value'     => $current_value,
-				'signature' => $cached_signature,
-			);
-		}
-
-		if ( is_string( $meta_value ) ) {
-			$meta_value = maybe_unserialize( $meta_value );
-		}
-		if ( ! is_array( $meta_value ) ) {
-			return $args;
-		}
-
-		$queued_signature = wp_json_encode( $meta_value );
-
-		if ( $queued_signature === false ) {
-			return $args;
-		}
-
-		if ( $queued_signature !== $cached_signature ) {
+		if ( isset( $sent_for_request[ $post_id ] ) ) {
 			return false;
 		}
 
-		// Use current DB payload to ensure freshest data gets sent.
-		$args[3] = $cached_value;
+		// Fetch current metadata (filtered) to honor site/plugin filters on wp_get_attachment_metadata.
+		$current_value = wp_get_attachment_metadata( $post_id );
+		if ( is_array( $current_value ) && ! empty( $current_value ) ) {
+			$args[3] = $current_value; // Ensure freshest state is sent.
+		}
+
+		$sent_for_request[ $post_id ] = true;
 		return $args;
 	}
 
