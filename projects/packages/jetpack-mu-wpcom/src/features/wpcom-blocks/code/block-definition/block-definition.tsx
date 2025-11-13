@@ -148,12 +148,9 @@ const blockEdit = withColors(
 							focusOnMount: true,
 						} }
 						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
-							<Button
-								onClick={ onToggle }
-								aria-expanded={ isOpen }
-								aria-haspopup="true"
-								children={ props.attributes.language || emptyLanguageOption.label }
-							/>
+							<Button onClick={ onToggle } aria-expanded={ isOpen } aria-haspopup="true">
+								{ props.attributes.language || emptyLanguageOption.label }
+							</Button>
 						) }
 						renderContent={ ( { onClose }: { onClose: () => void } ) => (
 							<NavigableMenu role="menu" stopNavigationEvents>
