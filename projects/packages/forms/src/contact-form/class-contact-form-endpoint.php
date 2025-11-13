@@ -1029,38 +1029,57 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function delete_posts_by_status( $request ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function delete_posts_by_status( $request ) {
 		$from_status = $request->get_param( 'status' );
 
 		if ( ! in_array( $from_status, array( 'spam', 'trash' ), true ) ) {
 			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
 		}
 
-		$query_args = array(
-			'post_type'      => 'feedback',
-			'post_status'    => $from_status ?? 'trash',
-			'posts_per_page' => 1000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-		);
+		$status        = $from_status ?? 'trash';
+		$batch_size    = 1000; // Process in batches to avoid memory issues
+		$total_deleted = 0;
+		$has_more      = true;
 
-		$query           = new \WP_Query( $query_args );
-		$trash_feedbacks = $query->get_posts();
+		while ( $has_more ) {
+			$query_args = array(
+				'post_type'      => 'feedback',
+				'post_status'    => $status,
+				'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'fields'         => 'ids', // Only get IDs to reduce memory usage
+			);
 
-		$deleted = 0;
-		foreach ( (array) $trash_feedbacks as $feedback ) {
-			$feedback_deleted = wp_delete_post( $feedback->ID, true );
-			if ( ! $feedback_deleted ) {
-				if ( $from_status === 'trash' ) {
-					return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
-				}
+			$query    = new \WP_Query( $query_args );
+			$post_ids = $query->get_posts();
 
-				if ( $from_status === 'spam' ) {
-					return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
-				}
+			if ( empty( $post_ids ) ) {
+				$has_more = false;
+
+				break;
 			}
-			++$deleted;
+
+			foreach ( $post_ids as $post_id ) {
+				$feedback_deleted = wp_delete_post( $post_id, true );
+
+				if ( ! $feedback_deleted ) {
+					if ( $status === 'trash' ) {
+						return new WP_REST_Response( array( 'error' => __( 'Failed to empty trash.', 'jetpack-forms' ) ), 400 );
+					}
+
+					if ( $status === 'spam' ) {
+						return new WP_REST_Response( array( 'error' => __( 'Failed to empty spam.', 'jetpack-forms' ) ), 400 );
+					}
+				}
+
+				++$total_deleted;
+			}
+
+			if ( count( $post_ids ) < $batch_size ) {
+				$has_more = false;
+			}
 		}
 
-		return new WP_REST_Response( array( 'deleted' => $deleted ), 200 );
+		return new WP_REST_Response( array( 'deleted' => $total_deleted ), 200 );
 	}
 
 	/**
