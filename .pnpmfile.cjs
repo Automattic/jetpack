@@ -73,7 +73,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/73257
 	if (
 		( pkg.name === '@wordpress/icons' ||
 			pkg.name === '@wordpress/media-utils' ||
