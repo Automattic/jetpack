@@ -45,12 +45,12 @@ const LINE_NUMBER_START_MAX = 10_000;
 type Props = EditBlockProps | SaveBlockProps;
 
 const emptyLanguageOption = {
-	key: '',
-	name: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
+	value: '',
+	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
 };
-const customSelectLanguageOptions: {
-	readonly key: string;
-	readonly name: string;
+const selectLanguageOptions: {
+	readonly value: string;
+	readonly label: string;
 }[] = [ emptyLanguageOption ];
 {
 	const langNames = new Set< string >();
@@ -60,19 +60,12 @@ const customSelectLanguageOptions: {
 	const sortedLangNames = Array.of( ...langNames );
 	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
 	sortedLangNames.forEach( lang =>
-		customSelectLanguageOptions.push( {
-			key: lang,
-			name: lang,
+		selectLanguageOptions.push( {
+			value: lang,
+			label: lang,
 		} )
 	);
 }
-const selectLanguageOptions: ReadonlyArray< {
-	readonly value: string;
-	readonly label: string;
-} > = customSelectLanguageOptions.map( ( { key, name } ) => ( {
-	value: key,
-	label: name,
-} ) );
 
 /**
  * Filter to enhance the core code block.
