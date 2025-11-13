@@ -205,8 +205,8 @@ patchedDependencies:
   '@wordpress/wordcount':
     hash: d6f339ea1cef120bc10e3333fa33435c9ff78e2f5d180140e271831e4f968c8e
     path: .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  uuid:
-    hash: d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786
+  uuid@<11:
+    hash: 3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0
     path: .pnpm-patches/uuid.patch
 
 importers:
@@ -17407,7 +17407,7 @@ snapshots:
       debug: 4.4.3
       hash.js: 1.1.7
       tslib: 2.8.1
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - supports-color
 
@@ -22400,7 +22400,7 @@ snapshots:
       '@wordpress/i18n': 6.8.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)
       '@wordpress/rich-text': 7.35.0(patch_hash=6e69564a8660c2174729b75f205ff187a0545dafea90e9006a755626198c7126)(react@18.3.1)
       react: 18.3.1
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
 
   '@wordpress/api-fetch@7.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)':
     dependencies:
@@ -22668,7 +22668,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -22724,7 +22724,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -22780,7 +22780,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -22819,7 +22819,7 @@ snapshots:
       remove-accents: 0.5.0
       showdown: 1.9.1
       simple-html-tokenizer: 0.5.11
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
 
   '@wordpress/browserslist-config@6.35.0': {}
 
@@ -22932,7 +22932,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -22987,7 +22987,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23050,7 +23050,7 @@ snapshots:
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23083,7 +23083,7 @@ snapshots:
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23116,7 +23116,7 @@ snapshots:
       memize: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23191,7 +23191,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23238,7 +23238,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23285,7 +23285,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23332,7 +23332,7 @@ snapshots:
       react-day-picker: 9.11.1(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       use-memo-one: 1.1.3(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23561,7 +23561,7 @@ snapshots:
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23621,7 +23621,7 @@ snapshots:
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -23681,7 +23681,7 @@ snapshots:
       react-autosize-textarea: 7.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-dom: 18.3.1(react@18.3.1)
       remove-accents: 0.5.0
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -24544,7 +24544,7 @@ snapshots:
       '@wordpress/url': 4.35.0(patch_hash=d6f339ea1cef120bc10e3333fa33435c9ff78e2f5d180140e271831e4f968c8e)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -24563,7 +24563,7 @@ snapshots:
       '@wordpress/url': 4.35.0(patch_hash=d6f339ea1cef120bc10e3333fa33435c9ff78e2f5d180140e271831e4f968c8e)
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      uuid: 9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - '@types/react'
@@ -27956,7 +27956,7 @@ snapshots:
       istanbul-lib-coverage: 3.2.2
       p-map: 3.0.0
       rimraf: 3.0.2
-      uuid: 8.3.2(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 8.3.2(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
 
   istanbul-lib-report@3.0.1:
     dependencies:
@@ -28302,7 +28302,7 @@ snapshots:
     dependencies:
       mkdirp: 1.0.4
       strip-ansi: 6.0.1
-      uuid: 8.3.2(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 8.3.2(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
       xml: 1.0.1
 
   jest-leak-detector@30.0.2:
@@ -28383,7 +28383,7 @@ snapshots:
       nyc: 15.1.0
       playwright-core: 1.56.1
       rimraf: 3.0.2
-      uuid: 8.3.2(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786)
+      uuid: 8.3.2(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0)
     transitivePeerDependencies:
       - debug
       - supports-color
@@ -32660,9 +32660,9 @@ snapshots:
 
   utils-merge@1.0.1: {}
 
-  uuid@8.3.2(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786): {}
+  uuid@8.3.2(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0): {}
 
-  uuid@9.0.1(patch_hash=d06c5ac0c67d5e87228d7e4d599597995142599b62b7b41f5731f7a8ecc5e786): {}
+  uuid@9.0.1(patch_hash=3e868eb724e57c29d37a93342eaf591ed5a404927dd2f30de2acd9ba545896a0): {}
 
   v8-to-istanbul@9.3.0:
     dependencies:

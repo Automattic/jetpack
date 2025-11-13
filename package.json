@@ -118,7 +118,7 @@
 			"@wordpress/warning": ".pnpm-patches/@wordpress-build-modules-no-side-effects.patch",
 			"@wordpress/widgets": ".pnpm-patches/@wordpress-build-modules.patch",
 			"@wordpress/wordcount": ".pnpm-patches/@wordpress-build-modules-no-side-effects.patch",
-			"uuid": ".pnpm-patches/uuid.patch"
+			"uuid@<11": ".pnpm-patches/uuid.patch"
 		}
 	}
 }
