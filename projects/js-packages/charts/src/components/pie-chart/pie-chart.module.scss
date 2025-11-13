@@ -9,20 +9,3 @@
 		flex-direction: column-reverse;
 	}
 }
-
-.overlayCircle {
-	stroke-dasharray: 100, 1000;
-	stroke-dashoffset: 0;
-
-	transform: rotate(-90deg) scaleY(-1);
-	transform-origin: center;
-
-	animation: radial-wipe 1000ms ease-in-out forwards;
-}
-
-@keyframes radial-wipe {
-
-	to {
-		stroke-dashoffset: 100px;
-	}
-}
