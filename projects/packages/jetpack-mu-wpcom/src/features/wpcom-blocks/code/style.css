@@ -53,32 +53,29 @@
 		gap: 32px;
 	}
 
+	/* Essential layout and styling for PRE,CODE */
+	pre,
+	code {
+		margin: 0 !important;
+		padding: 0 !important;
+		line-height: inherit !important;
+		background: transparent !important;
+		border: none;
+		border-radius: 0;
+		color: inherit !important;
+		font-size: inherit !important;
+	}
+
 	pre {
 		flex-grow: 2;
 		flex-shrink: 0;
 		display: block;
-		background: none;
-		border: none;
 		word-wrap: normal;
-		color: inherit;
-
-		/* These are essential for layout */
 		white-space: pre !important;
-		margin: 0 !important;
-		line-height: inherit !important;
-
 	}
 
 	code {
-		font-size: inherit !important;
-		margin: 0 !important;
-		padding: 0 !important;
-		line-height: inherit !important;
 		font-family: inherit !important;
-		background: transparent !important;
-		color: inherit !important;
-		border: none;
-		border-radius: 0;
 	}
 
 	/* prevent empty lines from collapsing vertically in rendered views */
