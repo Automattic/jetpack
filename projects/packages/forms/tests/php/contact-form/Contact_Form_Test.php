@@ -2831,6 +2831,7 @@ EOT;
 			'mailpoet'               => '',
 			'emailNotifications'     => 'yes',
 			'disableGoBack'          => false,
+			'formTitle'              => 'Test Form',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                           = $attributes;
@@ -2844,7 +2845,7 @@ EOT;
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
-
+		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,
 			"[contact-field label='Name' type='name' required='1'/]"
