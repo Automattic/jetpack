@@ -65,7 +65,9 @@ class REST_Controller {
 						'type' => 'boolean',
 					),
 					'platform'          => array(
-						'type' => 'string',
+						'type'    => 'string',
+						'enum'    => array( 'jetpack', 'calypso' ),
+						'default' => 'jetpack',
 					),
 				),
 			)
