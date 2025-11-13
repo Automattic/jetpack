@@ -269,40 +269,17 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 ## Jurassic Tube Tunneling Service
 
-This is for Automatticians only. More information: PCYsg-snO-p2.
+This is for Automatticians only.
 
-If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
+Jurassic Tube is a tunneling service that allows you to expose your local Docker environment to the internet, enabling you to connect Jetpack to WordPress.com for testing.
 
-To solve this problem, run these commands from the repo root:
+### Setup
 
-```
-jetpack docker up -d
-chmod +x tools/docker/bin/jt/installer.sh && tools/docker/bin/jt/installer.sh
-```
+To set up Jurassic Tube and establish a tunnel to your local machine, follow the instructions here: PCYsg-GJ2-p2
 
-Once you have successfully installed Jurassic Tube, you can use these commands during development:
+### Recommended Proxy Configuration
 
-* Start the tunnel: `jetpack docker jt-up your-username your-subdomain`
-* Break the connection: `jetpack docker jt-down`
-
-You can also set default values:
-
-```shell script
-jetpack docker jt-config username your-username
-jetpack docker jt-config subdomain your-subdomain
-```
-That will let you omit those parameters while initiating the connection:
-```shell script
-jetpack docker jt-up
-```
-
-### Troubleshooting Jurassic Tube
-
-If you're an Automattician and receive this cURL error when connecting Jetpack to WordPress.com:
-
-> cURL error 35: OpenSSL SSL_connect: SSL_ERROR_SYSCALL in connection to jetpack.wordpress.com:443 (Status 500)
-
-You can resolve it using either of these methods:
+When using Jurassic Tube with Docker, you may need to configure proxy settings to ensure proper connectivity with WordPress.com. If you experience connection issues (such as cURL SSL errors), use one of these methods:
 
 **Method 1: Configure Docker Desktop Proxy Settings**
 
@@ -319,6 +296,8 @@ Add the following lines to `tools/docker/wordpress/wp-config.php`:
 define( 'WP_PROXY_HOST', 'socks://host.docker.internal' );
 define( 'WP_PROXY_PORT', '8080' );
 ```
+
+**Note:** If you're not using Autoproxxy or working with Jetpack Boost alongside a Boost Cloud dev environment, these proxy settings may cause issues. Only apply them if needed.
 
 After applying either method, restart your Docker container:
 
