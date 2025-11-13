@@ -221,8 +221,9 @@ class Dedicated_Sender {
 		global $wpdb;
 
 		// 1) Check & clear expired lock (best effort; failure here is harmless)
-		$expiry = \Jetpack_Options::get_raw_option( $expires_name, 0 );
-		if ( $expiry && (float) $expiry < $now ) {
+		$expiry = (float) \Jetpack_Options::get_raw_option( $expires_name, 0 );
+		if ( ! $expiry || $expiry < $now ) {
+			// Either missing (edge case) or expired → clean up
 			\Jetpack_Options::delete_raw_option( $option_name );
 			\Jetpack_Options::delete_raw_option( $expires_name );
 		}
