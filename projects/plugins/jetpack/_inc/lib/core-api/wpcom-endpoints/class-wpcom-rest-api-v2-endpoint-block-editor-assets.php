@@ -520,18 +520,34 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	 * @return bool True if the callback belongs to the plugin, false otherwise.
 	 */
 	private function is_callback_from_plugin( $callback, $plugin_slug ) {
-		// Handle object method callbacks [object, 'method_name']
+		// Handle array-based callbacks: object methods or static class methods
 		if ( is_array( $callback ) && count( $callback ) === 2 ) {
-			$object = $callback[0];
-			if ( is_object( $object ) ) {
+			$class_or_object = $callback[0];
+
+			// Handle object method callbacks [object, 'method_name']
+			if ( is_object( $class_or_object ) ) {
 				try {
-					$reflection = new ReflectionClass( $object );
+					$reflection = new ReflectionClass( $class_or_object );
 					$file_path  = $reflection->getFileName();
 					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
 						return true;
 					}
 				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 					// Failed to reflect on this object (e.g., internal class, anonymous class).
+					// Continue checking other callback types.
+				}
+			}
+
+			// Handle static method array callbacks ['ClassName', 'method_name']
+			if ( is_string( $class_or_object ) && class_exists( $class_or_object ) ) {
+				try {
+					$reflection = new ReflectionClass( $class_or_object );
+					$file_path  = $reflection->getFileName();
+					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
+						return true;
+					}
+				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+					// Failed to reflect on this class (e.g., internal class).
 					// Continue checking other callback types.
 				}
 			}
