@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-NGa0Aqqzu1Eh0sWQ+DWyS5Notq6HafepnYP6L299wcE=
+pnpmfileChecksum: sha256-njszaWxXYYr8QHSQDP7+s0qIjC0zYRRPpldHbWeuVVA=
 
 importers:
 
@@ -8862,7 +8862,6 @@ packages:
     resolution: {integrity: sha512-UPeWKl/Acu1IuuHJlsN+eITUHqAaa9/04geHHPedY8siVarSaWprY0SVMKrkpKfk5ehRT7+/MZ5QwWuEtkWrFw==}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '*'
 
   '@tanstack/query-core@5.90.8':
     resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
@@ -21323,9 +21322,9 @@ snapshots:
     dependencies:
       '@typescript-eslint/utils': 8.46.4(eslint@9.38.0)(typescript@5.9.3)
       eslint: 9.38.0
-      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
+      - typescript
 
   '@tanstack/query-core@5.90.8': {}
 
