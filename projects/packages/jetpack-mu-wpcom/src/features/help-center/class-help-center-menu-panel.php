@@ -118,16 +118,12 @@ class Help_Center_Menu_Panel {
 
 	/**
 	 * Initialize the help center menu panel.
-	 *
-	 * @param string $variant The variant of the help center being loaded.
 	 */
-	public static function init( $variant ) {
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+	public static function init() {
 			add_action(
 				'admin_bar_menu',
 				array( __CLASS__, 'add_menu_panel' ),
 				12
 			);
-		}
 	}
 }

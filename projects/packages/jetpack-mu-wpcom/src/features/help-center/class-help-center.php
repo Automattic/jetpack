@@ -184,8 +184,7 @@ class Help_Center {
 	 * @param string $version The version of the asset file to get.
 	 */
 	public function enqueue_script( $variant, $dependencies, $version ) {
-		$script_dependencies   = $dependencies ?? array();
-		$is_menu_panel_enabled = $this->is_menu_panel_enabled();
+		$script_dependencies = $dependencies ?? array();
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
 			add_action(
@@ -216,10 +215,10 @@ class Help_Center {
 				12
 			);
 
-			if ( $is_menu_panel_enabled ) {
+			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
-				Help_Center_Menu_Panel::init( $variant );
+				Help_Center_Menu_Panel::init();
 			}
 		}
 
@@ -283,22 +282,21 @@ class Help_Center {
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
-						'isProxied'          => boolval( self::is_proxied() ),
-						'isSU'               => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
-						'isSSP'              => isset( $_COOKIE['ssp'] ),
-						'sectionName'        => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin'        => $is_next_admin,
-						'isCommerceGarden'   => $is_commerce_garden,
-						'currentUser'        => array(
+						'isProxied'        => boolval( self::is_proxied() ),
+						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
+						'isSSP'            => isset( $_COOKIE['ssp'] ),
+						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
+						'isNextAdmin'      => $is_next_admin,
+						'isCommerceGarden' => $is_commerce_garden,
+						'currentUser'      => array(
 							'ID'           => $user_id,
 							'username'     => $username,
 							'display_name' => $display_name,
 							'avatar_URL'   => $avatar_url,
 							'email'        => $user_email,
 						),
-						'site'               => $this->get_current_site(),
-						'locale'             => self::determine_iso_639_locale(),
-						'isMenuPanelEnabled' => $is_menu_panel_enabled,
+						'site'             => $this->get_current_site(),
+						'locale'           => self::determine_iso_639_locale(),
 					)
 				),
 				'before'
@@ -472,6 +470,10 @@ class Help_Center {
 
 		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
 		$controller = new WP_REST_Help_Center_Ticket_CSAT();
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-experiment.php';
+		$controller = new WP_REST_Help_Center_Experiment();
 		$controller->register_rest_route();
 	}
 
