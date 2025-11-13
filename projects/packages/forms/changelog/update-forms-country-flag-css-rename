@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Forms: update CSS class for IP-flag to be less generic
+Forms: componentize more response styles and JS
