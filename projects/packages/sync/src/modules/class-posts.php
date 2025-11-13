@@ -323,7 +323,7 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Drop bursts for _wp_attachment_metadata at send-time by sending the current DB state once per request.
+	 * Prevent multiples of _wp_attachment_metadata at send-time by sending the current DB state once per request.
 	 *
 	 * @param array $args The hook arguments: [ $meta_id, $object_id, $meta_key, $meta_value ].
 	 * @return array|false Return args to send once per attachment per request, or false to skip subsequent ones.
