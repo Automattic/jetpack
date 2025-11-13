@@ -17,6 +17,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -307,8 +308,22 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					viewBox={ `0 0 ${ width } ${ chartHeight }` }
 					data-testid="pie-chart-svg"
 				>
+					<defs>
+						<RadialWipeAnimation
+							id={ `radial-wipe-${ chartId }` }
+							radius={ radius }
+							innerRadius={ innerRadius }
+							startAngle="-180deg"
+							wipePercentage={ 50 }
+						/>
+					</defs>
+
 					{ /* Main chart group centered horizontally and positioned at bottom */ }
-					<Group top={ chartHeight } left={ width / 2 }>
+					<Group
+						top={ chartHeight }
+						left={ width / 2 }
+						mask={ animation ? `url(#radial-wipe-${ chartId })` : null }
+					>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"
@@ -378,21 +393,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 							</>
 						) }
 					</Group>
-
-					{ animation && (
-						<circle
-							cx={ width / 2 }
-							cy={ radius }
-							r={ ( radius - innerRadius ) / 2 + innerRadius }
-							pathLength="100"
-							fill="transparent"
-							style={ {
-								stroke: 'white',
-								strokeWidth: radius - innerRadius,
-							} }
-							className={ styles.overlayCircle }
-						/>
-					) }
 				</svg>
 
 				{ withTooltips && tooltipOpen && tooltipData && (

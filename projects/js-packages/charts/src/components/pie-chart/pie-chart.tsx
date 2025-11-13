@@ -18,6 +18,7 @@ import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -291,7 +292,19 @@ const PieChartInternal = ( {
 					width={ width }
 					height={ adjustedHeight }
 				>
-					<Group top={ centerY } left={ centerX }>
+					<defs>
+						<RadialWipeAnimation
+							id={ `radial-wipe-${ chartId }` }
+							radius={ outerRadius }
+							innerRadius={ innerRadius }
+						/>
+					</defs>
+
+					<Group
+						top={ centerY }
+						left={ centerX }
+						mask={ animation ? `url(#radial-wipe-${ chartId })` : null }
+					>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"
@@ -396,21 +409,6 @@ const PieChartInternal = ( {
 						{ /* Render SVG children (like Group, Text) inside the SVG */ }
 						{ ! allSegmentsHidden && svgChildren }
 					</Group>
-
-					{ animation && (
-						<circle
-							cx={ centerX }
-							cy={ centerY }
-							r={ ( outerRadius - innerRadius ) / 2 + innerRadius }
-							pathLength="100"
-							fill="transparent"
-							style={ {
-								stroke: providerTheme.backgroundColor,
-								strokeWidth: outerRadius - innerRadius,
-							} }
-							className={ styles.overlayCircle }
-						/>
-					) }
 				</svg>
 
 				{ showLegend && (
