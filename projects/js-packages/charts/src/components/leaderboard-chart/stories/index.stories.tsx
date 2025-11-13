@@ -180,6 +180,13 @@ export const Loading: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const CustomColors: Story = {
 	args: {
 		data: sampleData,

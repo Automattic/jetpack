@@ -95,6 +95,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	withPatterns = false,
 	showZeroValues = false,
 	legendInteractive = false,
+	animation,
 	children,
 } ) => {
 	const horizontal = orientation === 'horizontal';
@@ -314,7 +315,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className ) }
+				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className, {
+					[ styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] ]: animation,
+				} ) }
 				data-testid="bar-chart"
 				role="grid"
 				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }

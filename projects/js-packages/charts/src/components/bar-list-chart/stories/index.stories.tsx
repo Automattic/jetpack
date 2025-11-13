@@ -49,6 +49,13 @@ export const MultiSeries: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const CustomLabelComponent: Story = {
 	args: {
 		...Default.args,
