@@ -1736,7 +1736,7 @@ class Colors_Manager_Common {
 			)
 		);
 
-		if ( empty( $top_palette ) ) {
+		if ( ! $top_palette ) {
 			return array();
 		}
 
