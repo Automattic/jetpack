@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  *
  * @phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
- * @phpcs:disable Squiz.PHP.InnerFunctions.NotAllowed
  */
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.

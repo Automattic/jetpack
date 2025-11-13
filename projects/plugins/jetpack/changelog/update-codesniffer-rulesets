@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Replace `MediaWiki.Usage.NestedFunctions` with `Squiz.PHP.InnerFunctions`.
+Comment: Replace `MediaWiki.Usage.NestedFunctions` with `Squiz.PHP.InnerFunctions`. Remove some where `Squiz.PHP.InnerFunctions` is ok with function→class→function.
 
 
