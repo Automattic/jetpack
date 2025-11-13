@@ -1148,6 +1148,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	 *
 	 * This test creates a mock wpforms-lite plugin structure and verifies
 	 * that callbacks from that plugin are removed before execution.
+	 *
+	 * @phan-suppress PhanUndeclaredClassMethod, PhanUndeclaredClassStaticProperty, PhanUndeclaredClassInCallable
 	 */
 	public function test_wpforms_callback_is_not_executed_after_hook_removal() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
@@ -1168,10 +1170,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 			file_put_contents(
 				$plugin_file,
 				'<?php
-				class WPForms_Mock_Class {
-					public static $callback_executed = false;
-					public function mock_callback() {
-						self::$callback_executed = true;
+				if ( ! class_exists( "WPForms_Mock_Class" ) ) {
+					class WPForms_Mock_Class {
+						public static $callback_executed = false;
+						public function mock_callback() {
+							self::$callback_executed = true;
+						}
 					}
 				}'
 			);
