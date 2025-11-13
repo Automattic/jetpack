@@ -60,19 +60,11 @@
 		}
 	}
 
-	.a8c\/code__header {
-		padding: 0 12px;
-	}
-
 	.a8c\/code__btn-copy {
 		text-transform: inherit;
 		font-style: inherit;
 		font-weight: inherit;
 		font-size: inherit;
-	}
-
-	.a8c\/code__filename.components-base-control {
-		margin: -1px;
 	}
 
 	.a8c\/code__language-select {

@@ -316,10 +316,6 @@
 	justify-content: flex-end;
 	font-size: 0.8em;
 	min-height: 40px;
-
-	.a8c\/code__language-select {
-		margin-right: -12px;
-	}
 }
 
 .a8c\/code__header-right {
@@ -330,9 +326,6 @@
 
 .a8c\/code__filename {
 	flex: 1 0 0;
-	font-size: inherit;
 	font-weight: 700;
 	line-height: 1.3;
-	font-family: inherit !important;
-	border: 1px solid transparent;
 }

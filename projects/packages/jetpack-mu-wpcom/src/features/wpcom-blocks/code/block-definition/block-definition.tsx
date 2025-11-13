@@ -168,23 +168,21 @@ const blockEdit = withColors(
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
+						label={ __( 'Show File Name', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showFileName }
+						onChange={ ( next: boolean ) => setAttributes( { showFileName: next } ) }
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
 						label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showCopyButton }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showCopyButton: next,
-							} )
-						}
+						onChange={ ( next: boolean ) => setAttributes( { showCopyButton: next } ) }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
 						label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLineNumbers }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showLineNumbers: next,
-							} )
-						}
+						onChange={ ( next: boolean ) => setAttributes( { showLineNumbers: next } ) }
 						__nextHasNoMarginBottom
 					/>
 					<TextControl
@@ -279,11 +277,6 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 		style: blockStyle( props.attributes ),
 	} );
 
-	const wpElementButtonClass =
-		typeof __experimentalGetElementClassName === 'function'
-			? __experimentalGetElementClassName( 'button' )
-			: 'wp-element-button';
-
 	if ( ( globalThis as { SCRIPT_DEBUG?: unknown } ).SCRIPT_DEBUG ) {
 		if ( typeof __experimentalGetElementClassName !== 'function' ) {
 			// eslint-disable-next-line no-console -- Console message in debug.
@@ -293,22 +286,41 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 
 	return (
 		<div { ...blockProps }>
-			<div className="a8c/code__header">
-				<Filename { ...props } />
-				{ ( props.isSelected ||
-					props.attributes.showCopyButton ||
-					props.attributes.showLanguageName ) && (
-					<div className="a8c/code__header-right">
-						{ props.attributes.showCopyButton && (
-							<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
-								{ __( 'Copy', 'jetpack-mu-wpcom' ) }
-							</button>
-						) }
-						<DisplayLanguage { ...props } />
-					</div>
-				) }
-			</div>
+			<BlockHeader { ...props } />
 			{ props.children }
+		</div>
+	);
+};
+
+const BlockHeader = ( props: Props ) => {
+	if (
+		! props.attributes.showFileName &&
+		! props.attributes.showCopyButton &&
+		! props.attributes.showLanguageName
+	) {
+		return null;
+	}
+
+	const wpElementButtonClass =
+		typeof __experimentalGetElementClassName === 'function'
+			? __experimentalGetElementClassName( 'button' )
+			: 'wp-element-button';
+
+	return (
+		<div className="a8c/code__header">
+			<Filename { ...props } />
+			{ ( props.isSelected ||
+				props.attributes.showCopyButton ||
+				props.attributes.showLanguageName ) && (
+				<div className="a8c/code__header-right">
+					{ props.attributes.showCopyButton && (
+						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
+							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
+						</button>
+					) }
+					<DisplayLanguage { ...props } />
+				</div>
+			) }
 		</div>
 	);
 };
@@ -322,26 +334,27 @@ const Filename = ( props: Props ) => {
 			( [ , languageName ] ) => props.attributes.language === languageName
 		)?.[ 0 ] ?? 'txt';
 
+	const { PlainText } = wpBlockEditor;
+
 	if ( isSelected ) {
 		return (
-			<TextControl
-				label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-				hideLabelFromVision
+			<PlainText
+				__experimentalVersion={ 2 }
+				value={ filename }
+				onChange={ ( nextValue: string ) => {
+					setAttributes!( { filename: nextValue } );
+				} }
+				disableLineBreaks
 				className="a8c/code__filename"
 				placeholder={ sprintf(
 					/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
 					__( 'filename.%s', 'jetpack-mu-wpcom' ),
 					placeholderExtension
 				) }
-				value={ filename }
-				onChange={ ( nextValue: string ) => {
-					setAttributes!( { filename: nextValue } );
-				} }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 		);
 	}
+
 	if ( filename ) {
 		return <span className="a8c/code__filename">{ filename }</span>;
 	}
