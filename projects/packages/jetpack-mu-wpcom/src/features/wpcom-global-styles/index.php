@@ -784,12 +784,8 @@ function is_global_styles_on_personal_plan() {
 	}
 
 	$wpcom_blog_owner_id = null;
-	$wpcom_blog_id       = null;
-	if ( $is_atomic ) {
-		$connection_manager = new Automattic\Jetpack\Connection\Manager();
-		$wpcom_blog_id      = $connection_manager->get_site_id();
-	} elseif ( function_exists( 'wpcom_get_blog_owner' ) ) {
-		$wpcom_blog_id       = get_current_blog_id();
+	$wpcom_blog_id       = get_wpcom_blog_id();
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
 		$wpcom_blog_owner_id = wpcom_get_blog_owner( $wpcom_blog_id );
 	}
 
