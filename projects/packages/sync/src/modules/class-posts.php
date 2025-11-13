@@ -227,7 +227,7 @@ class Posts extends Module {
 	public function init_before_send() {
 		// meta.
 		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
-		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'filter_updated_post_meta_before_send' ), 5 ); // Incase this filter is used elsewhere, we run early.
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
@@ -323,6 +323,78 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Drop stale _wp_attachment_metadata updates at send-time by comparing against current database value.
+	 *
+	 * @param array $args The hook arguments: [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array|false Return original args to send, or false to skip if stale.
+	 */
+	public function drop_stale_attachment_metadata( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 4 ) { // The updated_postmeta do_aciton from core always sends four args.
+			return $args;
+		}
+		list( , $post_id, , $meta_value ) = $args;
+
+		static $post_meta_cached = array();
+		$post_id                 = (int) $post_id;
+
+		if ( isset( $post_meta_cached[ $post_id ] ) ) {
+			$cached_value     = $post_meta_cached[ $post_id ]['value'];
+			$cached_signature = $post_meta_cached[ $post_id ]['signature'];
+		} else {
+			$current_value = wp_get_attachment_metadata( $post_id, true );
+			if ( ! is_array( $current_value ) ) {
+				return $args;
+			}
+			$cached_signature             = wp_json_encode( $current_value );
+			$post_meta_cached[ $post_id ] = array(
+				'value'     => $current_value,
+				'signature' => $cached_signature,
+			);
+		}
+
+		if ( is_string( $meta_value ) ) {
+			$meta_value = maybe_unserialize( $meta_value );
+		}
+		if ( ! is_array( $meta_value ) ) {
+			return $args;
+		}
+
+		$queued_signature = wp_json_encode( $meta_value );
+
+		if ( $queued_signature === false ) {
+			return $args;
+		}
+
+		if ( $queued_signature !== $cached_signature ) {
+			return false;
+		}
+
+		// Use current DB payload to ensure freshest data gets sent.
+		$args[3] = $cached_value;
+		return $args;
+	}
+
+	/**
+	 * Unified handler for updated post meta before send: skips stale _wp_attachment_metadata and trims meta.
+	 *
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array|false
+	 */
+	public function filter_updated_post_meta_before_send( $args ) {
+		if ( is_array( $args ) && count( $args ) >= 3 ) {
+			$meta_key = $args[2];
+			if ( '_wp_attachment_metadata' !== $meta_key ) {
+				return $this->trim_post_meta( $args );
+			}
+		}
+		$args = $this->drop_stale_attachment_metadata( $args );
+		if ( false === $args ) {
+			return false;
+		}
+		return $this->trim_post_meta( $args );
+	}
+
+	/**
 	 * Process content before send.
 	 *
 	 * @param array $args Arguments of the `wp_insert_post` hook.
@@ -382,10 +454,13 @@ class Posts extends Module {
 	/**
 	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
 	 *
-	 * @param array $args Hook arguments.
+	 * @param array|false $args Hook arguments.
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
+		if ( ! is_array( $args ) ) {
+			return false;
+		}
 		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}
