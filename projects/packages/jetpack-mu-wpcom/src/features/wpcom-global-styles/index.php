@@ -818,6 +818,9 @@ function is_global_styles_on_personal_plan() {
 			return false;
 		}
 		$wpcom_blog_owner = get_userdata( $wpcom_blog_owner_id );
+		if ( ! $wpcom_blog_owner ) {
+			return false;
+		}
 		// WP.com: Direct ExPlat assignment.
 		$assignment = \ExPlat\assign_given_user( $experiment_key, $wpcom_blog_owner );
 		$enabled    = ( null !== $assignment );
