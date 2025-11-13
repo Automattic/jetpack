@@ -45,7 +45,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/ui": "1.0.2",
-		"@tanstack/react-query": "5.75.1",
+		"@tanstack/react-query": "5.90.8",
 		"@wordpress/api-fetch": "7.31.0",
 		"@wordpress/components": "30.4.0",
 		"@wordpress/compose": "7.31.0",
