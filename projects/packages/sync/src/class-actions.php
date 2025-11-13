@@ -174,7 +174,9 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
+			if ( ! Constants::is_true( 'DOING_CRON' ) ) {
+				add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
+			}
 			if ( self::should_initialize_sender( true ) ) {
 				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 			}
