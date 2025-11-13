@@ -710,31 +710,20 @@ function wpcom_site_has_global_styles_feature( $blog_id = 0 ) {
 }
 
 /**
- * Query WP.com ExPlat assignments API to check if the current user is assigned to an experiment.
+ * Query WP.com endpoint to retrieve the Global Styles experiment assignment for a site.
  *
- * On success, returns true only if the assignment exists for the given experiment key
- * and the variation is not null. Returns false on errors or when not assigned.
+ * On success, returns true only if the API reports a non-null variation ("treatment").
+ * Returns false on errors or when not assigned.
  *
- * @param string $experiment_key ExPlat experiment key to check.
- * @param int    $blog_id        The WPCOM blog ID.
- * @return bool Whether the current user is assigned to a non-null variation for the experiment.
+ * @param int $blog_id The WPCOM blog ID.
+ * @return bool Whether the site is assigned to a non-null variation for the experiment.
  */
-function wpcom_global_styles_assignment_api_request( $experiment_key, $blog_id ) {
-	$connection_manager = new Automattic\Jetpack\Connection\Manager();
-	if ( ! $connection_manager->is_user_connected() ) {
-		return false;
-	}
-
-	$path     = '/me/explat-assignments';
-	$body     = array(
-		'experiment' => (string) $experiment_key,
-		'blog_id'    => (int) $blog_id,
-	);
+function wpcom_global_styles_assignment_api_request( $blog_id ) {
 	$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-		$path,
-		'v1',
-		array( 'method' => 'POST' ),
-		$body,
+		"/global-styles-assignment?blog_id=$blog_id",
+		'v1.2',
+		array( 'method' => 'GET' ),
+		null,
 		'rest'
 	);
 
@@ -753,13 +742,7 @@ function wpcom_global_styles_assignment_api_request( $experiment_key, $blog_id )
 		return false;
 	}
 
-	foreach ( $data as $assignment ) {
-		if ( isset( $assignment['name'] ) && $assignment['name'] === $experiment_key ) {
-			return array_key_exists( 'variation', $assignment ) && null !== $assignment['variation'];
-		}
-	}
-
-	return false;
+	return 'treatment' === $data['variation'];
 }
 
 /**
@@ -803,15 +786,14 @@ function is_global_styles_on_personal_plan() {
 	$wpcom_blog_owner_id = null;
 	$wpcom_blog_id       = null;
 	if ( $is_atomic ) {
-		$connection_manager  = new Automattic\Jetpack\Connection\Manager();
-		$wpcom_blog_owner_id = $connection_manager->get_connection_owner_id();
-		$wpcom_blog_id       = $connection_manager->get_site_id();
+		$connection_manager = new Automattic\Jetpack\Connection\Manager();
+		$wpcom_blog_id      = $connection_manager->get_site_id();
 	} elseif ( function_exists( 'wpcom_get_blog_owner' ) ) {
 		$wpcom_blog_id       = get_current_blog_id();
 		$wpcom_blog_owner_id = wpcom_get_blog_owner( $wpcom_blog_id );
 	}
 
-	if ( ! $wpcom_blog_owner_id || ! $wpcom_blog_id ) {
+	if ( ! $wpcom_blog_id ) {
 		return false;
 	}
 
@@ -834,8 +816,11 @@ function is_global_styles_on_personal_plan() {
 
 	if ( $is_atomic ) {
 		// Atomic: ask WP.com assignment API for this user.
-		$enabled = wpcom_global_styles_assignment_api_request( $experiment_key, $wpcom_blog_id );
-	} elseif ( function_exists( '\ExPlat\assign_given_user' ) ) {
+		$enabled = wpcom_global_styles_assignment_api_request( $wpcom_blog_id );
+	} elseif ( function_exists( '\ExPlat\assign_given_user' ) && function_exists( 'wpcom_get_blog_owner' ) ) {
+		if ( ! $wpcom_blog_owner_id ) {
+			return false;
+		}
 		$wpcom_blog_owner = get_userdata( $wpcom_blog_owner_id );
 		// WP.com: Direct ExPlat assignment.
 		$assignment = \ExPlat\assign_given_user( $experiment_key, $wpcom_blog_owner );
