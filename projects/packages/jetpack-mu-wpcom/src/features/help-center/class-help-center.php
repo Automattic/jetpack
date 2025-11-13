@@ -7,7 +7,9 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Help_Center
@@ -213,9 +215,11 @@ class Help_Center {
 				12
 			);
 
-			// Initialize the help center menu panel
-			require_once __DIR__ . '/class-help-center-menu-panel.php';
-			Help_Center_Menu_Panel::init( $variant );
+			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
+				// Initialize the help center menu panel
+				require_once __DIR__ . '/class-help-center-menu-panel.php';
+				Help_Center_Menu_Panel::init();
+			}
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
@@ -314,6 +318,47 @@ class Help_Center {
 				$version
 			);
 		}
+	}
+
+	/**
+	 * Returns whether the menu panel experiment is enabled for the current user.
+	 *
+	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
+	 */
+	private function is_menu_panel_enabled() {
+		$experiment_name      = 'calypso_help_center_menu_popover';
+		$experiment_variation = 'menu_popover';
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		}
+
+		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
+			return false;
+		}
+
+		$request_path = '/experiments/0.1.0/assignments/calypso';
+		$response     = Client::wpcom_json_api_request_as_user(
+			add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
+			'v2'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return false;
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+			$variation = $data['variations'][ $experiment_name ];
+			return $experiment_variation === $variation;
+		}
+
+		return false;
 	}
 
 	/**
