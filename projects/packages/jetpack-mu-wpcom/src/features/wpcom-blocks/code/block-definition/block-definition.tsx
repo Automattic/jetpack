@@ -341,11 +341,9 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 };
 
 const BlockHeader = ( props: Props ) => {
-	if (
-		! props.attributes.showFileName &&
-		! props.attributes.showCopyButton &&
-		! props.attributes.showLanguageName
-	) {
+	const showLanguage = props.attributes.showLanguageName && props.attributes.language;
+
+	if ( ! props.attributes.showFileName && ! props.attributes.showCopyButton && ! showLanguage ) {
 		return null;
 	}
 
@@ -354,19 +352,18 @@ const BlockHeader = ( props: Props ) => {
 			? __experimentalGetElementClassName( 'button' )
 			: 'wp-element-button';
 
+	const showRight = props.attributes.showCopyButton || showLanguage;
 	return (
 		<div className="a8c/code__header">
 			<Filename { ...props } />
-			{ ( props.attributes.showCopyButton || props.attributes.showLanguageName ) && (
+			{ showRight && (
 				<div className="a8c/code__header-right">
 					{ props.attributes.showCopyButton && (
 						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
 							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 						</button>
 					) }
-					{ props.attributes.showLanguageName && props.attributes.language ? (
-						<span>{ props.attributes.language }</span>
-					) : null }
+					{ showLanguage ? <span>{ props.attributes.language }</span> : null }
 				</div>
 			) }
 		</div>
