@@ -31,6 +31,7 @@ import { transforms } from './transforms.ts';
 const {
 	InspectorControls,
 	BlockControls,
+	PlainText,
 	useBlockProps,
 	withColors,
 	__experimentalGetElementClassName,
@@ -356,9 +357,7 @@ const BlockHeader = ( props: Props ) => {
 	return (
 		<div className="a8c/code__header">
 			<Filename { ...props } />
-			{ ( props.isSelected ||
-				props.attributes.showCopyButton ||
-				props.attributes.showLanguageName ) && (
+			{ ( props.attributes.showCopyButton || props.attributes.showLanguageName ) && (
 				<div className="a8c/code__header-right">
 					{ props.attributes.showCopyButton && (
 						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
@@ -375,17 +374,18 @@ const BlockHeader = ( props: Props ) => {
 };
 
 const Filename = ( props: Props ) => {
+	if ( ! props.attributes.showFileName ) {
+		return null;
+	}
 	const { setAttributes, isSelected = false } = props;
 	const { filename } = props.attributes;
 
-	const placeholderExtension =
-		extensionToLang.find(
-			( [ , languageName ] ) => props.attributes.language === languageName
-		)?.[ 0 ] ?? 'txt';
-
-	const { PlainText } = wpBlockEditor;
-
 	if ( isSelected ) {
+		const placeholderExtension =
+			extensionToLang.find(
+				( [ , languageName ] ) => props.attributes.language === languageName
+			)?.[ 0 ] ?? 'txt';
+
 		return (
 			<PlainText
 				__experimentalVersion={ 2 }
