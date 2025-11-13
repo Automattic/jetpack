@@ -66,13 +66,4 @@
 		font-weight: inherit;
 		font-size: inherit;
 	}
-
-	.a8c\/code__language-select {
-
-		button,
-		.components-input-control__container {
-			background-color: transparent;
-			color: inherit;
-		}
-	}
 }

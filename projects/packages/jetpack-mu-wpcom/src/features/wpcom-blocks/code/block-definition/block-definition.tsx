@@ -5,11 +5,16 @@ import * as wpBlockEditor from '@wordpress/block-editor';
 // @ts-expect-error No types.
 import * as wpBlocks from '@wordpress/blocks';
 import {
-	CustomSelectControl,
+	Button,
+	Dropdown,
+	MenuGroup,
+	MenuItem,
+	NavigableMenu,
 	PanelBody,
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
@@ -25,6 +30,7 @@ import { transforms } from './transforms.ts';
 
 const {
 	InspectorControls,
+	BlockControls,
 	useBlockProps,
 	withColors,
 	__experimentalGetElementClassName,
@@ -139,6 +145,47 @@ const blockEdit = withColors(
 
 	return (
 		<>
+			<BlockControls>
+				<ToolbarGroup>
+					<Dropdown
+						popoverProps={ {
+							isAlternate: true,
+							position: 'bottom right left',
+							focusOnMount: true,
+						} }
+						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
+							<Button
+								onClick={ onToggle }
+								aria-expanded={ isOpen }
+								aria-haspopup="true"
+								children={ props.attributes.language || emptyLanguageOption.name }
+							/>
+						) }
+						renderContent={ ( { onClose }: { onClose: () => void } ) => (
+							<NavigableMenu role="menu" stopNavigationEvents>
+								<MenuGroup>
+									{ selectLanguageOptions.map( option => (
+										<MenuItem
+											key={ option.value }
+											role="menuitemradio"
+											isSelected={ option.value === props.attributes.language }
+											onClick={ () => {
+												props.setAttributes( {
+													language: option.value,
+													languageConfidence: 'certain',
+												} );
+												onClose();
+											} }
+										>
+											{ option.label }
+										</MenuItem>
+									) ) }
+								</MenuGroup>
+							</NavigableMenu>
+						) }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 			<InspectorControls group="color">
 				<ColorTools { ...props } />
 			</InspectorControls>
@@ -318,7 +365,9 @@ const BlockHeader = ( props: Props ) => {
 							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
 						</button>
 					) }
-					<DisplayLanguage { ...props } />
+					{ props.attributes.showLanguageName && props.attributes.language ? (
+						<span>{ props.attributes.language }</span>
+					) : null }
 				</div>
 			) }
 		</div>
@@ -359,46 +408,6 @@ const Filename = ( props: Props ) => {
 		return <span className="a8c/code__filename">{ filename }</span>;
 	}
 	return null;
-};
-
-const DisplayLanguage = ( props: Props ) => {
-	const { attributes, setAttributes } = props;
-
-	if ( props.isSelected ) {
-		return (
-			<CustomSelectControl
-				className="a8c/code__language-select"
-				label={ __( 'Language', 'jetpack-mu-wpcom' ) }
-				hideLabelFromVision
-				value={
-					attributes.language
-						? {
-								key: attributes.language,
-								name: attributes.language,
-						  }
-						: emptyLanguageOption
-				}
-				options={ customSelectLanguageOptions }
-				onChange={ ( {
-					selectedItem: { key: newLanguage },
-				}: {
-					selectedItem: { name: string; key: string };
-				} ) => {
-					setAttributes!( {
-						language: newLanguage,
-						languageConfidence: 'certain',
-					} );
-				} }
-				__next40pxDefaultSize
-			/>
-		);
-	}
-
-	if ( ! props.attributes.showLanguageName || ! attributes.language ) {
-		return null;
-	}
-
-	return <span>{ attributes.language }</span>;
 };
 
 /**
