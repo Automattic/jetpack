@@ -25,6 +25,8 @@ declare global {
 		wp: {
 			blockEditor: {
 				InspectorControls: JSXElementConstructor< any >;
+				BlockControls: JSXElementConstructor< any >;
+				PlainText: JSXElementConstructor< any >;
 				store: Store;
 				useBlockProps: any;
 				withColors: (

@@ -29,12 +29,12 @@ import { ColorTools } from './color-tools.tsx';
 import { transforms } from './transforms.ts';
 
 const {
-	InspectorControls,
+	__experimentalGetElementClassName,
 	BlockControls,
+	InspectorControls,
 	PlainText,
 	useBlockProps,
 	withColors,
-	__experimentalGetElementClassName,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
 const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
