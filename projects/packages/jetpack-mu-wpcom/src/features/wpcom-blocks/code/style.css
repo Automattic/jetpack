@@ -53,24 +53,24 @@
 		gap: 32px;
 	}
 
-	/* Essential layout and styling for PRE,CODE */
+	/* Essential layout and styling for PRE, CODE */
 	pre,
 	code {
 		margin: 0 !important;
 		padding: 0 !important;
 		line-height: inherit !important;
 		background: transparent !important;
-		border: none;
-		border-radius: 0;
+		border: none !important;
+		border-radius: 0 !important;
 		color: inherit !important;
 		font-size: inherit !important;
 	}
 
 	pre {
-		flex-grow: 2;
-		flex-shrink: 0;
-		display: block;
-		word-wrap: normal;
+		flex-grow: 2 !important;
+		flex-shrink: 0 !important;
+		display: block !important;
+		word-wrap: normal !important;
 		white-space: pre !important;
 	}
 
@@ -78,18 +78,17 @@
 		font-family: inherit !important;
 	}
 
+	/* Line number layout */
+	.cm-line::before {
+		box-sizing: content-box !important;
+	}
+
 	/* prevent empty lines from collapsing vertically in rendered views */
 	.cm-line:empty::after {
 		content: "\A0";
 	}
 
-	/* prevent empty lines from collapsing vertically in rendered views */
-	.cm-line::before {
-
-		/* Essential for layout */
-		box-sizing: content-box !important;
-	}
-
+	/* Match the editor */
 	.cm-line {
 		padding: 0 2px 0 6px;
 	}
