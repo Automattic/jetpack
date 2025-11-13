@@ -475,9 +475,13 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	/**
 	 * Removes hooks from problematic plugins that cause errors in this endpoint.
 	 *
-	 * This method removes hooks from specific plugins that are known to cause
-	 * 500 errors when the enqueue_block_editor_assets action is triggered in
-	 * the REST API context.
+	 * Some plugins conditionally load admin-only code based on is_admin(), which
+	 * returns false in REST API contexts. When these plugins hook into
+	 * enqueue_block_editor_assets without checking the context, they may call
+	 * undefined functions that were never loaded, causing fatal errors.
+	 *
+	 * This method preemptively removes hooks from known problematic plugins before
+	 * the enqueue_block_editor_assets action fires, preventing fatal errors.
 	 */
 	private function remove_problematic_plugin_hooks() {
 		global $wp_filter;
