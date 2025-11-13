@@ -1555,7 +1555,9 @@ class Colors_Manager_Common {
 				$color = $working_color->toCSS( 'rgba', intval( $number ) );
 			}
 		}
-		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
+		if ( isset( $rule[0] ) && isset( $rule[1] ) ) {
+			$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
+		}
 		return $css;
 	}
 
