@@ -1215,7 +1215,12 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 			unlink( $plugin_file );
 		}
 		if ( $created_plugin_dir ) {
-			rmdir( $plugins_dir );
+			// Only remove directory if it's empty (to avoid failures if other files exist)
+			$dir_contents = scandir( $plugins_dir );
+			$is_empty     = count( $dir_contents ) === 2; // Only '.' and '..' remain
+			if ( $is_empty ) {
+				rmdir( $plugins_dir );
+			}
 		}
 	}
 }
