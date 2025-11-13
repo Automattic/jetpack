@@ -232,7 +232,7 @@ class Jetpack_Notifications {
 	 */
 	public function print_js() {
 		$link_accounts_url = is_user_logged_in() && ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ? Jetpack::admin_url() : false;
-		$script_contents   = <<<JS
+		$script_contents   = <<<'JS'
 var wpNotesIsJetpackClient = true;
 var wpNotesIsJetpackClientV2 = true;
 JS;
