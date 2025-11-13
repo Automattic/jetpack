@@ -536,6 +536,30 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
+	 * Checks whether the Product is active
+	 *
+	 * Overrides the parent method to respect the jetpack_ai_enabled filter.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		/**
+		 * Filter to enable/disable Jetpack AI.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param boolean $enabled True if Jetpack AI should be enabled, false otherwise. Default true.
+		 */
+		$is_enabled = apply_filters( 'jetpack_ai_enabled', true );
+
+		if ( ! $is_enabled ) {
+			return false;
+		}
+
+		return parent::is_active();
+	}
+
+	/**
 	 * Get data about the AI Assistant feature
 	 *
 	 * @return array
