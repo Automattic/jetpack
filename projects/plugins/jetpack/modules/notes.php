@@ -237,7 +237,7 @@ var wpNotesIsJetpackClient = true;
 var wpNotesIsJetpackClientV2 = true;
 JS;
 		if ( $link_accounts_url ) {
-			$script_contents .= "\nvar wpNotesLinkAccountsURL = " . wp_json_encode( $link_accounts_url, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES );
+			$script_contents .= "\nvar wpNotesLinkAccountsURL = " . wp_json_encode( $link_accounts_url, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ) . ';';
 		}
 		wp_print_inline_script_tag(
 			$script_contents,
