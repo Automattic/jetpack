@@ -146,8 +146,44 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ rawRecords ]
 	);
 
+	/**
+	 * Helper function to determine the effective status of a record,
+	 * considering optimistic edits (status field in edits).
+	 *
+	 * @param {FormResponse} record - The record to check.
+	 * @return {string} The effective status of the record.
+	 */
+	const getEffectiveStatus = ( record: FormResponse ): string => {
+		// getEditedEntityRecord merges edits with the original record,
+		// so if status was edited, it will be in the edited record
+		return record.status || 'publish';
+	};
+
+	/**
+	 * Helper function to check if a status matches the current status filter.
+	 *
+	 * @param {string} status - The status to check.
+	 * @param {string} filter - The status filter (e.g., 'draft,publish', 'trash', 'spam').
+	 * @return {boolean} Whether the status matches the filter.
+	 */
+	const statusMatchesFilter = ( status: string, filter: string ): boolean => {
+		// Handle comma-separated status filters (e.g., 'draft,publish' for inbox)
+		if ( filter.includes( ',' ) ) {
+			return filter.split( ',' ).includes( status );
+		}
+
+		return status === filter;
+	};
+
 	const records = useMemo( () => {
-		return editedRecords.map( record => {
+		// Filter records based on their effective status (considering optimistic edits)
+		const filteredRecords = ( editedRecords || [] ).filter( ( record: FormResponse ) => {
+			const effectiveStatus = getEffectiveStatus( record );
+
+			return statusMatchesFilter( effectiveStatus, statusFilter );
+		} );
+
+		return filteredRecords.map( record => {
 			const formResponse = record as FormResponse;
 			return {
 				...formResponse,
@@ -166,7 +202,7 @@ export default function useInboxData(): UseInboxDataReturn {
 				),
 			};
 		} ) as FormResponse[];
-	}, [ editedRecords ] );
+	}, [ editedRecords, statusFilter ] );
 
 	// Prepare query params for counts resolver
 	const countsQueryParams = useMemo( () => {

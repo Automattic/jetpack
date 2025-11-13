@@ -35,27 +35,11 @@ class Help_Center_Menu_Panel {
 	}
 
 	/**
-	 * Check if the help center menu panel should be displayed.
-	 *
-	 * @return bool True if the menu panel should be displayed.
-	 */
-	public static function should_display_menu_panel() {
-		// Only add the help center menu panel if the flags parameter is present
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		return isset( $_GET['flags'] ) && strpos( sanitize_text_field( wp_unslash( $_GET['flags'] ) ), 'help-center-menu-panel' ) !== false;
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-	}
-
-	/**
 	 * Add the help center menu panel to the admin bar.
 	 *
 	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
 	 */
 	public static function add_menu_panel( $wp_admin_bar ) {
-		if ( ! self::should_display_menu_panel() ) {
-			return;
-		}
-
 		// Add chat support group
 		$wp_admin_bar->add_group(
 			array(
@@ -134,16 +118,12 @@ class Help_Center_Menu_Panel {
 
 	/**
 	 * Initialize the help center menu panel.
-	 *
-	 * @param string $variant The variant of the help center being loaded.
 	 */
-	public static function init( $variant ) {
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+	public static function init() {
 			add_action(
 				'admin_bar_menu',
 				array( __CLASS__, 'add_menu_panel' ),
 				12
 			);
-		}
 	}
 }

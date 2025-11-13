@@ -104,13 +104,51 @@ class MailPoet_Integration {
 	 * @return array|null Subscriber data on success, or null on failure.
 	 */
 	protected static function add_subscriber_to_list( $mailpoet_api, $list_id, $subscriber_data ) {
+		$email = $subscriber_data['email'];
 		try {
-			$subscriber = $mailpoet_api->addSubscriber(
-				$subscriber_data,
-				array( $list_id )
-			);
-			return $subscriber;
+			$existing = $mailpoet_api->getSubscriber( $email );
+
+			// Normalize "subscribed" status using MailPoet constant when available.
+			$status_subscribed = class_exists( '\MailPoet\Entities\SubscriberEntity' )
+				// @phan-suppress-next-line PhanUndeclaredClassConstant
+				? \MailPoet\Entities\SubscriberEntity::STATUS_SUBSCRIBED
+				: 'subscribed';
+
+			// If already subscribed to list, do nothing.
+			if ( ! empty( $existing['subscriptions'] ) && is_array( $existing['subscriptions'] ) ) {
+				foreach ( $existing['subscriptions'] as $subscription ) {
+					if (
+						isset( $subscription['segment_id'] ) && isset( $subscription['status'] ) &&
+						(string) $subscription['segment_id'] === (string) $list_id &&
+						$status_subscribed === $subscription['status']
+					) {
+						return $existing;
+					}
+				}
+			}
+
+			// Subscriber exists but is not on the target list, so add to list.
+			// If subscriber already confirmed ('subscribed'), do not resend confirmation.
+			$options = array();
+			if ( isset( $existing['status'] ) && $existing['status'] === $status_subscribed ) {
+				$options['send_confirmation_email'] = false;
+			}
+
+			return $mailpoet_api->subscribeToLists( $email, array( $list_id ), $options );
 		} catch ( \Exception $e ) {
+			// MailPoet returns APIException code 4 if "subscriber does not exist".
+			// In that case, take no action and next try statement will add subscriber.
+			// For other exceptions, return null.
+			$not_found_code = 4;
+			if ( method_exists( $e, 'getCode' ) && (int) $e->getCode() !== $not_found_code ) {
+				return null;
+			}
+		}
+
+		// Subscriber does not exist, so add new subscriber to list and send confirmation email.
+		try {
+			return $mailpoet_api->addSubscriber( $subscriber_data, array( $list_id ) );
+		} catch ( \Exception $e ) { // phpcs:ignore Squiz.PHP.EmptyCatchComment
 			return null;
 		}
 	}

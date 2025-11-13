@@ -209,6 +209,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
+			'formTitle'              => $attributes['formTitle'] ?? '',
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
