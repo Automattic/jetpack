@@ -3,7 +3,7 @@
 // phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 // phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
-// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired, WordPress.Arrays.ArrayDeclarationSpacing, Universal.Arrays.DisallowShortArraySyntax, PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc
+// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired, WordPress.Arrays.ArrayDeclarationSpacing, Universal.Arrays.DisallowShortArraySyntax, PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc, Generic.Strings.UnnecessaryHeredoc.Found
 
 
 use PHPUnit\Framework\Attributes\TestWith;

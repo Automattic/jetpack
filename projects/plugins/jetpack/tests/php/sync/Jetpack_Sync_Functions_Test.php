@@ -1310,7 +1310,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		 *
 		 * @return boolean
 		 */
-		function is_wpe() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		function is_wpe() { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			return true;
 		}
 

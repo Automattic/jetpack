@@ -33,7 +33,7 @@ function footercredits_register( $wp_customize ) {
 		/**
 		 * Enqueue scripts and styles.
 		 */
-		public function enqueue() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		public function enqueue() {
 			if ( ! apply_filters( 'wpcom_better_footer_credit_can_customize', true ) ) {
 				wp_enqueue_script( 'footercredit-control', plugins_url( 'js/control.js', __FILE__ ), array( 'jquery' ), WPCOMSH_VERSION, true );
 				wp_enqueue_style( 'footercredit-control-styles', plugins_url( 'css/control.css', __FILE__ ), array(), WPCOMSH_VERSION );
@@ -43,7 +43,7 @@ function footercredits_register( $wp_customize ) {
 		/**
 		 * Render Footer Credits settings in Customizer.
 		 */
-		public function render_content() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		public function render_content() {
 			?>
 			<label>
 				<?php if ( ! empty( $this->label ) ) : ?>
