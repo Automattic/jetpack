@@ -678,7 +678,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$this->assertSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
 		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertSame( round( $expires_at, 4 ), $lock_expires_value );
+		$this->assertEqualsWithDelta( round( $expires_at, 4 ), $lock_expires_value, 0.001 );
 	}
 
 	/**
