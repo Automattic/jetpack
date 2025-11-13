@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: CI: Use shared locking in Jetpack_Sync_Users_Test to avoid parallel tests from interfering.
+
