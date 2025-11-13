@@ -1,0 +1,9 @@
+@use "@wordpress/base-styles/variables";
+
+.jp-forms__inbox-response-image-select {
+
+	.image-select-field-button {
+		gap: variables.$grid-unit-10;
+		height: auto;
+	}
+}
