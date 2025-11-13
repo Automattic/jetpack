@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -359,6 +360,13 @@ export default function InboxView() {
 				],
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
+				render: ( { item } ) => {
+					return (
+						<Badge intent={ item.is_unread ? 'success' : 'default' }>
+							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
+						</Badge>
+					);
+				},
 			},
 			{
 				id: 'ip',
