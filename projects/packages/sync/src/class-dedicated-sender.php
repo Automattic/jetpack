@@ -222,7 +222,7 @@ class Dedicated_Sender {
 
 		// 1) Check & clear expired lock (best effort; failure here is harmless)
 		$expiry = \Jetpack_Options::get_raw_option( $expires_name, 0 );
-		if ( $expiry && $expiry < $now ) {
+		if ( $expiry && (float) $expiry < $now ) {
 			\Jetpack_Options::delete_raw_option( $option_name );
 			\Jetpack_Options::delete_raw_option( $expires_name );
 		}
@@ -292,7 +292,7 @@ class Dedicated_Sender {
 	 *
 	 * @return array|string|string[]|null
 	 */
-	public static function get_request_lock_id_from_request() {
+	private static function get_request_lock_id_from_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) ) {
 			return null;

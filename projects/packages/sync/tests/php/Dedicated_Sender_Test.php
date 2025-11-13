@@ -318,6 +318,50 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::test_try_lock_spawn_request without existing locks.
+	 *
+	 * @see Jetpack_Sync_Sender_Test for full coverage - Direct DB query in test_try_lock_spawn_request doesn't play well with WordDBLess
+	 */
+	public function test_try_lock_spawn_request_without_existing_locks() {
+		$result = Dedicated_Sender::try_lock_spawn_request();
+
+		$this->assertNotFalse( $result );
+
+		$lock_option_name  = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$lock_expires_name = $lock_option_name . '_expires';
+
+		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
+
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::test_try_release_lock_spawn_request.
+	 */
+	public function test_try_release_lock_spawn_request() {
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+
+		$result = Dedicated_Sender::try_release_lock_spawn_request( 'dummy' );
+
+		$this->assertTrue( $result );
+		$this->assertEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::test_try_release_lock_spawn_request with invalid lock.
+	 */
+	public function test_try_release_lock_spawn_request_invalid_lock() {
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+
+		$result = Dedicated_Sender::try_release_lock_spawn_request( 'invalid_lock' );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
+	}
+
+	/**
 	 * Intercept HTTP request to run Sync and mock the response.
 	 * Should be hooked on the `pre_http_request` filter.
 	 *
