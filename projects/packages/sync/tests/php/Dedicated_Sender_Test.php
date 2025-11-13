@@ -179,6 +179,24 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header.
+	 */
+	public function test_maybe_change_dedicated_sync_status_from_wpcom_header() {
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'on' );
+
+		$this->assertTrue( $result );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertTrue( (bool) $dedicated_sync_status );
+
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'off' );
+		$this->assertFalse( $result );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertFalse( (bool) $dedicated_sync_status );
+	}
+
+	/**
 	 * Tests Dedicated_Sender::maybe_enable_dedicated_sync when Sync has not been sending for a while.
 	 */
 	public function test_enable_dedicated_sync_when_temporary_disabled() {

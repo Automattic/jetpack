@@ -412,6 +412,13 @@ class Dedicated_Sender {
 			}
 		}
 
+		$current_setting = Settings::is_dedicated_sync_enabled();
+
+		// No need to update if current setting matches header value.
+		if ( $current_setting === (bool) $dedicated_sync_enabled ) {
+			return $current_setting;
+		}
+
 		Settings::update_settings(
 			array(
 				'dedicated_sync_enabled' => $dedicated_sync_enabled,
