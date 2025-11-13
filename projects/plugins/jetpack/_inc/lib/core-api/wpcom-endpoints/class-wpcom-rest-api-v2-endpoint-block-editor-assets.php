@@ -523,7 +523,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				try {
 					$reflection = new ReflectionClass( $object );
 					$file_path  = $reflection->getFileName();
-					if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
 						return true;
 					}
 				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -540,7 +540,7 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				try {
 					$reflection = new ReflectionClass( $class_name );
 					$file_path  = $reflection->getFileName();
-					if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
 						return true;
 					}
 				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
@@ -555,12 +555,40 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			try {
 				$reflection = new ReflectionFunction( $callback );
 				$file_path  = $reflection->getFileName();
-				if ( $file_path && str_contains( $file_path, '/plugins/' . $plugin_slug . '/' ) ) {
+				if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
 					return true;
 				}
 			} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Failed to reflect on this function (e.g., internal function).
 				// Continue to return false.
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if a file path belongs to a specific plugin.
+	 *
+	 * @param string $file_path The file path to check.
+	 * @param string $plugin_slug The plugin slug to match against.
+	 * @return bool True if the file belongs to the plugin, false otherwise.
+	 */
+	private function is_file_from_plugin( $file_path, $plugin_slug ) {
+		// Normalize the file path for consistent comparison
+		$file_path = wp_normalize_path( $file_path );
+
+		// Check in standard plugins directory
+		$plugin_dir = wp_normalize_path( WP_PLUGIN_DIR );
+		if ( str_contains( $file_path, $plugin_dir . '/' . $plugin_slug . '/' ) ) {
+			return true;
+		}
+
+		// Check in mu-plugins directory if defined
+		if ( defined( 'WPMU_PLUGIN_DIR' ) ) {
+			$mu_plugin_dir = wp_normalize_path( WPMU_PLUGIN_DIR );
+			if ( str_contains( $file_path, $mu_plugin_dir . '/' . $plugin_slug . '/' ) ) {
+				return true;
 			}
 		}
 
