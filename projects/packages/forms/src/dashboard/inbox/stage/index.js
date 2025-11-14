@@ -547,7 +547,7 @@ export default function InboxView() {
 					{ responseModal }
 				</Modal>
 			) }
-			{ selection.length === 1 && sidePanelItem && ! isMobile && (
+			{ selection.length === 1 && sidePanelItem && ! isMobileViewport && (
 				<div className="jp-forms-layout__surface is-inspector">
 					<SingleResponseView
 						sidePanelItem={ sidePanelItem }
