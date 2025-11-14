@@ -79,7 +79,7 @@ class PD_Top_Rated extends WP_Widget {
 					}
 				}
 
-				if ( count( $current_category ) > 0 && (int) $current_category[0]->cat_ID > 0 ) {
+				if ( is_array( $current_category ) && count( $current_category ) > 0 && (int) $current_category[0]->cat_ID > 0 ) {
 					$args     = array(
 						'category' => $current_category[0]->cat_ID,
 						'fields'   => 'ids',
