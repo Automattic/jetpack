@@ -261,21 +261,72 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @throws \Exception If the JWT token is invalid or cannot be decoded and $throw_exception is true.
 	 */
 	public static function get_instance_from_jwt( $jwt_token, $throw_exception = false ) {
-		$secret = self::get_secret();
+		$secret_info   = self::get_secret();
+		$secret        = $secret_info['secret'];
+		$secret_source = $secret_info['source'];
+		$data          = null;
+		$exception     = null;
 
 		try {
 			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
 		} catch ( \Exception $e ) {
+			$exception = $e;
+
+			// If signature verification failed, try fallback secrets for backward compatibility
+			// This handles cases where tokens were created with a different secret source
+			if ( strpos( $e->getMessage(), 'Signature verification failed' ) !== false ) {
+				$fallback_secrets = self::get_fallback_secrets( $secret_source );
+
+				foreach ( $fallback_secrets as $fallback ) {
+					$fallback_secret = $fallback['secret'];
+
+					if ( empty( $fallback_secret ) || $fallback_secret === $secret ) {
+						continue;
+					}
+
+					try {
+						$data = JWT::decode( $jwt_token, $fallback_secret, array( 'HS256' ), true );
+
+						// Successfully decoded with fallback secret - log for debugging
+						do_action(
+							'jetpack_forms_log',
+							'jwt_decoded_with_fallback_secret',
+							array(
+								'original_source' => $secret_source,
+								'fallback_source' => $fallback['source'],
+							)
+						);
+
+						$exception = null;
+						break;
+					} catch ( \Exception $fallback_e ) {
+						// Continue trying other fallback secrets
+						continue;
+					}
+				}
+			}
+		}
+
+		if ( $exception !== null && $data === null ) {
+			do_action(
+				'jetpack_forms_log',
+				'jwt_decode_failed',
+				array(
+					'error'         => $exception->getMessage(),
+					'secret_source' => $secret_source,
+				)
+			);
+
 			// Re-throw with more context about the failure.
 			if ( $throw_exception ) {
 				throw new \Exception(
 					sprintf(
 						/* translators: %s is the original exception message */
 						__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
-						$e->getMessage()
+						$exception->getMessage()
 					),
 					0,
-					$e
+					$exception
 				);
 			}
 
@@ -387,7 +438,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	/**
 	 * Helper function to get the secret from the Tokens class.
 	 *
-	 * @return string The secret from the Tokens class, or a default secret if not available.
+	 * @return array Array with 'secret' and 'source' keys. The source is one of: 'filter', 'tokens', 'option', or 'generated'.
 	 */
 	private static function get_secret() {
 
@@ -400,13 +451,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		$secret = apply_filters( 'jetpack_forms_secret_jwt', '' );
 		if ( is_string( $secret ) && ! empty( $secret ) ) {
-			return $secret;
+			return array(
+				'secret' => $secret,
+				'source' => 'filter',
+			);
 		}
 
 		$token = ( new Tokens() )->get_access_token();
 
 		if ( ! empty( $token->secret ) ) {
-			return $token->secret;
+			return array(
+				'secret' => $token->secret,
+				'source' => 'tokens',
+			);
 		}
 
 		$secret = get_option( 'jetpack_forms_secret_key', false );
@@ -414,9 +471,73 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Generate a fallback secret if we don't have one from Tokens.
 			$secret = wp_generate_password( 64, true, true );
 			update_option( 'jetpack_forms_secret_key', $secret );
+
+			return array(
+				'secret' => $secret,
+				'source' => 'generated',
+			);
 		}
 
-		return $secret;
+		return array(
+			'secret' => $secret,
+			'source' => 'option',
+		);
+	}
+
+	/**
+	 * Get fallback secrets to try when the primary secret fails.
+	 * This helps with backward compatibility when secrets change and the page is cached.
+	 *
+	 * @param string $current_source The current secret source.
+	 * @return array Array of fallback secrets with their sources. Each element is an array with 'secret' and 'source' keys.
+	 */
+	private static function get_fallback_secrets( $current_source ) {
+		$fallbacks = array();
+
+		// If current source is filter, try tokens and option
+		if ( $current_source === 'filter' ) {
+			$token = ( new Tokens() )->get_access_token();
+
+			if ( ! empty( $token->secret ) ) {
+				$fallbacks[] = array(
+					'secret' => $token->secret,
+					'source' => 'tokens',
+				);
+			}
+
+			$option_secret = get_option( 'jetpack_forms_secret_key', false );
+
+			if ( ! empty( $option_secret ) ) {
+				$fallbacks[] = array(
+					'secret' => $option_secret,
+					'source' => 'option',
+				);
+			}
+		}
+
+		// If current source is tokens, try option
+		if ( $current_source === 'tokens' ) {
+			$option_secret = get_option( 'jetpack_forms_secret_key', false );
+
+			if ( ! empty( $option_secret ) ) {
+				$fallbacks[] = array(
+					'secret' => $option_secret,
+					'source' => 'option',
+				);
+			}
+		}
+
+		// Always try the filter as a fallback (in case it was added after tokens were created)
+		$filter_secret = apply_filters( 'jetpack_forms_secret_jwt', '' );
+
+		if ( is_string( $filter_secret ) && ! empty( $filter_secret ) ) {
+			$fallbacks[] = array(
+				'secret' => $filter_secret,
+				'source' => 'filter',
+			);
+		}
+
+		return $fallbacks;
 	}
 
 	/**
@@ -436,6 +557,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function get_jwt() {
 		$attributes   = $this->attributes;
 		$this->source = Feedback_Source::get_current( $attributes );
+		$secret_info  = self::get_secret();
+
 		return JWT::encode(
 			array(
 				'attributes' => $attributes,
@@ -443,7 +566,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'hash'       => $this->hash,
 				'source'     => $this->source->serialize(),
 			),
-			self::get_secret()
+			$secret_info['secret']
 		);
 	}
 
