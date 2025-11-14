@@ -1,0 +1,71 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { MenuGroup, MenuItem } from '@wordpress/components';
+import { check } from '@wordpress/icons';
+import { useCallback } from 'react';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { Connection } from '../../social-store/types';
+import { ConnectionImage } from '../connection-image';
+import { useConnectionState } from '../form/use-connection-state';
+import styles from './styles.module.scss';
+
+export type ConnectionsToggleListProps = {
+	connections: Array< Connection >;
+};
+
+/**
+ * The component to render a list of social media connections as a toggle list.
+ *
+ * @return React element
+ */
+export function ConnectionsToggleList() {
+	const { recordEvent } = useAnalytics();
+
+	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+	const { connections, toggleById } = useSocialMediaConnections();
+
+	const toggleConnection = useCallback(
+		( connectionId: string, connection: Connection ) => () => {
+			toggleById( connectionId );
+			recordEvent( 'jetpack_social_connection_toggled', {
+				location: 'editor',
+				enabled: ! connection.enabled,
+				service_name: connection.service_name,
+			} );
+		},
+		[ recordEvent, toggleById ]
+	);
+
+	return (
+		<MenuGroup className={ styles.wrapper }>
+			{ connections.map( connection => {
+				const isSelected = canBeTurnedOn( connection ) && connection.enabled;
+				const isDisabled = shouldBeDisabled( connection );
+
+				return (
+					<MenuItem
+						key={ connection.connection_id }
+						role="menuitemcheckbox"
+						disabled={ isDisabled }
+						icon={ isSelected ? check : null }
+						isSelected={ isSelected }
+						onClick={ toggleConnection( connection.connection_id, connection ) }
+						aria-label={ connection.display_name }
+						className={ styles.item }
+					>
+						<div className={ styles[ 'item-content' ] }>
+							<ConnectionImage
+								service_name={ connection.service_name }
+								display_name={ connection.display_name }
+								profile_picture={ connection.profile_picture }
+								disabled={ isDisabled }
+							/>
+							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+								{ connection.display_name }
+							</div>
+						</div>
+					</MenuItem>
+				);
+			} ) }
+		</MenuGroup>
+	);
+}
