@@ -323,6 +323,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Set the source object for the contact form.
+	 *
+	 * @param Feedback_Source $source The source object.
+	 *
+	 * @return void
+	 */
+	public function set_source( $source ) {
+		$this->source = $source;
+	}
+
+	/**
 	 * Get the context for the contact form based on the attributes and post.
 	 *
 	 * @param array        $attributes The attributes of the contact form.
