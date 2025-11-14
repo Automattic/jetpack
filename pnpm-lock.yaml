@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-NGa0Aqqzu1Eh0sWQ+DWyS5Notq6HafepnYP6L299wcE=
+pnpmfileChecksum: sha256-njszaWxXYYr8QHSQDP7+s0qIjC0zYRRPpldHbWeuVVA=
 
 importers:
 
@@ -1351,11 +1351,11 @@ importers:
         specifier: workspace:*
         version: link:../webpack-config
       '@tanstack/react-query':
-        specifier: 5.75.1
-        version: 5.75.1(react@18.3.1)
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.75.1
-        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.90.2
+        version: 5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)
       jest:
         specifier: 30.0.4
         version: 30.0.4
@@ -1947,8 +1947,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
       '@tanstack/react-query':
-        specifier: 5.75.1
-        version: 5.75.1(react@18.3.1)
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.31.0
         version: 7.31.0
@@ -2743,7 +2743,7 @@ importers:
         version: 10.22.0
       '@tanstack/react-query':
         specifier: ^5.15.5
-        version: 5.75.1(react@18.3.1)
+        version: 5.90.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.31.0
         version: 7.31.0
@@ -3044,8 +3044,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
-        specifier: 5.75.1
-        version: 5.75.1(react@18.3.1)
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.31.0
         version: 7.31.0
@@ -4379,8 +4379,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@tanstack/react-query':
-        specifier: 5.75.1
-        version: 5.75.1(react@18.3.1)
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.31.0
         version: 7.31.0
@@ -5091,11 +5091,11 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/scan
       '@tanstack/react-query':
-        specifier: 5.75.1
-        version: 5.75.1(react@18.3.1)
+        specifier: 5.90.8
+        version: 5.90.8(react@18.3.1)
       '@tanstack/react-query-devtools':
-        specifier: 5.75.1
-        version: 5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)
+        specifier: 5.90.2
+        version: 5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.31.0
         version: 7.31.0
@@ -5651,8 +5651,8 @@ importers:
         specifier: 21.1.1
         version: 21.1.1
       '@tanstack/eslint-plugin-query':
-        specifier: 5.74.7
-        version: 5.74.7(eslint@9.38.0)(typescript@5.9.3)
+        specifier: 5.91.2
+        version: 5.91.2(eslint@9.38.0)(typescript@5.9.3)
       '@testing-library/jest-dom':
         specifier: 6.6.3
         version: 6.6.3
@@ -8858,34 +8858,25 @@ packages:
   '@tannin/sprintf@1.3.3':
     resolution: {integrity: sha512-RwARl+hFwhzy0tg9atWcchLFvoQiOh4rrP7uG2N5E4W80BPCUX0ElcUR9St43fxB9EfjsW2df9Qp+UsTbvQDjA==}
 
-  '@tanstack/eslint-plugin-query@5.74.7':
-    resolution: {integrity: sha512-EeHuaaYiCOD+XOGyB7LMNEx9OEByAa5lkgP+S3ZggjKJpmIO6iRWeoIYYDKo2F8uc3qXcVhTfC7pn7NddQiNtA==}
+  '@tanstack/eslint-plugin-query@5.91.2':
+    resolution: {integrity: sha512-UPeWKl/Acu1IuuHJlsN+eITUHqAaa9/04geHHPedY8siVarSaWprY0SVMKrkpKfk5ehRT7+/MZ5QwWuEtkWrFw==}
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
-      typescript: '*'
 
-  '@tanstack/query-core@5.75.0':
-    resolution: {integrity: sha512-rk8KQuCdhoRkzjRVF3QxLgAfFUyS0k7+GCQjlGEpEGco+qazJ0eMH6aO1DjDjibH7/ik383nnztua3BG+lOnwg==}
+  '@tanstack/query-core@5.90.8':
+    resolution: {integrity: sha512-4E0RP/0GJCxSNiRF2kAqE/LQkTJVlL/QNU7gIJSptaseV9HP6kOuA+N11y4bZKZxa3QopK3ZuewwutHx6DqDXQ==}
 
-  '@tanstack/query-core@5.90.7':
-    resolution: {integrity: sha512-6PN65csiuTNfBMXqQUxQhCNdtm1rV+9kC9YwWAIKcaxAauq3Wu7p18j3gQY3YIBJU70jT/wzCCZ2uqto/vQgiQ==}
+  '@tanstack/query-devtools@5.90.1':
+    resolution: {integrity: sha512-GtINOPjPUH0OegJExZ70UahT9ykmAhmtNVcmtdnOZbxLwT7R5OmRztR5Ahe3/Cu7LArEmR6/588tAycuaWb1xQ==}
 
-  '@tanstack/query-devtools@5.74.7':
-    resolution: {integrity: sha512-nSNlfuGdnHf4yB0S+BoNYOE1o3oAH093weAYZolIHfS2stulyA/gWfSk/9H4ZFk5mAAHb5vNqAeJOmbdcGPEQw==}
-
-  '@tanstack/react-query-devtools@5.75.1':
-    resolution: {integrity: sha512-6S71fJRBlb0adlG5z/OHRqZqtHoPYVCklf/KCnOoZ3vdx9O/K9BLvqeeDeMUkZ6Rak/IupbEbvBsFoUiMHwZiQ==}
+  '@tanstack/react-query-devtools@5.90.2':
+    resolution: {integrity: sha512-vAXJzZuBXtCQtrY3F/yUNJCV4obT/A/n81kb3+YqLbro5Z2+phdAbceO+deU3ywPw8B42oyJlp4FhO0SoivDFQ==}
     peerDependencies:
-      '@tanstack/react-query': ^5.75.1
+      '@tanstack/react-query': ^5.90.2
       react: ^18 || ^19
 
-  '@tanstack/react-query@5.75.1':
-    resolution: {integrity: sha512-tN+gG+eXCHYm+VpmdXUP1rfE9LUrRzgYozTkBZtJV1/WFM3vwWNKQC8G6b2RKcs+2cPg+hdToZHZfjL3bF4yIQ==}
-    peerDependencies:
-      react: ^18 || ^19
-
-  '@tanstack/react-query@5.90.7':
-    resolution: {integrity: sha512-wAHc/cgKzW7LZNFloThyHnV/AX9gTg3w5yAv0gvQHPZoCnepwqCMtzbuPbb2UvfvO32XZ46e8bPOYbfZhzVnnQ==}
+  '@tanstack/react-query@5.90.8':
+    resolution: {integrity: sha512-/3b9QGzkf4rE5/miL6tyhldQRlLXzMHcySOm/2Tm2OLEFE9P1ImkH0+OviDBSvyAvtAOJocar5xhd7vxdLi3aQ==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -17423,7 +17414,7 @@ snapshots:
       '@automattic/number-formatters': 1.0.14
       '@automattic/oauth-token': 1.0.1
       '@automattic/shopping-cart': 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@tanstack/react-query': 5.90.7(react@18.3.1)
+      '@tanstack/react-query': 5.90.8(react@18.3.1)
       '@wordpress/api-fetch': 7.31.0
       '@wordpress/data': 10.31.0(react@18.3.1)
       '@wordpress/data-controls': 4.31.0(react@18.3.1)
@@ -17493,7 +17484,7 @@ snapshots:
       '@automattic/i18n-utils': 1.2.3
       '@automattic/typography': 1.0.0
       '@automattic/viewport': 1.1.0
-      '@tanstack/react-query': 5.90.7(react@18.3.1)
+      '@tanstack/react-query': 5.90.8(react@18.3.1)
       '@wordpress/base-styles': 6.7.0
       '@wordpress/components': 30.4.0(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data': 10.31.0(react@18.3.1)
@@ -21327,34 +21318,27 @@ snapshots:
 
   '@tannin/sprintf@1.3.3': {}
 
-  '@tanstack/eslint-plugin-query@5.74.7(eslint@9.38.0)(typescript@5.9.3)':
+  '@tanstack/eslint-plugin-query@5.91.2(eslint@9.38.0)(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/utils': 8.46.4(eslint@9.38.0)(typescript@5.9.3)
       eslint: 9.38.0
-      typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
+      - typescript
 
-  '@tanstack/query-core@5.75.0': {}
+  '@tanstack/query-core@5.90.8': {}
 
-  '@tanstack/query-core@5.90.7': {}
+  '@tanstack/query-devtools@5.90.1': {}
 
-  '@tanstack/query-devtools@5.74.7': {}
-
-  '@tanstack/react-query-devtools@5.75.1(@tanstack/react-query@5.75.1(react@18.3.1))(react@18.3.1)':
+  '@tanstack/react-query-devtools@5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@tanstack/query-devtools': 5.74.7
-      '@tanstack/react-query': 5.75.1(react@18.3.1)
+      '@tanstack/query-devtools': 5.90.1
+      '@tanstack/react-query': 5.90.8(react@18.3.1)
       react: 18.3.1
 
-  '@tanstack/react-query@5.75.1(react@18.3.1)':
+  '@tanstack/react-query@5.90.8(react@18.3.1)':
     dependencies:
-      '@tanstack/query-core': 5.75.0
-      react: 18.3.1
-
-  '@tanstack/react-query@5.90.7(react@18.3.1)':
-    dependencies:
-      '@tanstack/query-core': 5.90.7
+      '@tanstack/query-core': 5.90.8
       react: 18.3.1
 
   '@testing-library/dom@10.4.0':
