@@ -3140,4 +3140,29 @@ class Feedback_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_get_country_from_ip', $filter_callback, 10 );
 	}
+
+	/**
+	 * Minimal: submission with first-name/last-name sets author name and first/last getters.
+	 */
+	public function test_author_first_last_on_submission() {
+		// Form can be minimal; we rely on explicit first/last ids in post data.
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$post_data = array(
+			'first-name' => 'Jane',
+			'last-name'  => 'Doe',
+		);
+
+		$response = Feedback::from_submission( $post_data, $form );
+
+		$this->assertEquals( 'Jane Doe', $response->get_author_name(), 'Author name should combine first and last' );
+		$this->assertSame( 'Jane', $response->get_author_first_name(), 'First name getter should return raw first name' );
+		$this->assertSame( 'Doe', $response->get_author_last_name(), 'Last name getter should return raw last name' );
+	}
 }

@@ -21,6 +21,34 @@ use WorDBless\BaseTestCase;
 class Feedback_Author_Test extends BaseTestCase {
 
 	/**
+	 * Minimal: combining first and last name yields full name in name/display.
+	 */
+	public function test_combined_first_last_in_name_and_display() {
+		$author = new Feedback_Author( '', 'john@example.com', '', 'John', 'Doe' );
+
+		$this->assertEquals( 'John Doe', $author->get_name() );
+		$this->assertEquals( 'John Doe', $author->get_display_name() );
+	}
+
+	/**
+	 * Minimal: getters for first and last name return raw values.
+	 */
+	public function test_first_last_getters() {
+		$author = new Feedback_Author( '', '', '', 'Alice', 'Smith' );
+		$this->assertSame( 'Alice', $author->get_first_name() );
+		$this->assertSame( 'Smith', $author->get_last_name() );
+	}
+
+	/**
+	 * Minimal: when only one of first/last is present, fall back to single name.
+	 */
+	public function test_partial_first_or_last_falls_back_to_single_name() {
+		$author = new Feedback_Author( 'Single Name', 's@example.com', '', 'Bob', '' );
+		$this->assertEquals( 'Single Name', $author->get_name() );
+		$this->assertEquals( 'Single Name', $author->get_display_name() );
+	}
+
+	/**
 	 * Test constructor with all parameters.
 	 */
 	public function test_constructor_with_all_parameters() {
