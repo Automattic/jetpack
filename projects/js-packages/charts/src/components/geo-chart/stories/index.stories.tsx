@@ -3,6 +3,7 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 	ordersByCountry,
+	viewsByCity,
 	themeArgTypes,
 } from '../../../stories';
 import GeoChart from '../geo-chart';
@@ -23,6 +24,21 @@ const meta: Meta< StoryArgs > = {
 			description: 'Record mapping country ISO codes to numeric values',
 			table: {
 				type: { summary: 'Record<string, number>' },
+			},
+		},
+		citiesData: {
+			control: 'object',
+			description: 'Array of city data with coordinates and values',
+			table: {
+				type: { summary: 'CityData[]' },
+			},
+		},
+		view: {
+			control: 'radio',
+			options: [ 'countries', 'regions', 'cities' ],
+			description: 'Current view type',
+			table: {
+				type: { summary: 'ViewType' },
 			},
 		},
 		width: {
@@ -85,6 +101,25 @@ export const SingleCountry: Story = {
 export const EmptyData: Story = {
 	args: {
 		data: {},
+		width: 800,
+		height: 500,
+	},
+};
+
+export const CitiesView: Story = {
+	args: {
+		data: ordersByCountry,
+		citiesData: viewsByCity,
+		view: 'cities',
+		width: 800,
+		height: 500,
+	},
+};
+
+export const InteractiveViewSwitching: Story = {
+	args: {
+		data: ordersByCountry,
+		citiesData: viewsByCity,
 		width: 800,
 		height: 500,
 	},
