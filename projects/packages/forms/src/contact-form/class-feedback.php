@@ -242,7 +242,7 @@ class Feedback {
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
-			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
+			Feedback_Author::get_computed_author_name( $this ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
 			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' )
 		);
