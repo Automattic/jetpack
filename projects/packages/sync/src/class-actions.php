@@ -174,9 +174,8 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			if ( ! Constants::is_true( 'DOING_CRON' ) ) {
-				add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
-			}
+			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
+
 			if ( self::should_initialize_sender( true ) ) {
 				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 			}
@@ -804,7 +803,15 @@ class Actions {
 				break;
 			}
 
-			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync_and_set_delays( self::$sender->get_sync_queue() );
+			/**
+			 * Only try to sync once if Dedicated Sync is enabled. Dedicated Sync has its own requeueing mechanism
+			 * that will re-run it if there are items in the queue at the end.
+			 */
+			if ( 'sync' === $type && $executions >= 1 && Settings::is_dedicated_sync_enabled() ) {
+				break;
+			}
+
+			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 
 			// # of send actions performed.
 			++$executions;
