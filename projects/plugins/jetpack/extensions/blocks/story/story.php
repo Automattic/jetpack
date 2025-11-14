@@ -187,6 +187,10 @@ function enrich_video_meta( $media_file ) {
  * @return string
  */
 function render_image( $media ) {
+	$src    = '';
+	$width  = null;
+	$height = null;
+
 	if ( empty( $media['id'] ) || empty( $media['url'] ) ) {
 		return __( 'Error retrieving media', 'jetpack' );
 	}
@@ -215,7 +219,6 @@ function render_image( $media ) {
 		);
 	}
 
-	// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $width and $height are set when $image is truthy, and other scenarios return early.
 	$crop_class = get_image_crop_class( $width, $height );
 	// need to specify the size of the embed so it picks an image that is large enough for the `src` attribute
 	// `sizes` is optimized for 1080x1920 (9:16) images
