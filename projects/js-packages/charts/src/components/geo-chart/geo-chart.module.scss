@@ -2,8 +2,61 @@
 	position: relative;
 }
 
+.view-controls {
+	display: flex;
+	gap: 0;
+	margin-bottom: 16px;
+	border-radius: 4px;
+	overflow: hidden;
+	border: 1px solid var(--view-controls-border-color);
+	width: fit-content;
+}
+
+.view-tab {
+	padding: 8px 16px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--jp-gray-80, #2c3338);
+	transition: all 0.2s ease;
+	border-right: 1px solid var(--view-controls-border-color);
+
+	&:last-child {
+		border-right: none;
+	}
+
+	&:hover {
+		background: rgba(0, 0, 0, 0.05);
+	}
+
+	&--active {
+		background: var(--view-controls-active-color);
+		color: #fff;
+
+		&:hover {
+			background: var(--view-controls-active-color);
+		}
+	}
+}
+
 .country {
 	cursor: pointer;
+	transition: opacity 0.3s ease;
+
+	&--dimmed {
+		opacity: var(--country-dimmed-opacity);
+	}
+}
+
+.city-bubble {
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+
+	&:hover {
+		opacity: 1;
+	}
 }
 
 .tooltip__content {
