@@ -47,15 +47,15 @@ body.jetpack_page_jetpack-forms-admin {
 
 .jp-forms-layout__surface {
 	margin: 0;
-	overflow: hidden;
+	overflow: auto;
 	box-shadow: variables.$elevation-x-small;
 
 	// Mobile-first: surfaces take full screen
 	width: 100vw;
-	height: 100vh;
+	height: calc(100vh - 46px);
 	border-radius: 0;
 	position: fixed;
-	top: 0;
+	top: 46px;
 	left: 0;
 	right: 0;
 	bottom: 0;
