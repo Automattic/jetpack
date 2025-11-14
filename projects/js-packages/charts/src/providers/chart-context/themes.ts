@@ -41,6 +41,13 @@ const defaultTheme: CompleteChartTheme = {
 	},
 	geoChart: {
 		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
+		countryDimmedOpacity: 0.3,
+		cityBubbleStroke: '#FFFFFF',
+		cityBubbleStrokeWidth: 1.5,
+		cityBubbleOpacity: 0.8,
+		viewControlsBackground: '#F3F4F6',
+		viewControlsActiveColor: '#2F7E2F',
+		viewControlsBorderColor: '#DCDCDE',
 	},
 	leaderboardChart: {
 		rowGap: 12,
@@ -103,6 +110,13 @@ const jetpackTheme: ChartTheme = {
 	},
 	geoChart: {
 		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
+		countryDimmedOpacity: 0.3,
+		cityBubbleStroke: '#FFFFFF',
+		cityBubbleStrokeWidth: 1.5,
+		cityBubbleOpacity: 0.8,
+		viewControlsBackground: '#F3F4F6',
+		viewControlsActiveColor: '#2F7E2F',
+		viewControlsBorderColor: '#DCDCDE',
 	},
 	leaderboardChart: {
 		rowGap: 12,
