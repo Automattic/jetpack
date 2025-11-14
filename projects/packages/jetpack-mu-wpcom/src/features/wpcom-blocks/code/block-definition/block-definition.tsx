@@ -223,36 +223,38 @@ const blockEdit = withColors(
 						onChange={ ( next: boolean ) => setAttributes( { showLineNumbers: next } ) }
 						__nextHasNoMarginBottom
 					/>
-					<TextControl
-						label={ __( 'Line numbers start at', 'jetpack-mu-wpcom' ) }
-						type="number"
-						value={ attributes.lineNumbersStartAt }
-						disabled={ ! attributes.showLineNumbers }
-						onChange={ ( _nextLineNumbersStartAt: string ) => {
-							let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
+					{ attributes.showLineNumbers && (
+						<TextControl
+							label={ __( 'Line numbers start at', 'jetpack-mu-wpcom' ) }
+							type="number"
+							value={ attributes.lineNumbersStartAt }
+							disabled={ ! attributes.showLineNumbers }
+							onChange={ ( _nextLineNumbersStartAt: string ) => {
+								let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
 
-							if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
-								nextLineNumbersStartAt = 1;
-							}
-							if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
-								nextLineNumbersStartAt = 1;
-							}
+								if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
+									nextLineNumbersStartAt = 1;
+								}
+								if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
+									nextLineNumbersStartAt = 1;
+								}
 
-							// Clamp to the allowed range
-							nextLineNumbersStartAt = Math.max(
-								LINE_NUMBER_START_MIN,
-								Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
-							);
+								// Clamp to the allowed range
+								nextLineNumbersStartAt = Math.max(
+									LINE_NUMBER_START_MIN,
+									Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
+								);
 
-							setAttributes( {
-								lineNumbersStartAt: nextLineNumbersStartAt,
-							} );
-						} }
-						min={ LINE_NUMBER_START_MIN }
-						max={ LINE_NUMBER_START_MAX }
-						__next40pxDefaultSize
-						__nextHasNoMarginBottom
-					/>
+								setAttributes( {
+									lineNumbersStartAt: nextLineNumbersStartAt,
+								} );
+							} }
+							min={ LINE_NUMBER_START_MIN }
+							max={ LINE_NUMBER_START_MAX }
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+						/>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<React.Suspense fallback={ <Loading { ...props } /> }>
