@@ -191,7 +191,6 @@ abstract class Code_Block {
 		$args['selectors'] = array(
 			'root'       => '.wp-block-code',
 			'typography' => array(
-				'root'        => '.wp-block-code',
 
 				/*
 				 * These are experimental at the moment. The camelCase form appears to be used, but
