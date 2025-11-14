@@ -133,6 +133,10 @@ class Dedicated_Sender {
 			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 
+		if ( get_transient( self::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
+		}
+
 		// Return early if we've gotten a retry-after header response that is not expired.
 		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
 		if ( $retry_time && $retry_time >= microtime( true ) ) {
