@@ -141,7 +141,7 @@ const SingleResponseView = ( {
 					<HStack alignment="left">
 						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
 					</HStack>
-					<HStack alignment="right">
+					<HStack alignment="right" style={ { width: '96px', minWidth: '96px' } }>
 						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
 					</HStack>
 				</HStack>

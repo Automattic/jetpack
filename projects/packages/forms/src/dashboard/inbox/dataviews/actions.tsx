@@ -685,7 +685,7 @@ export const markAsReadAction: Action = {
 	id: 'mark-as-read',
 	isPrimary: false,
 	icon: <Icon icon={ seen } />,
-	label: __( 'Mark as read', 'jetpack-forms' ),
+	label: __( 'Read', 'jetpack-forms' ),
 	isEligible: item => item.is_unread,
 	supportsBulk: true,
 	async callback( items, { registry } ) {
@@ -800,7 +800,7 @@ export const markAsUnreadAction: Action = {
 	id: 'mark-as-unread',
 	isPrimary: false,
 	icon: <Icon icon={ unseen } />,
-	label: __( 'Mark as unread', 'jetpack-forms' ),
+	label: __( 'Unread', 'jetpack-forms' ),
 	isEligible: item => ! item.is_unread,
 	supportsBulk: true,
 	async callback( items, { registry } ) {

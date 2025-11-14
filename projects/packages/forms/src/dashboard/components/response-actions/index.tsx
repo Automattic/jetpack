@@ -4,6 +4,7 @@
 import { Button } from '@wordpress/components';
 import { useRegistry } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -90,7 +91,7 @@ const ResponseActions = ( {
 	}, [ response, registry, onActionComplete ] );
 
 	const sharedProps = {
-		iconSize: 24,
+		variant: 'tertiary',
 		showTooltip: true,
 		size: 'compact',
 	};
@@ -102,18 +103,22 @@ const ResponseActions = ( {
 					{ ...sharedProps }
 					onClick={ handleMarkAsRead }
 					isBusy={ isTogglingReadStatus }
-					label={ markAsReadAction.label }
-					icon={ markAsReadAction.icon }
-				></Button>
+					label={ __( 'Mark as read', 'jetpack-forms' ) }
+					aria-label={ __( 'Mark as read', 'jetpack-forms' ) }
+				>
+					{ markAsReadAction.label }
+				</Button>
 			) }
 			{ ! response.is_unread && (
 				<Button
 					{ ...sharedProps }
 					onClick={ handleMarkAsUnread }
 					isBusy={ isTogglingReadStatus }
-					label={ markAsUnreadAction.label }
-					icon={ markAsUnreadAction.icon }
-				></Button>
+					label={ __( 'Mark as unread', 'jetpack-forms' ) }
+					aria-label={ __( 'Mark as unread', 'jetpack-forms' ) }
+				>
+					{ markAsUnreadAction.label }
+				</Button>
 			) }
 		</>
 	);
@@ -121,64 +126,76 @@ const ResponseActions = ( {
 	switch ( response.status ) {
 		case 'spam':
 			return (
-				<div>
+				<div className="jp-forms__response-actions">
 					{ readUnreadButtons }
 					<Button
 						{ ...sharedProps }
 						onClick={ handleMarkAsNotSpam }
 						isBusy={ isMarkingAsNotSpam }
-						label={ markAsNotSpamAction.label }
-						icon={ markAsNotSpamAction.icon }
-					></Button>
+						label={ __( 'Mark as not spam', 'jetpack-forms' ) }
+						aria-label={ __( 'Mark as not spam', 'jetpack-forms' ) }
+					>
+						{ markAsNotSpamAction.label }
+					</Button>
 					<Button
 						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						label={ moveToTrashAction.label }
-						icon={ moveToTrashAction.icon }
-					></Button>
+						label={ __( 'Move to trash', 'jetpack-forms' ) }
+						aria-label={ __( 'Move to trash', 'jetpack-forms' ) }
+					>
+						{ moveToTrashAction.label }
+					</Button>
 				</div>
 			);
 
 		case 'trash':
 			return (
-				<div>
+				<div className="jp-forms__response-actions">
 					{ readUnreadButtons }
 					<Button
 						{ ...sharedProps }
 						onClick={ handleRestore }
 						isBusy={ isRestoring }
-						label={ restoreAction.label }
-						icon={ restoreAction.icon }
-					></Button>
+						label={ __( 'Restore from trash', 'jetpack-forms' ) }
+						aria-label={ __( 'Restore from trash', 'jetpack-forms' ) }
+					>
+						{ restoreAction.label }
+					</Button>
 					<Button
 						{ ...sharedProps }
 						onClick={ handleDelete }
 						isBusy={ isDeleting }
-						label={ deleteAction.label }
-						icon={ deleteAction.icon }
-					></Button>
+						label={ __( 'Delete permanently', 'jetpack-forms' ) }
+						aria-label={ __( 'Delete permanently', 'jetpack-forms' ) }
+					>
+						{ deleteAction.label }
+					</Button>
 				</div>
 			);
 
 		default: // 'publish' (inbox) or any other status
 			return (
-				<div>
+				<div className="jp-forms__response-actions">
 					{ readUnreadButtons }
 					<Button
 						{ ...sharedProps }
 						onClick={ handleMarkAsSpam }
 						isBusy={ isMarkingAsSpam }
-						label={ markAsSpamAction.label }
-						icon={ markAsSpamAction.icon }
-					></Button>
+						label={ __( 'Mark as spam', 'jetpack-forms' ) }
+						aria-label={ __( 'Mark as spam', 'jetpack-forms' ) }
+					>
+						{ markAsSpamAction.label }
+					</Button>
 					<Button
 						{ ...sharedProps }
 						onClick={ handleMoveToTrash }
 						isBusy={ isMovingToTrash }
-						label={ moveToTrashAction.label }
-						icon={ moveToTrashAction.icon }
-					></Button>
+						label={ __( 'Move to trash', 'jetpack-forms' ) }
+						aria-label={ __( 'Move to trash', 'jetpack-forms' ) }
+					>
+						{ moveToTrashAction.label }
+					</Button>
 				</div>
 			);
 	}

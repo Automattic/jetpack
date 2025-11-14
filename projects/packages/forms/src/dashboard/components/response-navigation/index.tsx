@@ -34,7 +34,8 @@ const ResponseNavigation = ( {
 					{ ...sharedProps }
 					disabled={ ! hasPrevious }
 					icon={ chevronUp }
-					label={ __( 'Previous', 'jetpack-forms' ) }
+					label={ __( 'Previous response', 'jetpack-forms' ) }
+					aria-label={ __( 'Previous response', 'jetpack-forms' ) }
 					onClick={ onPrevious }
 				></Button>
 			) }
@@ -43,7 +44,8 @@ const ResponseNavigation = ( {
 					{ ...sharedProps }
 					disabled={ ! hasNext }
 					icon={ chevronDown }
-					label={ __( 'Next', 'jetpack-forms' ) }
+					label={ __( 'Next response', 'jetpack-forms' ) }
+					aria-label={ __( 'Next response', 'jetpack-forms' ) }
 					onClick={ onNext }
 				></Button>
 			) }
@@ -51,7 +53,8 @@ const ResponseNavigation = ( {
 				<Button
 					{ ...sharedProps }
 					icon={ close }
-					label={ __( 'Close', 'jetpack-forms' ) }
+					label={ __( 'Close response', 'jetpack-forms' ) }
+					aria-label={ __( 'Close response', 'jetpack-forms' ) }
 					onClick={ onClose }
 				></Button>
 			) }
