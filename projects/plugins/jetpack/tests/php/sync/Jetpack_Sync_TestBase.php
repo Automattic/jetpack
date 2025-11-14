@@ -37,6 +37,44 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	protected $server_event_storage;
 
 	/**
+	 * Lock file.
+	 *
+	 * @var resource|null
+	 */
+	protected static $lockfile = null;
+
+	/**
+	 * Set up before class.
+	 *
+	 * @throws RuntimeException If locking is needed and fails.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// For CI coverage tests, use a lock file to avoid parallel runs of tests from interfering with each other.
+		if ( getenv( 'PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL' ) === 'true' ) {
+			static::$lockfile = fopen( sys_get_temp_dir() . '/jetpack-sync-test.lock', 'c+' );
+			if ( ! static::$lockfile ) {
+				throw new RuntimeException( 'Failed to open lockfile ' . sys_get_temp_dir() . '/jetpack-sync-test.lock' );
+			}
+			if ( ! flock( static::$lockfile, LOCK_SH ) ) {
+				throw new RuntimeException( 'Failed to lock lockfile ' . sys_get_temp_dir() . '/jetpack-sync-test.lock' );
+			}
+		}
+	}
+
+	/**
+	 * Tear down after class.
+	 */
+	public static function tear_down_after_class() {
+		parent::tear_down_after_class();
+
+		if ( static::$lockfile ) {
+			fclose( static::$lockfile );
+		}
+	}
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
