@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fix connection icon not reflecting the change when profile picture is updated.
