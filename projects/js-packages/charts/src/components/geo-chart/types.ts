@@ -27,7 +27,9 @@ export interface FeatureShape {
 }
 
 export interface TooltipData {
-	countryName: string;
-	countryId: string;
+	countryName?: string;
+	countryId?: string;
+	cityName?: string;
+	cityId?: string;
 	value: number;
 }
