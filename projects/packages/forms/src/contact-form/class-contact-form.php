@@ -352,6 +352,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
+		// At this point, $data should not be null (we return early if it is), but adding check for static analysis
+		if ( $data === null ) {
+			return null;
+		}
+
 		$form                   = new self( $data['attributes'], $data['content'], empty( $data['attributes']['id'] ) );
 		$form->source           = Feedback_Source::from_serialized( $source );
 		$form->hash             = $data['hash'];
