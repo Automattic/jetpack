@@ -70,7 +70,7 @@ that needs to mimic the input element styles */
 	font: inherit;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--input-background, #fff);
 }
 
 :where(.contact-form textarea) {
@@ -677,7 +677,7 @@ that needs to mimic the input element styles */
 	border-right: none !important;
 	border-top-right-radius: unset !important;
 	border-bottom-right-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__notch {
@@ -690,7 +690,7 @@ that needs to mimic the input element styles */
 	transition: border 150ms linear;
 	border-left: none !important;
 	border-right: none !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__filler {
@@ -702,7 +702,7 @@ that needs to mimic the input element styles */
 	border-left: none !important;
 	border-right: none !important;
 	border-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__trailing {
@@ -717,18 +717,18 @@ that needs to mimic the input element styles */
 	border-left: none !important;
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 /* Preserve the background color for the checkbox multiple and radio
  * wrap when using the old checkbox multiple and radio blocks. */
 .contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
 .contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .wp-block-jetpack-options {
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--form-background-color);
 }
 
 
@@ -853,6 +853,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 	padding-right: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
 	position: relative;
+	color: var(--jetpack--contact-form--text-color);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap {

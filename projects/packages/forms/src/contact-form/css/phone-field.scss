@@ -8,6 +8,7 @@
 	.jetpack-field__input-phone-wrapper {
 		display: flex;
 		gap: 8px;
+		color: var(--jetpack--contact-form--input-color);
 		background-color: var(--jetpack--contact-form--input-background);
 		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-width: var(--jetpack--contact-form--border-size);
@@ -49,7 +50,7 @@
 			font: inherit;
 			flex: 1;
 			outline: none;
-			color: inherit;
+			color: var(--jetpack--contact-form--input-text-color, inherit);
 			background: none;
 			width: inherit;
 			box-sizing: border-box;
@@ -122,6 +123,7 @@
 		.jetpack-field__input-phone-wrapper {
 			z-index: unset;
 			border-color: transparent !important;
+			background-color: var(--jetpack--contact-form--form-background-color);
 
 			&:has(.jetpack-field__input-element:focus) {
 				outline: unset;
@@ -132,7 +134,7 @@
 				// notched label is game of superpositions with z-index,
 				// while no input element is selected, force transparent so label is visible
 				.jetpack-field__input-element {
-					background-color: transparent !important;
+					background-color: var(--jetpack--contact-form--form-background-color);
 				}
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {

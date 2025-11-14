@@ -94,9 +94,14 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
 
 	const inputElementBackground = window.getComputedStyle( inputNode ).backgroundColor;
+
+	// Make the input background color be white. If no input background is set.
 	const inputBackground =
 		inputElementBackground === 'rgba(0, 0, 0, 0)' ? '#FFF' : inputElementBackground;
+
+	const inputColor = window.getComputedStyle( inputNode ).color;
 	const bodyTextColor = window.getComputedStyle( formRootNode ).color;
+	const formBackgroundColor = window.getComputedStyle( formRootNode ).backgroundColor;
 	const invertedBodyTextColor = window.jetpackForms.getInverseReadableColor( bodyTextColor );
 	const {
 		border: buttonPrimaryBorder,
@@ -141,6 +146,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--primary-color': buttonPrimaryBackgroundColor,
 		'--jetpack--contact-form--background-color': backgroundColor,
 		'--jetpack--contact-form--body-text-color': bodyTextColor,
+		'--jetpack--contact-form--form-background-color': formBackgroundColor,
 		'--jetpack--contact-form--inverted-body-text-color': invertedBodyTextColor,
 		'--jetpack--contact-form--text-color': textColor,
 		'--jetpack--contact-form--border': border,
@@ -148,6 +154,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--border-size': borderWidth,
 		'--jetpack--contact-form--border-style': borderStyle,
 		'--jetpack--contact-form--border-radius': borderRadius,
+		'--jetpack--contact-form--input-color': inputColor,
 		'--jetpack--contact-form--input-background': inputBackground,
 		'--jetpack--contact-form--input-background-fallback': inputBackgroundFallback,
 		'--jetpack--contact-form--input-padding': inputPadding,
