@@ -552,11 +552,7 @@ class Jetpack_Ai extends Product {
 		 */
 		$is_enabled = apply_filters( 'jetpack_ai_enabled', true );
 
-		if ( ! $is_enabled ) {
-			return false;
-		}
-
-		return parent::is_active();
+		return $is_enabled && parent::is_active();
 	}
 
 	/**
