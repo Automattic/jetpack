@@ -49,6 +49,64 @@ class Feedback_Author {
 	}
 
 	/**
+	 * Compute author name from either submission data (array + form) or stored fields (Feedback).
+	 *
+	 * Rules:
+	 * - If First/Last name fields exist (by known ids), return "First Last" trimmed.
+	 * - Otherwise, return the single Name field value.
+	 * - Applies the pre_comment_author_name filter and standard sanitization.
+	 *
+	 * @param Feedback|array    $source Submission array or Feedback instance.
+	 * @param Contact_Form|null $form The form object (required when $source is submission array).
+	 * @return string Filtered display name.
+	 */
+	public static function get_computed_author_name( $source, $form = null ) {
+		$is_from_feedback_object = is_object( $source ) && $source instanceof Feedback;
+		$final_name              = '';
+
+		if ( $is_from_feedback_object ) {
+			$first_name  = $source->get_field_value_by_form_field_id( 'first-name' );
+			$last_name   = $source->get_field_value_by_form_field_id( 'last-name' );
+			$full_name   = trim( $first_name . ' ' . $last_name );
+			$single_name = '';
+			if ( method_exists( $source, 'get_fields' ) ) {
+				foreach ( $source->get_fields() as $field ) {
+					if ( method_exists( $field, 'get_type' ) && $field->get_type() === 'name' ) {
+						$single_name = $field->get_render_value();
+						break;
+					}
+				}
+			}
+
+			// Return the full name if it exists, otherwise return the single name.
+			$final_name = $full_name ? $full_name : $single_name;
+		} elseif ( is_array( $source ) ) {
+			$first_name = isset( $source['first-name'] ) ? wp_unslash( $source['first-name'] ) : '';
+			$last_name  = isset( $source['last-name'] ) ? wp_unslash( $source['last-name'] ) : '';
+			$full_name  = trim( $first_name . ' ' . $last_name );
+
+			$single_name = '';
+			if ( $form && method_exists( $form, 'get_field_ids' ) ) {
+				$field_ids = $form->get_field_ids();
+				if ( isset( $field_ids['name'] ) && isset( $source[ $field_ids['name'] ] ) ) {
+					$single_name = wp_unslash( $source[ $field_ids['name'] ] );
+				}
+			}
+
+			// Return the full name if it exists, otherwise return the single name.
+			$final_name = $full_name ? $full_name : $single_name;
+		}
+
+		// Apply standard filtering/sanitization used for author names.
+		return Contact_Form_Plugin::strip_tags(
+			stripslashes(
+				/** This filter is already documented in core/wp-includes/comment-functions.php */
+				apply_filters( 'pre_comment_author_name', addslashes( $final_name ) )
+			)
+		);
+	}
+
+	/**
 	 * Create a Feedback_Author instance from the submission data.
 	 *
 	 * @param array        $post_data The post data from the form submission.
@@ -74,6 +132,10 @@ class Feedback_Author {
 	 * @return string Filter value for the author information.
 	 */
 	private static function get_computed_author_info( $post_data, $type, $filter, $form ) {
+		// Handle name specially to support First/Last variations.
+		if ( $type === 'name' ) {
+			return self::get_computed_author_name( $post_data, $form );
+		}
 		$field_ids = $form->get_field_ids();
 		if ( isset( $field_ids[ $type ] ) ) {
 			$key   = $field_ids[ $type ];
