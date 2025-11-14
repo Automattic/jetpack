@@ -1142,4 +1142,96 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$this->assertStringContainsString( 'jetpack-ie.js', $data['scripts'], 'Jetpack script in conditional comment should be preserved when excluding core' );
 		$this->assertStringContainsString( 'jetpack-ie-compat', $data['scripts'], 'Jetpack script handle should be preserved' );
 	}
+
+	/**
+	 * Test that wpforms-lite callback is not executed after hook removal.
+	 *
+	 * This test creates a mock wpforms-lite plugin structure and verifies
+	 * that callbacks from that plugin are removed before execution.
+	 *
+	 * @phan-suppress PhanUndeclaredClassMethod, PhanUndeclaredClassStaticProperty, PhanUndeclaredClassInCallable
+	 */
+	public function test_wpforms_callback_is_not_executed_after_hook_removal() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Create a mock wpforms-lite plugin directory and class file
+		$plugins_dir         = WP_PLUGIN_DIR . '/wpforms-lite';
+		$plugin_file         = $plugins_dir . '/wpforms-mock.php';
+		$created_plugin_dir  = false;
+		$created_plugin_file = false;
+
+		// Create temporary plugin structure if it doesn't exist
+		if ( ! is_dir( $plugins_dir ) ) {
+			mkdir( $plugins_dir, 0777, true );
+			$created_plugin_dir = true;
+		}
+
+		if ( ! file_exists( $plugin_file ) ) {
+			file_put_contents(
+				$plugin_file,
+				'<?php
+				if ( ! class_exists( "WPForms_Mock_Class" ) ) {
+					class WPForms_Mock_Class {
+						public static $callback_executed = false;
+						public function mock_callback() {
+							self::$callback_executed = true;
+						}
+					}
+				}'
+			);
+			$created_plugin_file = true;
+		}
+
+		// Include the mock plugin file
+		require_once $plugin_file;
+
+		// Mock is_plugin_active() to return true for wpforms-lite (simulates production scenario)
+		add_filter(
+			'option_active_plugins',
+			function ( $plugins ) {
+				if ( ! in_array( 'wpforms-lite/wpforms.php', $plugins, true ) ) {
+					$plugins[] = 'wpforms-lite/wpforms.php';
+				}
+				return $plugins;
+			}
+		);
+
+		// Reset the static flag
+		WPForms_Mock_Class::$callback_executed = false;
+
+		// Create an instance of the mock class (needed for object method callback detection)
+		$wpforms_instance = new WPForms_Mock_Class();
+
+		// Add callback from the mock wpforms-lite plugin using instance method
+		add_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ), 10 );
+
+		// Verify the hook is registered before the request
+		$this->assertTrue( has_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ) ) !== false, 'Hook should be registered before request' );
+
+		// Make the REST request - this should trigger remove_problematic_plugin_hooks
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+
+		// Should return 200
+		$this->assertEquals( 200, $response->get_status() );
+
+		// CRITICAL: The callback should NOT have executed because it was removed
+		$this->assertFalse( WPForms_Mock_Class::$callback_executed, 'WPForms callback should NOT execute after hook removal - this test MUST fail when remove_problematic_plugin_hooks() is disabled' );
+
+		// Clean up
+		remove_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ), 10 );
+
+		// Remove temporary files if we created them
+		if ( $created_plugin_file ) {
+			unlink( $plugin_file );
+		}
+		if ( $created_plugin_dir ) {
+			// Only remove directory if it's empty (to avoid failures if other files exist)
+			$dir_contents = scandir( $plugins_dir );
+			$is_empty     = count( $dir_contents ) === 2; // Only '.' and '..' remain
+			if ( $is_empty ) {
+				rmdir( $plugins_dir );
+			}
+		}
+	}
 }

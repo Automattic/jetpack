@@ -349,21 +349,34 @@ function wpcom_global_styles_in_use() {
  * @return bool Whether the site is exempt from Premium Global Styles.
  */
 function wpcom_premium_global_styles_is_site_exempt( $blog_id = 0 ) {
-	$is_summer_special = wpcom_has_blog_sticker( 'summer-special-2025', $blog_id );
-	$is_simple         = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog      = get_blog_details( $blog_id, false );
+		$is_simple = is_blog_wpcom( $blog );
+		$is_atomic = is_blog_atomic( $blog );
+	} elseif ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		$is_simple = false;
+		$is_atomic = true;
+	} else {
+		$is_simple = false;
+		$is_atomic = false;
+	}
+
+	if ( ! $is_simple && ! $is_atomic ) {
+		return false;
+	}
 
 	// If the exemption check has already been performed, just return if the site is exempt.
 	if ( wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exemption-checked', $blog_id ) ) {
 		return wpcom_has_blog_sticker( 'wpcom-premium-global-styles-exempt', $blog_id );
 	}
 
-	// Sites created after we made GS a paid feature (2022-12-15) are never exempt.
-	if ( $blog_id >= 213403000 && ! $is_summer_special ) {
+	// Simple sites created after we made GS a paid feature (2022-12-15) are never exempt.
+	if ( $is_simple && $blog_id >= 213403000 ) {
 		return false;
 	}
 
-	// Summer special sites created before 2025-10-11 are exempt. Quick workaround until we refine the exempt logic for AT sites.
-	if ( $blog_id <= 249177000 && $is_summer_special && ! $is_simple ) {
+	// Atomic sites created before we started limiting GS on Summer Special sites (2025-10-11) are always exempt.
+	if ( $is_atomic && $blog_id <= 249177000 ) {
 		return true;
 	}
 

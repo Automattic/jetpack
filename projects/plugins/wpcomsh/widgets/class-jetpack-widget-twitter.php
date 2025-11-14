@@ -33,7 +33,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 	 * @param array $instance Widget instance.
 	 */
 	public function widget( $args, $instance ) {
-		$account = trim( rawurlencode( $instance['account'] ) );
+		$account = trim( rawurlencode( $instance['account'] ?? '' ) );
 
 		if ( empty( $account ) ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {

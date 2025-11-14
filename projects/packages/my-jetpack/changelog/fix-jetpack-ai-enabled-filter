@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Respect jetpack_ai_enabled filter in My Jetpack overview page.
+
+

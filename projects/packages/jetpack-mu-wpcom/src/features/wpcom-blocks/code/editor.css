@@ -17,28 +17,6 @@
 
 	&.wp-block-code {
 
-		.components-base-control__field {
-			margin: 0;
-		}
-
-		.components-base-control,
-		.components-base-control__field,
-		.components-input-control__container > button,
-		.components-text-control__input {
-			font-size: inherit;
-		}
-
-		.components-text-control__input {
-			margin-left: -12px;
-			background-color: transparent;
-			color: inherit;
-			font-family: inherit;
-
-			&::placeholder {
-				color: hsl(from currentColor h s l / 0.6);
-			}
-		}
-
 		/* Override CodeMirror's font family to respect theme and editor settings. */
 		.cm-scroller {
 			font-family: inherit;
@@ -60,27 +38,10 @@
 		}
 	}
 
-	.a8c\/code__header {
-		padding: 0 12px;
-	}
-
 	.a8c\/code__btn-copy {
 		text-transform: inherit;
 		font-style: inherit;
 		font-weight: inherit;
 		font-size: inherit;
-	}
-
-	.a8c\/code__filename.components-base-control {
-		margin: -1px;
-	}
-
-	.a8c\/code__language-select {
-
-		button,
-		.components-input-control__container {
-			background-color: transparent;
-			color: inherit;
-		}
 	}
 }
