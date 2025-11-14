@@ -2889,6 +2889,51 @@ EOT;
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
+	public function test_get_instance_from_jwt_uses_fallback_secrets() {
+		// Clear any existing constants and options
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+		delete_option( 'jetpack_forms_secret_key' );
+		remove_all_filters( 'jetpack_forms_secret_jwt' );
+
+		// Set up option secret (this is what was used before the filter was added)
+		$option_secret = 'option-secret-' . wp_generate_password( 32, false );
+		update_option( 'jetpack_forms_secret_key', $option_secret );
+
+		// Create a form and encode it with the option secret
+		// This simulates forms that were published before the filter was added
+		$form = new Contact_Form(
+			array(
+				'to'      => 'test@email.com',
+				'subject' => 'Test Form',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+		$this->assertNotEmpty( $jwt, 'JWT should not be empty' );
+
+		// Now add the filter (simulating the filter being added after forms were published)
+		// The filter becomes the primary secret source
+		$filter_secret = 'filter-secret-' . wp_generate_password( 32, false );
+		add_filter(
+			'jetpack_forms_secret_jwt',
+			function () use ( $filter_secret ) {
+				return $filter_secret;
+			}
+		);
+
+		// Verify it succeeds with option fallback when the filter secret (primary) does not match
+		$form_copy = Contact_Form::get_instance_from_jwt( $jwt );
+		$this->assertNotNull( $form_copy, 'Should recover form using fallback secret (option) when primary secret (filter) does not match' );
+		$this->assertTrue( $form_copy->has_verified_jwt, 'Form should have verified JWT with fallback secret' );
+		$this->assertEquals( $form->get_attribute( 'to' ), $form_copy->get_attribute( 'to' ), 'Form attributes should match' );
+		$this->assertEquals( $form->get_attribute( 'subject' ), $form_copy->get_attribute( 'subject' ), 'Form attributes should match' );
+
+		// Clean up
+		remove_all_filters( 'jetpack_forms_secret_jwt' );
+		delete_option( 'jetpack_forms_secret_key' );
+	}
+
 	/**
 	 * Test compute_id method with basic attributes
 	 */
