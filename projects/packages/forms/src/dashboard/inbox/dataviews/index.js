@@ -353,7 +353,7 @@ export default function InboxView() {
 			},
 			{
 				id: 'read_status',
-				label: __( 'Read status', 'jetpack-forms' ),
+				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
 					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
 					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
@@ -362,7 +362,7 @@ export default function InboxView() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<Badge intent={ item.is_unread ? 'success' : 'default' }>
+						<Badge intent="default">
 							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
 						</Badge>
 					);
