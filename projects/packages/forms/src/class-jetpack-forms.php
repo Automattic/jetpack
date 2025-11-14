@@ -105,7 +105,7 @@ class Jetpack_Forms {
 		 *
 		 * @param bool false Whether Hostinger Reach integration be enabled. Default is false.
 		 */
-		return apply_filters( 'jetpack_forms_hostinger_reach_enable', false );
+		return apply_filters( 'jetpack_forms_hostinger_reach_enable', true );
 	}
 
 	/**
