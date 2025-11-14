@@ -181,7 +181,7 @@ const blockEdit = withColors(
 				<ColorTools { ...props } />
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title="Code Settings">
+				<PanelBody title="Settings">
 					<SelectControl
 						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 						value={ attributes.language }
@@ -196,7 +196,7 @@ const blockEdit = withColors(
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Show language name', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLanguageName }
 						onChange={ ( next: boolean ) =>
 							setAttributes( {
@@ -206,25 +206,25 @@ const blockEdit = withColors(
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show File Name', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Show filename', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showFileName }
 						onChange={ ( next: boolean ) => setAttributes( { showFileName: next } ) }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Show copy button', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showCopyButton }
 						onChange={ ( next: boolean ) => setAttributes( { showCopyButton: next } ) }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Show line numbers', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLineNumbers }
 						onChange={ ( next: boolean ) => setAttributes( { showLineNumbers: next } ) }
 						__nextHasNoMarginBottom
 					/>
 					<TextControl
-						label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Line numbers start at', 'jetpack-mu-wpcom' ) }
 						type="number"
 						value={ attributes.lineNumbersStartAt }
 						disabled={ ! attributes.showLineNumbers }
