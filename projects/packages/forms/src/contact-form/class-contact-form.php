@@ -271,11 +271,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				/**
 				 * Filter the failure to decode a JWT token for a contact form.
 				 *
-				 * @param null|string $value The value to return. Default null.
+				 * @param null $value The value to return. Default null.
 				 * @param string      $jwt_token The JWT token that failed to decode.
 				 * @param \Exception  $e The exception that was thrown during decoding.
 				 *
-				 * @return null|string The value to return.
+				 * @return Contact_Form|null The value to return.
 				 */
 				$filtered = apply_filters( 'jetpack_forms_jwt_decode_failure', null, $jwt_token, $e );
 				if ( $filtered !== null ) {
