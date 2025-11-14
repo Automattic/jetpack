@@ -172,8 +172,10 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 			$callback = array( $this, 'return_valid_response' );
 		} elseif ( 'empty' === $response_from_server ) {
 			$callback = array( $this, 'return_empty_response' );
-		} else {
+		} elseif ( 'error' === $response_from_server ) {
 			$callback = array( $this, 'return_wp_error' );
+		} else {
+			$this->fail( "Unsupported response '$response_from_server'" );
 		}
 		$u = new Uploader( $this->valid_attachment_id );
 		if ( $throw ) {

@@ -579,16 +579,16 @@ class WPCOM_JSON_API {
 			exit( 0 );
 		}
 
-		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false, which is guaranteed here.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false and $found is true, which is guaranteed here.
 		if ( $endpoint->in_testing && ! WPCOM_JSON_API__DEBUG ) {
 			return $this->output( 404, '', 'text/plain' );
 		}
 
 		/** This action is documented in class.json-api.php */
-		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false, which is guaranteed here.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false and $found is true, which is guaranteed here.
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
-		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false, which is guaranteed here.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $endpoint is set when $find_all_matching_endpoints is false and $found is true, which is guaranteed here.
 		$response = $this->process_request( $endpoint, $path_pieces );
 
 		if ( ! $response && ! is_array( $response ) ) {
