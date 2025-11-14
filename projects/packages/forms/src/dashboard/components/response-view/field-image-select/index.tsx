@@ -8,7 +8,7 @@ import './style.scss';
 
 const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 	return (
-		<div className="jp-forms__inbox-response-image-select">
+		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
 				<VStack spacing="1">
@@ -31,12 +31,11 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 										  } )
 										: undefined
 								}
-								className="image-select-field-button"
+								className="jp-forms__image-select-field-button"
 								icon={
 									hasImage ? (
 										<img
 											alt={ choice.selected }
-											className="image-select-field-image"
 											loading="lazy"
 											src={ photon( choice.image.src, { width: 120, height: 120 } ) }
 										/>
@@ -52,7 +51,7 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 					} ) }
 				</VStack>
 			) }
-		</div>
+		</>
 	);
 };
 
