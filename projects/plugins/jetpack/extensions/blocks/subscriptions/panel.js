@@ -2,7 +2,6 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	getSiteFragment,
 	isComingSoon,
-	isPrivateSite,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
@@ -194,9 +193,8 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
-	// nor on sites that have not been launched yet.
-	if ( isPrivateSite() || isComingSoon() ) {
+	// Subscriptions will not be triggered on WordPress.com sites that have not been launched yet.
+	if ( isComingSoon() ) {
 		return <NewsletterDisabledPanels />;
 	}
 
