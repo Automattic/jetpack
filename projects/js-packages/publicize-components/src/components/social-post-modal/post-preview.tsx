@@ -87,12 +87,20 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 		}
 
-		case 'facebook':
+		case 'facebook': {
+			let customText = title;
+
+			if ( message ) {
+				customText = message;
+			} else if ( title && excerpt ) {
+				customText = `${ title }\n\n${ excerpt }`;
+			}
+
 			return hasMedia ? (
 				<FacebookPostPreview
 					{ ...commonProps }
 					type="article"
-					customText={ message || excerpt || title }
+					customText={ customText }
 					user={ {
 						...user,
 						avatarUrl: user.profileImage,
@@ -102,13 +110,14 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
-					customText={ message || excerpt || title }
+					customText={ customText }
 					user={ {
 						...user,
 						avatarUrl: user.profileImage,
 					} }
 				/>
 			);
+		}
 
 		case 'instagram-business': {
 			const hasImage = Boolean( image );
