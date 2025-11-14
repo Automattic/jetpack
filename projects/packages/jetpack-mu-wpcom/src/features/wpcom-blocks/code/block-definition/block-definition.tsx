@@ -198,29 +198,33 @@ const blockEdit = withColors(
 					<ToggleControl
 						label={ __( 'Show language name', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLanguageName }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showLanguageName: next,
-							} )
-						}
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showLanguageName: next } );
+						} }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
 						label={ __( 'Show filename', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showFileName }
-						onChange={ ( next: boolean ) => setAttributes( { showFileName: next } ) }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showFileName: next } );
+						} }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
 						label={ __( 'Show copy button', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showCopyButton }
-						onChange={ ( next: boolean ) => setAttributes( { showCopyButton: next } ) }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showCopyButton: next } );
+						} }
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
 						label={ __( 'Show line numbers', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLineNumbers }
-						onChange={ ( next: boolean ) => setAttributes( { showLineNumbers: next } ) }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showLineNumbers: next } );
+						} }
 						__nextHasNoMarginBottom
 					/>
 					{ attributes.showLineNumbers && (
