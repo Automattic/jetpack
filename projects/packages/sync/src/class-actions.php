@@ -364,6 +364,10 @@ class Actions {
 
 		$queue      = self::$sender->get_sync_queue();
 		$full_queue = self::$sender->get_full_sync_queue();
+		// We are sending the expiry vs the actual dedicated lock value to ensure backwards compatibility
+		// with previous versions where the lock value was a timestamp.
+		$dedicated_sync_lock_option_name  = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_name = $dedicated_sync_lock_option_name . '_expires';
 
 		$debug['debug_details']['sync_locks'] = array(
 			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
@@ -372,7 +376,7 @@ class Actions {
 			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
 			'queue_locked_sync'                     => $queue->is_locked(),
 			'queue_locked_full_sync'                => $full_queue->is_locked(),
-			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( $dedicated_sync_lock_expires_name, null ),
 			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
 
