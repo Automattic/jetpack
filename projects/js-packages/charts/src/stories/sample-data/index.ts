@@ -4,6 +4,7 @@
  */
 
 import type { FunnelStep } from '../../components/conversion-funnel-chart';
+import type { CityData } from '../../components/geo-chart';
 import type { LeaderboardEntry } from '../../components/leaderboard-chart';
 import type { DataPointPercentage, SeriesData } from '../../types';
 
@@ -953,3 +954,194 @@ export const ordersByCountry: Record< string, number > = {
 	ESP: 80,
 	NLD: 60,
 };
+
+/**
+ * City views data for geo chart bubble map
+ *
+ * City-level data with geographic coordinates for bubble map visualization
+ * - Category: geographic
+ * - Data points: 20
+ * - Suitable for: GeoChart cities view
+ */
+export const viewsByCity: CityData[] = [
+	{
+		id: 'honolulu',
+		name: 'Honolulu',
+		lat: 21.3099,
+		lng: -157.8581,
+		value: 8,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'elk-grove-village',
+		name: 'Elk Grove Village',
+		lat: 42.0039,
+		lng: -87.9703,
+		value: 8,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'singapore',
+		name: 'Singapore',
+		lat: 1.3521,
+		lng: 103.8198,
+		value: 8,
+		countryCode: 'SGP',
+		countryName: 'Singapore',
+	},
+	{
+		id: 'beijing',
+		name: 'Beijing',
+		lat: 39.9042,
+		lng: 116.4074,
+		value: 8,
+		countryCode: 'CHN',
+		countryName: 'China',
+	},
+	{
+		id: 'dallas',
+		name: 'Dallas',
+		lat: 32.7767,
+		lng: -96.797,
+		value: 6,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'ashburn',
+		name: 'Ashburn',
+		lat: 39.0438,
+		lng: -77.4874,
+		value: 4,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'paradise',
+		name: 'Paradise',
+		lat: 36.0972,
+		lng: -115.1467,
+		value: 4,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'portland',
+		name: 'Portland',
+		lat: 45.5152,
+		lng: -122.6784,
+		value: 3,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'puerto-vallarta',
+		name: 'Puerto Vallarta',
+		lat: 20.6534,
+		lng: -105.2253,
+		value: 3,
+		countryCode: 'MEX',
+		countryName: 'Mexico',
+	},
+	{
+		id: 'chicago',
+		name: 'Chicago',
+		lat: 41.8781,
+		lng: -87.6298,
+		value: 2,
+		countryCode: 'USA',
+		countryName: 'United States',
+	},
+	{
+		id: 'melbourne',
+		name: 'Melbourne',
+		lat: -37.8136,
+		lng: 144.9631,
+		value: 5,
+		countryCode: 'AUS',
+		countryName: 'Australia',
+	},
+	{
+		id: 'sydney',
+		name: 'Sydney',
+		lat: -33.8688,
+		lng: 151.2093,
+		value: 7,
+		countryCode: 'AUS',
+		countryName: 'Australia',
+	},
+	{
+		id: 'london',
+		name: 'London',
+		lat: 51.5074,
+		lng: -0.1278,
+		value: 6,
+		countryCode: 'GBR',
+		countryName: 'United Kingdom',
+	},
+	{
+		id: 'paris',
+		name: 'Paris',
+		lat: 48.8566,
+		lng: 2.3522,
+		value: 5,
+		countryCode: 'FRA',
+		countryName: 'France',
+	},
+	{
+		id: 'toronto',
+		name: 'Toronto',
+		lat: 43.6532,
+		lng: -79.3832,
+		value: 4,
+		countryCode: 'CAN',
+		countryName: 'Canada',
+	},
+	{
+		id: 'vancouver',
+		name: 'Vancouver',
+		lat: 49.2827,
+		lng: -123.1207,
+		value: 3,
+		countryCode: 'CAN',
+		countryName: 'Canada',
+	},
+	{
+		id: 'tokyo',
+		name: 'Tokyo',
+		lat: 35.6762,
+		lng: 139.6503,
+		value: 7,
+		countryCode: 'JPN',
+		countryName: 'Japan',
+	},
+	{
+		id: 'mumbai',
+		name: 'Mumbai',
+		lat: 19.076,
+		lng: 72.8777,
+		value: 4,
+		countryCode: 'IND',
+		countryName: 'India',
+	},
+	{
+		id: 'sao-paulo',
+		name: 'São Paulo',
+		lat: -23.5505,
+		lng: -46.6333,
+		value: 3,
+		countryCode: 'BRA',
+		countryName: 'Brazil',
+	},
+	{
+		id: 'berlin',
+		name: 'Berlin',
+		lat: 52.52,
+		lng: 13.405,
+		value: 5,
+		countryCode: 'DEU',
+		countryName: 'Germany',
+	},
+];
