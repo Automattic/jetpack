@@ -158,6 +158,8 @@ class Posts extends Module {
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
+		add_filter( 'jetpack_sync_before_enqueue_updated_post_meta', array( $this, 'on_before_enqueue_updated_attachment_metadata' ), 1 );
+
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
 
@@ -226,7 +228,7 @@ class Posts extends Module {
 	 */
 	public function init_before_send() {
 		// meta.
-		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'filter_added_post_meta_before_send' ), 5 ); // Incase this filter is used elsewhere, we run early.
 		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'filter_updated_post_meta_before_send' ), 5 ); // Incase this filter is used elsewhere, we run early.
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
@@ -323,51 +325,73 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Prevent multiples of _wp_attachment_metadata at send-time by sending the current DB state once per request.
+	 * Updated post meta send-time filter: refreshes _wp_attachment_metadata to the latest DB value, then trims.
 	 *
-	 * @param array $args The hook arguments: [ $meta_id, $object_id, $meta_key, $meta_value ].
-	 * @return array|false Return args to send once per attachment per request, or false to skip subsequent ones.
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array Filtered args.
 	 */
-	public function drop_stale_attachment_metadata( $args ) {
-		if ( ! is_array( $args ) || count( $args ) < 4 ) { // The updated_postmeta do_action from core always sends four args.
+	public function filter_updated_post_meta_before_send( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 4 ) {
 			return $args;
 		}
-		list( , $post_id, ) = $args;
-
-		static $sent_for_request = array();
-		$post_id                 = (int) $post_id;
-		if ( isset( $sent_for_request[ $post_id ] ) ) {
-			return false;
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( (int) $object_id ) ) {
+			return $this->trim_post_meta( $args );
 		}
-
-		// Fetch current metadata (filtered) to honor site/plugin filters on wp_get_attachment_metadata.
-		$current_value = wp_get_attachment_metadata( $post_id );
+		$current_value = wp_get_attachment_metadata( (int) $object_id );
 		if ( is_array( $current_value ) && ! empty( $current_value ) ) {
-			$args[3] = $current_value; // Ensure freshest state is sent.
+			$meta_value = $current_value;
 		}
-
-		$sent_for_request[ $post_id ] = true;
-		return $args;
+		return $this->trim_post_meta( array( $meta_id, $object_id, $meta_key, $meta_value ) );
 	}
 
 	/**
-	 * Unified handler for updated post meta before send: skips stale _wp_attachment_metadata and trims meta.
+	 * Added post meta send-time filter: refreshes _wp_attachment_metadata to the latest DB value, then trims.
+	 *
+	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
+	 * @return array Filtered args.
+	 */
+	public function filter_added_post_meta_before_send( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 4 ) {
+			return $args;
+		}
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( (int) $object_id ) ) {
+			return $this->trim_post_meta( $args );
+		}
+		$current_value = wp_get_attachment_metadata( (int) $object_id );
+		// For added_post_meta, skip clearly incomplete snapshots (e.g., missing or empty sizes).
+		if ( ! is_array( $current_value ) || empty( $current_value ) ) {
+			return false;
+		}
+		if ( isset( $current_value['sizes'] ) && is_array( $current_value['sizes'] ) && count( $current_value['sizes'] ) === 0 ) {
+			return false;
+		}
+		$meta_value = $current_value;
+		return $this->trim_post_meta( array( $meta_id, $object_id, $meta_key, $meta_value ) );
+	}
+
+	/**
+	 * Enqueue-time per-request dedupe for updated attachment metadata.
 	 *
 	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
 	 * @return array|false
 	 */
-	public function filter_updated_post_meta_before_send( $args ) {
-		if ( is_array( $args ) && count( $args ) >= 3 ) {
-			$meta_key = $args[2];
-			if ( '_wp_attachment_metadata' !== $meta_key ) {
-				return $this->trim_post_meta( $args );
-			}
+	public function on_before_enqueue_updated_attachment_metadata( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return $args;
 		}
-		$args = $this->drop_stale_attachment_metadata( $args );
-		if ( false === $args ) {
+		$post_id  = (int) $args[1];
+		$meta_key = $args[2];
+		if ( '_wp_attachment_metadata' !== $meta_key || 'attachment' !== get_post_type( $post_id ) ) {
+			return $args;
+		}
+		static $seen_updated_meta_for_post = array();
+		if ( isset( $seen_updated_meta_for_post[ $post_id ] ) ) {
 			return false;
 		}
-		return $this->trim_post_meta( $args );
+		$seen_updated_meta_for_post[ $post_id ] = true;
+		return $args;
 	}
 
 	/**
