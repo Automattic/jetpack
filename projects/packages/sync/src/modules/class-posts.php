@@ -349,7 +349,7 @@ class Posts extends Module {
 	 * Added post meta send-time filter: refreshes _wp_attachment_metadata to the latest DB value, then trims.
 	 *
 	 * @param array $args [ $meta_id, $object_id, $meta_key, $meta_value ].
-	 * @return array Filtered args.
+	 * @return array|false Filtered args, or false to skip sending when the snapshot is clearly incomplete.
 	 */
 	public function filter_added_post_meta_before_send( $args ) {
 		if ( ! is_array( $args ) || count( $args ) < 4 ) {
