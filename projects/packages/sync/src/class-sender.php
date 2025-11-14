@@ -497,7 +497,7 @@ class Sender {
 			if ( 'wpcom_error' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
-		} elseif ( $exceeded_sync_wait_threshold ) {
+		} elseif ( $exceeded_sync_wait_threshold && ! Settings::is_doing_cron() ) {
 			// If we actually sent data and it took a while, wait before sending again.
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
 		}

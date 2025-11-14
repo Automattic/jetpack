@@ -732,6 +732,7 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
+					Dedicated_Sender::try_lock_spawn_request();
 					sleep( (int) $delay );
 				}
 			}
