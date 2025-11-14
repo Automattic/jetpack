@@ -133,7 +133,7 @@ class Dedicated_Sender {
 			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 
-		if ( get_transient( self::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+		if ( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
 			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
 		}
 
