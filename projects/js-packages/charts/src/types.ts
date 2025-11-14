@@ -190,6 +190,20 @@ export type ChartTheme = {
 	geoChart?: {
 		/** Default fill color for a country (with no data) */
 		countryFillColor?: string;
+		/** Opacity for countries when in cities view */
+		countryDimmedOpacity?: number;
+		/** Stroke color for city bubbles */
+		cityBubbleStroke?: string;
+		/** Stroke width for city bubbles */
+		cityBubbleStrokeWidth?: number;
+		/** Opacity for city bubbles */
+		cityBubbleOpacity?: number;
+		/** Background color for view controls tabs */
+		viewControlsBackground?: string;
+		/** Color for active view control tab */
+		viewControlsActiveColor?: string;
+		/** Border color for view controls */
+		viewControlsBorderColor?: string;
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
