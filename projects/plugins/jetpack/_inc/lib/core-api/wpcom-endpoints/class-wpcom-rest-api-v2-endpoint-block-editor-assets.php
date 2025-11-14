@@ -486,133 +486,87 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	private function remove_problematic_plugin_hooks() {
 		global $wp_filter;
 
-		// List of problematic plugins and their callback patterns
+		// Only target the enqueue_block_editor_assets hook
+		if ( ! isset( $wp_filter['enqueue_block_editor_assets'] ) ) {
+			return;
+		}
+
 		$problematic_plugins = array(
-			'wpforms-lite' => array(
-				'enqueue_block_editor_assets',
-			),
+			'wpforms-lite/wpforms.php',
 		);
 
-		foreach ( $problematic_plugins as $plugin_slug => $hook_names ) {
-			foreach ( $hook_names as $hook_name ) {
-				if ( ! isset( $wp_filter[ $hook_name ] ) ) {
-					continue;
+		// Early return if no problematic plugins are active
+		$has_active_problematic_plugin = false;
+		foreach ( $problematic_plugins as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				$has_active_problematic_plugin = true;
+				break;
+			}
+		}
+
+		if ( ! $has_active_problematic_plugin ) {
+			return;
+		}
+
+		$plugin_slugs = array_map(
+			function ( $plugin_file ) {
+				return dirname( $plugin_file );
+			},
+			$problematic_plugins
+		);
+
+		// Collect callbacks to remove (improves performance by separating detection from removal)
+		$callbacks_to_remove = array();
+
+		foreach ( $wp_filter['enqueue_block_editor_assets']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback_data ) {
+				$callback  = $callback_data['function'];
+				$file_path = null;
+
+				// Handle object method callbacks: [$object, 'method_name']
+				if ( is_array( $callback ) && count( $callback ) === 2 && is_object( $callback[0] ) ) {
+					try {
+						$reflection = new ReflectionClass( $callback[0] );
+						$file_path  = $reflection->getFileName();
+					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						// Skip if reflection fails
+						continue;
+					}
 				}
 
-				// Iterate through all priorities for this hook
-				foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {
-					foreach ( $callbacks as $callback_data ) {
-						// Check if this callback belongs to the problematic plugin
-						if ( $this->is_callback_from_plugin( $callback_data['function'], $plugin_slug ) ) {
-							remove_action( $hook_name, $callback_data['function'], $priority );
+				// Handle function name callbacks: 'function_name'
+				if ( is_string( $callback ) && function_exists( $callback ) && ! str_contains( $callback, '::' ) ) {
+					try {
+						$reflection = new ReflectionFunction( $callback );
+						$file_path  = $reflection->getFileName();
+					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						// Skip if reflection fails
+						continue;
+					}
+				}
+
+				// Check if file belongs to any problematic plugin
+				if ( $file_path ) {
+					$normalized_path = wp_normalize_path( $file_path );
+					$plugin_dir      = wp_normalize_path( WP_PLUGIN_DIR );
+
+					foreach ( $plugin_slugs as $plugin_slug ) {
+						if ( str_contains( $normalized_path, $plugin_dir . '/' . $plugin_slug . '/' ) ) {
+							$callbacks_to_remove[] = array(
+								'callback' => $callback,
+								'priority' => $priority,
+							);
+							break;
 						}
 					}
 				}
 			}
 		}
-	}
 
-	/**
-	 * Checks if a callback function belongs to a specific plugin.
-	 *
-	 * @param callable|array $callback The callback to check.
-	 * @param string         $plugin_slug The plugin slug to match against.
-	 * @return bool True if the callback belongs to the plugin, false otherwise.
-	 */
-	private function is_callback_from_plugin( $callback, $plugin_slug ) {
-		// Handle array-based callbacks: object methods or static class methods
-		if ( is_array( $callback ) && count( $callback ) === 2 ) {
-			$class_or_object = $callback[0];
-
-			// Handle object method callbacks [object, 'method_name']
-			if ( is_object( $class_or_object ) ) {
-				try {
-					$reflection = new ReflectionClass( $class_or_object );
-					$file_path  = $reflection->getFileName();
-					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
-						return true;
-					}
-				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// Failed to reflect on this object (e.g., internal class, anonymous class).
-					// Continue checking other callback types.
-				}
-			}
-
-			// Handle static method array callbacks ['ClassName', 'method_name']
-			if ( is_string( $class_or_object ) && class_exists( $class_or_object ) ) {
-				try {
-					$reflection = new ReflectionClass( $class_or_object );
-					$file_path  = $reflection->getFileName();
-					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
-						return true;
-					}
-				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// Failed to reflect on this class (e.g., internal class).
-					// Continue checking other callback types.
-				}
-			}
+		// Remove all identified callbacks
+		foreach ( $callbacks_to_remove as $item ) {
+			remove_action( 'enqueue_block_editor_assets', $item['callback'], $item['priority'] );
 		}
-
-		// Handle static method callbacks 'ClassName::method_name'
-		if ( is_string( $callback ) && str_contains( $callback, '::' ) ) {
-			list( $class_name, ) = explode( '::', $callback, 2 );
-			if ( class_exists( $class_name ) ) {
-				try {
-					$reflection = new ReflectionClass( $class_name );
-					$file_path  = $reflection->getFileName();
-					if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
-						return true;
-					}
-				} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-					// Failed to reflect on this class (e.g., internal class).
-					// Continue checking other callback types.
-				}
-			}
-		}
-
-		// Handle function name callbacks
-		if ( is_string( $callback ) && function_exists( $callback ) ) {
-			try {
-				$reflection = new ReflectionFunction( $callback );
-				$file_path  = $reflection->getFileName();
-				if ( $file_path && $this->is_file_from_plugin( $file_path, $plugin_slug ) ) {
-					return true;
-				}
-			} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-				// Failed to reflect on this function (e.g., internal function).
-				// Continue to return false.
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Checks if a file path belongs to a specific plugin.
-	 *
-	 * @param string $file_path The file path to check.
-	 * @param string $plugin_slug The plugin slug to match against.
-	 * @return bool True if the file belongs to the plugin, false otherwise.
-	 */
-	private function is_file_from_plugin( $file_path, $plugin_slug ) {
-		// Normalize the file path for consistent comparison
-		$file_path = wp_normalize_path( $file_path );
-
-		// Check in standard plugins directory
-		$plugin_dir = wp_normalize_path( WP_PLUGIN_DIR );
-		if ( str_contains( $file_path, $plugin_dir . '/' . $plugin_slug . '/' ) ) {
-			return true;
-		}
-
-		// Check in mu-plugins directory if defined
-		if ( defined( 'WPMU_PLUGIN_DIR' ) ) {
-			$mu_plugin_dir = wp_normalize_path( WPMU_PLUGIN_DIR );
-			if ( str_contains( $file_path, $mu_plugin_dir . '/' . $plugin_slug . '/' ) ) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 	/**
