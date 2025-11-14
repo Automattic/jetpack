@@ -2708,8 +2708,8 @@ importers:
         specifier: 11.2.0
         version: 11.2.0(patch_hash=d6f339ea1cef120bc10e3333fa33435c9ff78e2f5d180140e271831e4f968c8e)(react@18.3.1)
       '@wordpress/interactivity':
-        specifier: 6.33.0
-        version: 6.33.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)
+        specifier: 6.35.0
+        version: 6.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)
       '@wordpress/notices':
         specifier: 5.35.0
         version: 5.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)(react@18.3.1)
@@ -10061,10 +10061,6 @@ packages:
 
   '@wordpress/interactivity-router@2.35.0':
     resolution: {integrity: sha512-et1/Ly4aJeFJ5lxNnT+mg1CCUnw0YHtHp4rdlqmwtD9nPlRfOWSKZLBnbh6WQ0WWHRWQwmLiCpy7uBnLqSTJHg==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/interactivity@6.33.0':
-    resolution: {integrity: sha512-KrwM685gGE8t2D4jM1JuQlPySzDx2QFo4cFJhQgDLEgl15fvx+l8Y2uVKO1yx0AxLRHdtuXEqfdQFVMLGEUOYw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/interactivity@6.35.0':
@@ -24018,11 +24014,6 @@ snapshots:
       '@wordpress/a11y': 4.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)
       '@wordpress/interactivity': 6.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)
       es-module-lexer: 1.7.0
-
-  '@wordpress/interactivity@6.33.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)':
-    dependencies:
-      '@preact/signals': 1.3.2(preact@10.27.2)
-      preact: 10.27.2
 
   '@wordpress/interactivity@6.35.0(patch_hash=20b4b0adb66af3b9ddcd47752c903f67825fe0ba2af827b522aacd72d851559e)':
     dependencies:
