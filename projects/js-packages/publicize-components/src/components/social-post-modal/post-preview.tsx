@@ -135,16 +135,25 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 		}
 
-		case 'linkedin':
+		case 'linkedin': {
+			let linkedinDescription = title;
+
+			if ( message ) {
+				linkedinDescription = message;
+			} else if ( title && excerpt ) {
+				linkedinDescription = `${ title }\n\n${ excerpt }`;
+			}
+
 			return (
 				<LinkedInPostPreview
 					{ ...commonProps }
 					jobTitle={ __( 'Job Title (Company Name)', 'jetpack-publicize-components' ) }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
-					description={ message || title || description }
+					description={ linkedinDescription }
 				/>
 			);
+		}
 
 		case 'mastodon': {
 			const firstMediaItem = media?.[ 0 ];
@@ -168,8 +177,16 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		}
 
 		case 'nextdoor': {
+			let nextdoorDescription = title;
+
+			if ( message ) {
+				nextdoorDescription = message;
+			} else if ( title && excerpt ) {
+				nextdoorDescription = `${ title }\n\n${ excerpt }`;
+			}
+
 			// Add the URL to the description if there is media
-			const desc = `${ message || title || description } ${ media.length ? url : '' }`.trim();
+			const desc = `${ nextdoorDescription } ${ media?.length ? url : '' }`.trim();
 
 			return (
 				<NextdoorPostPreview
