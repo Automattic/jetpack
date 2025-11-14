@@ -690,7 +690,45 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_sync() {
-		self::do_cron_sync_by_type( 'sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+		$executions = 0;
+
+		$lock_id = Dedicated_Sender::try_lock_spawn_request();
+
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
+
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( (int) $delay );
+				}
+			}
+
+			$result = self::$sender->do_sync_and_set_delays( self::$sender->get_sync_queue() );
+
+			if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'unclosed_buffer', 'sync_throttled' ), true ) ) {
+				$result = true; // Give it some time.
+			}
+			// # of send actions performed.
+			++$executions;
+
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
+
+		if ( $lock_id ) {
+			Dedicated_Sender::try_release_lock_spawn_request( $lock_id );
+		}
+
+		return $executions;
 	}
 
 	/**
@@ -700,7 +738,31 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_full_sync() {
-		self::do_cron_sync_by_type( 'full_sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$executions = 0;
+
+		$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+
+		if ( $next_sync_time ) {
+			$delay = $next_sync_time - time() + 1;
+			if ( $delay > 15 ) {
+				return;
+			} elseif ( $delay > 0 ) {
+				sleep( (int) $delay );
+			}
+		}
+
+		// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
+		// For more context see p1HpG7-9pe-p2.
+		self::$sender->do_full_sync();
+		++$executions;
+
+		return $executions;
 	}
 
 	/**
@@ -732,7 +794,6 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
-					Dedicated_Sender::try_lock_spawn_request();
 					sleep( (int) $delay );
 				}
 			}
