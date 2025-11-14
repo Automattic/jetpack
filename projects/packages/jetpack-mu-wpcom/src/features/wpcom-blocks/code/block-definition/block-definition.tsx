@@ -5,11 +5,16 @@ import * as wpBlockEditor from '@wordpress/block-editor';
 // @ts-expect-error No types.
 import * as wpBlocks from '@wordpress/blocks';
 import {
-	CustomSelectControl,
+	Button,
+	Dropdown,
+	MenuGroup,
+	MenuItem,
+	NavigableMenu,
 	PanelBody,
 	SelectControl,
 	TextControl,
 	ToggleControl,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { addFilter } from '@wordpress/hooks';
 import { __, sprintf } from '@wordpress/i18n';
@@ -24,10 +29,12 @@ import { ColorTools } from './color-tools.tsx';
 import { transforms } from './transforms.ts';
 
 const {
+	__experimentalGetElementClassName,
+	BlockControls,
 	InspectorControls,
+	PlainText,
 	useBlockProps,
 	withColors,
-	__experimentalGetElementClassName,
 }: Window[ 'wp' ][ 'blockEditor' ] = wpBlockEditor;
 
 const { registerBlockStyle }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
@@ -38,12 +45,12 @@ const LINE_NUMBER_START_MAX = 10_000;
 type Props = EditBlockProps | SaveBlockProps;
 
 const emptyLanguageOption = {
-	key: '',
-	name: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
+	value: '',
+	label: __( 'Plain text', 'jetpack-mu-wpcom' ) as string,
 };
-const customSelectLanguageOptions: {
-	readonly key: string;
-	readonly name: string;
+const selectLanguageOptions: {
+	readonly value: string;
+	readonly label: string;
 }[] = [ emptyLanguageOption ];
 {
 	const langNames = new Set< string >();
@@ -53,19 +60,12 @@ const customSelectLanguageOptions: {
 	const sortedLangNames = Array.of( ...langNames );
 	sortedLangNames.sort( ( a, b ) => a.localeCompare( b ) );
 	sortedLangNames.forEach( lang =>
-		customSelectLanguageOptions.push( {
-			key: lang,
-			name: lang,
+		selectLanguageOptions.push( {
+			value: lang,
+			label: lang,
 		} )
 	);
 }
-const selectLanguageOptions: ReadonlyArray< {
-	readonly value: string;
-	readonly label: string;
-} > = customSelectLanguageOptions.map( ( { key, name } ) => ( {
-	value: key,
-	label: name,
-} ) );
 
 /**
  * Filter to enhance the core code block.
@@ -139,11 +139,49 @@ const blockEdit = withColors(
 
 	return (
 		<>
+			<BlockControls>
+				<ToolbarGroup>
+					<Dropdown
+						popoverProps={ {
+							isAlternate: true,
+							position: 'bottom right left',
+							focusOnMount: true,
+						} }
+						renderToggle={ ( { isOpen, onToggle }: { isOpen: boolean; onToggle: () => void } ) => (
+							<Button onClick={ onToggle } aria-expanded={ isOpen } aria-haspopup="true">
+								{ props.attributes.language || emptyLanguageOption.label }
+							</Button>
+						) }
+						renderContent={ ( { onClose }: { onClose: () => void } ) => (
+							<NavigableMenu role="menu" stopNavigationEvents>
+								<MenuGroup>
+									{ selectLanguageOptions.map( option => (
+										<MenuItem
+											key={ option.value }
+											role="menuitemradio"
+											isSelected={ option.value === props.attributes.language }
+											onClick={ () => {
+												props.setAttributes( {
+													language: option.value,
+													languageConfidence: 'certain',
+												} );
+												onClose();
+											} }
+										>
+											{ option.label }
+										</MenuItem>
+									) ) }
+								</MenuGroup>
+							</NavigableMenu>
+						) }
+					/>
+				</ToolbarGroup>
+			</BlockControls>
 			<InspectorControls group="color">
 				<ColorTools { ...props } />
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title="Code Settings">
+				<PanelBody title="Settings">
 					<SelectControl
 						label={ __( 'Language', 'jetpack-mu-wpcom' ) }
 						value={ attributes.language }
@@ -158,65 +196,69 @@ const blockEdit = withColors(
 						__nextHasNoMarginBottom
 					/>
 					<ToggleControl
-						label={ __( 'Show Language Name', 'jetpack-mu-wpcom' ) }
+						label={ __( 'Show language name', 'jetpack-mu-wpcom' ) }
 						checked={ attributes.showLanguageName }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showLanguageName: next,
-							} )
-						}
-						__nextHasNoMarginBottom
-					/>
-					<ToggleControl
-						label={ __( 'Show Copy Button', 'jetpack-mu-wpcom' ) }
-						checked={ attributes.showCopyButton }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showCopyButton: next,
-							} )
-						}
-						__nextHasNoMarginBottom
-					/>
-					<ToggleControl
-						label={ __( 'Show Line Numbers', 'jetpack-mu-wpcom' ) }
-						checked={ attributes.showLineNumbers }
-						onChange={ ( next: boolean ) =>
-							setAttributes( {
-								showLineNumbers: next,
-							} )
-						}
-						__nextHasNoMarginBottom
-					/>
-					<TextControl
-						label={ __( 'Line Numbers Start At', 'jetpack-mu-wpcom' ) }
-						type="number"
-						value={ attributes.lineNumbersStartAt }
-						disabled={ ! attributes.showLineNumbers }
-						onChange={ ( _nextLineNumbersStartAt: string ) => {
-							let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
-
-							if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
-								nextLineNumbersStartAt = 1;
-							}
-							if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
-								nextLineNumbersStartAt = 1;
-							}
-
-							// Clamp to the allowed range
-							nextLineNumbersStartAt = Math.max(
-								LINE_NUMBER_START_MIN,
-								Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
-							);
-
-							setAttributes( {
-								lineNumbersStartAt: nextLineNumbersStartAt,
-							} );
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showLanguageName: next } );
 						} }
-						min={ LINE_NUMBER_START_MIN }
-						max={ LINE_NUMBER_START_MAX }
-						__next40pxDefaultSize
 						__nextHasNoMarginBottom
 					/>
+					<ToggleControl
+						label={ __( 'Show filename', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showFileName }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showFileName: next } );
+						} }
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show copy button', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showCopyButton }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showCopyButton: next } );
+						} }
+						__nextHasNoMarginBottom
+					/>
+					<ToggleControl
+						label={ __( 'Show line numbers', 'jetpack-mu-wpcom' ) }
+						checked={ attributes.showLineNumbers }
+						onChange={ ( next: boolean ) => {
+							setAttributes( { showLineNumbers: next } );
+						} }
+						__nextHasNoMarginBottom
+					/>
+					{ attributes.showLineNumbers && (
+						<TextControl
+							label={ __( 'Line numbers start at', 'jetpack-mu-wpcom' ) }
+							type="number"
+							value={ attributes.lineNumbersStartAt }
+							disabled={ ! attributes.showLineNumbers }
+							onChange={ ( _nextLineNumbersStartAt: string ) => {
+								let nextLineNumbersStartAt = Number( _nextLineNumbersStartAt );
+
+								if ( ! Number.isFinite( nextLineNumbersStartAt ) ) {
+									nextLineNumbersStartAt = 1;
+								}
+								if ( ! Number.isInteger( nextLineNumbersStartAt ) ) {
+									nextLineNumbersStartAt = 1;
+								}
+
+								// Clamp to the allowed range
+								nextLineNumbersStartAt = Math.max(
+									LINE_NUMBER_START_MIN,
+									Math.min( LINE_NUMBER_START_MAX, nextLineNumbersStartAt )
+								);
+
+								setAttributes( {
+									lineNumbersStartAt: nextLineNumbersStartAt,
+								} );
+							} }
+							min={ LINE_NUMBER_START_MIN }
+							max={ LINE_NUMBER_START_MAX }
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+						/>
+					) }
 				</PanelBody>
 			</InspectorControls>
 			<React.Suspense fallback={ <Loading { ...props } /> }>
@@ -279,11 +321,6 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 		style: blockStyle( props.attributes ),
 	} );
 
-	const wpElementButtonClass =
-		typeof __experimentalGetElementClassName === 'function'
-			? __experimentalGetElementClassName( 'button' )
-			: 'wp-element-button';
-
 	if ( ( globalThis as { SCRIPT_DEBUG?: unknown } ).SCRIPT_DEBUG ) {
 		if ( typeof __experimentalGetElementClassName !== 'function' ) {
 			// eslint-disable-next-line no-console -- Console message in debug.
@@ -293,99 +330,77 @@ const Chrome = ( { isLoading = false, ...props }: ChromeProps ) => {
 
 	return (
 		<div { ...blockProps }>
-			<div className="a8c/code__header">
-				<Filename { ...props } />
-				{ ( props.isSelected ||
-					props.attributes.showCopyButton ||
-					props.attributes.showLanguageName ) && (
-					<div className="a8c/code__header-right">
-						{ props.attributes.showCopyButton && (
-							<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
-								{ __( 'Copy', 'jetpack-mu-wpcom' ) }
-							</button>
-						) }
-						<DisplayLanguage { ...props } />
-					</div>
-				) }
-			</div>
+			<BlockHeader { ...props } />
 			{ props.children }
 		</div>
 	);
 };
 
+const BlockHeader = ( props: Props ) => {
+	const showLanguage = props.attributes.showLanguageName && props.attributes.language;
+
+	if ( ! props.attributes.showFileName && ! props.attributes.showCopyButton && ! showLanguage ) {
+		return null;
+	}
+
+	const wpElementButtonClass =
+		typeof __experimentalGetElementClassName === 'function'
+			? __experimentalGetElementClassName( 'button' )
+			: 'wp-element-button';
+
+	const showRight = props.attributes.showCopyButton || showLanguage;
+	return (
+		<div className="a8c/code__header">
+			<Filename { ...props } />
+			{ showRight && (
+				<div className="a8c/code__header-right">
+					{ props.attributes.showCopyButton && (
+						<button className={ `${ wpElementButtonClass } a8c/code__btn-copy` } type="button">
+							{ __( 'Copy', 'jetpack-mu-wpcom' ) }
+						</button>
+					) }
+					{ showLanguage ? <span>{ props.attributes.language }</span> : null }
+				</div>
+			) }
+		</div>
+	);
+};
+
 const Filename = ( props: Props ) => {
+	if ( ! props.attributes.showFileName ) {
+		return null;
+	}
 	const { setAttributes, isSelected = false } = props;
 	const { filename } = props.attributes;
 
-	const placeholderExtension =
-		extensionToLang.find(
-			( [ , languageName ] ) => props.attributes.language === languageName
-		)?.[ 0 ] ?? 'txt';
-
 	if ( isSelected ) {
+		const placeholderExtension =
+			extensionToLang.find(
+				( [ , languageName ] ) => props.attributes.language === languageName
+			)?.[ 0 ] ?? 'txt';
+
 		return (
-			<TextControl
-				label={ __( 'Filename', 'jetpack-mu-wpcom' ) }
-				hideLabelFromVision
+			<PlainText
+				__experimentalVersion={ 2 }
+				value={ filename }
+				onChange={ ( nextValue: string ) => {
+					setAttributes!( { filename: nextValue } );
+				} }
+				disableLineBreaks
 				className="a8c/code__filename"
 				placeholder={ sprintf(
 					/* translators: Placeholder for a filename input. %s is a file extension, like "txt". */
 					__( 'filename.%s', 'jetpack-mu-wpcom' ),
 					placeholderExtension
 				) }
-				value={ filename }
-				onChange={ ( nextValue: string ) => {
-					setAttributes!( { filename: nextValue } );
-				} }
-				__next40pxDefaultSize
-				__nextHasNoMarginBottom
 			/>
 		);
 	}
+
 	if ( filename ) {
 		return <span className="a8c/code__filename">{ filename }</span>;
 	}
 	return null;
-};
-
-const DisplayLanguage = ( props: Props ) => {
-	const { attributes, setAttributes } = props;
-
-	if ( props.isSelected ) {
-		return (
-			<CustomSelectControl
-				className="a8c/code__language-select"
-				label={ __( 'Language', 'jetpack-mu-wpcom' ) }
-				hideLabelFromVision
-				value={
-					attributes.language
-						? {
-								key: attributes.language,
-								name: attributes.language,
-						  }
-						: emptyLanguageOption
-				}
-				options={ customSelectLanguageOptions }
-				onChange={ ( {
-					selectedItem: { key: newLanguage },
-				}: {
-					selectedItem: { name: string; key: string };
-				} ) => {
-					setAttributes!( {
-						language: newLanguage,
-						languageConfidence: 'certain',
-					} );
-				} }
-				__next40pxDefaultSize
-			/>
-		);
-	}
-
-	if ( ! props.attributes.showLanguageName || ! attributes.language ) {
-		return null;
-	}
-
-	return <span>{ attributes.language }</span>;
 };
 
 /**
