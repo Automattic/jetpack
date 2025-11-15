@@ -91,7 +91,6 @@ const ResponseActions = ( {
 	}, [ response, registry, onActionComplete ] );
 
 	const sharedProps = {
-		variant: 'tertiary',
 		showTooltip: true,
 		size: 'compact',
 	};
