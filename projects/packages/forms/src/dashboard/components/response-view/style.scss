@@ -101,6 +101,11 @@
 .jp-forms__inbox-response-data-value {
 	white-space: pre-wrap;
 }
+// for increased specificity.
+.jp-forms__response-navigation-container.jp-forms__response-navigation-container {
+	width: auto;
+	min-width: fit-content;
+}
 
 .response-country-flag {
 	font-size: 16px;

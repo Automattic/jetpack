@@ -141,7 +141,7 @@ const SingleResponseView = ( {
 					<HStack alignment="left">
 						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
 					</HStack>
-					<HStack alignment="right" style={ { width: '96px', minWidth: '96px' } }>
+					<HStack alignment="right" className="jp-forms__response-navigation-container">
 						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
 					</HStack>
 				</HStack>
