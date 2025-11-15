@@ -379,7 +379,7 @@ export default function InboxView() {
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
 								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
-							{ item.ip || '' }
+							{ wrapperUnread( item.is_unread, item.ip || '' ) }
 						</>
 					);
 				},

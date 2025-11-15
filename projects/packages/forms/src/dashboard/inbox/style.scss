@@ -130,9 +130,16 @@
 
 	.jp-forms__inbox__unread-indicator {
 		color: #d63638;
+		background-color: #d63638;
+		overflow: hidden;
 		font-size: 8px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		border: 1px solid #fff;
 		position: absolute;
-		left: -12px;
+		left: 24px;
+		top: 2px;
 		cursor: pointer;
 	}
 }
