@@ -130,6 +130,10 @@ function render_block( $attr, $content, $block ) {
 		. "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='loading'>" . esc_html__( 'Loading…', 'jetpack' ) . '</span></div>'
 		. "<span class='sd-text-color'></span><a class='sd-link-color'></a>"
 		. '</div>';
+
+	// Force likes to be enabled for the block.
+	add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
