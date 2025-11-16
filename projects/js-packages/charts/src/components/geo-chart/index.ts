@@ -1,2 +1,2 @@
 export { default as GeoChart } from './geo-chart';
-export type { GeoChartProps, FeatureShape, TooltipData } from './types';
+export type { CityData, GeoChartProps, FeatureShape, TooltipData, ViewType } from './types';

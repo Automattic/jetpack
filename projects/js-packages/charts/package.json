@@ -42,6 +42,12 @@
 			"require": "./dist/components/conversion-funnel-chart/index.cjs"
 		},
 		"./conversion-funnel-chart/style.css": "./dist/components/conversion-funnel-chart/index.css",
+		"./geo-chart": {
+			"jetpack:src": "./src/components/geo-chart/index.ts",
+			"import": "./dist/components/geo-chart/index.js",
+			"require": "./dist/components/geo-chart/index.cjs"
+		},
+		"./geo-chart/style.css": "./dist/components/geo-chart/index.css",
 		"./hooks": {
 			"jetpack:src": "./src/hooks/index.ts",
 			"import": "./dist/hooks/index.js",
@@ -132,6 +138,9 @@
 			],
 			"conversion-funnel-chart": [
 				"./dist/components/conversion-funnel-chart/index.d.ts"
+			],
+			"geo-chart": [
+				"./dist/components/geo-chart/index.d.ts"
 			],
 			"tooltip": [
 				"./dist/components/tooltip/index.d.ts"
