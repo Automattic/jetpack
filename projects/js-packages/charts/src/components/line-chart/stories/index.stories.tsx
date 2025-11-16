@@ -118,6 +118,12 @@ ManySeries.args = {
 	showLegend: true,
 };
 
+export const Animation: StoryObj< typeof LineChart > = Template.bind( {} );
+Animation.args = {
+	...lineChartStoryArgs,
+	animation: true,
+};
+
 export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
 WithInteractiveLegend.args = {
 	...lineChartStoryArgs,

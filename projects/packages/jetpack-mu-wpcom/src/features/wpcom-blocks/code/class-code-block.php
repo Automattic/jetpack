@@ -191,7 +191,6 @@ abstract class Code_Block {
 		$args['selectors'] = array(
 			'root'       => '.wp-block-code',
 			'typography' => array(
-				'root'        => '.wp-block-code',
 
 				/*
 				 * These are experimental at the moment. The camelCase form appears to be used, but
@@ -259,6 +258,10 @@ abstract class Code_Block {
 				'default' => 'unknown',
 			),
 			'triggerCodeUpdate'       => array(
+				'type'    => 'boolean',
+				'default' => false,
+			),
+			'showFileName'            => array(
 				'type'    => 'boolean',
 				'default' => false,
 			),
@@ -420,7 +423,7 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ! empty( $attributes['filename'] )
+		$filename_html = ( ( $attributes['showCopyButton'] ?? false ) && ! empty( $attributes['filename'] ) )
 			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 

@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router';
 import useCreateForm from '../../hooks/use-create-form';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
-import ExportResponsesModal from '../export-responses-modal';
+import { ExportResponsesModal } from '../export-responses';
 
 type ActionsDropdownMenuProps = {
 	exportData: { show: boolean };

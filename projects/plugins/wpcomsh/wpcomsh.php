@@ -241,7 +241,9 @@ function wpcomsh_bypass_jetpack_sso_login() {
 
 	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
 		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
-		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+
+		// Fetching an extra field to overcome the caching bug: https://core.trac.wordpress.org/ticket/62003
+		$users = get_users( array( 'fields' => array( 'ID', 'user_login' ) ) );
 		foreach ( $users as $user ) {
 			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
 				return false;

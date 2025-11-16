@@ -15,7 +15,7 @@
  58 | ERROR   | [ ] Found slow in_array( …, array_flip() ), should be array_key_exists() or isset() (MediaWiki.Usage.InArrayUsage.Found)
  65 | WARNING | [ ] Avoid use of __METHOD__ magic constant in closure (MediaWiki.Usage.MagicConstantClosure.FoundConstantMethod)
  65 | WARNING | [ ] Avoid use of __FUNCTION__ magic constant in closure (MediaWiki.Usage.MagicConstantClosure.FoundConstantFunction)
- 71 | ERROR   | [ ] Function nested is nested inside of another function or closure (MediaWiki.Usage.NestedFunctions.NestedFunction)
+ 71 | ERROR   | [ ] The use of inner functions is forbidden (Squiz.PHP.InnerFunctions.NotAllowed)
  75 | ERROR   | [ ] Use "." for string concat (MediaWiki.Usage.PlusStringConcat.Found)
  76 | ERROR   | [ ] Use ".=" for string concat (MediaWiki.Usage.PlusStringConcat.Found)
  79 | ERROR   | [ ] The ampersand in "&$this" must be removed. If you plan to get back another instance of this class, assign $this to a temporary variable. (MediaWiki.Usage.ReferenceThis.Found)

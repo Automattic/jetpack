@@ -64,6 +64,7 @@ class PD_Top_Rated extends WP_Widget {
 			echo 'PDRTJS_TOP = new PDRTJS_RATING_TOP( ' . esc_html( (string) $posts_rating_id ) . ', ' . esc_html( (string) $pages_rating_id ) . ', ' . esc_html( (string) $comments_rating_id ) . ", '" . (int) $instance['show_posts'] . (int) $instance['show_pages'] . (int) $instance['show_comments'] . "', " . (int) $instance['item_count'] . ' );';
 
 			if ( $instance['show_posts'] === 1 && $instance['filter_by_category'] === 1 ) {
+				$current_category = array();
 				if ( is_single() ) { // get all posts in current category
 					global $post;
 					if ( ! empty( $post ) ) {
@@ -78,7 +79,7 @@ class PD_Top_Rated extends WP_Widget {
 					}
 				}
 
-				if ( is_array( $current_category ) && (int) $current_category[0]->cat_ID > 0 ) {
+				if ( is_array( $current_category ) && isset( $current_category[0]->cat_ID ) && (int) $current_category[0]->cat_ID > 0 ) {
 					$args     = array(
 						'category' => $current_category[0]->cat_ID,
 						'fields'   => 'ids',

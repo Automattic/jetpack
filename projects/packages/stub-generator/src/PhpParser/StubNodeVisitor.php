@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\StubGenerator\PhpParser;
 
-<<<PHAN
+<<<'PHAN'
 @phan-type ClassDefs = '*'|array<string,'*'|array{constant?:'*'|string[],property?:'*'|string[],method?:'*'|string[]}>
 @phan-type Definitions = array{constant:'*'|string[],function:'*'|string[],class:ClassDefs,interface:ClassDefs,trait:ClassDefs}
 PHAN;

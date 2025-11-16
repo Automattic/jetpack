@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+General: added a daily cleanup of expired transients.

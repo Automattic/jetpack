@@ -8,7 +8,6 @@ import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
-import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 import { useConnectionState } from './use-connection-state';
 import type { FC } from 'react';
 
@@ -56,7 +55,6 @@ export const ConnectionsList: FC = () => {
 				<>
 					<MediaValidationNotices />
 					<BrokenConnectionsNotice />
-					<UnsupportedConnectionsNotice />
 					<EnabledConnectionsNotice />
 				</>
 			) : null }

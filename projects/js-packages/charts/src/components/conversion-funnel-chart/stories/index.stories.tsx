@@ -115,6 +115,13 @@ export const Loading: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const EmptyData: Story = {
 	args: {
 		mainRate: 0,

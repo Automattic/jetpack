@@ -2253,7 +2253,7 @@ class Contact_Form_Test extends BaseTestCase {
 	 */
 	public function test_grunion_contact_form_apply_block_attribute() {
 		// No contact form block.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2274,7 +2274,7 @@ class Contact_Form_Test extends BaseTestCase {
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2300,7 +2300,7 @@ EOT;
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block without attributes.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2329,7 +2329,7 @@ EOT;
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2363,7 +2363,7 @@ EOT;
 			Util::grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
 		);
 		// Contact form block with attributes.
-		$original = <<<EOT
+		$original = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2392,7 +2392,7 @@ EOT;
 <!-- wp:post-comments /--></div>
 <!-- /wp:group -->
 EOT;
-		$expected = <<<EOT
+		$expected = <<<'EOT'
 <!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
 
 <!-- wp:spacer {"height":"150px"} -->
@@ -2831,6 +2831,7 @@ EOT;
 			'mailpoet'               => '',
 			'emailNotifications'     => 'yes',
 			'disableGoBack'          => false,
+			'formTitle'              => 'Test Form',
 		);
 		// Add a widget ID to the attributes for testing.
 		$expected_attributes                           = $attributes;
@@ -2844,7 +2845,7 @@ EOT;
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
-
+		$expected_attributes['formTitle']              = 'Test Form';
 		$form = new Contact_Form(
 			$attributes,
 			"[contact-field label='Name' type='name' required='1'/]"
@@ -2885,6 +2886,99 @@ EOT;
 		$form = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', false );
 		$this->assertNull( $form, 'Form should be null if decoding fails and $throw_exception is false' );
 
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_with_throw_exception() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Create a mock form instance to return from the filter
+		$mock_form = new Contact_Form(
+			array(
+				'to' => 'test@example.com',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		// Add filter to return the mock form instead of throwing exception
+		$filter_called = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( $mock_form, &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return $mock_form;
+			},
+			10,
+			3
+		);
+
+		// Call with throw_exception = true, but filter should prevent exception
+		$result = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
+
+		$this->assertTrue( $filter_called, 'Filter should have been called' );
+		$this->assertSame( $mock_form, $result, 'Filter should return the mock form instead of throwing exception' );
+
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_without_throw_exception() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Add filter to return a custom value
+		$custom_return_value = 'custom_fallback';
+		$filter_called       = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( $custom_return_value, &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return $custom_return_value;
+			},
+			10,
+			3
+		);
+
+		// Call with throw_exception = false
+		$result = Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', false );
+
+		$this->assertTrue( $filter_called, 'Filter should have been called' );
+		$this->assertEquals( $custom_return_value, $result, 'Filter should return the custom value' );
+
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
+	public function test_jetpack_forms_jwt_decode_failure_filter_returns_null_still_throws() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Add filter that returns null (should allow exception to be thrown)
+		$filter_called = false;
+		add_filter(
+			'jetpack_forms_jwt_decode_failure',
+			function ( $value, $jwt_token, $exception ) use ( &$filter_called ) {
+				$filter_called = true;
+				$this->assertNull( $value, 'Filter should receive null as first parameter' );
+				$this->assertEquals( 'invalid_jwt_token', $jwt_token, 'Filter should receive the JWT token' );
+				$this->assertInstanceOf( \Exception::class, $exception, 'Filter should receive an Exception instance' );
+				return null; // Returning null means "don't override default behavior"
+			},
+			10,
+			3
+		);
+
+		$this->expectException( \Exception::class );
+		$this->expectExceptionMessage( 'Failed to decode JWT token' );
+
+		Contact_Form::get_instance_from_jwt( 'invalid_jwt_token', true );
+
+		// Note: Code after exception won't be reached, but filter will have been called
+		remove_all_filters( 'jetpack_forms_jwt_decode_failure' );
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 

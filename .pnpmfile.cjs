@@ -99,17 +99,6 @@ async function fixDeps( pkg ) {
 		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
 	}
 
-	// Missing dep or peer dep.
-	// https://github.com/TanStack/query/issues/9097
-	if (
-		pkg.name === '@tanstack/eslint-plugin-query' &&
-		! pkg.dependencies?.typescript &&
-		! pkg.peerDependencies?.typescript
-	) {
-		pkg.peerDependencies ??= {};
-		pkg.peerDependencies.typescript = '*';
-	}
-
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
 	// https://github.com/WordPress/gutenberg/issues/39810
 	if ( pkg.name === '@wordpress/eslint-plugin' ) {
@@ -304,6 +293,12 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
 	) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	}
+
+	// Should be an optional peer dep, but isn't.
+	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
+	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
+		delete pkg.dependencies.sass;
 	}
 
 	return pkg;

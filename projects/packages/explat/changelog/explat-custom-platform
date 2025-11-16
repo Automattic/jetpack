@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the possibility of passing the platform to the explat assignment endpoint

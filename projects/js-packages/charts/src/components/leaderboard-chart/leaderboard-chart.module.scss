@@ -31,8 +31,20 @@
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
+	}
 
-		transition: width 0.3s ease-in-out;
+	.bar__animated {
+		transform-origin: left;
+		transform-box: fill-box;
+		transform: scaleX(0);
+		animation: stretch 1s ease-out forwards;
+	}
+
+	@keyframes stretch {
+
+		to {
+			transform: scaleX(1);
+		}
 	}
 }
 

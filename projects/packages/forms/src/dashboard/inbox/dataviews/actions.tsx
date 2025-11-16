@@ -18,7 +18,8 @@ import { defaultView } from './views';
 /**
  * Types
  */
-import type { Action, QueryParams, Registry } from './types';
+import type { Action, DispatchActions, QueryParams, Registry } from './types';
+import type { FormResponse } from '../../../types';
 
 /**
  * Helper function to extract count-relevant query params from the current query.
@@ -106,6 +107,118 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 		  );
 };
 
+/**
+ * Wraps a promise with a timeout to ensure it rejects after a reasonable time.
+ * This is useful for network requests that might hang when the network is disabled.
+ *
+ * @param {Promise} promise   - The promise to wrap.
+ * @param {number}  timeoutMs - The timeout in milliseconds (default: 30000).
+ * @return {Promise} The wrapped promise that will reject on timeout.
+ */
+const withTimeout = (
+	promise: Promise< unknown >,
+	timeoutMs: number = 30000
+): Promise< unknown > => {
+	return Promise.race( [
+		promise,
+		new Promise( ( _, reject ) =>
+			setTimeout( () => reject( new Error( 'Request timeout' ) ), timeoutMs )
+		),
+	] );
+};
+
+/**
+ * Type for the result of processStatusChange.
+ */
+type StatusChangeResult = {
+	itemsUpdated: PromiseSettledResult< unknown >[];
+	itemsFailed: number[];
+	numberOfErrors: number;
+};
+
+type ProcessStatusChangeParams = {
+	items: FormResponse[];
+	newStatus: string;
+	apiCall: ( id: number ) => Promise< unknown >;
+	editEntityRecord: DispatchActions[ 'editEntityRecord' ];
+	updateCountsOptimistically: DispatchActions[ 'updateCountsOptimistically' ];
+	queryParams: QueryParams;
+};
+
+/**
+ * Helper function to process status changes with optimistic updates and error handling.
+ *
+ * @param {object}         params                            - The parameters for the status change.
+ * @param {FormResponse[]} params.items                      - The items to update.
+ * @param {string}         params.newStatus                  - The new status to set.
+ * @param {Function}       params.apiCall                    - The API call function (saveEntityRecord or deleteEntityRecord).
+ * @param {Function}       params.editEntityRecord           - The editEntityRecord dispatch function.
+ * @param {Function}       params.updateCountsOptimistically - The updateCountsOptimistically dispatch function.
+ * @param {QueryParams}    params.queryParams                - The query params for count updates.
+ * @return {Promise<StatusChangeResult>} The result of the status change operation.
+ */
+const processStatusChange = async ( {
+	items,
+	newStatus,
+	apiCall,
+	editEntityRecord,
+	updateCountsOptimistically,
+	queryParams,
+}: ProcessStatusChangeParams ): Promise< StatusChangeResult > => {
+	// Store original statuses before making optimistic changes
+	const originalStatuses = items.map( item => item.status );
+
+	// Make optimistic updates
+	items.forEach( item => {
+		editEntityRecord( 'postType', 'feedback', item.id, {
+			status: newStatus,
+		} );
+
+		// Update counts optimistically
+		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
+	} );
+
+	// Call API with timeout
+	const promises = await Promise.allSettled(
+		items.map( ( { id } ) => withTimeout( apiCall( id ) ) )
+	);
+
+	// Check for both rejected promises and fulfilled promises with undefined/invalid results
+	const itemsUpdated = promises.filter(
+		promise => promise.status === 'fulfilled' && !! promise.value
+	);
+
+	const itemsFailed = promises
+		.map( ( promise, index ) => {
+			// Failed if rejected OR if fulfilled but result is invalid
+			if ( promise.status === 'rejected' || promise.value == null ) {
+				return index;
+			}
+
+			return null;
+		} )
+		.filter( ( index ): index is number => index !== null );
+
+	// Revert optimistic changes for failed items
+	itemsFailed.forEach( index => {
+		const item = items[ index ];
+		const originalStatus = originalStatuses[ index ];
+
+		editEntityRecord( 'postType', 'feedback', item.id, {
+			status: originalStatus,
+		} );
+
+		// Revert the count change
+		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
+	} );
+
+	return {
+		itemsUpdated,
+		itemsFailed,
+		numberOfErrors: itemsFailed.length,
+	};
+};
+
 export const BULK_ACTIONS = {
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
@@ -149,30 +262,27 @@ export const markAsSpamAction: Action = {
 	label: __( 'Spam', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
-	async callback( items, { registry } ) {
+	async callback( items, { registry }, { isUndo = false } = {} ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-spam',
 			multiple: items.length > 1,
 		} );
 
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
-		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'spam', 1, queryParams );
+		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+			items,
+			newStatus: 'spam',
+			apiCall: ( id: number ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams,
 		} );
-
-		const promises = ( await Promise.allSettled(
-			items.map( ( { id } ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ) )
-		) ) as PromiseSettledResult< { id: string } >[];
-
-		const itemsUpdated = promises.filter(
-			( { status } ) => status === 'fulfilled'
-		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -183,7 +293,7 @@ export const markAsSpamAction: Action = {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
 
-		if ( itemsUpdated.length === items.length ) {
+		if ( numberOfErrors === 0 ) {
 			// Every request was successful.
 			const successMessage =
 				items.length === 1
@@ -199,21 +309,22 @@ export const markAsSpamAction: Action = {
 							items.length
 					  );
 
-			createSuccessNotice( successMessage, {
-				type: 'snackbar',
-				id: 'mark-as-spam-action',
-				actions: [
-					{
-						label: __( 'Undo', 'jetpack-forms' ),
-						onClick: () => {
-							markAsNotSpamAction.callback( items, { registry } );
+			if ( ! isUndo ) {
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: 'mark-as-spam-action',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								markAsNotSpamAction.callback( items, { registry }, { isUndo: true } );
+							},
 						},
-					},
-				],
-			} );
+					],
+				} );
+			}
 		} else {
 			// There is at least one failure.
-			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
@@ -222,7 +333,12 @@ export const markAsSpamAction: Action = {
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated.map( ( { value } ) => value.id ),
+				itemsUpdated
+					.filter(
+						( promise ): promise is PromiseFulfilledResult< { id: number } > =>
+							promise.status === 'fulfilled' && !! promise.value
+					)
+					.map( ( { value } ) => value.id.toString() ),
 				BULK_ACTIONS.markAsSpam
 			);
 		}
@@ -236,39 +352,35 @@ export const markAsNotSpamAction: Action = {
 	label: __( 'Not spam', 'jetpack-forms' ),
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
-	async callback( items, { registry } ) {
+	async callback( items, { registry }, { isUndo = false } = {} ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
 			multiple: items.length > 1,
 		} );
 
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
-		items.forEach( () => {
-			updateCountsOptimistically( 'spam', 'publish', 1, queryParams );
+		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+			items,
+			newStatus: 'publish',
+			apiCall: ( id: number ) =>
+				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams,
 		} );
-
-		const promises = ( await Promise.allSettled(
-			items.map( ( { id } ) =>
-				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
-			)
-		) ) as PromiseSettledResult< { id: string } >[];
-
-		const itemsUpdated = promises.filter(
-			( { status } ) => status === 'fulfilled'
-		) as PromiseFulfilledResult< { id: string } >[];
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
 		}
 
-		if ( itemsUpdated.length === items.length ) {
+		if ( numberOfErrors === 0 ) {
 			// Every request was successful.
 			const successMessage =
 				items.length === 1
@@ -284,21 +396,22 @@ export const markAsNotSpamAction: Action = {
 							items.length
 					  );
 
-			createSuccessNotice( successMessage, {
-				type: 'snackbar',
-				id: 'mark-as-not-spam-action',
-				actions: [
-					{
-						label: __( 'Undo', 'jetpack-forms' ),
-						onClick: () => {
-							markAsSpamAction.callback( items, { registry } );
+			if ( ! isUndo ) {
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: 'mark-as-not-spam-action',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								markAsSpamAction.callback( items, { registry }, { isUndo: true } );
+							},
 						},
-					},
-				],
-			} );
+					],
+				} );
+			}
 		} else {
 			// There is at least one failure.
-			const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
@@ -306,7 +419,12 @@ export const markAsNotSpamAction: Action = {
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated.map( ( { value } ) => value.id ),
+				itemsUpdated
+					.filter(
+						( promise ): promise is PromiseFulfilledResult< { id: number } > =>
+							promise.status === 'fulfilled' && !! promise.value
+					)
+					.map( ( { value } ) => value.id.toString() ),
 				BULK_ACTIONS.markAsNotSpam
 			);
 		}
@@ -320,37 +438,35 @@ export const restoreAction: Action = {
 	label: __( 'Restore', 'jetpack-forms' ),
 	isEligible: item => item.status === 'trash',
 	supportsBulk: true,
-	async callback( items, { registry } ) {
+	async callback( items, { registry }, { isUndo = false, targetStatus = 'publish' } = {} ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'restore',
 			multiple: items.length > 1,
 		} );
 
-		const { saveEntityRecord } = registry.dispatch( coreStore );
+		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
-		items.forEach( () => {
-			updateCountsOptimistically( 'trash', 'publish', 1, queryParams );
+		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+			items,
+			newStatus: targetStatus,
+			apiCall: ( id: number ) =>
+				saveEntityRecord( 'postType', 'feedback', { id, status: targetStatus } ),
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams,
 		} );
-
-		const promises = await Promise.allSettled(
-			items.map( ( { id } ) =>
-				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } )
-			)
-		);
-
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 		}
 
-		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+		if ( numberOfErrors === 0 ) {
 			const successMessage =
 				items.length === 1
 					? __( 'Response restored.', 'jetpack-forms' )
@@ -365,24 +481,25 @@ export const restoreAction: Action = {
 							items.length
 					  );
 
-			createSuccessNotice( successMessage, {
-				type: 'snackbar',
-				id: 'restore-action',
-				actions: [
-					{
-						label: __( 'Undo', 'jetpack-forms' ),
-						onClick: () => {
-							moveToTrashAction.callback( items, { registry } );
+			if ( ! isUndo ) {
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: 'restore-action',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								moveToTrashAction.callback( items, { registry }, { isUndo: true } );
+							},
 						},
-					},
-				],
-			} );
+					],
+				} );
+			}
 
 			return;
 		}
 
 		// There is at least one failure.
-		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
@@ -396,30 +513,29 @@ export const moveToTrashAction: Action = {
 	label: __( 'Trash', 'jetpack-forms' ),
 	isEligible: item => item.status !== 'trash',
 	supportsBulk: true,
-	async callback( items, { registry } ) {
+	async callback( items, { registry }, { isUndo = false } = {} ) {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'move-to-trash',
 			multiple: items.length > 1,
 		} );
 
-		const { deleteEntityRecord } = registry.dispatch( coreStore );
+		const { deleteEntityRecord, editEntityRecord, receiveEntityRecords } =
+			registry.dispatch( coreStore );
 		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
 		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 
-		items.forEach( item => {
-			updateCountsOptimistically( item.status, 'trash', 1, queryParams );
+		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+			items,
+			newStatus: 'trash',
+			apiCall: ( id: number ) =>
+				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+			editEntityRecord,
+			updateCountsOptimistically,
+			queryParams,
 		} );
-
-		const promises = await Promise.allSettled(
-			items.map( ( { id } ) =>
-				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } )
-			)
-		);
-
-		const itemsUpdated = promises.filter( ( { status } ) => status === 'fulfilled' );
 
 		// If there is at least one successful update, invalidate the cache and navigate if needed
 		if ( itemsUpdated.length ) {
@@ -430,7 +546,7 @@ export const moveToTrashAction: Action = {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
 
-		if ( promises.every( ( { status } ) => status === 'fulfilled' ) ) {
+		if ( numberOfErrors === 0 ) {
 			const successMessage =
 				items.length === 1
 					? __( 'Response moved to trash.', 'jetpack-forms' )
@@ -445,24 +561,33 @@ export const moveToTrashAction: Action = {
 							items.length
 					  );
 
-			createSuccessNotice( successMessage, {
-				type: 'snackbar',
-				id: 'move-to-trash-action',
-				actions: [
-					{
-						label: __( 'Undo', 'jetpack-forms' ),
-						onClick: () => {
-							restoreAction.callback( items, { registry } );
+			if ( ! isUndo ) {
+				// Reload the items to the store, as they were removed from the store when moved to trash
+				receiveEntityRecords( 'postType', 'feedback', items, queryParams, true );
+
+				createSuccessNotice( successMessage, {
+					type: 'snackbar',
+					id: 'move-to-trash-action',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								restoreAction.callback(
+									items,
+									{ registry },
+									// We can trash a spam or inbox item, so we need to restore to the original status
+									{ isUndo: true, targetStatus: items[ 0 ]?.status }
+								);
+							},
 						},
-					},
-				],
-			} );
+					],
+				} );
+			}
 
 			return;
 		}
 
 		// There is at least one failure.
-		const numberOfErrors = promises.filter( ( { status } ) => status === 'rejected' ).length;
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 		createErrorNotice( errorMessage, { type: 'snackbar' } );

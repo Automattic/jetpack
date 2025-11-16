@@ -32,7 +32,7 @@ class Blog_Privacy_Test extends \WorDBless\BaseTestCase {
 	 * @return \Iterator
 	 */
 	public static function provide_robots_txt(): \Iterator {
-		$ai_blocks = <<<AI_BLOCKS
+		$ai_blocks = <<<'AI_BLOCKS'
 User-agent: Amazonbot
 Disallow: /
 

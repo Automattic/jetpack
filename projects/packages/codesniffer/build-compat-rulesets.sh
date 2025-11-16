@@ -12,7 +12,7 @@ DIR="$(mktemp -d "${TMPDIR%/}/codesniffer-build-compat-rulesets.XXXXXXXX")"
 trap 'rm -rf "$DIR"' EXIT
 cd "$DIR"
 
-PHP_VERSIONS=( 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 )
+PHP_VERSIONS=( 7.2 7.3 7.4 8.0 8.1 8.2 8.3 8.4 8.5 )
 
 function info {
 	printf '\n\e[1m%s\e[0m\n' "$*"
@@ -28,7 +28,7 @@ mapfile -t FILES < <( find PHPCompatibility/PHPCompatibility/Tests/ -name \*.inc
 info "== Setting up composer =="
 echo '{}' > composer.json
 composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-composer require --dev dealerdirect/phpcodesniffer-composer-installer
+composer require --dev dealerdirect/phpcodesniffer-composer-installer 'squizlabs/php_codesniffer=<4'
 # Hotfix for a bug in phpcompatibiliy v9.x
 sed -i.bak 's!$message = vsprintf($message, $data);!$message = vsprintf($message, (array) $data);!' vendor/squizlabs/php_codesniffer/src/Files/File.php
 
@@ -40,7 +40,6 @@ for V in "${PHP_VERSIONS[@]}"; do
 	{ vendor/bin/phpcs -p -s --report-width=10000 --standard=PHPCompatibility --runtime-set testVersion "$V-" "${FILES[@]}" || true; } | sed -n 's/.* (\(PHPCompatibility\.[^)]\+\))$/\1/p' | sort -u > rel-$V.txt
 	echo "Got $(grep -c . "rel-$V.txt") rules"
 done
-
 
 # Run with dev-develop version too to get all the new rules.
 info "== Getting rules with phpcompatibility/php-compatibility=dev-develop =="
@@ -65,7 +64,7 @@ done
 info "== Getting rules with phpcompatibility/phpcompatibility-wp=dev-master =="
 composer remove --dev phpcompatibility/php-compatibility-wp
 composer require --dev phpcompatibility/php-compatibility='dev-develop as 9.9999.9999'
-composer require --dev phpcompatibility/phpcompatibility-wp=dev-master
+composer require --dev phpcompatibility/phpcompatibility-wp=dev-master phpcompatibility/phpcompatibility-paragonie=@dev
 for V in "${PHP_VERSIONS[@]}"; do
 	info "=== PHP $V ==="
 	{ vendor/bin/phpcs -p -s --report-width=10000 --standard=PHPCompatibilityWP --runtime-set testVersion "$V-" "${FILES[@]}" || true; } | sed -n 's/.* (\(PHPCompatibility\.[^)]\+\))$/\1/p' | sort -u > wpdev-$V.txt

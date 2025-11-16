@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -21,12 +22,13 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/response-view';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
-import { getPath, getItemId, getCountryFlagEmoji } from '../utils.js';
+import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
 	markAsSpamAction,
@@ -351,13 +353,20 @@ export default function InboxView() {
 			},
 			{
 				id: 'read_status',
-				label: __( 'Read status', 'jetpack-forms' ),
+				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
 					{ label: __( 'Unread', 'jetpack-forms' ), value: 'unread' },
 					{ label: __( 'Read', 'jetpack-forms' ), value: 'read' },
 				],
 				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
+				render: ( { item } ) => {
+					return (
+						<Badge intent="default">
+							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
+						</Badge>
+					);
+				},
 			},
 			{
 				id: 'ip',
@@ -368,7 +377,7 @@ export default function InboxView() {
 						<>
 							<span className="response-country-flag">
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
-								{ item.country_code && getCountryFlagEmoji( item.country_code ) }
+								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
 							{ item.ip || '' }
 						</>

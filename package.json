@@ -42,9 +42,6 @@
 		"pnpm": "^10.4.0"
 	},
 	"pnpm": {
-		"patchedDependencies": {
-			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
-		},
 		"ignoredBuiltDependencies": [
 			"@swc/core",
 			"core-js",
@@ -53,9 +50,6 @@
 			"svelte-preprocess",
 			"swiper",
 			"unrs-resolver"
-		],
-		"overrides": {
-			"esbuild-sass-plugin>sass": "npm:sass-embedded@1.87.0"
-		}
+		]
 	}
 }

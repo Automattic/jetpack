@@ -104,3 +104,18 @@
 		height: 10px;
 	}
 }
+
+/* in your CSS or styled-component */
+
+.line-chart__animated path {
+	transform-origin: 0 95%;
+	transform: scaleY(0);
+	animation: rise 1s ease-out forwards;
+}
+
+@keyframes rise {
+
+	to {
+		transform: scaleY(1);
+	}
+}

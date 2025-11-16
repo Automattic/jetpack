@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove `MediaWiki.Usage.NestedFunctions`,  `Squiz.PHP.InnerFunctions` is ok with function→class→function.
+
+
