@@ -31,6 +31,15 @@
 		background: rgba(0, 0, 0, 0.05);
 	}
 
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+
+		&:hover {
+			background: transparent;
+		}
+	}
+
 	&--active {
 		background: var(--view-controls-active-color);
 		color: #fff;

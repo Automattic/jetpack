@@ -35,7 +35,7 @@ const world = topojson.feature( topology, topology.objects.units ) as {
  * @param props.className    - Additional CSS class name for the chart container
  * @return A React component displaying an interactive world map with data visualization
  */
-export default function ( {
+export default function GeoChart( {
 	className,
 	data,
 	citiesData = [],
@@ -156,6 +156,8 @@ export default function ( {
 						currentView === 'countries' && styles[ 'view-tab--active' ]
 					) }
 					onClick={ handleCountriesClick }
+					aria-label="View countries data"
+					aria-pressed={ currentView === 'countries' }
 				>
 					Countries
 				</button>
@@ -165,6 +167,10 @@ export default function ( {
 						currentView === 'regions' && styles[ 'view-tab--active' ]
 					) }
 					onClick={ handleRegionsClick }
+					aria-label="View regions data"
+					aria-pressed={ currentView === 'regions' }
+					disabled
+					title="Coming soon"
 				>
 					Regions
 				</button>
@@ -174,6 +180,8 @@ export default function ( {
 						currentView === 'cities' && styles[ 'view-tab--active' ]
 					) }
 					onClick={ handleCitiesClick }
+					aria-label="View cities data"
+					aria-pressed={ currentView === 'cities' }
 				>
 					Cities
 				</button>
@@ -273,12 +281,12 @@ export default function ( {
 							<>
 								<strong>{ tooltipData.cityName }</strong>
 								{ tooltipData.countryName && <div>{ tooltipData.countryName }</div> }
-								<div>Views: { tooltipData.value }</div>
+								<div>Value: { tooltipData.value }</div>
 							</>
 						) : (
 							<>
 								<strong>{ tooltipData.countryName }</strong>
-								<div>Orders: { tooltipData.value }</div>
+								<div>Value: { tooltipData.value }</div>
 							</>
 						) }
 					</div>
