@@ -66,6 +66,7 @@ class Jetpack_Google_Font_Face {
 		$fonts_to_print    = array();
 
 		$this->collect_global_styles_fonts();
+		$this->collect_selected_fonts();
 		$fonts_in_use = array_values( array_unique( $this->fonts_in_use, SORT_STRING ) );
 		$fonts_in_use = array_map(
 			function ( $font_slug ) use ( $font_slug_aliases ) {
@@ -83,6 +84,30 @@ class Jetpack_Google_Font_Face {
 
 		if ( ! empty( $fonts_to_print ) ) {
 			wp_print_font_faces( $fonts_to_print );
+		}
+	}
+
+	/**
+	 * Collect fonts selected in the Jetpack Fonts module.
+	 */
+	public function collect_selected_fonts() {
+		if ( ! class_exists( '\Jetpack_Fonts' ) ) {
+			return;
+		}
+
+		$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+
+		$selected_fonts = array_unique(
+			array_map(
+				function ( $font ) {
+					return $this->format_font( $font['cssName'] );
+				},
+				(array) $jetpack_fonts_instance->get( 'selected_fonts' )
+			)
+		);
+
+		foreach ( $selected_fonts as $font_slug ) {
+			$this->add_font( $font_slug );
 		}
 	}
 
