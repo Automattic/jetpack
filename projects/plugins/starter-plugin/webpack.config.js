@@ -24,6 +24,7 @@ module.exports = [
 			strictExportPresence: true,
 			rules: [
 				// Gutenberg packages' ESM builds don't fully specify their imports. Sigh.
+				// https://github.com/WordPress/gutenberg/issues/73362
 				{
 					test: /\/node_modules\/@wordpress\/.*\/build-module\/.*\.js$/,
 					resolve: { fullySpecified: false },

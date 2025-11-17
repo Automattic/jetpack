@@ -1,3 +1,5 @@
+Until v11, the package contains ESM files that are flagged as CommonJS. Hack around that.
+
 diff --git a/dist/esm-browser/package.json b/dist/esm-browser/package.json
 new file mode 100644
 index 0000000000000000000000000000000000000000..b15ba83dfd0d662958567ab6671d083368e7df2c
