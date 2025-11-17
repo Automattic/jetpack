@@ -159,7 +159,7 @@
 		"@wordpress/notices": "5.35.0",
 		"@wordpress/token-list": "3.35.0",
 		"autoprefixer": "10.4.20",
-		"babel-jest": "30.0.0",
+		"babel-jest": "30.2.0",
 		"concurrently": "9.2.1",
 		"eval": "0.1.8",
 		"glob": "11.0.2",

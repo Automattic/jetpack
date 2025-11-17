@@ -88,7 +88,7 @@
 		"@wordpress/browserslist-config": "6.35.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "6.35.0",
 		"autoprefixer": "10.4.20",
-		"babel-jest": "30.0.0",
+		"babel-jest": "30.2.0",
 		"concurrently": "9.2.1",
 		"core-js": "3.38.1",
 		"jest": "30.2.0",
