@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+// 'no-preference' returns false in unsupported browsers,
+// causing a safe fallback to reduced motion instead of animating.
 const QUERY = '(prefers-reduced-motion: no-preference)';
 
 const getInitialState = () => ! window.matchMedia( QUERY ).matches;

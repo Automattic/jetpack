@@ -9,6 +9,7 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementHeight,
+	usePrefersReducedMotion,
 } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -299,6 +300,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
@@ -319,7 +322,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					'bar-chart',
 					styles[ 'bar-chart' ],
 					{
-						[ styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] ]: animation,
+						[ styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] ]:
+							animation && ! prefersReducedMotion,
 						[ styles[ 'bar-chart--legend-top' ] ]: showLegend && legendPosition === 'top',
 					},
 					className

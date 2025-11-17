@@ -6,7 +6,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -251,6 +251,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( ! isValid ) {
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
@@ -326,7 +328,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					<Group
 						top={ chartHeight }
 						left={ width / 2 }
-						mask={ animation ? `url(#radial-wipe-${ chartId })` : null }
+						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
 					>
 						{ allSegmentsHidden ? (
 							<text
