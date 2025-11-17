@@ -21,6 +21,7 @@ const wpPkgs = {
 		'@wordpress/date',
 		'@wordpress/hooks',
 		'react-colorful',
+		'react-day-picker',
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
@@ -104,9 +105,6 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
-
-		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
-		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -173,7 +171,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// No upstream bug link yet, upstream seems unmaintained anyway.
+	// https://github.com/egoist/rollup-plugin-postcss/issues/469
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
