@@ -749,7 +749,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @return array|false
 	 */
-	public function get_big_sky_site_metadata(): array|false {
+	public function get_big_sky_site_metadata() {
 		$big_sky_site_metadata = get_option( 'big_sky_site_metadata' );
 		if ( false === $big_sky_site_metadata ) {
 			return false;
