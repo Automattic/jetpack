@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactor dashboard layout and add Page components for improved structure and maintainability

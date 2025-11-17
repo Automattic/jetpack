@@ -1,11 +1,10 @@
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
-	Modal,
 } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import useResponseNavigation from '../../hooks/use-response-navigation';
+import Page from '../page';
 import ResponseActions from '../response-actions';
 import ResponseNavigation from '../response-navigation';
 import { ResponseViewBody } from './index';
@@ -31,17 +30,12 @@ const SingleResponseView = ( {
 	selection,
 } ) => {
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
-	const [ isModalOpen, setIsModalOpen ] = useState( true );
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
 			onChangeSelection?.( [] );
 		}
-
-		if ( isMobile ) {
-			setIsModalOpen( false );
-		}
-	}, [ onChangeSelection, isChildModalOpen, setIsModalOpen, isMobile ] );
+	}, [ onChangeSelection, isChildModalOpen ] );
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
@@ -134,40 +128,25 @@ const SingleResponseView = ( {
 		/>
 	);
 
-	if ( ! isMobile ) {
-		return (
-			<div className="jp-forms__inbox__dataviews-response">
-				<HStack spacing="0" justify="space-between" className="jp-forms__inbox-response-actions">
-					<HStack alignment="left">
-						<ResponseActions onActionComplete={ handleActionComplete } response={ sidePanelItem } />
-					</HStack>
-					<HStack alignment="right">
-						<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
-					</HStack>
+	return (
+		<Page showSidebarToggle={ false } hasPadding={ false }>
+			<div className="jp-forms-response-content">
+				<HStack
+					spacing="0"
+					justify="space-between"
+					className="jp-forms-response-actions"
+					style={ { width: 'auto' } }
+				>
+					<ResponseActions
+						onActionComplete={ handleActionComplete }
+						response={ sidePanelItem }
+						variant="text"
+					/>
+					<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
 				</HStack>
 				{ contents }
 			</div>
-		);
-	}
-
-	if ( ! isModalOpen ) {
-		return null;
-	}
-
-	return (
-		<Modal
-			title={ __( 'Response', 'jetpack-forms' ) }
-			size="medium"
-			onRequestClose={ onRequestClose }
-			headerActions={
-				<>
-					<ResponseActions response={ sidePanelItem } onActionComplete={ handleActionComplete } />
-					<ResponseNavigation { ...navigationProps } onClose={ null } />
-				</>
-			}
-		>
-			{ contents }
-		</Modal>
+		</Page>
 	);
 };
 export default SingleResponseView;

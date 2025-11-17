@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { ThemeProvider } from '@automattic/jetpack-components';
+import { SlotFillProvider } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
 import { createHashRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -55,10 +55,10 @@ function initFormsDashboard() {
 	const root = createRoot( container );
 
 	root.render(
-		<ThemeProvider>
+		<SlotFillProvider>
 			<RouterProvider router={ router } />
 			<DashboardNotices />
-		</ThemeProvider>
+		</SlotFillProvider>
 	);
 }
 
