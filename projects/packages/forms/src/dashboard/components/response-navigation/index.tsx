@@ -27,29 +27,38 @@ const ResponseNavigation = ( {
 		size: 'compact',
 	};
 
+	const closeButtonProps = {
+		accessibleWhenDisabled: true,
+		iconSize: 20,
+		showTooltip: true,
+		size: 'compact',
+	};
+
 	return (
-		<div>
-			{ onPrevious && (
-				<Button
-					{ ...sharedProps }
-					disabled={ ! hasPrevious }
-					icon={ chevronUp }
-					label={ __( 'Previous', 'jetpack-forms' ) }
-					onClick={ onPrevious }
-				></Button>
-			) }
-			{ onNext && (
-				<Button
-					{ ...sharedProps }
-					disabled={ ! hasNext }
-					icon={ chevronDown }
-					label={ __( 'Next', 'jetpack-forms' ) }
-					onClick={ onNext }
-				></Button>
-			) }
+		<div className="jp-forms-response-navigation">
+			<div className="jp-forms-response-navigation__arrows">
+				{ onPrevious && (
+					<Button
+						{ ...sharedProps }
+						disabled={ ! hasPrevious }
+						icon={ chevronUp }
+						label={ __( 'Previous', 'jetpack-forms' ) }
+						onClick={ onPrevious }
+					></Button>
+				) }
+				{ onNext && (
+					<Button
+						{ ...sharedProps }
+						disabled={ ! hasNext }
+						icon={ chevronDown }
+						label={ __( 'Next', 'jetpack-forms' ) }
+						onClick={ onNext }
+					></Button>
+				) }
+			</div>
 			{ onClose && (
 				<Button
-					{ ...sharedProps }
+					{ ...closeButtonProps }
 					icon={ close }
 					label={ __( 'Close', 'jetpack-forms' ) }
 					onClick={ onClose }
