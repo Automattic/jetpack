@@ -4,6 +4,91 @@ import { getLongestTickWidth } from '../utils';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
+/**
+ * Base top margin used when no dynamic adjustments are necessary.
+ */
+const DEFAULT_MARGIN_TOP = 10;
+
+/**
+ * Base right margin used when no dynamic adjustments are necessary.
+ */
+const DEFAULT_MARGIN_RIGHT = 20;
+
+/**
+ * Base bottom margin used for charts with a bottom X-axis.
+ * This is large enough for typical font sizes and will be increased
+ * dynamically when tick labels require more space.
+ */
+const DEFAULT_MARGIN_BOTTOM = 20;
+
+/**
+ * Base left margin used when no dynamic adjustments are necessary.
+ */
+const DEFAULT_MARGIN_LEFT = 20;
+
+/**
+ * Bottom margin to use when the X-axis is rendered at the top.
+ * We only need a small buffer below the chart in that case.
+ */
+const DEFAULT_BOTTOM_FOR_TOP_AXIS = 10;
+
+/**
+ * Fallback font size used when we cannot derive a font size
+ * from the theme or axis styles for X-axis tick labels.
+ */
+const DEFAULT_FONT_SIZE = 12;
+
+/**
+ * Fallback tick length used when tickLength is not provided
+ * by the theme for either axis.
+ */
+const DEFAULT_TICK_LENGTH = 8;
+
+/**
+ * Fallback width used for Y-axis tick labels when we cannot
+ * measure them via getLongestTickWidth.
+ */
+const DEFAULT_Y_TICK_WIDTH = 40;
+
+type AxisStyleLike = {
+	axisLabel?: { fontSize?: number | string };
+	tickLength?: number;
+};
+
+type ThemeWithOptionalX = XYChartTheme & {
+	axisStyles?: { x?: { top?: AxisStyleLike; bottom?: AxisStyleLike } };
+	svgLabelSmall?: { fontSize?: number | string };
+	tickLength?: number;
+};
+
+const resolveFontSize = ( val?: number | string ): number | undefined => {
+	if ( typeof val === 'number' && ! isNaN( val ) ) {
+		return val;
+	}
+
+	if ( typeof val === 'string' ) {
+		const parsed = parseFloat( val );
+		return isNaN( parsed ) ? undefined : parsed;
+	}
+
+	return undefined;
+};
+
+const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
+	const themeWithX = theme as ThemeWithOptionalX;
+	const xAxisStyles =
+		orientation === 'top' ? themeWithX.axisStyles?.x?.top : themeWithX.axisStyles?.x?.bottom;
+
+	const fontSize =
+		resolveFontSize( xAxisStyles?.axisLabel?.fontSize ) ||
+		resolveFontSize( themeWithX.svgLabelSmall?.fontSize ) ||
+		DEFAULT_FONT_SIZE;
+
+	const tickLength = xAxisStyles?.tickLength ?? themeWithX.tickLength ?? DEFAULT_TICK_LENGTH;
+
+	return { fontSize, tickLength };
+};
+
 export const useChartMargin = (
 	height: number,
 	options: BaseChartProps[ 'options' ],
@@ -34,8 +119,12 @@ export const useChartMargin = (
 
 	return useMemo( () => {
 		// Default margin is for bottom axis labels.
-		const defaultMargin = { top: 10, right: 20, bottom: 20, left: 20 };
-		const defaultTickWidth = 40;
+		const defaultMargin = {
+			top: DEFAULT_MARGIN_TOP,
+			right: DEFAULT_MARGIN_RIGHT,
+			bottom: DEFAULT_MARGIN_BOTTOM,
+			left: DEFAULT_MARGIN_LEFT,
+		};
 
 		// Auto-calculate margin for y axis labels based on orientation and tick width.
 		const yAxisOrientation = options.axis?.y?.orientation;
@@ -46,7 +135,7 @@ export const useChartMargin = (
 			options.axis?.y?.tickFormat,
 			yAxisStyles.axisLabel
 		);
-		const yMarginValue = ( yTickWidth ?? defaultTickWidth ) + ( yAxisStyles?.tickLength ?? 0 );
+		const yMarginValue = ( yTickWidth ?? DEFAULT_Y_TICK_WIDTH ) + ( yAxisStyles?.tickLength ?? 0 );
 
 		if ( yAxisOrientation === 'right' ) {
 			defaultMargin.right = yMarginValue;
@@ -55,45 +144,15 @@ export const useChartMargin = (
 		}
 
 		// Dynamically compute X-axis margin (bottom by default, or top if orientation is 'top').
-		// This mirrors Y-axis behavior where margin is based on label size and tick length.
-		const xOrientation = options.axis?.x?.orientation || 'bottom';
-		// Attempt to read axis label styles from theme; fallback to svgLabelSmall when not defined.
-		// XYChartTheme type keeps axisStyles optional, so we need to guard access.
-		type AxisStyleLike = { axisLabel?: { fontSize?: number | string }; tickLength?: number };
-		type ThemeWithOptionalX = XYChartTheme & {
-			axisStyles?: { x?: { top?: AxisStyleLike; bottom?: AxisStyleLike } };
-			svgLabelSmall?: { fontSize?: number | string };
-			tickLength?: number;
-		};
-		const themeWithX = theme as ThemeWithOptionalX;
-		const xAxisStyles: AxisStyleLike | undefined =
-			xOrientation === 'top' ? themeWithX.axisStyles?.x?.top : themeWithX.axisStyles?.x?.bottom;
-
-		// Resolve a numeric font size to approximate label height.
-		const resolveFontSize = ( val?: unknown ): number | undefined => {
-			if ( typeof val === 'number' && ! isNaN( val ) ) return val;
-			if ( typeof val === 'string' ) {
-				const parsed = parseFloat( val );
-				return isNaN( parsed ) ? undefined : parsed;
-			}
-			return undefined;
-		};
-
-		const labelFontSize =
-			resolveFontSize( xAxisStyles?.axisLabel?.fontSize ) ||
-			resolveFontSize( themeWithX.svgLabelSmall?.fontSize ) ||
-			12;
-		const labelLineHeight = Math.round( labelFontSize * 1.25 );
-		const xTickLength =
-			// Prefer axis-specific tick length when present, else theme fallback
-			xAxisStyles?.tickLength ?? themeWithX.tickLength ?? 8;
-		const xPadding = 8;
-		const computedXMargin = labelLineHeight + xTickLength + xPadding;
+		// This mirrors Y-axis behavior where margin is based on label size and tick length,
+		// but keeps the padding minimal so consumers can control container spacing themselves.
+		const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
+		const { fontSize, tickLength } = getXAxisLabelMetrics( theme, xOrientation );
+		const computedXMargin = fontSize + tickLength;
 
 		if ( xOrientation === 'top' ) {
-			// Preserve a small bottom margin for layout breathing room
 			defaultMargin.top = Math.max( defaultMargin.top, computedXMargin );
-			defaultMargin.bottom = Math.max( defaultMargin.bottom, 10 );
+			defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
 		} else {
 			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
 		}
