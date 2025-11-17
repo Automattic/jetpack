@@ -5,17 +5,18 @@ import { CardBody, Spinner } from '@wordpress/components';
 /**
  * Types
  */
-import type { IntegrationCardProps } from './index.tsx';
+import type { IntegrationCard as IntegrationCardType } from '../../../../../types/index.ts';
 
-type IntegrationCardBodyProps = Pick<
-	IntegrationCardProps,
-	'isExpanded' | 'children' | 'cardData'
->;
+type IntegrationCardBodyProps = {
+	isExpanded: boolean;
+	children?: React.ReactNode;
+	integrationCard: IntegrationCardType;
+};
 
 const IntegrationCardBody = ( {
 	isExpanded,
 	children,
-	cardData = {},
+	integrationCard,
 }: IntegrationCardBodyProps ) => {
 	if ( ! isExpanded ) {
 		return null;
@@ -29,7 +30,7 @@ const IntegrationCardBody = ( {
 		isLoading,
 		type,
 		__isPartial,
-	} = cardData;
+	} = integrationCard;
 
 	const isPlugin = type === 'plugin';
 	const isService = type === 'service';

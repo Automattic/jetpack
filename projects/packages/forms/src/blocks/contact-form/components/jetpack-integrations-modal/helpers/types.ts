@@ -1,15 +1,4 @@
-import type { Integration, IntegrationCardData } from '../../../../../types/index.ts';
-import type { ReactNode } from 'react';
-
-export type CardItem = {
-	id: string;
-	title?: string;
-	description?: string;
-	icon?: ReactNode;
-	cardData: IntegrationCardData;
-	body?: ReactNode;
-	toggleTooltip?: string;
-};
+import type { Integration } from '../../../../../types';
 
 export type NavigationHandlers = {
 	goToSpam?: () => void;
@@ -23,21 +12,12 @@ export type EditorFormAttributes = {
 	salesforceData?: { sendToSalesforce?: boolean; organizationId?: string };
 };
 
-// Shared environment/context used when rendering integrations
-export type IntegrationContextProps = {
+export type IntegrationCardBuilderProps = {
 	context: 'block-editor' | 'dashboard';
 	refreshIntegrations: () => void;
 	handlers?: NavigationHandlers;
 	attributes?: EditorFormAttributes;
 	setAttributes?: ( attrs: Partial< EditorFormAttributes > ) => void;
-};
-
-// Builder props for a single integration
-export type CardBuilderProps = IntegrationContextProps & {
-	integration: Integration;
-};
-
-// Props for components that render a list of integrations
-export type IntegrationsListProps = IntegrationContextProps & {
+	integration?: Integration;
 	integrations?: Integration[];
 };

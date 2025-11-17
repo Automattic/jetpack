@@ -28,28 +28,33 @@ import type { MouseEvent } from 'react';
 const noop = () => {};
 
 const IntegrationCardHeader = ( {
-	title,
-	description,
-	icon,
+	integrationCard,
 	isExpanded,
 	onToggle,
-	cardData = {},
-	toggleTooltip,
 }: IntegrationCardProps ) => {
 	const {
+		id,
+		slug,
+		type,
+		title,
+		description,
+		icon,
+		toggleTooltip,
 		isInstalled,
 		isActive,
 		isConnected,
 		needsConnection,
-		type,
 		showHeaderToggle,
 		headerToggleValue,
 		isHeaderToggleEnabled,
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
-		setupBadge,
 		__isPartial,
-	} = cardData;
+		pluginFile,
+		refreshStatus,
+		trackEventName,
+		setupBadge,
+	} = integrationCard;
 
 	const showPluginAction = ! __isPartial && type === 'plugin' && ( ! isInstalled || ! isActive );
 	const showConnectedBadge = ! __isPartial && ( isConnected || ( isActive && ! needsConnection ) );
@@ -76,7 +81,7 @@ const IntegrationCardHeader = ( {
 
 	const handleToggleChange = ( value: boolean ) => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_integrations_card_toggle', {
-			card: cardData.id,
+			card: id,
 			origin: 'block-editor',
 			enabled: value,
 		} );
@@ -109,7 +114,7 @@ const IntegrationCardHeader = ( {
 						<Icon
 							icon={ icon }
 							className={ `integration-card__service-icon ${
-								cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
+								slug ? `integration-card__service-icon--${ slug }` : ''
 							}` }
 							size={ 30 }
 						/>
@@ -159,12 +164,12 @@ const IntegrationCardHeader = ( {
 				>
 					{ showPluginAction && (
 						<PluginActionButton
-							slug={ cardData.slug }
-							pluginFile={ cardData.pluginFile }
+							slug={ slug }
+							pluginFile={ pluginFile }
 							isInstalled={ isInstalled }
 							isActive={ isActive }
-							refreshStatus={ cardData.refreshStatus }
-							trackEventName={ cardData.trackEventName }
+							refreshStatus={ refreshStatus }
+							trackEventName={ trackEventName }
 						/>
 					) }
 					{ ! showPluginAction && showHeaderToggleFinal && (

@@ -4,7 +4,8 @@ import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
-import type { CardItem, CardBuilderProps } from './types.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { IntegrationCard } from '../../../../../types/index.ts';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -14,7 +15,7 @@ export function buildJetpackCrmCard( {
 	context,
 	attributes,
 	setAttributes,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const { settingsUrl = '', marketingUrl = '', version = '', details = {} } = integration || {};
 	const { hasExtension = false, canActivateExtension = false } = details as {
 		hasExtension?: boolean;
@@ -105,38 +106,36 @@ export function buildJetpackCrmCard( {
 		);
 	};
 
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <JetpackIcon color={ COLOR_JETPACK } />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			showHeaderToggle: context === 'block-editor',
-			...( context === 'block-editor' && {
-				headerToggleValue: !! attributes?.jetpackCRM,
-				isHeaderToggleEnabled: true,
-				onHeaderToggleChange: ( value: boolean ) => {
-					setAttributes?.( { jetpackCRM: value } );
-				},
-			} ),
-			trackEventName: 'jetpack_forms_upsell_crm_click',
-			notInstalledMessage: createInterpolateElement(
-				__(
-					'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
-					'jetpack-forms'
-				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
-			),
-			notActivatedMessage: __(
-				'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		showHeaderToggle: context === 'block-editor',
+		...( context === 'block-editor' && {
+			headerToggleValue: !! attributes?.jetpackCRM,
+			isHeaderToggleEnabled: true,
+			onHeaderToggleChange: ( value: boolean ) => {
+				setAttributes?.( { jetpackCRM: value } );
+			},
+		} ),
+		trackEventName: 'jetpack_forms_upsell_crm_click',
+		notInstalledMessage: createInterpolateElement(
+			__(
+				'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
 				'jetpack-forms'
 			),
-		},
+			{ a: <ExternalLink href={ marketingUrl } /> }
+		),
+		notActivatedMessage: __(
+			'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',
+			'jetpack-forms'
+		),
 		body: renderBody(),
 	};
 
-	return base;
+	return card;
 }

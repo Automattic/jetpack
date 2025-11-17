@@ -11,27 +11,19 @@ import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../../../types/index.ts';
-
-type BlockAttributes = Record< string, unknown >;
+import type { IntegrationCard } from '../../../../types/index.ts';
 
 type IntegrationsModalProps = {
 	isOpen: boolean;
 	onClose: () => void;
-	attributes?: BlockAttributes;
-	setAttributes?: ( attributes: BlockAttributes ) => void;
-	integrationsData: Integration[];
-	refreshIntegrations: () => Promise< void >;
+	integrationCards: IntegrationCard[];
 	context?: 'block-editor' | 'dashboard';
 };
 
 const IntegrationsModal = ( {
 	isOpen,
 	onClose,
-	attributes,
-	setAttributes,
-	integrationsData,
-	refreshIntegrations,
+	integrationCards,
 	context = 'block-editor',
 }: IntegrationsModalProps ) => {
 	if ( ! isOpen ) {
@@ -46,13 +38,7 @@ const IntegrationsModal = ( {
 			className="jetpack-forms-integrations-modal"
 		>
 			<VStack spacing="4">
-				<IntegrationsList
-					integrations={ integrationsData }
-					refreshIntegrations={ refreshIntegrations }
-					context={ context }
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-				/>
+				<IntegrationsList integrationCards={ integrationCards } context={ context } />
 			</VStack>
 		</Modal>
 	);

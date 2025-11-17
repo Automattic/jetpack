@@ -7,7 +7,8 @@ import { buildHostingerReachCard } from '../helpers/hostinger-reach.tsx';
 import { buildJetpackCrmCard } from '../helpers/jetpack-crm.tsx';
 import { buildMailPoetCard } from '../helpers/mailpoet.tsx';
 import { buildSalesforceCard } from '../helpers/salesforce.tsx';
-import type { CardItem, IntegrationsListProps } from '../helpers/types.ts';
+import type { IntegrationCard } from '../../../../../types/index.ts';
+import type { IntegrationCardBuilderProps } from '../helpers/types.ts';
 
 // Maps raw integrations into card items for rendering.
 const useIntegrationCardsData = ( {
@@ -17,19 +18,8 @@ const useIntegrationCardsData = ( {
 	handlers,
 	attributes,
 	setAttributes,
-}: IntegrationsListProps ): CardItem[] => {
+}: IntegrationCardBuilderProps ): IntegrationCard[] => {
 	return integrations.map( integration => {
-		const base: CardItem = {
-			id: integration.id,
-			title: integration.title,
-			description: integration.subtitle,
-			cardData: {
-				...integration,
-				isLoading: typeof integration.isInstalled === 'undefined',
-				refreshStatus: refreshIntegrations,
-			},
-		};
-
 		switch ( integration.id ) {
 			case 'akismet':
 				return buildAkismetCard( {
@@ -78,7 +68,12 @@ const useIntegrationCardsData = ( {
 					setAttributes,
 				} );
 			default:
-				return base;
+				return {
+					...integration,
+					...integration,
+					isLoading: typeof integration.isInstalled === 'undefined',
+					refreshStatus: refreshIntegrations,
+				};
 		}
 	} );
 };

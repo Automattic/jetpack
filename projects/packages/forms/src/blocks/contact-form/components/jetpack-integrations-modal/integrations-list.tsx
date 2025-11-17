@@ -6,38 +6,29 @@ import { useState, useMemo, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import useIntegrationCardsData from './hooks/use-integration-cards-data.tsx';
 import IntegrationCard from './integration-card/index.tsx';
-import type { IntegrationsListProps } from './helpers/types.ts';
+/**
+ * Types
+ */
+import type { IntegrationCard as IntegrationCardType } from '../../../../types/index.ts';
 
+type IntegrationsListProps = {
+	integrationCards: IntegrationCardType[];
+	context: 'block-editor' | 'dashboard';
+};
 interface ExpandedCardsState {
 	[ id: string ]: boolean;
 }
 
-const IntegrationsList = ( {
-	integrations = [],
-	refreshIntegrations,
-	context,
-	handlers,
-	attributes,
-	setAttributes,
-}: IntegrationsListProps ) => {
-	const items = useIntegrationCardsData( {
-		integrations,
-		refreshIntegrations,
-		context,
-		handlers,
-		attributes,
-		setAttributes,
-	} );
-
+const IntegrationsList = ( { integrationCards, context }: IntegrationsListProps ) => {
+	const cards: IntegrationCardType[] = integrationCards;
 	const initialCardsExpandedState = useMemo( () => {
 		const state: ExpandedCardsState = {};
-		integrations.forEach( integration => {
-			state[ integration.id ] = false;
+		cards.forEach( integrationCard => {
+			state[ integrationCard.id ] = false;
 		} );
 		return state;
-	}, [ integrations ] );
+	}, [ cards ] );
 
 	const [ expandedCards, setExpandedCards ] =
 		useState< ExpandedCardsState >( initialCardsExpandedState );
@@ -60,18 +51,14 @@ const IntegrationsList = ( {
 
 	return (
 		<>
-			{ items.map( item => (
+			{ cards.map( integrationCard => (
 				<IntegrationCard
-					key={ item.id }
-					title={ item.title }
-					description={ item.description }
-					icon={ item.icon }
-					isExpanded={ !! expandedCards[ item.id ] }
-					onToggle={ () => toggleCard( item.id ) }
-					cardData={ item.cardData }
-					toggleTooltip={ item.toggleTooltip }
+					key={ integrationCard.id }
+					integrationCard={ integrationCard }
+					isExpanded={ !! expandedCards[ integrationCard.id ] }
+					onToggle={ () => toggleCard( integrationCard.id ) }
 				>
-					{ item.body }
+					{ integrationCard.body }
 				</IntegrationCard>
 			) ) }
 		</>

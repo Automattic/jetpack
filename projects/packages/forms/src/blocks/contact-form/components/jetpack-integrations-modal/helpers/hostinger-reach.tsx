@@ -8,8 +8,8 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import HostingerReachIcon from '../../../../../icons/hostinger-reach.tsx';
 import ConsentToggle from '../components/consent-toggle.tsx';
-import type { CardItem, CardBuilderProps } from './types.ts';
-import type { Integration } from '../../../../../types/index.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { IntegrationCard, Integration } from '../../../../../types/index.ts';
 
 export function buildHostingerReachCard( {
 	integration,
@@ -17,45 +17,43 @@ export function buildHostingerReachCard( {
 	context,
 	attributes,
 	setAttributes,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const { isConnected = false, settingsUrl = '' } = integration || ( {} as Integration );
 	const enabledForForm = !! attributes?.hostingerReach?.enabledForForm;
 	const groupName = attributes?.hostingerReach?.groupName ?? '';
 
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <HostingerReachIcon width={ 28 } height={ 28 } />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			showHeaderToggle: context === 'block-editor',
-			...( context === 'block-editor' && {
-				headerToggleValue: enabledForForm,
-				isHeaderToggleEnabled: isConnected,
-				onHeaderToggleChange: ( value: boolean ) =>
-					setAttributes?.( {
-						hostingerReach: {
-							...( attributes?.hostingerReach ?? {} ),
-							enabledForForm: value,
-						},
-					} ),
-			} ),
-			notInstalledMessage: createInterpolateElement(
-				__(
-					'Add powerful email marketing to your forms with <a>Hostinger Reach</a>. Simply install the plugin to start sending emails.',
-					'jetpack-forms'
-				),
-				{ a: <ExternalLink href={ ( integration.marketingUrl as string ) || '' } /> }
-			),
-			notActivatedMessage: __(
-				'Hostinger Reach is installed. Just activate the plugin to start sending emails.',
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		showHeaderToggle: context === 'block-editor',
+		...( context === 'block-editor' && {
+			headerToggleValue: enabledForForm,
+			isHeaderToggleEnabled: isConnected,
+			onHeaderToggleChange: ( value: boolean ) =>
+				setAttributes?.( {
+					hostingerReach: {
+						...( attributes?.hostingerReach ?? {} ),
+						enabledForForm: value,
+					},
+				} ),
+		} ),
+		notInstalledMessage: createInterpolateElement(
+			__(
+				'Add powerful email marketing to your forms with <a>Hostinger Reach</a>. Simply install the plugin to start sending emails.',
 				'jetpack-forms'
 			),
-			trackEventName: 'jetpack_forms_upsell_hostinger_reach_click',
-		},
+			{ a: <ExternalLink href={ ( integration.marketingUrl as string ) || '' } /> }
+		),
+		notActivatedMessage: __(
+			'Hostinger Reach is installed. Just activate the plugin to start sending emails.',
+			'jetpack-forms'
+		),
+		trackEventName: 'jetpack_forms_upsell_hostinger_reach_click',
 		toggleTooltip: __( 'Grow your audience with Hostinger Reach', 'jetpack-forms' ),
 		body: ! isConnected ? (
 			<>
@@ -115,5 +113,5 @@ export function buildHostingerReachCard( {
 		),
 	};
 
-	return base;
+	return card;
 }

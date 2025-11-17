@@ -11,30 +11,22 @@ import './style.scss';
 /**
  * Types
  */
-import type { IntegrationCardData } from '../../../../../types/index.ts';
+import type { IntegrationCard as IntegrationCardType } from '../../../../../types/index.ts';
 import type { ReactNode } from 'react';
 
 export type IntegrationCardProps = {
-	title: string;
-	description: string;
-	icon?: string | ReactNode;
+	integrationCard: IntegrationCardType;
 	isExpanded: boolean;
 	onToggle: () => void;
 	children?: ReactNode;
-	cardData?: IntegrationCardData;
-	toggleTooltip?: string;
 	borderBottom?: boolean;
 };
 
 const IntegrationCard = ( {
-	title,
-	description,
-	icon = 'admin-plugins', // Default to admin-plugins icon if none provided
+	integrationCard,
 	isExpanded,
 	onToggle,
 	children,
-	cardData = {},
-	toggleTooltip,
 	borderBottom = true,
 }: IntegrationCardProps ) => {
 	return (
@@ -45,15 +37,11 @@ const IntegrationCard = ( {
 			isRounded={ false }
 		>
 			<IntegrationCardHeader
-				title={ title }
-				description={ description }
-				icon={ icon }
+				integrationCard={ integrationCard }
 				isExpanded={ isExpanded }
 				onToggle={ onToggle }
-				cardData={ cardData }
-				toggleTooltip={ toggleTooltip }
 			/>
-			<IntegrationCardBody isExpanded={ isExpanded } cardData={ cardData }>
+			<IntegrationCardBody isExpanded={ isExpanded } integrationCard={ integrationCard }>
 				{ children }
 			</IntegrationCardBody>
 		</Card>

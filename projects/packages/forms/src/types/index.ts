@@ -164,7 +164,7 @@ declare global {
  * Represents the data passed to IntegrationCard and IntegrationCardHeader components.
  * This type extends Integration and includes additional UI and state fields used by cards.
  */
-export type IntegrationCardData = Partial< Integration > & {
+export type IntegrationCard = Partial< Integration > & {
 	/** Whether to show the header toggle. */
 	showHeaderToggle?: boolean;
 	/** The value of the header toggle (on/off). */
@@ -187,6 +187,14 @@ export type IntegrationCardData = Partial< Integration > & {
 	notActivatedMessage?: ReactNode;
 	/** Whether the card is in a loading state. */
 	isLoading?: boolean;
+	/** Optional tooltip override for header toggle. */
+	toggleTooltip?: string;
+	/** Display description/subtitle for the card. */
+	description?: string;
+	/** Final icon element to render in header. */
+	icon?: ReactNode;
+	/** Body content of the card. */
+	body?: ReactNode;
 };
 
 /**

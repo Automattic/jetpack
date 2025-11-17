@@ -3,7 +3,8 @@ import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import AkismetIcon from '../../../../../icons/akismet.tsx';
-import type { CardItem, CardBuilderProps } from './types.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { IntegrationCard } from '../../../../../types/index.ts';
 
 type AkismetDetails = {
 	formSubmissionsSpamUrl?: string;
@@ -14,38 +15,36 @@ export function buildAkismetCard( {
 	refreshIntegrations,
 	context,
 	handlers,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const isConnected = !! integration.isConnected;
 	const settingsUrl = ( integration.settingsUrl as string ) || '';
 	const marketingUrl = ( integration.marketingUrl as string ) || '';
 	const details = ( integration.details || {} ) as AkismetDetails;
 	const spamUrl = details.formSubmissionsSpamUrl || '';
 
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <AkismetIcon width={ 28 } height={ 28 } />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			showHeaderToggle: context === 'block-editor',
-			headerToggleValue: isConnected,
-			isHeaderToggleEnabled: false,
-			notInstalledMessage: createInterpolateElement(
-				__(
-					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
-					'jetpack-forms'
-				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
-			),
-			notActivatedMessage: __(
-				'Akismet is installed. Just activate the plugin to start blocking spam.',
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		showHeaderToggle: context === 'block-editor',
+		headerToggleValue: isConnected,
+		isHeaderToggleEnabled: false,
+		notInstalledMessage: createInterpolateElement(
+			__(
+				"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
 				'jetpack-forms'
 			),
-			trackEventName: 'jetpack_forms_upsell_akismet_click',
-		},
+			{ a: <ExternalLink href={ marketingUrl } /> }
+		),
+		notActivatedMessage: __(
+			'Akismet is installed. Just activate the plugin to start blocking spam.',
+			'jetpack-forms'
+		),
+		trackEventName: 'jetpack_forms_upsell_akismet_click',
 		toggleTooltip: __( 'We keep your forms protected', 'jetpack-forms' ),
 		body: ! isConnected ? (
 			<div>
@@ -96,5 +95,5 @@ export function buildAkismetCard( {
 		),
 	};
 
-	return base;
+	return card;
 }

@@ -3,14 +3,15 @@ import { __ } from '@wordpress/i18n';
 import GoogleSheetsIcon from '../../../../../icons/google-sheets.tsx';
 import GoogleDriveConnectButton from '../components/google-drive-connect-button.tsx';
 import GoogleDriveDisconnectButton from '../components/google-drive-disconnect-button.tsx';
-import type { CardItem, CardBuilderProps } from './types.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { IntegrationCard } from '../../../../../types/index.ts';
 
 export function buildGoogleDriveCard( {
 	integration,
 	refreshIntegrations,
 	context,
 	handlers,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const isConnected = !! integration.isConnected;
 	const settingsUrl = integration.settingsUrl as string | undefined;
 
@@ -18,20 +19,18 @@ export function buildGoogleDriveCard( {
 	const responsesUrl =
 		( window as unknown as { jpFormsBlocks?: { defaults?: { formsResponsesUrl?: string } } } )
 			.jpFormsBlocks?.defaults?.formsResponsesUrl || defaultResponsesUrl;
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <GoogleSheetsIcon className="google-sheets-icon" />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			slug: 'google-sheets',
-			showHeaderToggle: false,
-			isActive: !! integration.isConnected,
-			trackEventName: 'jetpack_forms_upsell_googledrive_click',
-		},
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		slug: 'google-sheets',
+		showHeaderToggle: false,
+		isActive: !! integration.isConnected,
+		trackEventName: 'jetpack_forms_upsell_googledrive_click',
 		body: ! isConnected ? (
 			<div>
 				<p className="integration-card__description">
@@ -74,5 +73,5 @@ export function buildGoogleDriveCard( {
 		),
 	};
 
-	return base;
+	return card;
 }

@@ -5,7 +5,8 @@ import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
 import HelpMessage from '../../help-message/index.js';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
-import type { CardItem, CardBuilderProps } from './types.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { IntegrationCard } from '../../../../../types/index.ts';
 
 export const isValidSalesforceOrgId = ( id: string | undefined ): boolean =>
 	typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
@@ -16,46 +17,44 @@ export function buildSalesforceCard( {
 	context,
 	attributes,
 	setAttributes,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const organizationId = attributes?.salesforceData?.organizationId ?? '';
 	const sendToSalesforce = !! attributes?.salesforceData?.sendToSalesforce;
 
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <SalesforceIcon width={ 32 } height={ 32 } />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			showHeaderToggle: context === 'block-editor',
-			...( context === 'block-editor' && {
-				headerToggleValue: sendToSalesforce,
-				isHeaderToggleEnabled: isValidSalesforceOrgId( organizationId ),
-				onHeaderToggleChange: ( value: boolean ) =>
-					setAttributes?.( {
-						salesforceData: {
-							...( attributes?.salesforceData ?? {} ),
-							sendToSalesforce: value,
-						},
-					} ),
-				toggleDisabledTooltip: ! isValidSalesforceOrgId( organizationId )
-					? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
-					: undefined,
-				isConnected: isValidSalesforceOrgId( organizationId ),
-			} ),
-			setupBadge:
-				context === 'dashboard' ? (
-					<Badge intent="success" className="integration-card__setup-badge">
-						{ __( 'Configured per form', 'jetpack-forms' ) }
-					</Badge>
-				) : (
-					<Badge intent="default" className="integration-card__setup-badge">
-						{ __( 'Enter organization ID', 'jetpack-forms' ) }
-					</Badge>
-				),
-		},
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		showHeaderToggle: context === 'block-editor',
+		...( context === 'block-editor' && {
+			headerToggleValue: sendToSalesforce,
+			isHeaderToggleEnabled: isValidSalesforceOrgId( organizationId ),
+			onHeaderToggleChange: ( value: boolean ) =>
+				setAttributes?.( {
+					salesforceData: {
+						...( attributes?.salesforceData ?? {} ),
+						sendToSalesforce: value,
+					},
+				} ),
+			toggleDisabledTooltip: ! isValidSalesforceOrgId( organizationId )
+				? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
+				: undefined,
+			isConnected: isValidSalesforceOrgId( organizationId ),
+		} ),
+		setupBadge:
+			context === 'dashboard' ? (
+				<Badge intent="success" className="integration-card__setup-badge">
+					{ __( 'Configured per form', 'jetpack-forms' ) }
+				</Badge>
+			) : (
+				<Badge intent="default" className="integration-card__setup-badge">
+					{ __( 'Enter organization ID', 'jetpack-forms' ) }
+				</Badge>
+			),
 		body:
 			context === 'block-editor' ? (
 				<BaseControl __nextHasNoMarginBottom={ true }>
@@ -107,5 +106,5 @@ export function buildSalesforceCard( {
 			),
 	};
 
-	return base;
+	return card;
 }

@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
+import useIntegrationCardsData from './jetpack-integrations-modal/hooks/use-integration-cards-data';
 import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**
@@ -26,6 +27,15 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 	const isLoading = useSelect( select => select( INTEGRATIONS_STORE ).isIntegrationsLoading(), [] );
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const { tracks } = useAnalytics();
+
+	// Build IntegrationCard[] for the modal
+	const integrationCards = useIntegrationCardsData( {
+		integrations,
+		refreshIntegrations,
+		context: 'block-editor',
+		attributes,
+		setAttributes,
+	} );
 
 	const handleOpenModal = entry_point => {
 		tracks.recordEvent( 'jetpack_forms_block_modal_view', { entry_point } );
@@ -68,10 +78,8 @@ export default function IntegrationControls( { attributes, setAttributes } ) {
 			<IntegrationsModal
 				isOpen={ isModalOpen }
 				onClose={ () => setIsModalOpen( false ) }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				integrationsData={ integrations }
-				refreshIntegrations={ refreshIntegrations }
+				integrationCards={ integrationCards }
+				context="block-editor"
 			/>
 		</>
 	);

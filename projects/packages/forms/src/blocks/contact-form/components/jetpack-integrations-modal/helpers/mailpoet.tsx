@@ -8,8 +8,8 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../../icons/mailpoet.tsx';
 import ConsentToggle from '../components/consent-toggle.tsx';
-import type { CardItem, CardBuilderProps } from './types.ts';
-import type { Integration } from '../../../../../types/index.ts';
+import type { IntegrationCardBuilderProps } from './types.ts';
+import type { Integration, IntegrationCard } from '../../../../../types/index.ts';
 
 type MailPoetList = { id: string; name: string };
 
@@ -19,7 +19,7 @@ export function buildMailPoetCard( {
 	context,
 	attributes,
 	setAttributes,
-}: CardBuilderProps ): CardItem {
+}: IntegrationCardBuilderProps ): IntegrationCard {
 	const {
 		isConnected = false,
 		settingsUrl = '',
@@ -32,40 +32,38 @@ export function buildMailPoetCard( {
 	const enabledForForm = !! attributes?.mailpoet?.enabledForForm;
 	const selectedListId = attributes?.mailpoet?.listId ?? '';
 
-	const base: CardItem = {
+	const card: IntegrationCard = {
+		...integration,
 		id: integration.id,
 		title: integration.title,
 		description: integration.subtitle,
 		icon: <MailPoetIcon width={ 28 } height={ 28 } />,
-		cardData: {
-			...integration,
-			isLoading: typeof integration.isInstalled === 'undefined',
-			refreshStatus: refreshIntegrations,
-			showHeaderToggle: context === 'block-editor',
-			...( context === 'block-editor' && {
-				headerToggleValue: enabledForForm,
-				isHeaderToggleEnabled: isConnected,
-				onHeaderToggleChange: ( value: boolean ) =>
-					setAttributes?.( {
-						mailpoet: {
-							...( attributes?.mailpoet ?? {} ),
-							enabledForForm: value,
-						},
-					} ),
-			} ),
-			notInstalledMessage: createInterpolateElement(
-				__(
-					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
-					'jetpack-forms'
-				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
-			),
-			notActivatedMessage: __(
-				'MailPoet is installed. Just activate the plugin to start sending emails.',
+		isLoading: typeof integration.isInstalled === 'undefined',
+		refreshStatus: refreshIntegrations,
+		showHeaderToggle: context === 'block-editor',
+		...( context === 'block-editor' && {
+			headerToggleValue: enabledForForm,
+			isHeaderToggleEnabled: isConnected,
+			onHeaderToggleChange: ( value: boolean ) =>
+				setAttributes?.( {
+					mailpoet: {
+						...( attributes?.mailpoet ?? {} ),
+						enabledForForm: value,
+					},
+				} ),
+		} ),
+		notInstalledMessage: createInterpolateElement(
+			__(
+				'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
 				'jetpack-forms'
 			),
-			trackEventName: 'jetpack_forms_upsell_mailpoet_click',
-		},
+			{ a: <ExternalLink href={ marketingUrl } /> }
+		),
+		notActivatedMessage: __(
+			'MailPoet is installed. Just activate the plugin to start sending emails.',
+			'jetpack-forms'
+		),
+		trackEventName: 'jetpack_forms_upsell_mailpoet_click',
 		toggleTooltip: __( 'Grow your audience with MailPoet', 'jetpack-forms' ),
 		body: ! isConnected ? (
 			<div>
@@ -130,5 +128,5 @@ export function buildMailPoetCard( {
 		),
 	};
 
-	return base;
+	return card;
 }

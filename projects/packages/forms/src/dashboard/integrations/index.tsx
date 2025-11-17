@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
  * Internal dependencies
  */
 import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal/index.tsx';
+import useIntegrationCardsData from '../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integration-cards-data.tsx';
 import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';
 /**
  * Types
@@ -28,6 +29,12 @@ const Integrations = () => {
 	}, [] ) as { integrations: Integration[] };
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 
+	const cards = useIntegrationCardsData( {
+		integrations,
+		refreshIntegrations,
+		context: 'dashboard',
+	} );
+
 	useEffect( () => {
 		setIsOpen( true );
 	}, [] );
@@ -41,10 +48,7 @@ const Integrations = () => {
 		<IntegrationsModal
 			isOpen={ isOpen }
 			onClose={ handleClose }
-			attributes={ undefined }
-			setAttributes={ undefined }
-			integrationsData={ integrations }
-			refreshIntegrations={ refreshIntegrations }
+			integrationCards={ cards }
 			context="dashboard"
 		/>
 	);

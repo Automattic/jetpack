@@ -11,8 +11,8 @@ import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
-export default function ActiveIntegrations( { integrations, attributes, isLoading } ) {
-	const activeIntegrations = integrations.reduce( ( acc, integration ) => {
+export default function ActiveIntegrations( { integrationCards, attributes, isLoading } ) {
+	const activeIntegrations = integrationCards.reduce( ( acc, integration ) => {
 		switch ( integration.id ) {
 			case 'akismet':
 				if ( integration.isConnected ) {
