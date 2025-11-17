@@ -771,6 +771,19 @@ function private_robots_txt() {
 }
 
 /**
+ * Renames the "Subscriber" role to "Viewer".
+ *
+ * @param WP_Roles $roles WP_Roles object.
+ */
+function rename_subscriber_role_to_viewer( $roles ) {
+	if ( site_is_private() && isset( $roles->roles['subscriber'] ) ) {
+		$roles->roles['subscriber']['name'] = _x( 'Viewer', 'User role', 'wpcomsh' );
+		$roles->role_names['subscriber']    = _x( 'Viewer', 'User role', 'wpcomsh' );
+	}
+}
+add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
+
+/**
  * Output the meta tag that tells Pinterest not to allow users to pin
  * content from this page.
  * https://support.pinterest.com/entries/21063792-what-if-i-don-t-want-images-from-my-site-to-be-pinned
