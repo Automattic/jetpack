@@ -25,8 +25,9 @@ const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } )
 	} = useExportResponses();
 	const { totalItems, isLoadingData } = useInboxData();
 	const isEmpty = isLoadingData || totalItems === 0;
+	const isDisabled = isEmpty || userCanExport === false;
 
-	if ( ! userCanExport ) {
+	if ( userCanExport === false ) {
 		return null;
 	}
 
@@ -38,7 +39,7 @@ const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } )
 				icon={ download }
 				onClick={ openModal }
 				accessibleWhenDisabled
-				disabled={ isEmpty }
+				disabled={ isDisabled }
 				label={ isEmpty ? __( 'Nothing to export.', 'jetpack-forms' ) : '' }
 				showTooltip={ isEmpty }
 			>
