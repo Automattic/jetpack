@@ -256,7 +256,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				<div
-					className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+					className={ clsx(
+						styles.leaderboardChart,
+						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
+						className
+					) }
 					style={ style }
 				>
 					<div className={ styles.emptyState }>
@@ -282,9 +286,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			<div
 				className={ clsx(
 					styles.leaderboardChart,
-					loading && styles.loading,
-					showLegend && legendPosition === 'top' && styles[ 'leaderboardChart--legend-top' ],
-					showLegend && styles[ 'leaderboardChart--with-legend' ],
+					{
+						[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						[ styles[ 'leaderboardChart--with-legend' ] ]: showLegend,
+						[ styles[ 'leaderboardChart--legend-top' ] ]: showLegend && legendPosition === 'top',
+					},
 					className
 				) }
 				style={ style }
