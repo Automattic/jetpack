@@ -3,12 +3,10 @@ new file mode 100644
 index 0000000000000000000000000000000000000000..58bcd63dc1d5a2fc49de44b1760d6dbfb34b838a
 --- /dev/null
 +++ b/build-module/package.json
-@@ -0,0 +1,8 @@
+@@ -0,0 +1,6 @@
 +{
 +	"type": "module",
 +	"sideEffects": [
-+		"build-style/**",
-+		"src/**/*.scss",
-+		"{src,build,build-module}/{index.js,store/index.js}"
++		"{index.js,store/index.js}"
 +	]
 +}

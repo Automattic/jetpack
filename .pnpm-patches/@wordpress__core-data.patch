@@ -7,6 +7,6 @@ index 0000000000000000000000000000000000000000..01ba5824acf704e5bdf0f1ba39082f8b
 +{
 +	"type": "module",
 +	"sideEffects": [
-+		"{src,build,build-module}/index.js"
++		"index.js"
 +	]
 +}
