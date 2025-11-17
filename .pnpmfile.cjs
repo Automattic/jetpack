@@ -247,7 +247,7 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
 	}
 
-	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node 20 support.
+	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node <20 support.
 	if ( pkg.dependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
 		pkg.dependencies.glob += ' || ^11.0.0';
 	}
