@@ -1,6 +1,11 @@
 .line-chart {
 	display: flex;
 	flex-direction: column;
+	position: relative;
+
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
 
 	svg {
 		overflow: visible;

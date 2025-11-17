@@ -442,15 +442,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						'line-chart',
 						styles[ 'line-chart' ],
 						animation ? styles[ 'line-chart__animated' ] : null,
+						showLegend && legendPosition === 'top' ? styles[ 'line-chart--legend-top' ] : null,
 						className
 					) }
 					data-testid="line-chart"
 					style={ {
 						width,
 						height,
-						display: 'flex',
-						flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-						position: 'relative',
 					} }
 				>
 					<div
