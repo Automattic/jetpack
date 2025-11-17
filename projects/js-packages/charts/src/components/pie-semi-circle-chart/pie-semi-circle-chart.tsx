@@ -296,9 +296,10 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				className={ clsx(
 					'pie-semi-circle-chart',
 					styles[ 'pie-semi-circle-chart' ],
-					showLegend && legendPosition === 'top'
-						? styles[ 'pie-semi-circle-chart--legend-top' ]
-						: null,
+					{
+						[ styles[ 'pie-semi-circle-chart--legend-top' ] ]:
+							showLegend && legendPosition === 'top',
+					},
 					className
 				) }
 				data-testid="pie-chart-container"
