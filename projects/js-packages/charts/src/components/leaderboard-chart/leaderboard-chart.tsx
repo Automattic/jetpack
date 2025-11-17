@@ -280,13 +280,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ {
-					...style,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-					gap: showLegend ? '16px' : '0',
-				} }
+				className={ clsx(
+					styles.leaderboardChart,
+					loading && styles.loading,
+					showLegend && legendPosition === 'top' && styles[ 'leaderboardChart--legend-top' ],
+					showLegend && styles[ 'leaderboardChart--with-legend' ],
+					className
+				) }
+				style={ style }
 			>
 				{ allSeriesHidden ? (
 					<div className={ styles.emptyState }>
