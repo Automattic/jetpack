@@ -50,11 +50,6 @@ const DEFAULT_TICK_LENGTH = 8;
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
 
-type AxisStyleLike = {
-	axisLabel?: { fontSize?: number | string };
-	tickLength?: number;
-};
-
 const resolveFontSize = ( val?: number | string ): number | undefined => {
 	if ( typeof val === 'number' && ! isNaN( val ) ) {
 		return val;
@@ -69,21 +64,15 @@ const resolveFontSize = ( val?: number | string ): number | undefined => {
 };
 
 const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
-	const xAxisStyles: AxisStyleLike | undefined =
-		orientation === 'top' ? theme.axisStyles.x.top : theme.axisStyles.x.bottom;
+	const xAxisStyles =
+		orientation === 'top' ? theme.axisStyles?.x?.top : theme.axisStyles?.x?.bottom;
 
 	const fontSize =
 		resolveFontSize( xAxisStyles?.axisLabel?.fontSize ) ||
-		// svgLabelSmall is optional on the theme, so we access it via a narrow cast.
-		resolveFontSize(
-			( theme as { svgLabelSmall?: { fontSize?: number | string } } ).svgLabelSmall?.fontSize
-		) ||
+		resolveFontSize( theme.svgLabelSmall?.fontSize ) ||
 		DEFAULT_FONT_SIZE;
 
-	const tickLength =
-		xAxisStyles?.tickLength ??
-		( theme as { tickLength?: number } ).tickLength ??
-		DEFAULT_TICK_LENGTH;
+	const tickLength = xAxisStyles?.tickLength ?? DEFAULT_TICK_LENGTH;
 
 	return { fontSize, tickLength };
 };
