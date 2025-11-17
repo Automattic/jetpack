@@ -142,7 +142,14 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'setting_value_pairs_get_request' )]
 	public function test_get_settings_contains_keys_values( $option_name, $setting_name, $setting_value ) {
-		update_option( $option_name, $setting_value );
+		// big_sky_site_metadata is stored as a JSON string in the database.
+		// The conversion layer (set_big_sky_site_metadata/get_big_sky_site_metadata) is tested
+		// in the POST tests. Here we just need to set up the data in the correct storage format.
+		if ( 'big_sky_site_metadata' === $option_name && is_array( $setting_value ) ) {
+			update_option( $option_name, wp_json_encode( $setting_value ) );
+		} else {
+			update_option( $option_name, $setting_value );
+		}
 
 		$response = $this->make_get_request();
 		$settings = $response['settings'];
@@ -316,6 +323,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 					'mcp_abilities'                        => '(array) List of MCP Abilities',
+					'big_sky_enable'                       => '(bool) Whether Big Sky is enabled',
+					'big_sky_site_metadata'                => '(array) Site metadata for Big Sky',
 				),
 
 				'response_format' => array(
@@ -368,6 +377,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 				),
 			),
+			'big_sky_enable'                 => array( 'big_sky_enable', false ),
+			'big_sky_site_metadata'          => array( 'big_sky_site_metadata', false ),
 		);
 	}
 
@@ -407,6 +418,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 				),
 			),
+			'big_sky_enable'                 => array( 'big_sky_enable', 'big_sky_enable', true ),
+			'big_sky_site_metadata'          => array( 'big_sky_site_metadata', 'big_sky_site_metadata', array( 'test' => 'test value' ) ),
 		);
 	}
 
@@ -466,6 +479,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					),
 				),
 			),
+			'big_sky_enable'                            => array( 'big_sky_enable', true, 1 ),
+			'big_sky_site_metadata'                     => array( 'big_sky_site_metadata', array( 'test' => 'test value' ), array( 'test' => 'test value' ) ),
 		);
 	}
 }

@@ -746,6 +746,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Get Big Sky site metadata.
+	 * The data is stored in the database as a JSON string.
+	 * This function decodes the JSON string into an array for easier use in clients.
 	 *
 	 * @return array|false
 	 */
