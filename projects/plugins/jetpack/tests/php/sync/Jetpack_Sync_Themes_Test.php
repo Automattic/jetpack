@@ -76,8 +76,6 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	 * Remove Dummy Themes.
 	 */
 	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
-
 		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
@@ -88,6 +86,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 
 			rmdir( $dest_dir );
 		}
+		parent::tear_down_after_class();
 	}
 
 	/**
