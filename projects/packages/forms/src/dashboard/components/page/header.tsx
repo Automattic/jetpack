@@ -67,14 +67,7 @@ export default function Header( {
 						<SidebarToggleSlot bubblesVirtually className="admin-ui-page__sidebar-toggle-slot" />
 					) }
 					{ title && (
-						<Heading
-							level={ 1 }
-							// @ts-expect-error - size prop exists but not in types
-							size="15px"
-							// @ts-expect-error - lineHeight prop exists but not in types
-							lineHeight="32px"
-							truncate
-						>
+						<Heading level={ 1 } size="15px" lineHeight="32px" truncate>
 							{ title }
 						</Heading>
 					) }
@@ -84,7 +77,6 @@ export default function Header( {
 				<Stack
 					direction="row"
 					gap={ 2 }
-					// @ts-expect-error - style prop conflict with CSSProperties
 					style={ { width: 'auto', flexShrink: 0 } }
 					className="admin-ui-page__header-actions"
 				>

@@ -137,7 +137,7 @@ const SingleResponseView = ( {
 
 	if ( ! isMobile ) {
 		return (
-			<Page showSidebarToggle={ false } showHeader={ false } hasPadding={ false }>
+			<Page showSidebarToggle={ false } hasPadding={ false }>
 				<div className="jp-forms-response-content">
 					<HStack
 						spacing="0"
