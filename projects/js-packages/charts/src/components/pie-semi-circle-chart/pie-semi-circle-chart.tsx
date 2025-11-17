@@ -293,12 +293,15 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+				className={ clsx(
+					'pie-semi-circle-chart',
+					styles[ 'pie-semi-circle-chart' ],
+					showLegend && legendPosition === 'top'
+						? styles[ 'pie-semi-circle-chart--legend-top' ]
+						: null,
+					className
+				) }
 				data-testid="pie-chart-container"
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
 			>
 				<svg
 					width={ width }
