@@ -4,8 +4,7 @@
 
 ## [1.4.17] - 2025-11-17
 ### Changed
-- Update package dependencies. [#45915]
-- Update package dependencies. [#45958]
+- Update package dependencies. [#45915] [#45958]
 
 ## [1.4.16] - 2025-11-10
 ### Changed
