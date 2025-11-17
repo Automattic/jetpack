@@ -13,7 +13,8 @@ export interface CityData {
 }
 
 export interface GeoChartProps
-	extends Pick< BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height' > {
+	extends Pick< BaseChartProps, 'className' | 'chartId' | 'width' | 'height' > {
+	data: Record< string, number >;
 	citiesData?: CityData[];
 	view?: ViewType;
 	onViewChange?: ( view: ViewType ) => void;
