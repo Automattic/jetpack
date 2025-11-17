@@ -7,9 +7,11 @@ import './style.scss';
 
 const ConnectionIcon = props => {
 	const { checked, serviceName, label, onClick, profilePicture } = props;
-	const [ hasDisplayPicture, setHasDisplayPicture ] = useState( !! profilePicture );
+	const [ imageErrorFor, setImageErrorFor ] = useState( null );
 
-	const onError = useCallback( () => setHasDisplayPicture( false ), [] );
+	const onError = useCallback( () => setImageErrorFor( profilePicture ), [ profilePicture ] );
+
+	const hasDisplayPicture = !! profilePicture && imageErrorFor !== profilePicture;
 
 	const handleKeyDown = useCallback(
 		ev => {

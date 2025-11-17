@@ -12,7 +12,7 @@ import useConfigValue from '../../../hooks/use-config-value';
 import Integrations from '../../integrations';
 
 import './style.scss';
-
+import '@wordpress/admin-ui/build-style/style.css';
 const Layout = () => {
 	const location = useLocation();
 	const [ isSm ] = useBreakpointMatch( 'sm' );

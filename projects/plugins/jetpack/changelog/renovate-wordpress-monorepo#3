@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: AI Assistant: Replace deep type imports with utility function magic from what we can import from the base package.
+
+

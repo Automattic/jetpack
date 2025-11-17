@@ -1,11 +1,14 @@
 import { currentUserCan } from '@automattic/jetpack-script-data';
-import { TabPanelProps } from '@wordpress/components/build-types/tab-panel/types';
 import { __ } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 } from './constants';
+import type { TabPanel } from '@wordpress/components';
+import type { ComponentProps } from 'react';
+
+type TabPanelProps = ComponentProps< typeof TabPanel >;
 
 /**
  * Get the My Jetpack sections.
