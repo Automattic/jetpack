@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Override the render function of core/video block correctly
