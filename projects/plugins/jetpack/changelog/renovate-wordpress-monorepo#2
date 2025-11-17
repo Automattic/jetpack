@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace deep mocking in tests with a Proxy.
+
+

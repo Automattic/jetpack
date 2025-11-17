@@ -23,7 +23,6 @@ import IntegrationsButton from '../integrations-button';
 import Header from './header';
 
 import './style.scss';
-// eslint-disable-next-line import/no-unresolved -- aliased to the package's built asset in webpack config.
 import '@wordpress/admin-ui/build-style/style.css';
 const Layout = () => {
 	const location = useLocation();
