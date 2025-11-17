@@ -57,7 +57,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 			if ( ! static::$lockfile ) {
 				throw new RuntimeException( 'Failed to open lockfile ' . sys_get_temp_dir() . '/jetpack-sync-test.lock' );
 			}
-			if ( ! flock( static::$lockfile, LOCK_SH ) ) {
+			if ( ! flock( static::$lockfile, LOCK_EX ) ) {
 				throw new RuntimeException( 'Failed to lock lockfile ' . sys_get_temp_dir() . '/jetpack-sync-test.lock' );
 			}
 		}
