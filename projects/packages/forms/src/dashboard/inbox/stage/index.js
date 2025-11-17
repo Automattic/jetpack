@@ -261,7 +261,8 @@ export default function InboxView() {
 							</span>
 						) : null;
 
-					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
+					const handleClick =
+						isMobileViewport || isMobile ? () => openResponseModal( item ) : undefined;
 
 					return (
 						<div
@@ -390,6 +391,7 @@ export default function InboxView() {
 			filterOptions?.date,
 			filterOptions?.source,
 			isMobileViewport,
+			isMobile,
 			openResponseModal,
 			dateSettings.formats.date,
 		]
