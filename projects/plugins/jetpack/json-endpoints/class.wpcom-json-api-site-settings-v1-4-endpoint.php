@@ -154,6 +154,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'is_fully_managed_agency_site'              => '(bool) Whether the site is a fully managed agency site',
 			'wpcom_hide_action_bar'                     => '(bool) Whether to hide the Action bar',
 			'mcp_abilities'                             => '(array) List of MCP Abilities',
+			'big_sky_enable'                            => '(bool) Whether Big Sky is enabled',
+			'big_sky_site_metadata'                     => '(array) Site metadata for Big Sky',
 		),
 
 		'response_format' => array(

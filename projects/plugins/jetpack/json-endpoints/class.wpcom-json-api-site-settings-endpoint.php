@@ -140,6 +140,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_share_debug_data'              => '(bool) Whether the WAF should share debug data with Jetpack',
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
 			'mcp_abilities'                             => '(array) List of MCP Abilities',
+			'big_sky_enable'                            => '(bool) Whether Big Sky is enabled',
+			'big_sky_site_metadata'                     => '(array) Site metadata for Big Sky',
 		),
 
 		'response_format'     => array(
@@ -521,6 +523,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
 						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
 						'mcp_abilities'                    => $mcp_abilities,
+						'big_sky_enable'                   => (bool) get_option( 'big_sky_enable' ),
+						'big_sky_site_metadata'            => $this->get_big_sky_site_metadata(),
 					);
 
 					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
@@ -737,6 +741,47 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		update_option( 'mcp_abilities', $value );
 
+		return true;
+	}
+
+	/**
+	 * Get Big Sky site metadata.
+	 *
+	 * @return array|false
+	 */
+	public function get_big_sky_site_metadata(): array|false {
+		$big_sky_site_metadata = get_option( 'big_sky_site_metadata' );
+		if ( false === $big_sky_site_metadata ) {
+			return false;
+		}
+		// Ensure the option is a string before decoding.
+		if ( ! is_string( $big_sky_site_metadata ) ) {
+			return false;
+		}
+		// The option is stored as a JSON string
+		$big_sky_site_metadata = json_decode( $big_sky_site_metadata, true );
+		if ( ! is_array( $big_sky_site_metadata ) ) {
+			return false;
+		}
+		return $big_sky_site_metadata;
+	}
+
+	/**
+	 * Set Big Sky site metadata.
+	 *
+	 * @param array $value Big Sky site metadata.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function set_big_sky_site_metadata( $value ) {
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_format', __( 'Big Sky site metadata must be an array', 'jetpack' ) );
+		}
+		$encoded_value = wp_json_encode( $value );
+		if ( false === $encoded_value ) {
+			return new WP_Error( 'json_encode_failed', __( 'Failed to encode Big Sky site metadata to JSON', 'jetpack' ) );
+		}
+		update_option( 'big_sky_site_metadata', $encoded_value );
 		return true;
 	}
 
@@ -1316,6 +1361,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						return $result;
 					}
 					$updated[ $key ] = $this->get_site_mcp_abilities();
+					break;
+
+				case 'big_sky_enable':
+					update_option( 'big_sky_enable', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'big_sky_site_metadata':
+					$result = $this->set_big_sky_site_metadata( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = $this->get_big_sky_site_metadata();
 					break;
 
 				default:
