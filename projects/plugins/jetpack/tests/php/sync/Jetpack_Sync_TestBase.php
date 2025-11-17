@@ -9,6 +9,8 @@ use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Server;
+use PHPUnit\Framework\Attributes\AfterClass;
+use PHPUnit\Framework\Attributes\BeforeClass;
 
 require_once __DIR__ . '/Jetpack_Sync_TestBase.php';
 
@@ -44,13 +46,14 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	protected static $lockfile = null;
 
 	/**
-	 * Set up before class.
+	 * Set up lockfile before running anything.
 	 *
 	 * @throws RuntimeException If locking is needed and fails.
+	 *
+	 * @beforeClass 1000000
 	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
+	#[BeforeClass( 1000000 )]
+	public static function set_up_lockfile() {
 		// For CI coverage tests, use a lock file to avoid parallel runs of tests from interfering with each other.
 		if ( getenv( 'PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL' ) === 'true' ) {
 			static::$lockfile = fopen( sys_get_temp_dir() . '/jetpack-sync-test.lock', 'c+' );
@@ -64,11 +67,12 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tear down after class.
+	 * Tear down lockfile after running everything.
+	 *
+	 * @afterClass -1000000
 	 */
-	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
-
+	#[AfterClass( -1000000 )]
+	public static function tear_down_lockfile() {
 		if ( static::$lockfile ) {
 			fclose( static::$lockfile );
 		}
