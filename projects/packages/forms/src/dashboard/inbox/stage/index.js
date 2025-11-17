@@ -18,6 +18,7 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptyTrashButton from '../../components/empty-trash-button';
@@ -26,6 +27,7 @@ import Flag from '../../components/flag';
 import Gravatar from '../../components/gravatar';
 import InboxStatusToggle from '../../components/inbox-status-toggle';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector';
+import IntegrationsButton from '../../components/integrations-button';
 import Page from '../../components/page';
 import useInboxData from '../../hooks/use-inbox-data';
 import EmptyResponses from '../empty-responses';
@@ -122,6 +124,8 @@ export default function InboxView() {
 	useEffect( () => {
 		return setupSidebarWidthObserver();
 	}, [] );
+
+	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
 
 	const {
 		setCurrentQuery,
@@ -466,12 +470,15 @@ export default function InboxView() {
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		} else {
-			// Only show Create Form button on inbox (when not in trash or spam)
+			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
+			if ( enableIntegrationsTab ) {
+				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
+			}
 			headerActionsArray.unshift( <CreateFormButton key="create" variant="primary" /> );
 		}
 
 		return headerActionsArray;
-	}, [ statusFilter ] );
+	}, [ statusFilter, enableIntegrationsTab ] );
 
 	const pageContent = (
 		<Page
