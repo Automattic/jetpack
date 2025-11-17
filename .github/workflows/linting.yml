@@ -52,7 +52,7 @@ jobs:
       # Whether any miscellaneous files related to JS linting have changed.
       misc_js: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_js == 'true' }}
 
-      # Whether any miscellaneous files related to JS linting have changed.
+      # Whether any miscellaneous files related to CSS linting have changed.
       misc_css: ${{ steps.filter.outputs.misc == 'true' || steps.filter.outputs.misc_css == 'true' }}
 
       # JSON string holding an array of files in phpcs-excludelist.json that have changed.
