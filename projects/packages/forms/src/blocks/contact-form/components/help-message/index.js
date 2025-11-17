@@ -1,6 +1,8 @@
 import clsx from 'clsx';
-import GridiconNoticeOutline from 'gridicons/dist/notice-outline';
+import GridiconModule from 'gridicons';
 import './style.scss';
+
+const Gridicon = GridiconModule.default || GridiconModule;
 
 export default ( { children = null, isError = false, ...props } ) => {
 	const classes = clsx( 'help-message', {
@@ -11,7 +13,13 @@ export default ( { children = null, isError = false, ...props } ) => {
 		children && (
 			<div className={ classes } { ...props }>
 				{ isError && (
-					<GridiconNoticeOutline size="24" aria-hidden="true" role="img" focusable="false" />
+					<Gridicon
+						icon="notice-outline"
+						size="24"
+						aria-hidden="true"
+						role="img"
+						focusable="false"
+					/>
 				) }
 				<span>{ children }</span>
 			</div>

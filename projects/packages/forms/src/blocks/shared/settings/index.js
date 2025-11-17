@@ -1,4 +1,4 @@
-import transforms from './transforms';
+import transforms from './transforms.js';
 
 export default {
 	apiVersion: 3,

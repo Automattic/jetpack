@@ -5,8 +5,8 @@ import { Path } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import { getIconColor } from '../shared/util/block-icons.js';
 
 // "gallery" icon from @wordpress/icons
 const ImageOptionsFieldsetIcon = renderMaterialIcon(

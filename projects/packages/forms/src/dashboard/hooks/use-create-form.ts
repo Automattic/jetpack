@@ -5,7 +5,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../hooks/use-config-value';
+import useConfigValue from '../../hooks/use-config-value.ts';
 
 type ClickHandlerProps = {
 	formPattern?: string;

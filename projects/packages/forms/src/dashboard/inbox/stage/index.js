@@ -18,19 +18,19 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../hooks/use-config-value';
-import CreateFormButton from '../../components/create-form-button';
-import EmptySpamButton from '../../components/empty-spam-button';
-import EmptyTrashButton from '../../components/empty-trash-button';
-import ExportResponsesButton from '../../components/export-responses/button';
-import Flag from '../../components/flag';
-import Gravatar from '../../components/gravatar';
-import InboxStatusToggle from '../../components/inbox-status-toggle';
-import { ResponseMobileView, SingleResponseView } from '../../components/inspector';
-import IntegrationsButton from '../../components/integrations-button';
-import Page from '../../components/page';
-import useInboxData from '../../hooks/use-inbox-data';
-import EmptyResponses from '../empty-responses';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import CreateFormButton from '../../components/create-form-button/index.tsx';
+import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
+import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
+import ExportResponsesButton from '../../components/export-responses/button.tsx';
+import Flag from '../../components/flag/index.tsx';
+import Gravatar from '../../components/gravatar/index.tsx';
+import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
+import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
+import IntegrationsButton from '../../components/integrations-button/index.tsx';
+import Page from '../../components/page/index.tsx';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import EmptyResponses from '../empty-responses.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
@@ -42,8 +42,8 @@ import {
 	markAsReadAction,
 	markAsUnreadAction,
 	editFormAction,
-} from './actions';
-import { useView, defaultLayouts } from './views';
+} from './actions.tsx';
+import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 const MOBILE_BREAKPOINT = 780;

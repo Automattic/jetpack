@@ -6,10 +6,10 @@ import {
 } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MailPoetIcon from '../../../../../icons/mailpoet';
-import ConsentToggle from '../components/consent-toggle';
-import type { CardItem, CardBuilderProps } from './types';
-import type { Integration } from '../../../../../types';
+import MailPoetIcon from '../../../../../icons/mailpoet.tsx';
+import ConsentToggle from '../components/consent-toggle.tsx';
+import type { CardItem, CardBuilderProps } from './types.ts';
+import type { Integration } from '../../../../../types/index.ts';
 
 type MailPoetList = { id: string; name: string };
 

@@ -5,9 +5,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import edit from './edit';
-import icon from './icon';
-import save from './save';
+import edit from './edit.tsx';
+import icon from './icon.tsx';
+import save from './save.tsx';
 
 const name = 'fieldset-image-options';
 

@@ -1,4 +1,4 @@
-import type { FormResponse } from '../../../types';
+import type { FormResponse } from '../../../types/index.ts';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**

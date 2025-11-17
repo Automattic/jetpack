@@ -16,16 +16,16 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useAddImageOption from '../shared/hooks/use-add-image-option';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
 import './style.scss';
 import './editor.scss';
 /**
  * Types
  */
-import type { Block, BlockEditorStoreSelect } from '../../types';
+import type { Block, BlockEditorStoreSelect } from '../../types/index.ts';
 import type { Attachment } from '@wordpress/core-data';
 
 export default function ImageSelectFieldEdit( props ) {

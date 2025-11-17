@@ -9,9 +9,9 @@ import {
 import { SVG, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import StepControls from '../shared/components/form-step-controls';
-import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
-import { calculateProgressPercentage } from '../shared/util/progress-calculation';
+import StepControls from '../shared/components/form-step-controls/index.js';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';
+import { calculateProgressPercentage } from '../shared/util/progress-calculation.js';
 
 import './style.scss';
 

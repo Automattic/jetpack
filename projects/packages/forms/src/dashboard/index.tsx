@@ -8,9 +8,9 @@ import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
-import Layout from './components/layout';
-import Inbox from './inbox';
-import DashboardNotices from './notices-list';
+import Layout from './components/layout/index.tsx';
+import Inbox from './inbox/index.js';
+import DashboardNotices from './notices-list.tsx';
 import './style.scss';
 
 declare global {

@@ -1,9 +1,9 @@
 // import { createStore, applyMiddleware, compose } from 'redux';
 import { createReduxStore, register } from '@wordpress/data';
-import * as actions from './actions';
-import reducer from './reducer';
-import * as resolvers from './resolvers';
-import * as selectors from './selectors';
+import * as actions from './actions.js';
+import reducer from './reducer.js';
+import * as resolvers from './resolvers.js';
+import * as selectors from './selectors.js';
 
 const STORE_NAME = 'FORM_RESPONSES';
 

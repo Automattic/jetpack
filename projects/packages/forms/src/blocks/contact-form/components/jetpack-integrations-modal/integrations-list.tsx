@@ -6,9 +6,9 @@ import { useState, useMemo, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import useIntegrationCardsData from './hooks/use-integration-cards-data';
-import IntegrationCard from './integration-card';
-import type { IntegrationsListProps } from './helpers/types';
+import useIntegrationCardsData from './hooks/use-integration-cards-data.tsx';
+import IntegrationCard from './integration-card/index.tsx';
+import type { IntegrationsListProps } from './helpers/types.ts';
 
 interface ExpandedCardsState {
 	[ id: string ]: boolean;

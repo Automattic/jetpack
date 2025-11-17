@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { next } from '@wordpress/icons';
-import { getIconColor } from '../shared/util/block-icons';
-import edit from './edit';
-import save from './save';
+import { getIconColor } from '../shared/util/block-icons.js';
+import edit from './edit.js';
+import save from './save.js';
 
 export const name = 'form-step-navigation';
 

@@ -11,15 +11,15 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
-import { notSpam, spam } from '../../icons';
-import { store as dashboardStore } from '../../store';
-import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils';
-import { defaultView } from './views';
+import { notSpam, spam } from '../../icons/index.ts';
+import { store as dashboardStore } from '../../store/index.js';
+import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils.js';
+import { defaultView } from './views.js';
 /**
  * Types
  */
-import type { Action, DispatchActions, QueryParams, Registry } from './types';
-import type { FormResponse } from '../../../types';
+import type { Action, DispatchActions, QueryParams, Registry } from './types.tsx';
+import type { FormResponse } from '../../../types/index.ts';
 
 /**
  * Helper function to extract count-relevant query params from the current query.

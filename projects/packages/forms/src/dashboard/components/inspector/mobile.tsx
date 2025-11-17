@@ -6,11 +6,11 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { FormResponse } from '../../../types';
-import useResponseNavigation from '../../hooks/use-response-navigation';
-import ResponseActions from '../response-actions';
-import ResponseNavigation from '../response-navigation';
-import { ResponseViewBody } from './index';
+import { FormResponse } from '../../../types/index.ts';
+import useResponseNavigation from '../../hooks/use-response-navigation.ts';
+import ResponseActions from '../response-actions/index.tsx';
+import ResponseNavigation from '../response-navigation/index.tsx';
+import { ResponseViewBody } from './index.tsx';
 
 /**
  * Component wrapper for InboxResponse in DataViews modal

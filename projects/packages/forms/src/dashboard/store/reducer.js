@@ -13,7 +13,7 @@ import {
 	UPDATE_COUNTS_OPTIMISTICALLY,
 	MARK_RECORDS_AS_INVALID,
 	CLEAR_INVALID_RECORDS,
-} from './action-types';
+} from './action-types.js';
 
 const filters = ( state = {}, action ) => {
 	if ( action.type === RECEIVE_FILTERS ) {

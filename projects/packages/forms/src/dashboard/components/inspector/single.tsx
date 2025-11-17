@@ -3,11 +3,11 @@ import {
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import useResponseNavigation from '../../hooks/use-response-navigation';
-import Page from '../page';
-import ResponseActions from '../response-actions';
-import ResponseNavigation from '../response-navigation';
-import { ResponseViewBody } from './index';
+import useResponseNavigation from '../../hooks/use-response-navigation.ts';
+import Page from '../page/index.tsx';
+import ResponseActions from '../response-actions/index.tsx';
+import ResponseNavigation from '../response-navigation/index.tsx';
+import { ResponseViewBody } from './index.tsx';
 
 /**
  * Single response component for dataviews.

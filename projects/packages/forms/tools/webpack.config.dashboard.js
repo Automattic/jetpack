@@ -2,8 +2,14 @@
  * Builds the forms dashboard JS bundle.
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
+const require = createRequire( import.meta.url );
 
 /**
  * Generate i18n function variants for @automattic/babel-plugin-replace-textdomain.
@@ -24,7 +30,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 		] )
 	);
 
-module.exports = {
+export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-forms-dashboard': path.join( __dirname, '..', 'src/dashboard/index.tsx' ),

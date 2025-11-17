@@ -5,13 +5,13 @@ import { Card } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import IntegrationCardBody from './integration-card-body';
-import IntegrationCardHeader from './integration-card-header';
+import IntegrationCardBody from './integration-card-body.tsx';
+import IntegrationCardHeader from './integration-card-header.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { IntegrationCardData } from '../../../../../types';
+import type { IntegrationCardData } from '../../../../../types/index.ts';
 import type { ReactNode } from 'react';
 
 export type IntegrationCardProps = {
