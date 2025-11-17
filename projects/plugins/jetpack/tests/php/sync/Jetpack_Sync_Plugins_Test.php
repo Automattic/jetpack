@@ -10,7 +10,6 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 	const PLUGIN_ZIP = __DIR__ . '/../files/the.1.1.zip';
 
 	protected static $hello_dolly_path;
-	protected static $the_plugin_lock;
 
 	/**
 	 * Set up before class.
@@ -179,17 +178,6 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 			'api'    => '',
 		);
 
-		// For CI coverage tests, use a lock file to avoid multiple copies of this test from interfering with each other.
-		if ( getenv( 'PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL' ) === 'true' && ! static::$the_plugin_lock ) {
-			static::$the_plugin_lock = fopen( WP_PLUGIN_DIR . '/.thepluginlock', 'c+' );
-			if ( ! static::$the_plugin_lock ) {
-				throw new RuntimeException( 'Failed to open lockfile ' . WP_PLUGIN_DIR . '/.thepluginlock' );
-			}
-			if ( ! flock( static::$the_plugin_lock, LOCK_EX ) ) {
-				throw new RuntimeException( 'Failed to lock lockfile ' . WP_PLUGIN_DIR . '/.thepluginlock' );
-			}
-		}
-
 		$upgrader = new Plugin_Upgrader(
 			new Automatic_Upgrader_Skin( $plugin_defaults )
 		);
@@ -215,10 +203,6 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 			delete_plugins( array( 'the/the.php' ) );
 			remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
 			wp_cache_delete( 'plugins', 'plugins' );
-		}
-		if ( static::$the_plugin_lock ) {
-			fclose( static::$the_plugin_lock );
-			static::$the_plugin_lock = null;
 		}
 	}
 
