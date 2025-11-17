@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Editor assets endpoint: mitigate hook errors originating from plugins referencing conditionally defined functions via `is_admin()`, which is false for the REST API.

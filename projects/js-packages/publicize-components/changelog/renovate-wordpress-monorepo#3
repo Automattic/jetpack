@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix typecheck: Replace a deep import with `ComponentProps<>`, and remove unused `@ts-expect-error`.
-
-

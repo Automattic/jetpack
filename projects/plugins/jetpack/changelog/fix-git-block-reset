@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-GifBlock: ensure url is not reset when publishing post

@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-a.3 - 2025-11-17
+### Enhancements
+- Forms: improve MailPoet subscriber handling. [#45905]
+- Forms: use core WP colors for basic primitive components such as buttons at Forms dashboard. [#45845]
+
+### Bug fixes
+- GifBlock: ensure url is not reset when publishing post [#45900]
+- Social: Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Editor assets endpoint: mitigate hook errors originating from plugins referencing conditionally defined functions via `is_admin()`, which is false for the REST API. [#45924]
+- Update Jetpack notifications script tag to use wp_print_inline_script_tag. This allows for injection of a nonce attribute and CSP compatibility. [#45878]
+- Update package dependencies. [#45915]
+- Update package dependencies. [#45958]
+
 ## 15.3-a.1 - 2025-11-10
 ### Enhancements
 - Forms: Add browser info to the form response email notification. [#45710]

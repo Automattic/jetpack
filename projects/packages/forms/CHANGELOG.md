@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.0] - 2025-11-17
+### Added
+- Forms: add formTitle on default attributes so it persists throughout parsing and processing [#45908]
+
+### Changed
+- Forms: add a new filter for the JWT token error. [#45949]
+- Forms: componentize response file field [#45892]
+- Forms: fix regression making our dashboard not scrollable [#45867]
+- Forms: improve MailPoet subscriber handling. [#45905]
+- Forms: Optimistically move items from/to inbox/spam/trash [#45912]
+- Forms: render badges in unread/read column when visible [#45931]
+- Forms: show country name as tooltip in IP flags [#45886]
+- Forms: split styles into smaller files alongside their respective components [#45888]
+- Forms: use core WP colors for basic primitive components such as buttons at Forms dashboard. [#45845]
+- Update package dependencies. [#45915]
+- Update package dependencies. [#45916]
+- Update package dependencies. [#45958]
+
+### Removed
+- Forms: clean up code and styles [#45882]
+
+### Fixed
+- Forms: address spacing issues on single input forms [#45909]
+- Forms: Fix Delete spam and Empty trash actions [#45933]
+- Pass requiredText from option block to checkbox field. Add test coverage. [#45897]
+
 ## [6.16.0] - 2025-11-10
 ### Added
 - Add dev docs. [#44841]
@@ -1846,6 +1872,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.17.0]: https://github.com/automattic/jetpack-forms/compare/v6.16.0...v6.17.0
 [6.16.0]: https://github.com/automattic/jetpack-forms/compare/v6.15.0...v6.16.0
 [6.15.0]: https://github.com/automattic/jetpack-forms/compare/v6.14.0...v6.15.0
 [6.14.0]: https://github.com/automattic/jetpack-forms/compare/v6.13.0...v6.14.0
