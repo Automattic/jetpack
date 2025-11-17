@@ -8,10 +8,6 @@ import { ConnectionImage } from '../connection-image';
 import { useConnectionState } from '../form/use-connection-state';
 import styles from './styles.module.scss';
 
-export type ConnectionsToggleListProps = {
-	connections: Array< Connection >;
-};
-
 /**
  * The component to render a list of social media connections as a toggle list.
  *
