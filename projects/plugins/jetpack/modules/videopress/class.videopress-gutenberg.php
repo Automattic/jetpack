@@ -40,7 +40,7 @@ class VideoPress_Gutenberg {
 	private function __construct() {
 		// Run late to avoid race condition with other plugins that register the video block
 		// Jetpack's jetpack_register_block function bails if the block is already registered
-		add_action( 'init', array( $this, 'register_video_block_with_videopress', 99 ) );
+		add_action( 'init', array( $this, 'register_video_block_with_videopress' ), 99 );
 		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'set_extension_availability' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'override_video_upload' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'add_resumable_upload_support' ) );
