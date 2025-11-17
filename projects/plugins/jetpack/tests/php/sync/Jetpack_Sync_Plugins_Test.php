@@ -14,14 +14,9 @@ class Jetpack_Sync_Plugins_Test extends Jetpack_Sync_TestBase {
 	/**
 	 * Set up before class.
 	 */
-	public static function setUpBeforeClass(): void {
+	public static function set_up_before_class(): void {
+		parent::set_up_before_class();
 		self::$hello_dolly_path = file_exists( WP_PLUGIN_DIR . '/hello.php' ) ? 'hello.php' : 'hello-dolly/hello.php';
-	}
-
-	public static function tearDownAfterClass(): void {
-		if ( static::$the_plugin_lock ) {
-			self::remove_plugin();
-		}
 	}
 
 	public function test_installing_and_removing_plugin_is_synced() {
