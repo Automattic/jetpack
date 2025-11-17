@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\VideoPress\Block_Replacement;
 
@@ -122,20 +121,14 @@ class VideoPress_Gutenberg {
 	 */
 	public function register_video_block_with_videopress() {
 		$registry = WP_Block_Type_Registry::get_instance();
-		$block = $registry->get_registered( 'core/video' );
-	
+		$block    = $registry->get_registered( 'core/video' );
+
 		if ( ! $block ) {
 			return;
 		}
-	
+
 		// Override render callback
-		$block->render_callback = 'render_video_block_with_videopress';
-		Blocks::jetpack_register_block(
-			'core/video',
-			array(
-				'render_callback' => array( $this, 'render_video_block_with_videopress' ),
-			)
-		);
+		$block->render_callback = array( $this, 'render_video_block_with_videopress' );
 	}
 
 	/**
