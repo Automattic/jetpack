@@ -121,6 +121,15 @@ class VideoPress_Gutenberg {
 	 * It defines a server-side rendering that adds VideoPress support to the core video block.
 	 */
 	public function register_video_block_with_videopress() {
+		$registry = WP_Block_Type_Registry::get_instance();
+		$block = $registry->get_registered( 'core/video' );
+	
+		if ( ! $block ) {
+			return;
+		}
+	
+		// Override render callback
+		$block->render_callback = 'render_video_block_with_videopress';
 		Blocks::jetpack_register_block(
 			'core/video',
 			array(
