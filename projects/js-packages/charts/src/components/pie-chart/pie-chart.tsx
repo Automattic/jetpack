@@ -281,7 +281,7 @@ const PieChartInternal = ( {
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
-					showLegend && legendPosition === 'top' ? styles[ 'pie-chart--legend-top' ] : null,
+					{ [ styles[ 'pie-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
 					className
 				) }
 			>
