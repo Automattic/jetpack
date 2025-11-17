@@ -2,8 +2,8 @@
  * @file Defines the dropdown date picker behavior.
  */
 
-import { IDatePickerOptions, IAlignment, IDatePicker } from '../interfaces';
-import BaseMode from './base-mode';
+import { IDatePickerOptions, IAlignment, IDatePicker } from '../interfaces.ts';
+import BaseMode from './base-mode.ts';
 
 export default function DropdownMode(
 	input: HTMLInputElement,

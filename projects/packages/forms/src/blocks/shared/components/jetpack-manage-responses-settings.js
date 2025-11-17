@@ -1,6 +1,6 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
+import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 
 const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 	const { saveResponses = true } = attributes;

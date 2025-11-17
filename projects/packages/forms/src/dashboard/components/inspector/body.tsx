@@ -25,16 +25,16 @@ import photon from 'photon';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../hooks/use-config-value';
-import CopyClipboardButton from '../../components/copy-clipboard-button';
-import Flag from '../../components/flag';
-import Gravatar from '../../components/gravatar';
-import FieldFile from '../../components/response-view/field-file';
-import useInboxData from '../../hooks/use-inbox-data';
-import { useMarkAsSpam } from '../../hooks/use-mark-as-spam';
-import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils';
-import { store as dashboardStore } from '../../store';
-import type { FormResponse } from '../../../types';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import FieldFile from '../../components/response-view/field-file/index.tsx';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
+import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
+import { store as dashboardStore } from '../../store/index.js';
+import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
+import Flag from '../flag/index.tsx';
+import Gravatar from '../gravatar/index.tsx';
+import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
 
 const getDisplayName = response => {

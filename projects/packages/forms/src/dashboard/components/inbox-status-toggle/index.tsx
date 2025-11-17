@@ -11,8 +11,8 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import useInboxData from '../../hooks/use-inbox-data';
-import * as Tabs from '../tabs';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import * as Tabs from '../tabs/index.ts';
 
 /**
  * Returns a formatted tab label with count badge.

@@ -1,4 +1,4 @@
-import type { Integration, IntegrationCardData } from '../../../../../types';
+import type { Integration, IntegrationCardData } from '../../../../../types/index.ts';
 import type { ReactNode } from 'react';
 
 export type CardItem = {

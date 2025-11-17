@@ -15,12 +15,12 @@ import {
 	deleteAction,
 	markAsReadAction,
 	markAsUnreadAction,
-} from '../../inbox/stage/actions';
+} from '../../inbox/stage/actions.tsx';
 /**
  * Types
  */
-import type { FormResponse } from '../../../types';
-import type { Registry } from '../../inbox/stage/types';
+import type { FormResponse } from '../../../types/index.ts';
+import type { Registry } from '../../inbox/stage/types.tsx';
 
 type ResponseNavigationProps = {
 	onActionComplete?: ( response: FormResponse ) => void;

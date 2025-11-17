@@ -1,4 +1,4 @@
-import cleanEmptyObject from './clean-empty-object';
+import cleanEmptyObject from './clean-empty-object.js';
 
 const deprecateFieldStyles = attributes => {
 	const {

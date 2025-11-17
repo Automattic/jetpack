@@ -1,4 +1,4 @@
-import File from './file';
+import File from './file.tsx';
 import './style.scss';
 
 type FileItem = {

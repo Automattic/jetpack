@@ -8,8 +8,8 @@ import { Outlet, useLocation } from 'react-router';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../hooks/use-config-value';
-import Integrations from '../../integrations';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import Integrations from '../../integrations/index.tsx';
 
 import './style.scss';
 import '@wordpress/admin-ui/build-style/style.css';

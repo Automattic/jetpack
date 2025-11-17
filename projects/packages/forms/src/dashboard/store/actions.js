@@ -12,7 +12,7 @@ import {
 	INVALIDATE_COUNTS,
 	MARK_RECORDS_AS_INVALID,
 	CLEAR_INVALID_RECORDS,
-} from './action-types';
+} from './action-types.js';
 
 /**
  * Receive the available filters for the responses.

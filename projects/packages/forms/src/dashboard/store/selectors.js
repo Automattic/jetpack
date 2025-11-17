@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getCacheKey } from './reducer';
+import { getCacheKey } from './reducer.js';
 
 export const getFilters = state => state.filters;
 export const getCurrentQuery = state => state.currentQuery;

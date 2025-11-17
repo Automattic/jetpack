@@ -14,6 +14,7 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:blocks && pnpm run build:contact-form && pnpm run build:dashboard && pnpm run module:build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
@@ -23,7 +24,7 @@
 		"clean": "rm -rf dist/ .cache/",
 		"module:build": "webpack --config ./tools/webpack.config.modules.js",
 		"module:watch": "webpack --watch --config ./tools/webpack.config.modules.js",
-		"test": "jest --config=tests/jest.config.js",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",

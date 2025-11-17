@@ -2,14 +2,14 @@ import { useBlockProps, useInnerBlocksProps, InnerBlocks, RichText } from '@word
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { store as singleStepStore } from '../../store/form-step-preview';
-import AddStepControls from '../shared/components/form-add-step-controls';
-import StepControls from '../shared/components/form-step-controls';
-import useFormSteps from '../shared/hooks/use-form-steps';
-import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
-import { CORE_BLOCKS } from '../shared/util/constants';
-import { getStepLabel } from '../shared/util/step-labels';
-import AttributesControls from './attributes-controls';
+import { store as singleStepStore } from '../../store/form-step-preview.js';
+import AddStepControls from '../shared/components/form-add-step-controls/index.js';
+import StepControls from '../shared/components/form-step-controls/index.js';
+import useFormSteps from '../shared/hooks/use-form-steps.js';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';
+import { CORE_BLOCKS } from '../shared/util/constants.js';
+import { getStepLabel } from '../shared/util/step-labels.js';
+import AttributesControls from './attributes-controls.js';
 
 import './editor.scss';
 
