@@ -26,7 +26,7 @@
 		"@wordpress/url": "4.35.0"
 	},
 	"devDependencies": {
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4"
+		"jest": "30.2.0",
+		"jest-environment-jsdom": "30.2.0"
 	}
 }
