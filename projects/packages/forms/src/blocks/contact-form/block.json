@@ -34,5 +34,5 @@
 	},
 	"attributes": {},
 	"editorScript": "file:./editor.js",
-	"style": "file:../../../dist/contact-form/css/jetpack-contact-form.css"
+	"style": "file:../../../dist/contact-form/css/jetpack-forms-layout.css"
 }
