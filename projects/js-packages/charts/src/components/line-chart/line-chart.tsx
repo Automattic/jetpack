@@ -441,8 +441,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					className={ clsx(
 						'line-chart',
 						styles[ 'line-chart' ],
-						animation ? styles[ 'line-chart__animated' ] : null,
-						showLegend && legendPosition === 'top' ? styles[ 'line-chart--legend-top' ] : null,
+						{ [ styles[ 'line-chart--animated' ] ]: animation },
+						{ [ styles[ 'line-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
 						className
 					) }
 					data-testid="line-chart"
