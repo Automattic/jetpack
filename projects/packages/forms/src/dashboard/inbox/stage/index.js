@@ -457,15 +457,15 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const headerActionsArray = [
-			<CreateFormButton key="create" variant="primary" />,
-			<ExportResponsesButton key="export" />,
-		];
+		const headerActionsArray = [ <ExportResponsesButton key="export" /> ];
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
+		} else {
+			// Only show Create Form button on inbox (when not in trash or spam)
+			headerActionsArray.unshift( <CreateFormButton key="create" variant="primary" /> );
 		}
 
 		return headerActionsArray;

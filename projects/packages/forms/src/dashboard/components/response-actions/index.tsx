@@ -95,7 +95,6 @@ const ResponseActions = ( {
 	const sharedProps = isTextVariant
 		? {
 				size: 'compact' as const,
-				variant: 'tertiary' as const,
 		  }
 		: {
 				iconSize: 24,
