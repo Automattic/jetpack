@@ -3145,18 +3145,22 @@ class Feedback_Test extends BaseTestCase {
 	 * Minimal: submission with first-name/last-name sets author name and first/last getters.
 	 */
 	public function test_author_first_last_on_submission() {
-		// Form can be minimal; we rely on explicit first/last ids in post data.
 		$form = new Contact_Form(
 			array(
 				'title'       => 'Test Form',
 				'description' => 'This is a test form.',
 			),
-			"[contact-field label='Message' type='textarea' required='1'/]"
+			"
+			[contact-field label='First name' type='name' id='first-name'/]
+			[contact-field label='Last name' type='name' id='last-name'/]
+			[contact-field label='Email' type='email' id='email'/]
+			"
 		);
 
 		$post_data = array(
 			'first-name' => 'Jane',
 			'last-name'  => 'Doe',
+			'email'      => 'jane@example.com',
 		);
 
 		$response = Feedback::from_submission( $post_data, $form );
