@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Charts: Add usePrefersReducedMotion hook for accecibility.
