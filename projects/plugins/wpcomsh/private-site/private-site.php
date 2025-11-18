@@ -776,12 +776,14 @@ function private_robots_txt() {
  * @param \WP_Roles $roles WP_Roles object.
  */
 function rename_subscriber_role_to_viewer( $roles ) {
-	// Prevents infinite recursion caused by the `_x` calls below.
-	remove_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
+
+	// Dummy gettext calls to get strings in the catalog.
+	/* translators: User role. */
+	_x( 'Viewer', 'User role', 'wpcomsh' );
 
 	if ( site_is_private() && isset( $roles->roles['subscriber'] ) ) {
-		$roles->roles['subscriber']['name'] = _x( 'Viewer', 'User role', 'wpcomsh' );
-		$roles->role_names['subscriber']    = _x( 'Viewer', 'User role', 'wpcomsh' );
+		$roles->roles['subscriber']['name'] = 'Viewer';
+		$roles->role_names['subscriber']    = 'Viewer';
 	}
 }
 add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
