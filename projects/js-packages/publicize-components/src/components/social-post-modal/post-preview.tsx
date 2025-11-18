@@ -93,7 +93,9 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			if ( message ) {
 				customText = message;
 			} else if ( title && excerpt ) {
-				customText = `${ title }\n\n${ excerpt }`;
+				// Facebook displays title on a separate line, then the excerpt without internal line breaks
+				const excerptWithoutLineBreaks = excerpt.replace( /\n+/g, ' ' );
+				customText = `${ title }\n\n${ excerptWithoutLineBreaks }`;
 			}
 
 			return hasMedia ? (
