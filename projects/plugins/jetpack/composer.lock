@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "061308a99336b6e1de9f849f6fac04f3",
+	"content-hash": "708db098186de11f46e06a9f1d11e58a",
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -3484,86 +3484,6 @@
 			"transport-options": {
 				"relative": true
 			}
-		},
-		{
-			"name": "scssphp/scssphp",
-			"version": "v1.13.0",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/scssphp/scssphp.git",
-				"reference": "63d1157457e5554edf00b0c1fabab4c1511d2520"
-			},
-			"dist": {
-				"type": "zip",
-				"url": "https://api.github.com/repos/scssphp/scssphp/zipball/63d1157457e5554edf00b0c1fabab4c1511d2520",
-				"reference": "63d1157457e5554edf00b0c1fabab4c1511d2520",
-				"shasum": ""
-			},
-			"require": {
-				"ext-ctype": "*",
-				"ext-json": "*",
-				"php": ">=5.6.0"
-			},
-			"require-dev": {
-				"bamarni/composer-bin-plugin": "^1.4",
-				"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^8.3 || ^9.4",
-				"sass/sass-spec": "*",
-				"squizlabs/php_codesniffer": "~3.5",
-				"symfony/phpunit-bridge": "^5.1",
-				"thoughtbot/bourbon": "^7.0",
-				"twbs/bootstrap": "~5.0",
-				"twbs/bootstrap4": "4.6.1",
-				"zurb/foundation": "~6.7.0"
-			},
-			"suggest": {
-				"ext-iconv": "Can be used as fallback when ext-mbstring is not available",
-				"ext-mbstring": "For best performance, mbstring should be installed as it is faster than ext-iconv"
-			},
-			"bin": [
-				"bin/pscss"
-			],
-			"type": "library",
-			"extra": {
-				"bamarni-bin": {
-					"bin-links": false,
-					"forward-command": false
-				}
-			},
-			"autoload": {
-				"psr-4": {
-					"ScssPhp\\ScssPhp\\": "src/"
-				}
-			},
-			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"MIT"
-			],
-			"authors": [
-				{
-					"name": "Anthon Pang",
-					"email": "apang@softwaredevelopment.ca",
-					"homepage": "https://github.com/robocoder"
-				},
-				{
-					"name": "Cédric Morin",
-					"email": "cedric@yterium.com",
-					"homepage": "https://github.com/Cerdic"
-				}
-			],
-			"description": "scssphp is a compiler for SCSS written in PHP.",
-			"homepage": "http://scssphp.github.io/scssphp/",
-			"keywords": [
-				"css",
-				"less",
-				"sass",
-				"scss",
-				"stylesheet"
-			],
-			"support": {
-				"issues": "https://github.com/scssphp/scssphp/issues",
-				"source": "https://github.com/scssphp/scssphp/tree/v1.13.0"
-			},
-			"time": "2024-08-17T21:02:11+00:00"
 		},
 		{
 			"name": "wikimedia/aho-corasick",
