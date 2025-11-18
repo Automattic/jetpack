@@ -121,8 +121,10 @@
 	.is-style-outlined & {
 
 		.jetpack-field__input-phone-wrapper {
-			z-index: unset;
 			border-color: transparent !important;
+			background-color: transparent !important;
+			border-radius: unset;
+			z-index: 3;
 
 			&:has(.jetpack-field__input-element:focus) {
 				outline: unset;
@@ -134,6 +136,7 @@
 				// while no input element is selected, force transparent so label is visible
 				.jetpack-field__input-element {
 					background-color: transparent !important;
+					box-shadow: none !important;
 				}
 
 				.jetpack-field__input-prefix:not(:has(~ .has-placeholder),:has(~ .has-value)) {
