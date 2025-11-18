@@ -853,7 +853,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-outlined .grunion-field-wrap select:not(.jetpack-field__input-element) {
 	background: none !important; /* Need to override styles coming from the style attribute*/
 	border-color: transparent !important; /* Need to override styles coming from the style attribute*/
-	color: var(--jetpack--contact-form--body-text-color) !important; /* Need to override styles coming from the style attribute*/
+	color: var(--jetpack--contact-form--body-text-color); /* Need to override styles coming from the style attribute*/
 	border-radius: unset !important; /* Need to override styles coming from the style attribute*/
 	outline: none;
 	padding-left: calc(min(100px, var(--jetpack--contact-form--notch-width)) + 4px);
