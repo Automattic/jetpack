@@ -170,6 +170,44 @@ export const transforms = {
 				return block;
 			},
 		},
+
+		{
+			type: 'raw',
+			priority: 5,
+			isMatch: ( node: Node ) =>
+				node.nodeName === 'PRE' &&
+				( node as HTMLPreElement ).children.length === 1 &&
+				( node as HTMLPreElement ).firstChild!.nodeName === 'CODE',
+			transform: ( node: HTMLPreElement ) => {
+				// This structure was validated by the match already.
+				const codeElement = node.firstChild as HTMLElement;
+
+				const blockAttributes: Partial< Attributes > = {
+					content: RichTextData.fromPlainText( codeElement.textContent || '' ),
+				};
+
+				const detectedLanguage = externalLanguageToBlockLanguage(
+					codeElement.classList[ 0 ]?.substring( 'language-'.length )
+				);
+
+				if ( typeof detectedLanguage === 'string' ) {
+					blockAttributes.language = detectedLanguage;
+					blockAttributes.languageConfidence = 'certain';
+				}
+
+				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+			},
+			schema: {
+				pre: {
+					children: {
+						code: {
+							classes: [ /^language-/i ],
+							children: { '#text': {} },
+						},
+					},
+				},
+			},
+		},
 	],
 };
 
