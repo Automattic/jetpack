@@ -5735,6 +5735,9 @@ importers:
       configstore:
         specifier: 7.0.0
         version: 7.0.0
+      dot-prop:
+        specifier: ^9.0.0
+        version: 9.0.0
       enquirer:
         specifier: 2.4.1
         version: 2.4.1
