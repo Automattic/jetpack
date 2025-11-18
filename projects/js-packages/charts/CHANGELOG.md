@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.48.0] - 2025-11-18
 ### Changed
-- Remove inline styles from containers to allow consumer overrides [#45953]
+- Remove inline styles from containers to allow consumer overrides. [#45953]
 
 ## [0.47.0] - 2025-11-17
 ### Added

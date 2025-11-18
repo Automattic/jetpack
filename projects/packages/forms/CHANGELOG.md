@@ -7,8 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.18.0] - 2025-11-18
 ### Changed
-- Forms: Update to ESM module [#45963]
-- Refactor dashboard layout and add Page components for improved structure and maintainability [#45952]
+- Update to ESM module. [#45963]
+- Refactor dashboard layout and add Page components for improved structure and maintainability. [#45952]
 - Update package dependencies. [#45961]
 
 ## [6.17.0] - 2025-11-17

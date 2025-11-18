@@ -4,7 +4,7 @@
 
 ## 15.3-a.5 - 2025-11-18
 ### Bug fixes
-- Fixes a compatibility bug with the Gutenberg plugin [#45967]
+- Fix a compatibility bug with the Gutenberg plugin. [#45967]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Update package dependencies. [#45961]
