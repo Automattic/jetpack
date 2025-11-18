@@ -12,7 +12,7 @@ export default {
 			options: [
 				'facebook',
 				'x',
-				'instagram',
+				'instagram-business',
 				'linkedin',
 				'nextdoor',
 				'tumblr',
@@ -29,7 +29,6 @@ export const _default = Template.bind( {} );
 _default.args = {
 	serviceName: 'tumblr',
 	label: 'Jetpack Social',
-	checked: true,
 	profilePicture:
 		'https://gravatar.com/avatar/5a5f21e099ba62ae525e62cd1ad859985c8170b8811431e7fa6ccbc9da22405b',
 };

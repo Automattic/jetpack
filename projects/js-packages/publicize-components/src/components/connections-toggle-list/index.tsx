@@ -3,7 +3,7 @@ import { FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { Connection } from '../../social-store/types';
-import { ConnectionImage } from '../connection-image';
+import { ConnectionIcon } from '../connection-icon';
 import { useConnectionState } from '../form/use-connection-state';
 import styles from './styles.module.scss';
 
@@ -55,10 +55,10 @@ export function ConnectionsToggleList() {
 						className={ styles.item }
 					>
 						<div className={ styles[ 'item-content' ] }>
-							<ConnectionImage
-								service_name={ connection.service_name }
-								display_name={ connection.display_name }
-								profile_picture={ connection.profile_picture }
+							<ConnectionIcon
+								serviceName={ connection.service_name }
+								label={ connection.display_name }
+								profilePicture={ connection.profile_picture }
 								disabled={ isDisabled }
 							/>
 							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
