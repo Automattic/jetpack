@@ -24,9 +24,11 @@
 	isolation: isolate;
 
 	&.is-overlay {
-		grid-template: "overlap" 1fr / 1fr; /* contains a single cell callded 'overlap' */
+		grid-template: "overlap" 1fr / 1fr;
 
-		> * {
+		/* contains a single cell callded 'overlap' */
+
+		>* {
 			grid-area: overlap;
 		}
 
@@ -41,19 +43,19 @@
 
 		border-radius: var(--a8c--charts--leaderboard--bar--border-radius, 9999px);
 		z-index: -1; /* places it behind the label */
-	}
 
-	.bar__animated {
-		transform-origin: left;
-		transform-box: fill-box;
-		transform: scaleX(0);
-		animation: stretch 1s ease-out forwards;
-	}
+		&--animated {
+			transform-origin: left;
+			transform-box: fill-box;
+			transform: scaleX(0);
+			animation: stretch 1s ease-out forwards;
+		}
 
-	@keyframes stretch {
+		@keyframes stretch {
 
-		to {
-			transform: scaleX(1);
+			to {
+				transform: scaleX(1);
+			}
 		}
 	}
 }

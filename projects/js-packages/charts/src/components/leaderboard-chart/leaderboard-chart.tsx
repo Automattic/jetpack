@@ -86,7 +86,7 @@ const BarWithLabel = ( {
 		{ isPrimaryVisible && (
 			<div
 				className={ clsx( styles.bar, {
-					[ styles.bar__animated ]: animation,
+					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
 					width: entry.currentShare + '%',
@@ -98,7 +98,7 @@ const BarWithLabel = ( {
 		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
 			<div
 				className={ clsx( styles.bar, {
-					[ styles.bar__animated ]: animation,
+					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
 					width: entry.previousShare + '%',

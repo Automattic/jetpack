@@ -322,7 +322,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					'bar-chart',
 					styles[ 'bar-chart' ],
 					{
-						[ styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] ]:
+						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
 						[ styles[ 'bar-chart--legend-top' ] ]: showLegend && legendPosition === 'top',
 					},
