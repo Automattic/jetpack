@@ -1,4 +1,4 @@
-import ConnectionIcon from '../index.jsx';
+import ConnectionIcon from '../index.tsx';
 import '../../../../../social-logos/src/social-logo-colors.css';
 
 export default {
