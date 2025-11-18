@@ -788,6 +788,25 @@ function rename_subscriber_role_to_viewer( $roles ) {
 add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
 
 /**
+ * Translate Viewer role using the wpcomsh textdomain.
+ *
+ * @since 3.7.0
+ * @param string $translation  Translated text.
+ * @param string $text         Text to translate.
+ * @param string $context      Context information for the translators.
+ * @param string $domain       Text domain. Unique identifier for retrieving translated strings.
+ * @return string
+ */
+function translate_viewer_role( $translation, $text, $context, $domain ) {
+	if ( 'User role' === $context && 'default' === $domain && 'Viewer' === $text ) {
+		return translate_user_role( $text, 'wpcomsh' );
+	}
+
+	return $translation;
+}
+add_filter( 'gettext_with_context', '\Private_Site\translate_viewer_role', 10, 4 );
+
+/**
  * Output the meta tag that tells Pinterest not to allow users to pin
  * content from this page.
  * https://support.pinterest.com/entries/21063792-what-if-i-don-t-want-images-from-my-site-to-be-pinned
