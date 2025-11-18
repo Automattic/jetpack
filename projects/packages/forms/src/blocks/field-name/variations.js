@@ -46,6 +46,22 @@ const variations = [
 			[ 'jetpack/label', { label: DEFAULT_FIRST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
+		example: {
+			innerBlocks: [
+				{
+					name: 'jetpack/label',
+					attributes: {
+						label: DEFAULT_FIRST_NAME_LABEL,
+					},
+				},
+				{
+					name: 'jetpack/input',
+					attributes: {
+						type: 'text',
+					},
+				},
+			],
+		},
 	},
 	{
 		name: LAST_NAME_ID,
@@ -61,6 +77,22 @@ const variations = [
 			[ 'jetpack/label', { label: DEFAULT_LAST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
+		example: {
+			innerBlocks: [
+				{
+					name: 'jetpack/label',
+					attributes: {
+						label: DEFAULT_LAST_NAME_LABEL,
+					},
+				},
+				{
+					name: 'jetpack/input',
+					attributes: {
+						type: 'text',
+					},
+				},
+			],
+		},
 	},
 ];
 
