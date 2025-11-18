@@ -2,13 +2,18 @@
  * Publicize sharing panel based on the
  * Jetpack plugin implementation.
  */
-
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { CheckboxControl, PanelBody, PanelRow } from '@wordpress/components';
+import {
+	CheckboxControl,
+	PanelBody,
+	PanelRow,
+	__experimentalText as Text,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
@@ -59,18 +64,42 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>
-					{ ! isPostPublished && (
+					{ ! isPostPublished ? (
+						<>
+							<PanelRow>
+								<CheckboxControl
+									label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
+									onChange={ togglePublicizeFeature }
+									checked={ isPublicizeEnabled && hasConnections }
+									disabled={ ! hasConnections }
+									__nextHasNoMarginBottom={ true }
+								/>
+							</PanelRow>
+							<PanelRow>
+								<Text className={ styles.description }>
+									{ isPublicizeEnabled && hasEnabledConnections
+										? __(
+												'When the post is published, it will be shared automatically on:',
+												'jetpack-publicize-components'
+										  )
+										: _x(
+												'After the post is published, you can preview, and manually share or schedule it.',
+												'',
+												'jetpack-publicize-components'
+										  ) }
+								</Text>
+							</PanelRow>
+						</>
+					) : (
 						<PanelRow>
-							<CheckboxControl
-								label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
-								onChange={ togglePublicizeFeature }
-								checked={ isPublicizeEnabled && hasConnections }
-								disabled={ ! hasConnections }
-								__nextHasNoMarginBottom
-							/>
+							<Text className={ styles.description }>
+								{ __(
+									'Enable the social media accounts where you want to re-share your post, then click on the "Preview and Share" button below.',
+									'jetpack-publicize-components'
+								) }
+							</Text>
 						</PanelRow>
 					) }
-
 					<PublicizeForm />
 				</Fragment>
 			) }
