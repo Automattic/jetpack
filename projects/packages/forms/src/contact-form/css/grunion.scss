@@ -672,9 +672,9 @@ that needs to mimic the input element styles */
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__leading {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
-	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size));
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size-outline));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size-outline));
+	border-left-width: var(--jetpack--contact-form--border-left-size, var(--jetpack--contact-form--border-size-outline));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	width: var(--jetpack--contact-form--notch-width);
 	max-width: 100px;
@@ -687,8 +687,8 @@ that needs to mimic the input element styles */
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__notch {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size-outline));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size-outline));
 	border-radius: unset !important;
 	padding: 0 4px;
 	transition: border 150ms linear;
@@ -700,8 +700,8 @@ that needs to mimic the input element styles */
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__filler {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size-outline));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size-outline));
 	flex-grow: 1;
 	border-left: none !important;
 	border-right: none !important;
@@ -712,9 +712,9 @@ that needs to mimic the input element styles */
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__trailing {
 	border-color: var(--jetpack--contact-form--border-color);
 	border-style: var(--jetpack--contact-form--border-style);
-	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size));
-	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size));
-	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size));
+	border-top-width: var(--jetpack--contact-form--border-top-size, var(--jetpack--contact-form--border-size-outline));
+	border-right-width: var(--jetpack--contact-form--border-right-size, var(--jetpack--contact-form--border-size-outline));
+	border-bottom-width: var(--jetpack--contact-form--border-bottom-size, var(--jetpack--contact-form--border-size-outline));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	flex-grow: 1;
 	max-width: 100px;

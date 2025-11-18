@@ -136,6 +136,9 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		inputBackground === 'transparent' ||
 		inputBackground === '#00000000';
 
+	const borderWidthOutline =
+		( parseFloat( borderWidth ) > 1 ? parseFloat( borderWidth ) : 1 ) + 'px';
+
 	styleProbe.remove();
 
 	return {
@@ -147,6 +150,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--border': border,
 		'--jetpack--contact-form--border-color': borderColor,
 		'--jetpack--contact-form--border-size': borderWidth,
+		'--jetpack--contact-form--border-size-outline': borderWidthOutline,
 		'--jetpack--contact-form--border-style': borderStyle,
 		'--jetpack--contact-form--border-radius': borderRadius,
 		...( inputBackgroundIsTransparent
