@@ -182,6 +182,12 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 
 			const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
 
+			let mastodonText = message;
+
+			if ( ! message && title && excerpt ) {
+				mastodonText = getCombinedText( title, excerpt );
+			}
+
 			return (
 				<MastodonPostPreview
 					{ ...commonProps }
@@ -192,7 +198,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 						address: user.displayName,
 						displayName: user.displayName,
 					} }
-					customText={ message }
+					customText={ mastodonText }
 					customImage={ customImage }
 				/>
 			);
