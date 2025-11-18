@@ -790,7 +790,6 @@ add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
 /**
  * Translate Viewer role using the wpcomsh textdomain.
  *
- * @since 3.7.0
  * @param string $translation  Translated text.
  * @param string $text         Text to translate.
  * @param string $context      Context information for the translators.
