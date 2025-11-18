@@ -4,11 +4,11 @@
  */
 
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { PanelBody, PanelRow, ToggleControl } from '@wordpress/components';
+import { CheckboxControl, PanelBody, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
@@ -61,20 +61,12 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 				<Fragment>
 					{ ! isPostPublished && (
 						<PanelRow>
-							<ToggleControl
-								label={
-									isPublicizeEnabled
-										? __( 'Share when publishing', 'jetpack-publicize-components' )
-										: _x(
-												'Sharing is disabled',
-												'Label for publicize toggle',
-												'jetpack-publicize-components'
-										  )
-								}
+							<CheckboxControl
+								label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
 								onChange={ togglePublicizeFeature }
 								checked={ isPublicizeEnabled && hasConnections }
 								disabled={ ! hasConnections }
-								__nextHasNoMarginBottom={ true }
+								__nextHasNoMarginBottom
 							/>
 						</PanelRow>
 					) }
