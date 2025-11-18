@@ -770,17 +770,16 @@ function private_robots_txt() {
 	return "User-agent: *\nDisallow: /\n";
 }
 
+// Dummy gettext calls to get strings in the catalog.
+/* translators: User role. */
+_x( 'Viewer', 'User role', 'wpcomsh' );
+
 /**
  * Renames the "Subscriber" role to "Viewer".
  *
  * @param \WP_Roles $roles WP_Roles object.
  */
 function rename_subscriber_role_to_viewer( $roles ) {
-
-	// Dummy gettext calls to get strings in the catalog.
-	/* translators: User role. */
-	_x( 'Viewer', 'User role', 'wpcomsh' );
-
 	if ( site_is_private() && isset( $roles->roles['subscriber'] ) ) {
 		$roles->roles['subscriber']['name'] = 'Viewer';
 		$roles->role_names['subscriber']    = 'Viewer';
