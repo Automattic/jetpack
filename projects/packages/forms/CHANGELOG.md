@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.17.0] - 2025-11-17
+### Added
+- Add formTitle on default attributes so it persists throughout parsing and processing. [#45908]
+
+### Changed
+- Add a new filter for the JWT token error. [#45949]
+- Componentize response file field. [#45892]
+- Fix regression making our dashboard not scrollable. [#45867]
+- Improve MailPoet subscriber handling. [#45905]
+- Optimistically move items from/to inbox/spam/trash. [#45912]
+- Render badges in unread/read column when visible. [#45931]
+- Show country name as tooltip in IP flags. [#45886]
+- Split styles into smaller files alongside their respective components. [#45888]
+- Use core WP colors for basic primitive components such as buttons at Forms dashboard. [#45845]
+- Update package dependencies. [#45915] [#45916] [#45958]
+
+### Removed
+- Clean up code and styles. [#45882]
+
+### Fixed
+- Address spacing issues on single input forms. [#45909]
+- Fix Delete spam and Empty trash actions. [#45933]
+- Pass requiredText from option block to checkbox field. [#45897]
+
 ## [6.16.0] - 2025-11-10
 ### Added
 - Add dev docs. [#44841]
@@ -1846,6 +1870,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.17.0]: https://github.com/automattic/jetpack-forms/compare/v6.16.0...v6.17.0
 [6.16.0]: https://github.com/automattic/jetpack-forms/compare/v6.15.0...v6.16.0
 [6.15.0]: https://github.com/automattic/jetpack-forms/compare/v6.14.0...v6.15.0
 [6.14.0]: https://github.com/automattic/jetpack-forms/compare/v6.13.0...v6.14.0

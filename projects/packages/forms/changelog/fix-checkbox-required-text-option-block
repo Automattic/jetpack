@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Pass requiredText from option block to checkbox field. Add test coverage.
