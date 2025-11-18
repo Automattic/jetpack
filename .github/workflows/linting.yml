@@ -23,7 +23,6 @@ jobs:
   ### Job to categorize changed files. Other jobs depend on this to know when they should run.
   ### On trunk pushes, all jobs run (no file filtering).
   changed_files:
-    if: github.event_name == 'pull_request'
     name: detect changed files
     runs-on: ubuntu-latest
     timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
@@ -68,9 +67,11 @@ jobs:
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
     steps:
-      - uses: actions/checkout@v5
+      - if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
 
-      - uses: dorny/paths-filter@v3
+      - if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           list-files: json
@@ -160,7 +161,8 @@ jobs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
 
-      - id: filterPHP
+      - if: github.event_name == 'pull_request'
+        id: filterPHP
         shell: bash
         env:
           PHP_FILES: ${{ steps.filter.outputs.php_files }}
@@ -170,7 +172,8 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
-      - id: filterJS
+      - if: github.event_name == 'pull_request'
+        id: filterJS
         shell: bash
         env:
           JS_FILES: ${{ steps.filter.outputs.js_files }}
@@ -180,7 +183,8 @@ jobs:
           echo "Excluded files:"
           jq --argjson files "$EXCLUDED_FILES" -nr '" - " + $files[]'
 
-      - id: filterExcludeList
+      - if: github.event_name == 'pull_request'
+        id: filterExcludeList
         shell: bash
         env:
           FILES: ${{ steps.filter.outputs.excludelist_files }}
