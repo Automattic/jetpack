@@ -61,12 +61,14 @@ export default function PublicizeForm() {
 				// Render modal only once
 				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
+			{ hasConnections ? (
+				<PanelRow>
+					<ConnectionsList />
+				</PanelRow>
+			) : null }
 			<EmptyState />
 			{ hasConnections ? (
 				<>
-					<PanelRow>
-						<ConnectionsList />
-					</PanelRow>
 					{ feature_flags.useEditorPreview && isPublicizeEnabled && ! isPostPublished ? (
 						<SocialPostModal />
 					) : null }
