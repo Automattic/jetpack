@@ -21,6 +21,7 @@ import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-conn
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
+import { EmptyState } from './empty-state';
 import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { SharePostForm } from './share-post-form';
 
@@ -61,6 +62,7 @@ export default function PublicizeForm() {
 				// Render modal only once
 				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
+			<EmptyState />
 			{ hasConnections ? (
 				<>
 					<PanelRow>
