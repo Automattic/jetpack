@@ -108,8 +108,6 @@ export function buildJetpackCrmCard( {
 
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <JetpackIcon color={ COLOR_JETPACK } />,
 		isLoading: typeof integration.isInstalled === 'undefined',

@@ -21,8 +21,6 @@ export function buildGoogleDriveCard( {
 			.jpFormsBlocks?.defaults?.formsResponsesUrl || defaultResponsesUrl;
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <GoogleSheetsIcon className="google-sheets-icon" />,
 		isLoading: typeof integration.isInstalled === 'undefined',

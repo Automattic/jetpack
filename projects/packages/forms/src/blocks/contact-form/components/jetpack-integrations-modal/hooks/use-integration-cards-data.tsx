@@ -70,7 +70,6 @@ const useIntegrationCardsData = ( {
 			default:
 				return {
 					...integration,
-					...integration,
 					isLoading: typeof integration.isInstalled === 'undefined',
 					refreshStatus: refreshIntegrations,
 				};

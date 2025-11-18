@@ -34,8 +34,6 @@ export function buildMailPoetCard( {
 
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <MailPoetIcon width={ 28 } height={ 28 } />,
 		isLoading: typeof integration.isInstalled === 'undefined',

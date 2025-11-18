@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
-import useIntegrationCardsData from './jetpack-integrations-modal/hooks/use-integration-cards-data';
+import useIntegrationCardsData from './jetpack-integrations-modal/hooks/use-integration-cards-data.tsx';
 import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**

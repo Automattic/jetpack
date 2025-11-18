@@ -24,8 +24,6 @@ export function buildAkismetCard( {
 
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <AkismetIcon width={ 28 } height={ 28 } />,
 		isLoading: typeof integration.isInstalled === 'undefined',

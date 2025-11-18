@@ -23,8 +23,6 @@ export function buildSalesforceCard( {
 
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <SalesforceIcon width={ 32 } height={ 32 } />,
 		isLoading: typeof integration.isInstalled === 'undefined',

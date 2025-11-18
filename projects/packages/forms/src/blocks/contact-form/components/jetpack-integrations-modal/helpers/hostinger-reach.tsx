@@ -24,8 +24,6 @@ export function buildHostingerReachCard( {
 
 	const card: IntegrationCard = {
 		...integration,
-		id: integration.id,
-		title: integration.title,
 		description: integration.subtitle,
 		icon: <HostingerReachIcon width={ 28 } height={ 28 } />,
 		isLoading: typeof integration.isInstalled === 'undefined',
