@@ -42,8 +42,8 @@ class Jetpack_Sync_Plugins_Updates_Test extends Jetpack_Sync_TestBase {
 	 * Tear down after class.
 	 */
 	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
 		Jetpack_Sync_Plugins_Test::remove_plugin();
+		parent::tear_down_after_class();
 	}
 
 	public function test_updating_a_plugin_is_synced() {
