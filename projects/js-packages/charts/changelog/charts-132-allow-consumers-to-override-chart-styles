@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove inline styles from containers to allow consumer overrides

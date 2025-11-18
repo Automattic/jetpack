@@ -1,7 +1,17 @@
 .leaderboardChart {
+	display: flex;
+	flex-direction: column;
 	transition: opacity 0.3s ease-in-out;
 
-	&.loading {
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
+
+	&--with-legend {
+		gap: 16px;
+	}
+
+	&--loading {
 		opacity: 0.5;
 	}
 }

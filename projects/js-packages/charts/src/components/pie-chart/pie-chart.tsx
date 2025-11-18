@@ -278,11 +278,12 @@ const PieChartInternal = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
+				className={ clsx(
+					'pie-chart',
+					styles[ 'pie-chart' ],
+					{ [ styles[ 'pie-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
+					className
+				) }
 			>
 				<svg
 					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }

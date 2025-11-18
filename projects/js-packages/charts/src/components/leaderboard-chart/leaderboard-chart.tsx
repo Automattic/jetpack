@@ -256,7 +256,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				<div
-					className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+					className={ clsx(
+						styles.leaderboardChart,
+						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
+						className
+					) }
 					style={ style }
 				>
 					<div className={ styles.emptyState }>
@@ -280,13 +284,16 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ {
-					...style,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-					gap: showLegend ? '16px' : '0',
-				} }
+				className={ clsx(
+					styles.leaderboardChart,
+					{
+						[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						[ styles[ 'leaderboardChart--with-legend' ] ]: showLegend,
+						[ styles[ 'leaderboardChart--legend-top' ] ]: showLegend && legendPosition === 'top',
+					},
+					className
+				) }
+				style={ style }
 			>
 				{ allSeriesHidden ? (
 					<div className={ styles.emptyState }>
