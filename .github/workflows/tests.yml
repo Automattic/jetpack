@@ -573,9 +573,3 @@ jobs:
         run: |
           composer require --dev "php-stubs/woocommerce-stubs:${WOO_VERSION}"
           pnpm jetpack phan --all -v --format github
-      - name: Run Phan against WooCommerce 7.0 stubs
-        env:
-          WOO_VERSION: '10.*'
-        run: |
-          composer require --dev "php-stubs/woocommerce-stubs:${WOO_VERSION}"
-          pnpm jetpack phan --all -v --format github
