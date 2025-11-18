@@ -156,6 +156,10 @@
 					font-size: 0.8em;
 				}
 			}
+
+			&:has(~.jetpack-field__input-phone-wrapper.is-combobox-open) .notched-label__label {
+				background-color: var(--jetpack--contact-form--background-color);
+			}
 		}
 
 		.notched-label:has(~* .jetpack-field__input-element:focus) .notched-label__notch,

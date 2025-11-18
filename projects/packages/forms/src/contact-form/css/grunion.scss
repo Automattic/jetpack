@@ -619,6 +619,10 @@ that needs to mimic the input element styles */
 	flex-direction: row-reverse;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap):not(.grunion-field-checkbox-multiple-wrap):not(.grunion-field-radio-wrap):not(.grunion-field-select-wrap):not(.grunion-field-file-wrap), {
+	background-color: var(--jetpack--contact-form--background-color, transparent);
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
@@ -677,7 +681,7 @@ that needs to mimic the input element styles */
 	border-right: none !important;
 	border-top-right-radius: unset !important;
 	border-bottom-right-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__notch {
@@ -690,7 +694,7 @@ that needs to mimic the input element styles */
 	transition: border 150ms linear;
 	border-left: none !important;
 	border-right: none !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__filler {
@@ -702,7 +706,7 @@ that needs to mimic the input element styles */
 	border-left: none !important;
 	border-right: none !important;
 	border-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .notched-label__trailing {
@@ -717,18 +721,18 @@ that needs to mimic the input element styles */
 	border-left: none !important;
 	border-top-left-radius: unset !important;
 	border-bottom-left-radius: unset !important;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 /* Preserve the background color for the checkbox multiple and radio
  * wrap when using the old checkbox multiple and radio blocks. */
 .contact-form .is-style-outlined .grunion-field-checkbox-multiple-wrap:not(.wp-block-jetpack-field-checkbox-multiple),
 .contact-form .is-style-outlined .grunion-field-radio-wrap:not(.wp-block-jetpack-field-radio) {
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .wp-block-jetpack-options {
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--background-color);
 }
 
 
@@ -756,6 +760,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	pointer-events: none;
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 	margin: 0;
+	background-color: transparent;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .grunion-label-text {
@@ -1063,7 +1068,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
 
 	font-size: inherit;
-	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
+	border: solid var(--jetpack--contact-form--background-color);
 	border-width: 0 2px 2px 0;
 	transform: translate(-50%, -60%) rotate(40deg);
 	top: 0;
