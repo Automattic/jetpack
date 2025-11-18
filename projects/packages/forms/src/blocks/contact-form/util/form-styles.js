@@ -76,7 +76,6 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	}
 
 	const _document = window[ 'editor-canvas' ] ? window[ 'editor-canvas' ].document : document;
-	const bodyNode = _document.querySelector( 'body' );
 
 	const styleProbe = _document.createElement( 'div' );
 	styleProbe.className = STYLE_PROBE_CLASS;
@@ -90,7 +89,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	const buttonOutlineNode = styleProbe.querySelector( '.btn-outline' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
-	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
+	const backgroundColor = window.jetpackForms.getBackgroundColor( formRootNode );
 	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
 
 	const bodyTextColor = window.getComputedStyle( formRootNode ).color;

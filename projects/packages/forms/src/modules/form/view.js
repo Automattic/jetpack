@@ -562,6 +562,32 @@ const { state, actions } = store( NAMESPACE, {
 	},
 
 	callbacks: {
+		initializeForm() {
+			const { ref } = getElement();
+			const innerDiv = ref.querySelector( '.wp-block-jetpack-contact-form' );
+
+			if ( innerDiv ) {
+				let backgroundColorCss = '';
+				const backgroundColor = window.getComputedStyle( innerDiv ).backgroundColor;
+				if (
+					! (
+						! backgroundColor ||
+						backgroundColor === 'rgba(0, 0, 0, 0)' ||
+						backgroundColor === 'transparent'
+					)
+				) {
+					backgroundColorCss = `--jetpack--contact-form--background-color: ${ backgroundColor }`;
+				}
+				const bodyTextColor = window.getComputedStyle( innerDiv ).color;
+				const style = innerDiv.getAttribute( 'style' ) ?? '';
+				innerDiv.setAttribute(
+					'style',
+					style +
+						`; ${ backgroundColorCss }; --jetpack--contact-form--body-text-color: ${ bodyTextColor };`
+				);
+			}
+		},
+
 		initializeField() {
 			const context = getContext();
 			const { fieldId, fieldType, fieldLabel, fieldValue, fieldIsRequired, fieldExtra } = context;

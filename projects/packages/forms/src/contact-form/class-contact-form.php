@@ -1066,6 +1066,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				id='" . $element_id . "'
 				method='post'
 				class='" . esc_attr( $form_classes ) . "' $form_aria_label
+				data-wp-init='callbacks.initializeForm'
 				data-wp-on--submit=\"actions.onFormSubmit\"
 				data-wp-on--reset=\"actions.onFormReset\"
 				data-wp-class--submission-success=\"context.submissionSuccess\"
