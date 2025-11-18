@@ -65,7 +65,7 @@ export function SettingsSection( { onReShared } ) {
 					) }
 				</p>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
-				{ needsUserConnection && (
+				{ needsUserConnection && isPostPublished && (
 					<Notice
 						status={ 'warning' }
 						isDismissible={ false }
