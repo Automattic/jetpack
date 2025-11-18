@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../shared/util/block-icons';
-import edit from './edit';
-import StepIcon from './icon';
-import save from './save';
+import { getIconColor } from '../shared/util/block-icons.js';
+import edit from './edit.js';
+import StepIcon from './icon.js';
+import save from './save.js';
 
 export const name = 'form-step';
 

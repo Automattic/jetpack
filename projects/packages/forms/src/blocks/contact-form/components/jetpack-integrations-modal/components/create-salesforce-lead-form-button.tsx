@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import useCreateForm from '../../../../../dashboard/hooks/use-create-form';
+import useCreateForm from '../../../../../dashboard/hooks/use-create-form.ts';
 
 type Props = {
 	className?: string;

@@ -671,7 +671,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "e87cba91035b78cb3c3e1aaf414010f82f80787f"
+				"reference": "2971e11f238462df5de64ea0641bf8d1d54a7db7"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -693,7 +693,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"textdomain": "jetpack-boost-core"
 			},
@@ -1277,7 +1277,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
-				"reference": "7e7f3929e7b3cb75923ae73176ec3ccde520faed"
+				"reference": "1da7eabd28e234c67a03fc7bff5760b383a0d91d"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1295,7 +1295,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "f1378a4d73fb344c2dde57bbf861f607558ee87a"
+				"reference": "868458a9cfb8325715ff1fe450a4d1e6bcf05a0e"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1524,7 +1524,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.16.x-dev"
+					"dev-trunk": "6.18.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -3422,7 +3422,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "229f825d197d9ef6823a06785de3a6f5c7c9e9b6"
+				"reference": "b23b0251945e33c95918649859829d9e04e5b136"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3448,7 +3448,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.11.x-dev"
+					"dev-trunk": "0.12.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {

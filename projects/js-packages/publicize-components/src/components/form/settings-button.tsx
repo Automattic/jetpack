@@ -36,7 +36,7 @@ export function SettingsButton( { label, variant = 'secondary' }: SettingsButton
 	const { openConnectionsModal } = useDispatch( store );
 	const { connectionsPageUrl } = usePublicizeConfig();
 
-	const text = label || __( 'Manage connections', 'jetpack-publicize-components' );
+	const text = label || __( 'Add a new account', 'jetpack-publicize-components' );
 	const hasConnections = connections.length > 0;
 
 	return useAdminUiV1 ? (

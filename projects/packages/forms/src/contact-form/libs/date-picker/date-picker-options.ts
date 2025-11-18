@@ -1,8 +1,8 @@
 /**
  * @file Responsible for sanitizing and creating date picker options.
  */
-import { IDatePicker, IDatePickerOptions, ILanguage } from './interfaces';
-import { now, shiftYear, dateOrParse, Dec31st, Jan1st } from './lib/date';
+import { IDatePicker, IDatePickerOptions, ILanguage } from './interfaces.ts';
+import { now, shiftYear, dateOrParse, Dec31st, Jan1st } from './lib/date.ts';
 
 const english: ILanguage = {
 	days: [ 'Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa' ],

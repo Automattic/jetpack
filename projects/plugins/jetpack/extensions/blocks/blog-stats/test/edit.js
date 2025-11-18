@@ -8,7 +8,18 @@ jest.mock( '@wordpress/api-fetch' );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils' );
 
-jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn(),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
+
 useSelect.mockImplementation( () => {
 	return {
 		getCurrentPostId: jest.fn().mockReturnValueOnce( '100' ),

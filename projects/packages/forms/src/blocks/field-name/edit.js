@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import JetpackField from '../shared/components/jetpack-field';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useNameLabelSync from './hooks/use-name-label-sync';
+import JetpackField from '../shared/components/jetpack-field.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useNameLabelSync from './hooks/use-name-label-sync.js';
 
 export default function NameFieldEdit( props ) {
 	useFormWrapper( props );

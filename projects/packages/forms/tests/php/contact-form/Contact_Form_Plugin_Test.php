@@ -171,6 +171,32 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that requiredText from jetpack/option block is passed through correctly in checkbox field.
+	 */
+	public function test_gutenblock_render_field_checkbox_with_required_text() {
+		$block     = array(
+			'blockName'   => 'jetpack/field-checkbox',
+			'attrs'       => array(
+				'required' => true,
+			),
+			'innerBlocks' => array(
+				array(
+					'blockName' => 'jetpack/option',
+					'attrs'     => array(
+						'label'        => 'I agree to the terms',
+						'isStandalone' => true,
+						'requiredText' => '(must check)',
+					),
+				),
+			),
+		);
+		$shortcode = Contact_Form_Plugin::gutenblock_render_field_checkbox( array(), '', new WP_Block( $block ) );
+		$expected  = '[contact-field type="checkbox" label="I agree to the terms" optionclasses="wp-block-jetpack-option" requiredText="(must check)" fieldwrapperclasses="wp-block-jetpack-field-checkbox"/]';
+
+		$this->assertEquals( $expected, $shortcode );
+	}
+
+	/**
 	 * Tests the render output of gutenblock_render_field_hidden.
 	 */
 	public function test_gutenblock_render_field_hidden_shortcode() {
@@ -419,6 +445,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'optionclasses'       => 'wp-block-jetpack-option has-text-color has-swamp-cheese-color',
 					'optionstyles'        => 'font-size:24px;font-style:italic;font-weight:bold;line-height:1.5;letter-spacing:0.1em;',
 					'label'               => 'Option',
+					'requiredText'        => null,
 					'type'                => 'radio',
 					'fieldwrapperclasses' => 'wp-block-jetpack-field-radio',
 				),

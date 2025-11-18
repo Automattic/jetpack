@@ -2,9 +2,9 @@
  * @file Manages the calendar / day-picker view.
  */
 
-import { IDatePicker, IPicker } from '../interfaces';
-import { now, datesEq, shiftMonth, shiftDay } from '../lib/date';
-import { Key } from '../lib/dom';
+import { IDatePicker, IPicker } from '../interfaces.ts';
+import { now, datesEq, shiftMonth, shiftDay } from '../lib/date.ts';
+import { Key } from '../lib/dom.ts';
 
 export default {
 	onKeyDown: keyDown,

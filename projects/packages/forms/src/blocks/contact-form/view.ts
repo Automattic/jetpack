@@ -1,4 +1,4 @@
-import './util/form-styles';
+import './util/form-styles.js';
 
 const { generateStyleVariables } = window.jetpackForms;
 const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';

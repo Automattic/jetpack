@@ -1,17 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
 
-.connections-list {
-	list-style-type: none;
-	margin: 0;
-	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-
-	.components-notice {
-		margin: 5px 0 10px;
-	}
-}
-
 .more-link {
 	display: inline-block;
 	margin-top: 6px;
@@ -70,4 +58,23 @@
 .unsupported-connections-list {
 	margin-inline-start: 1rem;
 	list-style-type: disc;
+}
+
+.empty-state {
+
+	.illustration {
+		max-width: 8rem;
+	}
+
+	.connect-account-text {
+		text-align: center;
+	}
+
+	.connect-account-button {
+		width: 100%;
+
+		:global(.components-button) {
+			width: 100%;
+		}
+	}
 }

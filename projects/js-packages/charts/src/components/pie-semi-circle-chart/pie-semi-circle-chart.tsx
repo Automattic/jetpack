@@ -6,7 +6,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -17,6 +17,7 @@ import {
 import { attachSubComponents } from '../../utils';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -143,6 +144,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	legendValueDisplay = 'percentage',
 	legendInteractive = false,
 	label,
+	animation,
 	note,
 	className,
 	children,
@@ -249,6 +251,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( ! isValid ) {
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
@@ -293,12 +297,16 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+				className={ clsx(
+					'pie-semi-circle-chart',
+					styles[ 'pie-semi-circle-chart' ],
+					{
+						[ styles[ 'pie-semi-circle-chart--legend-top' ] ]:
+							showLegend && legendPosition === 'top',
+					},
+					className
+				) }
 				data-testid="pie-chart-container"
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
 			>
 				<svg
 					width={ width }
@@ -306,8 +314,22 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					viewBox={ `0 0 ${ width } ${ chartHeight }` }
 					data-testid="pie-chart-svg"
 				>
+					<defs>
+						<RadialWipeAnimation
+							id={ `radial-wipe-${ chartId }` }
+							radius={ radius }
+							innerRadius={ innerRadius }
+							startAngle="-180deg"
+							wipePercentage={ 50 }
+						/>
+					</defs>
+
 					{ /* Main chart group centered horizontally and positioned at bottom */ }
-					<Group top={ chartHeight } left={ width / 2 }>
+					<Group
+						top={ chartHeight }
+						left={ width / 2 }
+						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
+					>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"

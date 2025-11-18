@@ -326,20 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-a.1 - 2025-11-10
-#### Enhancements
-- Forms: add browser info to the form response email notification.
-- Forms: add up, down and esc keyboard navigation to view through reponses really quickly
-- Forms: change integrations modal width.
-- orms: add integrations to dashboard mobile menu.
-
-#### Improved compatibility
-- Replace icons removed from @wordpress/icons with alternatives.
-
+### 15.3-a.5 - 2025-11-18
 #### Bug fixes
-- Forms: fix a bug where we were not showing duplicate form field values on export
-- Forms: fix integrations modal flash.
-- GDoc embeds: ensure that slides/sheets render on the front-end
+- Fix a compatibility bug with the Gutenberg plugin.
 
 --------
 

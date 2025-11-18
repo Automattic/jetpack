@@ -3,8 +3,8 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import useConfigValue from '../../hooks/use-config-value';
-import CreateFormButton from '../components/create-form-button';
+import useConfigValue from '../../hooks/use-config-value.ts';
+import CreateFormButton from '../components/create-form-button/index.tsx';
 
 const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
 	<VStack alignment="center" spacing="2">

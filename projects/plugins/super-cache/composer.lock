@@ -4,63 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "19e0f29c4de0f77715e0e92266e7be87",
-    "packages": [
-        {
-            "name": "automattic/jetpack-device-detection",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/device-detection",
-                "reference": "0f0dac123b94a4c9a94e3f97071c3c4c1a180ed5"
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/phpunit-select-config": "@dev",
-                "yoast/phpunit-polyfills": "^4.0.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-device-detection",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-device-detection/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A way to detect device types based on User-Agent header.",
-            "transport-options": {
-                "relative": true
-            }
-        }
-    ],
+    "content-hash": "ee85566965c23c84eed7a822a70843c4",
+    "packages": [],
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
@@ -2745,7 +2690,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-changelogger": 20,
-        "automattic/jetpack-device-detection": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

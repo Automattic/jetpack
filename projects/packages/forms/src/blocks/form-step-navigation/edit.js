@@ -7,10 +7,10 @@ import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { store as singleStepStore } from '../../store/form-step-preview';
-import StepControls from '../shared/components/form-step-controls';
-import useFormSteps from '../shared/hooks/use-form-steps';
-import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
+import { store as singleStepStore } from '../../store/form-step-preview.js';
+import StepControls from '../shared/components/form-step-controls/index.js';
+import useFormSteps from '../shared/hooks/use-form-steps.js';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';
 
 import './editor.scss';
 

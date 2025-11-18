@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackEmailConnectionSettings from './jetpack-email-connection-settings';
+import JetpackEmailConnectionSettings from './jetpack-email-connection-settings.js';
 
 const NotificationsSettings = ( {
 	setAttributes,

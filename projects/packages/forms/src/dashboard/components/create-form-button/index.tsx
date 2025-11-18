@@ -9,7 +9,7 @@ import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import useCreateForm from '../../hooks/use-create-form';
+import useCreateForm from '../../hooks/use-create-form.ts';
 
 type CreateFormButtonProps = {
 	label?: string;

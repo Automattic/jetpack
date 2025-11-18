@@ -1,5 +1,5 @@
 import { INTEGRATIONS_STORE } from '.';
-import type { Integration } from '../../types';
+import type { Integration } from '../../types/index.ts';
 
 export type IntegrationsState = {
 	items: Integration[] | null;

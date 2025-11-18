@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Tooltip } from '@wordpress/components';
-import { getTranslatedCountryName } from '../../../util/country-names-translated';
+import { getTranslatedCountryName } from '../../../util/country-names-translated.js';
 
 type FlagProps = {
 	countryCode?: string;

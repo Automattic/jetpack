@@ -2,8 +2,8 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { Button, ExternalLink, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../../icons/akismet';
-import type { CardItem, CardBuilderProps } from './types';
+import AkismetIcon from '../../../../../icons/akismet.tsx';
+import type { CardItem, CardBuilderProps } from './types.ts';
 
 type AkismetDetails = {
 	formSubmissionsSpamUrl?: string;

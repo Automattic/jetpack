@@ -328,37 +328,42 @@ class Help_Center {
 	private function is_menu_panel_enabled() {
 		$experiment_name      = 'calypso_help_center_menu_popover';
 		$experiment_variation = 'menu_popover';
+		$user_id              = get_current_user_id();
+		$cache_key            = 'help-center-menu-panel-enabled-' . $user_id . '-' . $experiment_name;
+
+		// Check cache first.
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		$result = false;
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			return $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
+			$request_path = '/experiments/0.1.0/assignments/calypso';
+			$response     = Client::wpcom_json_api_request_as_user(
+				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
+				'v2'
+			);
+
+			if ( ! is_wp_error( $response ) ) {
+				$response_code = wp_remote_retrieve_response_code( $response );
+				if ( 200 === $response_code ) {
+					$data = json_decode( wp_remote_retrieve_body( $response ), true );
+					if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+						$variation = $data['variations'][ $experiment_name ];
+						$result    = $experiment_variation === $variation;
+					}
+				}
+			}
 		}
 
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return false;
-		}
+		// Cache the result for 1 hour.
+		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
 
-		$request_path = '/experiments/0.1.0/assignments/calypso';
-		$response     = Client::wpcom_json_api_request_as_user(
-			add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
-			'v2'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $response_code ) {
-			return false;
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
-			$variation = $data['variations'][ $experiment_name ];
-			return $experiment_variation === $variation;
-		}
-
-		return false;
+		return $result;
 	}
 
 	/**

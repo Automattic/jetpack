@@ -4,7 +4,7 @@ import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import semver from 'semver';
-import type { CardItem, CardBuilderProps } from './types';
+import type { CardItem, CardBuilderProps } from './types.ts';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 

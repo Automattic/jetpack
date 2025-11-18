@@ -1,16 +1,16 @@
 /**
  * External dependencies
  */
-import { ThemeProvider } from '@automattic/jetpack-components';
+import { SlotFillProvider } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
 import { createHashRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
-import Layout from './components/layout';
-import Inbox from './inbox';
-import DashboardNotices from './notices-list';
+import Layout from './components/layout/index.tsx';
+import Inbox from './inbox/index.js';
+import DashboardNotices from './notices-list.tsx';
 import './style.scss';
 
 declare global {
@@ -55,10 +55,10 @@ function initFormsDashboard() {
 	const root = createRoot( container );
 
 	root.render(
-		<ThemeProvider>
+		<SlotFillProvider>
 			<RouterProvider router={ router } />
 			<DashboardNotices />
-		</ThemeProvider>
+		</SlotFillProvider>
 	);
 }
 

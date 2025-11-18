@@ -2,6 +2,8 @@
  * @jest-environment jsdom
  */
 
+import { afterEach, beforeEach, describe, expect, jest, test } from '@jest/globals';
+
 // Mock WordPress Interactivity API
 const mockStore = jest.fn();
 const mockGetContext = jest.fn();
@@ -10,7 +12,7 @@ const mockGetElement = jest.fn();
 const mockWithSyncEvent = jest.fn( callback => callback );
 const mockWithScope = jest.fn( callback => callback );
 
-jest.mock( '@wordpress/interactivity', () => ( {
+await jest.unstable_mockModule( '@wordpress/interactivity', () => ( {
 	store: mockStore,
 	getContext: mockGetContext,
 	getConfig: mockGetConfig,
@@ -22,7 +24,7 @@ jest.mock( '@wordpress/interactivity', () => ( {
 // Mock libphonenumber-js
 const mockParsePhoneNumber = jest.fn();
 const mockAsYouType = jest.fn();
-jest.mock( 'libphonenumber-js', () => ( {
+await jest.unstable_mockModule( 'libphonenumber-js', () => ( {
 	__esModule: true,
 	default: mockParsePhoneNumber,
 	AsYouType: mockAsYouType,
@@ -30,12 +32,12 @@ jest.mock( 'libphonenumber-js', () => ( {
 
 // Mock validate helper
 const mockIsEmptyValue = jest.fn();
-jest.mock( '../../../../src/contact-form/js/validate-helper', () => ( {
+await jest.unstable_mockModule( '../../../../src/contact-form/js/validate-helper', () => ( {
 	isEmptyValue: mockIsEmptyValue,
 } ) );
 
 // Mock countries list
-jest.mock( '../../../../src/blocks/field-telephone/country-list', () => ( {
+await jest.unstable_mockModule( '../../../../src/blocks/field-telephone/country-list', () => ( {
 	countries: [
 		{ code: 'US', value: '+1', flag: '🇺🇸', country: 'United States' },
 		{ code: 'GB', value: '+44', flag: '🇬🇧', country: 'United Kingdom' },
@@ -49,7 +51,7 @@ describe( 'Phone Field View', () => {
 	let mockAsYouTypeInstance;
 	let storeConfig;
 
-	beforeEach( () => {
+	beforeEach( async () => {
 		jest.clearAllMocks();
 
 		// Create mock HTML structure
@@ -130,7 +132,7 @@ describe( 'Phone Field View', () => {
 		} );
 
 		// Import the module to initialize the store
-		require( '../../../../src/modules/field-phone/view.js' );
+		await import( '../../../../src/modules/field-phone/view.js' );
 	} );
 
 	afterEach( () => {

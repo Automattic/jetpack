@@ -1,20 +1,30 @@
 /**
  * External dependencies
  */
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
-/**
- * Internal dependencies
- */
-import useInboxData from '../../../../src/dashboard/hooks/use-inbox-data';
-import useResponseNavigation from '../../../../src/dashboard/hooks/use-response-navigation';
-import { getItemId } from '../../../../src/dashboard/inbox/utils';
 
-// Mock dependencies
-jest.mock( '../../../../src/dashboard/hooks/use-inbox-data' );
-jest.mock( '../../../../src/dashboard/inbox/utils' );
+// Mock dependencies before importing
+const mockUseInboxData = jest.fn();
+const mockGetItemId = jest.fn();
 
-const mockedUseInboxData = useInboxData;
-const mockedGetItemId = getItemId;
+await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-inbox-data', () => ( {
+	default: mockUseInboxData,
+} ) );
+
+await jest.unstable_mockModule( '../../../../src/dashboard/inbox/utils', () => ( {
+	getItemId: mockGetItemId,
+} ) );
+
+// Dynamically import all dependencies after mocks are set up
+const useResponseNavigationModule = await import(
+	'../../../../src/dashboard/hooks/use-response-navigation'
+);
+const useResponseNavigation = useResponseNavigationModule.default;
+
+// Use the mock functions directly
+const mockedUseInboxData = mockUseInboxData;
+const mockedGetItemId = mockGetItemId;
 
 describe( 'useResponseNavigation', () => {
 	const mockSetRecord = jest.fn();

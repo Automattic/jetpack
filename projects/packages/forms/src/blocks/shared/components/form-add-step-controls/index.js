@@ -4,9 +4,9 @@ import { ToolbarGroup, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpre
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { store as singleStepStore } from '../../../../store/form-step-preview';
-import useFormSteps from '../../hooks/use-form-steps';
-import useStepContainerClientId from '../../hooks/use-step-container-client-id';
+import { store as singleStepStore } from '../../../../store/form-step-preview.js';
+import useFormSteps from '../../hooks/use-form-steps.js';
+import useStepContainerClientId from '../../hooks/use-step-container-client-id.js';
 
 /**
  * Toolbar controls for managing steps within a multi-step form.

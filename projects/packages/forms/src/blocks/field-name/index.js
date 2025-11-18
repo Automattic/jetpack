@@ -1,13 +1,13 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import defaultSettings from '../shared/settings';
-import transformsSource from '../shared/settings/transforms';
-import { getIconColor } from '../shared/util/block-icons';
-import deprecated from './deprecated';
-import edit from './edit';
-import save from './save';
-import variations from './variations';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import defaultSettings from '../shared/settings/index.js';
+import transformsSource from '../shared/settings/transforms.js';
+import { getIconColor } from '../shared/util/block-icons.js';
+import deprecated from './deprecated.js';
+import edit from './edit.js';
+import save from './save.js';
+import variations from './variations.js';
 
 const name = 'field-name';
 

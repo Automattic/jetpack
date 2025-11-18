@@ -1,18 +1,25 @@
 /**
  * Webpack configuration for building JavaScript/CSS modules.
  */
-const fs = require( 'fs' );
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const { glob } = require( 'glob' );
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import autoprefixer from 'autoprefixer';
+import { glob } from 'glob';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
+
+let moduleWebpackConfig = {};
 
 // Check if modules directory exists
 if ( ! fs.existsSync( moduleSrcDir ) ) {
 	console.warn( `Modules directory not found: ${ moduleSrcDir }` ); // eslint-disable-line no-console
 	// Return empty config if no modules directory
-	module.exports = {};
+	moduleWebpackConfig = {};
 } else {
 	// Find all JS and TS files in the modules directory
 	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.{js,ts}' ) );
@@ -28,9 +35,9 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 
 	if ( Object.keys( entry ).length === 0 ) {
 		console.warn( 'No module files found to build.' ); // eslint-disable-line no-console
-		module.exports = {};
+		moduleWebpackConfig = {};
 	} else {
-		const moduleWebpackConfig = {
+		moduleWebpackConfig = {
 			mode: jetpackWebpackConfig.mode,
 			devtool: jetpackWebpackConfig.devtool,
 			entry,
@@ -77,7 +84,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 							{
 								loader: 'postcss-loader',
 								options: {
-									postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+									postcssOptions: { plugins: [ autoprefixer ] },
 								},
 							},
 							{
@@ -114,7 +121,7 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 				...jetpackWebpackConfig.watchOptions,
 			},
 		};
-
-		module.exports = moduleWebpackConfig;
 	}
 }
+
+export default moduleWebpackConfig;

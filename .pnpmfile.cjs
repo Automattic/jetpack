@@ -21,6 +21,7 @@ const wpPkgs = {
 		'@wordpress/date',
 		'@wordpress/hooks',
 		'react-colorful',
+		'react-day-picker',
 	],
 	'@wordpress/element': [ 'react-dom' ],
 	'@wordpress/data': [ 'use-memo-one' ],
@@ -55,6 +56,14 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// Breaking change in @wordpress/icons v11.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies[ '@wordpress/icons' ]?.startsWith( '>=10' )
+	) {
+		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
+	}
+
 	// Outdated dependency version causing dependabot warnings.
 	// https://github.com/WordPress/gutenberg/issues/69557
 	if (
@@ -65,9 +74,11 @@ async function fixDeps( pkg ) {
 	}
 
 	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/73257
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' ||
+			pkg.name === '@wordpress/media-utils' ||
+			pkg.name === '@wordpress/admin-ui' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -94,20 +105,6 @@ async function fixDeps( pkg ) {
 				pkg.optionalDependencies[ dep ] = deps[ dep ];
 			}
 		}
-
-		// @todo Move this to wpPkgs when all indirect deps on `@wordpress/dataviews` are on v5.
-		pkg.optionalDependencies[ 'react-day-picker' ] = '^9.0.0';
-	}
-
-	// Missing dep or peer dep.
-	// https://github.com/TanStack/query/issues/9097
-	if (
-		pkg.name === '@tanstack/eslint-plugin-query' &&
-		! pkg.dependencies?.typescript &&
-		! pkg.peerDependencies?.typescript
-	) {
-		pkg.peerDependencies ??= {};
-		pkg.peerDependencies.typescript = '*';
 	}
 
 	// Turn @wordpress/eslint-plugin's eslint plugin deps into peer deps.
@@ -174,7 +171,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// No upstream bug link yet, upstream seems unmaintained anyway.
+	// https://github.com/egoist/rollup-plugin-postcss/issues/469
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
 	}
@@ -248,6 +245,14 @@ async function fixDeps( pkg ) {
 		pkg.peerDependencies[ 'jest-circus' ] += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-environment-node' ] += ' || ^30.0.0';
 		pkg.peerDependencies[ 'jest-runner' ] += ' || ^30.0.0';
+	}
+
+	// Update all glob 10 deps for CVE-2025-64756. The only difference from 10.4.4→11.0.0 is dropping node <20 support.
+	if ( pkg.dependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob += ' || ^11.0.0';
+	}
+	if ( pkg.peerDependencies?.glob?.match( /^\^10(?:\.\d+)*$/ ) ) {
+		pkg.peerDependencies.glob += ' || ^11.0.0';
 	}
 
 	return pkg;

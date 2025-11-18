@@ -1,13 +1,13 @@
 /**
  * @file Defines the base date picker behavior, overridden by various modes.
  */
-import { IDatePickerOptions, IDatePicker, IState } from '../interfaces';
-import { constrainDate } from '../lib/date';
-import { on, Key } from '../lib/dom';
-import { bufferFn, noop } from '../lib/fns';
-import dayPicker from '../views/day-picker';
-import monthPicker from '../views/month-picker';
-import yearPicker from '../views/year-picker';
+import { IDatePickerOptions, IDatePicker, IState } from '../interfaces.ts';
+import { constrainDate } from '../lib/date.ts';
+import { on, Key } from '../lib/dom.ts';
+import { bufferFn, noop } from '../lib/fns.ts';
+import dayPicker from '../views/day-picker.ts';
+import monthPicker from '../views/month-picker.ts';
+import yearPicker from '../views/year-picker.ts';
 
 const views = {
 	day: dayPicker,
