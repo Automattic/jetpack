@@ -1,6 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { MenuGroup, MenuItem } from '@wordpress/components';
-import { check } from '@wordpress/icons';
+import { FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { Connection } from '../../social-store/types';
@@ -42,7 +41,14 @@ export function ConnectionsToggleList() {
 						key={ connection.connection_id }
 						role="menuitemcheckbox"
 						disabled={ isDisabled }
-						icon={ isSelected ? check : null }
+						icon={
+							<FormToggle
+								tabIndex={ -1 }
+								checked={ isSelected }
+								disabled={ isDisabled }
+								aria-hidden="true"
+							/>
+						}
 						isSelected={ isSelected }
 						onClick={ toggleConnection( connection.connection_id, connection ) }
 						aria-label={ connection.display_name }
