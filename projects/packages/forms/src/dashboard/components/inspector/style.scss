@@ -11,7 +11,7 @@
 
 	@include mixins.flex-column;
 	min-height: 300px;
-	overflow: hidden;
+	overflow: auto;
 	background-color: #fff;
 	position: relative;
 }
