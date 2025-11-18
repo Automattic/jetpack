@@ -5,7 +5,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -225,6 +225,8 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( ! isValid ) {
 		return (
 			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -304,7 +306,7 @@ const PieChartInternal = ( {
 					<Group
 						top={ centerY }
 						left={ centerX }
-						mask={ animation ? `url(#radial-wipe-${ chartId })` : null }
+						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
 					>
 						{ allSegmentsHidden ? (
 							<text
