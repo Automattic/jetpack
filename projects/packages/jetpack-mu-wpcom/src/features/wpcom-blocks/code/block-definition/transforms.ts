@@ -222,6 +222,15 @@ export const transforms = {
 			},
 		},
 	],
+	to: [
+		{
+			type: 'block',
+			blocks: [ 'syntaxhighlighter/code' ],
+			transform: ( { content }: Attributes ) => {
+				return createBlock( 'syntaxhighlighter/code', { content: content.toPlainText() } );
+			},
+		},
+	],
 };
 
 /**
