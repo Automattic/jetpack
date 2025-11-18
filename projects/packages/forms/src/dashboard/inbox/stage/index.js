@@ -20,6 +20,7 @@ import { useSearchParams } from 'react-router';
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import CreateFormButton from '../../components/create-form-button/index.tsx';
+import EmptyResponses from '../../components/empty-responses/index.tsx';
 import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
@@ -30,7 +31,6 @@ import { ResponseMobileView, SingleResponseView } from '../../components/inspect
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
-import EmptyResponses from '../empty-responses.tsx';
 import { getPath, getItemId } from '../utils.js';
 import {
 	viewAction,
