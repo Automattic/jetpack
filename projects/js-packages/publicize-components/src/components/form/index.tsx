@@ -19,8 +19,8 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { getSocialScriptData } from '../../utils/script-data';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
-import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
+import { EmptyState } from './empty-state';
 import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { SharePostForm } from './share-post-form';
 
@@ -62,17 +62,19 @@ export default function PublicizeForm() {
 				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
 			{ hasConnections ? (
+				<PanelRow>
+					<ConnectionsList />
+				</PanelRow>
+			) : null }
+			<EmptyState />
+			{ hasConnections ? (
 				<>
-					<PanelRow>
-						<ConnectionsList />
-					</PanelRow>
 					{ feature_flags.useEditorPreview && isPublicizeEnabled && ! isPostPublished ? (
 						<SocialPostModal />
 					) : null }
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }
-			<ConnectionNotice />
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
