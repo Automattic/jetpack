@@ -24,6 +24,20 @@ export type PostPreviewProps = {
 };
 
 /**
+ * Combines title and excerpt, removing internal line breaks from the excerpt.
+ * Social networks display title on a separate line, then the excerpt without internal line breaks.
+ *
+ * @param {string} title   - The title text.
+ * @param {string} excerpt - The excerpt text.
+ *
+ * @return {string} - Combined text with title and excerpt separated by double newline.
+ */
+function getCombinedText( title: string, excerpt: string ): string {
+	const excerptWithoutLineBreaks = excerpt.replace( /\n+/g, ' ' );
+	return `${ title }\n\n${ excerptWithoutLineBreaks }`;
+}
+
+/**
  * Post preview component.
  *
  * @param {PostPreviewProps} props - PostPreview component props.
@@ -93,9 +107,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			if ( message ) {
 				customText = message;
 			} else if ( title && excerpt ) {
-				// Facebook displays title on a separate line, then the excerpt without internal line breaks
-				const excerptWithoutLineBreaks = excerpt.replace( /\n+/g, ' ' );
-				customText = `${ title }\n\n${ excerptWithoutLineBreaks }`;
+				customText = getCombinedText( title, excerpt );
 			}
 
 			return hasMedia ? (
@@ -124,6 +136,14 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		case 'instagram-business': {
 			const hasImage = Boolean( image );
 
+			let instagramCaption = title;
+
+			if ( message ) {
+				instagramCaption = message;
+			} else if ( title && excerpt ) {
+				instagramCaption = getCombinedText( title, excerpt );
+			}
+
 			return ! hasMedia && ! hasImage ? (
 				<InstagramNoMediaNotice />
 			) : (
@@ -132,7 +152,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 					image={ media?.[ 0 ]?.url || image }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
-					caption={ message || title || description }
+					caption={ instagramCaption }
 				/>
 			);
 		}
@@ -143,7 +163,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			if ( message ) {
 				linkedinDescription = message;
 			} else if ( title && excerpt ) {
-				linkedinDescription = `${ title }\n\n${ excerpt }`;
+				linkedinDescription = getCombinedText( title, excerpt );
 			}
 
 			return (
@@ -184,16 +204,13 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			if ( message ) {
 				nextdoorDescription = message;
 			} else if ( title && excerpt ) {
-				nextdoorDescription = `${ title }\n\n${ excerpt }`;
+				nextdoorDescription = getCombinedText( title, excerpt );
 			}
-
-			// Add the URL to the description if there is media
-			const desc = `${ nextdoorDescription } ${ media?.length ? url : '' }`.trim();
 
 			return (
 				<NextdoorPostPreview
 					{ ...commonProps }
-					description={ desc }
+					description={ nextdoorDescription }
 					name={ user.displayName }
 					profileImage={ user.profileImage }
 				/>
@@ -206,7 +223,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			if ( message ) {
 				caption = message;
 			} else if ( title && excerpt ) {
-				caption = `${ title }\n\n${ excerpt }`;
+				caption = getCombinedText( title, excerpt );
 			}
 
 			const captionLength =
