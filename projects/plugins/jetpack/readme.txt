@@ -328,7 +328,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.3-a.5 - 2025-11-18
 #### Bug fixes
-- Fixes a compatability bug with the Gutenberg plugin"
+- Fixes a compatibility bug with the Gutenberg plugin
 
 --------
 
