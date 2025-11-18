@@ -1,17 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
 
-.connections-list {
-	list-style-type: none;
-	margin: 0;
-	width: 100%;
-	display: flex;
-	flex-wrap: wrap;
-
-	.components-notice {
-		margin: 5px 0 10px;
-	}
-}
-
 .more-link {
 	display: inline-block;
 	margin-top: 6px;
