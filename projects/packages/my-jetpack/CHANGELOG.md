@@ -7,12 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.28.3] - 2025-11-17
 ### Changed
-- Update package dependencies. [#45915]
-- Update package dependencies. [#45932]
-- Update package dependencies. [#45958]
+- Update package dependencies. [#45915] [#45932] [#45958]
 
 ### Fixed
-- My Jetpack: Added missing background color for products list. [#45893]
+- My Jetpack: Add missing background color for products list. [#45893]
 
 ## [5.28.2] - 2025-11-12
 ### Changed

@@ -328,11 +328,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 15.3-a.3 - 2025-11-17
 #### Enhancements
-- Forms: improve MailPoet subscriber handling.
-- Forms: use core WP colors for basic primitive components such as buttons at Forms dashboard.
+- Forms: Improve MailPoet subscriber handling.
+- Forms: Use core WP colors for basic primitive components such as buttons at Forms dashboard.
 
 #### Bug fixes
-- GifBlock: ensure url is not reset when publishing post
+- GifBlock: Ensure url is not reset when publishing post.
 - Social: Fix connection icon not reflecting the change when profile picture is updated.
 
 --------

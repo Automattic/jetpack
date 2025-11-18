@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2025-11-17
 ### Added
-- General: added a daily cleanup of expired transients. [#45920]
+- General: Add a daily cleanup of expired transients. [#45920]
 
 ## [0.3.14] - 2025-10-20
 ### Changed

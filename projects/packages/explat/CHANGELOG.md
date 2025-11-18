@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.0] - 2025-11-17
 ### Added
-- Add the possibility of passing the platform to the explat assignment endpoint [#45922]
+- Add the possibility of passing the platform to the explat assignment endpoint. [#45922]
 
 ### Changed
-- Update package dependencies. [#45915]
-- Update package dependencies. [#45958]
+- Update package dependencies. [#45915] [#45958]
 
 ## [0.3.14] - 2025-11-10
 ### Changed

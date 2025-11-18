@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.12.0] - 2025-11-17
 ### Changed
-- Implement batched pixel requests for improved performance when sending tracking events [#45869]
-- Update package dependencies. [#45915]
-- Update package dependencies. [#45958]
+- Implement batched pixel requests for improved performance when sending tracking events. [#45869]
+- Update package dependencies. [#45915] [#45958]
 
 ## [0.11.0] - 2025-11-03
 ### Changed

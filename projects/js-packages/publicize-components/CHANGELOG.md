@@ -7,11 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2025-11-17
 ### Changed
-- Update package dependencies. [#45915]
-- Update package dependencies. [#45958]
+- Update package dependencies. [#45915] [#45958]
 
 ### Removed
-- Removed unsupported connections notice as it's not used now [#45844]
+- Remove unsupported connections notice as it's not used now. [#45844]
 
 ### Fixed
 - Social: Fix connection icon not reflecting the change when profile picture is updated. [#45937]
