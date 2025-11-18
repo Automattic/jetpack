@@ -656,7 +656,7 @@ async function promptForSetAlias( pluginDestPath ) {
  * @return {object} argv object with the project property.
  */
 async function maybePromptForDest( argv ) {
-	if ( rsyncConfigStore.has( escapePath( argv.dest ) ) ) {
+	if ( typeof argv.dest === 'string' && rsyncConfigStore.has( escapePath( argv.dest ) ) ) {
 		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( escapePath( argv.dest ) ) }` );
 		argv.dest = rsyncConfigStore.get( escapePath( argv.dest ) );
 		return argv;
