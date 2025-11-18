@@ -28,17 +28,9 @@ class Feedback_Author_Test extends BaseTestCase {
 
 		$this->assertEquals( 'John Doe', $author->get_name() );
 		$this->assertEquals( 'John Doe', $author->get_display_name() );
+		$this->assertSame( 'John', $author->get_first_name() );
+		$this->assertSame( 'Doe', $author->get_last_name() );
 	}
-
-	/**
-	 * Minimal: getters for first and last name return raw values.
-	 */
-	public function test_first_last_getters() {
-		$author = new Feedback_Author( '', '', '', 'Alice', 'Smith' );
-		$this->assertSame( 'Alice', $author->get_first_name() );
-		$this->assertSame( 'Smith', $author->get_last_name() );
-	}
-
 	/**
 	 * Minimal: when only one of first/last is present, fall back to single name.
 	 */
@@ -46,6 +38,33 @@ class Feedback_Author_Test extends BaseTestCase {
 		$author = new Feedback_Author( 'Single Name', 's@example.com', '', 'Bob', '' );
 		$this->assertEquals( 'Single Name', $author->get_name() );
 		$this->assertEquals( 'Single Name', $author->get_display_name() );
+	}
+
+	/**
+	 * When both first/last are present and differ from single name, combined name takes precedence.
+	 */
+	public function test_first_last_override_single_name_when_both_present() {
+		$author = new Feedback_Author( 'Some Other Name', 'x@example.com', '', 'Alice', 'Jones' );
+		$this->assertEquals( 'Alice Jones', $author->get_name() );
+		$this->assertEquals( 'Alice Jones', $author->get_display_name() );
+	}
+
+	/**
+	 * When only last name is provided and single name exists, fall back to single name.
+	 */
+	public function test_only_lastname_with_single_name_falls_back_to_single() {
+		$author = new Feedback_Author( 'Single Name', 'x@example.com', '', '', 'Jones' );
+		$this->assertEquals( 'Single Name', $author->get_name() );
+		$this->assertEquals( 'Single Name', $author->get_display_name() );
+	}
+
+	/**
+	 * When only last name is provided and single name is missing, fall back to email in display.
+	 */
+	public function test_only_lastname_without_single_name_falls_back_to_email() {
+		$author = new Feedback_Author( '', 'x@example.com', '', '', 'Jones' );
+		$this->assertSame( '', $author->get_name() );
+		$this->assertEquals( 'x@example.com', $author->get_display_name() );
 	}
 
 	/**
