@@ -46,6 +46,19 @@ export const transforms = {
 
 		{
 			type: 'block',
+			blocks: [ 'core/html' ],
+			priority: 5,
+			transform: ( { content: text }: { content: string } ) => {
+				return createBlock( 'core/code', {
+					content: RichTextData.fromPlainText( text ),
+					language: 'HTML',
+					languageConfidence: 'certain',
+				} );
+			},
+		},
+
+		{
+			type: 'block',
 			blocks: [ 'kevinbatdorf/code-block-pro' ],
 			transform: ( {
 				code,
