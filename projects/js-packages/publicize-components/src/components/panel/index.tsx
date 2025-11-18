@@ -64,42 +64,46 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 			{ children }
 			{ ! hidePublicizeFeature && (
 				<Fragment>
-					{ ! isPostPublished ? (
+					{ hasConnections ? (
 						<>
-							<PanelRow>
-								<CheckboxControl
-									label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
-									onChange={ togglePublicizeFeature }
-									checked={ isPublicizeEnabled && hasConnections }
-									disabled={ ! hasConnections }
-									__nextHasNoMarginBottom={ true }
-								/>
-							</PanelRow>
-							<PanelRow>
-								<Text className={ styles.description }>
-									{ isPublicizeEnabled && hasEnabledConnections
-										? __(
-												'When the post is published, it will be shared automatically on:',
-												'jetpack-publicize-components'
-										  )
-										: _x(
-												'After the post is published, you can preview, and manually share or schedule it.',
-												'',
-												'jetpack-publicize-components'
-										  ) }
-								</Text>
-							</PanelRow>
+							{ ! isPostPublished ? (
+								<>
+									<PanelRow>
+										<CheckboxControl
+											label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
+											onChange={ togglePublicizeFeature }
+											checked={ isPublicizeEnabled && hasConnections }
+											disabled={ ! hasConnections }
+											__nextHasNoMarginBottom={ true }
+										/>
+									</PanelRow>
+									<PanelRow>
+										<Text className={ styles.description }>
+											{ isPublicizeEnabled && hasEnabledConnections
+												? __(
+														'When the post is published, it will be shared automatically on:',
+														'jetpack-publicize-components'
+												  )
+												: _x(
+														'After the post is published, you can preview, and manually share or schedule it.',
+														'',
+														'jetpack-publicize-components'
+												  ) }
+										</Text>
+									</PanelRow>
+								</>
+							) : (
+								<PanelRow>
+									<Text className={ styles.description }>
+										{ __(
+											'Enable the social media accounts where you want to re-share your post, then click on the "Preview and Share" button below.',
+											'jetpack-publicize-components'
+										) }
+									</Text>
+								</PanelRow>
+							) }
 						</>
-					) : (
-						<PanelRow>
-							<Text className={ styles.description }>
-								{ __(
-									'Enable the social media accounts where you want to re-share your post, then click on the "Preview and Share" button below.',
-									'jetpack-publicize-components'
-								) }
-							</Text>
-						</PanelRow>
-					) }
+					) : null }
 					<PublicizeForm />
 				</Fragment>
 			) }
