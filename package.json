@@ -36,10 +36,10 @@
 		"jetpack-js-tools": "workspace:*",
 		"stylelint": "16.19.1"
 	},
-	"packageManager": "pnpm@10.7.0",
+	"packageManager": "pnpm@10.22.0",
 	"engines": {
 		"node": "^22.19.0",
-		"pnpm": "^10.7.0"
+		"pnpm": "^10.22.0"
 	},
 	"pnpm": {
 		"ignoredBuiltDependencies": [
