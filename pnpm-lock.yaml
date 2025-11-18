@@ -205,7 +205,7 @@ patchedDependencies:
   '@wordpress/wordcount':
     hash: 2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b
     path: .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  uuid:
+  uuid@<11:
     hash: 87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0
     path: .pnpm-patches/uuid.patch
 
