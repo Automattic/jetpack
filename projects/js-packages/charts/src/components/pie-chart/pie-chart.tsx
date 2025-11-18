@@ -18,6 +18,7 @@ import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -149,6 +150,7 @@ const PieChartInternal = ( {
 	legendItemClassName,
 	legendShape = 'circle',
 	size,
+	animation,
 	thickness = 1,
 	padding = 0,
 	gapScale = 0,
@@ -291,7 +293,19 @@ const PieChartInternal = ( {
 					width={ width }
 					height={ adjustedHeight }
 				>
-					<Group top={ centerY } left={ centerX }>
+					<defs>
+						<RadialWipeAnimation
+							id={ `radial-wipe-${ chartId }` }
+							radius={ outerRadius }
+							innerRadius={ innerRadius }
+						/>
+					</defs>
+
+					<Group
+						top={ centerY }
+						left={ centerX }
+						mask={ animation ? `url(#radial-wipe-${ chartId })` : null }
+					>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"

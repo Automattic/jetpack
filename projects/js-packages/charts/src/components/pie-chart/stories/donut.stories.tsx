@@ -201,6 +201,13 @@ export const WithTooltipsDoughnut: Story = {
 	},
 };
 
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
+	},
+};
+
 export const WithLegend: Story = {
 	args: {
 		...Default.args,
