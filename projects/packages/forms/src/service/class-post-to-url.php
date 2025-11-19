@@ -153,7 +153,7 @@ class Post_To_Url {
 		$url        = $options['url'];
 		$format     = $options['format'] === 'urlencoded' ? 'application/x-www-form-urlencoded' : 'application/json';
 		$args       = array(
-			'body'      => $format === 'urlencoded' ? $data : wp_json_encode( $data ),
+			'body'      => $options['format'] === 'urlencoded' ? $data : wp_json_encode( $data ),
 			'headers'   => array(
 				'Content-Type' => $format,
 				'user-agent'   => $user_agent,
