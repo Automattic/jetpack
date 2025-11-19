@@ -2041,7 +2041,7 @@ EOT;
 		 *
 		 * @param array $post_types The post types that are allowed to have related posts.
 		 */
-		$post_types = apply_filters( 'jetpack_related_posts_allowed_post_types', $post_types );
+		$post_types = apply_filters( 'jetpack_related_posts_rest_api_allowed_post_types', $post_types );
 
 		foreach ( $post_types as $post_type ) {
 			register_rest_field(
