@@ -5,7 +5,7 @@ import {
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { DataViews, Field } from '@wordpress/dataviews';
+import { DataViews, Field, type View } from '@wordpress/dataviews';
 import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -37,34 +37,39 @@ declare global {
 	}
 }
 
-const useViewers = () => {
+const useViewers = ( page: number, perPage: number ) => {
 	const [ viewers, setViewers ] = useState< Viewer[] >( [] );
 	const [ totalViewers, setTotalViewers ] = useState< number >( 0 );
+	const [ isLoading, setIsLoading ] = useState< boolean >( false );
 
-	const fetchViewers = useCallback( async () => {
-		const path = addQueryArgs( `/sites/${ window.wpcomPrivateViewers.siteId }/viewers`, {
-			page: 1,
-			number: 2,
-		} );
-		const response: { viewers: Viewer[]; found: number } = await wpcomRequest( {
-			path,
-			apiVersion: '1.1',
-		} );
-		setViewers( response.viewers );
-		setTotalViewers( response.found );
+	const fetchViewers = useCallback( async ( currentPage: number, itemsPerPage: number ) => {
+		setIsLoading( true );
+		try {
+			const path = addQueryArgs( `/sites/${ window.wpcomPrivateViewers.siteId }/viewers`, {
+				page: currentPage,
+				number: itemsPerPage,
+			} );
+			const response: { viewers: Viewer[]; found: number } = await wpcomRequest( {
+				path,
+				apiVersion: '1.1',
+			} );
+			setViewers( response.viewers );
+			setTotalViewers( response.found );
+		} finally {
+			setIsLoading( false );
+		}
 	}, [] );
 
 	useEffect( () => {
-		fetchViewers();
-	}, [ fetchViewers ] );
+		fetchViewers( page, perPage );
+	}, [ fetchViewers, page, perPage ] );
 
 	return {
 		viewers,
 		totalViewers,
+		isLoading,
 	};
 };
-
-const noop = () => {};
 
 const getItemId = ( item: Viewer ) => item.ID.toString();
 
@@ -74,7 +79,16 @@ const getItemId = ( item: Viewer ) => item.ID.toString();
  * @return {JSX.Element} The component to render.
  */
 function PrivateViewers() {
-	const { viewers, totalViewers } = useViewers();
+	const [ view, setView ] = useState< View >( {
+		type: 'table',
+		search: '',
+		filters: [],
+		page: 1,
+		perPage: 20,
+		fields: [ 'nice_name', 'login' ],
+	} );
+
+	const { viewers, totalViewers, isLoading } = useViewers( view.page, view.perPage );
 
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
@@ -101,22 +115,20 @@ function PrivateViewers() {
 					<DataViews
 						data={ viewers }
 						fields={ fields }
-						view={ {
-							type: 'table',
-							search: '',
-							filters: [],
-							page: 1,
-							perPage: 2,
-							fields: [ 'nice_name', 'login' ],
-						} }
+						view={ view }
 						getItemId={ getItemId }
 						paginationInfo={ {
 							totalItems: totalViewers,
-							totalPages: Math.ceil( totalViewers / 2 ),
+							totalPages: Math.ceil( totalViewers / view.perPage ),
 						} }
-						onChangeView={ noop }
+						onChangeView={ setView }
 						defaultLayouts={ { table: {} } }
 					/>
+					{ isLoading && (
+						<div style={ { textAlign: 'center', padding: '20px' } }>
+							{ __( 'Loading…', 'jetpack-mu-wpcom' ) }
+						</div>
+					) }
 				</CardBody>
 			</Card>
 		</div>
