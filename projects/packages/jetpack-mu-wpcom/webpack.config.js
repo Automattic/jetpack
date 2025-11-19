@@ -74,6 +74,7 @@ module.exports = async () => {
 					'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 				'wpcom-replace-site-visibility':
 					'./src/features/replace-site-visibility/replace-site-visibility.tsx',
+				'private-viewers': './src/features/private-viewers/private-viewers.tsx',
 				'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 				'adminbar-launch-button': './src/features/launch-button/index.js',
 			},
