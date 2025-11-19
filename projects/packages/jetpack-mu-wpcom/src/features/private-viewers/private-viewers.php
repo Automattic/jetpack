@@ -9,6 +9,11 @@
  * Register the Private Viewers submenu under Users.
  */
 function wpcom_private_viewers_add_menu() {
+	// Only register the menu if the site is private.
+	if ( (int) get_option( 'blog_public' ) !== -1 ) {
+		return;
+	}
+
 	$hook_suffix = add_submenu_page(
 		'users.php',
 		__( 'Private Viewers', 'jetpack-mu-wpcom' ),
