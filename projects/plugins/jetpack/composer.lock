@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "6c817ab08a94e1765cddf0eed57e93f2a2fd2a7a"
+				"reference": "3a47d3317d117430fdeed3844de71c5bbfe34708"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1504,6 +1504,7 @@
 				"automattic/jetpack-plans": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
+				"automattic/wp-feature-api": "@dev",
 				"php": ">=7.2"
 			},
 			"require-dev": {
@@ -3484,6 +3485,65 @@
 			"transport-options": {
 				"relative": true
 			}
+		},
+		{
+			"name": "automattic/wp-feature-api",
+			"version": "0.1.8",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/Automattic/wp-feature-api.git",
+				"reference": "184dbd8a9d4b7076abcaa9d5f211b3a60b2442f6"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/Automattic/wp-feature-api/zipball/184dbd8a9d4b7076abcaa9d5f211b3a60b2442f6",
+				"reference": "184dbd8a9d4b7076abcaa9d5f211b3a60b2442f6",
+				"shasum": ""
+			},
+			"require": {
+				"ext-hash": "*",
+				"ext-json": "*",
+				"php": ">=7.2.24"
+			},
+			"require-dev": {
+				"composer/ca-bundle": "1.5.6",
+				"phpcompatibility/phpcompatibility-wp": "~2.1.3",
+				"squizlabs/php_codesniffer": "3.10.3",
+				"wp-coding-standards/wpcs": "~3.1.0",
+				"yoast/phpunit-polyfills": "^1.1.0"
+			},
+			"suggest": {
+				"ext-dom": "*"
+			},
+			"type": "library",
+			"autoload": {
+				"classmap": [
+					"includes/"
+				]
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"authors": [
+				{
+					"name": "Automattic",
+					"homepage": "https://automattic.ai/"
+				}
+			],
+			"description": "A system for exposing WordPress functionality in a standardized, discoverable way for both server and client-side use",
+			"keywords": [
+				"ai",
+				"api",
+				"features",
+				"llm",
+				"wordpress"
+			],
+			"support": {
+				"issues": "https://github.com/Automattic/wp-feature-api/issues",
+				"source": "https://github.com/Automattic/wp-feature-api/tree/0.1.8"
+			},
+			"time": "2025-08-04T09:08:57+00:00"
 		},
 		{
 			"name": "wikimedia/aho-corasick",
