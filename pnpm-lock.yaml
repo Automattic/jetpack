@@ -2684,8 +2684,8 @@ importers:
         specifier: 10.35.0
         version: 10.35.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)
       '@wordpress/dataviews':
-        specifier: 10.2.0
-        version: 10.2.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
+        specifier: 10.4.1-next.dc3f6d3c1.0
+        version: 10.4.1-next.dc3f6d3c1.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
       '@wordpress/dom-ready':
         specifier: 4.35.0
         version: 4.35.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
