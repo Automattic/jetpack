@@ -445,7 +445,7 @@ class WooCommerce_Products extends Module {
 	 * @return array
 	 */
 	private function get_product_cogs_data( $ids, $order = '' ) {
-		// @phan-suppress-next-line PhanUndeclaredClassReference, PhanUndeclaredClassMethod -- we're checking for the class and method before using them.
+		// @phan-suppress-current-line UnusedPluginSuppression @phan-suppress-next-line PhanUndeclaredClassReference, PhanUndeclaredClassMethod -- we're checking for the class and method before using them. See also: https://github.com/phan/phan/issues/1204
 		$is_cogs_enabled = class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) && method_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil', 'feature_is_enabled' ) && \Automattic\WooCommerce\Utilities\FeaturesUtil::feature_is_enabled( 'cost_of_goods_sold' );
 
 		if ( ! $is_cogs_enabled ) {
