@@ -95,10 +95,12 @@ function PrivateViewers() {
 			{
 				id: 'nice_name',
 				label: __( 'Name', 'jetpack-mu-wpcom' ),
+				enableSorting: false,
 			},
 			{
 				id: 'login',
 				label: __( 'Login', 'jetpack-mu-wpcom' ),
+				enableSorting: false,
 			},
 		],
 		[]
@@ -123,6 +125,7 @@ function PrivateViewers() {
 						} }
 						onChangeView={ setView }
 						defaultLayouts={ { table: {} } }
+						search={ false }
 					/>
 					{ isLoading && (
 						<div style={ { textAlign: 'center', padding: '20px' } }>
