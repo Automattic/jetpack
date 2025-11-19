@@ -22,6 +22,9 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
+		// Load the new @wordpress/build generated admin page
+		require_once __DIR__ . '/../jetpack-forms-page.php';
+
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();

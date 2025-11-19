@@ -1,0 +1,7 @@
+# Hoist @wordpress packages so @wordpress/build can find and bundle them
+# This is needed for the experimental pages feature
+public-hoist-pattern[]=@wordpress/*
+
+# Workaround: @wordpress/build declares peer deps for 1.x versions that don't exist yet
+# Only 0.x pre-release versions are published to npm
+strict-peer-dependencies=false
