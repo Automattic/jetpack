@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\WooCommerce\Enums\ProductType;
 use DateTimeZone;
 use WC_DateTime;
 use WP_Error;
@@ -292,10 +291,12 @@ class WooCommerce_Products extends Module {
 			);
 
 			$post_type = $post->post_type;
+			// ProductType::VARIATION and ProductType::SIMPLE have only existed since WooCommerce 9.7, so
+			// we can't rely on that existing, but using the strings is probably safe enough.
 			if ( 'product_variation' === $post_type ) {
-				$product_type = ProductType::VARIATION;
+				$product_type = 'variation';
 			} elseif ( 'product' === $post_type ) {
-				$product_type = $product_types[ $post->ID ] ?? ProductType::SIMPLE;
+				$product_type = $product_types[ $post->ID ] ?? 'simple';
 			} else {
 				$product_type = null;
 			}
