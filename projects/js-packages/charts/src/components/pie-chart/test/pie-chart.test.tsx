@@ -180,18 +180,18 @@ describe( 'PieChart', () => {
 			expect( screen.getByText( '17%' ) ).toBeInTheDocument();
 		} );
 
-		test( 'shows raw values when legendValueDisplay is set to "value"', () => {
-			renderWithTheme( {
-				data: testData,
-				showLegend: true,
-				legendValueDisplay: 'value',
-			} );
-
-			// Should display raw numeric values
-			expect( screen.getByText( '80000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '30000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '22000' ) ).toBeInTheDocument();
+	test( 'shows raw values when legendValueDisplay is set to "value"', () => {
+		renderWithTheme( {
+			data: testData,
+			showLegend: true,
+			legendValueDisplay: 'value',
 		} );
+
+		// Should display localized numeric values (formatted with thousand separators)
+		expect( screen.getByText( '80,000' ) ).toBeInTheDocument();
+		expect( screen.getByText( '30,000' ) ).toBeInTheDocument();
+		expect( screen.getByText( '22,000' ) ).toBeInTheDocument();
+	} );
 
 		test( 'shows formatted values when legendValueDisplay is set to "valueDisplay"', () => {
 			renderWithTheme( {
