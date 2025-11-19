@@ -324,6 +324,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
+		require_once __DIR__ . '/features/private-viewers/private-viewers.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 		require_once __DIR__ . '/features/stats/stats.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
