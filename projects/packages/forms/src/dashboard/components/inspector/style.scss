@@ -123,7 +123,7 @@
 	white-space: pre-wrap;
 }
 
-.response-country-flag {
+.jp-forms__inbox-response-country-flag {
 	font-size: 16px;
 	display: inline;
 	padding-right: 4px;
@@ -229,22 +229,4 @@
 
 .jp-forms__inbox-file-spinner.jp-forms__inbox-file-spinner {
 	margin-top: 0;
-}
-
-
-/*
- * Specific fields
- */
-.jp-forms__inbox-response-data-value .email-field {
-
-	@include mixins.flex-center;
-	gap: 4px;
-}
-
-.jp-forms__inbox-response-data-value .image-select-field {
-
-	.image-select-field-button {
-		gap: variables.$grid-unit-10;
-		height: auto;
-	}
 }

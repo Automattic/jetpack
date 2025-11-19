@@ -381,7 +381,7 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<>
-							<span className="response-country-flag">
+							<span className="jp-forms__inbox-response-country-flag">
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
 								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
