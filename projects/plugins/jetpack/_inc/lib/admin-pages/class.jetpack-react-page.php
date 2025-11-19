@@ -94,6 +94,15 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			\Automattic\Jetpack\My_Jetpack\Initializer::should_initialize()
 		);
 
+		// Check if we're in partner coupon redemption flow.
+		// Don't remove the menu if we need to show partner coupon redemption.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Just checking if parameter exists for UI display.
+		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
+
+		if ( $show_coupon_redemption ) {
+			return;
+		}
+
 		if ( $is_offline_mode || $has_my_jetpack || Jetpack::is_connection_ready() ) {
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
