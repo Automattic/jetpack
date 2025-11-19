@@ -40,13 +40,6 @@ class Jetpack_Forms {
 		add_filter( 'wp_theme_json_data_default', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'add_theme_json_data_for_classic_themes' ) );
 
 		// Initialize abilities registration for WordPress Feature API
-		// Try to load the class file directly if autoloader hasn't loaded it yet
-		$abilities_file = __DIR__ . '/abilities/class-forms-abilities.php';
-		if ( file_exists( $abilities_file ) && ! class_exists( '\Automattic\Jetpack\Forms\Abilities\Forms_Abilities' ) ) {
-			require_once $abilities_file;
-		}
-
-		// Only initialize if the class is available
 		if ( class_exists( '\Automattic\Jetpack\Forms\Abilities\Forms_Abilities' ) ) {
 			\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
 		}
