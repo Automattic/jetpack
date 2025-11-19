@@ -100,7 +100,7 @@ class Webhook_Provider_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test Generic_Webhook_Provider::get_setup defaults to urlencoded.
+	 * Test Generic_Webhook_Provider::get_setup defaults to json.
 	 */
 	public function test_generic_provider_get_setup_defaults_to_urlencoded() {
 		$attributes = array(
@@ -115,7 +115,7 @@ class Webhook_Provider_Test extends BaseTestCase {
 
 		$this->assertIsArray( $setup );
 		$this->assertTrue( $provider->is_enabled() );
-		$this->assertEquals( 'urlencoded', $setup['format'] );
+		$this->assertEquals( 'json', $setup['format'] );
 	}
 
 	/**
