@@ -326,7 +326,7 @@ class Help_Center {
 	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
 	 */
 	private function is_menu_panel_enabled() {
-		$experiment_name      = 'calypso_help_center_menu_popover';
+		$experiment_name      = 'calypso_help_center_menu_popover_v2';
 		$experiment_variation = 'menu_popover';
 		$user_id              = get_current_user_id();
 		$cache_key            = 'help-center-menu-panel-enabled-' . $user_id . '-' . $experiment_name;
