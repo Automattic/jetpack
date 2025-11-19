@@ -172,6 +172,7 @@ trait Woo_Analytics_Trait {
 
 		$this->cart_checkout_templates_in_use = wp_is_block_theme()
 			&& class_exists( '\Automattic\WooCommerce\Blocks\Package' )
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- If the class exists (as of WooCommerce 8.5.0), the method exists.
 			&& version_compare( \Automattic\WooCommerce\Blocks\Package::get_version(), '10.6.0', '>=' );
 
 		// Cart/Checkout *pages* are in use if the templates are not in use. Return their content and do nothing else.
@@ -260,6 +261,7 @@ trait Woo_Analytics_Trait {
 	public function get_common_properties() {
 		$site_info = array(
 			'blog_id'        => Jetpack_Connection::get_site_id(),
+			// @phan-suppress-next-line PhanUndeclaredConstantOfClass -- The constant has only existed since WooCommerce 8.4, but we check for its existence.
 			'store_id'       => defined( '\\WC_Install::STORE_ID_OPTION' ) ? get_option( \WC_Install::STORE_ID_OPTION ) : false,
 			'ui'             => $this->get_user_id(),
 			'url'            => home_url(),

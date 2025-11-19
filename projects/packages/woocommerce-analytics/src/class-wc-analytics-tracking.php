@@ -231,6 +231,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		foreach ( self::$pixel_batch_queue as $pixel ) {
 			// Check if the method exists for backwards compatibility with older WooCommerce versions.
 			if ( method_exists( WC_Tracks_Client::class, 'add_request_timestamp_and_nocache' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredStaticMethod -- We verify the method exists before using it.
 				$pixels_to_send[] = WC_Tracks_Client::add_request_timestamp_and_nocache( $pixel );
 			} else {
 				// Fallback for older versions - add timestamp and nocache parameters manually.
