@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.19.0] - 2025-11-19
+### Changed
+- Move empty state as component for inbox. [#45971]
+- Update to Manage Integrations". [#45979]
+
+### Fixed
+- Allow long responses to scroll. [#45975]
+- Fix spacing within advanced editor panel. [#45973]
+- JWT payload v2. [#45954]
+
 ## [6.18.0] - 2025-11-18
 ### Changed
 - Update to ESM module. [#45963]
@@ -1876,6 +1886,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.19.0]: https://github.com/automattic/jetpack-forms/compare/v6.18.0...v6.19.0
 [6.18.0]: https://github.com/automattic/jetpack-forms/compare/v6.17.0...v6.18.0
 [6.17.0]: https://github.com/automattic/jetpack-forms/compare/v6.16.0...v6.17.0
 [6.16.0]: https://github.com/automattic/jetpack-forms/compare/v6.15.0...v6.16.0
