@@ -3368,6 +3368,8 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.101.3)
 
+  projects/packages/newsletter-settings: {}
+
   projects/packages/paypal-payments:
     dependencies:
       '@automattic/babel-plugin-replace-textdomain':
