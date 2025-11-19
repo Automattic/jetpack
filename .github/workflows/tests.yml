@@ -543,7 +543,7 @@ jobs:
           exit 1
 
   phan-woocommerce:
-    name: Static analysis (WooCommerce)
+    name: Static analysis (old WooCommerce)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
