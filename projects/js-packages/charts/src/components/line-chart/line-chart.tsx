@@ -1,4 +1,4 @@
-import { formatNumberCompact } from '@automattic/number-formatters';
+import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { LinearGradient } from '@visx/gradient';
 import { scaleTime } from '@visx/scale';
@@ -95,7 +95,9 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 			{ tooltipPoints.map( point => (
 				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
-					<span className={ styles[ 'line-chart__tooltip-value' ] }>{ point.value }</span>
+					<span className={ styles[ 'line-chart__tooltip-value' ] }>
+						{ formatNumber( point.value ) }
+					</span>
 				</div>
 			) ) }
 		</div>
