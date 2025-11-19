@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "708db098186de11f46e06a9f1d11e58a",
+	"content-hash": "e4256628f575aad35b1d81ecd6035a8e",
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -2177,6 +2177,68 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-newsletter-settings",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/newsletter-settings",
+				"reference": "a3b4af5d5eaaca12760635114e8b3b64517584ac"
+			},
+			"require": {
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/phpunit-select-config": "@dev",
+				"yoast/phpunit-polyfills": "^4.0.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "jetpack-newsletter-settings",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-newsletter-settings.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"NODE_ENV=production pnpm run build"
+				],
+				"watch": [
+					"pnpm run watch"
+				],
+				"phpunit": [
+					"phpunit-select-config phpunit.#.xml.dist --colors=always"
+				],
+				"test-coverage": [
+					"pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "The Jetpack Newsletters settings UI",
 			"transport-options": {
 				"relative": true
 			}
@@ -6358,6 +6420,7 @@
 		"automattic/jetpack-logo": 20,
 		"automattic/jetpack-masterbar": 20,
 		"automattic/jetpack-my-jetpack": 20,
+		"automattic/jetpack-newsletter-settings": 20,
 		"automattic/jetpack-paypal-payments": 20,
 		"automattic/jetpack-plugins-installer": 20,
 		"automattic/jetpack-post-list": 20,
