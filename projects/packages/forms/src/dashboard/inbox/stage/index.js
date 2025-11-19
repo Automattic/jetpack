@@ -334,7 +334,7 @@ export default function InboxView() {
 						value: `${ _filter.year }/${ _filter.month }`,
 					};
 				} ),
-				filterBy: { operators: [ 'is' ] },
+				filterBy: { operators: [ 'is', 'before', 'after' ] },
 				enableSorting: false,
 			},
 			{
