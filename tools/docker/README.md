@@ -394,7 +394,7 @@ Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be needl
     caddy reverse-proxy --from your-test-site.example.com --to localhost:80 --internal-certs --disable-redirects
     ```
 
-    `--internal-certs` and `--disable-redirects` is needed if you want to use HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
+    `--internal-certs` and `--disable-redirects` are needed if you want to use HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
 
 That’s it!
 
