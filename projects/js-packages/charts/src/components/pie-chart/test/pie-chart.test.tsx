@@ -187,7 +187,7 @@ describe( 'PieChart', () => {
 				legendValueDisplay: 'value',
 			} );
 
-			// Should display localized numeric values (formatted with thousand separators)
+			// Should display localized numeric values
 			expect( screen.getByText( '80,000' ) ).toBeInTheDocument();
 			expect( screen.getByText( '30,000' ) ).toBeInTheDocument();
 			expect( screen.getByText( '22,000' ) ).toBeInTheDocument();
