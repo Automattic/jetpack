@@ -365,7 +365,7 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 
 ### Improved performance when tunneling
 
-Loading tunnelled local sites like Jurassic Tube or ngrok can sometimes be needlessly slow. ngrok and JT add a significant overhead. Depending on where you live, there can be a considerable delay for most browser requests.
+Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be needlessly slow. Ngrok and JT add a significant overhead. Depending on where you live, there can be a considerable delay for most browser requests.
 
 **Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_ without tunneling using reverse proxy.
 
