@@ -263,36 +263,111 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function get_instance_from_jwt( $jwt_token, $throw_exception = false ) {
 		$secret = self::get_secret();
 
+		// Derive separate keys using HKDF for proper key separation and context binding
+		$jwt_signing_key = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-jwt-hmac-v2' );
+		$encryption_key  = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-aes-gcm-v2' );
+
 		try {
-			$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
+			$data = JWT::decode( $jwt_token, $jwt_signing_key, array( 'HS256' ), true );
 		} catch ( \Exception $e ) {
-			// Re-throw with more context about the failure.
-			if ( $throw_exception ) {
-				/**
-				 * Filter the failure to decode a JWT token for a contact form.
-				 *
-				 * @param null $value The value to return. Default null.
-				 * @param string      $jwt_token The JWT token that failed to decode.
-				 * @param \Exception  $e The exception that was thrown during decoding.
-				 *
-				 * @return Contact_Form|null The value to return.
-				 */
-				$filtered = apply_filters( 'jetpack_forms_jwt_decode_failure', null, $jwt_token, $e );
-				if ( $filtered !== null ) {
-					return $filtered;
+			try {
+				// Retry to decode the token using the secret key instead of the derived key
+				$data = JWT::decode( $jwt_token, $secret, array( 'HS256' ), true );
+			} catch ( \Exception $e ) {
+				// Re-throw with more context about the failure.
+				if ( $throw_exception ) {
+					/**
+					 * Filter the failure to decode a JWT token for a contact form.
+					 *
+					 * @param null $value The value to return. Default null.
+					 * @param string      $jwt_token The JWT token that failed to decode.
+					 * @param \Exception  $e The exception that was thrown during decoding.
+					 *
+					 * @return Contact_Form|null The value to return.
+					 */
+					$filtered = apply_filters( 'jetpack_forms_jwt_decode_failure', null, $jwt_token, $e );
+					if ( $filtered !== null ) {
+						return $filtered;
+					}
+					throw new \Exception(
+						sprintf(
+							/* translators: %s is the original exception message */
+							__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
+							$e->getMessage()
+						),
+						0,
+						$e
+					);
 				}
-				throw new \Exception(
-					sprintf(
-						/* translators: %s is the original exception message */
-						__( 'Failed to decode JWT token: %s', 'jetpack-forms' ),
-						$e->getMessage()
-					),
-					0,
-					$e
-				);
+				return apply_filters( 'jetpack_forms_jwt_decode_failure', null, $jwt_token, $e );
+			}
+		}
+
+		$version = isset( $data['version'] ) ? absint( $data['version'] ) : 1;
+
+		if ( 2 === $version ) {
+			if ( ! isset( $data['encrypted_attributes'] ) ) {
+				throw new \Exception( 'Invalid JWT format - encrypted attributes required' );
 			}
 
-			return apply_filters( 'jetpack_forms_jwt_decode_failure', null, $jwt_token, $e );
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Base64 decoding required for encrypted data
+			$encrypted_blob = base64_decode( $data['encrypted_attributes'], true ); // Strict mode
+			if ( $encrypted_blob === false ) {
+				throw new \Exception( 'Invalid base64 encoding in encrypted data' );
+			}
+
+			// Determine which cipher was used (stored in JWT or default to GCM)
+			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'AES-256-GCM';
+
+			// Check if the cipher is available on this server
+			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
+			if ( ! in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+				throw new \Exception( 'Required encryption cipher ' . $cipher . ' is not available on this server' );
+			}
+
+			// Determine IV and tag sizes based on cipher
+			$is_gcm = strpos( $cipher, 'GCM' ) !== false;
+			if ( $is_gcm ) {
+				// GCM: 12-byte IV + 16-byte tag + ciphertext
+				if ( strlen( $encrypted_blob ) < 29 ) { // 12 + 16 + at least 1 byte
+					throw new \Exception( 'Invalid encrypted data format - too short for GCM' );
+				}
+				$iv        = substr( $encrypted_blob, 0, 12 );  // 12-byte IV (96-bit)
+				$tag       = substr( $encrypted_blob, 12, 16 ); // 16-byte auth tag
+				$encrypted = substr( $encrypted_blob, 28 );     // Remaining ciphertext
+			} else {
+				// CBC: 16-byte IV + ciphertext (no tag)
+				if ( strlen( $encrypted_blob ) < 17 ) { // 16 + at least 1 byte
+					throw new \Exception( 'Invalid encrypted data format - too short for CBC' );
+				}
+				$iv        = substr( $encrypted_blob, 0, 16 );  // 16-byte IV (128-bit)
+				$tag       = null; // No tag for CBC
+				$encrypted = substr( $encrypted_blob, 16 );     // Remaining ciphertext
+			}
+
+			$decrypted = openssl_decrypt(
+				$encrypted,
+				$cipher,
+				$encryption_key,
+				OPENSSL_RAW_DATA, // Expect raw binary data
+				$iv,
+				$tag ?? ''
+			);
+
+			if ( $decrypted === false ) {
+				throw new \Exception( 'Decryption failed - invalid token' );
+			}
+
+			$decrypted_attributes = json_decode( $decrypted, true );
+			if ( $decrypted_attributes === null ) {
+				throw new \Exception( 'Invalid attributes format' );
+			}
+
+			// Reconstruct data with decrypted attributes and unencrypted fields
+			$data['attributes'] = $decrypted_attributes;
+			// content, hash, and source are already in $data (unencrypted)
+		} elseif ( ! in_array( $version, array( 0, 1 ), true ) ) {
+			throw new \Exception( 'Unsupported JWT version' );
 		}
 
 		$source = $data['source'] ?? array();
@@ -456,19 +531,82 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * Get the JWT token for the contact form instance.
 	 *
 	 * @return string The JWT token.
+	 * @throws \Exception If encryption fails.
 	 */
 	public function get_jwt() {
+		$secret = self::get_secret();
+
+		// Derive separate keys using HKDF for proper key separation and context binding
+		$jwt_signing_key = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-jwt-hmac-v2' );
+		$encryption_key  = hash_hkdf( 'sha256', $secret, 32, 'jetpack-forms-aes-gcm-v2' );
+
 		$attributes   = $this->attributes;
 		$this->source = Feedback_Source::get_current( $attributes );
-		return JWT::encode(
-			array(
-				'attributes' => $attributes,
-				'content'    => $this->content,
-				'hash'       => $this->hash,
-				'source'     => $this->source->serialize(),
-			),
-			self::get_secret()
-		);
+
+		// Only encrypt the attributes field as it contains sensitive information
+		// Content, hash, and source are not sensitive and can remain unencrypted
+
+		// Check cipher availability with fallback support
+		$cipher                   = 'AES-256-GCM';
+		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
+		$use_encryption           = false;
+		$iv_length                = 12; // Default for GCM
+
+		if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+			$use_encryption = true;
+			// IV length already set to 12 (NIST recommended for AES-GCM)
+		} else {
+			// Try fallback to AES-256-CBC
+			$cipher = 'AES-256-CBC';
+			if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+				$use_encryption = true;
+				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
+			}
+		}
+
+		if ( $use_encryption ) {
+			$iv        = random_bytes( $iv_length );
+			$tag       = ''; // Will be populated by openssl_encrypt for GCM
+			$encrypted = openssl_encrypt(
+				wp_json_encode( $attributes ),
+				$cipher,
+				$encryption_key,
+				OPENSSL_RAW_DATA, // Return raw binary data, not base64
+				$iv,
+				$tag
+			);
+
+			if ( $encrypted === false ) {
+				throw new \Exception( 'Failed to encrypt JWT payload' );
+			}
+
+			// For GCM, include the authentication tag; for CBC, tag will be empty
+			$encrypted_blob = strpos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
+
+			return JWT::encode(
+				array(
+					'encrypted_attributes' => base64_encode( $encrypted_blob ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Base64 encoding required for encrypted data storage
+					'content'              => $this->content,
+					'hash'                 => $this->hash,
+					'source'               => $this->source->serialize(),
+					'version'              => 2,
+					'cipher'               => $cipher, // Store which cipher was used
+				),
+				$jwt_signing_key
+			);
+		} else {
+			// No encryption available - fall back to version 1 format (unencrypted)
+			return JWT::encode(
+				array(
+					'attributes' => $attributes,
+					'content'    => $this->content,
+					'hash'       => $this->hash,
+					'source'     => $this->source->serialize(),
+					// No version field = version 1 (unencrypted)
+				),
+				$jwt_signing_key
+			);
+		}
 	}
 
 	/**

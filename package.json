@@ -36,10 +36,10 @@
 		"jetpack-js-tools": "workspace:*",
 		"stylelint": "16.19.1"
 	},
-	"packageManager": "pnpm@10.4.0",
+	"packageManager": "pnpm@10.22.0",
 	"engines": {
-		"node": "^22.12.0",
-		"pnpm": "^10.4.0"
+		"node": "^22.19.0",
+		"pnpm": "^10.22.0"
 	},
 	"pnpm": {
 		"ignoredBuiltDependencies": [
@@ -118,7 +118,7 @@
 			"@wordpress/warning": ".pnpm-patches/@wordpress-build-modules-no-side-effects.patch",
 			"@wordpress/widgets": ".pnpm-patches/@wordpress-build-modules.patch",
 			"@wordpress/wordcount": ".pnpm-patches/@wordpress-build-modules-no-side-effects.patch",
-			"uuid": ".pnpm-patches/uuid.patch"
+			"uuid@<11": ".pnpm-patches/uuid.patch"
 		}
 	}
 }

@@ -205,7 +205,7 @@ patchedDependencies:
   '@wordpress/wordcount':
     hash: 2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b
     path: .pnpm-patches/@wordpress-build-modules-no-side-effects.patch
-  uuid:
+  uuid@<11:
     hash: 87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0
     path: .pnpm-patches/uuid.patch
 
@@ -4303,6 +4303,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
 
   projects/plugins/boost:
     dependencies:
@@ -4466,6 +4469,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -4566,6 +4572,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5197,6 +5206,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5275,6 +5287,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
 
   projects/plugins/protect:
     dependencies:
@@ -5399,6 +5414,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5422,6 +5440,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5449,6 +5470,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5546,6 +5570,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5669,6 +5696,9 @@ importers:
       config:
         specifier: 4.1.1
         version: 4.1.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5705,6 +5735,9 @@ importers:
       configstore:
         specifier: 7.0.0
         version: 7.0.0
+      dot-prop:
+        specifier: ^9.0.0
+        version: 9.0.0
       enquirer:
         specifier: 2.4.1
         version: 2.4.1
@@ -5805,6 +5838,9 @@ importers:
       lodash-es:
         specifier: 4.17.21
         version: 4.17.21
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
@@ -14498,6 +14534,9 @@ packages:
     resolution: {integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==}
     engines: {node: '>=18'}
     hasBin: true
+
+  playwright-ctrf-json-reporter@0.0.26:
+    resolution: {integrity: sha512-3BtV0R5Vstwu02ARwAlegdCwMhBJC3GYm+0CVBrHOryQACk+TraqD+ZZxLMPhUnlddGFwkHcU57KxPiZb6/k1A==}
 
   playwright@1.55.1:
     resolution: {integrity: sha512-cJW4Xd/G3v5ovXtJJ52MAOclqeac9S/aGGgRzLabuF8TnIb6xHvMzKIa6JmrRzUkeXJgfL1MhukP0NK6l39h3A==}
@@ -29502,6 +29541,8 @@ snapshots:
   playwright-core@1.55.1: {}
 
   playwright-core@1.56.1: {}
+
+  playwright-ctrf-json-reporter@0.0.26: {}
 
   playwright@1.55.1:
     dependencies:

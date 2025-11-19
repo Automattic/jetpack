@@ -937,9 +937,11 @@ function JetpackContactFormEdit( {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
-					<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
-						{ __( 'Read more.', 'jetpack-forms' ) }
-					</ExternalLink>
+					<p>
+						<ExternalLink href="https://developer.mozilla.org/docs/Glossary/Accessible_name">
+							{ __( 'Read more.', 'jetpack-forms' ) }
+						</ExternalLink>
+					</p>
 				</InspectorAdvancedControls>
 				<BlockContextProvider
 					value={ {
