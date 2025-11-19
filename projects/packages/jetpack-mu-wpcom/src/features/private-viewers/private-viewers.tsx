@@ -2,6 +2,7 @@ import {
 	Card,
 	CardHeader,
 	CardMedia,
+	Spinner,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -108,9 +109,7 @@ function PrivateViewers() {
 		[]
 	);
 
-	const emptyMessage = isLoading
-		? __( 'Loading…', 'jetpack-mu-wpcom' )
-		: __( 'No viewers found.', 'jetpack-mu-wpcom' );
+	const emptyMessage = isLoading ? null : __( 'No viewers found.', 'jetpack-mu-wpcom' );
 
 	return (
 		<Card className="wpcom-private-viewers">
@@ -140,9 +139,19 @@ function PrivateViewers() {
 						<DataViews.ViewConfig />
 					</HStack>
 				</CardHeader>
-				<CardMedia>
+				<CardMedia className="wpcom-private-viewers-data">
 					<DataViews.Layout />
 					<DataViews.Footer />
+					{ isLoading && (
+						<div
+							className={
+								'wpcom-private-viewers-loading ' + ( viewers.length > 0 ? 'is-overlay' : '' )
+							}
+						>
+							<Spinner />
+							{ __( 'Loading…', 'jetpack-mu-wpcom' ) }
+						</div>
+					) }
 				</CardMedia>
 			</DataViews>
 		</Card>
