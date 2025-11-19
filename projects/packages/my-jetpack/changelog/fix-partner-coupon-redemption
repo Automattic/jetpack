@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Redirect partner coupon redemption requests to Jetpack dashboard to ensure coupon can be redeemed.
