@@ -25,7 +25,8 @@ jobs:
   changed_files:
     name: detect changed files
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
+    #timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
+    timeout-minutes: 2  # 2025-11-19: Successful runs seem to take a few seconds, but GitHubSecurityLab/actions-permissions/monitor takes a minute to start.
     outputs:
       # Whether any PHP files have changed.
       php: ${{ steps.filter.outputs.php }}
@@ -469,7 +470,8 @@ jobs:
   copied_files:
     name: Copied files are in sync
     runs-on: ubuntu-latest
-    timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
+    #timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
+    timeout-minutes: 2  # 2025-11-19: Successful runs seem to take a few seconds, but GitHubSecurityLab/actions-permissions/monitor takes a minute to start.
 
     steps:
       - uses: GitHubSecurityLab/actions-permissions/monitor@v1
