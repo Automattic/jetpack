@@ -67,6 +67,10 @@ jobs:
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@v5
 
@@ -213,6 +217,10 @@ jobs:
         experimental: [ false ]
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -247,6 +255,10 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~2 minutes. Leaving some extra for future expansion.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -275,6 +287,10 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -305,6 +321,10 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take 30 seconds. Leaving some extra for future expansion.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
       - uses: actions/checkout@v5
         with:
@@ -343,6 +363,10 @@ jobs:
     timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -366,6 +390,10 @@ jobs:
     timeout-minutes: 10  # 2025-11-06: Takes about a minute, but rarely runs.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
       - uses: actions/checkout@v5
         with:
@@ -396,6 +424,10 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Takes a bit more than a minute, so give a little wiggle room.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -417,6 +449,10 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -436,6 +472,10 @@ jobs:
     timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
 
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
       - run: ./tools/check-copied-files.sh
 
@@ -450,6 +490,10 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2025-11-06: The check itself takes 2 minutes.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -472,6 +516,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes a few seconds.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
       - uses: actions/checkout@v5
         with:
@@ -497,6 +545,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -519,6 +571,10 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Successful runs seem to take about 2 minutes.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -537,6 +593,10 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Takes a minute or two.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -551,6 +611,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes a minute or two.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
 
       - name: Setup tools
@@ -567,6 +631,10 @@ jobs:
     if: github.event_name == 'pull_request' && needs.changed_files.outputs.phanstubs == 'true' && github.event.pull_request.user.login != 'matticbot'
     timeout-minutes: 5  # 2025-11-06: Probably takes about a minute, but shouldn't run often.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
       - uses: ./.github/actions/deepen-to-merge-base
         id: deepen
