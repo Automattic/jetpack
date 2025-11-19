@@ -341,7 +341,7 @@ class Search_Widget extends \WP_Widget {
 			}
 		}
 
-		if ( empty( $filters ) && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
+		if ( ! $filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
 			return;
 		}
 
@@ -396,7 +396,7 @@ class Search_Widget extends \WP_Widget {
 			<?php
 		endif;
 
-		if ( ! empty( $filters ) ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *
@@ -467,7 +467,7 @@ class Search_Widget extends \WP_Widget {
 
 		Template_Tags::render_widget_search_form( array(), '', '' );
 
-		if ( ! empty( $filters ) ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *
