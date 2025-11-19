@@ -929,3 +929,66 @@ export const customerRevenueLegendData = [
 		comparison: '133%',
 	},
 ];
+
+/**
+ * Localized tooltip demonstration data
+ *
+ * Data with decimal values to demonstrate number formatting across locales
+ * Values like 1234.567 show thousand/decimal separator differences
+ * - Category: time-series
+ * - Data points: 36 (3 series × 12 months)
+ * - Suitable for: LineChart tooltips, localization testing
+ */
+export const localizedTooltipData: SeriesData[] = [
+	{
+		label: 'New York',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 1234.567 },
+			{ date: new Date( '2024-02-01' ), value: 5678.901 },
+			{ date: new Date( '2024-03-01' ), value: 9012.345 },
+			{ date: new Date( '2024-04-01' ), value: 12345.678 },
+			{ date: new Date( '2024-05-01' ), value: 8765.432 },
+			{ date: new Date( '2024-06-01' ), value: 15432.109 },
+			{ date: new Date( '2024-07-01' ), value: 18901.234 },
+			{ date: new Date( '2024-08-01' ), value: 23456.789 },
+			{ date: new Date( '2024-09-01' ), value: 19876.543 },
+			{ date: new Date( '2024-10-01' ), value: 27890.123 },
+			{ date: new Date( '2024-11-01' ), value: 32109.876 },
+			{ date: new Date( '2024-12-01' ), value: 35678.901 },
+		],
+	},
+	{
+		label: 'London',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 2345.678 },
+			{ date: new Date( '2024-02-01' ), value: 6789.012 },
+			{ date: new Date( '2024-03-01' ), value: 8901.234 },
+			{ date: new Date( '2024-04-01' ), value: 11234.567 },
+			{ date: new Date( '2024-05-01' ), value: 7654.321 },
+			{ date: new Date( '2024-06-01' ), value: 14321.098 },
+			{ date: new Date( '2024-07-01' ), value: 17890.123 },
+			{ date: new Date( '2024-08-01' ), value: 22345.678 },
+			{ date: new Date( '2024-09-01' ), value: 18765.432 },
+			{ date: new Date( '2024-10-01' ), value: 26789.012 },
+			{ date: new Date( '2024-11-01' ), value: 31098.765 },
+			{ date: new Date( '2024-12-01' ), value: 34567.89 },
+		],
+	},
+	{
+		label: 'Tokyo',
+		data: [
+			{ date: new Date( '2024-01-01' ), value: 3456.789 },
+			{ date: new Date( '2024-02-01' ), value: 7890.123 },
+			{ date: new Date( '2024-03-01' ), value: 10123.456 },
+			{ date: new Date( '2024-04-01' ), value: 13456.789 },
+			{ date: new Date( '2024-05-01' ), value: 9876.543 },
+			{ date: new Date( '2024-06-01' ), value: 16543.21 },
+			{ date: new Date( '2024-07-01' ), value: 20123.456 },
+			{ date: new Date( '2024-08-01' ), value: 24567.89 },
+			{ date: new Date( '2024-09-01' ), value: 21098.765 },
+			{ date: new Date( '2024-10-01' ), value: 29012.345 },
+			{ date: new Date( '2024-11-01' ), value: 33210.987 },
+			{ date: new Date( '2024-12-01' ), value: 36789.012 },
+		],
+	},
+];
