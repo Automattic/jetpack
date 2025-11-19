@@ -1,9 +1,11 @@
 import {
 	Card,
 	CardHeader,
-	CardBody,
+	CardMedia,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { DataViews, Field, type View } from '@wordpress/dataviews';
 import domReady from '@wordpress/dom-ready';
@@ -106,35 +108,44 @@ function PrivateViewers() {
 		[]
 	);
 
+	const emptyMessage = isLoading
+		? __( 'Loading…', 'jetpack-mu-wpcom' )
+		: __( 'No viewers found.', 'jetpack-mu-wpcom' );
+
 	return (
-		<div className="wrap">
-			<Card>
+		<Card className="wpcom-private-viewers">
+			<DataViews
+				data={ viewers }
+				fields={ fields }
+				view={ view }
+				getItemId={ getItemId }
+				paginationInfo={ {
+					totalItems: totalViewers,
+					totalPages: Math.ceil( totalViewers / view.perPage ),
+				} }
+				onChangeView={ setView }
+				defaultLayouts={ { table: {} } }
+				empty={ emptyMessage }
+			>
 				<CardHeader>
-					<Heading level={ 1 }>{ __( 'Private Viewers', 'jetpack-mu-wpcom' ) }</Heading>
-					<Text>{ __( 'Manage who can access your private site', 'jetpack-mu-wpcom' ) }</Text>
+					<HStack>
+						<VStack spacing={ 1 }>
+							<Heading level={ 1 } size="20px" lineHeight="32px" truncate>
+								{ __( 'Private Viewers', 'jetpack-mu-wpcom' ) }
+							</Heading>
+							<Text variant="muted" truncate>
+								{ __( 'View and manage who can access your private site.', 'jetpack-mu-wpcom' ) }
+							</Text>
+						</VStack>
+						<DataViews.ViewConfig />
+					</HStack>
 				</CardHeader>
-				<CardBody>
-					<DataViews
-						data={ viewers }
-						fields={ fields }
-						view={ view }
-						getItemId={ getItemId }
-						paginationInfo={ {
-							totalItems: totalViewers,
-							totalPages: Math.ceil( totalViewers / view.perPage ),
-						} }
-						onChangeView={ setView }
-						defaultLayouts={ { table: {} } }
-						search={ false }
-					/>
-					{ isLoading && (
-						<div style={ { textAlign: 'center', padding: '20px' } }>
-							{ __( 'Loading…', 'jetpack-mu-wpcom' ) }
-						</div>
-					) }
-				</CardBody>
-			</Card>
-		</div>
+				<CardMedia>
+					<DataViews.Layout />
+					<DataViews.Footer />
+				</CardMedia>
+			</DataViews>
+		</Card>
 	);
 }
 
