@@ -269,7 +269,7 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 ## Jurassic Tube Tunneling Service
 
-This is for Automatticians only. More information: PCYsg-snO-p2.
+This is for Automatticians only. More information: PCYsg-GJ2-p2.
 
 If you have persistent trouble with the `jetpack docker jt-*` commands complaining that "Tunneling scripts are not installed", it could be because Docker wasn't running properly when you ran the installer.
 
@@ -362,6 +362,41 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
+
+### Improved performance when tunneling
+
+Loading tunnelled local sites like Jurassic Tube or ngrok can sometimes be needlessly slow. ngrok and JT add a significant overhead. Depending on where you live, there can be a considerable delay for most browser requests.
+
+**Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_ without tunneling using reverse proxy.
+
+#### Setup
+1. Install [Caddy](https://formulae.brew.sh/formula/caddy)
+
+    Why Caddy? The hosts file can’t include ports – it only maps `your-test-site.example.com` to `127.0.0.1`. Caddy’s reverse proxy shuttles HTTP(S) traffic from the Jurassic Tube site to the local Docker address, including the port.
+
+    ```sh
+    brew install caddy
+    ```
+
+2. Edit hosts file
+
+    Add this line:
+
+    ```
+    127.0.0.1 localhost your-test-site.example.com
+    ```
+
+3. Start Jurassic Tube tunnel or ngrok
+
+4. Run Caddy
+
+    ```sh
+    caddy reverse-proxy --from your-test-site.example.com --to localhost:80 --internal-certs --disable-redirects
+    ```
+
+    `--internal-certs` and `--disable-redirects` is needed if you want to use HTTPS. More about it [here](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
+
+That’s it!
 
 ## Custom plugins & themes in the container
 
