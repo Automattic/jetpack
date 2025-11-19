@@ -412,6 +412,10 @@ class Util {
 					);
 				}
 				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
+				// Ensure $attrs is an array before merging (json_decode can return null on invalid JSON).
+				if ( ! is_array( $attrs ) ) {
+					$attrs = array();
+				}
 				$attrs = array_merge( $attrs, $new_attr );
 				return str_replace(
 					$match['attrs'],
