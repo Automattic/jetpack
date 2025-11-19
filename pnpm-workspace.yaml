@@ -35,6 +35,7 @@ trustPolicyExclude:
   # Packages where newer majors have provenance but we're still on an older one.
   - '@octokit/endpoint@9.0.6'
   - '@octokit/plugin-paginate-rest@9.2.2'
+  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
   - rxjs@7.8.2
   - semver@6.3.1
   - svelte@4.2.19

@@ -8082,6 +8082,13 @@ packages:
     os: [linux]
     libc: [glibc]
 
+  '@oxc-parser/binding-linux-x64-gnu@0.78.0':
+    resolution: {integrity: sha512-qJULpZeRsN0mfxasPh8EzzE7lsEEMEEtcprgw8QetB5l1Urz4gzKyeKdqs1vuxBl9o0s+WHSiowH2YqFMALs/g==}
+    engines: {node: '>=20.0.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
   '@oxc-project/types@0.78.0':
     resolution: {integrity: sha512-8FvExh0WRWN1FoSTjah1xa9RlavZcJQ8/yxRbZ7ElmSa2Ij5f5Em7MvRbSthE6FbwC6Wh8iAw0Gpna7QdoqLGg==}
 
@@ -19874,6 +19881,9 @@ snapshots:
   '@oxc-parser/binding-linux-s390x-gnu@0.78.0':
     optional: true
 
+  '@oxc-parser/binding-linux-x64-gnu@0.78.0':
+    optional: true
+
   '@oxc-project/types@0.78.0': {}
 
   '@paulirish/trace_engine@0.0.59':
@@ -29197,6 +29207,7 @@ snapshots:
       '@oxc-parser/binding-linux-arm-musleabihf': 0.78.0
       '@oxc-parser/binding-linux-riscv64-gnu': 0.78.0
       '@oxc-parser/binding-linux-s390x-gnu': 0.78.0
+      '@oxc-parser/binding-linux-x64-gnu': 0.78.0
 
   p-debounce@4.0.0: {}
 
