@@ -108,19 +108,19 @@ describe( 'useChartLegendItems', () => {
 				{ date: new Date( '2024-03-01' ), value: null, label: 'Mar' },
 			];
 
-		test( 'formats numeric values with localization', () => {
-			const { result } = renderHook(
-				() =>
-					useChartLegendItems( dateData, {
-						showValues: true,
-					} ),
-				{ wrapper }
-			);
+			test( 'formats numeric values with localization', () => {
+				const { result } = renderHook(
+					() =>
+						useChartLegendItems( dateData, {
+							showValues: true,
+						} ),
+					{ wrapper }
+				);
 
-			// Values should be formatted with thousand separators (decimals are rounded by default)
-			expect( result.current[ 0 ].value ).toBe( '1,235' );
-			expect( result.current[ 1 ].value ).toBe( '5,000' );
-		} );
+				// Values should be formatted with thousand separators (decimals are rounded by default)
+				expect( result.current[ 0 ].value ).toBe( '1,235' );
+				expect( result.current[ 1 ].value ).toBe( '5,000' );
+			} );
 
 			test( 'handles null values gracefully', () => {
 				const { result } = renderHook(
@@ -194,9 +194,7 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test( 'handles data with zero values', () => {
-			const zeroData: DataPointPercentage[] = [
-				{ label: 'Zero Value', value: 0, percentage: 0 },
-			];
+			const zeroData: DataPointPercentage[] = [ { label: 'Zero Value', value: 0, percentage: 0 } ];
 
 			const { result } = renderHook(
 				() =>
@@ -228,30 +226,28 @@ describe( 'useChartLegendItems', () => {
 			expect( result.current[ 0 ].value ).toBe( '1,234,567,890' );
 		} );
 
-	test( 'handles decimal values', () => {
-		const decimalData: DataPointPercentage[] = [
-			{ label: 'Decimal', value: 1234.5678, percentage: 100 },
-		];
+		test( 'handles decimal values', () => {
+			const decimalData: DataPointPercentage[] = [
+				{ label: 'Decimal', value: 1234.5678, percentage: 100 },
+			];
 
-		const { result } = renderHook(
-			() =>
-				useChartLegendItems( decimalData, {
-					showValues: true,
-					legendValueDisplay: 'value',
-				} ),
-			{ wrapper }
-		);
+			const { result } = renderHook(
+				() =>
+					useChartLegendItems( decimalData, {
+						showValues: true,
+						legendValueDisplay: 'value',
+					} ),
+				{ wrapper }
+			);
 
-		// Should format with thousand separators (decimals are rounded by default)
-		expect( result.current[ 0 ].value ).toBe( '1,235' );
-	} );
+			// Should format with thousand separators (decimals are rounded by default)
+			expect( result.current[ 0 ].value ).toBe( '1,235' );
+		} );
 	} );
 
 	describe( 'Label and Color', () => {
 		test( 'preserves label and color from data', () => {
-			const data: DataPointPercentage[] = [
-				{ label: 'Test Label', value: 100, percentage: 100 },
-			];
+			const data: DataPointPercentage[] = [ { label: 'Test Label', value: 100, percentage: 100 } ];
 
 			const { result } = renderHook(
 				() =>
@@ -266,4 +262,3 @@ describe( 'useChartLegendItems', () => {
 		} );
 	} );
 } );
-
