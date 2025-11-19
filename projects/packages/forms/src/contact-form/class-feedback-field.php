@@ -146,6 +146,8 @@ class Feedback_Field {
 				return $this->get_render_web_value();
 			case 'email':
 				return $this->get_render_email_value();
+			case 'pdf':
+				return $this->get_render_pdf_value();
 			case 'ajax':
 				return $this->get_render_web_value(); // For now, we use the same value for ajax and web.
 			case 'csv':
@@ -210,7 +212,33 @@ class Feedback_Field {
 			$choices = array();
 
 			foreach ( $this->value['choices'] as $choice ) {
-				// On the email, we want to show the actual selected value, not the perceived value, as the options can be shuffled.
+				// We want to show the actual selected value, not the perceived value, as the options can be shuffled.
+				$value = $choice['selected'];
+
+				if ( ! empty( $choice['label'] ) ) {
+					$value .= ' - ' . $choice['label'];
+
+				}
+				$choices[] = $value;
+			}
+
+			return implode( ', ', $choices );
+		}
+
+		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get the value of the field for rendering the pdf.
+	 *
+	 * @return string
+	 */
+	private function get_render_pdf_value() {
+		if ( $this->is_of_type( 'image-select' ) ) {
+			$choices = array();
+
+			foreach ( $this->value['choices'] as $choice ) {
+				// We want to show the actual selected value, not the perceived value, as the options can be shuffled.
 				$value = $choice['selected'];
 
 				if ( ! empty( $choice['label'] ) ) {

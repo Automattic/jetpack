@@ -18,6 +18,12 @@
 /vendor/nojimage/**                                      production-include
 /vendor/scssphp/**                                       production-include
 /vendor/wikimedia/aho-corasick/**                        production-include
+/vendor/dompdf/dompdf/**                                 production-include
+/vendor/dompdf/php-font-lib/**                           production-include
+/vendor/dompdf/php-svg-lib/**                            production-include
+/vendor/masterminds/html5/**                             production-include
+/vendor/sabberworm/php-css-parser/**                     production-include
+/vendor/thecodingmachine/safe/**                         production-include
 
 # Files to exclude from Automattic/jetpack-production.
 # Remember to end all directories with `/**` to properly tag every file.

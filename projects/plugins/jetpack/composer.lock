@@ -1504,7 +1504,9 @@
 				"automattic/jetpack-plans": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
-				"php": ">=7.2"
+				"dompdf/dompdf": "^3.1",
+				"php": ">=7.2",
+				"thecodingmachine/safe": "^1.3 || ^3.3"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
@@ -3563,6 +3565,441 @@
 			}
 		},
 		{
+			"name": "dompdf/dompdf",
+			"version": "v3.1.4",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/dompdf/dompdf.git",
+				"reference": "db712c90c5b9868df3600e64e68da62e78a34623"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/dompdf/dompdf/zipball/db712c90c5b9868df3600e64e68da62e78a34623",
+				"reference": "db712c90c5b9868df3600e64e68da62e78a34623",
+				"shasum": ""
+			},
+			"require": {
+				"dompdf/php-font-lib": "^1.0.0",
+				"dompdf/php-svg-lib": "^1.0.0",
+				"ext-dom": "*",
+				"ext-mbstring": "*",
+				"masterminds/html5": "^2.0",
+				"php": "^7.1 || ^8.0"
+			},
+			"require-dev": {
+				"ext-gd": "*",
+				"ext-json": "*",
+				"ext-zip": "*",
+				"mockery/mockery": "^1.3",
+				"phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10 || ^11",
+				"squizlabs/php_codesniffer": "^3.5",
+				"symfony/process": "^4.4 || ^5.4 || ^6.2 || ^7.0"
+			},
+			"suggest": {
+				"ext-gd": "Needed to process images",
+				"ext-gmagick": "Improves image processing performance",
+				"ext-imagick": "Improves image processing performance",
+				"ext-zlib": "Needed for pdf stream compression"
+			},
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"Dompdf\\": "src/"
+				},
+				"classmap": [
+					"lib/"
+				]
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"LGPL-2.1"
+			],
+			"authors": [
+				{
+					"name": "The Dompdf Community",
+					"homepage": "https://github.com/dompdf/dompdf/blob/master/AUTHORS.md"
+				}
+			],
+			"description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
+			"homepage": "https://github.com/dompdf/dompdf",
+			"support": {
+				"issues": "https://github.com/dompdf/dompdf/issues",
+				"source": "https://github.com/dompdf/dompdf/tree/v3.1.4"
+			},
+			"time": "2025-10-29T12:43:30+00:00"
+		},
+		{
+			"name": "dompdf/php-font-lib",
+			"version": "1.0.1",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/dompdf/php-font-lib.git",
+				"reference": "6137b7d4232b7f16c882c75e4ca3991dbcf6fe2d"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/dompdf/php-font-lib/zipball/6137b7d4232b7f16c882c75e4ca3991dbcf6fe2d",
+				"reference": "6137b7d4232b7f16c882c75e4ca3991dbcf6fe2d",
+				"shasum": ""
+			},
+			"require": {
+				"ext-mbstring": "*",
+				"php": "^7.1 || ^8.0"
+			},
+			"require-dev": {
+				"symfony/phpunit-bridge": "^3 || ^4 || ^5 || ^6"
+			},
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"FontLib\\": "src/FontLib"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"LGPL-2.1-or-later"
+			],
+			"authors": [
+				{
+					"name": "The FontLib Community",
+					"homepage": "https://github.com/dompdf/php-font-lib/blob/master/AUTHORS.md"
+				}
+			],
+			"description": "A library to read, parse, export and make subsets of different types of font files.",
+			"homepage": "https://github.com/dompdf/php-font-lib",
+			"support": {
+				"issues": "https://github.com/dompdf/php-font-lib/issues",
+				"source": "https://github.com/dompdf/php-font-lib/tree/1.0.1"
+			},
+			"time": "2024-12-02T14:37:59+00:00"
+		},
+		{
+			"name": "dompdf/php-svg-lib",
+			"version": "1.0.2",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/dompdf/php-svg-lib.git",
+				"reference": "8259ffb930817e72b1ff1caef5d226501f3dfeb1"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/dompdf/php-svg-lib/zipball/8259ffb930817e72b1ff1caef5d226501f3dfeb1",
+				"reference": "8259ffb930817e72b1ff1caef5d226501f3dfeb1",
+				"shasum": ""
+			},
+			"require": {
+				"ext-mbstring": "*",
+				"php": "^7.1 || ^8.0",
+				"sabberworm/php-css-parser": "^8.4 || ^9.0"
+			},
+			"require-dev": {
+				"phpunit/phpunit": "^7.5 || ^8 || ^9 || ^10 || ^11"
+			},
+			"type": "library",
+			"autoload": {
+				"psr-4": {
+					"Svg\\": "src/Svg"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"LGPL-3.0-or-later"
+			],
+			"authors": [
+				{
+					"name": "The SvgLib Community",
+					"homepage": "https://github.com/dompdf/php-svg-lib/blob/master/AUTHORS.md"
+				}
+			],
+			"description": "A library to read, parse and export to PDF SVG files.",
+			"homepage": "https://github.com/dompdf/php-svg-lib",
+			"support": {
+				"issues": "https://github.com/dompdf/php-svg-lib/issues",
+				"source": "https://github.com/dompdf/php-svg-lib/tree/1.0.2"
+			},
+			"time": "2026-01-02T16:01:13+00:00"
+		},
+		{
+			"name": "masterminds/html5",
+			"version": "2.10.0",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/Masterminds/html5-php.git",
+				"reference": "fcf91eb64359852f00d921887b219479b4f21251"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/Masterminds/html5-php/zipball/fcf91eb64359852f00d921887b219479b4f21251",
+				"reference": "fcf91eb64359852f00d921887b219479b4f21251",
+				"shasum": ""
+			},
+			"require": {
+				"ext-dom": "*",
+				"php": ">=5.3.0"
+			},
+			"require-dev": {
+				"phpunit/phpunit": "^4.8.35 || ^5.7.21 || ^6 || ^7 || ^8 || ^9"
+			},
+			"type": "library",
+			"extra": {
+				"branch-alias": {
+					"dev-master": "2.7-dev"
+				}
+			},
+			"autoload": {
+				"psr-4": {
+					"Masterminds\\": "src"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Matt Butcher",
+					"email": "technosophos@gmail.com"
+				},
+				{
+					"name": "Matt Farina",
+					"email": "matt@mattfarina.com"
+				},
+				{
+					"name": "Asmir Mustafic",
+					"email": "goetas@gmail.com"
+				}
+			],
+			"description": "An HTML5 parser and serializer.",
+			"homepage": "http://masterminds.github.io/html5-php",
+			"keywords": [
+				"HTML5",
+				"dom",
+				"html",
+				"parser",
+				"querypath",
+				"serializer",
+				"xml"
+			],
+			"support": {
+				"issues": "https://github.com/Masterminds/html5-php/issues",
+				"source": "https://github.com/Masterminds/html5-php/tree/2.10.0"
+			},
+			"time": "2025-07-25T09:04:22+00:00"
+		},
+		{
+			"name": "sabberworm/php-css-parser",
+			"version": "v9.1.0",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/MyIntervals/PHP-CSS-Parser.git",
+				"reference": "1b363fdbdc6dd0ca0f4bf98d3a4d7f388133f1fb"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/MyIntervals/PHP-CSS-Parser/zipball/1b363fdbdc6dd0ca0f4bf98d3a4d7f388133f1fb",
+				"reference": "1b363fdbdc6dd0ca0f4bf98d3a4d7f388133f1fb",
+				"shasum": ""
+			},
+			"require": {
+				"ext-iconv": "*",
+				"php": "^7.2.0 || ~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
+				"thecodingmachine/safe": "^1.3 || ^2.5 || ^3.3"
+			},
+			"require-dev": {
+				"php-parallel-lint/php-parallel-lint": "1.4.0",
+				"phpstan/extension-installer": "1.4.3",
+				"phpstan/phpstan": "1.12.28 || 2.1.25",
+				"phpstan/phpstan-phpunit": "1.4.2 || 2.0.7",
+				"phpstan/phpstan-strict-rules": "1.6.2 || 2.0.6",
+				"phpunit/phpunit": "8.5.46",
+				"rawr/phpunit-data-provider": "3.3.1",
+				"rector/rector": "1.2.10 || 2.1.7",
+				"rector/type-perfect": "1.0.0 || 2.1.0"
+			},
+			"suggest": {
+				"ext-mbstring": "for parsing UTF-8 CSS"
+			},
+			"type": "library",
+			"extra": {
+				"branch-alias": {
+					"dev-main": "9.2.x-dev"
+				}
+			},
+			"autoload": {
+				"psr-4": {
+					"Sabberworm\\CSS\\": "src/"
+				}
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Raphael Schweikert"
+				},
+				{
+					"name": "Oliver Klee",
+					"email": "github@oliverklee.de"
+				},
+				{
+					"name": "Jake Hotson",
+					"email": "jake.github@qzdesign.co.uk"
+				}
+			],
+			"description": "Parser for CSS Files written in PHP",
+			"homepage": "https://www.sabberworm.com/blog/2010/6/10/php-css-parser",
+			"keywords": [
+				"css",
+				"parser",
+				"stylesheet"
+			],
+			"support": {
+				"issues": "https://github.com/MyIntervals/PHP-CSS-Parser/issues",
+				"source": "https://github.com/MyIntervals/PHP-CSS-Parser/tree/v9.1.0"
+			},
+			"time": "2025-09-14T07:37:21+00:00"
+		},
+		{
+			"name": "thecodingmachine/safe",
+			"version": "v3.3.0",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/thecodingmachine/safe.git",
+				"reference": "2cdd579eeaa2e78e51c7509b50cc9fb89a956236"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/thecodingmachine/safe/zipball/2cdd579eeaa2e78e51c7509b50cc9fb89a956236",
+				"reference": "2cdd579eeaa2e78e51c7509b50cc9fb89a956236",
+				"shasum": ""
+			},
+			"require": {
+				"php": "^8.1"
+			},
+			"require-dev": {
+				"php-parallel-lint/php-parallel-lint": "^1.4",
+				"phpstan/phpstan": "^2",
+				"phpunit/phpunit": "^10",
+				"squizlabs/php_codesniffer": "^3.2"
+			},
+			"type": "library",
+			"autoload": {
+				"files": [
+					"lib/special_cases.php",
+					"generated/apache.php",
+					"generated/apcu.php",
+					"generated/array.php",
+					"generated/bzip2.php",
+					"generated/calendar.php",
+					"generated/classobj.php",
+					"generated/com.php",
+					"generated/cubrid.php",
+					"generated/curl.php",
+					"generated/datetime.php",
+					"generated/dir.php",
+					"generated/eio.php",
+					"generated/errorfunc.php",
+					"generated/exec.php",
+					"generated/fileinfo.php",
+					"generated/filesystem.php",
+					"generated/filter.php",
+					"generated/fpm.php",
+					"generated/ftp.php",
+					"generated/funchand.php",
+					"generated/gettext.php",
+					"generated/gmp.php",
+					"generated/gnupg.php",
+					"generated/hash.php",
+					"generated/ibase.php",
+					"generated/ibmDb2.php",
+					"generated/iconv.php",
+					"generated/image.php",
+					"generated/imap.php",
+					"generated/info.php",
+					"generated/inotify.php",
+					"generated/json.php",
+					"generated/ldap.php",
+					"generated/libxml.php",
+					"generated/lzf.php",
+					"generated/mailparse.php",
+					"generated/mbstring.php",
+					"generated/misc.php",
+					"generated/mysql.php",
+					"generated/mysqli.php",
+					"generated/network.php",
+					"generated/oci8.php",
+					"generated/opcache.php",
+					"generated/openssl.php",
+					"generated/outcontrol.php",
+					"generated/pcntl.php",
+					"generated/pcre.php",
+					"generated/pgsql.php",
+					"generated/posix.php",
+					"generated/ps.php",
+					"generated/pspell.php",
+					"generated/readline.php",
+					"generated/rnp.php",
+					"generated/rpminfo.php",
+					"generated/rrd.php",
+					"generated/sem.php",
+					"generated/session.php",
+					"generated/shmop.php",
+					"generated/sockets.php",
+					"generated/sodium.php",
+					"generated/solr.php",
+					"generated/spl.php",
+					"generated/sqlsrv.php",
+					"generated/ssdeep.php",
+					"generated/ssh2.php",
+					"generated/stream.php",
+					"generated/strings.php",
+					"generated/swoole.php",
+					"generated/uodbc.php",
+					"generated/uopz.php",
+					"generated/url.php",
+					"generated/var.php",
+					"generated/xdiff.php",
+					"generated/xml.php",
+					"generated/xmlrpc.php",
+					"generated/yaml.php",
+					"generated/yaz.php",
+					"generated/zip.php",
+					"generated/zlib.php"
+				],
+				"classmap": [
+					"lib/DateTime.php",
+					"lib/DateTimeImmutable.php",
+					"lib/Exceptions/",
+					"generated/Exceptions/"
+				]
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"description": "PHP core functions that throw exceptions instead of returning FALSE on error",
+			"support": {
+				"issues": "https://github.com/thecodingmachine/safe/issues",
+				"source": "https://github.com/thecodingmachine/safe/tree/v3.3.0"
+			},
+			"funding": [
+				{
+					"url": "https://github.com/OskarStark",
+					"type": "github"
+				},
+				{
+					"url": "https://github.com/shish",
+					"type": "github"
+				},
+				{
+					"url": "https://github.com/staabm",
+					"type": "github"
+				}
+			],
+			"time": "2025-05-14T06:15:44+00:00"
+		},
+		{
 			"name": "wikimedia/aho-corasick",
 			"version": "v1.0.1",
 			"source": {
@@ -4107,16 +4544,16 @@
 		},
 		{
 			"name": "phpunit/php-code-coverage",
-			"version": "12.5.1",
+			"version": "12.5.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-				"reference": "c467c59a4f6e04b942be422844e7a6352fa01b57"
+				"reference": "4a9739b51cbcb355f6e95659612f92e282a7077b"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c467c59a4f6e04b942be422844e7a6352fa01b57",
-				"reference": "c467c59a4f6e04b942be422844e7a6352fa01b57",
+				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/4a9739b51cbcb355f6e95659612f92e282a7077b",
+				"reference": "4a9739b51cbcb355f6e95659612f92e282a7077b",
 				"shasum": ""
 			},
 			"require": {
@@ -4131,7 +4568,7 @@
 				"sebastian/environment": "^8.0.3",
 				"sebastian/lines-of-code": "^4.0",
 				"sebastian/version": "^6.0",
-				"theseer/tokenizer": "^2.0"
+				"theseer/tokenizer": "^2.0.1"
 			},
 			"require-dev": {
 				"phpunit/phpunit": "^12.5.1"
@@ -4172,7 +4609,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
 				"security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.1"
+				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.2"
 			},
 			"funding": [
 				{
@@ -4192,7 +4629,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-12-08T07:17:58+00:00"
+			"time": "2025-12-24T07:03:04+00:00"
 		},
 		{
 			"name": "phpunit/php-file-iterator",
@@ -4441,16 +4878,16 @@
 		},
 		{
 			"name": "phpunit/phpunit",
-			"version": "12.5.2",
+			"version": "12.5.4",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/phpunit.git",
-				"reference": "06713c2633d6d832f2fe98a70511ecaa7cb92c1a"
+				"reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/06713c2633d6d832f2fe98a70511ecaa7cb92c1a",
-				"reference": "06713c2633d6d832f2fe98a70511ecaa7cb92c1a",
+				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
+				"reference": "4ba0e923f9d3fc655de22f9547c01d15a41fc93a",
 				"shasum": ""
 			},
 			"require": {
@@ -4518,7 +4955,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-				"source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.2"
+				"source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.4"
 			},
 			"funding": [
 				{
@@ -4542,7 +4979,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-12-08T07:22:32+00:00"
+			"time": "2025-12-15T06:05:34+00:00"
 		},
 		{
 			"name": "psr/container",
@@ -5548,16 +5985,16 @@
 		},
 		{
 			"name": "symfony/console",
-			"version": "v7.3.6",
+			"version": "v7.4.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/console.git",
-				"reference": "c28ad91448f86c5f6d9d2c70f0cf68bf135f252a"
+				"reference": "732a9ca6cd9dfd940c639062d5edbde2f6727fb6"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/console/zipball/c28ad91448f86c5f6d9d2c70f0cf68bf135f252a",
-				"reference": "c28ad91448f86c5f6d9d2c70f0cf68bf135f252a",
+				"url": "https://api.github.com/repos/symfony/console/zipball/732a9ca6cd9dfd940c639062d5edbde2f6727fb6",
+				"reference": "732a9ca6cd9dfd940c639062d5edbde2f6727fb6",
 				"shasum": ""
 			},
 			"require": {
@@ -5565,7 +6002,7 @@
 				"symfony/deprecation-contracts": "^2.5|^3",
 				"symfony/polyfill-mbstring": "~1.0",
 				"symfony/service-contracts": "^2.5|^3",
-				"symfony/string": "^7.2"
+				"symfony/string": "^7.2|^8.0"
 			},
 			"conflict": {
 				"symfony/dependency-injection": "<6.4",
@@ -5579,16 +6016,16 @@
 			},
 			"require-dev": {
 				"psr/log": "^1|^2|^3",
-				"symfony/config": "^6.4|^7.0",
-				"symfony/dependency-injection": "^6.4|^7.0",
-				"symfony/event-dispatcher": "^6.4|^7.0",
-				"symfony/http-foundation": "^6.4|^7.0",
-				"symfony/http-kernel": "^6.4|^7.0",
-				"symfony/lock": "^6.4|^7.0",
-				"symfony/messenger": "^6.4|^7.0",
-				"symfony/process": "^6.4|^7.0",
-				"symfony/stopwatch": "^6.4|^7.0",
-				"symfony/var-dumper": "^6.4|^7.0"
+				"symfony/config": "^6.4|^7.0|^8.0",
+				"symfony/dependency-injection": "^6.4|^7.0|^8.0",
+				"symfony/event-dispatcher": "^6.4|^7.0|^8.0",
+				"symfony/http-foundation": "^6.4|^7.0|^8.0",
+				"symfony/http-kernel": "^6.4|^7.0|^8.0",
+				"symfony/lock": "^6.4|^7.0|^8.0",
+				"symfony/messenger": "^6.4|^7.0|^8.0",
+				"symfony/process": "^6.4|^7.0|^8.0",
+				"symfony/stopwatch": "^6.4|^7.0|^8.0",
+				"symfony/var-dumper": "^6.4|^7.0|^8.0"
 			},
 			"type": "library",
 			"autoload": {
@@ -5622,7 +6059,7 @@
 				"terminal"
 			],
 			"support": {
-				"source": "https://github.com/symfony/console/tree/v7.3.6"
+				"source": "https://github.com/symfony/console/tree/v7.4.3"
 			},
 			"funding": [
 				{
@@ -5642,7 +6079,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-11-04T01:21:42+00:00"
+			"time": "2025-12-23T14:50:43+00:00"
 		},
 		{
 			"name": "symfony/deprecation-contracts",
@@ -6048,16 +6485,16 @@
 		},
 		{
 			"name": "symfony/process",
-			"version": "v7.3.4",
+			"version": "v7.4.3",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/process.git",
-				"reference": "f24f8f316367b30810810d4eb30c543d7003ff3b"
+				"reference": "2f8e1a6cdf590ca63715da4d3a7a3327404a523f"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/process/zipball/f24f8f316367b30810810d4eb30c543d7003ff3b",
-				"reference": "f24f8f316367b30810810d4eb30c543d7003ff3b",
+				"url": "https://api.github.com/repos/symfony/process/zipball/2f8e1a6cdf590ca63715da4d3a7a3327404a523f",
+				"reference": "2f8e1a6cdf590ca63715da4d3a7a3327404a523f",
 				"shasum": ""
 			},
 			"require": {
@@ -6089,7 +6526,7 @@
 			"description": "Executes commands in sub-processes",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/process/tree/v7.3.4"
+				"source": "https://github.com/symfony/process/tree/v7.4.3"
 			},
 			"funding": [
 				{
@@ -6109,7 +6546,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-09-11T10:12:26+00:00"
+			"time": "2025-12-19T10:00:43+00:00"
 		},
 		{
 			"name": "symfony/service-contracts",
@@ -6200,34 +6637,34 @@
 		},
 		{
 			"name": "symfony/string",
-			"version": "v7.3.4",
+			"version": "v8.0.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/string.git",
-				"reference": "f96476035142921000338bad71e5247fbc138872"
+				"reference": "ba65a969ac918ce0cc3edfac6cdde847eba231dc"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/string/zipball/f96476035142921000338bad71e5247fbc138872",
-				"reference": "f96476035142921000338bad71e5247fbc138872",
+				"url": "https://api.github.com/repos/symfony/string/zipball/ba65a969ac918ce0cc3edfac6cdde847eba231dc",
+				"reference": "ba65a969ac918ce0cc3edfac6cdde847eba231dc",
 				"shasum": ""
 			},
 			"require": {
-				"php": ">=8.2",
-				"symfony/polyfill-ctype": "~1.8",
-				"symfony/polyfill-intl-grapheme": "~1.0",
-				"symfony/polyfill-intl-normalizer": "~1.0",
-				"symfony/polyfill-mbstring": "~1.0"
+				"php": ">=8.4",
+				"symfony/polyfill-ctype": "^1.8",
+				"symfony/polyfill-intl-grapheme": "^1.33",
+				"symfony/polyfill-intl-normalizer": "^1.0",
+				"symfony/polyfill-mbstring": "^1.0"
 			},
 			"conflict": {
 				"symfony/translation-contracts": "<2.5"
 			},
 			"require-dev": {
-				"symfony/emoji": "^7.1",
-				"symfony/http-client": "^6.4|^7.0",
-				"symfony/intl": "^6.4|^7.0",
+				"symfony/emoji": "^7.4|^8.0",
+				"symfony/http-client": "^7.4|^8.0",
+				"symfony/intl": "^7.4|^8.0",
 				"symfony/translation-contracts": "^2.5|^3.0",
-				"symfony/var-exporter": "^6.4|^7.0"
+				"symfony/var-exporter": "^7.4|^8.0"
 			},
 			"type": "library",
 			"autoload": {
@@ -6266,7 +6703,7 @@
 				"utf8"
 			],
 			"support": {
-				"source": "https://github.com/symfony/string/tree/v7.3.4"
+				"source": "https://github.com/symfony/string/tree/v8.0.1"
 			},
 			"funding": [
 				{
@@ -6286,7 +6723,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-09-11T14:36:48+00:00"
+			"time": "2025-12-01T09:13:36+00:00"
 		},
 		{
 			"name": "theseer/tokenizer",

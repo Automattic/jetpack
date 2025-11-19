@@ -271,4 +271,10 @@ $style = '<style media="all" type="text/css">
 			line-height: inherit;
 		}
 	}
+
+	@media print {
+		.actions {
+			display: none;
+		}
+	}
 </style>';

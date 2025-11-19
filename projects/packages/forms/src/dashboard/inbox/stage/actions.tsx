@@ -6,7 +6,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { Icon, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
+import { seen, unseen, trash, backup, commentContent, download } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -174,6 +174,17 @@ const waitForEntityRecordsResolution = async (
 	} catch {
 		// Ignore failures/timeouts—UI should still recover once data arrives.
 	}
+};
+
+const triggerFileDownload = ( blob: Blob, filename: string ): void => {
+	const url = window.URL.createObjectURL( blob );
+	const link = document.createElement( 'a' );
+	link.href = url;
+	link.download = filename;
+	document.body.appendChild( link );
+	link.click();
+	document.body.removeChild( link );
+	window.URL.revokeObjectURL( url );
 };
 
 /**
@@ -1184,5 +1195,39 @@ export const markAsUnreadAction: Action = {
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
 
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
+	},
+};
+
+export const downloadPdfAction: Action = {
+	id: 'pdf',
+	isPrimary: false,
+	icon: <Icon icon={ download } />,
+	label: __( 'Download PDF', 'jetpack-forms' ),
+	supportsBulk: false,
+	async callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'pdf',
+			multiple: false,
+		} );
+
+		const { createErrorNotice } = registry.dispatch( noticesStore );
+
+		const downloadPromises = items.map( async ( { id } ) => {
+			try {
+				const response = ( await apiFetch( {
+					path: `/wp/v2/feedback/${ id }/pdf`,
+					parse: false,
+				} ) ) as Response;
+
+				const blob = await response.blob();
+				triggerFileDownload( blob, `jetpack-forms-response-${ id }.pdf` );
+			} catch {
+				createErrorNotice( __( 'Unable to download the PDF. Please try again.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+			}
+		} );
+
+		await Promise.all( downloadPromises );
 	},
 };

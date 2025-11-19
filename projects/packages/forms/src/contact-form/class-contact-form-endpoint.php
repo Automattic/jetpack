@@ -344,6 +344,24 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		// Generate PDF for a form response.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>\d+)/pdf',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_response_pdf' ),
+				'args'                => array(
+					'id' => array(
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -453,6 +471,54 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Generates a PDF for a form response.
+	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function get_response_pdf( $request ) {
+
+		// Load the Response_PDF class.
+		require_once __DIR__ . '/class-response-pdf.php';
+
+		$post_id = $request->get_param( 'id' );
+
+		if ( ! $post_id ) {
+			return new WP_Error(
+				'rest_missing_param',
+				__( 'Missing required parameter: id', 'jetpack-forms' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		// Verify the post exists and is a feedback post
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_type !== 'feedback' ) {
+			return new WP_Error(
+				'rest_invalid_post',
+				__( 'Invalid post ID or post is not a feedback entry', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		// Generate and stream the PDF
+		$pdf_service = Response_PDF::init();
+		$pdf         = $pdf_service->stream_pdf( $post_id );
+
+		if ( ! is_string( $pdf ) || empty( $pdf ) ) {
+			return new WP_Error(
+				'rest_cannot_download_pdf',
+				__( 'Could not download the PDF.', 'jetpack-forms' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// stream_pdf() outputs directly to browser, so return success response
+		// Note: The PDF has already been streamed to the browser at this point
+		return new WP_REST_Response( null, 200 );
 	}
 
 	/**

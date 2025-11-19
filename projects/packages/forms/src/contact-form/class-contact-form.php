@@ -3058,7 +3058,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $label The field label.
 	 * @return string The formatted label.
 	 */
-	private static function maybe_add_colon_to_label( $label ) {
+	public static function maybe_add_colon_to_label( $label ) {
 		$formatted_label = $label ? $label : '';
 		// Special case for the Terms consent field block which a period after the label.
 		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
@@ -3126,7 +3126,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string|null $raw_label The raw label input.
 	 * @return string The formatted and kses'd label string, or an empty string if raw_label is empty.
 	 */
-	private static function escape_and_sanitize_field_label( $raw_label ) {
+	public static function escape_and_sanitize_field_label( $raw_label ) {
 		if ( empty( $raw_label ) ) {
 			return ''; // kses the empty string
 		}

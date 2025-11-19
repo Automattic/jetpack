@@ -571,7 +571,7 @@ class Feedback {
 	/**
 	 * Return the compiled fields for the given context.
 	 *
-	 * @param string $context The context in which the fields are compiled.
+	 * @param string $context The context in which the fields are compiled. Can be 'submit', 'api', 'web', 'email', 'pdf', 'ajax', 'csv', or 'default'.
 	 * @param string $array_shape The shape of the array to return. Can be 'all', 'value', 'label', or 'key-value'.
 	 *
 	 * @return array An array of compiled fields with labels and values.
