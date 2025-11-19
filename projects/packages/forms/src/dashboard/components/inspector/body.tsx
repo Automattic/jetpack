@@ -23,17 +23,17 @@ import clsx from 'clsx';
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
-import type { FormResponse } from '../../../types/index.ts';
-import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
-import FieldEmail from '../response-view/field-email/index.tsx';
-import FieldFile from '../response-view/field-file/index.tsx';
-import FieldImageSelect from '../response-view/field-image-select/index.tsx';
-import Flag from '../flag/index.tsx';
-import Gravatar from '../gravatar/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
+import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
+import Flag from '../flag/index.tsx';
+import Gravatar from '../gravatar/index.tsx';
+import FieldEmail from '../response-view/field-email/index.tsx';
+import FieldFile from '../response-view/field-file/index.tsx';
+import FieldImageSelect from '../response-view/field-image-select/index.tsx';
+import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
 
 const getDisplayName = response => {
