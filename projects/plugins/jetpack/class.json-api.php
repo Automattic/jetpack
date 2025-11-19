@@ -476,8 +476,8 @@ class WPCOM_JSON_API {
 		}
 
 		// Find which endpoint to serve.
-		$found = false;
-
+		$found       = false;
+		$path_pieces = array();
 		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
 			// @todo Determine if anything depends on this being serialized rather than e.g. JSON.
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Legacy, possibly depended on elsewhere.
