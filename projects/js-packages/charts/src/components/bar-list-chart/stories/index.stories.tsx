@@ -1,4 +1,4 @@
-import { formatNumberCompact, formatNumber } from '@automattic/number-formatters';
+import { formatNumberCompact } from '@automattic/number-formatters';
 import { Circle } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useGlobalChartsTheme } from '../../../providers';
@@ -108,9 +108,7 @@ export const CustomValueComponent: Story = {
 				const percentage =
 					previousValue === 0
 						? 0
-						: formatNumber( ( ( currentValue - previousValue ) / previousValue ) * 100, {
-								decimals: 0,
-						  } );
+						: ( ( ( currentValue - previousValue ) / previousValue ) * 100 ).toFixed( 0 );
 
 				return (
 					<>

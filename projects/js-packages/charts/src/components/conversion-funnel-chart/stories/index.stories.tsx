@@ -1,4 +1,3 @@
-import { formatNumber } from '@automattic/number-formatters';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -171,7 +170,7 @@ export const CustomRenderProps: Story = {
 							lineHeight: 1,
 						} }
 					>
-						{ formatNumber( mainRate, { decimals: 1 } ) }%
+						{ mainRate.toFixed( 1 ) }%
 					</span>
 					{ changeIndicator && (
 						<span
@@ -239,7 +238,7 @@ export const CustomRenderProps: Story = {
 						gap: '8px',
 					} }
 				>
-					{ formatNumber( step.rate, { decimals: 1 } ) }%
+					{ step.rate.toFixed( 1 ) }%
 					{ step.count && (
 						<span
 							style={ {
@@ -248,7 +247,7 @@ export const CustomRenderProps: Story = {
 								opacity: 0.9,
 							} }
 						>
-							• { formatNumber( step.count ) } items
+							• { step.count.toLocaleString() } items
 						</span>
 					) }
 				</div>
