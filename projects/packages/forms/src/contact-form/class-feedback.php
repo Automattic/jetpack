@@ -244,7 +244,9 @@ class Feedback {
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
-			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' )
+			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' ),
+			$this->get_field_value_by_form_field_id( 'first-name' ),
+			$this->get_field_value_by_form_field_id( 'last-name' )
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
@@ -727,6 +729,24 @@ class Feedback {
 	 */
 	public function get_author_name() {
 		return $this->author_data->get_name();
+	}
+
+	/**
+	 * Get the author's first name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_first_name() {
+		return $this->author_data->get_first_name();
+	}
+
+	/**
+	 * Get the author's last name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_last_name() {
+		return $this->author_data->get_last_name();
 	}
 
 	/**
