@@ -1556,6 +1556,7 @@ class Contact_Form_Plugin {
 			}
 
 			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+				// this enables both salesforce and webhook (postToUrl) integrations
 				Post_To_Url::init();
 			}
 			// Process the form

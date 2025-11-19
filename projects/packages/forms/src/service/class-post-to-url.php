@@ -12,7 +12,8 @@ use WP_Error;
 /**
  * Class Post_To_Url
  *
- * Hooks on Jetpack's Contact form to post form data to some URL.
+ * Hooks on Jetpack's Contact form to post form data to webhooks.
+ * Uses provider pattern to support different webhook services (generic, Salesforce, etc.)
  */
 class Post_To_Url {
 	/**
@@ -21,6 +22,13 @@ class Post_To_Url {
 	 * @var Post_To_Url
 	 */
 	private static $instance = null;
+
+	/**
+	 * Current webhook provider
+	 *
+	 * @var Webhook_Provider
+	 */
+	private $provider;
 
 	/**
 	 * Initialize and return singleton instance.
@@ -46,41 +54,22 @@ class Post_To_Url {
 	}
 
 	/**
-	 * Get the setup for the post to URL.
-	 * This is a helper function to get the setup for the post to URL.
-	 * It will return false if the setup is not valid.
+	 * Determine which provider to use based on form attributes.
 	 *
-	 * @param array $attributes - the attributes of the contact form.
-	 * @return array|bool
+	 * @param array $attributes Form attributes.
+	 * @return Webhook_Provider|null The appropriate webhook provider or null.
 	 */
-	private function get_setup( $attributes = array() ) {
-		$defaults = array(
-			'url'      => '',
-			'verified' => false,
-			'format'   => 'urlencoded',
-			'enabled'  => false,
-		);
-
-		// Backwards compatibility setup for Salesforce.
+	private function get_provider( $attributes ) {
+		// Check for Salesforce first (backwards compatibility)
 		if ( ! empty( $attributes['salesforceData'] ) && ! empty( $attributes['salesforceData']['organizationId'] ) ) {
-			$defaults['url']      = 'https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8';
-			$defaults['format']   = 'urlencoded';
-			$defaults['enabled']  = true;
-			$defaults['verified'] = true;
+			return new Salesforce_Webhook_Provider( $attributes );
 		}
 
-		// if new setup for postToUrl is present, use it on top of the defaults (hence, salesforceData will be stepped on)
-		$setup = wp_parse_args( ! empty( $attributes['postToUrl'] ) ? $attributes['postToUrl'] : array(), $defaults );
-		if ( empty( $setup['enabled'] ) || empty( $setup['url'] ) ) {
-			return false;
+		if ( apply_filters( 'jetpack_forms_webhooks_enabled', false ) ) {
+			return new Generic_Webhook_Provider( $attributes );
 		}
 
-		if ( ! in_array( $setup['format'], array( 'urlencoded', 'json' ), true ) ) {
-			return false;
-		}
-
-		// TODO: eventually, I'd like us to verify the URL and invalidate the setup, but for now, we'll just trust the user.
-		return $setup;
+		return null;
 	}
 
 	/**
@@ -111,13 +100,25 @@ class Post_To_Url {
 			return;
 		}
 
-		$setup = $this->get_setup( $form->attributes );
+		// Get appropriate provider based on form attributes
+		$this->provider = $this->get_provider( $form->attributes );
+
+		if ( ! $this->provider || ! $this->provider->is_enabled() ) {
+			// no provider found or provider is not enabled
+			return;
+		}
+
+		$setup = $this->provider->get_setup();
 
 		if ( ! $setup ) {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $form, $entry_values );
+		// Get base form data
+		$form_data = $this->get_form_data( $form );
+
+		// Let provider transform the data
+		$form_data = $this->provider->transform_data( $form_data, $form, $entry_values );
 
 		$result = $this->post_to_url( $form_data, $setup );
 
@@ -152,7 +153,7 @@ class Post_To_Url {
 		$url        = $options['url'];
 		$format     = $options['format'] === 'urlencoded' ? 'application/x-www-form-urlencoded' : 'application/json';
 		$args       = array(
-			'body'      => $data,
+			'body'      => $format === 'urlencoded' ? $data : wp_json_encode( $data ),
 			'headers'   => array(
 				'Content-Type' => $format,
 				'user-agent'   => $user_agent,
@@ -164,24 +165,20 @@ class Post_To_Url {
 	}
 
 	/**
-	 * Gather fields key/value pairs from the form
-	 * Sanitizes the hidden fields values
+	 * Gather base fields key/value pairs from the form.
+	 * Sanitizes the hidden fields values.
+	 * Service-specific fields are added by the provider's transform_data method.
 	 *
 	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
-	 * @param array                                              $entry_values The feedback entry values.
+	 * @return array Base form data with field id => value pairs.
 	 */
-	private function get_form_data( $form, $entry_values ) {
+	private function get_form_data( $form ) {
 		$fields = array();
 		foreach ( $form->fields as $field ) {
 			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
 		}
 
-		// Right in the middle, backwards compatibility for salesforceData implementation.
-		if ( ! empty( $form->attributes['salesforceData'] ) && ! empty( $form->attributes['salesforceData']['organizationId'] ) ) {
-			$fields['oid']         = sanitize_text_field( $form->attributes['salesforceData']['organizationId'] );
-			$fields['lead_source'] = $entry_values['entry_permalink'];
-		}
-
+		// Generic hidden fields support
 		if ( ! empty( $form->attributes['hiddenFields'] ) ) {
 			foreach ( $form->attributes['hiddenFields'] as $hidden_field ) {
 				$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
