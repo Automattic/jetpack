@@ -386,7 +386,7 @@ Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be needl
     127.0.0.1 localhost your-test-site.example.com
     ```
 
-3. Start Jurassic Tube tunnel or ngrok
+3. Start Jurassic Tube tunnel or Ngrok
 
 4. Run Caddy
 
