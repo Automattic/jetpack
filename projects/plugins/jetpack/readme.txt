@@ -326,9 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-a.5 - 2025-11-18
-#### Bug fixes
-- Fix a compatibility bug with the Gutenberg plugin.
+### 15.3-a.7 - 2025-11-19
+#### Enhancements
+- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions.
+- Social: Update the connections list in the editor to a vertical toggle list with labels and icons.
 
 --------
 
