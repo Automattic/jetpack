@@ -62,6 +62,7 @@
 		"@wordpress/compose": "7.35.0",
 		"@wordpress/data": "10.35.0",
 		"@wordpress/data-controls": "4.35.0",
+		"@wordpress/dataviews": "10.2.0",
 		"@wordpress/date": "5.35.0",
 		"@wordpress/dom": "4.35.0",
 		"@wordpress/dom-ready": "^4.8.1",
