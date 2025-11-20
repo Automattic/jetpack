@@ -1,22 +1,17 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import {
-	PanelBody,
 	ToggleControl,
 	Button,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useCallback, useState, Fragment } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import { useSaveImageToLibrary } from '../../../hooks/use-save-image-to-library';
 import GeneratedImagePreview from '../../generated-image-preview';
 import SocialImageGeneratorSettingsModal from './modal';
 
-const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
-	const PanelWrapper = prePublish ? Fragment : PanelBody;
-	const wrapperProps = prePublish
-		? {}
-		: { title: __( 'Social Image Generator', 'jetpack-publicize-components' ) };
+const SocialImageGeneratorPanel = () => {
 	const { isEnabled, setIsEnabled } = useImageGeneratorConfig();
 
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
@@ -46,7 +41,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 	}, [ generatedImageToken, saveToMediaLibrary ] );
 
 	return (
-		<PanelWrapper { ...wrapperProps }>
+		<>
+			<div>Link preview image</div>
 			{ isModalOpened && <SocialImageGeneratorSettingsModal onClose={ closeModal } /> }
 			<ToggleControl
 				label={ __( 'Enable Social Image', 'jetpack-publicize-components' ) }
@@ -95,7 +91,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					</HStack>
 				</>
 			) }
-		</PanelWrapper>
+		</>
 	);
 };
 
