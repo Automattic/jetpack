@@ -105,7 +105,7 @@ function PrivateViewers() {
 		filters: [],
 		page: 1,
 		perPage: 20,
-		fields: [ 'nice_name', 'login' ],
+		fields: [ 'name', 'login' ],
 	} );
 
 	const { viewers, totalViewers, isLoading } = useViewers( view.page, view.perPage );
@@ -113,14 +113,25 @@ function PrivateViewers() {
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
 			{
-				id: 'nice_name',
+				id: 'name',
 				label: __( 'Name', 'jetpack-mu-wpcom' ),
 				enableSorting: false,
+				render: ( { item }: { item: Viewer } ) => (
+					<HStack spacing={ 2 } alignment="left">
+						<img
+							src={ item.avatar_URL }
+							alt={ item.name }
+							className="wpcom-private-viewers-avatar"
+						/>
+						<span>{ item.name }</span>
+					</HStack>
+				),
 			},
 			{
 				id: 'login',
-				label: __( 'Login', 'jetpack-mu-wpcom' ),
+				label: __( 'Username', 'jetpack-mu-wpcom' ),
 				enableSorting: false,
+				getValue: ( { item }: { item: Viewer } ) => `@${ item.login }`,
 			},
 		],
 		[]
