@@ -74,7 +74,24 @@ const useViewers = ( page: number, perPage: number ) => {
 	};
 };
 
-const getItemId = ( item: Viewer ) => item.ID.toString();
+/**
+ * Renders an empty state message when no viewers are found.
+ *
+ * @param {object}  props           - Component props.
+ * @param {boolean} props.isLoading - Whether the viewers are currently loading.
+ * @return {JSX.Element|null} The empty state component or null if loading.
+ */
+function NoViewers( { isLoading } ) {
+	if ( isLoading ) {
+		return null;
+	}
+
+	return (
+		<div className="wpcom-private-viewers-empty">
+			<strong>{ __( 'No viewers found.', 'jetpack-mu-wpcom' ) }</strong>
+		</div>
+	);
+}
 
 /**
  * Private Viewers Component
@@ -109,22 +126,20 @@ function PrivateViewers() {
 		[]
 	);
 
-	const emptyMessage = isLoading ? null : __( 'No viewers found.', 'jetpack-mu-wpcom' );
-
 	return (
 		<Card className="wpcom-private-viewers">
 			<DataViews
 				data={ viewers }
 				fields={ fields }
 				view={ view }
-				getItemId={ getItemId }
+				getItemId={ ( item: Viewer ) => item.ID.toString() }
 				paginationInfo={ {
 					totalItems: totalViewers,
 					totalPages: Math.ceil( totalViewers / view.perPage ),
 				} }
 				onChangeView={ setView }
 				defaultLayouts={ { table: {} } }
-				empty={ emptyMessage }
+				empty={ <NoViewers isLoading={ isLoading } /> }
 			>
 				<CardHeader>
 					<HStack>
