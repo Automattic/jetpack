@@ -48,7 +48,7 @@ function PrivateViewers() {
 		filters: [],
 		page: 1,
 		perPage: 20,
-		fields: [ 'name', 'login' ],
+		fields: [ 'name', 'login', 'status' ],
 	} );
 
 	const { viewers: allViewers, isLoading } = useViewers();
@@ -80,11 +80,35 @@ function PrivateViewers() {
 				filterBy: false,
 				getValue: ( { item }: { item: Viewer } ) => `@${ item.login }`,
 			},
+			{
+				id: 'status',
+				type: 'text',
+				label: __( 'Status', 'jetpack-mu-wpcom' ),
+				enableGlobalSearch: false,
+				getValue: ( { item }: { item: Viewer } ) => ( item.login ? 'active' : 'pending' ),
+				render: ( { item }: { item: Viewer } ) => {
+					const isActive = !! item.login;
+					return (
+						<span
+							className={ `wpcom-private-viewers-status ${
+								isActive ? 'is-active' : 'is-pending'
+							}` }
+						>
+							{ isActive
+								? __( 'Active', 'jetpack-mu-wpcom' )
+								: __( 'Pending', 'jetpack-mu-wpcom' ) }
+						</span>
+					);
+				},
+				elements: [
+					{ value: 'active', label: __( 'Active', 'jetpack-mu-wpcom' ) },
+					{ value: 'pending', label: __( 'Pending', 'jetpack-mu-wpcom' ) },
+				],
+			},
 		],
 		[]
 	);
 
-	// Apply client-side filtering, sorting, and pagination
 	const { data: viewers, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( allViewers, view, fields ),
 		[ allViewers, view, fields ]
