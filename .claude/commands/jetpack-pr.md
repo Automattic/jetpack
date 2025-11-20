@@ -11,11 +11,11 @@ Instructions:
    - If no changelog exists, run `/jetpack-changelog` first to create one
    - If changes are only to .claude/, docs, or non-project files, skip changelog check
 3. Ensure the branch is pushed to remote (push if needed)
-4. Fill out the PR template (.github/PULL_REQUEST_TEMPLATE.md) with:
+4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
    - Title: Clear summary of changes
    - Fixes #: Link to issue if applicable (or remove if none)
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
-5. Create the PR using `gh pr create` with the filled template
+5. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags)
 
 The `gh pr create` command will automatically use the template. Deduce all information from git history and code changes - do not ask the user for input.
