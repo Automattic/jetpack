@@ -4,12 +4,7 @@
  */
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import {
-	CheckboxControl,
-	PanelBody,
-	PanelRow,
-	__experimentalText as Text,
-} from '@wordpress/components';
+import { PanelBody, PanelRow, __experimentalText as Text } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
@@ -22,6 +17,7 @@ import { features } from '../../utils/constants';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
+import { AutoShareToggle } from './auto-share-toggle';
 import styles from './styles.module.scss';
 import './global.scss';
 import { UpsellNotice } from './upsell';
@@ -36,7 +32,7 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 
 	const refreshConnections = useRefreshConnections();
 
-	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -68,15 +64,6 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 							{ ! isPostPublished ? (
 								<>
 									<PanelRow>
-										<CheckboxControl
-											label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
-											onChange={ togglePublicizeFeature }
-											checked={ isPublicizeEnabled && hasConnections }
-											disabled={ ! hasConnections }
-											__nextHasNoMarginBottom={ true }
-										/>
-									</PanelRow>
-									<PanelRow>
 										<Text className={ styles.description }>
 											{ isPublicizeEnabled && hasEnabledConnections
 												? __(
@@ -101,6 +88,7 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 									</Text>
 								</PanelRow>
 							) }
+							<AutoShareToggle />
 						</>
 					) : null }
 					<PublicizeForm />
