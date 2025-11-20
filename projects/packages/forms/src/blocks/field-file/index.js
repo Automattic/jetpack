@@ -2,7 +2,6 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
 import defaultSettings from '../shared/settings/index.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -18,7 +17,6 @@ const settings = {
 	],
 	description: __( 'Allow visitors to upload files through your form.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: <Icon icon={ upload } />,
 	},
 	edit,
