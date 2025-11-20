@@ -258,8 +258,8 @@ class Util {
 		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( (array) $post_ids as $post_id ) {
-			// force a full delete, skip the trash
-			wp_delete_post( $post_id, true );
+			// move to trash
+			wp_trash_post( $post_id );
 		}
 
 		if (
