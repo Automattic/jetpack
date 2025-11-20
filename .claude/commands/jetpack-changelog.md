@@ -27,5 +27,9 @@ Project types reference:
   (See projects/plugins/jetpack/composer.json:134-140)
 - Packages (projects/packages/*): added, changed, deprecated, removed, fixed, security
   (Default types from changelogger, see projects/packages/changelogger/tests/php/tests/src/ValidateCommandTest.php:103)
+- GitHub Actions (projects/github-actions/*): added, changed, deprecated, removed, fixed, security
+  (Uses changelogger default types)
+- JS Packages (projects/js-packages/*): added, changed, deprecated, removed, fixed, security
+  (Uses changelogger default types)
 
 Deduce everything from the git changes - do not ask the user for input.
