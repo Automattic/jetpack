@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add fallback values to CSS custom properties to improve form styling compatibility across themes
