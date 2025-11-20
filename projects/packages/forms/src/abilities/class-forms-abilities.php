@@ -24,6 +24,8 @@ class Forms_Abilities {
 
 	/**
 	 * Initialize the abilities registration.
+	 *
+	 * @return void
 	 */
 	public static function init() {
 		// Wait for the Feature API to be initialized
@@ -37,6 +39,8 @@ class Forms_Abilities {
 
 	/**
 	 * Register all Jetpack Forms abilities.
+	 *
+	 * @return void
 	 */
 	public static function register_abilities() {
 		// Check if wp_register_feature function exists
@@ -136,9 +140,9 @@ class Forms_Abilities {
 						'id' => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission to retrieve.', 'jetpack-forms' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'id' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'read' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -163,7 +167,6 @@ class Forms_Abilities {
 						'id'     => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission to update.', 'jetpack-forms' ),
-							'required'    => true,
 						),
 						'status' => array(
 							'type'        => 'string',
@@ -171,6 +174,7 @@ class Forms_Abilities {
 							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
 						),
 					),
+					'required'   => array( 'id' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'write' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -195,9 +199,9 @@ class Forms_Abilities {
 						'id' => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission to delete.', 'jetpack-forms' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'id' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'write' ),
 				'is_eligible' => array( __CLASS__, 'can_delete_posts' ),
@@ -223,9 +227,9 @@ class Forms_Abilities {
 							'type'        => 'array',
 							'description' => __( 'Array of submission IDs to mark as spam.', 'jetpack-forms' ),
 							'items'       => array( 'type' => 'integer' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'ids' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'write', 'spam' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -251,9 +255,9 @@ class Forms_Abilities {
 							'type'        => 'array',
 							'description' => __( 'Array of submission IDs to mark as not spam.', 'jetpack-forms' ),
 							'items'       => array( 'type' => 'integer' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'ids' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'write', 'spam' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -278,14 +282,13 @@ class Forms_Abilities {
 						'id'        => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission.', 'jetpack-forms' ),
-							'required'    => true,
 						),
 						'is_unread' => array(
 							'type'        => 'boolean',
 							'description' => __( 'True to mark as unread, false to mark as read.', 'jetpack-forms' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'id', 'is_unread' ),
 				),
 				'categories'  => array( 'forms', 'submissions', 'write' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -306,7 +309,7 @@ class Forms_Abilities {
 				'callback'    => array( __CLASS__, 'get_form_config' ),
 				'input_schema' => array(
 					'type'       => 'object',
-					'properties' => new \stdClass(),
+					'properties' => array(),
 				),
 				'categories'  => array( 'forms', 'configuration', 'read' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -359,9 +362,9 @@ class Forms_Abilities {
 						'slug' => array(
 							'type'        => 'string',
 							'description' => __( 'The integration slug (e.g., akismet, mailpoet, salesforce, google-drive).', 'jetpack-forms' ),
-							'required'    => true,
 						),
 					),
+					'required'   => array( 'slug' ),
 				),
 				'categories'  => array( 'forms', 'integrations', 'read' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -382,7 +385,7 @@ class Forms_Abilities {
 				'callback'    => array( __CLASS__, 'get_form_filters' ),
 				'input_schema' => array(
 					'type'       => 'object',
-					'properties' => new \stdClass(),
+					'properties' => array(),
 				),
 				'categories'  => array( 'forms', 'submissions', 'read' ),
 				'is_eligible' => array( __CLASS__, 'can_edit_pages' ),
@@ -456,7 +459,7 @@ class Forms_Abilities {
 	 * Get form submissions callback.
 	 *
 	 * @param array $args Arguments.
-	 * @return array|WP_Error
+	 * @return array|WP_Error Returns array of submissions or WP_Error on failure.
 	 */
 	public static function get_form_submissions( $args ) {
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
