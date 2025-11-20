@@ -247,7 +247,7 @@ class Util {
 			"
 			SELECT `ID`
 			FROM $wpdb->posts
-			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
+			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_modified_gmt`
 				AND `post_type` = 'feedback'
 				AND `post_status` = 'spam'
 			LIMIT %d
