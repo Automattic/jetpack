@@ -25,8 +25,8 @@ export type Viewer = {
 	name: string;
 	username: string;
 	addedBy: string;
-	inviteDate: Date;
-	viewerSince: Date;
+	inviteDate: string;
+	viewerSince: string;
 	avatarURL: string;
 };
 
@@ -57,8 +57,16 @@ const mapInviteToViewer = ( invite: Invite ): Viewer => {
 			invite.invited_by.name === invite.invited_by.login
 				? invite.invited_by.login
 				: `${ invite.invited_by.name } (${ invite.invited_by.login })`,
-		inviteDate: new Date( invite.invite_date ),
-		viewerSince: invite.accepted_date ? new Date( invite.accepted_date ) : null,
+		inviteDate: new Date( invite.invite_date ).toLocaleString( 'default', {
+			dateStyle: 'medium',
+			timeStyle: 'short',
+		} ),
+		viewerSince: invite.accepted_date
+			? new Date( invite.accepted_date ).toLocaleString( 'default', {
+					dateStyle: 'medium',
+					timeStyle: 'short',
+			  } )
+			: '',
 		avatarURL: invite.user.avatar_URL,
 	};
 };

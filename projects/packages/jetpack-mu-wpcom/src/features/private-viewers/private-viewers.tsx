@@ -103,6 +103,24 @@ function PrivateViewers() {
 					{ value: 'pending', label: __( 'Pending', 'jetpack-mu-wpcom' ) },
 				],
 			},
+			{
+				id: 'addedBy',
+				type: 'text',
+				label: __( 'Added by', 'jetpack-mu-wpcom' ),
+				filterBy: false,
+			},
+			{
+				id: 'inviteDate',
+				type: 'datetime',
+				label: __( 'Invite date', 'jetpack-mu-wpcom' ),
+				filterBy: false,
+			},
+			{
+				id: 'viewerSince',
+				type: 'datetime',
+				label: __( 'Viewer since', 'jetpack-mu-wpcom' ),
+				filterBy: false,
+			},
 		],
 		[]
 	);
