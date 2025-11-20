@@ -46,7 +46,6 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
-const NO_SIDEBAR_BREAKPOINT = 1000;
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -94,8 +93,7 @@ export default function InboxView() {
 		},
 		{ box: 'border-box' }
 	);
-
-	const isResponseInModal = containerWidth <= NO_SIDEBAR_BREAKPOINT;
+	const isResponseInModal = containerWidth <= 1000;
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const selectedResponses = searchParams.get( 'r' );
 	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
