@@ -784,6 +784,69 @@ function wpcom_global_styles_is_previewing_premium_theme_without_premium_plan( $
 }
 
 /**
+ * Returns the experiment variation. The code is bad, it's duplicated. It's a tradeoff since this code will be deleted
+ * after the experiment and it's easier to duplicate than to refactor the original given testing complexities and time constraints.
+ * Yes, this is inefficient and duplicates a lot of code, I know.
+ *
+ * @return bool Whether the site has access to Global Styles with a Personal plan.
+ */
+function get_global_styles_on_personal_variation() {
+	// Environment guard: only WP.com or Atomic.
+	$is_wpcom  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_atomic = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+	if ( ! $is_wpcom && ! $is_atomic ) {
+		return false;
+	}
+
+	$wpcom_blog_owner_id = null;
+	$wpcom_blog_id       = get_wpcom_blog_id();
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+		$wpcom_blog_owner_id = wpcom_get_blog_owner( $wpcom_blog_id );
+	}
+
+	if ( ! $wpcom_blog_id ) {
+		return false;
+	}
+
+	$experiment_key = 'calypso_plans_global_styles_personal_20251124_v5';
+	$cache_group    = 'a8c_experiments';
+	$cache_key      = sprintf(
+		'global-styles-personal-variation-%d',
+		$wpcom_blog_id
+	);
+
+	// Cache lookup.
+	$variation = null;
+	$cached    = wp_cache_get( $cache_key, $cache_group, false, $variation );
+	$variation = apply_filters( 'wpcom_global_styles_experiment_cache', $variation );
+	if ( true === $variation ) {
+		return (bool) $cached;
+	}
+
+	$variation = null;
+
+	if ( $is_atomic ) {
+		// Atomic: ask WP.com assignment API for this user.
+		$variation = wpcom_global_styles_assignment_api_request( $wpcom_blog_id );
+	} elseif ( function_exists( '\ExPlat\assign_given_user' ) && function_exists( 'wpcom_get_blog_owner' ) ) {
+		if ( ! $wpcom_blog_owner_id ) {
+			return false;
+		}
+		$wpcom_blog_owner = get_userdata( $wpcom_blog_owner_id );
+		if ( ! $wpcom_blog_owner ) {
+			return false;
+		}
+		// WP.com: Direct ExPlat assignment.
+		$variation = \ExPlat\assign_given_user( $experiment_key, $wpcom_blog_owner );
+	}
+
+	// Cache for a month to avoid duplicate calls.
+	wp_cache_set( $cache_key, $variation, $cache_group, MONTH_IN_SECONDS );
+
+	return $variation;
+}
+
+/**
  * Checks whether the site has access to Global Styles with a Personal plan as part of an A/B test.
  *
  * @return bool Whether the site has access to Global Styles with a Personal plan.
