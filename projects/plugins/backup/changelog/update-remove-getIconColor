@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack: remove getIconColor functions for block icons

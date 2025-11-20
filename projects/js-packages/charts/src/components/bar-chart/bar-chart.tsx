@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
@@ -183,7 +184,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							) }
 							:
 						</span>
-						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>
+							{ formatNumber( nearestDatum.value as number ) }
+						</span>
 					</div>
 				</div>
 			);

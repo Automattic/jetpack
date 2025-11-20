@@ -179,6 +179,15 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking for partner coupon redemption flow
+		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
+
+		// Redirect to Jetpack dashboard for partner coupon redemption
+		if ( $show_coupon_redemption ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
+			exit( 0 );
+		}
+
 		// Handle onboarding redirects based on connection status
 		$should_redirect = false;
 		$redirect_args   = array( 'page' => 'my-jetpack' );

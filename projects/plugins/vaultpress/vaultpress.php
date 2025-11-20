@@ -1016,8 +1016,8 @@ class VaultPress {
 	function ui_logo() {
 		if ( ! class_exists( 'Jetpack_Logo' ) ) {
 			require_once VAULTPRESS__PLUGIN_DIR . 'class-jetpack-logo.php';
-			$jetpack_logo = new Jetpack_Logo();
 		}
+		$jetpack_logo = new Jetpack_Logo();
 
 		return $jetpack_logo->output();
 	}
