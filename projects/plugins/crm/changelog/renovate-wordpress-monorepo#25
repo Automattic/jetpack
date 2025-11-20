@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Gutenberg packages' ESM builds don't fully specify their imports. Set `resolve.fullySpecified` in Webpack config for these packages.
-
-
