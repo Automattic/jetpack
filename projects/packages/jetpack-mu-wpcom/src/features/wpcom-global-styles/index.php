@@ -806,7 +806,7 @@ function is_global_styles_on_personal_plan() {
 		return false;
 	}
 
-	$experiment_key = 'calypso_plans_global_styles_personal_20251108_v4';
+	$experiment_key = 'calypso_plans_global_styles_personal_20251124_v5';
 	$cache_group    = 'a8c_experiments';
 	$cache_key      = sprintf(
 		'global-styles-personal-%d',
