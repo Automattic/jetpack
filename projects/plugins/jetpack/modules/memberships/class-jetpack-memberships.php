@@ -558,21 +558,19 @@ class Jetpack_Memberships {
 	 * @return string
 	 */
 	public function render_button_email( $block_content, array $parsed_block, $rendering_context ) {
+		// Get the first inner block, which should be the button block.
 		$button_block = $parsed_block['innerBlocks'][0];
 		if ( ! isset( $button_block['attrs'] ) || ! is_array( $button_block['attrs'] ) || ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' ) || ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
 			return '';
 		}
 
-		$button_parsed_block = array(
-			'attrs'       => $button_block['attrs'],
-			'email_attrs' => $button_block['email_attrs'] ?? array(),
-		);
+		// If the button block is missing text or url, return empty string.
+		if ( empty( $button_block['attrs']['text'] ) || empty( $button_block['attrs']['url'] ) ) {
+			return '';
+		}
 
-		return \Automattic\Jetpack\Extensions\Button\render_email(
-			$block_content,
-			$button_parsed_block,
-			$rendering_context
-		);
+		// Reuse the button block's email rendering method.
+		return \Automattic\Jetpack\Extensions\Button\render_email( $block_content, $button_block, $rendering_context );
 	}
 
 	/**

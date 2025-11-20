@@ -92,5 +92,9 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	$flex_layout_renderer = new \Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer();
 
+	if ( ! method_exists( $flex_layout_renderer, 'render_inner_blocks_in_layout' ) ) {
+		return '';
+	}
+
 	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 }
