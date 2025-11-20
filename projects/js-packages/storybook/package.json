@@ -34,7 +34,7 @@
 		"@storybook/addon-webpack5-compiler-babel": "^3.0.3",
 		"@storybook/react": "10.0.8",
 		"@storybook/react-webpack5": "10.0.8",
-		"@storybook/test-runner": "0.23.0",
+		"@storybook/test-runner": "0.24.1",
 		"@testing-library/dom": "10.4.1",
 		"@types/react": "18.3.26",
 		"@wordpress/base-styles": "6.11.0",
