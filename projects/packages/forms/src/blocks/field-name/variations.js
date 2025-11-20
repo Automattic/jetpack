@@ -22,7 +22,6 @@ const variations = [
 		description: __( 'Collect the visitor’s name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'transform' ],
-		isActive: ( { id } ) => ! [ FIRST_NAME_ID, LAST_NAME_ID ].includes( id ),
 		attributes: {
 			id: '',
 		},
