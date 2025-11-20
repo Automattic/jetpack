@@ -8,7 +8,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { DataViews, Field, type View } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate, Field, type View } from '@wordpress/dataviews';
 import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
@@ -51,20 +51,16 @@ function PrivateViewers() {
 		fields: [ 'name', 'login' ],
 	} );
 
-	const { viewers, totalViewers, isLoading } = useViewers();
-
-	// Client-side pagination: slice the data based on current page.
-	const paginatedViewers = useMemo( () => {
-		const startIndex = ( view.page - 1 ) * view.perPage;
-		const endIndex = view.page * view.perPage;
-		return viewers.slice( startIndex, endIndex );
-	}, [ viewers, view.page, view.perPage ] );
+	const { viewers: allViewers, isLoading } = useViewers();
 
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
 			{
 				id: 'name',
+				type: 'text',
 				label: __( 'Name', 'jetpack-mu-wpcom' ),
+				enableGlobalSearch: true,
+				filterBy: false,
 				render: ( { item }: { item: Viewer } ) => (
 					<HStack spacing={ 2 } alignment="left">
 						<img
@@ -78,11 +74,20 @@ function PrivateViewers() {
 			},
 			{
 				id: 'login',
+				type: 'text',
 				label: __( 'Username', 'jetpack-mu-wpcom' ),
+				enableGlobalSearch: true,
+				filterBy: false,
 				getValue: ( { item }: { item: Viewer } ) => `@${ item.login }`,
 			},
 		],
 		[]
+	);
+
+	// Apply client-side filtering, sorting, and pagination
+	const { data: viewers, paginationInfo } = useMemo(
+		() => filterSortAndPaginate( allViewers, view, fields ),
+		[ allViewers, view, fields ]
 	);
 
 	return (
@@ -101,14 +106,11 @@ function PrivateViewers() {
 			</CardHeader>
 			<CardBody className="wpcom-private-viewers-data">
 				<DataViews
-					data={ paginatedViewers }
+					data={ viewers }
 					fields={ fields }
 					view={ view }
 					getItemId={ ( item: Viewer ) => item.ID.toString() }
-					paginationInfo={ {
-						totalItems: totalViewers,
-						totalPages: Math.ceil( totalViewers / view.perPage ),
-					} }
+					paginationInfo={ paginationInfo }
 					onChangeView={ setView }
 					defaultLayouts={ { table: {} } }
 					empty={ <NoViewers isLoading={ isLoading } /> }

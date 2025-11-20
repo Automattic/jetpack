@@ -34,7 +34,6 @@ declare global {
  */
 export const useViewers = () => {
 	const [ viewers, setViewers ] = useState< Viewer[] >( [] );
-	const [ totalViewers, setTotalViewers ] = useState< number >( 0 );
 	const [ isLoading, setIsLoading ] = useState< boolean >( false );
 
 	const fetchAllViewers = useCallback( async () => {
@@ -58,7 +57,6 @@ export const useViewers = () => {
 			// Fetch first page to get total count.
 			const firstResponse = await fetchPage( 1 );
 			allViewers.push( ...firstResponse.viewers );
-			setTotalViewers( firstResponse.found );
 
 			// Calculate total pages and fetch remaining.
 			const totalPages = Math.ceil( firstResponse.found / batchSize );
@@ -79,7 +77,6 @@ export const useViewers = () => {
 
 	return {
 		viewers,
-		totalViewers,
 		isLoading,
 	};
 };
