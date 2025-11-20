@@ -131,7 +131,7 @@ const withTimeout = (
  * Type for the result of processStatusChange.
  */
 type StatusChangeResult = {
-	itemsUpdated: PromiseSettledResult< unknown >[];
+	itemsUpdated: { id: number }[];
 	itemsFailed: number[];
 	numberOfErrors: number;
 };
@@ -147,7 +147,12 @@ type ProcessStatusChangeParams = {
 
 /**
  * Helper function to process status changes with optimistic updates and error handling.
- *
+ * Optimistic Update Strategy:
+ * 1. Immediately update local state and counts
+ * 2. Make API call
+ * 3. On success: invalidate cache to sync with server
+ * 4. On failure: rollback local changes
+ * 5. Undo actions must preserve original status for proper restoration
  * @param {object}         params                            - The parameters for the status change.
  * @param {FormResponse[]} params.items                      - The items to update.
  * @param {string}         params.newStatus                  - The new status to set.
@@ -180,24 +185,22 @@ const processStatusChange = async ( {
 
 	// Call API with timeout
 	const promises = await Promise.allSettled(
-		items.map( ( { id } ) => withTimeout( apiCall( id ) ) )
+		items.map( ( { id } ) => withTimeout( apiCall( id ) ) as Promise< { id: number } > )
 	);
 
 	// Check for both rejected promises and fulfilled promises with undefined/invalid results
-	const itemsUpdated = promises.filter(
-		promise => promise.status === 'fulfilled' && !! promise.value
-	);
+	// const itemsUpdated: PromiseFulfilledResult< { id: number } >[] = [];
+	const itemsUpdated: { id: number }[] = [];
+	const itemsFailed: number[] = [];
 
-	const itemsFailed = promises
-		.map( ( promise, index ) => {
-			// Failed if rejected OR if fulfilled but result is invalid
-			if ( promise.status === 'rejected' || promise.value == null ) {
-				return index;
-			}
-
-			return null;
-		} )
-		.filter( ( index ): index is number => index !== null );
+	promises.forEach( ( promise, index ) => {
+		// Failed if rejected OR if fulfilled but result is invalid
+		if ( promise.status === 'rejected' || ! promise.value?.id ) {
+			itemsFailed.push( index );
+		} else {
+			itemsUpdated.push( promise.value );
+		}
+	} );
 
 	// Revert optimistic changes for failed items
 	itemsFailed.forEach( index => {
@@ -330,15 +333,10 @@ export const markAsSpamAction: Action = {
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 
-		// Make the REST request which performs the `contact_form_akismet` `ham` action.
+		// Make the REST request which performs the `contact_form_akismet` `spam` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated
-					.filter(
-						( promise ): promise is PromiseFulfilledResult< { id: number } > =>
-							promise.status === 'fulfilled' && !! promise.value
-					)
-					.map( ( { value } ) => value.id.toString() ),
+				itemsUpdated.map( item => item.id.toString() ),
 				BULK_ACTIONS.markAsSpam
 			);
 		}
@@ -419,12 +417,7 @@ export const markAsNotSpamAction: Action = {
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
 		if ( itemsUpdated.length ) {
 			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated
-					.filter(
-						( promise ): promise is PromiseFulfilledResult< { id: number } > =>
-							promise.status === 'fulfilled' && !! promise.value
-					)
-					.map( ( { value } ) => value.id.toString() ),
+				itemsUpdated.map( item => item.id.toString() ),
 				BULK_ACTIONS.markAsNotSpam
 			);
 		}
@@ -450,12 +443,13 @@ export const restoreAction: Action = {
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
+		const newStatus = targetStatus === 'trash' ? 'publish' : targetStatus;
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
-			newStatus: targetStatus,
+			newStatus,
 			apiCall: ( id: number ) =>
-				saveEntityRecord( 'postType', 'feedback', { id, status: targetStatus } ),
+				saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
 			editEntityRecord,
 			updateCountsOptimistically,
 			queryParams,
@@ -526,6 +520,7 @@ export const moveToTrashAction: Action = {
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
+		const previousStatus = items[ 0 ]?.status; // All items have the same status
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
@@ -576,7 +571,7 @@ export const moveToTrashAction: Action = {
 									items,
 									{ registry },
 									// We can trash a spam or inbox item, so we need to restore to the original status
-									{ isUndo: true, targetStatus: items[ 0 ]?.status }
+									{ isUndo: true, targetStatus: previousStatus }
 								);
 							},
 						},

@@ -56,7 +56,7 @@ export type DispatchActions = {
 		records: FormResponse[],
 		query?: QueryParams,
 		invalidateCache?: boolean
-	) => Promise< void >;
+	) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (

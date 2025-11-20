@@ -147,19 +147,6 @@ export default function useInboxData(): UseInboxDataReturn {
 	);
 
 	/**
-	 * Helper function to determine the effective status of a record,
-	 * considering optimistic edits (status field in edits).
-	 *
-	 * @param {FormResponse} record - The record to check.
-	 * @return {string} The effective status of the record.
-	 */
-	const getEffectiveStatus = ( record: FormResponse ): string => {
-		// getEditedEntityRecord merges edits with the original record,
-		// so if status was edited, it will be in the edited record
-		return record.status || 'publish';
-	};
-
-	/**
 	 * Helper function to check if a status matches the current status filter.
 	 *
 	 * @param {string} status - The status to check.
@@ -178,9 +165,7 @@ export default function useInboxData(): UseInboxDataReturn {
 	const records = useMemo( () => {
 		// Filter records based on their effective status (considering optimistic edits)
 		const filteredRecords = ( editedRecords || [] ).filter( ( record: FormResponse ) => {
-			const effectiveStatus = getEffectiveStatus( record );
-
-			return statusMatchesFilter( effectiveStatus, statusFilter );
+			return statusMatchesFilter( record.status, statusFilter );
 		} );
 
 		return filteredRecords.map( record => {
