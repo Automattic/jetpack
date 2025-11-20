@@ -690,7 +690,7 @@ jobs:
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
+    timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
       - uses: GitHubSecurityLab/actions-permissions/monitor@v1
         with:
@@ -722,11 +722,7 @@ jobs:
         env:
           # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
           NO_PHAN_UNUSED_SUPPRESSION: 1
-          # 2025-11-20: We have to draw the line somewhere. Let's go with Woo 7.0.
-          WOO_VERSION: 7
         run: |
-          # We can't directly downgrade Woo stubs with `update` due to existing constraints
-          composer require --no-update --dev "php-stubs/woocommerce-stubs:${WOO_VERSION}"
           composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
           # Don't re-update baselines here, only check.
           pnpm jetpack phan --all -v --format github
