@@ -77,9 +77,7 @@ function render_block( $attributes, $content ) {
  * @return string
  */
 function render_block_email( $block_content, array $parsed_block, $rendering_context ) {
-	$flex_layout_renderer_class = '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer';
-
-	if ( ! class_exists( $flex_layout_renderer_class ) ) {
+	if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' ) ) {
 		return '';
 	}
 
@@ -90,7 +88,7 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 		unset( $parsed_block['attrs']['style']['typography']['fontSize'] );
 	}
 
-	$flex_layout_renderer = new $flex_layout_renderer_class();
+	$flex_layout_renderer = new \Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer();
 
 	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 }
