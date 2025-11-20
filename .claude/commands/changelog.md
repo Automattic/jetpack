@@ -1,0 +1,31 @@
+---
+description: Create a changelog entry for a Jetpack project using the changelogger tool
+---
+
+Create a changelog entry for a Jetpack project.
+
+Instructions:
+1. Check git changes to identify which project was modified: `git diff --name-only trunk...HEAD`
+2. Analyze the changes to determine:
+   - Which project was modified (look at file paths)
+   - Significance level (patch for bug fixes, minor for features, major for breaking changes)
+   - Type based on the nature of changes and project type
+   - Description by summarizing the changes
+3. Navigate to the project directory
+4. Run the changelogger command:
+   ```bash
+   vendor/bin/changelogger add \
+     --no-interaction \
+     --significance={significance} \
+     --type={type} \
+     --entry="{description}"
+   ```
+5. Stage the generated changelog file with `git add`
+
+Project types reference:
+- Plugins (projects/plugins/*): enhancement, bugfix, other, compat
+  (See projects/plugins/jetpack/composer.json:134-140)
+- Packages (projects/packages/*): added, changed, deprecated, removed, fixed, security
+  (Default types from changelogger, see projects/packages/changelogger/tests/php/tests/src/ValidateCommandTest.php:103)
+
+Deduce everything from the git changes - do not ask the user for input.
