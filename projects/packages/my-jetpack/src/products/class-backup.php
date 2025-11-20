@@ -352,8 +352,8 @@ class Backup extends Hybrid_Product {
 		$rewind_state = self::get_state_from_wpcom();
 		if ( ! is_wp_error( $rewind_state ) ) {
 			// Special case: 'unavailable' with 'site_new' reason is a normal provisioning state for brand new sites.
-			$is_new_site_provisioning = 'unavailable' === $rewind_state->state &&
-										'site_new' === ( $rewind_state->reason ?? '' );
+			$is_new_site_provisioning = ( 'unavailable' === $rewind_state->state &&
+										'site_new' === ( $rewind_state->reason ?? '' ) );
 
 			if (
 				$rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' &&
