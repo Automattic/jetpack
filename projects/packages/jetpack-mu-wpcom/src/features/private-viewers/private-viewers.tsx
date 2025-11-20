@@ -48,7 +48,7 @@ function PrivateViewers() {
 		filters: [],
 		page: 1,
 		perPage: 20,
-		fields: [ 'name', 'login', 'status' ],
+		fields: [ 'username', 'name', 'status' ],
 	} );
 
 	const { viewers: allViewers, isLoading } = useViewers();
@@ -56,42 +56,40 @@ function PrivateViewers() {
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
 			{
-				id: 'name',
+				id: 'username',
 				type: 'text',
-				label: __( 'Name', 'jetpack-mu-wpcom' ),
+				label: __( 'Username', 'jetpack-mu-wpcom' ),
 				enableGlobalSearch: true,
 				filterBy: false,
 				render: ( { item }: { item: Viewer } ) => (
 					<HStack spacing={ 2 } alignment="left">
 						<img
-							src={ item.avatar_URL }
-							alt={ item.name }
+							src={ item.avatarURL }
+							alt={ item.username }
 							className="wpcom-private-viewers-avatar"
 						/>
-						<span>{ item.name }</span>
+						<span>{ item.username }</span>
 					</HStack>
 				),
 			},
 			{
-				id: 'login',
+				id: 'name',
 				type: 'text',
-				label: __( 'Username', 'jetpack-mu-wpcom' ),
+				label: __( 'Name', 'jetpack-mu-wpcom' ),
 				enableGlobalSearch: true,
 				filterBy: false,
-				getValue: ( { item }: { item: Viewer } ) => `@${ item.login }`,
 			},
 			{
 				id: 'status',
 				type: 'text',
 				label: __( 'Status', 'jetpack-mu-wpcom' ),
 				enableGlobalSearch: false,
-				getValue: ( { item }: { item: Viewer } ) => ( item.login ? 'active' : 'pending' ),
 				render: ( { item }: { item: Viewer } ) => {
-					const isActive = !! item.login;
+					const isActive = item.status === 'active';
 					return (
 						<span
 							className={ `wpcom-private-viewers-status ${
-								isActive ? 'is-active' : 'is-pending'
+								item.status === 'active' ? 'is-active' : 'is-pending'
 							}` }
 						>
 							{ isActive
@@ -133,7 +131,7 @@ function PrivateViewers() {
 					data={ viewers }
 					fields={ fields }
 					view={ view }
-					getItemId={ ( item: Viewer ) => item.ID.toString() }
+					getItemId={ ( item: Viewer ) => item.id }
 					paginationInfo={ paginationInfo }
 					onChangeView={ setView }
 					defaultLayouts={ { table: {} } }
