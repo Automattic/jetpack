@@ -96,5 +96,7 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 		return '';
 	}
 
+	// We are checking for the method existence above, so we know it exists.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 }
