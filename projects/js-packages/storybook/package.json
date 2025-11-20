@@ -14,6 +14,7 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"type": "module",
 	"scripts": {
 		"storybook:build": "storybook build -c ./storybook -o ./docs",
 		"storybook:dev": "storybook dev -c ./storybook -p 50240"
