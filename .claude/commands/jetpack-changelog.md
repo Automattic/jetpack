@@ -5,7 +5,7 @@ description: Create a changelog entry for a Jetpack project using the changelogg
 Create a changelog entry for a Jetpack project.
 
 Instructions:
-1. Check git changes to identify which project was modified: `git diff --name-only trunk...HEAD`
+1. Check git changes to identify which project was modified: `git diff --name-only trunk..HEAD`
 2. Analyze the changes to determine:
    - Which project was modified (look at file paths)
    - Significance level (patch for bug fixes, minor for features, major for breaking changes)
