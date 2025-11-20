@@ -31,10 +31,8 @@ const Layout = () => {
 
 	return (
 		<div className="jp-forms-layout">
-			<div className="jp-forms-layout__content">
-				{ ! isLoadingConfig && <Outlet /> }
-				{ isIntegrationsOpen && showDashboardIntegrations && <Integrations /> }
-			</div>
+			{ ! isLoadingConfig && <Outlet /> }
+			{ isIntegrationsOpen && showDashboardIntegrations && <Integrations /> }
 		</div>
 	);
 };

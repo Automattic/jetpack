@@ -46,6 +46,7 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
+const NO_SIDEBAR_BREAKPOINT = 1000;
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -94,8 +95,9 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 
-	const selectedResponses = searchParams.get( 'r' );
+	const isResponseInModal = containerWidth <= NO_SIDEBAR_BREAKPOINT;
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
+	const selectedResponses = searchParams.get( 'r' );
 	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
 	const [ responseModal, setResponseModal ] = useState( null );
 
@@ -115,10 +117,10 @@ export default function InboxView() {
 	);
 
 	useEffect( () => {
-		if ( ! isMobileViewport ) {
+		if ( ! isResponseInModal && isResponseModalOpen ) {
 			closeResponseModal();
 		}
-	}, [ isMobileViewport, closeResponseModal ] );
+	}, [ isResponseInModal, closeResponseModal, isResponseModalOpen ] );
 
 	useEffect( () => {
 		return setupSidebarWidthObserver();
@@ -205,7 +207,7 @@ export default function InboxView() {
 	// Manage sidebar visibility based on selection
 	// Only show sidebar when exactly one item is selected on desktop
 	useEffect( () => {
-		if ( isMobileViewport ) {
+		if ( isResponseInModal ) {
 			// Don't manage sidebar on mobile
 			return;
 		}
@@ -230,7 +232,7 @@ export default function InboxView() {
 		if ( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) ) {
 			setSidePanelItem( recordToShow );
 		}
-	}, [ isMobileViewport, records, selection, sidePanelItem ] );
+	}, [ isResponseInModal, records, selection, sidePanelItem ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -261,7 +263,7 @@ export default function InboxView() {
 							</span>
 						) : null;
 
-					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
+					const handleClick = isResponseInModal ? () => openResponseModal( item ) : undefined;
 
 					return (
 						<div
@@ -393,13 +395,14 @@ export default function InboxView() {
 			filterOptions?.date,
 			filterOptions?.source,
 			isMobileViewport,
+			isResponseInModal,
 			openResponseModal,
 			dateSettings.formats.date,
 		]
 	);
 
 	const actions = useMemo( () => {
-		const mobileViewAction = {
+		const modalViewAction = {
 			...viewAction,
 			RenderModal: ( { items, closeModal } ) => {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
@@ -411,10 +414,11 @@ export default function InboxView() {
 
 				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 			},
+			modalSize: 'large',
 			hideModalHeader: true,
 		};
 
-		const desktopViewAction = {
+		const sidebarViewAction = {
 			...viewAction,
 			callback( items ) {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
@@ -430,7 +434,7 @@ export default function InboxView() {
 			},
 		};
 
-		const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
+		const viewResponseAction = isResponseInModal ? modalViewAction : sidebarViewAction;
 
 		const primaryActions = [ viewResponseAction ];
 		const secondaryActions = [ markAsUnreadAction, editFormAction ];
@@ -449,7 +453,7 @@ export default function InboxView() {
 					...secondaryActions,
 				];
 		}
-	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
+	}, [ isResponseInModal, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -538,10 +542,12 @@ export default function InboxView() {
 	);
 
 	return (
-		<>
-			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
-				{ pageContent }
-			</div>
+		<div
+			className="jp-forms-layout__content"
+			ref={ containerRef }
+			style={ { border: '1px solid red' } }
+		>
+			<div className="jp-forms-layout__surface is-stage">{ pageContent }</div>
 			{ isResponseModalOpen && (
 				<Modal
 					title={ __( 'Response', 'jetpack-forms' ) }
@@ -551,18 +557,18 @@ export default function InboxView() {
 					{ responseModal }
 				</Modal>
 			) }
-			{ selection.length === 1 && sidePanelItem && ! isMobileViewport && (
+			{ selection.length === 1 && sidePanelItem && ! isResponseInModal && (
 				<div className="jp-forms-layout__surface is-inspector">
 					<SingleResponseView
 						sidePanelItem={ sidePanelItem }
 						setSidePanelItem={ setSidePanelItem }
 						isLoadingData={ isLoadingData }
-						isMobile={ isMobileViewport }
+						isMobile={ isResponseInModal }
 						onChangeSelection={ onChangeSelection }
 						selection={ selection }
 					/>
 				</div>
 			) }
-		</>
+		</div>
 	);
 }
