@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { useMemo } from 'react';
 import {
 	useGlobalChartsContext,
@@ -45,9 +46,9 @@ function formatPointValue(
 			case 'percentage':
 				return formatPercentage( percentagePoint.percentage );
 			case 'value':
-				return percentagePoint.value.toString();
+				return formatNumber( percentagePoint.value );
 			case 'valueDisplay':
-				return percentagePoint.valueDisplay || percentagePoint.value.toString();
+				return percentagePoint.valueDisplay || formatNumber( percentagePoint.value );
 			default:
 				return '';
 		}
@@ -55,7 +56,7 @@ function formatPointValue(
 
 	// Handle DataPointDate (time series data)
 	if ( 'value' in point ) {
-		return point.value.toString();
+		return point.value !== null ? formatNumber( point.value ) : '';
 	}
 
 	return '';

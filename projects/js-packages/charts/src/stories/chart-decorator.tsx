@@ -1,5 +1,8 @@
+import { setLocale } from '@automattic/number-formatters';
+import { useEffect } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP } from './theme-config';
+import type { ChartTheme } from '../types';
 import type { Decorator } from '@storybook/react';
 
 /**
@@ -46,8 +49,35 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 };
 
 /**
+ * Wrapper component that initializes locale for Storybook environment
+ * @param root0          - Props object
+ * @param root0.children - Child components to render
+ * @param root0.theme    - Chart theme to apply
+ * @return JSX element with locale initialization and GlobalChartsProvider
+ */
+const LocaleInitializer = ( {
+	children,
+	theme,
+}: {
+	children: React.ReactNode;
+	theme: Partial< ChartTheme >;
+} ) => {
+	// Initialize number formatters with browser locale for Storybook
+	// In WordPress, @automattic/number-formatters automatically uses the WordPress user locale
+	// from @wordpress/date's getSettings(), so no explicit setLocale() call is needed
+	useEffect( () => {
+		if ( typeof window !== 'undefined' && window.navigator?.language ) {
+			setLocale( window.navigator.language );
+		}
+	}, [] );
+
+	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
+};
+
+/**
  * Simple decorator for chart context stories with GlobalChartsProvider but no container styling
  * Used for stories that display multiple charts in custom layouts
+ * Ensures number formatters use browser locale in Storybook environment
  * @param Story      - The story component to render
  * @param root0      - The story context object
  * @param root0.args - The story arguments
@@ -58,9 +88,9 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 	const theme = CHART_THEME_MAP[ themeName || 'default' ];
 
 	return (
-		<GlobalChartsProvider theme={ theme }>
+		<LocaleInitializer theme={ theme }>
 			<Story />
-		</GlobalChartsProvider>
+		</LocaleInitializer>
 	);
 };
 
