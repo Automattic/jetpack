@@ -399,8 +399,6 @@ jobs:
         run: |
           cd projects/js-packages/storybook
           node bin/webserver.mjs
-          # Work around a probable bug in jest-playwright-preset, which should be going away when we update @storybook/test-runner to v0.24.1+.
-          export NODE_PATH=$( dirname "$( dirname "$( realpath node_modules/@storybook/test-runner )" )" )
           REFERENCE_URL=https://automattic.github.io/jetpack-storybook/ pnpm exec test-storybook -c storybook --url 'http://127.0.0.1:6006/index.html'
 
   # Probably this should be a linting test, but we don't run linting on trunk or release branches.
