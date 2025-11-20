@@ -8,7 +8,7 @@ on:
 jobs:
   stale:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 10 # 2025-11-20: Takes less than a minute.
     steps:
       - uses: actions/stale@v10
         with:

@@ -631,7 +631,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'pull_request' && needs.changed_files.outputs.phanstubs == 'true' && github.event.pull_request.user.login != 'matticbot'
-    timeout-minutes: 5  # 2025-11-06: Probably takes about a minute, but shouldn't run often.
+    timeout-minutes: 5  # 2025-11-06: Probably takes about a minute.
     steps:
       - uses: GitHubSecurityLab/actions-permissions/monitor@v1
         with:
