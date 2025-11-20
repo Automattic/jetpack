@@ -365,21 +365,26 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 
 ### Improved performance when tunneling
 
-Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be needlessly slow. Ngrok and JT add a significant overhead. Depending on where you live, there can be a considerable delay for most browser requests.
+Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be slow due to all traffic having to go to the server and back. Depending on where you live, there can be a considerable delay for most browser requests.
 
-**Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_ without tunneling using reverse proxy.
+**Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_, without tunneling, using a reverse proxy.
 
 #### Setup
 1. Install [Caddy](https://formulae.brew.sh/formula/caddy)
 
-    Why Caddy? The hosts file can’t include ports – it only maps `your-test-site.example.com` to `127.0.0.1`. Caddy’s reverse proxy shuttles HTTP(S) traffic from the Jurassic Tube site to the local Docker address, including the port.
+    Why Caddy? The developer environment only listens for HTTP traffic, not HTTPS traffic. Caddy accepts the HTTPS connection and proxies the request to the developer environment.
 
     ```sh
     brew install caddy
     ```
 
-2. Edit hosts file
+2. Edit the hosts file (`/etc/hosts` on macOS/Linux) as an administrator (requires `sudo` privileges)
 
+    For example, you can run:
+
+    ```sh
+    sudo nano /etc/hosts
+    ```
     Add this line:
 
     ```
@@ -394,7 +399,7 @@ Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be needl
     caddy reverse-proxy --from your-test-site.example.com --to localhost:80 --internal-certs --disable-redirects
     ```
 
-    `--internal-certs` and `--disable-redirects` are needed if you want to use HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
+    `--internal-certs` and `--disable-redirects` are needed for HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
 
 That’s it!
 
