@@ -23,12 +23,15 @@ class Util_Test extends BaseTestCase {
 	 * Test that grunion_contact_form_apply_block_attribute returns non-string content unchanged.
 	 */
 	public function test_apply_block_attribute_with_non_string_content() {
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
 		$result = Util::grunion_contact_form_apply_block_attribute( null, array( 'test' => 'value' ) );
 		$this->assertNull( $result );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal
 		$result = Util::grunion_contact_form_apply_block_attribute( array(), array( 'test' => 'value' ) );
 		$this->assertEquals( array(), $result );
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument
 		$result = Util::grunion_contact_form_apply_block_attribute( 123, array( 'test' => 'value' ) );
 		$this->assertEquals( 123, $result );
 	}

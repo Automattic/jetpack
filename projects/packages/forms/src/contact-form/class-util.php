@@ -422,7 +422,7 @@ class Util {
 			if ( 'jetpack/contact-form' === $block['blockName'] ) {
 				// Merge new attributes with existing ones.
 				$block['attrs'] = array_merge(
-					isset( $block['attrs'] ) ? $block['attrs'] : array(),
+					$block['attrs'] ?? array(),
 					$new_attr
 				);
 			}
