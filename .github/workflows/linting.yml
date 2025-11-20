@@ -663,7 +663,12 @@ jobs:
   typecheck:
     name: Type checking
     runs-on: ubuntu-latest
+    timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -687,6 +692,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20 # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          config: ${{ vars.PERMISSIONS_CONFIG }}
+
       - uses: actions/checkout@v5
       - name: Setup tools
         uses: ./.github/actions/tool-setup
