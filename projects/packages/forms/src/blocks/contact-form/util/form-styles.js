@@ -92,7 +92,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 
 	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
 	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
-	const inputBackground = window.getComputedStyle( inputNode ).backgroundColor;
+
 	const bodyTextColor = window.getComputedStyle( formRootNode ).color;
 	const invertedBodyTextColor = window.jetpackForms.getInverseReadableColor( bodyTextColor );
 	const {
@@ -130,7 +130,12 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		lineHeight,
 		height: inputHeight,
 		backdropFilter: inputBackdropFilter,
+		backgroundColor: inputBackground,
 	} = window.getComputedStyle( inputNode );
+	const inputBackgroundIsTransparent =
+		inputBackground === 'rgba(0, 0, 0, 0)' ||
+		inputBackground === 'transparent' ||
+		inputBackground === '#00000000';
 
 	styleProbe.remove();
 
@@ -145,7 +150,9 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--border-size': borderWidth,
 		'--jetpack--contact-form--border-style': borderStyle,
 		'--jetpack--contact-form--border-radius': borderRadius,
-		'--jetpack--contact-form--input-background': inputBackground,
+		...( inputBackgroundIsTransparent
+			? {}
+			: { '--jetpack--contact-form--input-background': inputBackground } ),
 		'--jetpack--contact-form--input-background-fallback': inputBackgroundFallback,
 		'--jetpack--contact-form--input-padding': inputPadding,
 		'--jetpack--contact-form--input-padding-top': inputPaddingTop,
