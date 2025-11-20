@@ -10,20 +10,31 @@ const icon = {
 
 export const FIRST_NAME_ID = 'first-name';
 export const LAST_NAME_ID = 'last-name';
+export const NAME_ID = 'name';
 
 export const DEFAULT_FIRST_NAME_LABEL = __( 'First name', 'jetpack-forms' );
 export const DEFAULT_LAST_NAME_LABEL = __( 'Last name', 'jetpack-forms' );
 export const DEFAULT_NAME_LABEL = __( 'Name', 'jetpack-forms' );
 
+// Predicates to consistently recognize variation ids (allows suffixed forms like name-2).
+export const isNameVariationId = id => typeof id === 'string' && /^name(?:-\d+)?$/.test( id );
+export const isFirstNameVariationId = id =>
+	typeof id === 'string' && /^first-name(?:-\d+)?$/.test( id );
+export const isLastNameVariationId = id =>
+	typeof id === 'string' && /^last-name(?:-\d+)?$/.test( id );
+export const isKnownNameVariationId = id =>
+	isNameVariationId( id ) || isFirstNameVariationId( id ) || isLastNameVariationId( id );
+
 const variations = [
 	{
-		name: 'name',
+		name: NAME_ID,
 		title: DEFAULT_NAME_LABEL,
 		description: __( 'Collect the visitor’s name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'transform' ],
+		isActive: ( { id } ) => isNameVariationId( id ),
 		attributes: {
-			id: '',
+			id: NAME_ID,
 		},
 		innerBlocks: [
 			[ 'jetpack/label', { label: DEFAULT_NAME_LABEL } ],
@@ -36,7 +47,7 @@ const variations = [
 		description: __( 'Collect the visitor’s first name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
-		isActive: [ 'id' ],
+		isActive: ( { id } ) => isFirstNameVariationId( id ),
 		attributes: {
 			id: FIRST_NAME_ID,
 		},
@@ -67,7 +78,7 @@ const variations = [
 		description: __( 'Collect the visitor’s last name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
-		isActive: [ 'id' ],
+		isActive: ( { id } ) => isLastNameVariationId( id ),
 		attributes: {
 			id: LAST_NAME_ID,
 		},

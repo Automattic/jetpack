@@ -1,15 +1,18 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect, useMemo, useRef } from '@wordpress/element';
+import { generateUniqueFormFieldId } from '../../shared/util/generate-unique-id.js';
 import {
 	FIRST_NAME_ID,
 	LAST_NAME_ID,
+	NAME_ID,
 	DEFAULT_FIRST_NAME_LABEL,
 	DEFAULT_LAST_NAME_LABEL,
 	DEFAULT_NAME_LABEL,
+	isFirstNameVariationId,
+	isLastNameVariationId,
+	isKnownNameVariationId,
 } from '../variations.js';
-
-const isKnownId = id => id === FIRST_NAME_ID || id === LAST_NAME_ID;
 
 const getDefaultLabelForId = id => {
 	if ( id === FIRST_NAME_ID ) return DEFAULT_FIRST_NAME_LABEL;
@@ -18,16 +21,37 @@ const getDefaultLabelForId = id => {
 };
 
 /**
- * Sync the nested label text with the Name field's variation id when users transform
- * between known variations (first-name/last-name).
+ * Ensure Name-field variations keep correct, unique ids and default labels.
  *
- * @param {object} params          - Parameters.
- * @param {string} params.clientId - Block clientId for the Name field
- * @param {string} params.id       - Current variation id (e.g., 'first-name' | 'last-name')
+ * Behavior:
+ * - On transform to Name/First/Last, assigns a unique id based on the variant
+ * (e.g., 'name', 'name-2', 'first-name', 'first-name-2') and sets the default label.
+ * - On transform back to the base Name field (empty id), clears id and restores the base label.
+ * - No-ops when id is custom/non-variant.
+ *
+ * @param {object} params          - Hook parameters.
+ * @param {string} params.clientId - Name field block clientId.
+ * @param {string} params.id       - Current field id (used to infer variant).
  */
-export default function useNameLabelSync( { clientId, id } ) {
+export default function useSetFieldIdAndLabel( { clientId, id } ) {
 	const prevIdRef = useRef( id );
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+
+	const existingFieldIds = useSelect(
+		select => {
+			const { getBlock, getBlocks, getBlockParents } = select( blockEditorStore );
+			const parentIds = getBlockParents( clientId ) || [];
+			const formRootId = parentIds.find( parentId => {
+				const parent = getBlock( parentId );
+				return parent?.name === 'jetpack/contact-form';
+			} );
+			const siblings = formRootId ? getBlocks( formRootId ) : getBlocks();
+			return siblings
+				.filter( block => block.clientId !== clientId && block.attributes?.id )
+				.map( block => block.attributes.id );
+		},
+		[ clientId ]
+	);
 
 	const labelClientId = useSelect(
 		select => {
@@ -38,44 +62,63 @@ export default function useNameLabelSync( { clientId, id } ) {
 		[ clientId ]
 	);
 
-	const currentLabel = useSelect(
-		select => {
-			return labelClientId
-				? select( blockEditorStore ).getBlockAttributes( labelClientId )?.label
-				: undefined;
-		},
-		[ labelClientId ]
-	);
-
-	useEffect( () => {
+	// Derive block context details once per ID change.
+	const context = useMemo( () => {
 		const newId = id;
 		const prevId = prevIdRef.current;
+		const isBaseFormBlock =
+			isKnownNameVariationId( prevId ) && ( newId === undefined || newId === '' );
+		const isTransform = isKnownNameVariationId( newId ) && newId !== prevId;
 
-		if ( ! labelClientId ) {
-			prevIdRef.current = newId;
+		let baseId = NAME_ID;
+		if ( isFirstNameVariationId( newId ) ) {
+			baseId = FIRST_NAME_ID;
+		} else if ( isLastNameVariationId( newId ) ) {
+			baseId = LAST_NAME_ID;
+		}
+
+		return {
+			isBaseFormBlock,
+			isTransform,
+			baseId,
+			label: getDefaultLabelForId( baseId ),
+		};
+	}, [ id ] );
+
+	// Set HTML ID on the name field block.
+	useEffect( () => {
+		if ( context.isBaseFormBlock ) {
+			// Only clear the id if it isn't already empty to avoid loops.
+			if ( id !== '' ) {
+				updateBlockAttributes( clientId, { id: '' } );
+			}
 			return;
 		}
-
-		// Handle transforms between known variations.
-		if ( isKnownId( newId ) && newId !== prevId ) {
-			const nextDefault = getDefaultLabelForId( newId );
-			// Ensure the parent block id matches the variation id.
-			if ( newId ) {
-				updateBlockAttributes( clientId, { id: newId } );
+		if ( context.isTransform ) {
+			const uniqueId = generateUniqueFormFieldId( context.baseId, existingFieldIds );
+			// Only set the id when it actually changes to avoid loops.
+			if ( id !== uniqueId ) {
+				updateBlockAttributes( clientId, { id: uniqueId } );
 			}
-			// Always set the label to the default for the selected variation.
-			updateBlockAttributes( labelClientId, { label: nextDefault } );
 		}
+	}, [ context, id, clientId, updateBlockAttributes, existingFieldIds ] );
 
-		// Handle transforms from a known variation back to the base Name (no id).
-		const becameBase = isKnownId( prevId ) && ( newId === undefined || newId === '' );
-		if ( becameBase ) {
-			// Clear the parent block id when returning to base.
-			updateBlockAttributes( clientId, { id: '' } );
-			// Always set the label back to the base default.
+	// Set label on the label block.
+	useEffect( () => {
+		if ( ! labelClientId ) {
+			return;
+		}
+		if ( context.isBaseFormBlock ) {
 			updateBlockAttributes( labelClientId, { label: DEFAULT_NAME_LABEL } );
+			return;
 		}
+		if ( context.isTransform ) {
+			updateBlockAttributes( labelClientId, { label: context.label } );
+		}
+	}, [ context, labelClientId, updateBlockAttributes ] );
 
-		prevIdRef.current = newId;
-	}, [ id, clientId, labelClientId, currentLabel, updateBlockAttributes ] );
+	// Effect C: track previous id
+	useEffect( () => {
+		prevIdRef.current = id;
+	}, [ id ] );
 }
