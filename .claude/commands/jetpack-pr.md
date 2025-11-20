@@ -6,7 +6,7 @@ Create a pull request for the current branch using Jetpack's PR template.
 
 Instructions:
 1. Check git status and analyze all commits from trunk to HEAD
-2. Check if changes include any projects (projects/plugins/* or projects/packages/*):
+2. Check if changes include any projects (projects/plugins/*, projects/packages/*, projects/github-actions/*, or projects/js-packages/*):
    - If yes, verify a changelog entry exists in the project's changelog/ directory
    - If no changelog exists, run `/jetpack-changelog` first to create one
    - If changes are only to .claude/, docs, or non-project files, skip changelog check
