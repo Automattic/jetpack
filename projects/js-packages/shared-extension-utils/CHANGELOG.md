@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.27] - 2025-11-20
 ### Fixed
-- Jetpack: remove getIconColor functions from block icons [#45992]
+- Jetpack: Remove getIconColor functions from block icons. [#45992]
 
 ## [1.3.26] - 2025-11-18
 ### Changed
