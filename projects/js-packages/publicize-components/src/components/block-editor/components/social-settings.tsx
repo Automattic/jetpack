@@ -32,7 +32,7 @@ const RenderSettings = () => {
 
 			{ /* Social Previews panel */ }
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
-			<PanelBody title={ __( 'Social Previews', 'jetpack-publicize-components' ) }>
+			<PanelBody title={ __( 'Link Preview', 'jetpack-publicize-components' ) }>
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PanelBody>
 		</ThemeProvider>

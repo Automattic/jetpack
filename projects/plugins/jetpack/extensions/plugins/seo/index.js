@@ -99,7 +99,7 @@ const Seo = () => {
 	const hasRequiredPlanForEnhancer = ! getRequiredPlan( 'ai-seo-enhancer' );
 
 	const jetpackSeoPanelProps = {
-		title: __( 'SEO', 'jetpack' ),
+		title: __( 'Optimize SEO', 'jetpack' ),
 	};
 
 	if ( canShowUpsell && requiredPlan !== false ) {
