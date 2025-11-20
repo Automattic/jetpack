@@ -356,7 +356,7 @@ class Backup extends Hybrid_Product {
 										'site_new' === ( $rewind_state->reason ?? '' ) );
 
 			if (
-				$rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' &&
+				! in_array( $rewind_state->state, array( 'active', 'provisioning', 'awaiting_credentials' ), true ) &&
 				! $is_new_site_provisioning
 			) {
 				$backup_failed_status = array(
