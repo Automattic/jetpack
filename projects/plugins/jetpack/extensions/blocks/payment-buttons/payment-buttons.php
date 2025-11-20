@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\Extensions\PaymentButtons;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -78,6 +77,12 @@ function render_block( $attributes, $content ) {
  * @return string
  */
 function render_block_email( $block_content, array $parsed_block, $rendering_context ) {
+	$flex_layout_renderer_class = '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer';
+
+	if ( ! class_exists( $flex_layout_renderer_class ) ) {
+		return '';
+	}
+
 	// Ignore font size set on the buttons block.
 	// We rely on TypographyPreprocessor to set the font size on the buttons.
 	// Rendering font size on the wrapper causes unwanted whitespace below the buttons.
@@ -85,5 +90,7 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 		unset( $parsed_block['attrs']['style']['typography']['fontSize'] );
 	}
 
-	return ( new Flex_Layout_Renderer() )->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
+	$flex_layout_renderer = new $flex_layout_renderer_class();
+
+	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 }
