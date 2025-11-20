@@ -24,14 +24,13 @@ import { ManualSharing } from '../manual-sharing';
 import { ReSharingPanel } from '../resharing-panel';
 import styles from './styles.module.scss';
 import './global.scss';
-import type { ReactNode } from 'react';
+import { UpsellNotice } from './upsell';
 
 type PublicizePanelProps = {
 	prePublish?: boolean;
-	children: ReactNode;
 };
 
-const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
+const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
@@ -61,7 +60,7 @@ const PublicizePanel = ( { prePublish, children }: PublicizePanelProps ) => {
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
-			{ children }
+			<UpsellNotice />
 			{ ! hidePublicizeFeature && (
 				<Fragment>
 					{ hasConnections ? (

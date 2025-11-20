@@ -6,7 +6,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import clsx from 'clsx';
-import usePublicizeConfig from '../../../hooks/use-publicize-config';
+import usePublicizeConfig from '../../hooks/use-publicize-config';
 
 /**
  * Upsell notice for the Publicize feature.
