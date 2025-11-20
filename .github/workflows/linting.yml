@@ -612,7 +612,6 @@ jobs:
           done
           exit $EXIT
 
-  # Probably this should be a linting test too, but we don't run linting on trunk or release branches.
   phan:
     name: Static analysis
     runs-on: ubuntu-latest
