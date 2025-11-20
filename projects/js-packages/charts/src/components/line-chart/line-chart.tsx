@@ -12,6 +12,7 @@ import {
 	useChartDataTransform,
 	useChartMargin,
 	useElementHeight,
+	usePrefersReducedMotion,
 } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -418,6 +419,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			metadata: chartMetadata,
 		} );
 
+		const prefersReducedMotion = usePrefersReducedMotion();
+
 		const accessors = {
 			xAccessor: ( d: DataPointDate ) => d?.date,
 			yAccessor: ( d: DataPointDate ) => d?.value,
@@ -441,16 +444,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					className={ clsx(
 						'line-chart',
 						styles[ 'line-chart' ],
-						animation ? styles[ 'line-chart__animated' ] : null,
+						{ [ styles[ 'line-chart--animated' ] ]: animation && ! prefersReducedMotion },
+						{ [ styles[ 'line-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
 						className
 					) }
 					data-testid="line-chart"
 					style={ {
 						width,
 						height,
-						display: 'flex',
-						flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-						position: 'relative',
 					} }
 				>
 					<div

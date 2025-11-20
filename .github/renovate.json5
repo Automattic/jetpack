@@ -62,6 +62,7 @@
 		{
 			extends: [ 'packages:jsUnitTest' ],
 			groupName: 'JS unit testing packages',
+			matchPackageNames: [ 'babel-jest' ],
 		},
 		{
 			groupName: 'Size-limit',

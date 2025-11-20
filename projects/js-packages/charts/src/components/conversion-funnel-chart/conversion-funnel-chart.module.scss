@@ -112,6 +112,20 @@
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 		filter: brightness(1.1);
 	}
+
+	&--animated {
+		transform-origin: bottom;
+		transform-box: fill-box;
+		transform: scaleY(0);
+		animation: stretch 1s ease-out forwards;
+	}
+
+	@keyframes stretch {
+
+		to {
+			transform: scaleY(1);
+		}
+	}
 }
 
 .tooltip-wrapper {
@@ -154,18 +168,4 @@
 	padding: 48px 24px;
 	color: #6b7280;
 	font-size: 16px;
-}
-
-.funnel-bar__animated {
-	transform-origin: bottom;
-	transform-box: fill-box;
-	transform: scaleY(0);
-	animation: stretch 1s ease-out forwards;
-}
-
-@keyframes stretch {
-
-	to {
-		transform: scaleY(1);
-	}
 }

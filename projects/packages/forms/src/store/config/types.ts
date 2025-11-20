@@ -1,5 +1,5 @@
 import { CONFIG_STORE } from '.';
-import type { FormsConfigData } from '../../types';
+import type { FormsConfigData } from '../../types/index.ts';
 
 export type ConfigState = {
 	config: Partial< FormsConfigData > | null;

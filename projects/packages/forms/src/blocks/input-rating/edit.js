@@ -1,6 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { SVG, Path } from '@wordpress/components';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 
 export default function RatingInputEdit( { context, clientId } ) {
 	const max = context?.[ 'jetpack/field-rating-max' ] || 5;

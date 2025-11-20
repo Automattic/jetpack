@@ -7,7 +7,7 @@ import {
 	DEFAULT_FIRST_NAME_LABEL,
 	DEFAULT_LAST_NAME_LABEL,
 	DEFAULT_NAME_LABEL,
-} from '../variations';
+} from '../variations.js';
 
 const isKnownId = id => id === FIRST_NAME_ID || id === LAST_NAME_ID;
 

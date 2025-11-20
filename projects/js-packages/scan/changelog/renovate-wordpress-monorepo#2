@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Revert dataviews test hack from #45551. No longer necessary after the ESM-fixing hack in this PR.
+
+

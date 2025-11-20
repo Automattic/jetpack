@@ -2,10 +2,10 @@ import { Badge } from '@automattic/ui';
 import '@automattic/ui/style.css';
 import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import SalesforceIcon from '../../../../../icons/salesforce';
-import HelpMessage from '../../help-message';
-import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button';
-import type { CardItem, CardBuilderProps } from './types';
+import SalesforceIcon from '../../../../../icons/salesforce.tsx';
+import HelpMessage from '../../help-message/index.js';
+import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
+import type { CardItem, CardBuilderProps } from './types.ts';
 
 export const isValidSalesforceOrgId = ( id: string | undefined ): boolean =>
 	typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );

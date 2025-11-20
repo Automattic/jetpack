@@ -1,6 +1,6 @@
 import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { settings } from '..';
+import { settings } from '../index.js';
 
 export const ContactFormPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
 	const enableModule = () => {

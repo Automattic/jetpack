@@ -4,11 +4,11 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { store as dashboardStore } from '../store';
+import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types';
+import type { FormResponse } from '../../types/index.ts';
 
 export const useMarkAsSpam = ( response: FormResponse ) => {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );

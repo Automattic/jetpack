@@ -1,7 +1,7 @@
 import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
-import AddStepControls from '../shared/components/form-add-step-controls';
-import StepControls from '../shared/components/form-step-controls';
-import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
+import AddStepControls from '../shared/components/form-add-step-controls/index.js';
+import StepControls from '../shared/components/form-step-controls/index.js';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';
 
 export default function StepContainerEdit( { clientId } ) {
 	const blockProps = useBlockProps( {

@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Fix `WordPress.WP.GetMetaSingle.Missing` sniff, being added in WPCS 3.2.
-
-

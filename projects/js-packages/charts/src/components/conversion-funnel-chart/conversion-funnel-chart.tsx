@@ -2,6 +2,7 @@ import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
+import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
@@ -263,6 +264,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	// Handle empty or undefined data
 	if ( ! isDataValid ) {
 		return (
@@ -350,7 +353,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
-											[ styles[ 'funnel-bar__animated' ] ]: animation && ! loading,
+											[ styles[ 'funnel-bar--animated' ] ]:
+												animation && ! loading && ! prefersReducedMotion,
 										} ) }
 										style={ {
 											height: `${ barHeight }%`,

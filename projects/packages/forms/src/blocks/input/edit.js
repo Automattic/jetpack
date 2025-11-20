@@ -3,8 +3,8 @@ import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpr
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
 

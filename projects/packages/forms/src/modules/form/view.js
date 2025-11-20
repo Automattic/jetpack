@@ -11,8 +11,8 @@ import {
 /*
  * Internal dependencies
  */
-import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper';
-import { focusNextInput, submitForm } from './shared';
+import { validateField, isEmptyValue } from '../../contact-form/js/validate-helper.js';
+import { focusNextInput, submitForm } from './shared.ts';
 
 const withSyncEvent =
 	originalWithSyncEvent ||

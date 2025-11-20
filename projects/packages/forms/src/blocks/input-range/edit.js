@@ -2,8 +2,8 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from 'react';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
-import { computeSliderValuePosition } from './utils';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
+import { computeSliderValuePosition } from './utils.js';
 import './style.scss';
 import './editor.scss';
 

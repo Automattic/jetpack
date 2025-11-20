@@ -18,11 +18,11 @@ import {
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
-import PluginActionButton from './plugin-action-button';
+import PluginActionButton from './plugin-action-button.tsx';
 /**
  * Types
  */
-import type { IntegrationCardProps } from './index';
+import type { IntegrationCardProps } from './index.tsx';
 import type { MouseEvent } from 'react';
 
 const noop = () => {};

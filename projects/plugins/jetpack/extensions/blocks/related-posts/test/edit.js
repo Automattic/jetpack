@@ -73,7 +73,17 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 
 jest.mock( '../hooks/use-status-toggle' );
 
-jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn(),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 
 useSelect.mockImplementation( cb => {
 	return cb( () => ( {

@@ -5,9 +5,9 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plugins } from '@wordpress/icons';
-import { INTEGRATIONS_STORE } from '../../../store/integrations';
-import IntegrationsModal from './jetpack-integrations-modal';
-import ActiveIntegrations from './jetpack-integrations-modal/active-integrations';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import ActiveIntegrations from './jetpack-integrations-modal/active-integrations/index.js';
+import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
 
 /**
  * Integration controls component containing Panel for settings sidebar and block toolbar.

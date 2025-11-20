@@ -7,7 +7,17 @@ import * as fontOptions from '../../../../hooks/use-social-image-font-options';
 import SocialImageGeneratorSettingsModal from '../modal';
 
 // Mock dependencies
-jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn(),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 jest.mock( '../../../../hooks/use-image-generator-config', () => jest.fn() );
 jest.mock( '../../../../hooks/use-media-details', () => jest.fn() );
 jest.spyOn( fontOptions, 'useSocialImageFontOptions' ).mockImplementation();

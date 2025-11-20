@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "061308a99336b6e1de9f849f6fac04f3",
+	"content-hash": "708db098186de11f46e06a9f1d11e58a",
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -671,7 +671,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/boost-core",
-				"reference": "e87cba91035b78cb3c3e1aaf414010f82f80787f"
+				"reference": "2971e11f238462df5de64ea0641bf8d1d54a7db7"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -693,7 +693,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"textdomain": "jetpack-boost-core"
 			},
@@ -1277,7 +1277,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/explat",
-				"reference": "7e7f3929e7b3cb75923ae73176ec3ccde520faed"
+				"reference": "1da7eabd28e234c67a03fc7bff5760b383a0d91d"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -1295,7 +1295,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "f1378a4d73fb344c2dde57bbf861f607558ee87a"
+				"reference": "6c817ab08a94e1765cddf0eed57e93f2a2fd2a7a"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1524,7 +1524,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.16.x-dev"
+					"dev-trunk": "6.19.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -3422,7 +3422,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "229f825d197d9ef6823a06785de3a6f5c7c9e9b6"
+				"reference": "b23b0251945e33c95918649859829d9e04e5b136"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3448,7 +3448,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.11.x-dev"
+					"dev-trunk": "0.12.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {
@@ -3484,86 +3484,6 @@
 			"transport-options": {
 				"relative": true
 			}
-		},
-		{
-			"name": "scssphp/scssphp",
-			"version": "v1.13.0",
-			"source": {
-				"type": "git",
-				"url": "https://github.com/scssphp/scssphp.git",
-				"reference": "63d1157457e5554edf00b0c1fabab4c1511d2520"
-			},
-			"dist": {
-				"type": "zip",
-				"url": "https://api.github.com/repos/scssphp/scssphp/zipball/63d1157457e5554edf00b0c1fabab4c1511d2520",
-				"reference": "63d1157457e5554edf00b0c1fabab4c1511d2520",
-				"shasum": ""
-			},
-			"require": {
-				"ext-ctype": "*",
-				"ext-json": "*",
-				"php": ">=5.6.0"
-			},
-			"require-dev": {
-				"bamarni/composer-bin-plugin": "^1.4",
-				"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^8.3 || ^9.4",
-				"sass/sass-spec": "*",
-				"squizlabs/php_codesniffer": "~3.5",
-				"symfony/phpunit-bridge": "^5.1",
-				"thoughtbot/bourbon": "^7.0",
-				"twbs/bootstrap": "~5.0",
-				"twbs/bootstrap4": "4.6.1",
-				"zurb/foundation": "~6.7.0"
-			},
-			"suggest": {
-				"ext-iconv": "Can be used as fallback when ext-mbstring is not available",
-				"ext-mbstring": "For best performance, mbstring should be installed as it is faster than ext-iconv"
-			},
-			"bin": [
-				"bin/pscss"
-			],
-			"type": "library",
-			"extra": {
-				"bamarni-bin": {
-					"bin-links": false,
-					"forward-command": false
-				}
-			},
-			"autoload": {
-				"psr-4": {
-					"ScssPhp\\ScssPhp\\": "src/"
-				}
-			},
-			"notification-url": "https://packagist.org/downloads/",
-			"license": [
-				"MIT"
-			],
-			"authors": [
-				{
-					"name": "Anthon Pang",
-					"email": "apang@softwaredevelopment.ca",
-					"homepage": "https://github.com/robocoder"
-				},
-				{
-					"name": "Cédric Morin",
-					"email": "cedric@yterium.com",
-					"homepage": "https://github.com/Cerdic"
-				}
-			],
-			"description": "scssphp is a compiler for SCSS written in PHP.",
-			"homepage": "http://scssphp.github.io/scssphp/",
-			"keywords": [
-				"css",
-				"less",
-				"sass",
-				"scss",
-				"stylesheet"
-			],
-			"support": {
-				"issues": "https://github.com/scssphp/scssphp/issues",
-				"source": "https://github.com/scssphp/scssphp/tree/v1.13.0"
-			},
-			"time": "2024-08-17T21:02:11+00:00"
 		},
 		{
 			"name": "wikimedia/aho-corasick",

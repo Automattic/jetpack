@@ -10,11 +10,11 @@ import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import { store as dashboardStore } from '../store';
+import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
-import type { FormResponse } from '../../types';
+import type { FormResponse } from '../../types/index.ts';
 
 /**
  * Helper function to get the status filter to apply from the URL.

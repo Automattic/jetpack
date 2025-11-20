@@ -1,6 +1,20 @@
 .line-chart {
 	display: flex;
 	flex-direction: column;
+	position: relative;
+
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			transform: scaleY(0);
+			animation: rise 1s ease-out forwards;
+		}
+	}
+
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
 
 	svg {
 		overflow: visible;
@@ -103,14 +117,6 @@
 		width: 10px;
 		height: 10px;
 	}
-}
-
-/* in your CSS or styled-component */
-
-.line-chart__animated path {
-	transform-origin: 0 95%;
-	transform: scaleY(0);
-	animation: rise 1s ease-out forwards;
 }
 
 @keyframes rise {

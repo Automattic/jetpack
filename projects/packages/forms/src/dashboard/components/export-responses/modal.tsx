@@ -7,11 +7,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { INTEGRATIONS_STORE } from '../../../store/integrations';
-import CSVExport from './csv';
-import GoogleDriveExport from './google-drive';
-import type { SelectIntegrations } from '../../../store/integrations';
-import type { Integration } from '../../../types';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import CSVExport from './csv.tsx';
+import GoogleDriveExport from './google-drive.tsx';
+import type { SelectIntegrations } from '../../../store/integrations/index.ts';
+import type { Integration } from '../../../types/index.ts';
 
 type ExportResponsesModalProps = {
 	onRequestClose: () => void;

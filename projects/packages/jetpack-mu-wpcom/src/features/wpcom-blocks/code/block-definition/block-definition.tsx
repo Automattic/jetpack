@@ -107,11 +107,13 @@ function filterBlockRegistration( settings: any ) {
 	}
 
 	if ( ! settings.transforms ) {
-		settings.transforms = { from: transforms.from };
-	} else if ( ! settings.transforms.from ) {
-		settings.transforms.from = transforms.from;
+		settings.transforms = {
+			from: transforms.from,
+			to: transforms.to,
+		};
 	} else {
-		settings.transforms.from.push( ...transforms.from );
+		settings.transforms.from = [ ...transforms.from, ...settings.transforms.from ];
+		settings.transforms.to = [ ...transforms.to, ...settings.transforms.to ];
 	}
 
 	return settings;

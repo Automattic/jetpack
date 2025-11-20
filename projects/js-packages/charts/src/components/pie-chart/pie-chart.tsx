@@ -5,7 +5,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
-import { useElementHeight, useInteractiveLegendData } from '../../hooks';
+import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -18,6 +18,7 @@ import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Legend, useChartLegendItems } from '../legend';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import { BaseTooltip } from '../tooltip';
@@ -149,6 +150,7 @@ const PieChartInternal = ( {
 	legendItemClassName,
 	legendShape = 'circle',
 	size,
+	animation,
 	thickness = 1,
 	padding = 0,
 	gapScale = 0,
@@ -223,6 +225,8 @@ const PieChartInternal = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( ! isValid ) {
 		return (
 			<div className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }>
@@ -278,11 +282,12 @@ const PieChartInternal = ( {
 		>
 			<div
 				ref={ containerRef }
-				className={ clsx( 'pie-chart', styles[ 'pie-chart' ], className ) }
-				style={ {
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-				} }
+				className={ clsx(
+					'pie-chart',
+					styles[ 'pie-chart' ],
+					{ [ styles[ 'pie-chart--legend-top' ] ]: showLegend && legendPosition === 'top' },
+					className
+				) }
 			>
 				<svg
 					viewBox={ `0 0 ${ width } ${ adjustedHeight }` }
@@ -290,7 +295,19 @@ const PieChartInternal = ( {
 					width={ width }
 					height={ adjustedHeight }
 				>
-					<Group top={ centerY } left={ centerX }>
+					<defs>
+						<RadialWipeAnimation
+							id={ `radial-wipe-${ chartId }` }
+							radius={ outerRadius }
+							innerRadius={ innerRadius }
+						/>
+					</defs>
+
+					<Group
+						top={ centerY }
+						left={ centerX }
+						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
+					>
 						{ allSegmentsHidden ? (
 							<text
 								textAnchor="middle"

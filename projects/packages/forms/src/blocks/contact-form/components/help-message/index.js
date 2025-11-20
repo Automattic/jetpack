@@ -1,6 +1,8 @@
 import clsx from 'clsx';
-import GridiconNoticeOutline from 'gridicons/dist/notice-outline';
+import GridiconNoticeOutlineModule from 'gridicons/dist/notice-outline.js';
 import './style.scss';
+
+const GridiconNoticeOutline = GridiconNoticeOutlineModule.default || GridiconNoticeOutlineModule;
 
 export default ( { children = null, isError = false, ...props } ) => {
 	const classes = clsx( 'help-message', {

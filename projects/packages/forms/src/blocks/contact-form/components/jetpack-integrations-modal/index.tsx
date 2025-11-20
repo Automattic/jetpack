@@ -6,12 +6,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import IntegrationsList from './integrations-list';
+import IntegrationsList from './integrations-list.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../../../types';
+import type { Integration } from '../../../../types/index.ts';
 
 type BlockAttributes = Record< string, unknown >;
 

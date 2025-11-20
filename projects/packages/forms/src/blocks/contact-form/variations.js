@@ -3,8 +3,8 @@ import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import { getIconColor } from '../shared/util/block-icons.js';
 
 const variations = [
 	{

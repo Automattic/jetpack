@@ -2,11 +2,11 @@ import colorStudio from '@automattic/color-studio';
 import { JetpackIcon } from '@automattic/jetpack-components';
 import { Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import AkismetIcon from '../../../../../icons/akismet';
-import HostingerReachIcon from '../../../../../icons/hostinger-reach';
-import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange';
-import SalesforceCircleIcon from '../../../../../icons/salesforce-circle';
-import { isValidSalesforceOrgId } from '../helpers/salesforce';
+import AkismetIcon from '../../../../../icons/akismet.tsx';
+import HostingerReachIcon from '../../../../../icons/hostinger-reach.tsx';
+import MailPoetOrangeIcon from '../../../../../icons/mailpoet-orange.tsx';
+import SalesforceCircleIcon from '../../../../../icons/salesforce-circle.tsx';
+import { isValidSalesforceOrgId } from '../helpers/salesforce.tsx';
 import './style.scss';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];

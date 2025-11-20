@@ -1,6 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import deprecateFieldStyles from '../util/deprecate-field-styles';
+import deprecateFieldStyles from '../util/deprecate-field-styles.js';
 
 // Legacy choice fields used inner blocks for only individual options.
 // This function migrates that to use inner blocks for label + options,

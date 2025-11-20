@@ -1,7 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import deprecateFieldStyles from '../util/deprecate-field-styles';
-import INNER_BLOCKS_DEPRECATION from './inner-blocks-deprecation';
+import deprecateFieldStyles from '../util/deprecate-field-styles.js';
+import INNER_BLOCKS_DEPRECATION from './inner-blocks-deprecation.js';
 
 // Storing in variables to avoid JS mangling breaking translation calls
 const severalOptionsDefault = __( 'Choose several options', 'jetpack-forms' );

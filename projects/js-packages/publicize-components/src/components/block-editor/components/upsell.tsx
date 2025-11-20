@@ -7,83 +7,28 @@ import { __, _x, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
 import clsx from 'clsx';
 import usePublicizeConfig from '../../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
-import type { ReactElement } from 'react';
-
-const getDescriptions = () => ( {
-	start: __(
-		'Start sharing your posts by connecting your social media accounts.',
-		'jetpack-publicize-components'
-	),
-	enabled: __(
-		'Click on the social icons below to control where you want to share your post.',
-		'jetpack-publicize-components'
-	),
-	disabled: __(
-		'Use this tool to share your post on all your social media accounts.',
-		'jetpack-publicize-components'
-	),
-	reshare: __(
-		'Enable the social media accounts where you want to re-share your post, then click on the "Share post" button below.',
-		'jetpack-publicize-components'
-	),
-} );
-
-/**
- * Get the panel description based on the current state.
- *
- * @param {boolean} isPostPublished    - Whether the post is published.
- * @param {boolean} isPublicizeEnabled - Whether Publicize is enabled.
- * @param {boolean} hasConnections     - Whether there are social media connections.
- *
- * @return {string} The panel description.
- */
-function getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnections ) {
-	const descriptions = getDescriptions();
-
-	if ( ! hasConnections ) {
-		return descriptions.start;
-	}
-
-	if ( isPostPublished ) {
-		// For published posts, always show the reshare description.
-		return descriptions.reshare;
-	}
-
-	return isPublicizeEnabled ? descriptions.enabled : descriptions.disabled;
-}
 
 /**
  * Upsell notice for the Publicize feature.
  *
- * @return {ReactElement} The upsell notice.
+ * @return The upsell notice.
  */
 export function UpsellNotice() {
-	const {
-		isRePublicizeUpgradableViaUpsell,
-		isRePublicizeFeatureAvailable,
-		isPublicizeEnabled: isPublicizeEnabledFromConfig,
-	} = usePublicizeConfig();
+	const { isRePublicizeUpgradableViaUpsell, isRePublicizeFeatureAvailable } = usePublicizeConfig();
 	const requiredPlan = getRequiredPlan( 'republicize' );
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting, planData ] = useUpgradeFlow(
 		`${ requiredPlan }`
 	);
-	const { hasConnections } = useSocialMediaConnections();
-	const isPublicizeEnabled = isPublicizeEnabledFromConfig && ! isRePublicizeUpgradableViaUpsell;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
 	/*
 	 * Publicize:
 	 * When post is not published yet,
 	 * or when the feature flag is disabled,
-	 * just show the feature description and bail early.
+	 * just bail early.
 	 */
 	if ( ! isPostPublished || ( isPostPublished && isRePublicizeFeatureAvailable ) ) {
-		return (
-			<div className="jetpack-publicize__upsell">
-				{ getPanelDescription( isPostPublished, isPublicizeEnabled, hasConnections ) }
-			</div>
-		);
+		return null;
 	}
 
 	// Define plan name, with a fallback value.
