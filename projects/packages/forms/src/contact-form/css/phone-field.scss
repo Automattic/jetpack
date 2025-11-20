@@ -9,6 +9,7 @@
 		display: flex;
 		gap: 8px;
 		background-color: var(--jetpack--contact-form--input-background);
+		color: var(--jetpack--contact-form--text-color, fieldText);
 		border-color: var(--jetpack--contact-form--border-color, currentColor);
 		border-width: var(--jetpack--contact-form--border-size);
 		border-style: var(--jetpack--contact-form--border-style);
