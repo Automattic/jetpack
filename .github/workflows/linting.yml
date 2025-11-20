@@ -718,12 +718,16 @@ jobs:
           done
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
-      - name: Run phan for previous WP version too
+      - name: Run phan for previous WP version and old Woo
         env:
           # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
           NO_PHAN_UNUSED_SUPPRESSION: 1
+          # 2025-11-20: We have to draw the line somewhere. Let's go with Woo 7.0.
+          WOO_VERSION: 7
         run: |
-          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
+          # We can't directly downgrade Woo stubs with `update` due to existing constraints
+          composer require --no-update --dev "php-stubs/woocommerce-stubs:${WOO_VERSION}"
+          composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs php-stubs/woocommerce-stubs
           # Don't re-update baselines here, only check.
           pnpm jetpack phan --all -v --format github
       - name: Check baselines
