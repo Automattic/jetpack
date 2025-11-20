@@ -88,6 +88,8 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 		unset( $parsed_block['attrs']['style']['typography']['fontSize'] );
 	}
 
+	// We are checking for the class existence above, so we know it exists.
+	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	$flex_layout_renderer = new \Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer();
 
 	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
