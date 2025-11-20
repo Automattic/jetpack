@@ -92,7 +92,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 */
 		public function get_master_user_id( $email ) {
 			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || ! function_exists( 'is_email' ) ) {
+			if ( ! function_exists( 'get_user_by' ) || empty( 'is_email' ) ) {
 				return false;
 			}
 
@@ -226,7 +226,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			}
 
 			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || ! function_exists( 'is_email' ) ) {
+			if ( ! function_exists( 'get_user_by' ) || ! is_email( 'is_email' ) ) {
 				return false;
 			}
 
