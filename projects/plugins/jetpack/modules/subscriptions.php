@@ -566,6 +566,7 @@ class Jetpack_Subscriptions {
 			if ( $async ) {
 				XMLRPC_Async_Call::add_call( 'jetpack.subscribeToSite', 0, $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			} else {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			}
 		}
@@ -575,17 +576,22 @@ class Jetpack_Subscriptions {
 		}
 
 		// Call.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		$xml->query();
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		if ( $xml->isError() ) {
+			// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 			return $xml->get_jetpack_error();
 		}
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 		$responses = $xml->getResponse();
 
 		$r = array();
 		foreach ( (array) $responses as $response ) {
 			if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$r[] = $xml->get_jetpack_error( $response['faultCode'], $response['faultString'] );
 				continue;
 			}

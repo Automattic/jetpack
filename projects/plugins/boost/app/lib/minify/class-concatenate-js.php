@@ -83,6 +83,7 @@ class Concatenate_JS extends WP_Scripts {
 		$level = 0;
 
 		$using_strict = false;
+		$strict_count = 0;
 		foreach ( $this->to_do as $key => $handle ) {
 			$script_is_strict = false;
 			if ( in_array( $handle, $this->done, true ) || ! isset( $this->registered[ $handle ] ) ) {
@@ -140,6 +141,7 @@ class Concatenate_JS extends WP_Scripts {
 				$do_concat = false;
 			}
 
+			$js_realpath = false;
 			if ( $do_concat ) {
 				// Resolve paths and concat scripts that exist in the filesystem
 				$js_realpath = $this->dependency_path_mapping->dependency_src_to_fs_path( $js_url );
