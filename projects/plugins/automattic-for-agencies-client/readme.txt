@@ -44,7 +44,11 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.7.1 - 2025-10-09
+### 0.7.2 - 2025-11-20
+#### Added
+- Tested up to WordPress 6.9.
+
 #### Changed
+- Update dependencies.
 - Update package dependencies.
 
