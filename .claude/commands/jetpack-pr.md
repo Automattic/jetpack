@@ -18,4 +18,4 @@ Instructions:
    - Testing instructions: Step-by-step how to test the changes
 5. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags)
 
-The `gh pr create` command will automatically use the template. Deduce all information from git history and code changes - do not ask the user for input.
+When using `--title` and `--body` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit `--body` to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
