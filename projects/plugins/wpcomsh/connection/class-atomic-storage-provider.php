@@ -91,7 +91,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return int|bool The master user id or false if not found.
 		 */
 		public function get_master_user_id( $email ) {
-			if ( empty( $email ) ) {
+			// Ensure WordPress core functions are loaded
+			if ( ! function_exists( 'get_user_by' ) || empty( $email ) ) {
 				return false;
 			}
 
@@ -224,7 +225,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				return false;
 			}
 
-			if ( ! is_email( $email ) ) {
+			// Ensure WordPress core functions are loaded
+			if ( ! function_exists( 'get_user_by' ) || ! is_email( $email ) ) {
 				return false;
 			}
 
