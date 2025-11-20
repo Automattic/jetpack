@@ -423,7 +423,7 @@ abstract class Code_Block {
 
 		$attrs = get_block_wrapper_attributes( $extra_attrs );
 
-		$filename_html = ( ( $attributes['showCopyButton'] ?? false ) && ! empty( $attributes['filename'] ) )
+		$filename_html = ( ( $attributes['showFileName'] ?? false ) && ! empty( $attributes['filename'] ) )
 			? \sprintf( '<span class="a8c/code__filename">%s</span>', esc_html( $attributes['filename'] ) )
 			: '';
 

@@ -24,6 +24,7 @@ const variations = [
 		description: __( 'Collect the visitor’s name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'transform' ],
+		isActive: ( { id } ) => ! [ FIRST_NAME_ID, LAST_NAME_ID ].includes( id ),
 		attributes: {
 			id: '',
 		},
@@ -46,6 +47,22 @@ const variations = [
 			[ 'jetpack/label', { label: DEFAULT_FIRST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
+		example: {
+			innerBlocks: [
+				{
+					name: 'jetpack/label',
+					attributes: {
+						label: DEFAULT_FIRST_NAME_LABEL,
+					},
+				},
+				{
+					name: 'jetpack/input',
+					attributes: {
+						type: 'text',
+					},
+				},
+			],
+		},
 	},
 	{
 		name: LAST_NAME_ID,
@@ -61,6 +78,22 @@ const variations = [
 			[ 'jetpack/label', { label: DEFAULT_LAST_NAME_LABEL } ],
 			[ 'jetpack/input', { type: 'text' } ],
 		],
+		example: {
+			innerBlocks: [
+				{
+					name: 'jetpack/label',
+					attributes: {
+						label: DEFAULT_LAST_NAME_LABEL,
+					},
+				},
+				{
+					name: 'jetpack/input',
+					attributes: {
+						type: 'text',
+					},
+				},
+			],
+		},
 	},
 ];
 

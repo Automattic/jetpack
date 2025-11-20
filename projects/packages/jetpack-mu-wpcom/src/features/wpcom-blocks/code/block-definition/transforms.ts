@@ -11,6 +11,13 @@ const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
+interface SyntaxHighlighterCodeAttributes {
+	content?: string;
+	language?: string;
+	lineNumbers?: boolean;
+	firstLineNumber?: string;
+}
+
 export const transforms = {
 	from: [
 		// Handle code fence openers, e.g. ```js
@@ -97,15 +104,7 @@ export const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'syntaxhighlighter/code' ],
-			transform: ( {
-				content = '',
-				...attributes
-			}: {
-				content?: string;
-				language?: string;
-				lineNumbers?: boolean;
-				firstLineNumber?: string;
-			} ) => {
+			transform: ( { content = '', ...attributes }: SyntaxHighlighterCodeAttributes ) => {
 				const blockAttributes: Partial< Attributes > = {
 					content: RichTextData.fromPlainText( content ),
 				};
@@ -219,6 +218,21 @@ export const transforms = {
 						},
 					},
 				},
+			},
+		},
+	],
+
+	to: [
+		{
+			type: 'block',
+			blocks: [ 'syntaxhighlighter/code' ],
+			transform: ( attributes: Attributes ) => {
+				const blockAttributes: SyntaxHighlighterCodeAttributes = {
+					content: attributes.content.toPlainText(),
+					lineNumbers: Boolean( attributes.showLineNumbers ),
+					firstLineNumber: String( attributes.lineNumbersStartAt || 1 ),
+				};
+				return createBlock( 'syntaxhighlighter/code', blockAttributes );
 			},
 		},
 	],
