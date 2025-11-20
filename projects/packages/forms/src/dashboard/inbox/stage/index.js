@@ -540,11 +540,7 @@ export default function InboxView() {
 	);
 
 	return (
-		<div
-			className="jp-forms-layout__content"
-			ref={ containerRef }
-			style={ { border: '1px solid red' } }
-		>
+		<div className="jp-forms-layout__content" ref={ containerRef }>
 			<div className="jp-forms-layout__surface is-stage">{ pageContent }</div>
 			{ isResponseModalOpen && (
 				<Modal
