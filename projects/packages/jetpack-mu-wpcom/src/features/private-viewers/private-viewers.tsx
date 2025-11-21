@@ -2,6 +2,7 @@ import {
 	Card,
 	CardHeader,
 	CardBody,
+	Icon,
 	Spinner,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -11,8 +12,10 @@ import {
 import { DataViews, filterSortAndPaginate, Field, type View } from '@wordpress/dataviews';
 import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { RemoveViewerModal } from './remove-viewer-modal';
 import { useViewers, type Viewer } from './use-viewers';
 
 import './private-viewers.scss';
@@ -50,8 +53,9 @@ function PrivateViewers() {
 		perPage: 20,
 		fields: [ 'username', 'name', 'status' ],
 	} );
+	const [ viewerToRemove, setViewerToRemove ] = useState< Viewer | null >( null );
 
-	const { viewers: allViewers, isLoading } = useViewers();
+	const { viewers: allViewers, isLoading, refetch } = useViewers();
 
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
@@ -125,6 +129,20 @@ function PrivateViewers() {
 		[]
 	);
 
+	const actions = useMemo(
+		() => [
+			{
+				id: 'remove',
+				label: __( 'Remove', 'jetpack-mu-wpcom' ),
+				icon: <Icon icon={ trash } />,
+				callback: ( [ viewer ]: Viewer[] ) => {
+					setViewerToRemove( viewer );
+				},
+			},
+		],
+		[]
+	);
+
 	const { data: viewers, paginationInfo } = useMemo(
 		() => filterSortAndPaginate( allViewers, view, fields ),
 		[ allViewers, view, fields ]
@@ -149,7 +167,8 @@ function PrivateViewers() {
 					data={ viewers }
 					fields={ fields }
 					view={ view }
-					getItemId={ ( item: Viewer ) => item.id }
+					actions={ actions }
+					getItemId={ ( item: Viewer ) => item.inviteId }
 					paginationInfo={ paginationInfo }
 					onChangeView={ setView }
 					defaultLayouts={ { table: {} } }
@@ -162,6 +181,12 @@ function PrivateViewers() {
 					</div>
 				) }
 			</CardBody>
+			<RemoveViewerModal
+				onClose={ () => setViewerToRemove( null ) }
+				viewer={ viewerToRemove }
+				siteId={ window.wpcomPrivateViewers.siteId }
+				onRemoveSuccess={ refetch }
+			/>
 		</Card>
 	);
 }

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import wpcomRequest from 'wpcom-proxy-request';
 
 type User = {
+	ID: number;
 	login: string;
 	email: boolean | string;
 	name: string;
@@ -20,7 +21,8 @@ type Invite = {
 };
 
 export type Viewer = {
-	id: string;
+	inviteId: string;
+	userId: number;
 	status: 'active' | 'pending';
 	name: string;
 	username: string;
@@ -49,7 +51,8 @@ const mapInviteToViewer = ( invite: Invite ): Viewer => {
 	}
 
 	return {
-		id: invite.invite_key,
+		inviteId: invite.invite_key,
+		userId: invite.user.ID,
 		status: invite.is_pending ? 'pending' : 'active',
 		name: invite.user.name,
 		username,
@@ -131,5 +134,6 @@ export const useViewers = () => {
 	return {
 		viewers,
 		isLoading,
+		refetch: fetchAllViewers,
 	};
 };
