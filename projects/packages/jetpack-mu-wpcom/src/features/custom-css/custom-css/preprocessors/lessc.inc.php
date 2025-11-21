@@ -663,7 +663,7 @@ class lessc {
 
 		// check for a rest
 		$last = end($args);
-		if ($last[0] == "rest") {
+		if (isset($last[0]) && $last[0] == "rest") {
 			$argsCount = is_countable( $args ) ? count( $args ) : 0;
 			$rest = array_slice($orderedValues, $argsCount - 1);
 			$this->set($last[1], $this->reduce(array("list", " ", $rest)));
