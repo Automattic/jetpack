@@ -36,6 +36,7 @@
  * The `lessc_formatter` takes a CSS tree, and dumps it to a formatted string,
  * handling things like indentation.
  */
+#[\AllowDynamicProperties]
 class lessc {
 	static public $VERSION = "v0.5.0";
 
@@ -2273,6 +2274,7 @@ class lessc {
 
 // responsible for taking a string of LESS code and converting it into a
 // syntax tree
+#[\AllowDynamicProperties]
 class lessc_parser {
 	static protected $nextBlockId = 0; // used to uniquely identify blocks
 
@@ -3754,6 +3756,7 @@ class lessc_formatter_classic {
 	}
 }
 
+#[\AllowDynamicProperties]
 class lessc_formatter_compressed extends lessc_formatter_classic {
 	public $disableSingle = true;
 	public $open = "{";
