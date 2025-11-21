@@ -89,14 +89,15 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 *
 		 * @param string $email The user email.
 		 * @return int|bool The master user id or false if not found.
+		 * @throws \Exception If WordPress core functions are not loaded.
 		 */
 		public function get_master_user_id( $email ) {
 			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || empty( $email ) ) {
-				return false;
+			if ( ! function_exists( 'get_user_by' ) ) {
+				throw new \Exception( 'Critical: get_user_by function does not exist. WordPress core may not be fully loaded.' );
 			}
 
-			if ( ! is_email( $email ) ) {
+			if ( empty( $email ) || ! is_email( $email ) ) {
 				return false;
 			}
 
@@ -218,6 +219,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @param string $email The user email.
 		 * @param string $secret The token secret (format: token_key.secret).
 		 * @return array|false The user tokens array or false if not found/invalid.
+		 * @throws \Exception If WordPress core functions are not loaded.
 		 */
 		public function get_user_tokens( $email, $secret ) {
 			// Validate input
@@ -226,7 +228,11 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			}
 
 			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || ! is_email( $email ) ) {
+			if ( ! function_exists( 'get_user_by' ) ) {
+				throw new \Exception( 'Critical: get_user_by function does not exist. WordPress core may not be fully loaded.' );
+			}
+
+			if ( empty( $email ) || ! is_email( $email ) ) {
 				return false;
 			}
 
