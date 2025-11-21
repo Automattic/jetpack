@@ -232,7 +232,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				throw new \Exception( 'Critical: get_user_by function does not exist. WordPress core may not be fully loaded.' );
 			}
 
-			if ( empty( $email ) || ! is_email( $email ) ) {
+			if ( ! is_email( $email ) ) {
 				return false;
 			}
 
