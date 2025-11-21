@@ -148,7 +148,6 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 
 			// If there's only one color, use a much wider hue range for more variety
 			if ( hues.length === 1 ) {
-				// Use a wider range of the color wheel for decent variety
 				hueRange = FULL_HUE_ROTATION_DEGREES * SINGLE_COLOR_HUE_RANGE_FACTOR;
 			} else if ( hueRange > HUE_WRAP_THRESHOLD_DEGREES ) {
 				// If the range is very large, it might be wrapping around the color wheel
