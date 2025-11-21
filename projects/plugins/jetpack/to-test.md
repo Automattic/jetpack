@@ -10,4 +10,61 @@
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
 
 You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack-production/blob/trunk/CHANGELOG.md). Please feel free to test any and all functionality mentioned!
+
+### Forms
+The Forms inbox received many visual updates, so extensive smoke testing will be appreciated. Focus on interacting with the controls – removing, recovering and any other smoke test you can think of.
+
+Reference to a state at the moment (might change during testing).
+
+### Social
+Related PRs: #45970, #45939
+
+#### Testing Steps:
+
+##### Emoty states updates
+- Go to the editor and open Jetpack sidebar
+- Confirm that you see the auto-share toggle changed to checkbox with the updated label
+- Confirm that the checkbox and the description are visible
+- Login as another user (author or admin)
+- Go to the editor again
+- Confirm that you see the empty state to connect the wp.com account first
+- Connect the wp.com account
+- Confirm that now you see the empty state to connect the Social media accounts – like in the pull request description
+
+##### Updates to the connections list
+- Go to the post editor
+- Open Jetpack sidebar
+- Confirm that the connection toggles list is replaced with the updated vertical list with icons and labels.
+- Confirm that the UI matches the screenshots from the pull request
+- Confirm that the label for connections management button is changed to “Add a new account”
+- Toggle the connections ON/OFF
+- Confirm that it works fine
+- Try to share a post with some connections OFF
+- Confirm that the post is shared only to the accounts which were enabled.
+
+### Blocks
+Related PRs: #45967, #45900, #45776
+
+#### Testing Steps:
+
+##### Video block
+- Set up a test site with Jetapck and Gutenberg 21.4 or later
+- Connect Jetpack and activate the videopress module
+- The video block should be accessible with both Jetpack and VideoPress active.
+
+##### Gif block
+- Go to posts
+- Create a new post and add a gif block
+- Type a query and select any other gif than the first one
+- Save the post
+- The selection of the user should be properly applied
+
+##### Gdoc block preview
+- Create a new post / page
+- Add a google slides block to it
+- Paste in the share URL of a google slides doc
+- Save the post / page
+- View the front-end, the doc should render.
+
+
 **Thank you for all your help!**
