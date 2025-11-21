@@ -1270,7 +1270,7 @@ class lessc {
 
 	protected function lib_luma($color) {
 	    $color = $this->coerceColor($color);
-	    return (0.2126 * $color[0] / 255) + (0.7152 * $color[1] / 255) + (0.0722 * $color[2] / 255);
+	    return (0.2126 * (float)$color[0] / 255) + (0.7152 * (float)$color[1] / 255) + (0.0722 * (float)$color[2] / 255);
 	}
 
 
@@ -1570,7 +1570,7 @@ class lessc {
 				$width = strlen($colorStr) == 3 ? 16 : 256;
 
 				for ($i = 3; $i > 0; $i--) { // 3 2 1
-					$t = $num % $width;
+					$t = (int) $num % $width;
 					$num /= $width;
 
 					$c[$i] = $t * (256/$width) + $t * floor(16/$width);
