@@ -66,9 +66,9 @@ export default function useSetFieldIdAndLabel( { clientId, id } ) {
 	const context = useMemo( () => {
 		const newId = id;
 		const prevId = prevIdRef.current;
-		const isBaseFormBlock =
+		const isTransformingToBaseBlock =
 			isKnownNameVariationId( prevId ) && ( newId === undefined || newId === '' );
-		const isTransform = isKnownNameVariationId( newId ) && newId !== prevId;
+		const isTransformingToVariation = isKnownNameVariationId( newId ) && newId !== prevId;
 
 		let baseId = NAME_ID;
 		if ( isFirstNameVariationId( newId ) ) {
@@ -78,8 +78,8 @@ export default function useSetFieldIdAndLabel( { clientId, id } ) {
 		}
 
 		return {
-			isBaseFormBlock,
-			isTransform,
+			isTransformingToBaseBlock,
+			isTransformingToVariation,
 			baseId,
 			label: getDefaultLabelForId( baseId ),
 		};
@@ -87,14 +87,14 @@ export default function useSetFieldIdAndLabel( { clientId, id } ) {
 
 	// Set HTML ID on the name field block.
 	useEffect( () => {
-		if ( context.isBaseFormBlock ) {
+		if ( context.isTransformingToBaseBlock ) {
 			// Only clear the id if it isn't already empty to avoid loops.
 			if ( id !== '' ) {
 				updateBlockAttributes( clientId, { id: '' } );
 			}
 			return;
 		}
-		if ( context.isTransform ) {
+		if ( context.isTransformingToVariation ) {
 			const uniqueId = generateUniqueFormFieldId( context.baseId, existingFieldIds );
 			// Only set the id when it actually changes to avoid loops.
 			if ( id !== uniqueId ) {
@@ -108,16 +108,16 @@ export default function useSetFieldIdAndLabel( { clientId, id } ) {
 		if ( ! labelClientId ) {
 			return;
 		}
-		if ( context.isBaseFormBlock ) {
+		if ( context.isTransformingToBaseBlock ) {
 			updateBlockAttributes( labelClientId, { label: DEFAULT_NAME_LABEL } );
 			return;
 		}
-		if ( context.isTransform ) {
+		if ( context.isTransformingToVariation ) {
 			updateBlockAttributes( labelClientId, { label: context.label } );
 		}
 	}, [ context, labelClientId, updateBlockAttributes ] );
 
-	// Effect C: track previous id
+	// Track previous ID.
 	useEffect( () => {
 		prevIdRef.current = id;
 	}, [ id ] );
