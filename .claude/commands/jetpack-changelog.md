@@ -23,8 +23,10 @@ Instructions:
 5. Stage the generated changelog file with `git add`
 
 Project types reference:
-- Plugins (projects/plugins/*): major, enhancement, compat, bugfix, other
+- Jetpack Plugin (projects/plugins/jetpack): major, enhancement, compat, bugfix, other
   (See projects/plugins/jetpack/composer.json:134-140)
+- Other Plugins (projects/plugins/*): added, changed, deprecated, removed, fixed, security
+  (Uses changelogger default types)
 - Packages (projects/packages/*): added, changed, deprecated, removed, fixed, security
   (Default types from changelogger, see projects/packages/changelogger/tests/php/tests/src/ValidateCommandTest.php:103)
 - GitHub Actions (projects/github-actions/*): added, changed, deprecated, removed, fixed, security
