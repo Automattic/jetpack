@@ -8,12 +8,13 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout;
-
 /**
  * Mock Flex Layout Renderer class.
  */
 if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' ) ) {
+	/**
+	 * Mock Flex Layout Renderer for testing.
+	 */
 	class Mock_Flex_Layout_Renderer {
 
 		/**
@@ -49,5 +50,5 @@ if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\Conten
 		}
 	}
 
-	class_alias( 'Mock_Flex_Layout_Renderer', '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' );
+	class_alias( 'Mock_Flex_Layout_Renderer', 'Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' );
 }

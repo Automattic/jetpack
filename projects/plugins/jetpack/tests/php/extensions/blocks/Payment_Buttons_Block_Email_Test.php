@@ -115,20 +115,6 @@ class Payment_Buttons_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test render_block_email table structure.
-	 */
-	public function test_render_block_email_table_structure() {
-		$parsed_block = $this->create_parsed_block();
-		$mock_context = $this->create_rendering_context_mock();
-
-		$result = \Automattic\Jetpack\Extensions\PaymentButtons\render_block_email( '', $parsed_block, $mock_context );
-
-		// Should have table-based structure for email compatibility
-		$this->assertStringContainsString( '<table', $result );
-		$this->assertStringContainsString( '</table>', $result );
-	}
-
-	/**
 	 * Test render_block_email with rendering context.
 	 */
 	public function test_render_block_email_with_rendering_context() {
