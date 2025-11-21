@@ -816,14 +816,14 @@ function get_global_styles_on_personal_variation() {
 	);
 
 	// Cache lookup.
-	$variation = null;
-	$cached    = wp_cache_get( $cache_key, $cache_group, false, $variation );
-	$variation = apply_filters( 'wpcom_global_styles_experiment_cache', $variation );
-	if ( true === $variation ) {
-		return (bool) $cached;
+	$found     = null;
+	$variation = wp_cache_get( $cache_key, $cache_group, false, $found );
+	$found     = apply_filters( 'wpcom_global_styles_experiment_cache', $found );
+	if ( true === $found ) {
+		return (bool) $variation;
 	}
 
-	$variation = null;
+	$found = null;
 
 	if ( $is_atomic ) {
 		// Atomic: ask WP.com assignment API for this user.
