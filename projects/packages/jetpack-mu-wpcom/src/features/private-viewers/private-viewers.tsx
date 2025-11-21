@@ -1,4 +1,5 @@
 import {
+	Button,
 	Card,
 	CardHeader,
 	CardBody,
@@ -25,6 +26,7 @@ declare global {
 	interface Window {
 		wpcomPrivateViewers: {
 			siteId: number;
+			viewerRole: 'follower' | 'subscriber';
 		};
 	}
 }
@@ -172,7 +174,7 @@ function PrivateViewers() {
 	return (
 		<Card className="wpcom-private-viewers">
 			<CardHeader>
-				<HStack>
+				<HStack justify="space-between">
 					<VStack spacing={ 1 }>
 						<Heading level={ 1 } size="20px" lineHeight="32px" truncate>
 							{ __( 'Private Viewers', 'jetpack-mu-wpcom' ) }
@@ -181,6 +183,9 @@ function PrivateViewers() {
 							{ __( 'View and manage who can access your private site.', 'jetpack-mu-wpcom' ) }
 						</Text>
 					</VStack>
+					<Button variant="primary" __next40pxDefaultSize>
+						{ __( 'Add viewer', 'jetpack-mu-wpcom' ) }
+					</Button>
 				</HStack>
 			</CardHeader>
 			<CardBody className="wpcom-private-viewers-data">

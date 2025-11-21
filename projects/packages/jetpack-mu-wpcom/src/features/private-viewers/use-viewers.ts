@@ -76,7 +76,7 @@ const fetchViewers = async () => {
 			offset,
 			number: batchSize,
 			status: 'all',
-			role: 'follower',
+			role: window.wpcomPrivateViewers.viewerRole,
 		} );
 		return await wpcomRequest< { invites: Invite[]; found: number } >( {
 			path,

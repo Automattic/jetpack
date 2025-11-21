@@ -40,7 +40,12 @@ function wpcom_private_viewers_enqueue_assets() {
 	jetpack_mu_wpcom_enqueue_assets( 'private-viewers', array( 'js', 'css' ) );
 	wp_add_inline_script(
 		'jetpack-mu-wpcom-private-viewers',
-		'var wpcomPrivateViewers = ' . wp_json_encode( array( 'siteId' => get_wpcom_blog_id() ) ) . ';',
+		'var wpcomPrivateViewers = ' . wp_json_encode(
+			array(
+				'siteId'     => get_wpcom_blog_id(),
+				'viewerRole' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'follower' : 'subscriber',
+			)
+		) . ';',
 		'before'
 	);
 }
