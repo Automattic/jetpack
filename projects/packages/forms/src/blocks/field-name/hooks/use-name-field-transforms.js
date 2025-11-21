@@ -33,7 +33,7 @@ const getDefaultLabelForId = id => {
  * @param {string} params.clientId - Name field block clientId.
  * @param {string} params.id       - Current field id (used to infer variant).
  */
-export default function useSetFieldIdAndLabel( { clientId, id } ) {
+export default function useNameFieldTransforms( { clientId, id } ) {
 	const prevIdRef = useRef( id );
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
