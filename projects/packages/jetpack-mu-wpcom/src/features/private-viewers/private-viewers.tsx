@@ -11,7 +11,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { DataViews, filterSortAndPaginate, Field, type View } from '@wordpress/dataviews';
+import { DataViews, filterSortAndPaginate, Field, type View } from '@wordpress/dataviews/wp';
 import domReady from '@wordpress/dom-ready';
 import { __, _x } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
