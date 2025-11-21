@@ -1,4 +1,4 @@
-import { createContext, useCallback, useMemo, useState, useEffect } from 'react';
+import { createContext, useCallback, useMemo, useState, useEffect, useLayoutEffect } from 'react';
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
@@ -31,7 +31,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	}, [ theme ] );
 
 	// Cache expensive color computations that only change when theme colors change
-	const colorCache: ColorCache = useMemo( () => {
+	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
+	// in <style> tags are applied to the DOM before we try to resolve them
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
+		colors: [],
+		hues: [],
+		existingHslColors: [],
+		minHue: 360,
+		maxHue: 0,
+	} ) );
+
+	// Compute color cache after DOM is updated (so CSS variables are available)
+	useLayoutEffect( () => {
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
@@ -67,13 +78,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			}
 		}
 
-		return {
+		setColorCache( {
 			colors: resolvedColors,
 			hues,
 			existingHslColors,
 			minHue,
 			maxHue,
-		};
+		} );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
