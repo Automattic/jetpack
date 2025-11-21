@@ -118,7 +118,6 @@ class Settings {
 		Assets::enqueue_script( 'jetpack-newsletter-settings' );
 	}
 
-
 	/**
 	 * Render the newsletter settings page.
 	 */
