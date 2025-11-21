@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { DataViews, filterSortAndPaginate, Field, type View } from '@wordpress/dataviews';
 import domReady from '@wordpress/dom-ready';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -121,7 +121,11 @@ function PrivateViewers() {
 						>
 							{ isActive
 								? __( 'Active', 'jetpack-mu-wpcom' )
-								: __( 'Pending', 'jetpack-mu-wpcom' ) }
+								: _x(
+										'Pending',
+										/* dummy context to avoid bad minification */ '',
+										'jetpack-mu-wpcom'
+								  ) }
 						</span>
 					);
 				},
