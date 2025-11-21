@@ -4,7 +4,7 @@ Tags: agency, dashboard, management, sites, monitoring
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 0.2.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,7 +44,11 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.7.1 - 2025-10-09
+### 0.7.2 - 2025-11-20
+#### Added
+- Tested up to WordPress 6.9.
+
 #### Changed
+- Update dependencies.
 - Update package dependencies.
 

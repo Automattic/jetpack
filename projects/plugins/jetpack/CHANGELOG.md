@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-a.7 - 2025-11-19
+### Enhancements
+- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
+- Social: Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
 ## 15.3-a.5 - 2025-11-18
 ### Bug fixes
 - Fix a compatibility bug with the Gutenberg plugin. [#45967]

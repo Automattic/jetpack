@@ -26,6 +26,7 @@
 		"chalk": "5.6.2",
 		"chokidar": "4.0.3",
 		"configstore": "7.0.0",
+		"dot-prop": "^9.0.0",
 		"enquirer": "2.4.1",
 		"envfile": "7.1.0",
 		"execa": "7.0.0",

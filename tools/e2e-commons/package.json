@@ -42,6 +42,7 @@
 		"config": "4.1.1",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.21",
+		"playwright-ctrf-json-reporter": "^0.0.26",
 		"shell-escape": "0.2.0",
 		"typescript": "5.9.3",
 		"winston": "3.17.0",

@@ -1,7 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
 import defaultSettings from '../shared/settings/index.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -14,7 +13,6 @@ const settings = {
 		'jetpack-forms'
 	),
 	icon: {
-		foreground: getIconColor(),
 		src: unseen,
 	},
 	edit,

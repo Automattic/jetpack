@@ -187,10 +187,10 @@ describe( 'PieChart', () => {
 				legendValueDisplay: 'value',
 			} );
 
-			// Should display raw numeric values
-			expect( screen.getByText( '80000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '30000' ) ).toBeInTheDocument();
-			expect( screen.getByText( '22000' ) ).toBeInTheDocument();
+			// Should display localized numeric values
+			expect( screen.getByText( '80,000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '30,000' ) ).toBeInTheDocument();
+			expect( screen.getByText( '22,000' ) ).toBeInTheDocument();
 		} );
 
 		test( 'shows formatted values when legendValueDisplay is set to "valueDisplay"', () => {
