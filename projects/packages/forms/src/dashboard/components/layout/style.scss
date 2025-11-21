@@ -85,12 +85,15 @@ body.jetpack_page_jetpack-forms-admin {
 		width: auto;
 		height: auto;
 		border-radius: 8px;
-		margin: variables.$grid-unit-10;
+		margin:
+			variables.$grid-unit-10 variables.$grid-unit-10
+			variables.$grid-unit-10 0;
 
 		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 
 		&.is-stage {
 			flex-grow: 1;
+			margin-left: variables.$grid-unit-10; // Help left stage look good with WP Admin sidebar
 		}
 
 		&.is-inspector {
