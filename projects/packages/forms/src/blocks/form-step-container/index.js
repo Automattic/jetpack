@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import { getIconColor } from '../shared/util/block-icons.js';
 import edit from './edit.js';
 import StepContainerIcon from './icon.js';
 import save from './save.js';
@@ -14,7 +13,6 @@ export const settings = {
 	category: 'contact-form',
 	description: __( 'A container that organizes multiple form steps.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: StepContainerIcon,
 	},
 	supports: {

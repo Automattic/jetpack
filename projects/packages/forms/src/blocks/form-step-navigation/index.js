@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { next } from '@wordpress/icons';
-import { getIconColor } from '../shared/util/block-icons.js';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -28,7 +27,6 @@ export const settings = {
 	title: __( 'Step navigation', 'jetpack-forms' ),
 	description: __( 'Responsible for the navigation between steps.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: next,
 	},
 	edit: edit,

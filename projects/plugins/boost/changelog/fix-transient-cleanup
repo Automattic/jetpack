@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed transient cleanup scheduled hook name. It's not released yet.
+
+

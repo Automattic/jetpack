@@ -3,7 +3,6 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import renderMaterialIcon from '../shared/components/render-material-icon.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import defaultAttributes from './attributes.ts';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
@@ -41,7 +40,7 @@ export const settings = {
 		'Create forms to collect data from site visitors and manage their responses.',
 		'jetpack-forms'
 	),
-	icon: { src: icon, foreground: getIconColor() },
+	icon: { src: icon },
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack-forms' ),
 		_x( 'feedback', 'block search term', 'jetpack-forms' ),

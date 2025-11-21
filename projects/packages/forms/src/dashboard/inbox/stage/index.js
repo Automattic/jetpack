@@ -205,7 +205,7 @@ export default function InboxView() {
 	// Manage sidebar visibility based on selection
 	// Only show sidebar when exactly one item is selected on desktop
 	useEffect( () => {
-		if ( isMobile ) {
+		if ( isMobileViewport ) {
 			// Don't manage sidebar on mobile
 			return;
 		}
@@ -234,7 +234,7 @@ export default function InboxView() {
 		) {
 			setSidePanelItem( recordToShow );
 		}
-	}, [ isMobile, records, selection, sidePanelItem ] );
+	}, [ isMobileViewport, records, selection, sidePanelItem ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -265,8 +265,7 @@ export default function InboxView() {
 							</span>
 						) : null;
 
-					const handleClick =
-						isMobileViewport || isMobile ? () => openResponseModal( item ) : undefined;
+					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
 
 					return (
 						<div
@@ -395,7 +394,6 @@ export default function InboxView() {
 			filterOptions?.date,
 			filterOptions?.source,
 			isMobileViewport,
-			isMobile,
 			openResponseModal,
 			dateSettings.formats.date,
 		]
@@ -433,7 +431,7 @@ export default function InboxView() {
 			},
 		};
 
-		const viewResponseAction = isMobile ? mobileViewAction : desktopViewAction;
+		const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
 
 		const primaryActions = [ viewResponseAction ];
 		const secondaryActions = [ markAsUnreadAction, editFormAction ];
@@ -452,7 +450,7 @@ export default function InboxView() {
 					...secondaryActions,
 				];
 		}
-	}, [ isMobile, onChangeSelection, statusFilter ] );
+	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
