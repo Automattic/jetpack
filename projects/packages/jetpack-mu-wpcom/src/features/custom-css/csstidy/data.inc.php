@@ -23,14 +23,14 @@
  * @author Florian Schmitz (floele at gmail dot com) 2005, Nikolay Matsievsky (speed at webo dot name) 2010
  */
 
-define( 'AT_START', 1 );
-define( 'AT_END', 2 );
-define( 'SEL_START', 3 );
-define( 'SEL_END', 4 );
-define( 'PROPERTY', 5 );
-define( 'VALUE', 6 );
-define( 'COMMENT', 7 );
-define( 'DEFAULT_AT', 41 );
+defined( 'AT_START' ) || define( 'AT_START', 1 );
+defined( 'AT_END' ) || define( 'AT_END', 2 );
+defined( 'SEL_START' ) || define( 'SEL_START', 3 );
+defined( 'SEL_END' ) || define( 'SEL_END', 4 );
+defined( 'PROPERTY' ) || define( 'PROPERTY', 5 );
+defined( 'VALUE' ) || define( 'VALUE', 6 );
+defined( 'COMMENT' ) || define( 'COMMENT', 7 );
+defined( 'DEFAULT_AT' ) || define( 'DEFAULT_AT', 41 );
 
 /**
  * All whitespace allowed in CSS
