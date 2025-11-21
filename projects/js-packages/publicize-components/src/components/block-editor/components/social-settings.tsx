@@ -10,7 +10,6 @@ import SocialImageGeneratorPanel from '../../social-image-generator/panel';
 import SocialPreviewsModal from '../../social-previews/modal';
 import SocialPreviewsPanel from '../../social-previews/panel';
 import { Placeholder } from './placeholder';
-import { UpsellNotice } from './upsell';
 
 const RenderSettings = () => {
 	const postCanUseSig = usePostCanUseSig();
@@ -22,10 +21,7 @@ const RenderSettings = () => {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			{ /* Share post panel */ }
-			<PublicizePanel>
-				<UpsellNotice />
-			</PublicizePanel>
+			<PublicizePanel />
 
 			{ /* Social Image Generator panel */ }
 			{ postCanUseSig && <SocialImageGeneratorPanel /> }

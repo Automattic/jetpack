@@ -6,7 +6,6 @@ import useSocialMediaConnections from '../../../hooks/use-social-media-connectio
 import { useSyncPostDataToStore } from '../../../hooks/use-sync-post-data-to-store';
 import PublicizePanel from '../../panel';
 import SocialImageGeneratorPanel from '../../social-image-generator/panel';
-import { UpsellNotice } from './upsell';
 
 const PrePublishPanels = () => {
 	useSyncPostDataToStore();
@@ -21,9 +20,7 @@ const PrePublishPanels = () => {
 				title={ __( 'Share this post', 'jetpack-publicize-components' ) }
 				icon={ <JetpackEditorPanelLogo /> }
 			>
-				<PublicizePanel prePublish={ true }>
-					<UpsellNotice />
-				</PublicizePanel>
+				<PublicizePanel prePublish={ true } />
 			</PluginPrePublishPanel>
 
 			{ postCanUseSig && (
