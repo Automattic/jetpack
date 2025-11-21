@@ -90,6 +90,7 @@ class Jetpack_Plugin_Compatibility {
 		'another-wordpress-classifieds-plugin/awpcp.php'   => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'broken-link-checker/broken-link-checker.php'      => '"broken-link-checker" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'leads/leads.php'                                  => '"leads" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'mass-pagesposts-creator/mass-pages-posts-creator.php' => '"mass-pagesposts-creator" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'native-ads-adnow/adnow-widget.php'                => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'ol_scrapes/ol_scrapes.php'                        => '"ol_scrapes" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'page-visit-counter/page-visit-counter.php'        => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
