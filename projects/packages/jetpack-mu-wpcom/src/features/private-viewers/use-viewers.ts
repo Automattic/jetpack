@@ -32,14 +32,6 @@ export type Viewer = {
 	avatarURL: string;
 };
 
-declare global {
-	interface Window {
-		wpcomPrivateViewers: {
-			siteId: number;
-		};
-	}
-}
-
 const mapInviteToViewer = ( invite: Invite ): Viewer => {
 	let username;
 	if ( invite.user.login ) {

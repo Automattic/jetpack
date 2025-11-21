@@ -21,6 +21,14 @@ import { useViewers, type Viewer } from './use-viewers';
 
 import './private-viewers.scss';
 
+declare global {
+	interface Window {
+		wpcomPrivateViewers: {
+			siteId: number;
+		};
+	}
+}
+
 /**
  * Renders an empty state message when no viewers are found.
  *
