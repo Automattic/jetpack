@@ -4,7 +4,7 @@ import { Spinner, BaseControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -162,14 +162,7 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl __nextHasNoMarginBottom={ true }>
-				<BaseControl.VisualLabel>
-					{ _x(
-						'Preview',
-						'Heading for the generated preview image',
-						'jetpack-publicize-components'
-					) }
-				</BaseControl.VisualLabel>
+			<BaseControl __nextHasNoMarginBottom={ true } className={ styles.wrapper }>
 				<div className={ styles.container }>
 					<img
 						className={ clsx( {
