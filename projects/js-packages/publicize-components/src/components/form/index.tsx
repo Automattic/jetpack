@@ -7,8 +7,6 @@
  */
 
 import { Disabled, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -16,7 +14,6 @@ import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { getSocialScriptData } from '../../utils/script-data';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionsList } from './connections-list';
@@ -41,8 +38,6 @@ export default function PublicizeForm() {
 		useMediaDetails( mediaId )[ 0 ]
 	);
 
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-
 	const showSharePostForm =
 		isPublicizeEnabled &&
 		( hasEnabledConnections ||
@@ -53,14 +48,9 @@ export default function PublicizeForm() {
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const { feature_flags } = getSocialScriptData();
-
 	return (
 		<Wrapper>
-			{
-				// Render modal only once
-				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
-			}
+			<ManageConnectionsModal />
 			{ hasConnections ? (
 				<PanelRow>
 					<ConnectionsList />
@@ -69,9 +59,7 @@ export default function PublicizeForm() {
 			<EmptyState />
 			{ hasConnections ? (
 				<>
-					{ feature_flags.useEditorPreview && isPublicizeEnabled && ! isPostPublished ? (
-						<SocialPostModal />
-					) : null }
+					<SocialPostModal />
 					<EnhancedFeaturesNudge />
 				</>
 			) : null }
@@ -81,7 +69,6 @@ export default function PublicizeForm() {
 					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
-			{ isPostPublished ? <SocialPostModal /> : null }
 		</Wrapper>
 	);
 }

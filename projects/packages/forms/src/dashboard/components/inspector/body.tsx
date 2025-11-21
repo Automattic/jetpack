@@ -4,7 +4,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import {
-	Button,
 	ExternalLink,
 	Modal,
 	Tooltip,
@@ -19,14 +18,11 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { image } from '@wordpress/icons';
 import clsx from 'clsx';
-import photon from 'photon';
 /**
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value.ts';
-import FieldFile from '../../components/response-view/field-file/index.tsx';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { getPath, updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
@@ -34,6 +30,9 @@ import { store as dashboardStore } from '../../store/index.js';
 import CopyClipboardButton from '../copy-clipboard-button/index.tsx';
 import Flag from '../flag/index.tsx';
 import Gravatar from '../gravatar/index.tsx';
+import FieldEmail from '../response-view/field-email/index.tsx';
+import FieldFile from '../response-view/field-file/index.tsx';
+import FieldImageSelect from '../response-view/field-image-select/index.tsx';
 import type { FormResponse } from '../../../types/index.ts';
 import './style.scss';
 
@@ -178,53 +177,7 @@ const ResponseViewBody = ( {
 
 	const renderFieldValue = value => {
 		if ( isImageSelectField( value ) ) {
-			return (
-				<div className="image-select-field">
-					{ ( value.choices?.length ?? 0 ) === 0 && '-' }
-					{ ( value.choices?.length ?? 0 ) > 0 && (
-						<VStack spacing="1">
-							{ value.choices.map( choice => {
-								const label = choice.label
-									? `${ choice.selected }: ${ choice.label }`
-									: choice.selected;
-								const hasImage = choice.image?.src;
-								return (
-									<Button
-										__next40pxDefaultSize
-										key={ choice.selected }
-										variant="tertiary"
-										onClick={
-											hasImage
-												? handleFilePreview( {
-														file_id: choice.image.id,
-														name: label,
-														url: choice.image.src,
-												  } )
-												: undefined
-										}
-										className="image-select-field-button"
-										icon={
-											hasImage ? (
-												<img
-													alt={ choice.selected }
-													className="image-select-field-image"
-													loading="lazy"
-													src={ photon( choice.image.src, { width: 120, height: 120 } ) }
-												/>
-											) : (
-												image
-											)
-										}
-										iconSize={ 60 }
-									>
-										{ label }
-									</Button>
-								);
-							} ) }
-						</VStack>
-					) }
-				</div>
-			);
+			return <FieldImageSelect choices={ value.choices } handleFilePreview={ handleFilePreview } />;
 		}
 
 		// File uploads
@@ -235,21 +188,12 @@ const ResponseViewBody = ( {
 		// Emails
 		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 		if ( emailRegEx.test( value ) ) {
-			return (
-				<div className="email-field">
-					<a href={ `mailto:${ value }` }>{ value }</a>
-					<CopyClipboardButton text={ value } />
-				</div>
-			);
+			return <FieldEmail email={ value } />;
 		}
 
 		// Phone numbers
 		if ( isLikelyPhoneNumber( value ) ) {
-			return (
-				<div className="phone-field">
-					<a href={ `tel:${ value }` }>{ value }</a>
-				</div>
-			);
+			return <a href={ `tel:${ value }` }>{ value }</a>;
 		}
 
 		return value;
@@ -391,7 +335,7 @@ const ResponseViewBody = ( {
 								<th>{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;</th>
 								<td>
 									{ response.country_code && (
-										<span className="jp-forms__inbox-response-meta-country-flag response-country-flag">
+										<span className="jp-forms__inbox-response-country-flag">
 											<Flag countryCode={ response.country_code } />
 										</span>
 									) }

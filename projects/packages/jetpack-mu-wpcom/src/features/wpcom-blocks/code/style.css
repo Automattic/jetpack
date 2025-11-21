@@ -56,6 +56,7 @@
 	/* Essential layout and styling for PRE, CODE */
 	pre,
 	code {
+		max-width: none !important;
 		margin: 0 !important;
 		padding: 0 !important;
 		line-height: inherit !important;

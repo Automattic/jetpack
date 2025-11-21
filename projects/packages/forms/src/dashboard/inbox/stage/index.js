@@ -205,7 +205,7 @@ export default function InboxView() {
 	// Manage sidebar visibility based on selection
 	// Only show sidebar when exactly one item is selected on desktop
 	useEffect( () => {
-		if ( isMobile ) {
+		if ( isMobileViewport ) {
 			// Don't manage sidebar on mobile
 			return;
 		}
@@ -234,7 +234,7 @@ export default function InboxView() {
 		) {
 			setSidePanelItem( recordToShow );
 		}
-	}, [ isMobile, records, selection, sidePanelItem ] );
+	}, [ isMobileViewport, records, selection, sidePanelItem ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -265,8 +265,7 @@ export default function InboxView() {
 							</span>
 						) : null;
 
-					const handleClick =
-						isMobileViewport || isMobile ? () => openResponseModal( item ) : undefined;
+					const handleClick = isMobileViewport ? () => openResponseModal( item ) : undefined;
 
 					return (
 						<div
@@ -381,7 +380,7 @@ export default function InboxView() {
 				render: ( { item } ) => {
 					return (
 						<>
-							<span className="response-country-flag">
+							<span className="jp-forms__inbox-response-country-flag">
 								{ ! item.country_code && <Icon icon={ globe } size={ 20 } /> }
 								{ item.country_code && <Flag countryCode={ item.country_code } /> }
 							</span>
@@ -395,7 +394,6 @@ export default function InboxView() {
 			filterOptions?.date,
 			filterOptions?.source,
 			isMobileViewport,
-			isMobile,
 			openResponseModal,
 			dateSettings.formats.date,
 		]
@@ -433,7 +431,7 @@ export default function InboxView() {
 			},
 		};
 
-		const viewResponseAction = isMobile ? mobileViewAction : desktopViewAction;
+		const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
 
 		const primaryActions = [ viewResponseAction ];
 		const secondaryActions = [ markAsUnreadAction, editFormAction ];
@@ -452,7 +450,7 @@ export default function InboxView() {
 					...secondaryActions,
 				];
 		}
-	}, [ isMobile, onChangeSelection, statusFilter ] );
+	}, [ isMobileViewport, onChangeSelection, statusFilter ] );
 
 	const resetPage = useCallback( () => {
 		view.page = 1;
@@ -463,18 +461,21 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const headerActionsArray = [ <ExportResponsesButton key="export" /> ];
+		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
+		const headerActionsArray = [
+			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
+		];
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		} else {
+			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( enableIntegrationsTab ) {
 				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
 			}
-			headerActionsArray.unshift( <CreateFormButton key="create" variant="primary" /> );
 		}
 
 		return headerActionsArray;

@@ -1589,7 +1589,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		if ( $site_id > -1 ) {
 			$author['site_ID']      = (int) $site_id;
-			$author['site_visible'] = $site_visible;
+			$author['site_visible'] = $site_visible ?? null;
 		}
 
 		// Only include WordPress.com user data when author_wpcom_data is enabled.

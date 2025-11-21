@@ -2,7 +2,6 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon.js';
 import defaultSettings from '../shared/settings/index.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
@@ -17,7 +16,6 @@ const settings = {
 	],
 	description: __( 'Capture date information with a date picker.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: renderMaterialIcon(
 			<Path
 				fillRule="evenodd"

@@ -98,7 +98,7 @@ class Jetpack_Likes_Settings {
 			</label>
 			<input type="hidden" name="wpl_like_status_hidden" value="1" />
 			<?php wp_nonce_field( 'likes-and-shares', '_likesharenonce' ); ?>
-		</p> 
+		</p>
 		<?php
 		/**
 		 * Fires after the Likes meta box content in the post editor.
@@ -202,7 +202,7 @@ class Jetpack_Likes_Settings {
 				<?php esc_html_e( 'Show sharing buttons.', 'jetpack' ); ?>
 			</label>
 			<input type="hidden" name="wpl_sharing_status_hidden" value="1" />
-		</p> 
+		</p>
 		<?php
 	}
 
@@ -234,7 +234,7 @@ class Jetpack_Likes_Settings {
 			do_action( 'pre_admin_screen_sharing' );
 			?>
 			<?php $this->sharing_block(); ?>
-		</div> 
+		</div>
 		<?php
 	}
 
@@ -271,7 +271,7 @@ class Jetpack_Likes_Settings {
 			<p class="submit">
 			<input type="submit" name="submit" class="button-primary" value="<?php esc_attr_e( 'Save Changes', 'jetpack' ); ?>" />
 			<?php wp_nonce_field( 'sharing-options' ); ?>
-		</form> 
+		</form>
 		<?php
 	}
 
@@ -441,7 +441,7 @@ class Jetpack_Likes_Settings {
 	 */
 	public function is_single_post_enabled( $post_type = 'post' ) {
 		$options = $this->get_options();
-		return (bool) apply_filters(
+
 		/**
 		 * Filters whether Likes should be enabled on single posts.
 		 *
@@ -453,9 +453,12 @@ class Jetpack_Likes_Settings {
 		 *
 		 * @param bool $enabled Are Post Likes enabled on single posts?
 		 */
+		$post_likes_enabled = apply_filters(
 			"wpl_is_single_{$post_type}_disabled",
 			in_array( $post_type, $options['show'], true )
 		);
+
+		return (bool) $post_likes_enabled;
 	}
 
 	/**
@@ -467,6 +470,13 @@ class Jetpack_Likes_Settings {
 		$setting             = array();
 		$setting['disabled'] = get_option( 'disabled_likes' );
 		$sharing             = get_option( 'sharing-options', array() );
+
+		if ( ! is_array( $sharing ) ) {
+			$sharing = array();
+		}
+		if ( ! isset( $sharing['global'] ) || ! is_array( $sharing['global'] ) ) {
+			$sharing['global'] = array();
+		}
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {

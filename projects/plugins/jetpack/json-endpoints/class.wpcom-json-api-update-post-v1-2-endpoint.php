@@ -621,6 +621,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
 			}
 		} else {
+			// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $post is set and validated several blocks earlier if $new (only set once) is falsy.
 			$insert['ID'] = $post->ID;
 
 			// wp_update_post ignores date unless edit_date is set

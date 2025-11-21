@@ -57,7 +57,7 @@ If your block depends on another block, place them all in one folder:
 	└── block-name/
 		└── sub-blockname/
 ```
-To ensure that the child blog is properly registered, include its php block registration file in the parent php file. 
+To ensure that the child blog is properly registered, include its php block registration file in the parent php file.
 Also, you would need to adjust the front-end block registration in the parent as follows:
 ```js
 import registerJetpackBlock from '../../shared/register-jetpack-block';
@@ -367,14 +367,12 @@ When an svg (or other asset) file is imported into js, by default webpack transf
 
 ```js
 // index.js for a block
-import { getIconColor } from '../../shared/block-icons';
 import Icon from './icon.svg?component';
 
 export const settings = {
 	...
 	icon: {
 		src: Icon,
-		foreground: getIconColor(),
 	},
 	...
 };

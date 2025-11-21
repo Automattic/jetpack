@@ -65,7 +65,7 @@ class VP_FileScan {
 				}
 				if ( count( $files ) >= $limit ) {
 					closedir( $handle );
-					return array( $_return_offset, $_return_dir );
+					return array( $_return_offset ?? 0, $_return_dir ?? null );
 				}
 			}
 			closedir( $handle );

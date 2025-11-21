@@ -93,6 +93,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 		&.is-stage {
 			flex-grow: 1;
+			margin-left: variables.$grid-unit-10; // Help left stage look good with WP Admin sidebar
 		}
 
 		&.is-inspector {

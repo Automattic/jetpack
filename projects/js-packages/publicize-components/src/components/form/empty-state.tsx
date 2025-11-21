@@ -1,18 +1,12 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { getUserConnectionUrl } from '@automattic/jetpack-connection';
-import {
-	Flex,
-	FlexBlock,
-	Notice,
-	PanelRow,
-	__experimentalText as Text,
-} from '@wordpress/components';
+import { Flex, FlexBlock, PanelRow, __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import illustration from '../../assets/illustration.png';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
+import { UserConnectionNotice } from './user-connection-notice';
 
 /**
  * Empty state component for Publicize form.
@@ -35,22 +29,7 @@ export function EmptyState() {
 					! hasConnections && <img className={ styles.illustration } src={ illustration } alt="" />
 				}
 				{ needsUserConnection ? (
-					<Notice
-						status="warning"
-						isDismissible={ false }
-						actions={ [
-							{
-								url: getUserConnectionUrl(),
-								label: __( 'Connect now', 'jetpack-publicize-components' ),
-								variant: 'link',
-							},
-						] }
-					>
-						{ __(
-							'You must connect your WordPress.com account to be able to connect social media accounts.',
-							'jetpack-publicize-components'
-						) }
-					</Notice>
+					<UserConnectionNotice />
 				) : (
 					<>
 						<Text className={ styles[ 'connect-account-text' ] }>
