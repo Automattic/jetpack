@@ -2187,7 +2187,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter-settings",
-				"reference": "a3b4af5d5eaaca12760635114e8b3b64517584ac"
+				"reference": "825c513ad434e4a67bcc5173d7fd646440889f9f"
 			},
 			"require": {
 				"php": ">=7.2"
@@ -2223,6 +2223,7 @@
 					"NODE_ENV=production pnpm run build"
 				],
 				"watch": [
+					"Composer\\Config::disableProcessTimeout",
 					"pnpm run watch"
 				],
 				"phpunit": [
