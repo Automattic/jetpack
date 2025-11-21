@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Newsletter_Settings;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * A class responsible for adding a newsletter settings screen to wp-admin.
