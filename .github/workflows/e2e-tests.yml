@@ -70,7 +70,7 @@ jobs:
     name: "E2E: Build ${{ matrix.buildGroup }}"
     runs-on: ubuntu-latest
     needs: create-test-matrix
-    timeout-minutes: 30 # 2025-11-20: These can vary dramatically, but most builds are around 5 minutes.
+    timeout-minutes: 25 # 2025-11-20: These can vary dramatically, but most builds are around 5 minutes.
     if: needs.create-test-matrix.outputs.build-matrix != '[]'
     strategy:
       fail-fast: false
@@ -145,7 +145,7 @@ jobs:
     if: >
       always() && ! cancelled() && ! failure() &&
       needs.create-test-matrix.result == 'success' && needs.create-test-matrix.outputs.matrix != '[]'
-    timeout-minutes: 60 # 2025-11-20: These can vary dramatically, but most runs are 3-10 minutes.
+    timeout-minutes: 25 # 2025-11-20: These can vary dramatically, but most runs are 3-10 minutes.
     env:
       WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
       PROJECT_NAME: '${{ matrix.project }}' # used in tests for enhanced reporting of global projects
