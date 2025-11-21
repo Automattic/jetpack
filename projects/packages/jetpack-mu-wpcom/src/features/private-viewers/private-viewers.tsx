@@ -15,6 +15,7 @@ import { __ } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import wpcomRequest from 'wpcom-proxy-request';
 import { RemoveViewerModal } from './remove-viewer-modal';
 import { useViewers, type Viewer } from './use-viewers';
 
@@ -131,6 +132,18 @@ function PrivateViewers() {
 
 	const actions = useMemo(
 		() => [
+			{
+				id: 'resend-invite',
+				label: __( 'Resend invite', 'jetpack-mu-wpcom' ),
+				isEligible: ( viewer: Viewer ) => viewer.status === 'pending',
+				callback: async ( [ viewer ]: Viewer[] ) => {
+					await wpcomRequest( {
+						path: `/sites/${ window.wpcomPrivateViewers.siteId }/invites/${ viewer.inviteId }/resend`,
+						apiVersion: '1.1',
+						method: 'POST',
+					} );
+				},
+			},
 			{
 				id: 'remove',
 				label: __( 'Remove', 'jetpack-mu-wpcom' ),
