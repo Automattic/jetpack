@@ -36,9 +36,9 @@ const VARIATION_ATTEMPT_OFFSET = 0.1;
 
 /**
  * Base saturation percentage for generated colors
- * 60% provides good color vibrancy without being overwhelming
+ * 45% provides muted, professional colors without being washed out
  */
-const BASE_SATURATION = 60;
+const BASE_SATURATION = 45;
 
 /**
  * Number of saturation variation steps
@@ -48,10 +48,10 @@ const SATURATION_VARIATION_STEPS = 3;
 
 /**
  * Saturation increment per variation step
- * 15% increments provide noticeable but not jarring differences
- * Results in saturation levels: 60%, 75%, 90%
+ * 10% increments provide subtle variation while keeping colors muted
+ * Results in saturation levels: 45%, 55%, 65%
  */
-const SATURATION_INCREMENT = 15;
+const SATURATION_INCREMENT = 10;
 
 // Lightness configuration for WCAG AA accessibility compliance
 
@@ -102,6 +102,12 @@ const HUE_WRAP_THRESHOLD_DEGREES = 180;
 const FULL_HUE_ROTATION_DEGREES = 360;
 
 /**
+ * Factor for single color hue range
+ * 0.75 provides a wider range of the color wheel for decent variety
+ */
+const SINGLE_COLOR_HUE_RANGE_FACTOR = 0.75;
+
+/**
  * Get a color from the colors array or generate a new color using the golden ratio
  *
  * @param index      - the index of the color to get
@@ -142,8 +148,8 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 
 			// If there's only one color, use a much wider hue range for more variety
 			if ( hues.length === 1 ) {
-				// Use half the color wheel for decent variety
-				hueRange = FULL_HUE_ROTATION_DEGREES * 0.5;
+				// Use a wider range of the color wheel for decent variety
+				hueRange = FULL_HUE_ROTATION_DEGREES * SINGLE_COLOR_HUE_RANGE_FACTOR;
 			} else if ( hueRange > HUE_WRAP_THRESHOLD_DEGREES ) {
 				// If the range is very large, it might be wrapping around the color wheel
 				// Check if a smaller range exists when considering wrap-around
