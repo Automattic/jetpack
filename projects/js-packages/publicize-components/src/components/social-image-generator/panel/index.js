@@ -1,7 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { ThemeProvider, useGlobalNotices } from '@automattic/jetpack-components';
 import {
 	ToggleControl,
 	Button,
+	BaseControl,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -42,55 +43,60 @@ const SocialImageGeneratorPanel = () => {
 
 	return (
 		<>
-			<div>Link preview image</div>
 			{ isModalOpened && <SocialImageGeneratorSettingsModal onClose={ closeModal } /> }
-			<ToggleControl
-				label={ __( 'Enable Social Image', 'jetpack-publicize-components' ) }
-				help={
-					! isEnabled
-						? __( 'Social Image is disabled for this post.', 'jetpack-publicize-components' )
-						: ''
-				}
-				checked={ isEnabled }
-				onChange={ setIsEnabled }
-				__nextHasNoMarginBottom={ true }
-			/>
-			{ isEnabled && (
-				<>
-					<hr />
-					<GeneratedImagePreview onNewToken={ setGeneratedImageToken } />
-					<hr />
-					<HStack spacing={ 2 } wrap>
-						<Button
-							variant="secondary"
-							onClick={ openModal }
-							label={ __(
-								'Open the Social Image Generator settings',
-								'jetpack-publicize-components'
-							) }
-						>
-							{ __( 'Settings', 'jetpack-publicize-components' ) }
-						</Button>
-						<Button
-							variant="secondary"
-							onClick={ onClickSaveToLibrary }
-							label={ __(
-								'Save the generated image to your media library.',
-								'jetpack-publicize-components'
-							) }
-							disabled={ ! generatedImageToken || isSaving }
-						>
-							{ isSaving
-								? _x(
-										'Saving…',
-										'Saving the file to media library',
+			<ThemeProvider>
+				<BaseControl __nextHasNoMarginBottom={ true }>
+					<BaseControl.VisualLabel>
+						{ __( 'Link preview image', 'jetpack-publicize-components' ) }
+					</BaseControl.VisualLabel>
+					<ToggleControl
+						label={ __( 'Enable Social Image', 'jetpack-publicize-components' ) }
+						help={
+							! isEnabled
+								? __( 'Social Image is disabled for this post.', 'jetpack-publicize-components' )
+								: ''
+						}
+						checked={ isEnabled }
+						onChange={ setIsEnabled }
+						__nextHasNoMarginBottom={ true }
+					/>
+					{ isEnabled && (
+						<>
+							<GeneratedImagePreview onNewToken={ setGeneratedImageToken } />
+							<hr />
+							<HStack spacing={ 2 } wrap>
+								<Button
+									variant="secondary"
+									onClick={ openModal }
+									label={ __(
+										'Open the Social Image Generator settings',
 										'jetpack-publicize-components'
-								  )
-								: __( 'Save to media library', 'jetpack-publicize-components' ) }
-						</Button>
-					</HStack>
-				</>
-			) }
+									) }
+								>
+									{ __( 'Settings', 'jetpack-publicize-components' ) }
+								</Button>
+								<Button
+									variant="secondary"
+									onClick={ onClickSaveToLibrary }
+									label={ __(
+										'Save the generated image to your media library.',
+										'jetpack-publicize-components'
+									) }
+									disabled={ ! generatedImageToken || isSaving }
+								>
+									{ isSaving
+										? _x(
+												'Saving…',
+												'Saving the file to media library',
+												'jetpack-publicize-components'
+										  )
+										: __( 'Save to media library', 'jetpack-publicize-components' ) }
+								</Button>
+							</HStack>
+						</>
+					) }
+				</BaseControl>
+			</ThemeProvider>
 		</>
 	);
 };
