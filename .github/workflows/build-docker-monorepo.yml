@@ -72,7 +72,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 20  # 2025-11-20: Arm64 build takes about 6 minutes, amd64 build about 3.
+    timeout-minutes: 15  # 2025-11-20: Arm64 build takes about 6 minutes, amd64 build about 3.
     strategy:
       matrix:
         include:
