@@ -7,24 +7,14 @@ import type { ChartTheme } from '../types';
 export const customTheme: ChartTheme = {
 	colors: [ 'var(--wpds-color-bg-interactive-brand-strong)' ],
 	seriesLineStyles: [
-		{
-			strokeWidth: 1,
-			strokeDasharray: '8 8',
-			strokeLinecap: 'square',
-		},
+		{},
 		{
 			strokeDasharray: '5 8',
-			strokeWidth: 2,
-			strokeLinecap: 'square',
 		},
 	],
 	gridStyles: {
 		stroke: '#ffe3e3',
 		strokeWidth: 2,
-	},
-	leaderboardChart: {
-		primaryColor: '#073B3A',
-		secondaryColor: '#0B6E4F',
 	},
 } as ChartTheme;
 
@@ -48,5 +38,12 @@ export const themeArgTypes = {
 		defaultValue: 'default',
 		description: 'Select a theme to apply to the chart',
 		table: { category: 'Theme' },
+	},
+	accentColor: {
+		control: { type: 'color' as const },
+		description: 'Accent color for the custom theme (used for primary chart elements)',
+		defaultValue: '#3ac200',
+		table: { category: 'Theme' },
+		if: { arg: 'themeName', eq: 'custom' },
 	},
 };
