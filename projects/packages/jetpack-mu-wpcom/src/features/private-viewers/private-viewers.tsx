@@ -27,6 +27,7 @@ declare global {
 		wpcomPrivateViewers: {
 			siteId: number;
 			viewerRole: 'follower' | 'subscriber';
+			addViewerUrl: string;
 		};
 	}
 }
@@ -183,7 +184,11 @@ function PrivateViewers() {
 							{ __( 'View and manage who can access your private site.', 'jetpack-mu-wpcom' ) }
 						</Text>
 					</VStack>
-					<Button variant="primary" __next40pxDefaultSize>
+					<Button
+						variant="primary"
+						__next40pxDefaultSize
+						href={ window.wpcomPrivateViewers.addViewerUrl }
+					>
 						{ __( 'Add viewer', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</HStack>

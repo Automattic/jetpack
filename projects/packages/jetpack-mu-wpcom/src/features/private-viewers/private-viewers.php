@@ -38,12 +38,23 @@ function wpcom_private_viewers_load_page() {
  */
 function wpcom_private_viewers_enqueue_assets() {
 	jetpack_mu_wpcom_enqueue_assets( 'private-viewers', array( 'js', 'css' ) );
+
+	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+	if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+		$add_viewer_url = admin_url( $is_simple_site ? 'users.php?page=wpcom-invite-users' : 'user-new.php' );
+	} else {
+		$domain         = wp_parse_url( home_url(), PHP_URL_HOST );
+		$add_viewer_url = 'https://wordpress.com/people/new/' . $domain;
+	}
+
 	wp_add_inline_script(
 		'jetpack-mu-wpcom-private-viewers',
 		'var wpcomPrivateViewers = ' . wp_json_encode(
 			array(
-				'siteId'     => get_wpcom_blog_id(),
-				'viewerRole' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'follower' : 'subscriber',
+				'siteId'       => get_wpcom_blog_id(),
+				'viewerRole'   => $is_simple_site ? 'follower' : 'subscriber',
+				'addViewerUrl' => $add_viewer_url,
 			)
 		) . ';',
 		'before'
