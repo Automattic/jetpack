@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove height hacks in dashboard layout and use viewport-based height calculation
