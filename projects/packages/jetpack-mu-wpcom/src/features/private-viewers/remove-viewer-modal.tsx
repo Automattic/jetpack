@@ -16,6 +16,7 @@ type RemoveViewerModalProps = {
 	viewer: Viewer | null;
 	siteId: number;
 	onRemoveSuccess: () => void;
+	addNotice: ( id: string, content: string ) => void;
 };
 
 /**
@@ -29,6 +30,7 @@ export function RemoveViewerModal( {
 	viewer,
 	siteId,
 	onRemoveSuccess,
+	addNotice,
 }: RemoveViewerModalProps ) {
 	const [ isRemoving, setIsRemoving ] = useState( false );
 
@@ -61,6 +63,10 @@ export function RemoveViewerModal( {
 
 			onClose();
 			onRemoveSuccess();
+			addNotice( 'viewer-removed', __( 'Viewer removed', 'jetpack-mu-wpcom' ) );
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch ( error ) {
+			addNotice( 'viewer-remove-error', __( 'Failed to remove viewer', 'jetpack-mu-wpcom' ) );
 		} finally {
 			setIsRemoving( false );
 		}

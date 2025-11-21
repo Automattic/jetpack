@@ -4,6 +4,7 @@ import {
 	CardHeader,
 	CardBody,
 	Icon,
+	SnackbarList,
 	Spinner,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -15,6 +16,7 @@ import domReady from '@wordpress/dom-ready';
 import { __ } from '@wordpress/i18n';
 import { trash } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import wpcomRequest from 'wpcom-proxy-request';
 import { RemoveViewerModal } from './remove-viewer-modal';
@@ -66,8 +68,17 @@ function PrivateViewers() {
 		fields: [ 'username', 'name', 'status' ],
 	} );
 	const [ viewerToRemove, setViewerToRemove ] = useState< Viewer | null >( null );
+	const [ notices, setNotices ] = useState< Array< { id: string; content: string } > >( [] );
 
 	const { viewers: allViewers, isLoading, refetch } = useViewers();
+
+	const addNotice = ( id: string, content: string ) => {
+		setNotices( current => [ ...current, { id: `${ id }-${ Date.now() }`, content } ] );
+	};
+
+	const removeNotice = ( id: string ) => {
+		setNotices( current => current.filter( notice => notice.id !== id ) );
+	};
 
 	const fields = useMemo< Field< Viewer >[] >(
 		() => [
@@ -148,11 +159,17 @@ function PrivateViewers() {
 				label: __( 'Resend invite', 'jetpack-mu-wpcom' ),
 				isEligible: ( viewer: Viewer ) => viewer.status === 'pending',
 				callback: async ( [ viewer ]: Viewer[] ) => {
-					await wpcomRequest( {
-						path: `/sites/${ window.wpcomPrivateViewers.siteId }/invites/${ viewer.inviteId }/resend`,
-						apiVersion: '1.1',
-						method: 'POST',
-					} );
+					try {
+						await wpcomRequest( {
+							path: `/sites/${ window.wpcomPrivateViewers.siteId }/invites/${ viewer.inviteId }/resend`,
+							apiVersion: '1.1',
+							method: 'POST',
+						} );
+						addNotice( 'invite-sent', __( 'Invite sent', 'jetpack-mu-wpcom' ) );
+						// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					} catch ( error ) {
+						addNotice( 'invite-error', __( 'Failed to resend invite', 'jetpack-mu-wpcom' ) );
+					}
 				},
 			},
 			{
@@ -217,7 +234,21 @@ function PrivateViewers() {
 				viewer={ viewerToRemove }
 				siteId={ window.wpcomPrivateViewers.siteId }
 				onRemoveSuccess={ refetch }
+				addNotice={ addNotice }
 			/>
+			{ notices.length > 0 &&
+				createPortal(
+					<SnackbarList
+						className="wpcom-private-viewers-notices"
+						notices={ notices.map( notice => ( {
+							id: notice.id,
+							content: notice.content,
+							onDismiss: () => removeNotice( notice.id ),
+						} ) ) }
+						onRemove={ removeNotice }
+					/>,
+					document.getElementById( 'wpbody' ) || document.body
+				) }
 		</Card>
 	);
 }
