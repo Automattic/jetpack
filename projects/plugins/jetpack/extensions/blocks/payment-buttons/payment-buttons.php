@@ -89,7 +89,6 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 	}
 
 	// We are checking for the class existence above, so we know it exists.
-	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	$flex_layout_renderer = new \Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer();
 
 	if ( ! method_exists( $flex_layout_renderer, 'render_inner_blocks_in_layout' ) ) {
@@ -97,6 +96,5 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 	}
 
 	// We are checking for the method existence above, so we know it exists.
-	// @phan-suppress-next-line PhanUndeclaredClassMethod
 	return $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 }
