@@ -22,6 +22,7 @@ use WP_Block;
 use WP_Block_Patterns_Registry;
 use WP_Block_Type_Registry;
 use WP_Error;
+use WP_Post;
 
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
@@ -3390,7 +3391,7 @@ class Contact_Form_Plugin {
 	 * @param string  $old_status The old post status.
 	 * @param WP_Post $post       The post object.
 	 */
-	public function track_spam_status_change( $new_status, $old_status, $post ) {
+	public function track_spam_status_change( $new_status, $old_status, WP_Post $post ) {
 		// Only track for feedback posts
 		if ( 'feedback' !== $post->post_type ) {
 			return;
