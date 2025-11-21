@@ -42,7 +42,7 @@ export const themeArgTypes = {
 	accentColor: {
 		control: { type: 'color' as const },
 		description: 'Accent color for the custom theme (used for primary chart elements)',
-		defaultValue: '#3ac200',
+		defaultValue: '#c029dc',
 		table: { category: 'Theme' },
 		if: { arg: 'themeName', eq: 'custom' },
 	},

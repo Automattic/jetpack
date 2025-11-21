@@ -59,7 +59,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
  */
 const StoryChartProvider = ( {
 	children,
-	themeName = 'custom',
+	themeName = 'default',
 	accentColor = '#c029dc',
 }: {
 	children: React.ReactNode;
@@ -110,7 +110,7 @@ const StoryChartProvider = ( {
  */
 export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 	const storyArgs = args as unknown as ChartStoryArgs;
-	const themeName = storyArgs.themeName || 'custom';
+	const themeName = storyArgs.themeName;
 	const accentColor = storyArgs.accentColor;
 
 	return (
@@ -124,13 +124,6 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
  * Shared argTypes for common chart controls
  */
 export const sharedChartArgTypes = {
-	accentColor: {
-		control: { type: 'color' },
-		description: 'Accent color for the custom theme (used for primary chart elements)',
-		defaultValue: '#c029dc',
-		table: { category: 'Theme' },
-		if: { arg: 'themeName', eq: 'custom' },
-	},
 	maxWidth: {
 		control: {
 			type: 'number',
