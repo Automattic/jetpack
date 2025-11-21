@@ -3,7 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch';
-import { Icon } from '@wordpress/components';
+import { Icon, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { seen, unseen, trash, backup, commentContent } from '@wordpress/icons';
@@ -48,6 +48,8 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 
 	return queryParams;
 };
+
+const undoingMessage = __( 'Undoing…', 'jetpack-forms' );
 
 /**
  * Helper function to invalidate cache and navigate to correct page after removing items.
@@ -271,12 +273,36 @@ export const markAsSpamAction: Action = {
 			multiple: items.length > 1,
 		} );
 
-		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+			registry.dispatch( noticesStore );
 		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
-		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { updateCountsOptimistically, addPendingAction, removePendingAction } =
+			registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
+		const actionId = `mark-as-spam-${ Date.now() }-${ items.map( i => i.id ).join( '-' ) }`;
+
+		const busyMessage = isUndo
+			? undoingMessage
+			: sprintf(
+					/* translators: %d: the number of responses. */
+					_n(
+						'Moving %d response to spam…',
+						'Moving %d responses to spam…',
+						items.length,
+						'jetpack-forms'
+					),
+					items.length
+			  );
+
+		createInfoNotice( busyMessage, {
+			type: 'snackbar',
+			id: 'mark-as-spam-action',
+			icon: <Spinner />,
+		} );
+
+		addPendingAction( actionId );
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
@@ -295,6 +321,12 @@ export const markAsSpamAction: Action = {
 			}
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
+
+		// Remove pending action after navigation/cache invalidation
+		// Use requestAnimationFrame to ensure UI has updated and cache invalidation has triggered
+		requestAnimationFrame( () => {
+			removePendingAction( actionId );
+		} );
 
 		if ( numberOfErrors === 0 ) {
 			// Every request was successful.
@@ -325,11 +357,16 @@ export const markAsSpamAction: Action = {
 						},
 					],
 				} );
+			} else {
+				// Remove the info notice when undo completes successfully
+				removeNotice( 'mark-as-spam-action' );
 			}
 		} else {
 			// There is at least one failure.
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
+			// Remove the info notice on error
+			removeNotice( 'mark-as-spam-action' );
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 
@@ -356,12 +393,36 @@ export const markAsNotSpamAction: Action = {
 			multiple: items.length > 1,
 		} );
 
-		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
+		const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+			registry.dispatch( noticesStore );
 		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
-		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { updateCountsOptimistically, addPendingAction, removePendingAction } =
+			registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
+		const actionId = `mark-as-not-spam-${ Date.now() }-${ items.map( i => i.id ).join( '-' ) }`;
+
+		const busyMessage = isUndo
+			? undoingMessage
+			: sprintf(
+					/* translators: %d: the number of responses. */
+					_n(
+						'Marking %d response as not spam…',
+						'Marking %d responses as not spam…',
+						items.length,
+						'jetpack-forms'
+					),
+					items.length
+			  );
+
+		createInfoNotice( busyMessage, {
+			type: 'snackbar',
+			id: 'mark-as-not-spam-action',
+			icon: <Spinner />,
+		} );
+
+		addPendingAction( actionId );
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
@@ -377,6 +438,10 @@ export const markAsNotSpamAction: Action = {
 		if ( itemsUpdated.length ) {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
 		}
+
+		requestAnimationFrame( () => {
+			removePendingAction( actionId );
+		} );
 
 		if ( numberOfErrors === 0 ) {
 			// Every request was successful.
@@ -407,11 +472,14 @@ export const markAsNotSpamAction: Action = {
 						},
 					],
 				} );
+			} else {
+				removeNotice( 'mark-as-not-spam-action' );
 			}
 		} else {
 			// There is at least one failure.
 			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
+			removeNotice( 'mark-as-not-spam-action' );
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		}
 		// Make the REST request which performs the `contact_form_akismet` `ham` action.
@@ -438,12 +506,31 @@ export const restoreAction: Action = {
 		} );
 
 		const { saveEntityRecord, editEntityRecord } = registry.dispatch( coreStore );
-		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+			registry.dispatch( noticesStore );
+		const { updateCountsOptimistically, addPendingAction, removePendingAction } =
+			registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 		const newStatus = targetStatus === 'trash' ? 'publish' : targetStatus;
+		const actionId = `restore-${ Date.now() }-${ items.map( i => i.id ).join( '-' ) }`;
+
+		const busyMessage = isUndo
+			? undoingMessage
+			: sprintf(
+					/* translators: %d: the number of responses. */
+					_n( 'Restoring %d response…', 'Restoring %d responses…', items.length, 'jetpack-forms' ),
+					items.length
+			  );
+
+		createInfoNotice( busyMessage, {
+			type: 'snackbar',
+			id: 'restore-action',
+			icon: <Spinner />,
+		} );
+
+		addPendingAction( actionId );
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
@@ -459,6 +546,10 @@ export const restoreAction: Action = {
 		if ( itemsUpdated.length ) {
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 		}
+
+		requestAnimationFrame( () => {
+			removePendingAction( actionId );
+		} );
 
 		if ( numberOfErrors === 0 ) {
 			const successMessage =
@@ -488,6 +579,8 @@ export const restoreAction: Action = {
 						},
 					],
 				} );
+			} else {
+				removeNotice( 'restore-action' );
 			}
 
 			return;
@@ -496,6 +589,7 @@ export const restoreAction: Action = {
 		// There is at least one failure.
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
 
+		removeNotice( 'restore-action' );
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
@@ -515,12 +609,36 @@ export const moveToTrashAction: Action = {
 
 		const { deleteEntityRecord, editEntityRecord, receiveEntityRecords } =
 			registry.dispatch( coreStore );
-		const { createSuccessNotice, createErrorNotice } = registry.dispatch( noticesStore );
-		const { updateCountsOptimistically } = registry.dispatch( dashboardStore );
+		const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+			registry.dispatch( noticesStore );
+		const { updateCountsOptimistically, addPendingAction, removePendingAction } =
+			registry.dispatch( dashboardStore );
 		const { getCurrentQuery } = registry.select( dashboardStore );
 
 		const queryParams = getCountQueryParams( getCurrentQuery() );
 		const previousStatus = items[ 0 ]?.status; // All items have the same status
+		const actionId = `move-to-trash-${ Date.now() }-${ items.map( i => i.id ).join( '-' ) }`;
+
+		const busyMessage = isUndo
+			? undoingMessage
+			: sprintf(
+					/* translators: %d: the number of responses. */
+					_n(
+						'Moving %d response to trash…',
+						'Moving %d responses to trash…',
+						items.length,
+						'jetpack-forms'
+					),
+					items.length
+			  );
+
+		createInfoNotice( busyMessage, {
+			type: 'snackbar',
+			id: 'move-to-trash-action',
+			icon: <Spinner />,
+		} );
+
+		addPendingAction( actionId );
 
 		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
 			items,
@@ -540,6 +658,10 @@ export const moveToTrashAction: Action = {
 			}
 			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 		}
+
+		requestAnimationFrame( () => {
+			removePendingAction( actionId );
+		} );
 
 		if ( numberOfErrors === 0 ) {
 			const successMessage =
@@ -577,6 +699,8 @@ export const moveToTrashAction: Action = {
 						},
 					],
 				} );
+			} else {
+				removeNotice( 'move-to-trash-action' );
 			}
 
 			return;
@@ -585,6 +709,7 @@ export const moveToTrashAction: Action = {
 		// There is at least one failure.
 		const errorMessage = getGenericErrorMessage( numberOfErrors );
 
+		removeNotice( 'move-to-trash-action' );
 		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };

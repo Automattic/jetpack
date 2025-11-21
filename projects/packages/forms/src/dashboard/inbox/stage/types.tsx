@@ -21,6 +21,7 @@ export type NoticeOptions = {
 	type?: string;
 	id?: string;
 	actions?: { label: string; onClick: () => void }[];
+	icon?: React.ReactNode;
 };
 
 /**
@@ -30,6 +31,8 @@ export type DispatchActions = {
 	// Notices store actions
 	createSuccessNotice: ( message: string, options: NoticeOptions ) => void;
 	createErrorNotice: ( message: string, options: NoticeOptions ) => void;
+	createInfoNotice: ( message: string, options: NoticeOptions ) => void;
+	removeNotice: ( id: string ) => void;
 
 	// Core store actions
 	saveEntityRecord: (
@@ -70,6 +73,8 @@ export type DispatchActions = {
 	invalidateCounts: () => void;
 	markRecordsAsInvalid: ( ids: number[] ) => void;
 	setCurrentQuery: ( queryParams: QueryParams ) => void;
+	addPendingAction: ( actionId: string ) => void;
+	removePendingAction: ( actionId: string ) => void;
 };
 
 /**
