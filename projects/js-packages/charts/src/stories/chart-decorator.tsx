@@ -49,14 +49,15 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 };
 
 /**
- * Wrapper component that initializes locale for Storybook environment
+ * Provider wrapper for Storybook chart stories
+ * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
  * @param root0             - Props object
  * @param root0.children    - Child components to render
- * @param root0.themeName   - Theme name
- * @param root0.accentColor - Accent color for custom theme (CSS variable value)
- * @return JSX element with locale initialization and GlobalChartsProvider
+ * @param root0.themeName   - Theme name to apply
+ * @param root0.accentColor - Accent color for custom theme (injected as CSS variable)
+ * @return JSX element with chart environment setup and GlobalChartsProvider
  */
-const LocaleInitializer = ( {
+const StoryChartProvider = ( {
 	children,
 	themeName = 'custom',
 	accentColor = '#c029dc',
@@ -113,9 +114,9 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 	const accentColor = storyArgs.accentColor;
 
 	return (
-		<LocaleInitializer themeName={ themeName } accentColor={ accentColor }>
+		<StoryChartProvider themeName={ themeName } accentColor={ accentColor }>
 			<Story />
-		</LocaleInitializer>
+		</StoryChartProvider>
 	);
 };
 
