@@ -820,7 +820,7 @@ function get_global_styles_on_personal_variation() {
 	$variation = wp_cache_get( $cache_key, $cache_group, false, $found );
 	$found     = apply_filters( 'wpcom_global_styles_experiment_cache', $found );
 	if ( true === $found ) {
-		return (bool) $variation;
+		return $variation;
 	}
 
 	if ( $is_atomic ) {
