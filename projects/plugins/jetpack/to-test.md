@@ -48,8 +48,8 @@ Related PRs: #45967, #45900, #45776
 #### Testing Steps:
 
 ##### Video block
-- Set up a test site with Jetapck and Gutenberg 21.4 or later
-- Connect Jetpack and activate the videopress module
+- Set up a test site with Jetpack and Gutenberg 21.4 or later
+- Connect Jetpack and activate the VideoPress module
 - The video block should be accessible with both Jetpack and VideoPress active.
 
 ##### Gif block
@@ -59,12 +59,13 @@ Related PRs: #45967, #45900, #45776
 - Save the post
 - The selection of the user should be properly applied
 
-##### Gdoc block preview
+##### Google Sheets and Google Slides block preview
+- Ensure beta blocks are enabled
 - Create a new post / page
-- Add a google slides block to it
-- Paste in the share URL of a google slides doc
+- Add a Google Sheets or Google Slides block to it
+- Paste in the share URL of a Google Sheets or Google Slides document
 - Save the post / page
-- View the front-end, the doc should render.
+- View the post on the front-end and verify the document preview renders.
 
 
 **Thank you for all your help!**
