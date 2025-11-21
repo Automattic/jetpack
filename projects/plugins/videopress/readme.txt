@@ -83,12 +83,16 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.6 - 2025-10-10
+### 2.7 - 2025-11-21
 #### Added
-- Add typecheck support for E2E tests.
+- Tested up to WordPress 6.9.
 
 #### Changed
-- Remove CRM installation nudge for Complete plan users.
-- My Jetpack: Fix multisite availability check for restricted products and modules.
+- Update dependencies.
 - Update package dependencies.
+
+#### Fixed
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin.
 

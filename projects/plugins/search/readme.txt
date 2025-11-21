@@ -122,17 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 5.2.0 - 2025-11-12
-#### Added
-- Instant Search: Add global WooCommerce Product Attributes as filter options.
-- Tested up to WordPress 6.9.
-
-#### Changed
-- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search.
-- Update package dependencies.
-
+### 5.2.2 - 2025-11-21
 #### Fixed
-- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
 
 == Testimonials ==
 
