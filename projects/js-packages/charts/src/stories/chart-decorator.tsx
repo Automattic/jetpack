@@ -2,7 +2,6 @@ import { setLocale } from '@automattic/number-formatters';
 import { useEffect } from 'react';
 import { GlobalChartsProvider } from '../providers';
 import { CHART_THEME_MAP } from './theme-config';
-import type { ChartTheme } from '../types';
 import type { Decorator } from '@storybook/react';
 
 /**
@@ -11,6 +10,7 @@ import type { Decorator } from '@storybook/react';
  */
 export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	themeName?: string;
+	accentColor?: string;
 	containerWidth?: string;
 	containerHeight?: string;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
@@ -50,17 +50,20 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 
 /**
  * Wrapper component that initializes locale for Storybook environment
- * @param root0          - Props object
- * @param root0.children - Child components to render
- * @param root0.theme    - Chart theme to apply
+ * @param root0             - Props object
+ * @param root0.children    - Child components to render
+ * @param root0.themeName   - Theme name
+ * @param root0.accentColor - Accent color for custom theme (CSS variable value)
  * @return JSX element with locale initialization and GlobalChartsProvider
  */
 const LocaleInitializer = ( {
 	children,
-	theme,
+	themeName = 'custom',
+	accentColor = '#c029dc',
 }: {
 	children: React.ReactNode;
-	theme: Partial< ChartTheme >;
+	themeName: string;
+	accentColor?: string;
 } ) => {
 	// Initialize number formatters with browser locale for Storybook
 	// In WordPress, @automattic/number-formatters automatically uses the WordPress user locale
@@ -71,7 +74,28 @@ const LocaleInitializer = ( {
 		}
 	}, [] );
 
-	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
+	const theme = CHART_THEME_MAP[ themeName ];
+
+	// Force GlobalChartsProvider to remount when accent color changes for custom theme
+	// This ensures CSS variables are re-resolved after the DOM updates
+	const providerKey = themeName === 'custom' ? `custom-${ accentColor }` : themeName;
+
+	return (
+		<>
+			{ themeName === 'custom' && (
+				<style>
+					{ `
+						:root {
+							--wpds-color-bg-interactive-brand-strong: ${ accentColor };
+						}
+					` }
+				</style>
+			) }
+			<GlobalChartsProvider key={ providerKey } theme={ theme }>
+				{ children }
+			</GlobalChartsProvider>
+		</>
+	);
 };
 
 /**
@@ -84,20 +108,12 @@ const LocaleInitializer = ( {
  * @return The story component wrapped in GlobalChartsProvider only
  */
 export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
-	const themeName = ( args as unknown as ChartStoryArgs ).themeName;
-	const theme = CHART_THEME_MAP[ themeName || 'default' ];
+	const storyArgs = args as unknown as ChartStoryArgs;
+	const themeName = storyArgs.themeName || 'custom';
+	const accentColor = storyArgs.accentColor;
 
 	return (
-		<LocaleInitializer theme={ theme }>
-			{ themeName === 'custom' && (
-				<style>
-					{ `
-						:root {
-							--wpds-color-bg-interactive-brand-strong: #3ac200;
-						}
-					` }
-				</style>
-			) }
+		<LocaleInitializer themeName={ themeName } accentColor={ accentColor }>
 			<Story />
 		</LocaleInitializer>
 	);
@@ -107,6 +123,13 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
  * Shared argTypes for common chart controls
  */
 export const sharedChartArgTypes = {
+	accentColor: {
+		control: { type: 'color' },
+		description: 'Accent color for the custom theme (used for primary chart elements)',
+		defaultValue: '#c029dc',
+		table: { category: 'Theme' },
+		if: { arg: 'themeName', eq: 'custom' },
+	},
 	maxWidth: {
 		control: {
 			type: 'number',
