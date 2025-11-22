@@ -50,6 +50,7 @@ import { childBlocks } from './child-blocks.js';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
+import WebhooksSettings from './components/webhooks-settings.js';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
@@ -166,8 +167,10 @@ function JetpackContactFormEdit( {
 		disableGoBack,
 		disableSummary,
 		notificationRecipients,
+		webhooks,
 	} = attributes;
 	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
+	const showWebhooks = useConfigValue( 'isWebhooksEnabled' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
@@ -912,6 +915,15 @@ function JetpackContactFormEdit( {
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
 						</Suspense>
+					) }
+					{ showWebhooks && (
+						<PanelBody
+							title={ __( 'Webhooks', 'jetpack-forms' ) }
+							className="jetpack-contact-form__panel"
+							initialOpen={ false }
+						>
+							<WebhooksSettings webhooks={ webhooks } setAttributes={ setAttributes } />
+						</PanelBody>
 					) }
 					<PanelBody
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
