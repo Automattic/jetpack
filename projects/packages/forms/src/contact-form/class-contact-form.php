@@ -207,6 +207,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
+			'webhooks'               => array(), // Array of webhooks to send the form data to.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
 			'formTitle'              => $attributes['formTitle'] ?? '',
