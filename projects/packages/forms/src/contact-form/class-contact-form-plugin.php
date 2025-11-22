@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -1558,6 +1559,10 @@ class Contact_Form_Plugin {
 			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 				Post_To_Url::init();
 			}
+
+			if ( ! empty( $form->attributes['webhooks'] ) ) {
+				Form_Webhooks::init();
+			}
 			// Process the form
 			return $form->process_submission();
 		}
@@ -1724,6 +1729,10 @@ class Contact_Form_Plugin {
 
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 			Post_To_Url::init();
+		}
+
+		if ( ! empty( $form->attributes['webhooks'] ) ) {
+			Form_Webhooks::init();
 		}
 
 		// Process the form
