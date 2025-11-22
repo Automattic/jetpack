@@ -560,6 +560,12 @@ class Jetpack_Memberships {
 	public function render_button_email( $block_content, array $parsed_block, $rendering_context ) {
 		// Get the first inner block, which should be the button block.
 		$button_block = $parsed_block['innerBlocks'][0] ?? array();
+
+		// We should only accept button blocks.
+		if ( empty( $button_block['blockName'] ) || $button_block['blockName'] !== 'jetpack/button' ) {
+			return '';
+		}
+
 		if ( ! isset( $button_block['attrs'] ) || ! is_array( $button_block['attrs'] ) || ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' ) || ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
 			return '';
 		}
