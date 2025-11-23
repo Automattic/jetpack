@@ -1,4 +1,12 @@
-import { createContext, useCallback, useMemo, useState, useEffect, useLayoutEffect } from 'react';
+import {
+	createContext,
+	useCallback,
+	useMemo,
+	useState,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+} from 'react';
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
@@ -26,6 +34,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		() => new Map()
 	);
 
+	// Ref to the wrapper element for resolving scoped CSS variables
+	const wrapperRef = useRef< HTMLDivElement >( null );
+
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
@@ -42,6 +53,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	} ) );
 
 	// Compute color cache after DOM is updated (so CSS variables are available)
+	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	useLayoutEffect( () => {
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
@@ -57,8 +69,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					let colorValue = color;
 
 					// Handle CSS custom properties (variables) - resolve them to actual values
+					// Use wrapper element to resolve scoped CSS variables
 					if ( color.includes( 'var(' ) ) {
-						const resolved = resolveCssVariable( color );
+						const resolved = resolveCssVariable( color, wrapperRef.current );
 						if ( ! resolved ) {
 							continue; // Skip if variable can't be resolved
 						}
@@ -240,5 +253,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		]
 	);
 
-	return <GlobalChartsContext.Provider value={ value }>{ children }</GlobalChartsContext.Provider>;
+	return (
+		<GlobalChartsContext.Provider value={ value }>
+			<div ref={ wrapperRef } style={ { display: 'contents' } }>
+				{ children }
+			</div>
+		</GlobalChartsContext.Provider>
+	);
 };
