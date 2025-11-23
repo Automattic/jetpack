@@ -312,4 +312,152 @@ describe( 'resolveCssVariable', () => {
 			expect( result ).toBe( '1.5' );
 		} );
 	} );
+
+	describe( 'Custom element resolution', () => {
+		it( 'resolves CSS variable from a custom element', () => {
+			const customElement = document.createElement( 'div' );
+			const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+				if ( element === customElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--scoped-color' ) {
+								return '#00ff00';
+							}
+							return '';
+						},
+					};
+				}
+				return {
+					getPropertyValue: () => '',
+				};
+			} );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--scoped-color)', customElement );
+			expect( result ).toBe( '#00ff00' );
+			expect( mockGetComputedStyle ).toHaveBeenCalledWith( customElement );
+		} );
+
+		it( 'falls back to document root when element is null', () => {
+			const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+				if ( element === document.documentElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--root-color' ) {
+								return '#ff0000';
+							}
+							return '';
+						},
+					};
+				}
+				return {
+					getPropertyValue: () => '',
+				};
+			} );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--root-color)', null );
+			expect( result ).toBe( '#ff0000' );
+			expect( mockGetComputedStyle ).toHaveBeenCalledWith( document.documentElement );
+		} );
+
+		it( 'falls back to document root when element is undefined', () => {
+			const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+				if ( element === document.documentElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--root-color' ) {
+								return '#ff0000';
+							}
+							return '';
+						},
+					};
+				}
+				return {
+					getPropertyValue: () => '',
+				};
+			} );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--root-color)', undefined );
+			expect( result ).toBe( '#ff0000' );
+			expect( mockGetComputedStyle ).toHaveBeenCalledWith( document.documentElement );
+		} );
+
+		it( 'resolves scoped CSS variable that differs from root', () => {
+			const scopedElement = document.createElement( 'div' );
+			const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+				if ( element === scopedElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--brand-color' ) {
+								return '#00ff00'; // Scoped value
+							}
+							return '';
+						},
+					};
+				}
+				if ( element === document.documentElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--brand-color' ) {
+								return '#ff0000'; // Root value
+							}
+							return '';
+						},
+					};
+				}
+				return {
+					getPropertyValue: () => '',
+				};
+			} );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			// When resolving from scoped element, should get scoped value
+			const scopedResult = resolveCssVariable( 'var(--brand-color)', scopedElement );
+			expect( scopedResult ).toBe( '#00ff00' );
+
+			// When resolving from root (or no element), should get root value
+			const rootResult = resolveCssVariable( 'var(--brand-color)' );
+			expect( rootResult ).toBe( '#ff0000' );
+		} );
+
+		it( 'uses fallback value when scoped variable is not defined', () => {
+			const scopedElement = document.createElement( 'div' );
+			const mockGetComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '', // Variable not defined
+			} ) );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-scoped, #abcdef)', scopedElement );
+			expect( result ).toBe( '#abcdef' );
+		} );
+
+		it( 'handles complex selector scoped elements', () => {
+			// Simulate an element with specific classes/attributes like .uLgshq-root[data-wpds-theme-provider-id]
+			const themedElement = document.createElement( 'div' );
+			themedElement.className = 'uLgshq-root';
+			themedElement.setAttribute( 'data-wpds-theme-provider-id', ':rj:' );
+
+			const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+				if ( element === themedElement ) {
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--wpds-color-bg-interactive-brand' ) {
+								return '#c029dc'; // User's custom accent color
+							}
+							return '';
+						},
+					};
+				}
+				return {
+					getPropertyValue: () => '',
+				};
+			} );
+			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--wpds-color-bg-interactive-brand)', themedElement );
+			expect( result ).toBe( '#c029dc' );
+		} );
+	} );
 } );
