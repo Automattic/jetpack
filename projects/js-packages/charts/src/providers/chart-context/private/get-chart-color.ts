@@ -103,9 +103,8 @@ const FULL_HUE_ROTATION_DEGREES = 360;
 
 /**
  * Factor for single color hue range
- * 0.75 provides a wider range of the color wheel for decent variety
  */
-const SINGLE_COLOR_HUE_RANGE_FACTOR = 0.75;
+const SINGLE_COLOR_HUE_RANGE_FACTOR = 0.33;
 
 /**
  * Get a color from the colors array or generate a new color using the golden ratio
@@ -146,7 +145,7 @@ export const getChartColor = ( index: number, colorCache: ColorCache ) => {
 			// Handle hue wrap-around (e.g., if colors span across 0 degrees)
 			let hueRange = maxHue - minHue;
 
-			// If there's only one color, use a much wider hue range for more variety
+			// If there's only one color, use a set hue range for limited variety
 			if ( hues.length === 1 ) {
 				hueRange = FULL_HUE_ROTATION_DEGREES * SINGLE_COLOR_HUE_RANGE_FACTOR;
 			} else if ( hueRange > HUE_WRAP_THRESHOLD_DEGREES ) {
