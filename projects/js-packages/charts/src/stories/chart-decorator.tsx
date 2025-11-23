@@ -87,7 +87,7 @@ const StoryChartProvider = ( {
 				<style>
 					{ `
 						:root {
-							--wpds-color-bg-interactive-brand-strong: ${ accentColor };
+							--wpds-color-bg-interactive-brand: ${ accentColor };
 						}
 					` }
 				</style>
