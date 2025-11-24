@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do the right thing when running with `--git` from a subdirectory of the repository.
