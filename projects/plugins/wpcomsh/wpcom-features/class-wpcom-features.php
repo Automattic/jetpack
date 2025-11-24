@@ -480,6 +480,7 @@ class WPCOM_Features {
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_UNIFIED_UI_V1              = 'social-unified-ui-v1';
 	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
@@ -1232,6 +1233,14 @@ class WPCOM_Features {
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_ALL_SITES,
+		),
+		self::SOCIAL_UNIFIED_UI_V1              => array(
+			self::WPCOM_ALL_SITES,
+			self::JETPACK_ALL_SITES,
+			// The feature is not available yet
+			array(
+				'before' => '2004-01-00',
+			),
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
 			self::WPCOM_ALL_SITES,
