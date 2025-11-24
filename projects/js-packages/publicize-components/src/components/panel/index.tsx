@@ -50,7 +50,10 @@ const PublicizePanel = ( { prePublish }: PublicizePanelProps ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
 	const wrapperProps = prePublish
 		? {}
-		: { title: __( 'Share this post', 'jetpack-publicize-components' ), className: styles.panel };
+		: {
+				title: __( 'Share to Social Media', 'jetpack-publicize-components' ),
+				className: styles.panel,
+		  };
 
 	refreshConnections();
 

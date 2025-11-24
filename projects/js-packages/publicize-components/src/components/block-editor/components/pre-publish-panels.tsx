@@ -1,38 +1,23 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PluginPrePublishPanel } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { usePostCanUseSig } from '../../../hooks/use-post-can-use-sig';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { useSyncPostDataToStore } from '../../../hooks/use-sync-post-data-to-store';
 import PublicizePanel from '../../panel';
-import SocialImageGeneratorPanel from '../../social-image-generator/panel';
 
 const PrePublishPanels = () => {
 	useSyncPostDataToStore();
 
 	const { hasEnabledConnections } = useSocialMediaConnections();
-	const postCanUseSig = usePostCanUseSig();
 
 	return (
-		<>
-			<PluginPrePublishPanel
-				initialOpen={ hasEnabledConnections }
-				title={ __( 'Share this post', 'jetpack-publicize-components' ) }
-				icon={ <JetpackEditorPanelLogo /> }
-			>
-				<PublicizePanel prePublish={ true } />
-			</PluginPrePublishPanel>
-
-			{ postCanUseSig && (
-				<PluginPrePublishPanel
-					initialOpen
-					title={ __( 'Social Image Generator', 'jetpack-publicize-components' ) }
-					icon={ <JetpackEditorPanelLogo /> }
-				>
-					<SocialImageGeneratorPanel prePublish={ true } />
-				</PluginPrePublishPanel>
-			) }
-		</>
+		<PluginPrePublishPanel
+			initialOpen={ hasEnabledConnections }
+			title={ __( 'Share to Social Media', 'jetpack-publicize-components' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<PublicizePanel prePublish={ true } />
+		</PluginPrePublishPanel>
 	);
 };
 
