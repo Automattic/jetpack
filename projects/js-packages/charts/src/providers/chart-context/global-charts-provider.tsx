@@ -54,6 +54,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
+	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
+	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
 	useLayoutEffect( () => {
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
