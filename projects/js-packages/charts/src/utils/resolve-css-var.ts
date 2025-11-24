@@ -30,5 +30,5 @@ export const resolveCssVariable = (
 	const targetElement = element || document.documentElement;
 	const computedValue = getComputedStyle( targetElement ).getPropertyValue( varName ).trim();
 
-	return computedValue || fallback || null;
+	return computedValue || fallback?.trim() || null;
 };

@@ -138,7 +138,7 @@ describe( 'resolveCssVariable', () => {
 			} ) ) as unknown as typeof window.getComputedStyle;
 
 			const result = resolveCssVariable( 'var(--undefined-color,  #ffffff  )' );
-			expect( result ).toBe( '#ffffff  ' );
+			expect( result ).toBe( '#ffffff' );
 		} );
 	} );
 
