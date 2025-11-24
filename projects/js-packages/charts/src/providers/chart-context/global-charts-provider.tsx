@@ -74,9 +74,11 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					// Use wrapper element to resolve scoped CSS variables
 					if ( color.includes( 'var(' ) ) {
 						const resolved = resolveCssVariable( color, wrapperRef.current );
+
 						if ( resolved === null || resolved === '' ) {
-							continue; // Skip if variable can't be resolved or is empty
+							continue;
 						}
+
 						colorValue = resolved;
 					}
 
@@ -90,6 +92,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 							minHue = Math.min( minHue, hslColor[ 0 ] );
 							maxHue = Math.max( maxHue, hslColor[ 0 ] );
 						} catch {
+							// Ignore invalid hex colors that don't parse to HSL
 							continue;
 						}
 					}
