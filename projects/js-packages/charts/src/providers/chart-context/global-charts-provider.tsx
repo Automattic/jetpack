@@ -74,8 +74,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					// Use wrapper element to resolve scoped CSS variables
 					if ( color.includes( 'var(' ) ) {
 						const resolved = resolveCssVariable( color, wrapperRef.current );
-						if ( ! resolved ) {
-							continue; // Skip if variable can't be resolved
+						if ( resolved === null || resolved === '' ) {
+							continue; // Skip if variable can't be resolved or is empty
 						}
 						colorValue = resolved;
 					}
