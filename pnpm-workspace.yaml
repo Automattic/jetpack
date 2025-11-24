@@ -58,12 +58,15 @@ trustPolicyExclude:
 strictDepBuilds: true
 verifyDepsBeforeRun: install
 ignoredBuiltDependencies:
+  # Tries to download/install stuff if optional deps weren't installed.
   - '@swc/core'
-  - core-js
   - esbuild
-  - print-this
-  - svelte-preprocess
   - unrs-resolver
+  # Attempt to show "remember to install other stuff" spam.
+  - svelte-preprocess
+  # Attempt to show "support me" spam.
+  - core-js
+  - print-this
 
 # Dependencies needing patching.
 patchedDependencies:
