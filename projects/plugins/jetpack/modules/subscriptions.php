@@ -16,6 +16,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
@@ -131,6 +132,8 @@ class Jetpack_Subscriptions {
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
+
+		add_action( 'jetpack_published_post', array( $this, 'store_subscribers_when_sent' ), 10, 3 );
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 
@@ -987,6 +990,188 @@ class Jetpack_Subscriptions {
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
+
+		$jetpack_newsletter_subscribers_when_sent = array(
+			'type'          => 'array',
+			'description'   => __( 'List of subscribers when the post was first emailed. Used for debugging purposes.', 'jetpack' ),
+			'single'        => true,
+			'default'       => array(),
+			'show_in_rest'  => array(
+				'name' => 'jetpack_newsletter_subscribers_when_sent',
+			),
+			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+		);
+
+		register_meta( 'post', '_jetpack_newsletter_subscribers_when_sent', $jetpack_newsletter_subscribers_when_sent );
+	}
+
+	/**
+	 * Store the list of subscribers when a post is first emailed.
+	 *
+	 * This method is called when a post is published and emails are sent to subscribers.
+	 * It stores the subscriber count and metadata in post meta for debugging purposes.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int      $post_ID Post ID.
+	 * @param array    $flags   Post flags including send_subscription.
+	 * @param WP_Post  $post    Post object.
+	 *
+	 * @return void
+	 */
+	public function store_subscribers_when_sent( $post_ID, $flags, $post ) {
+		// Only store if emails are being sent.
+		if ( ! isset( $flags['send_subscription'] ) || ! $flags['send_subscription'] ) {
+			return;
+		}
+
+		// Only store once - check if we've already stored subscribers for this post.
+		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', true );
+		if ( ! empty( $existing_subscribers ) ) {
+			return;
+		}
+
+		// Only store for posts.
+		if ( 'post' !== $post->post_type ) {
+			return;
+		}
+
+		// Fetch subscriber data from WordPress.com API.
+		$subscriber_data = $this->get_subscriber_data();
+
+		// Store subscriber data with timestamp.
+		$data_to_store = array(
+			'timestamp'           => current_time( 'mysql' ),
+			'email_subscribers'   => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
+			'paid_subscribers'    => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
+			'all_subscribers'     => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
+			'subscriber_list'     => isset( $subscriber_data['subscriber_list'] ) && is_array( $subscriber_data['subscriber_list'] ) ? $subscriber_data['subscriber_list'] : array(),
+		);
+
+		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
+	}
+
+	/**
+	 * Get subscriber data from WordPress.com API.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Subscriber data including counts and email list.
+	 */
+	private function get_subscriber_data() {
+		$subscriber_data = array(
+			'email_subscribers' => 0,
+			'paid_subscribers'  => 0,
+			'all_subscribers'   => 0,
+			'subscriber_list'   => array(),
+		);
+
+		// Only fetch if Jetpack is connected.
+		if ( ! Jetpack::is_connection_ready() ) {
+			return $subscriber_data;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		// First, get subscriber counts from stats endpoint.
+		$stats_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
+		$stats_response = Client::wpcom_json_api_request_as_blog(
+			$stats_path,
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( ! is_wp_error( $stats_response ) ) {
+			$stats_code = wp_remote_retrieve_response_code( $stats_response );
+			if ( 200 === $stats_code ) {
+				$subscriber_counts = json_decode( wp_remote_retrieve_body( $stats_response ), true );
+				if ( is_array( $subscriber_counts ) ) {
+					if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {
+						$subscriber_data['email_subscribers'] = (int) $subscriber_counts['counts']['email_subscribers'];
+					}
+					if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
+						$subscriber_data['paid_subscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
+					}
+					if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
+						$subscriber_data['all_subscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
+					}
+				}
+			}
+		}
+
+		// Fetch the actual subscriber list with emails.
+		$subscriber_emails = $this->fetch_all_subscribers( $site_id );
+		$subscriber_data['subscriber_list'] = $subscriber_emails;
+
+		return $subscriber_data;
+	}
+
+	/**
+	 * Fetch all subscribers from WordPress.com API with pagination.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $site_id Site ID.
+	 * @return array Array of subscriber email addresses.
+	 */
+	private function fetch_all_subscribers( $site_id ) {
+		$subscriber_emails = array();
+		$page = 1;
+		$per_page = 100; // Maximum per page to minimize requests.
+
+		while ( true ) {
+			$api_path = sprintf(
+				'/sites/%d/subscribers/?page=%d&per_page=%d&filter=email_subscriber',
+				$site_id,
+				$page,
+				$per_page
+			);
+
+			$response = Client::wpcom_json_api_request_as_blog(
+				$api_path,
+				'2',
+				array(),
+				null,
+				'wpcom'
+			);
+
+			if ( is_wp_error( $response ) ) {
+				break;
+			}
+
+			$response_code = wp_remote_retrieve_response_code( $response );
+			if ( 200 !== $response_code ) {
+				break;
+			}
+
+			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( ! is_array( $response_body ) ) {
+				break;
+			}
+
+			// Extract emails from subscribers array.
+			if ( isset( $response_body['subscribers'] ) && is_array( $response_body['subscribers'] ) ) {
+				foreach ( $response_body['subscribers'] as $subscriber ) {
+					if ( isset( $subscriber['email'] ) && is_email( $subscriber['email'] ) ) {
+						$subscriber_emails[] = sanitize_email( $subscriber['email'] );
+					}
+				}
+			}
+
+			// Check if there are more pages.
+			$total = isset( $response_body['total'] ) ? (int) $response_body['total'] : 0;
+			$total_pages = isset( $response_body['total_pages'] ) ? (int) $response_body['total_pages'] : 1;
+
+			if ( $page >= $total_pages || count( $subscriber_emails ) >= $total ) {
+				break;
+			}
+
+			$page++;
+		}
+
+		return $subscriber_emails;
 	}
 
 	/**
