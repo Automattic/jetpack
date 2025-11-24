@@ -2,7 +2,7 @@ import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**
- * Custom theme with earth tones and dashed line styles for demonstration
+ * Custom theme using a CSS variable for dynamic color generation
  */
 export const customTheme: ChartTheme = {
 	colors: [ 'var(--wpds-color-bg-interactive-brand)' ],
