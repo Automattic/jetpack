@@ -49,6 +49,21 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 };
 
 /**
+ * Default accent color for custom theme in Storybook
+ */
+const DEFAULT_ACCENT_COLOR = '#c029dc';
+
+/**
+ * Validates that a string is a safe hex color value
+ * Prevents XSS by ensuring only valid hex colors are used in CSS
+ * @param color - Color string to validate
+ * @return true if the color is a valid hex format (#RGB or #RRGGBB)
+ */
+const isValidHexColor = ( color: string ): boolean => {
+	return /^#[0-9A-Fa-f]{3}$|^#[0-9A-Fa-f]{6}$/.test( color );
+};
+
+/**
  * Provider wrapper for Storybook chart stories
  * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
  * @param root0             - Props object
@@ -60,7 +75,7 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 const StoryChartProvider = ( {
 	children,
 	themeName = 'default',
-	accentColor = '#c029dc',
+	accentColor = DEFAULT_ACCENT_COLOR,
 }: {
 	children: React.ReactNode;
 	themeName?: string;
@@ -77,9 +92,13 @@ const StoryChartProvider = ( {
 
 	const theme = CHART_THEME_MAP[ themeName ];
 
+	// Sanitize accent color to prevent XSS via CSS injection
+	// Falls back to default if invalid hex color is provided
+	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
+
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
 	// This ensures CSS variables are re-resolved after the DOM updates
-	const providerKey = themeName === 'custom' ? `custom-${ accentColor }` : themeName;
+	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
 	return (
 		<>
@@ -87,7 +106,7 @@ const StoryChartProvider = ( {
 				<style>
 					{ `
 						:root {
-							--wpds-color-bg-interactive-brand: ${ accentColor };
+							--wpds-color-bg-interactive-brand: ${ sanitizedAccentColor };
 						}
 					` }
 				</style>
