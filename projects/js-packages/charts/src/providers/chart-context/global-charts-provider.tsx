@@ -81,11 +81,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					// Process hex colors
 					if ( colorValue.startsWith( '#' ) ) {
 						resolvedColors.push( colorValue );
-						const hslColor = hexToHsl( colorValue );
-						hues.push( hslColor[ 0 ] );
-						existingHslColors.push( hslColor );
-						minHue = Math.min( minHue, hslColor[ 0 ] );
-						maxHue = Math.max( maxHue, hslColor[ 0 ] );
+						try {
+							const hslColor = hexToHsl( colorValue );
+							hues.push( hslColor[ 0 ] );
+							existingHslColors.push( hslColor );
+							minHue = Math.min( minHue, hslColor[ 0 ] );
+							maxHue = Math.max( maxHue, hslColor[ 0 ] );
+						} catch {
+							continue;
+						}
 					}
 				}
 			}
