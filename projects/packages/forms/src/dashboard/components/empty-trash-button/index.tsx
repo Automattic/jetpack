@@ -87,7 +87,7 @@ const EmptyTrashButton = ( {
 								),
 								formatNumber( deleted )
 						  );
-				createSuccessNotice( successMessage, { type: 'snackbar', id: 'empty-trash' } );
+				createSuccessNotice( successMessage, { type: 'snackbar', id: 'jp-forms-empty-trash' } );
 			} )
 			.catch( () => {
 				createErrorNotice( __( 'Could not empty trash.', 'jetpack-forms' ), {

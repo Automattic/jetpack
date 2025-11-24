@@ -312,7 +312,7 @@ export const markAsSpamAction: Action = {
 			if ( ! isUndo ) {
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
-					id: 'mark-as-spam-action',
+					id: 'jp-forms-mark-as-spam-action',
 					actions: [
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
@@ -399,7 +399,7 @@ export const markAsNotSpamAction: Action = {
 			if ( ! isUndo ) {
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
-					id: 'mark-as-not-spam-action',
+					id: 'jp-forms-mark-as-not-spam-action',
 					actions: [
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
@@ -484,7 +484,7 @@ export const restoreAction: Action = {
 			if ( ! isUndo ) {
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
-					id: 'restore-action',
+					id: 'jp-forms-restore-action',
 					actions: [
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
@@ -567,7 +567,7 @@ export const moveToTrashAction: Action = {
 
 				createSuccessNotice( successMessage, {
 					type: 'snackbar',
-					id: 'move-to-trash-action',
+					id: 'jp-forms-move-to-trash-action',
 					actions: [
 						{
 							label: __( 'Undo', 'jetpack-forms' ),
@@ -648,7 +648,7 @@ export const deleteAction: Action = {
 							items.length
 					  );
 
-			createSuccessNotice( successMessage, { type: 'snackbar', id: 'move-to-trash-action' } );
+			createSuccessNotice( successMessage, { type: 'snackbar', id: 'jp-forms-delete-action' } );
 
 			// Update the URL to remove references to deleted items.
 			// Parse the hash to extract just the query params (e.g., #/responses?r=1,2,3)
@@ -774,7 +774,7 @@ export const markAsReadAction: Action = {
 
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
-				id: 'mark-as-read-action',
+				id: 'jp-forms-mark-as-read-action',
 				actions: [
 					{
 						label: __( 'Undo', 'jetpack-forms' ),
@@ -882,7 +882,7 @@ export const markAsUnreadAction: Action = {
 
 			createSuccessNotice( successMessage, {
 				type: 'snackbar',
-				id: 'mark-as-unread-action',
+				id: 'jp-forms-mark-as-unread-action',
 				actions: [
 					{
 						label: __( 'Undo', 'jetpack-forms' ),

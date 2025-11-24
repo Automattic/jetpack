@@ -87,7 +87,7 @@ const EmptySpamButton = ( {
 								),
 								formatNumber( deleted )
 						  );
-				createSuccessNotice( successMessage, { type: 'snackbar', id: 'empty-spam' } );
+				createSuccessNotice( successMessage, { type: 'snackbar', id: 'jp-forms-empty-spam' } );
 			} )
 			.catch( () => {
 				createErrorNotice( __( 'Could not empty spam.', 'jetpack-forms' ), {
