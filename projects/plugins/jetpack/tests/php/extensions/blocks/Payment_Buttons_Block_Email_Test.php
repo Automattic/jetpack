@@ -7,9 +7,6 @@
 
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/payment-buttons/payment-buttons.php';
 
-// Include mock class for WooCommerce Email Editor Flex Layout Renderer
-require_once __DIR__ . '/class-mock-flex-layout-renderer.php';
-
 use PHPUnit\Framework\Attributes\CoversFunction;
 
 /**
@@ -44,9 +41,31 @@ class Payment_Buttons_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test render_block_email returns empty when class is missing.
+	 */
+	public function test_render_block_email_returns_empty_when_class_missing() {
+		if ( class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' ) ) {
+			$this->markTestSkipped( 'Flex Layout Renderer class already exists' );
+		}
+
+		$mock_context = $this->create_rendering_context_mock();
+
+		$parsed_block = array(
+			'blockName'   => 'jetpack/payment-buttons',
+			'innerBlocks' => array(),
+		);
+
+		$result = \Automattic\Jetpack\Extensions\PaymentButtons\render_block_email( '', $parsed_block, $mock_context );
+
+		$this->assertSame( '', $result );
+	}
+
+	/**
 	 * Test render_block_email renders two buttons.
 	 */
 	public function test_render_block_email_with_valid_payment_buttons() {
+		require_once __DIR__ . '/class-mock-flex-layout-renderer.php';
+
 		$mock_context = $this->create_rendering_context_mock();
 
 		$parsed_block = array(
@@ -71,27 +90,7 @@ class Payment_Buttons_Block_Email_Test extends WP_UnitTestCase {
 	 * Test render_block_email render with no inner blocks.
 	 */
 	public function test_render_block_email_with_no_inner_blocks() {
-		$mock_context = $this->create_rendering_context_mock();
-
-		$parsed_block = array(
-			'blockName'   => 'jetpack/payment-buttons',
-			'innerBlocks' => array(),
-		);
-
-		$result = \Automattic\Jetpack\Extensions\PaymentButtons\render_block_email( '', $parsed_block, $mock_context );
-
-		// Expected result is an empty table.
-		$this->assertSame( '<table role="presentation" style="border-collapse:collapse;width:100%;max-width:600px;"><tr></tr></table>', $result );
-	}
-
-	/**
-	 * Test render_block_email returns empty when class is missing.
-	 */
-	public function test_render_block_email_returns_empty_when_class_missing() {
-		define( 'SKIP_FLEX_LAYOUT_RENDERER_MOCK', true );
-
 		require_once __DIR__ . '/class-mock-flex-layout-renderer.php';
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/payment-buttons/payment-buttons.php';
 
 		$mock_context = $this->create_rendering_context_mock();
 

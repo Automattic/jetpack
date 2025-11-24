@@ -11,7 +11,7 @@
 /**
  * Mock Flex Layout Renderer class.
  */
-if ( ! defined( 'SKIP_FLEX_LAYOUT_RENDERER_MOCK' ) && ! class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' ) ) {
+if ( ! class_exists( '\Automattic\WooCommerce\EmailEditor\Engine\Renderer\ContentRenderer\Layout\Flex_Layout_Renderer' ) ) {
 	/**
 	 * Mock Flex Layout Renderer for testing.
 	 */
