@@ -140,6 +140,42 @@ describe( 'resolveCssVariable', () => {
 			const result = resolveCssVariable( 'var(--undefined-color,  #ffffff  )' );
 			expect( result ).toBe( '#ffffff' );
 		} );
+
+		it( 'handles fallback values with nested parentheses (rgb)', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '',
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-color, rgb(255, 0, 0))' );
+			expect( result ).toBe( 'rgb(255, 0, 0)' );
+		} );
+
+		it( 'handles fallback values with nested parentheses (rgba)', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '',
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-color, rgba(52, 152, 219, 0.5))' );
+			expect( result ).toBe( 'rgba(52, 152, 219, 0.5)' );
+		} );
+
+		it( 'handles fallback values with nested parentheses (hsl)', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '',
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-color, hsl(200, 70%, 50%))' );
+			expect( result ).toBe( 'hsl(200, 70%, 50%)' );
+		} );
+
+		it( 'handles complex nested calc() in fallback values', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '',
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--spacing, calc(1rem + 2px))' );
+			expect( result ).toBe( 'calc(1rem + 2px)' );
+		} );
 	} );
 
 	describe( 'Invalid input handling', () => {
