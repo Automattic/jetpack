@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
+import { store as coreStore, Attachment } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -12,11 +12,18 @@ import styles from './styles.module.scss';
 import { getSigImageUrl } from './utils';
 
 export const FEATURED_IMAGE_STILL_LOADING = 'featured-image-still-loading';
-const getMediaSourceUrl = media => {
+const getMediaSourceUrl = ( media: Attachment ) => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
 };
 
-export const getImageId = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+type ImageType = 'custom' | 'featured' | 'default' | 'none';
+
+export const getImageId = (
+	imageType: ImageType,
+	customImageId: number | null,
+	featuredImageId: number | null,
+	defaultImageId: number | null
+) => {
 	if ( imageType === 'custom' && customImageId ) {
 		return customImageId;
 	}
@@ -32,7 +39,12 @@ export const getImageId = ( imageType, customImageId, featuredImageId, defaultIm
 	return featuredImageId || defaultImageId;
 };
 
-const hasNoValidImage = ( imageType, customImageId, featuredImageId, defaultImageId ) => {
+const hasNoValidImage = (
+	imageType: ImageType,
+	customImageId: number | null,
+	featuredImageId: number | null,
+	defaultImageId: number | null
+) => {
 	// No image type selected
 	if ( imageType === 'none' ) {
 		return true;
@@ -57,11 +69,11 @@ const hasNoValidImage = ( imageType, customImageId, featuredImageId, defaultImag
 };
 
 export const calculateImageUrl = (
-	imageType,
-	customImageId,
-	featuredImageId,
-	defaultImageId,
-	getMedia
+	imageType: ImageType,
+	customImageId: number | null,
+	featuredImageId: number | null,
+	defaultImageId: number | null,
+	getMedia: ( id: number | null ) => Attachment
 ) => {
 	if ( hasNoValidImage( imageType, customImageId, featuredImageId, defaultImageId ) ) {
 		return null;
@@ -76,18 +88,29 @@ export const calculateImageUrl = (
 	return getMediaSourceUrl( media );
 };
 
+type GeneratedImagePreviewProps = {
+	shouldDebounce?: boolean;
+	onNewToken?: ( token: string ) => void;
+	customText?: string;
+	imageType?: ImageType;
+	imageId?: number | null;
+	defaultImageId?: number | null;
+	template?: string;
+	font?: string;
+};
+
 /**
  * Fetches the preview of the generated image based on the post info
  *
- * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string, font?: string}} props -
- *                                                                                                                                  The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
- * @return {import('react').ReactNode} The generated image preview.
+ * @param {GeneratedImagePreviewProps} props - The props to pass to the generator config.
+ *                                           The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
+ * @return The generated image preview.
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,
 	onNewToken = undefined,
 	...generatorConfigProps
-} ) {
+}: GeneratedImagePreviewProps ) {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
@@ -99,8 +122,13 @@ export default function GeneratedImagePreview( {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
 			title: select( editorStore ).getEditedPostAttribute( 'title' ),
-			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, defaultImageId, mediaID =>
-				select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID )
+			imageUrl: calculateImageUrl(
+				// @ts-expect-error -- imageType is not properly typed in useImageGeneratorConfig
+				imageType,
+				imageId,
+				featuredImage,
+				defaultImageId,
+				mediaID => select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID )
 			),
 		};
 	} );
@@ -123,7 +151,7 @@ export default function GeneratedImagePreview( {
 					return;
 				}
 
-				const sig_token = await apiFetch( {
+				const sig_token = await apiFetch< string >( {
 					path: 'wpcom/v2/publicize/social-image-generator/generate-token',
 					method: 'POST',
 					data: {
