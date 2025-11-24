@@ -11,15 +11,13 @@ const PrePublishPanels = () => {
 	const { hasEnabledConnections } = useSocialMediaConnections();
 
 	return (
-		<>
-			<PluginPrePublishPanel
-				initialOpen={ hasEnabledConnections }
-				title={ __( 'Share to Social Media', 'jetpack-publicize-components' ) }
-				icon={ <JetpackEditorPanelLogo /> }
-			>
-				<PublicizePanel prePublish={ true } />
-			</PluginPrePublishPanel>
-		</>
+		<PluginPrePublishPanel
+			initialOpen={ hasEnabledConnections }
+			title={ __( 'Share to Social Media', 'jetpack-publicize-components' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<PublicizePanel prePublish={ true } />
+		</PluginPrePublishPanel>
 	);
 };
 
