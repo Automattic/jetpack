@@ -1,7 +1,7 @@
 import { setLocale } from '@automattic/number-formatters';
 import { useEffect } from 'react';
 import { GlobalChartsProvider } from '../providers';
-import { CHART_THEME_MAP } from './theme-config';
+import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
 import type { Decorator } from '@storybook/react';
 
 /**
@@ -47,11 +47,6 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 
 	return simpleChartDecorator( StoryWithContainer, context );
 };
-
-/**
- * Default accent color for custom theme in Storybook
- */
-const DEFAULT_ACCENT_COLOR = '#c029dc';
 
 /**
  * Validates that a string is a safe hex color value

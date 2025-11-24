@@ -2,6 +2,11 @@ import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**
+ * Default accent color for custom theme in Storybook
+ */
+export const DEFAULT_ACCENT_COLOR = '#4a19ab';
+
+/**
  * Custom theme using a CSS variable for dynamic color generation
  */
 export const customTheme: ChartTheme = {
@@ -42,7 +47,7 @@ export const themeArgTypes = {
 	accentColor: {
 		control: { type: 'color' as const },
 		description: 'Accent color for the custom theme (used for primary chart elements)',
-		defaultValue: '#c029dc',
+		defaultValue: DEFAULT_ACCENT_COLOR,
 		table: { category: 'Theme' },
 		if: { arg: 'themeName', eq: 'custom' },
 	},
