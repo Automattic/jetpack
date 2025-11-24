@@ -68,6 +68,7 @@ class Global_Styles_Status_Rest_API extends WP_REST_Controller {
 			'globalStylesInUse'          => wpcom_global_styles_in_use(),
 			'shouldLimitGlobalStyles'    => wpcom_should_limit_global_styles(),
 			'globalStylesInPersonalPlan' => is_global_styles_on_personal_plan(),
+			'variation'                  => get_global_styles_on_personal_variation(),
 		);
 	}
 }

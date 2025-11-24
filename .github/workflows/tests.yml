@@ -17,7 +17,7 @@ jobs:
   create-matrix:
     name: 'Determine tests matrix'
     runs-on: ubuntu-latest
-    timeout-minutes: 1 # 2021-02-03: Should only take a second.
+    timeout-minutes: 2 # 2025-11-20: Takes a few seconds.
     outputs:
       matrix: ${{ steps.create-matrix.outputs.matrix }}
     steps:
@@ -314,7 +314,7 @@ jobs:
   publish-coverage-data:
     name: Publish coverage data
     runs-on: ubuntu-latest
-    timeout-minutes: 10 # 2025-01-10 Wild guess
+    timeout-minutes: 10 # 2025-11-20 Takes about 2 minutes.
     needs: run-tests
     if: always() && needs.run-tests.outputs.did-coverage == 'true' && github.repository == 'Automattic/jetpack' && ( github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name || github.event_name == 'push' && github.ref == 'refs/heads/trunk' )
     steps:
@@ -349,7 +349,7 @@ jobs:
   storybook-test:
     name: Storybook tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # 2024-02-23 Wild guess
+    timeout-minutes: 20 # 2025-11-20: Takes about 4 minutes
     steps:
       - uses: actions/checkout@v5
 
@@ -405,7 +405,7 @@ jobs:
   plugin-deps:
     name: Check plugin monorepo dep versions
     runs-on: ubuntu-latest
-    timeout-minutes: 2 # 2022-09-08: Should only take a few seconds.
+    timeout-minutes: 5 # 2025-11-20: Takes less than a minute.
     steps:
       - uses: actions/checkout@v5
       - name: Setup tools

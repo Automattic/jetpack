@@ -351,7 +351,14 @@ class Backup extends Hybrid_Product {
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
 		if ( ! is_wp_error( $rewind_state ) ) {
-			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
+			// Special case: 'unavailable' with 'site_new' reason is a normal provisioning state for brand new sites.
+			$is_new_site_provisioning = ( 'unavailable' === $rewind_state->state &&
+										'site_new' === ( $rewind_state->reason ?? '' ) );
+
+			if (
+				! in_array( $rewind_state->state, array( 'active', 'provisioning', 'awaiting_credentials' ), true ) &&
+				! $is_new_site_provisioning
+			) {
 				$backup_failed_status = array(
 					'type' => 'error',
 					'data' => array(

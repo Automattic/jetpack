@@ -8,7 +8,6 @@ import PublicizePanel from '../../panel';
 import SocialPreviewsModal from '../../social-previews/modal';
 import SocialPreviewsPanel from '../../social-previews/panel';
 import { Placeholder } from './placeholder';
-import { UpsellNotice } from './upsell';
 
 const RenderSettings = () => {
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
@@ -18,10 +17,7 @@ const RenderSettings = () => {
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			{ /* Share post panel */ }
-			<PublicizePanel>
-				<UpsellNotice />
-			</PublicizePanel>
+			<PublicizePanel />
 
 			{ /* Social Previews panel */ }
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }

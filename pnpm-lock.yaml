@@ -1406,8 +1406,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.12
-        version: 2.1.0-beta.12(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.13
+        version: 2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/ui':
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4848,8 +4848,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.12
-        version: 2.1.0-beta.12(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.13
+        version: 2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -6195,8 +6195,8 @@ packages:
       react: ^18.3.1
       react-dom: ^18.3.1
 
-  '@automattic/social-previews@2.1.0-beta.12':
-    resolution: {integrity: sha512-jLNdhPGZsOPYEybCmPA05Rb+9CYQSGEI8xgMx6sPEMAKjJi7OdLrDQ15NAvdJLNylnSQZPXOmEsRj15tbJYiMw==}
+  '@automattic/social-previews@2.1.0-beta.13':
+    resolution: {integrity: sha512-oDKwoBVACcVyk13RCdaaFllGzSwZ71jiA4WBMB7iTgN8cLHQ38HR7JbRFtQuY3dx+kmDHbUBLK4p11xjLz3bdg==}
     peerDependencies:
       '@babel/runtime': ^7.27.1
       react: ^18.3.1
@@ -17493,7 +17493,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@automattic/social-previews@2.1.0-beta.12(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/social-previews@2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.26)(react@18.3.1)
       '@wordpress/components': 30.8.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
