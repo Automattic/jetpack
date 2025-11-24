@@ -91,8 +91,8 @@ class Form_Webhooks {
 	/**
 	 * Log the response to post meta.
 	 *
-	 * @param int   $post_id The post ID.
-	 * @param array $response The response from the webhook.
+	 * @param int            $post_id The post ID.
+	 * @param array|WP_Error $response The response from the webhook or the WP_Error if the request failed.
 	 */
 	private function log_response_to_post_meta( $post_id, $response ) {
 		if ( is_wp_error( $response ) ) {
