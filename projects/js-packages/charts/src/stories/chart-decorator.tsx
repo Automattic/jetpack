@@ -63,7 +63,7 @@ const StoryChartProvider = ( {
 	accentColor = '#c029dc',
 }: {
 	children: React.ReactNode;
-	themeName: string;
+	themeName?: string;
 	accentColor?: string;
 } ) => {
 	// Initialize number formatters with browser locale for Storybook
