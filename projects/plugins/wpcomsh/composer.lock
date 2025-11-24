@@ -8,23 +8,23 @@
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.4",
+            "version": "v2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "f3564cdc408f5354cfd70ce66ac131c891831a33"
+                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/f3564cdc408f5354cfd70ce66ac131c891831a33",
-                "reference": "f3564cdc408f5354cfd70ce66ac131c891831a33",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/c512aa27b2c33aee33bc024177c17f2745c52dfa",
+                "reference": "c512aa27b2c33aee33bc024177c17f2745c52dfa",
                 "shasum": ""
             },
             "type": "wordpress-plugin",
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2025-06-04T10:44:48+00:00"
+            "time": "2025-11-24T21:07:37+00:00"
         },
         {
             "name": "automattic/block-delimiter",
@@ -2540,21 +2540,22 @@
         },
         {
             "name": "scssphp/source-span",
-            "version": "v1.0.0",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/scssphp/source-span.git",
-                "reference": "f08fc78765e6fb6fa8ca0573fc61b3f8860f0114"
+                "reference": "37d653206daf11da1ee60b333984101bc4c27ba2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/scssphp/source-span/zipball/f08fc78765e6fb6fa8ca0573fc61b3f8860f0114",
-                "reference": "f08fc78765e6fb6fa8ca0573fc61b3f8860f0114",
+                "url": "https://api.github.com/repos/scssphp/source-span/zipball/37d653206daf11da1ee60b333984101bc4c27ba2",
+                "reference": "37d653206daf11da1ee60b333984101bc4c27ba2",
                 "shasum": ""
             },
             "require": {
-                "league/uri": "^7.4",
-                "league/uri-interfaces": "^7.4",
+                "ext-mbstring": "*",
+                "league/uri": "^7.6",
+                "league/uri-interfaces": "^7.6",
                 "php": ">=8.1"
             },
             "require-dev": {
@@ -2562,8 +2563,8 @@
                 "phpstan/phpstan-deprecation-rules": "^2.0",
                 "phpunit/phpunit": "^9.5.6",
                 "squizlabs/php_codesniffer": "~3.5",
-                "symfony/phpunit-bridge": "^5.1",
-                "symfony/var-dumper": "^6.3"
+                "symfony/phpunit-bridge": "^6.4 || ^7.3 || ^8.0",
+                "symfony/var-dumper": "^6.4 || ^7.3 || ^8.0"
             },
             "type": "library",
             "extra": {
@@ -2592,9 +2593,9 @@
             ],
             "support": {
                 "issues": "https://github.com/scssphp/source-span/issues",
-                "source": "https://github.com/scssphp/source-span/tree/v1.0.0"
+                "source": "https://github.com/scssphp/source-span/tree/v1.1.0"
             },
-            "time": "2024-12-09T23:08:15+00:00"
+            "time": "2025-11-21T16:28:19+00:00"
         },
         {
             "name": "symfony/filesystem",
@@ -3628,16 +3629,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.4.3",
+            "version": "12.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "d8f644d8d9bb904867f7a0aeb1bd306e0d966949"
+                "reference": "9253ec75a672e39fcc9d85bdb61448215b8162c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/d8f644d8d9bb904867f7a0aeb1bd306e0d966949",
-                "reference": "d8f644d8d9bb904867f7a0aeb1bd306e0d966949",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9253ec75a672e39fcc9d85bdb61448215b8162c7",
+                "reference": "9253ec75a672e39fcc9d85bdb61448215b8162c7",
                 "shasum": ""
             },
             "require": {
@@ -3705,7 +3706,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.4.3"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.4.4"
             },
             "funding": [
                 {
@@ -3729,7 +3730,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-11-13T07:20:26+00:00"
+            "time": "2025-11-21T07:39:11+00:00"
         },
         {
             "name": "psr/container",
