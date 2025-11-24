@@ -119,6 +119,14 @@ type CustomThankyouType =
 	| 'message' // custom message
 	| 'redirect'; // redirect to a new URL
 
+type Webhook = {
+	webhook_id: string;
+	url: string;
+	format: 'urlencoded' | 'json';
+	method: 'POST' | 'GET' | 'PUT';
+	enabled: boolean;
+};
+
 type JetpackContactFormAttributes = {
 	to: string;
 	subject: string;
@@ -134,7 +142,9 @@ type JetpackContactFormAttributes = {
 	disableGoBack: boolean;
 	disableSummary: boolean;
 	notificationRecipients: string[];
+	webhooks: Webhook[];
 };
+
 type JetpackContactFormEditProps = {
 	name: string;
 	attributes: JetpackContactFormAttributes;
