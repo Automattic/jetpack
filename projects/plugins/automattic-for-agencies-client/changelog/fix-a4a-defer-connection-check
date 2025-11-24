@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+
+A4A Client: defer connection check to plugins_loaded hook to prevent fatal errors when WordPress core functions are not yet available.
+

@@ -37,6 +37,19 @@ class Automattic_For_Agencies_Client {
 		add_action( 'load-settings_page_' . AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, array( static::class, 'load_scripts_styles' ) );
 
 		// Display a modal when trying to deactivate the plugin.
+		// Hook to plugins_loaded at priority 20 to ensure connection package is initialized
+		// and WordPress core functions (like get_user_by) are available.
+		add_action( 'plugins_loaded', array( static::class, 'init_deactivation_handler' ), 20 );
+	}
+
+	/**
+	 * Initialize the deactivation handler if the site is connected.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return void
+	 */
+	public static function init_deactivation_handler() {
 		$manager = new Connection_Manager( 'automattic-for-agencies-client' );
 		if ( $manager->is_connected() ) {
 			Deactivation_Handler::init( AUTOMATTIC_FOR_AGENCIES_CLIENT_SLUG, __DIR__ . '/admin/deactivation-dialog.php' );
