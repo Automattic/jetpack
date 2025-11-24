@@ -12,6 +12,7 @@ export type QueryParams = {
 	is_unread?: boolean;
 	per_page?: number;
 	page?: number;
+	status?: string;
 };
 
 /**
@@ -60,6 +61,7 @@ export type DispatchActions = {
 		query?: QueryParams,
 		invalidateCache?: boolean
 	) => void;
+	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (

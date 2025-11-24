@@ -72,25 +72,45 @@ const invalidateCacheAndNavigate = (
 	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );
 	const { setCurrentQuery } = registry.dispatch( dashboardStore );
 
-	// Get the appropriate count based on which status we're removing from
-	const countGetters = {
-		trash: getTrashCount,
-		spam: getSpamCount,
-		inbox: getInboxCount,
-	};
-	const remainingCount = countGetters[ statusBeingRemovedFrom ]( queryParams );
+	// Determine what status we're currently viewing
+	// currentQuery.status may not be in QueryParams type, but it exists at runtime
+	const currentStatus = currentQuery?.status || 'draft,publish';
+	const isViewingInbox = currentStatus === 'draft,publish';
+	const isViewingSpam = currentStatus === 'spam';
+	const isViewingTrash = currentStatus === 'trash';
 
-	const perPage = currentQuery?.per_page || defaultView.perPage;
-	const newTotalPages = Math.max( 1, Math.ceil( remainingCount / perPage ) );
-	const currentPage = currentQuery?.page || defaultView.page;
+	// Only adjust page if we're viewing the same status that items are being removed from
+	const shouldAdjustPage =
+		( isViewingTrash && statusBeingRemovedFrom === 'trash' ) ||
+		( isViewingSpam && statusBeingRemovedFrom === 'spam' ) ||
+		( isViewingInbox && statusBeingRemovedFrom === 'inbox' );
 
-	if ( currentPage > newTotalPages ) {
-		// Navigate to the last valid page
-		setCurrentQuery( {
-			...currentQuery,
-			page: newTotalPages,
-		} );
+	let targetPage = currentQuery?.page || defaultView.page;
+
+	if ( shouldAdjustPage ) {
+		// Get the appropriate count based on which status we're removing from
+		const countGetters = {
+			trash: getTrashCount,
+			spam: getSpamCount,
+			inbox: getInboxCount,
+		};
+		const remainingCount = countGetters[ statusBeingRemovedFrom ]( queryParams );
+
+		const perPage = currentQuery?.per_page || defaultView.perPage;
+		const newTotalPages = Math.max( 1, Math.ceil( remainingCount / perPage ) );
+		const currentPage = currentQuery?.page || defaultView.page;
+
+		// Determine the target page (either current page or last valid page if current is invalid)
+		targetPage = currentPage > newTotalPages ? newTotalPages : currentPage;
 	}
+
+	// Update the query to ensure it's current (preserving the current page if we shouldn't adjust)
+	const updatedQuery = {
+		...currentQuery,
+		page: targetPage,
+	};
+
+	setCurrentQuery( updatedQuery );
 };
 
 // TODO: We should probably have better error messages in case of failure.
