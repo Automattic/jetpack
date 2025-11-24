@@ -55,7 +55,7 @@ class Form_Webhooks {
 	 *
 	 * @return null|void
 	 */
-	public function send_webhooks( $post_id, $fields, $is_spam, $entry_values ) {
+	public function send_webhooks( $post_id, $fields, $is_spam, $entry_values ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Try and get the form from any of the fields
 		$form = null;
 		foreach ( $fields as $field ) {
@@ -83,22 +83,34 @@ class Form_Webhooks {
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
-			$result = $this->send_webhook( $form_data, $webhook );
-
-			if ( is_wp_error( $result ) ) {
-				// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- figuring out what to do with the error.
-				$message = sprintf(
-					'JETPACK %s - Jetpack Forms: Webhook request to "%s" failed: "%s" at %s',
-					constant( 'JETPACK__VERSION' ),
-					$webhook['url'],
-					$result->get_error_message(),
-					$entry_values['entry_permalink']
-				);
-				// TODO: not sure what to do with the error. Is not useful at frontend and it would be difficult to
-				// solve for a non tech-savvy user. We should log it somewhere, but it could turn messy.
-				// Maybe email the owner?
-			}
+			$response = $this->send_webhook( $form_data, $webhook );
+			$this->log_response_to_post_meta( $post_id, $response );
 		}
+	}
+
+	/**
+	 * Log the response to post meta.
+	 *
+	 * @param int   $post_id The post ID.
+	 * @param array $response The response from the webhook.
+	 */
+	private function log_response_to_post_meta( $post_id, $response ) {
+		if ( is_wp_error( $response ) ) {
+			update_post_meta( $post_id, '_jetpack_forms_webhook_error', sanitize_text_field( $response->get_error_message() ) );
+			return $response;
+		}
+
+		$response_body = wp_remote_retrieve_body( $response );
+		$response_data = json_decode( $response_body, true );
+
+		$response_data = array(
+			'timestamp' => gmdate( 'Y-m-d H:i:s', time() ),
+			'http_code' => wp_remote_retrieve_response_code( $response ),
+			'headers'   => wp_remote_retrieve_headers( $response )->getAll(),
+			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
+		);
+
+		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data ) ) );
 	}
 
 	/**
@@ -185,7 +197,6 @@ class Form_Webhooks {
 			'sslverify' => true,
 		);
 
-		// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- this is no constructor
 		return wp_remote_request( $url, $args );
 	}
 
