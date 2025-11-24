@@ -421,7 +421,7 @@ class Universal {
 			'name'     => $product->get_title(),
 			'category' => Utils::get_product_categories_concatenated( $product ),
 			'list'     => $list,
-			'position' => $woocommerce_loop['loop'],
+			'position' => $woocommerce_loop['loop'] ?? null,
 		);
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		\wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
@@ -454,7 +454,7 @@ class Universal {
 			'id'       => $product_sku_or_id,
 			'name'     => $product->get_title(),
 			'category' => Utils::get_product_categories_concatenated( $product ),
-			'position' => $woocommerce_loop['loop'],
+			'position' => $woocommerce_loop['loop'] ?? null,
 		);
 
 		// @phan-suppress-next-line PhanUndeclaredFunction
