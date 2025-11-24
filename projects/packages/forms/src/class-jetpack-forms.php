@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Dompdf\Dompdf;
+
 /**
  * Understands the Jetpack Forms package.
  */
@@ -21,6 +23,10 @@ class Jetpack_Forms {
 	 */
 	public static function load_contact_form() {
 		Util::init();
+
+		$d = new Dompdf();
+
+		l( $d );
 
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();

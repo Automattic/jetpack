@@ -15,7 +15,8 @@
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-admin-ui": "@dev"
+		"automattic/jetpack-admin-ui": "@dev",
+		"dompdf/dompdf": "^3.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
