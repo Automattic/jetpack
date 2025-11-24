@@ -268,6 +268,9 @@ class Contact_Form_Plugin {
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
 
+		// Don't let related posts hook into feedback post type.
+		add_filter( 'jetpack_related_posts_rest_api_allowed_post_types', array( $this, 'remove_from_related_posts_allowed_post_types' ) );
+
 		// Add "spam" as a post status
 		register_post_status(
 			'spam',
@@ -349,6 +352,16 @@ class Contact_Form_Plugin {
 				4
 			);
 		}
+	}
+
+	/**
+	 * Remove feedback post type from the allowed post types for related posts.
+	 *
+	 * @param array $post_types The allowed post types.
+	 * @return array The allowed post types.
+	 */
+	public static function remove_from_related_posts_allowed_post_types( $post_types ) {
+		return array_diff( $post_types, array( 'feedback' ) );
 	}
 
 	/**
