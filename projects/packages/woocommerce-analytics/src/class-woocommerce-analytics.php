@@ -174,12 +174,9 @@ class Woocommerce_Analytics {
 	 * Maybe add proxy speed module.
 	 */
 	public static function maybe_add_proxy_speed_module() {
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
+		if ( ! self::init_filesystem() ) {
+			return;
 		}
-
-		// Initialize the WP filesystem.
-		WP_Filesystem();
 
 		global $wp_filesystem;
 
@@ -217,9 +214,15 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		$results = copy( $mu_plugin_src_file, $mu_plugin_dest_file );
+		$content = $wp_filesystem->get_contents( $mu_plugin_src_file );
+		if ( false === $content ) {
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Failed to read the WooCommerce Analytics proxy speed module source file.', array( 'source' => 'woocommerce-analytics' ) );
+			}
+			return;
+		}
 
-		if ( ! $results ) {
+		if ( ! $wp_filesystem->put_contents( $mu_plugin_dest_file, $content ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
 				wc_get_logger()->error( 'Failed to copy the WooCommerce Analytics proxy speed module file.', array( 'source' => 'woocommerce-analytics' ) );
 			}
@@ -233,15 +236,39 @@ class Woocommerce_Analytics {
 	 * Maybe removes the proxy speed module. This should be invoked when the plugin is deactivated.
 	 */
 	public static function maybe_remove_proxy_speed_module() {
+		if ( ! self::init_filesystem() ) {
+			return;
+		}
+
+		global $wp_filesystem;
+
 		/**
 		 * Clean up MU plugin.
 		 */
 		$file_path = trailingslashit( WPMU_PLUGIN_DIR ) . 'woocommerce-analytics-proxy-speed-module.php';
 
-		if ( file_exists( $file_path ) ) {
-			wp_delete_file( $file_path );
+		if ( $wp_filesystem->exists( $file_path ) && $wp_filesystem->is_writable( $file_path ) ) {
+			$wp_filesystem->delete( $file_path );
 		}
 
 		delete_option( 'woocommerce_analytics_proxy_speed_module_version' );
+	}
+
+	/**
+	 * Initialize the WP filesystem.
+	 *
+	 * @return bool True if filesystem is initialized, false otherwise.
+	 */
+	private static function init_filesystem() {
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		// Initialize the WP filesystem.
+		ob_start();
+		$initialized = WP_Filesystem();
+		ob_end_clean();
+
+		return $initialized;
 	}
 }
