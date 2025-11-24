@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcasting: Prevent PHP warnings when metadata is incomplete.
