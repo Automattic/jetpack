@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prefix notification IDs to prevent conflicts with other plugins
