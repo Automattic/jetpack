@@ -6,23 +6,22 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 	// For now, we only support one webhook, but the data structure supports multiple
 	const firstWebhook = webhooks?.[ 0 ] || null;
 
+	const [ localWebhookId, setLocalWebhookId ] = useState( firstWebhook?.webhook_id || '' );
 	const [ localWebhookUrl, setLocalWebhookUrl ] = useState( firstWebhook?.url || '' );
 	const [ localWebhookEnabled, setLocalWebhookEnabled ] = useState(
 		firstWebhook?.enabled || false
 	);
 
-	// Generate a unique webhook ID if we don't have one
-	const webhookId = firstWebhook?.webhook_id || 'webhook-1';
-
 	// Sync local state with attributes when webhook changes
 	useEffect( () => {
 		if ( firstWebhook ) {
+			setLocalWebhookId( firstWebhook.webhook_id || '' );
 			setLocalWebhookUrl( firstWebhook.url || '' );
 			setLocalWebhookEnabled( firstWebhook.enabled || false );
 		}
 	}, [ firstWebhook ] );
 
-	const updateWebhook = ( url, enabled ) => {
+	const updateWebhook = ( id, url, enabled ) => {
 		if ( ! url && ! enabled ) {
 			// If URL is empty and webhook is disabled, remove it from the array
 			setAttributes( { webhooks: [] } );
@@ -30,7 +29,7 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 		}
 
 		const webhook = {
-			webhook_id: webhookId,
+			webhook_id: id || '',
 			url: url || '',
 			format: 'json', // Default to json, no UI for changing this yet
 			method: 'post', // Default to post, no UI for changing this yet
@@ -58,24 +57,41 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 				checked={ localWebhookEnabled }
 				onChange={ value => {
 					setLocalWebhookEnabled( value );
-					updateWebhook( localWebhookUrl, value );
+					updateWebhook( localWebhookId, localWebhookUrl, value );
 				} }
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ localWebhookEnabled && (
-				<TextControl
-					label={ __( 'Webhook URL', 'jetpack-forms' ) }
-					value={ localWebhookUrl }
-					onChange={ value => {
-						setLocalWebhookUrl( value );
-						updateWebhook( value, localWebhookEnabled );
-					} }
-					placeholder="https://example.com/webhook"
-					help={ __( 'Enter the URL where form submission data should be sent.', 'jetpack-forms' ) }
-					type="url"
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				/>
+				<>
+					<TextControl
+						label={ __( 'Webhook ID', 'jetpack-forms' ) }
+						value={ localWebhookId }
+						onChange={ value => {
+							setLocalWebhookId( value );
+							updateWebhook( value, localWebhookUrl, localWebhookEnabled );
+						} }
+						placeholder="webhook-1"
+						help={ __( 'A unique identifier for this webhook.', 'jetpack-forms' ) }
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
+					/>
+					<TextControl
+						label={ __( 'Webhook URL', 'jetpack-forms' ) }
+						value={ localWebhookUrl }
+						onChange={ value => {
+							setLocalWebhookUrl( value );
+							updateWebhook( localWebhookId, value, localWebhookEnabled );
+						} }
+						placeholder="https://example.com/webhook"
+						help={ __(
+							'Enter the URL where form submission data should be sent.',
+							'jetpack-forms'
+						) }
+						type="url"
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
+					/>
+				</>
 			) }
 		</>
 	);
