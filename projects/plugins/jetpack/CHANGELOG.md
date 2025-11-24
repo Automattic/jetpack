@@ -16,8 +16,8 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Likes: Update filter docblock formatting. [#46009]
 - Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
-- Updated Social preview to show title as well with the preivew. [#45938]
-- Updating to-test.md [#46042]
+- Update Social preview to show title as well with the preview. [#45938]
+- Update to-test.md file. [#46042]
 
 ## 15.3-a.7 - 2025-11-19
 ### Enhancements
