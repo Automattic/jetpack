@@ -209,6 +209,21 @@ describe( 'resolveCssVariable', () => {
 			expect( result ).toBeNull();
 		} );
 
+		it( 'returns null for variable names with opening parentheses', () => {
+			const result = resolveCssVariable( 'var(--test(name))' );
+			expect( result ).toBeNull();
+		} );
+
+		it( 'returns null for variable names with closing parentheses', () => {
+			const result = resolveCssVariable( 'var(--test)name)' );
+			expect( result ).toBeNull();
+		} );
+
+		it( 'returns null for variable names with both parentheses', () => {
+			const result = resolveCssVariable( 'var(--(test))' );
+			expect( result ).toBeNull();
+		} );
+
 		it( 'throws error for CSS variable string longer than 1000 characters', () => {
 			const longVar = 'var(--' + 'a'.repeat( 1000 ) + ')';
 			expect( () => resolveCssVariable( longVar ) ).toThrow( 'CSS variable is too long' );

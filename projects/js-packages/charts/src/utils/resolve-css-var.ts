@@ -53,8 +53,8 @@ export const resolveCssVariable = (
 		fallback = content.slice( commaIndex + 1 ).trim();
 	}
 
-	// Validate variable name format (must start with --)
-	if ( ! varName.startsWith( '--' ) || /[,)\s]/.test( varName ) ) {
+	// Validate variable name format (must start with -- and contain no invalid characters)
+	if ( ! varName.startsWith( '--' ) || /[,()\s]/.test( varName ) ) {
 		return null;
 	}
 
