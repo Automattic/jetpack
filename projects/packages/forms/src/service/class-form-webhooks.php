@@ -153,6 +153,20 @@ class Form_Webhooks {
 	private function send_webhook( $data, $webhook ) {
 		global $wp_version;
 
+		/**
+		 * Filters the form data before sending it to the webhook.
+		 *
+		 * Allows developers to modify or augment the form data before it's sent to the webhook endpoint.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $webhook_id The unique identifier for this webhook.
+		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
+		 *
+		 * @return array The form data to be sent (field IDs as keys, values as values).
+		 */
+		$data = apply_filters( 'jetpack_forms_before_webhook_request', $webhook['webhook_id'], $data );
+
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];
 		$format     = $webhook['format'] === 'urlencoded' ? 'application/x-www-form-urlencoded' : 'application/json';
