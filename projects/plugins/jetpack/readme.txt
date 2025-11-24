@@ -326,10 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-a.7 - 2025-11-19
+### 15.3-a.9 - 2025-11-24
 #### Enhancements
-- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions.
-- Social: Update the connections list in the editor to a vertical toggle list with labels and icons.
+- Forms: Update dashboard header buttons.
+- Forms: Use first/last name for author.
+- Social: Improve the sidebar by making titles more descriptive and combining sections.
+
+#### Bug fixes
+- Forms: Fix name variation isActive setting.
+- Remove `getIconColor` functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
 
 --------
 

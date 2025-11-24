@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Fix modal/sidebar stacking issue in DataViews inbox where modals would open on top of sidebars at certain screen sizes.

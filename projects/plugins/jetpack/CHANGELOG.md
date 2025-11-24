@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-a.9 - 2025-11-24
+### Enhancements
+- Forms: Update dashboard header buttons. [#45983]
+- Forms: Use first/last name for author. [#45944]
+- Social: Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+
+### Bug fixes
+- Forms: Fix name variation isActive setting. [#46028]
+- Remove `getIconColor` functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Likes: Update filter docblock formatting. [#46009]
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+- Updated Social preview to show title as well with the preivew. [#45938]
+- Updating to-test.md [#46042]
+
 ## 15.3-a.7 - 2025-11-19
 ### Enhancements
 - Social: Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
