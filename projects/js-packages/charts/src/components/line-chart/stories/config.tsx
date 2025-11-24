@@ -9,7 +9,7 @@ import {
 } from '../../../stories/chart-decorator';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { temperatureData as sampleData } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { lineChartTooltipArgTypes } from '../../../stories/tooltip-config';
 import { DefaultGlyph } from '../../private/default-glyph';
 import LineChart from '../line-chart';
@@ -63,6 +63,7 @@ export const lineChartMetaArgs: Meta< StoryArgs > = {
 };
 
 export const lineChartStoryArgs = {
+	...sharedThemeArgs,
 	data: sampleData.slice( 0, 4 ),
 	withGradientFill: false,
 	withLegendGlyph: false,

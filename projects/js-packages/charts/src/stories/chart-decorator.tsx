@@ -135,7 +135,7 @@ export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
 };
 
 /**
- * Shared argTypes for common chart controls
+ * Shared argTypes for common chart controls (dimensions, container settings)
  */
 export const sharedChartArgTypes = {
 	maxWidth: {

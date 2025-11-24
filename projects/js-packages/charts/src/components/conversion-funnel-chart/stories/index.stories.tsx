@@ -1,6 +1,7 @@
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	ecommerceFunnelData,
 	lowConversionFunnelData,
@@ -73,6 +74,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		mainRate: 10.3,
 		changeIndicator: '+2%',
 		steps: ecommerceFunnelData,

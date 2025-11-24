@@ -2,6 +2,7 @@ import { defaultTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	trafficSourcesData as sampleData,
 	shortTrafficSourcesData as smallDataset,
@@ -151,6 +152,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		data: sampleData,
 		withComparison: true,
 		loading: false,
