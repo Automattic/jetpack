@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "73f7b19533abcfcc07b1cffb4e24411d",
+    "content-hash": "0e4d4ae316d741336ec911f12177ce14",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
