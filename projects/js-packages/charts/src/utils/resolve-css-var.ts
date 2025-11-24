@@ -58,9 +58,16 @@ export const resolveCssVariable = (
 		return null;
 	}
 
-	// Get computed style from the specified element or document root
-	const targetElement = element || document.documentElement;
-	const computedValue = getComputedStyle( targetElement ).getPropertyValue( varName ).trim();
+	const fallbackValue = fallback?.trim() || null;
 
-	return computedValue || fallback?.trim() || null;
+	// Get computed style from the specified element or document root
+	try {
+		const targetElement = element || document.documentElement;
+		const computedValue = getComputedStyle( targetElement ).getPropertyValue( varName ).trim();
+
+		return computedValue || fallbackValue;
+	} catch {
+		// Return fallback if getComputedStyle throws (e.g., detached element)
+		return fallbackValue;
+	}
 };

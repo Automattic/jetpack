@@ -364,6 +364,46 @@ describe( 'resolveCssVariable', () => {
 		} );
 	} );
 
+	describe( 'Error handling', () => {
+		it( 'returns null when getComputedStyle throws an error without fallback', () => {
+			window.getComputedStyle = jest.fn( () => {
+				throw new Error( 'Cannot read properties of detached element' );
+			} ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--test-color)' );
+			expect( result ).toBeNull();
+		} );
+
+		it( 'returns fallback value when getComputedStyle throws an error', () => {
+			window.getComputedStyle = jest.fn( () => {
+				throw new Error( 'Cannot read properties of detached element' );
+			} ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--test-color, #ff0000)' );
+			expect( result ).toBe( '#ff0000' );
+		} );
+
+		it( 'handles getPropertyValue throwing an error', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => {
+					throw new Error( 'Invalid property access' );
+				},
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--test-color, #00ff00)' );
+			expect( result ).toBe( '#00ff00' );
+		} );
+
+		it( 'trims fallback value whitespace when error occurs', () => {
+			window.getComputedStyle = jest.fn( () => {
+				throw new Error( 'Element error' );
+			} ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--test-color,  #123456  )' );
+			expect( result ).toBe( '#123456' );
+		} );
+	} );
+
 	describe( 'Custom element resolution', () => {
 		it( 'resolves CSS variable from a custom element', () => {
 			const customElement = document.createElement( 'div' );
