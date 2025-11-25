@@ -6,6 +6,7 @@ import useNameFieldTransforms from './hooks/use-name-field-transforms.js';
 import {
 	isFirstNameVariationId,
 	isLastNameVariationId,
+	isNameVariationId,
 	FIRST_NAME_ID,
 	LAST_NAME_ID,
 	NAME_ID,
@@ -26,9 +27,11 @@ export default function NameFieldEdit( props ) {
 			setAttributes( { fieldVariant: FIRST_NAME_ID } );
 		} else if ( isLastNameVariationId( id ) ) {
 			setAttributes( { fieldVariant: LAST_NAME_ID } );
+		} else if ( isNameVariationId( id ) ) {
+			setAttributes( { fieldVariant: NAME_ID } );
 		} else {
 			// Default to base 'name' variant for any other case (empty id or 'name' id)
-			setAttributes( { fieldVariant: NAME_ID } );
+			setAttributes( { fieldVariant: '' } );
 		}
 	}, [ clientId, fieldVariant, id, setAttributes ] );
 
