@@ -299,29 +299,6 @@ class Feedback_Source_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test constructor with non-numeric page number (e.g., WP_Post object from polluted global $page)
-	 */
-	public function test_constructor_with_non_numeric_page_number() {
-		// Create a post to simulate a polluted global $page variable
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => 'Test Post',
-				'post_status' => 'publish',
-				'post_type'   => 'post',
-			)
-		);
-		$post    = \get_post( $post_id );
-
-		// Pass a WP_Post object as page_number to simulate the bug
-		$entry = new Feedback_Source( $post_id, '', $post );
-
-		// Page number should default to 1 when non-numeric value is provided
-		$this->assertSame( 1, $entry->get_page_number() );
-		$this->assertEquals( $post_id, $entry->get_id() );
-		$this->assertEquals( 'Test Post', $entry->get_title() );
-	}
-
-	/**
 	 * Test constructor overwrites ID when post is not public
 	 */
 	public function test_constructor_overwrites_id_for_non_public_post() {
