@@ -1235,11 +1235,11 @@ class WPCOM_Features {
 			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_UNIFIED_UI_V1              => array(
-			self::WPCOM_ALL_SITES,
-			self::JETPACK_ALL_SITES,
-			// The feature is not available yet
 			array(
+				// The feature is not available yet.
 				'before' => '2004-01-00',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
 			),
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
