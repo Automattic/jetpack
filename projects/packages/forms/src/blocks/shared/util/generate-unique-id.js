@@ -6,10 +6,10 @@
  * @return {string} Unique id, e.g., 'name', 'name-2', 'name-3'
  */
 export function generateUniqueFormFieldId( baseId, usedIds ) {
-	if ( ! baseId || ! Array.isArray( usedIds ) ) {
-		return baseId;
+	if ( ! baseId ) {
+		return '';
 	}
-	if ( ! usedIds.includes( baseId ) ) {
+	if ( ! Array.isArray( usedIds ) || ! usedIds.includes( baseId ) ) {
 		return baseId;
 	}
 	let i = 2;
