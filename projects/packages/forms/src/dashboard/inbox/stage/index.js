@@ -547,6 +547,7 @@ export default function InboxView() {
 					title={ __( 'Response', 'jetpack-forms' ) }
 					__experimentalHideHeader={ true }
 					onRequestClose={ closeResponseModal }
+					size="fill"
 				>
 					{ responseModal }
 				</Modal>
