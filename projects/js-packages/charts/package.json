@@ -89,6 +89,11 @@
 			"require": "./dist/components/tooltip/index.cjs"
 		},
 		"./tooltip/style.css": "./dist/components/tooltip/index.css",
+		"./utils": {
+			"jetpack:src": "./src/utils/index.ts",
+			"import": "./dist/utils/index.js",
+			"require": "./dist/utils/index.cjs"
+		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
@@ -144,6 +149,9 @@
 			],
 			"providers": [
 				"./dist/providers/index.d.ts"
+			],
+			"utils": [
+				"./dist/utils/index.d.ts"
 			],
 			"visx/group": [
 				"./dist/visx/group/index.d.ts"
