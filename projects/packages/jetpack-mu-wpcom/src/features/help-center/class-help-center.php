@@ -9,6 +9,7 @@ namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\ExPlat as ExPlat_Proxy;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -417,6 +418,8 @@ class Help_Center {
 	 * Register the Help Center endpoints.
 	 */
 	public function register_rest_api() {
+		ExPlat_Proxy::init();
+
 		require_once __DIR__ . '/class-wp-rest-help-center-authenticate.php';
 		$controller = new WP_REST_Help_Center_Authenticate();
 		$controller->register_rest_route();
