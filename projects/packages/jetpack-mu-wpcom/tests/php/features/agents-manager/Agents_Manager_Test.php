@@ -243,7 +243,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Reset the static instance for testing
 		$reflection = new \ReflectionClass( Agents_Manager::class );
 		$property   = $reflection->getProperty( 'instance' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( null, null );
 
 		Agents_Manager::init();

@@ -52,7 +52,9 @@ class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTe
 	public function test_constructor_sets_correct_namespace() {
 		$reflection = new \ReflectionClass( $this->controller );
 		$property   = $reflection->getProperty( 'namespace' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$property->setAccessible( true );
+		}
 
 		$this->assertEquals( 'agents-manager', $property->getValue( $this->controller ) );
 	}
@@ -63,7 +65,9 @@ class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTe
 	public function test_constructor_sets_correct_rest_base() {
 		$reflection = new \ReflectionClass( $this->controller );
 		$property   = $reflection->getProperty( 'rest_base' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80500 ) {
+			$property->setAccessible( true );
+		}
 
 		$this->assertEquals( '/open-state', $property->getValue( $this->controller ) );
 	}
