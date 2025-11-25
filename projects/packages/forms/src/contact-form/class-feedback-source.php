@@ -75,8 +75,13 @@ class Feedback_Source {
 			$this->id = $id;
 		}
 
+		if ( is_numeric( $page_number ) ) {
+			$this->page_number = $page_number > 0 ? $page_number : 1;
+		} else {
+			$this->page_number = 1;
+		}
+
 		$this->title       = $title;
-		$this->page_number = $page_number;
 		$this->permalink   = empty( $request_url ) ? home_url() : $request_url;
 		$this->source_type = $source_type; // possible source types: single, widget, block_template, block_template_part
 		$this->request_url = $request_url;
