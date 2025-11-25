@@ -172,8 +172,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page );
 		}
 		$this->hash = sha1(
-			wp_json_encode( $attributes ),
-			0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+			wp_json_encode(
+				$attributes,
+				0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+			)
 		);
 
 		if ( $set_id ) {
