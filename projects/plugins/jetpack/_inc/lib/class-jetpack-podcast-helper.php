@@ -491,7 +491,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected function get_audio_enclosure( SimplePie\Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-			if ( str_starts_with( $enclosure->type, 'audio/' ) ) {
+			if ( is_string( $enclosure->type ) && str_starts_with( $enclosure->type, 'audio/' ) ) {
 				return $enclosure;
 			}
 		}
