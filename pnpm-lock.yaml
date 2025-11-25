@@ -4941,8 +4941,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       clipboard:
-        specifier: 2.0.6
-        version: 2.0.6
+        specifier: 2.0.11
+        version: 2.0.11
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -10944,9 +10944,6 @@ packages:
 
   clipboard@2.0.11:
     resolution: {integrity: sha512-C+0bbOqkezLIsmWSvlsXS0Q0bmkugu7jcfMIACB+RDEntIzQIkdr148we28AfSloQLRdZlYL/QYyrq05j/3Faw==}
-
-  clipboard@2.0.6:
-    resolution: {integrity: sha512-g5zbiixBRk/wyKakSwCKd7vQXDjFnAMGHoEyBogG/bw9kTD9GvdAvaoRR1ALcEzt3pVKxZR0pViekPMIS0QyGg==}
 
   cliui@5.0.0:
     resolution: {integrity: sha512-PYeGSEmmHM6zvoef2w8TPzlrnNpXIjTipYK780YswmIP9vjxmd6Y2a3CB2Ks6/AU8NHjZugXvo8w3oWM2qnwXA==}
@@ -25196,12 +25193,6 @@ snapshots:
   client-zip@2.5.0: {}
 
   clipboard@2.0.11:
-    dependencies:
-      good-listener: 1.2.2
-      select: 1.1.2
-      tiny-emitter: 2.1.0
-
-  clipboard@2.0.6:
     dependencies:
       good-listener: 1.2.2
       select: 1.1.2
