@@ -303,8 +303,8 @@ importers:
         specifier: 11.1.0
         version: 11.1.0
       minimatch:
-        specifier: 5.1.0
-        version: 5.1.0
+        specifier: 5.1.6
+        version: 5.1.6
     devDependencies:
       '@vercel/ncc':
         specifier: 0.36.1
@@ -14039,8 +14039,8 @@ packages:
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
 
-  minimatch@5.1.0:
-    resolution: {integrity: sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==}
+  minimatch@5.1.6:
+    resolution: {integrity: sha512-lKwV/1brpG6mBUFHtb7NUmtABCb2WZZmm2wNiOA5hAb8VdCS4B3dtMWyvcoViccwAW/COERjXLt0zP1zXUN26g==}
     engines: {node: '>=10'}
 
   minimatch@9.0.5:
@@ -29038,7 +29038,7 @@ snapshots:
     dependencies:
       brace-expansion: 1.1.12
 
-  minimatch@5.1.0:
+  minimatch@5.1.6:
     dependencies:
       brace-expansion: 2.0.2
 
