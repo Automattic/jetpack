@@ -67,7 +67,8 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 						'request' => 'pageview',
 					),
 				),
-			)
+			),
+			0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
 		);
 
 		// Generate a hash string to uniquely identify this entry.

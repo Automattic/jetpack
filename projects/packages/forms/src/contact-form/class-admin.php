@@ -141,7 +141,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
-				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener ); ?> );
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php
@@ -447,7 +447,7 @@ class Admin {
 			return;
 		}
 
-		$script = 'var __grunionPostStatusNonce = ' . wp_json_encode( wp_create_nonce( 'grunion-post-status' ) ) . ';';
+		$script = 'var __grunionPostStatusNonce = ' . wp_json_encode( wp_create_nonce( 'grunion-post-status' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 		wp_add_inline_script( 'grunion-admin', $script, 'before' );
 	}
 
@@ -1074,7 +1074,7 @@ class Admin {
 			$out[ $attribute ] = $value;
 		}
 
-		die( wp_json_encode( $out ) );
+		die( wp_json_encode( $out, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -1387,7 +1387,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function ( $ ) {
-				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php
@@ -1417,7 +1417,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
-				$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html ); ?> );
+				$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php

@@ -158,7 +158,8 @@ function wpcom_global_styles_enqueue_assets() {
 		'const launchBarUserData = ' . wp_json_encode(
 			array(
 				'blogId' => get_wpcom_blog_id(),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		),
 		'before'
 	);

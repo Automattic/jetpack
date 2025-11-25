@@ -407,7 +407,7 @@ class Util {
 				if ( empty( $match['attrs'] ) ) {
 					return str_replace(
 						'wp:jetpack/contact-form ',
-						'wp:jetpack/contact-form ' . wp_json_encode( $new_attr ) . ' ',
+						'wp:jetpack/contact-form ' . wp_json_encode( $new_attr, JSON_UNESCAPED_SLASHES ) . ' ',
 						$match[0]
 					);
 				}
@@ -419,7 +419,7 @@ class Util {
 				$attrs = array_merge( $attrs, $new_attr );
 				return str_replace(
 					$match['attrs'],
-					wp_json_encode( $attrs ) . ' ',
+					wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES ) . ' ',
 					$match[0]
 				);
 			},

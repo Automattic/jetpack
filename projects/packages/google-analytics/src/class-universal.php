@@ -176,7 +176,7 @@ class Universal {
 					'price'    => $order->get_item_total( $item ),
 					'quantity' => $item['qty'],
 				);
-				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );';
+				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
 				array_push( $command_array, $command );
 			}
 		}
@@ -189,7 +189,7 @@ class Universal {
 			'tax'         => $order->get_total_tax(),
 			'shipping'    => $order->get_total_shipping(),
 		);
-		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . ' );';
+		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
 		array_push( $command_array, $command );
 
 		update_post_meta( $order_id, '_ga_tracked', 1 );
@@ -248,7 +248,7 @@ class Universal {
 					'price'    => $order->get_item_total( $item ),
 					'quantity' => $item['qty'],
 				);
-				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );';
+				$command      = "ga( 'ec:addProduct', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
 				array_push( $command_array, $command );
 			}
 		}
@@ -261,7 +261,7 @@ class Universal {
 			'tax'         => $order->get_total_tax(),
 			'shipping'    => $order->get_shipping_total(),
 		);
-		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary ) . ' );';
+		$command = "ga( 'ec:setAction', 'purchase', " . wp_json_encode( $summary, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );';
 		array_push( $command_array, $command );
 
 		$order->update_meta_data( '_ga_tracked', 1 );
@@ -424,7 +424,7 @@ class Universal {
 			'position' => $woocommerce_loop['loop'] ?? null,
 		);
 		// @phan-suppress-next-line PhanUndeclaredFunction
-		\wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . ' );' );
+		\wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );' );
 	}
 
 	/**
@@ -464,7 +464,7 @@ class Universal {
 					return;
 				}
 
-				ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );
+				ga( 'ec:addProduct', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . " );
 				ga( 'ec:setAction', 'click', { list: '" . esc_js( $list ) . "' } );
 				ga( 'send', 'event', 'UX', 'click', { list: '" . esc_js( $list ) . "' } );
 			} );"
@@ -494,7 +494,7 @@ class Universal {
 		);
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		\wc_enqueue_js(
-			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' .
+			"ga( 'ec:addProduct', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );' .
 			"ga( 'ec:setAction', 'detail' );"
 		);
 	}
@@ -530,7 +530,7 @@ class Universal {
 				'quantity' => $cart_item['quantity'],
 			);
 
-			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . ' );' );
+			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' );' );
 		}
 
 		array_push( $universal_commands, "ga( 'ec:setAction','checkout' );" );
