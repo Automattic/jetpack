@@ -3,12 +3,8 @@ import { store as coreStore, Attachment } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import {
-	calculateImageUrl,
-	FEATURED_IMAGE_STILL_LOADING,
-} from '../../components/generated-image-preview';
-import { getSigImageUrl } from '../../components/generated-image-preview/utils';
 import useImageGeneratorConfig from '../use-image-generator-config';
+import { calculateImageUrl, FEATURED_IMAGE_STILL_LOADING, getSigImageUrl } from './utils';
 
 interface UseSigPreviewResult {
 	url: string | null;
@@ -23,7 +19,7 @@ interface UseSigPreviewResult {
  */
 export default function useSigPreview( enabled: boolean ): UseSigPreviewResult {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState< string | null >( null );
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isLoading, setIsLoading ] = useState( true );
 
 	const { customText, imageType, imageId, defaultImageId, template, setToken, font } =
 		useImageGeneratorConfig();
