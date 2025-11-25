@@ -102,14 +102,13 @@ export default function NewMediaSection( {
 
 	const previewData: MediaPreviewData | null = useMemo( () => {
 		// Use SIG preview URL when SIG is selected
+		// Always return an object (even with empty URL) so the loading spinner can show
 		if ( currentSource === 'sig' ) {
-			return sigPreviewUrl
-				? {
-						id: 0,
-						url: sigPreviewUrl,
-						type: 'image',
-				  }
-				: null;
+			return {
+				id: 0,
+				url: sigPreviewUrl || '',
+				type: 'image',
+			};
 		}
 
 		if ( ! mediaId || ! mediaDetails?.mediaData ) {
