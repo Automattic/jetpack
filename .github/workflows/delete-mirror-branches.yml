@@ -2,6 +2,11 @@ name: Delete mirror branches
 on:
   delete:
 
+permissions:
+  # actions/checkout
+  contents: read
+  # Deletion step uses secrets.API_TOKEN_GITHUB, so no need for permissions.
+
 jobs:
   delete:
     name: Delete `${{ github.event.ref }}`

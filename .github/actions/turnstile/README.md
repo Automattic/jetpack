@@ -52,6 +52,10 @@ jobs:
 
 If you want to limit the maximum amount of time spent waiting, use GitHub's [timeout-minutes](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepstimeout-minutes) on the step. If you want to continue if the timeout expires, use GitHub's [continue-on-error](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepscontinue-on-error) on the step.
 
+### Permissions
+
+When using `github.token`, this may need the `actions: read` workflow permission.
+
 ## How?
 
 Using the current run's run ID, it first hits GitHub's [workflow run API](https://docs.github.com/en/rest/actions/workflow-runs#get-a-workflow-run) to fetch the workflow ID and head branch.
