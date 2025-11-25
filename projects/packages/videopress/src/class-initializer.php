@@ -280,7 +280,7 @@ class Initializer {
 			$preview_on_hover = sprintf(
 				'<div class="jetpack-videopress-player__overlay" %s></div><script type="application/json">%s</script>',
 				$inline_style,
-				wp_json_encode( $preview_on_hover )
+				wp_json_encode( $preview_on_hover, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			);
 
 			// Set `autoplay` and `muted` attributes to the video element.

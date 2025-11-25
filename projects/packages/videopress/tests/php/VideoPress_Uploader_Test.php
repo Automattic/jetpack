@@ -146,7 +146,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public function return_valid_response() {
-		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ) ) );
+		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

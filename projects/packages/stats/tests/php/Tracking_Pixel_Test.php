@@ -232,7 +232,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 			'utm_id'       => 'some_id',
 			'utm_source'   => 'a_source',
 			'arch_search'  => 'term',
-			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ) ),
+			'arch_filters' => 'posts_per_page=10&paged=2&orderby=date&order=ASC&author_name=author&terms=' . wp_json_encode( array( 'testtax' => array( 'testterm' ) ), JSON_UNESCAPED_SLASHES ),
 			'arch_results' => 2,
 		);
 		$this->assertSame( $expected_view_data, $view_data );
