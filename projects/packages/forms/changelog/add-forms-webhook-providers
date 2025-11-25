@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Introduce webhook provider architecture with Generic and Salesforce providers
