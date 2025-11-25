@@ -2652,6 +2652,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['saveResponses']          = 'yes';
 		$expected_attributes['disableGoBack']          = '';
 		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
