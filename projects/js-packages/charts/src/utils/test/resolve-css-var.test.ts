@@ -27,7 +27,7 @@ describe( 'resolveCssVariable', () => {
 				},
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--test-color)' );
+			const result = resolveCssVariable( '--test-color' );
 			expect( result ).toBe( '#ff0000' );
 		} );
 
@@ -36,7 +36,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '  #00ff00  ',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--test-color)' );
+			const result = resolveCssVariable( '--test-color' );
 			expect( result ).toBe( '#00ff00' );
 		} );
 
@@ -50,7 +50,7 @@ describe( 'resolveCssVariable', () => {
 				},
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--my-custom-color)' );
+			const result = resolveCssVariable( '--my-custom-color' );
 			expect( result ).toBe( '#0000ff' );
 		} );
 
@@ -64,128 +64,14 @@ describe( 'resolveCssVariable', () => {
 				},
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--color-123)' );
+			const result = resolveCssVariable( '--color-123' );
 			expect( result ).toBe( 'rgb(255, 0, 0)' );
-		} );
-	} );
-
-	describe( 'Whitespace handling', () => {
-		it( 'handles CSS variables with spaces inside var()', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: ( prop: string ) => {
-					if ( prop === '--test-color' ) {
-						return '#ff0000';
-					}
-					return '';
-				},
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var( --test-color )' );
-			expect( result ).toBe( '#ff0000' );
-		} );
-
-		it( 'handles CSS variables with extra spaces around var()', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: ( prop: string ) => {
-					if ( prop === '--test-color' ) {
-						return '#ff0000';
-					}
-					return '';
-				},
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(  --test-color  )' );
-			expect( result ).toBe( '#ff0000' );
-		} );
-	} );
-
-	describe( 'Fallback values', () => {
-		it( 'returns fallback value when CSS variable is not defined', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color, #123456)' );
-			expect( result ).toBe( '#123456' );
-		} );
-
-		it( 'returns computed value over fallback when variable exists', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: ( prop: string ) => {
-					if ( prop === '--test-color' ) {
-						return '#ff0000';
-					}
-					return '';
-				},
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--test-color, #123456)' );
-			expect( result ).toBe( '#ff0000' );
-		} );
-
-		it( 'handles simple fallback values with spaces', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color, 10px 20px)' );
-			expect( result ).toBe( '10px 20px' );
-		} );
-
-		it( 'handles fallback values with extra whitespace', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color,  #ffffff  )' );
-			expect( result ).toBe( '#ffffff' );
-		} );
-
-		it( 'handles fallback values with nested parentheses (rgb)', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color, rgb(255, 0, 0))' );
-			expect( result ).toBe( 'rgb(255, 0, 0)' );
-		} );
-
-		it( 'handles fallback values with nested parentheses (rgba)', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color, rgba(52, 152, 219, 0.5))' );
-			expect( result ).toBe( 'rgba(52, 152, 219, 0.5)' );
-		} );
-
-		it( 'handles fallback values with nested parentheses (hsl)', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color, hsl(200, 70%, 50%))' );
-			expect( result ).toBe( 'hsl(200, 70%, 50%)' );
-		} );
-
-		it( 'handles complex nested calc() in fallback values', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--spacing, calc(1rem + 2px))' );
-			expect( result ).toBe( 'calc(1rem + 2px)' );
 		} );
 	} );
 
 	describe( 'Invalid input handling', () => {
-		it( 'returns null for invalid CSS variable syntax', () => {
-			const result = resolveCssVariable( 'not-a-var' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for CSS variables without var() wrapper', () => {
-			const result = resolveCssVariable( '--test-color' );
+		it( 'returns null for CSS variables without double dash prefix', () => {
+			const result = resolveCssVariable( 'test-color' );
 			expect( result ).toBeNull();
 		} );
 
@@ -194,49 +80,19 @@ describe( 'resolveCssVariable', () => {
 			expect( result ).toBeNull();
 		} );
 
-		it( 'returns null for CSS variables without double dash prefix', () => {
-			const result = resolveCssVariable( 'var(test-color)' );
+		it( 'returns null for single dash prefix', () => {
+			const result = resolveCssVariable( '-test-color' );
 			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for malformed var() syntax', () => {
-			const result = resolveCssVariable( 'var(--test-color' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for nested var() calls', () => {
-			const result = resolveCssVariable( 'var(var(--test-color))' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for variable names with opening parentheses', () => {
-			const result = resolveCssVariable( 'var(--test(name))' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for variable names with closing parentheses', () => {
-			const result = resolveCssVariable( 'var(--test)name)' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'returns null for variable names with both parentheses', () => {
-			const result = resolveCssVariable( 'var(--(test))' );
-			expect( result ).toBeNull();
-		} );
-
-		it( 'throws error for CSS variable string longer than 1000 characters', () => {
-			const longVar = 'var(--' + 'a'.repeat( 1000 ) + ')';
-			expect( () => resolveCssVariable( longVar ) ).toThrow( 'CSS variable is too long' );
 		} );
 	} );
 
 	describe( 'Edge cases', () => {
-		it( 'returns null when computed value is empty and no fallback provided', () => {
+		it( 'returns null when computed value is empty', () => {
 			window.getComputedStyle = jest.fn( () => ( {
 				getPropertyValue: () => '',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--undefined-color)' );
+			const result = resolveCssVariable( '--undefined-color' );
 			expect( result ).toBeNull();
 		} );
 
@@ -246,18 +102,9 @@ describe( 'resolveCssVariable', () => {
 			} ) );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			resolveCssVariable( 'var(--test-color)' );
+			resolveCssVariable( '--test-color' );
 
 			expect( mockGetComputedStyle ).toHaveBeenCalledWith( document.documentElement );
-		} );
-
-		it( 'handles empty fallback values', () => {
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: () => '',
-			} ) ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--undefined-color,)' );
-			expect( result ).toBeNull();
 		} );
 
 		it( 'handles CSS variables with only hyphens after prefix', () => {
@@ -270,7 +117,7 @@ describe( 'resolveCssVariable', () => {
 				},
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(-----)' );
+			const result = resolveCssVariable( '-----' );
 			expect( result ).toBe( 'value' );
 		} );
 	} );
@@ -281,7 +128,7 @@ describe( 'resolveCssVariable', () => {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			delete ( globalThis as any ).window;
 
-			const result = resolveCssVariable( 'var(--test-color)' );
+			const result = resolveCssVariable( '--test-color' );
 			expect( result ).toBeNull();
 
 			globalThis.window = originalWindow;
@@ -292,7 +139,7 @@ describe( 'resolveCssVariable', () => {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			delete ( globalThis as any ).document;
 
-			const result = resolveCssVariable( 'var(--test-color)' );
+			const result = resolveCssVariable( '--test-color' );
 			expect( result ).toBeNull();
 
 			globalThis.document = originalDocument;
@@ -305,7 +152,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '#3498db',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--primary-color)' );
+			const result = resolveCssVariable( '--primary-color' );
 			expect( result ).toBe( '#3498db' );
 		} );
 
@@ -314,7 +161,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => 'rgb(52, 152, 219)',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--primary-color)' );
+			const result = resolveCssVariable( '--primary-color' );
 			expect( result ).toBe( 'rgb(52, 152, 219)' );
 		} );
 
@@ -323,7 +170,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => 'rgba(52, 152, 219, 0.5)',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--primary-color)' );
+			const result = resolveCssVariable( '--primary-color' );
 			expect( result ).toBe( 'rgba(52, 152, 219, 0.5)' );
 		} );
 
@@ -332,7 +179,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '16px',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--font-size)' );
+			const result = resolveCssVariable( '--font-size' );
 			expect( result ).toBe( '16px' );
 		} );
 
@@ -341,7 +188,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '50%',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--width)' );
+			const result = resolveCssVariable( '--width' );
 			expect( result ).toBe( '50%' );
 		} );
 
@@ -350,7 +197,7 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '1.5rem',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--spacing)' );
+			const result = resolveCssVariable( '--spacing' );
 			expect( result ).toBe( '1.5rem' );
 		} );
 
@@ -359,28 +206,19 @@ describe( 'resolveCssVariable', () => {
 				getPropertyValue: () => '1.5',
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--line-height)' );
+			const result = resolveCssVariable( '--line-height' );
 			expect( result ).toBe( '1.5' );
 		} );
 	} );
 
 	describe( 'Error handling', () => {
-		it( 'returns null when getComputedStyle throws an error without fallback', () => {
+		it( 'returns null when getComputedStyle throws an error', () => {
 			window.getComputedStyle = jest.fn( () => {
 				throw new Error( 'Cannot read properties of detached element' );
 			} ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--test-color)' );
+			const result = resolveCssVariable( '--test-color' );
 			expect( result ).toBeNull();
-		} );
-
-		it( 'returns fallback value when getComputedStyle throws an error', () => {
-			window.getComputedStyle = jest.fn( () => {
-				throw new Error( 'Cannot read properties of detached element' );
-			} ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--test-color, #ff0000)' );
-			expect( result ).toBe( '#ff0000' );
 		} );
 
 		it( 'handles getPropertyValue throwing an error', () => {
@@ -390,17 +228,8 @@ describe( 'resolveCssVariable', () => {
 				},
 			} ) ) as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--test-color, #00ff00)' );
-			expect( result ).toBe( '#00ff00' );
-		} );
-
-		it( 'trims fallback value whitespace when error occurs', () => {
-			window.getComputedStyle = jest.fn( () => {
-				throw new Error( 'Element error' );
-			} ) as unknown as typeof window.getComputedStyle;
-
-			const result = resolveCssVariable( 'var(--test-color,  #123456  )' );
-			expect( result ).toBe( '#123456' );
+			const result = resolveCssVariable( '--test-color' );
+			expect( result ).toBeNull();
 		} );
 	} );
 
@@ -424,7 +253,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--scoped-color)', customElement );
+			const result = resolveCssVariable( '--scoped-color', customElement );
 			expect( result ).toBe( '#00ff00' );
 			expect( mockGetComputedStyle ).toHaveBeenCalledWith( customElement );
 		} );
@@ -447,7 +276,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--root-color)', null );
+			const result = resolveCssVariable( '--root-color', null );
 			expect( result ).toBe( '#ff0000' );
 			expect( mockGetComputedStyle ).toHaveBeenCalledWith( document.documentElement );
 		} );
@@ -470,7 +299,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--root-color)', undefined );
+			const result = resolveCssVariable( '--root-color', undefined );
 			expect( result ).toBe( '#ff0000' );
 			expect( mockGetComputedStyle ).toHaveBeenCalledWith( document.documentElement );
 		} );
@@ -505,23 +334,23 @@ describe( 'resolveCssVariable', () => {
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
 			// When resolving from scoped element, should get scoped value
-			const scopedResult = resolveCssVariable( 'var(--brand-color)', scopedElement );
+			const scopedResult = resolveCssVariable( '--brand-color', scopedElement );
 			expect( scopedResult ).toBe( '#00ff00' );
 
 			// When resolving from root (or no element), should get root value
-			const rootResult = resolveCssVariable( 'var(--brand-color)' );
+			const rootResult = resolveCssVariable( '--brand-color' );
 			expect( rootResult ).toBe( '#ff0000' );
 		} );
 
-		it( 'uses fallback value when scoped variable is not defined', () => {
+		it( 'returns null when scoped variable is not defined', () => {
 			const scopedElement = document.createElement( 'div' );
 			const mockGetComputedStyle = jest.fn( () => ( {
 				getPropertyValue: () => '', // Variable not defined
 			} ) );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--undefined-scoped, #abcdef)', scopedElement );
-			expect( result ).toBe( '#abcdef' );
+			const result = resolveCssVariable( '--undefined-scoped', scopedElement );
+			expect( result ).toBeNull();
 		} );
 
 		it( 'handles complex selector scoped elements', () => {
@@ -547,7 +376,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( 'var(--wpds-color-bg-interactive-brand)', themedElement );
+			const result = resolveCssVariable( '--wpds-color-bg-interactive-brand', themedElement );
 			expect( result ).toBe( '#c029dc' );
 		} );
 	} );

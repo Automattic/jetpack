@@ -1735,7 +1735,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--primary-color)', '#ff0000' ],
+					colors: [ '--primary-color', '#ff0000' ],
 				} as ChartTheme;
 
 				render(
@@ -1749,7 +1749,6 @@ describe( 'ChartContext', () => {
 					index: 0,
 				} ).color;
 
-				// Should resolve to #00ff00, not the fallback #ff0000
 				expect( color ).toBe( '#00ff00' );
 			} );
 
@@ -1786,7 +1785,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--scoped-color)' ],
+					colors: [ '--scoped-color' ],
 				} as ChartTheme;
 
 				render(
@@ -1825,7 +1824,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--color-1)', 'var(--color-2)', '#0000ff' ],
+					colors: [ '--color-1', '--color-2', '#0000ff' ],
 				} as ChartTheme;
 
 				render(
@@ -1851,44 +1850,13 @@ describe( 'ChartContext', () => {
 				expect( color2 ).toBe( '#00ff00' );
 				expect( color3 ).toBe( '#0000ff' );
 			} );
-
-			it( 'handles CSS variables with fallback values', () => {
-				window.getComputedStyle = jest.fn( () => ( {
-					getPropertyValue: () => '', // Variable undefined
-				} ) ) as unknown as typeof window.getComputedStyle;
-
-				let contextValue: GlobalChartsContextValue;
-
-				const TestComponent = () => {
-					contextValue = useGlobalChartsContext();
-					return <div>Test</div>;
-				};
-
-				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--undefined-color, #abcdef)' ],
-				} as ChartTheme;
-
-				render(
-					<GlobalChartsProvider theme={ cssVarTheme }>
-						<TestComponent />
-					</GlobalChartsProvider>
-				);
-
-				const color = contextValue.getElementStyles( {
-					data: undefined,
-					index: 0,
-				} ).color;
-
-				// Should use fallback value
-				expect( color ).toBe( '#abcdef' );
-			} );
 		} );
 
 		describe( 'CSS Variable Edge Cases', () => {
-			it( 'skips CSS variables that resolve to null', () => {
+			it( 'skips CSS variables that are not defined', () => {
 				window.getComputedStyle = jest.fn( () => ( {
 					getPropertyValue: () => {
-						// Invalid var returns empty, which becomes null
+						// Undefined var returns empty string
 						return '';
 					},
 				} ) ) as unknown as typeof window.getComputedStyle;
@@ -1901,7 +1869,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--invalid)', '#ff0000' ],
+					colors: [ '--undefined-color', '#ff0000' ],
 				} as ChartTheme;
 
 				render(
@@ -1910,7 +1878,7 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Should skip invalid and use second color
+				// Should skip undefined variable and use second color
 				const color = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
@@ -1932,7 +1900,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--empty)', '#00ff00' ],
+					colors: [ '--undefined-color', '#00ff00' ],
 				} as ChartTheme;
 
 				render(
@@ -1941,7 +1909,7 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Empty variable should be skipped, second color becomes first
+				// Undefined variable should be skipped, second color becomes first
 				const color = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
@@ -1968,7 +1936,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--rgb-color)', '#ff0000' ],
+					colors: [ '--rgb-color', '#ff0000' ],
 				} as ChartTheme;
 
 				render(
@@ -2095,7 +2063,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const mixedTheme: ChartTheme = {
-					colors: [ 'var(--valid-1)', 'var(--invalid)', 'var(--valid-2)' ],
+					colors: [ '--valid-1', '--invalid', '--valid-2' ],
 				} as ChartTheme;
 
 				render(
@@ -2144,7 +2112,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const theme1: ChartTheme = {
-					colors: [ 'var(--dynamic-color)' ],
+					colors: [ '--dynamic-color' ],
 				} as ChartTheme;
 
 				const { rerender } = render(
@@ -2162,7 +2130,7 @@ describe( 'ChartContext', () => {
 				mockColor = '#00ff00';
 
 				const theme2: ChartTheme = {
-					colors: [ 'var(--dynamic-color)' ],
+					colors: [ '--dynamic-color' ],
 				} as ChartTheme;
 
 				// Re-render with new theme (different object reference)
@@ -2205,7 +2173,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--base-1)', 'var(--base-2)' ],
+					colors: [ '--base-1', '--base-2' ],
 				} as ChartTheme;
 
 				render(
@@ -2242,7 +2210,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const mixedTheme: ChartTheme = {
-					colors: [ '#ff0000', 'var(--custom)', '#0000ff' ],
+					colors: [ '#ff0000', '--custom', '#0000ff' ],
 				} as ChartTheme;
 
 				render(
@@ -2296,7 +2264,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const theme1: ChartTheme = {
-					colors: [ 'var(--theme-color)' ],
+					colors: [ '--theme-color' ],
 				} as ChartTheme;
 
 				const { rerender } = render(
@@ -2316,7 +2284,7 @@ describe( 'ChartContext', () => {
 				// Change theme colors
 				mockColor = '#00ff00';
 				const theme2: ChartTheme = {
-					colors: [ 'var(--theme-color)' ],
+					colors: [ '--theme-color' ],
 				} as ChartTheme;
 
 				rerender(
@@ -2363,7 +2331,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--ssr-color)', '#ff0000' ],
+					colors: [ '--ssr-color', '#ff0000' ],
 				} as ChartTheme;
 
 				// Should not crash during SSR
@@ -2404,7 +2372,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ 'var(--stable-color)' ],
+					colors: [ '--stable-color' ],
 				} as ChartTheme;
 
 				const { rerender } = render(

@@ -70,9 +70,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				if ( color && typeof color === 'string' ) {
 					let colorValue = color;
 
-					// Handle CSS custom properties (variables) - resolve them to actual values
+					// Handle CSS custom properties names - resolve them to actual values
 					// Use wrapper element to resolve scoped CSS variables
-					if ( color.includes( 'var(' ) ) {
+					if ( color.startsWith( '--' ) ) {
 						const resolved = resolveCssVariable( color, wrapperRef.current );
 
 						if ( resolved === null || resolved === '' ) {
