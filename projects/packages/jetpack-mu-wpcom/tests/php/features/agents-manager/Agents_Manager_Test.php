@@ -246,19 +246,23 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		if ( PHP_VERSION_ID < 80500 ) {
 			$property->setAccessible( true );
 		}
-		$property->setValue( null, null );
+
+		// Use an instance for Phan compatibility when accessing static property.
+		$dummy = $this->agents_manager;
+
+		$property->setValue( $dummy, null );
 
 		Agents_Manager::init();
 
-		$instance1 = $property->getValue( null );
+		$instance1 = $property->getValue( $dummy );
 		$this->assertInstanceOf( Agents_Manager::class, $instance1 );
 
 		Agents_Manager::init();
 
-		$instance2 = $property->getValue( null );
+		$instance2 = $property->getValue( $dummy );
 		$this->assertSame( $instance1, $instance2 );
 
 		// Reset back to null for other tests
-		$property->setValue( null, null );
+		$property->setValue( $dummy, null );
 	}
 }
