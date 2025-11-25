@@ -149,6 +149,30 @@ const withTimeout = (
 	] );
 };
 
+/*
+ * Waits until the current entity records query resolves (or times out).
+ */
+const waitForEntityRecordsResolution = async (
+	registry: Registry,
+	currentQuery: QueryParams
+): Promise< void > => {
+	if ( ! currentQuery ) {
+		return;
+	}
+
+	// Clone to avoid accidental mutations while we wait.
+	const querySnapshot = { ...currentQuery };
+
+	try {
+		await withTimeout(
+			registry.resolveSelect( coreStore ).getEntityRecords( 'postType', 'feedback', querySnapshot ),
+			10000
+		);
+	} catch {
+		// Ignore failures/timeouts—UI should still recover once data arrives.
+	}
+};
+
 /**
  * Type for the result of processStatusChange.
  */
@@ -324,78 +348,84 @@ export const markAsSpamAction: Action = {
 
 		addPendingAction( actionId );
 
-		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
-			items,
-			newStatus: 'spam',
-			apiCall: ( id: number ) => saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
-			editEntityRecord,
-			updateCountsOptimistically,
-			queryParams,
-		} );
+		let waitForRecordsPromise: Promise< void > | null = null;
 
-		// If there is at least one successful update, invalidate the cache and navigate if needed
-		if ( itemsUpdated.length ) {
-			let status = 'inbox';
-			if ( items[ 0 ]?.status === 'trash' ) {
-				status = 'trash';
+		try {
+			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+				items,
+				newStatus: 'spam',
+				apiCall: ( id: number ) =>
+					saveEntityRecord( 'postType', 'feedback', { id, status: 'spam' } ),
+				editEntityRecord,
+				updateCountsOptimistically,
+				queryParams,
+			} );
+
+			// If there is at least one successful update, invalidate the cache and navigate if needed
+			if ( itemsUpdated.length ) {
+				let status = 'inbox';
+				if ( items[ 0 ]?.status === 'trash' ) {
+					status = 'trash';
+				}
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 			}
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
-		}
 
-		// Remove pending action after navigation/cache invalidation
-		// Use requestAnimationFrame to ensure UI has updated and cache invalidation has triggered
-		requestAnimationFrame( () => {
-			removePendingAction( actionId );
-		} );
+			if ( numberOfErrors === 0 ) {
+				// Every request was successful.
+				const successMessage =
+					items.length === 1
+						? __( 'Response marked as spam.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: the number of responses. */
+								_n(
+									'%d response marked as spam.',
+									'%d responses marked as spam.',
+									items.length,
+									'jetpack-forms'
+								),
+								items.length
+						  );
 
-		if ( numberOfErrors === 0 ) {
-			// Every request was successful.
-			const successMessage =
-				items.length === 1
-					? __( 'Response marked as spam.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: the number of responses. */
-							_n(
-								'%d response marked as spam.',
-								'%d responses marked as spam.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-
-			if ( ! isUndo ) {
-				createSuccessNotice( successMessage, {
-					type: 'snackbar',
-					id: 'mark-as-spam-action',
-					actions: [
-						{
-							label: __( 'Undo', 'jetpack-forms' ),
-							onClick: () => {
-								markAsNotSpamAction.callback( items, { registry }, { isUndo: true } );
+				if ( ! isUndo ) {
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: 'mark-as-spam-action',
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => {
+									markAsNotSpamAction.callback( items, { registry }, { isUndo: true } );
+								},
 							},
-						},
-					],
-				} );
+						],
+					} );
+				} else {
+					// Remove the info notice when undo completes successfully
+					removeNotice( 'mark-as-spam-action' );
+				}
 			} else {
-				// Remove the info notice when undo completes successfully
+				// There is at least one failure.
+				const errorMessage = getGenericErrorMessage( numberOfErrors );
+
+				// Remove the info notice on error
 				removeNotice( 'mark-as-spam-action' );
+				createErrorNotice( errorMessage, { type: 'snackbar' } );
 			}
-		} else {
-			// There is at least one failure.
-			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
-			// Remove the info notice on error
-			removeNotice( 'mark-as-spam-action' );
-			createErrorNotice( errorMessage, { type: 'snackbar' } );
-		}
+			// Make the REST request which performs the `contact_form_akismet` `spam` action.
+			if ( itemsUpdated.length ) {
+				registry.dispatch( dashboardStore ).doBulkAction(
+					itemsUpdated.map( item => item.id.toString() ),
+					BULK_ACTIONS.markAsSpam
+				);
+			}
+		} finally {
+			if ( waitForRecordsPromise ) {
+				await waitForRecordsPromise;
+			}
 
-		// Make the REST request which performs the `contact_form_akismet` `spam` action.
-		if ( itemsUpdated.length ) {
-			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated.map( item => item.id.toString() ),
-				BULK_ACTIONS.markAsSpam
-			);
+			removePendingAction( actionId );
 		}
 	},
 };
@@ -444,70 +474,77 @@ export const markAsNotSpamAction: Action = {
 
 		addPendingAction( actionId );
 
-		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
-			items,
-			newStatus: 'publish',
-			apiCall: ( id: number ) =>
-				saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
-			editEntityRecord,
-			updateCountsOptimistically,
-			queryParams,
-		} );
+		let waitForRecordsPromise: Promise< void > | null = null;
 
-		// If there is at least one successful update, invalidate the cache and navigate if needed
-		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
-		}
+		try {
+			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+				items,
+				newStatus: 'publish',
+				apiCall: ( id: number ) =>
+					saveEntityRecord( 'postType', 'feedback', { id, status: 'publish' } ),
+				editEntityRecord,
+				updateCountsOptimistically,
+				queryParams,
+			} );
 
-		requestAnimationFrame( () => {
-			removePendingAction( actionId );
-		} );
-
-		if ( numberOfErrors === 0 ) {
-			// Every request was successful.
-			const successMessage =
-				items.length === 1
-					? __( 'Response marked as not spam.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: the number of responses. */
-							_n(
-								'%d response marked as not spam.',
-								'%d responses marked as not spam.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-
-			if ( ! isUndo ) {
-				createSuccessNotice( successMessage, {
-					type: 'snackbar',
-					id: 'mark-as-not-spam-action',
-					actions: [
-						{
-							label: __( 'Undo', 'jetpack-forms' ),
-							onClick: () => {
-								markAsSpamAction.callback( items, { registry }, { isUndo: true } );
-							},
-						},
-					],
-				} );
-			} else {
-				removeNotice( 'mark-as-not-spam-action' );
+			// If there is at least one successful update, invalidate the cache and navigate if needed
+			if ( itemsUpdated.length ) {
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 			}
-		} else {
-			// There is at least one failure.
-			const errorMessage = getGenericErrorMessage( numberOfErrors );
 
-			removeNotice( 'mark-as-not-spam-action' );
-			createErrorNotice( errorMessage, { type: 'snackbar' } );
-		}
-		// Make the REST request which performs the `contact_form_akismet` `ham` action.
-		if ( itemsUpdated.length ) {
-			registry.dispatch( dashboardStore ).doBulkAction(
-				itemsUpdated.map( item => item.id.toString() ),
-				BULK_ACTIONS.markAsNotSpam
-			);
+			if ( numberOfErrors === 0 ) {
+				// Every request was successful.
+				const successMessage =
+					items.length === 1
+						? __( 'Response marked as not spam.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: the number of responses. */
+								_n(
+									'%d response marked as not spam.',
+									'%d responses marked as not spam.',
+									items.length,
+									'jetpack-forms'
+								),
+								items.length
+						  );
+
+				if ( ! isUndo ) {
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: 'mark-as-not-spam-action',
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => {
+									markAsSpamAction.callback( items, { registry }, { isUndo: true } );
+								},
+							},
+						],
+					} );
+				} else {
+					removeNotice( 'mark-as-not-spam-action' );
+				}
+			} else {
+				// There is at least one failure.
+				const errorMessage = getGenericErrorMessage( numberOfErrors );
+
+				removeNotice( 'mark-as-not-spam-action' );
+				createErrorNotice( errorMessage, { type: 'snackbar' } );
+			}
+			// Make the REST request which performs the `contact_form_akismet` `ham` action.
+			if ( itemsUpdated.length ) {
+				registry.dispatch( dashboardStore ).doBulkAction(
+					itemsUpdated.map( item => item.id.toString() ),
+					BULK_ACTIONS.markAsNotSpam
+				);
+			}
+		} finally {
+			if ( waitForRecordsPromise ) {
+				await waitForRecordsPromise;
+			}
+
+			removePendingAction( actionId );
 		}
 	},
 };
@@ -552,65 +589,72 @@ export const restoreAction: Action = {
 
 		addPendingAction( actionId );
 
-		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
-			items,
-			newStatus,
-			apiCall: ( id: number ) =>
-				saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
-			editEntityRecord,
-			updateCountsOptimistically,
-			queryParams,
-		} );
+		let waitForRecordsPromise: Promise< void > | null = null;
 
-		// If there is at least one successful update, invalidate the cache and navigate if needed
-		if ( itemsUpdated.length ) {
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
-		}
+		try {
+			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+				items,
+				newStatus,
+				apiCall: ( id: number ) =>
+					saveEntityRecord( 'postType', 'feedback', { id, status: newStatus } ),
+				editEntityRecord,
+				updateCountsOptimistically,
+				queryParams,
+			} );
 
-		requestAnimationFrame( () => {
-			removePendingAction( actionId );
-		} );
-
-		if ( numberOfErrors === 0 ) {
-			const successMessage =
-				items.length === 1
-					? __( 'Response restored.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: the number of responses. */
-							_n(
-								'%d response restored.',
-								'%d responses restored.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
-
-			if ( ! isUndo ) {
-				createSuccessNotice( successMessage, {
-					type: 'snackbar',
-					id: 'restore-action',
-					actions: [
-						{
-							label: __( 'Undo', 'jetpack-forms' ),
-							onClick: () => {
-								moveToTrashAction.callback( items, { registry }, { isUndo: true } );
-							},
-						},
-					],
-				} );
-			} else {
-				removeNotice( 'restore-action' );
+			// If there is at least one successful update, invalidate the cache and navigate if needed
+			if ( itemsUpdated.length ) {
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 			}
 
-			return;
+			if ( numberOfErrors === 0 ) {
+				const successMessage =
+					items.length === 1
+						? __( 'Response restored.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: the number of responses. */
+								_n(
+									'%d response restored.',
+									'%d responses restored.',
+									items.length,
+									'jetpack-forms'
+								),
+								items.length
+						  );
+
+				if ( ! isUndo ) {
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: 'restore-action',
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => {
+									moveToTrashAction.callback( items, { registry }, { isUndo: true } );
+								},
+							},
+						],
+					} );
+				} else {
+					removeNotice( 'restore-action' );
+				}
+
+				return;
+			}
+
+			// There is at least one failure.
+			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
+			removeNotice( 'restore-action' );
+			createErrorNotice( errorMessage, { type: 'snackbar' } );
+		} finally {
+			if ( waitForRecordsPromise ) {
+				await waitForRecordsPromise;
+			}
+
+			removePendingAction( actionId );
 		}
-
-		// There is at least one failure.
-		const errorMessage = getGenericErrorMessage( numberOfErrors );
-
-		removeNotice( 'restore-action' );
-		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 
@@ -660,77 +704,84 @@ export const moveToTrashAction: Action = {
 
 		addPendingAction( actionId );
 
-		const { itemsUpdated, numberOfErrors } = await processStatusChange( {
-			items,
-			newStatus: 'trash',
-			apiCall: ( id: number ) =>
-				deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
-			editEntityRecord,
-			updateCountsOptimistically,
-			queryParams,
-		} );
+		let waitForRecordsPromise: Promise< void > | null = null;
 
-		// If there is at least one successful update, invalidate the cache and navigate if needed
-		if ( itemsUpdated.length ) {
-			let status = 'inbox';
-			if ( items[ 0 ]?.status === 'trash' ) {
-				status = 'trash';
+		try {
+			const { itemsUpdated, numberOfErrors } = await processStatusChange( {
+				items,
+				newStatus: 'trash',
+				apiCall: ( id: number ) =>
+					deleteEntityRecord( 'postType', 'feedback', id, {}, { throwOnError: true } ),
+				editEntityRecord,
+				updateCountsOptimistically,
+				queryParams,
+			} );
+
+			// If there is at least one successful update, invalidate the cache and navigate if needed
+			if ( itemsUpdated.length ) {
+				let status = 'inbox';
+				if ( items[ 0 ]?.status === 'trash' ) {
+					status = 'trash';
+				}
+				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
 			}
-			invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
-		}
 
-		requestAnimationFrame( () => {
-			removePendingAction( actionId );
-		} );
+			if ( numberOfErrors === 0 ) {
+				const successMessage =
+					items.length === 1
+						? __( 'Response moved to trash.', 'jetpack-forms' )
+						: sprintf(
+								/* translators: %d: the number of responses. */
+								_n(
+									'%d response moved to trash.',
+									'%d responses moved to trash.',
+									items.length,
+									'jetpack-forms'
+								),
+								items.length
+						  );
 
-		if ( numberOfErrors === 0 ) {
-			const successMessage =
-				items.length === 1
-					? __( 'Response moved to trash.', 'jetpack-forms' )
-					: sprintf(
-							/* translators: %d: the number of responses. */
-							_n(
-								'%d response moved to trash.',
-								'%d responses moved to trash.',
-								items.length,
-								'jetpack-forms'
-							),
-							items.length
-					  );
+				if ( ! isUndo ) {
+					// Reload the items to the store, as they were removed from the store when moved to trash
+					receiveEntityRecords( 'postType', 'feedback', items, queryParams, true );
 
-			if ( ! isUndo ) {
-				// Reload the items to the store, as they were removed from the store when moved to trash
-				receiveEntityRecords( 'postType', 'feedback', items, queryParams, true );
-
-				createSuccessNotice( successMessage, {
-					type: 'snackbar',
-					id: 'move-to-trash-action',
-					actions: [
-						{
-							label: __( 'Undo', 'jetpack-forms' ),
-							onClick: () => {
-								restoreAction.callback(
-									items,
-									{ registry },
-									// We can trash a spam or inbox item, so we need to restore to the original status
-									{ isUndo: true, targetStatus: previousStatus }
-								);
+					createSuccessNotice( successMessage, {
+						type: 'snackbar',
+						id: 'move-to-trash-action',
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => {
+									restoreAction.callback(
+										items,
+										{ registry },
+										// We can trash a spam or inbox item, so we need to restore to the original status
+										{ isUndo: true, targetStatus: previousStatus }
+									);
+								},
 							},
-						},
-					],
-				} );
-			} else {
-				removeNotice( 'move-to-trash-action' );
+						],
+					} );
+				} else {
+					removeNotice( 'move-to-trash-action' );
+				}
+
+				return;
 			}
 
-			return;
+			// There is at least one failure.
+			const errorMessage = getGenericErrorMessage( numberOfErrors );
+
+			removeNotice( 'move-to-trash-action' );
+			createErrorNotice( errorMessage, { type: 'snackbar' } );
+		} finally {
+			if ( waitForRecordsPromise ) {
+				await waitForRecordsPromise;
+			}
+
+			removePendingAction( actionId );
 		}
-
-		// There is at least one failure.
-		const errorMessage = getGenericErrorMessage( numberOfErrors );
-
-		removeNotice( 'move-to-trash-action' );
-		createErrorNotice( errorMessage, { type: 'snackbar' } );
 	},
 };
 

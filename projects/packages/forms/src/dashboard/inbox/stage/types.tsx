@@ -97,12 +97,21 @@ export type SelectActions = {
 	) => Record< string, unknown > | undefined;
 };
 
+export type ResolveSelectActions = {
+	getEntityRecords: (
+		kind: string,
+		name: string,
+		query?: QueryParams
+	) => Promise< FormResponse[] | null >;
+};
+
 /**
  * Store actions
  */
 export type Registry = {
 	dispatch: ( store: StoreDescriptor ) => DispatchActions;
 	select: ( store: StoreDescriptor ) => SelectActions;
+	resolveSelect: ( store: StoreDescriptor ) => ResolveSelectActions;
 };
 
 export type Action = {
