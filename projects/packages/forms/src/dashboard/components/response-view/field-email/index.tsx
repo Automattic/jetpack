@@ -5,7 +5,7 @@ import CopyClipboardButton from '../../../components/copy-clipboard-button';
 
 const FieldEmail = ( { email } ) => {
 	return (
-		<HStack align="center" spacing="2">
+		<HStack alignment="center" justify="left" spacing="2">
 			<a href={ `mailto:${ email }` }>{ email }</a>
 			<CopyClipboardButton text={ email } />
 		</HStack>
