@@ -391,7 +391,9 @@ const ResponseViewBody = ( {
 			</div>
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
-					<Tip>{ __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' ) }</Tip>
+					<Tip>
+						{ __( 'Spam responses are permanently deleted after 15 days.', 'jetpack-forms' ) }
+					</Tip>
 				</div>
 			) }
 			{ response.status === 'trash' && (

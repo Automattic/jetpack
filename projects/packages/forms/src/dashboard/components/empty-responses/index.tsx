@@ -56,7 +56,10 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 	}
 
 	const noSpamHeading = __( 'Lucky you, no spam!', 'jetpack-forms' );
-	const noSpamMessage = __( 'Spam responses are moved to trash after 15 days.', 'jetpack-forms' );
+	const noSpamMessage = __(
+		'Spam responses are permanently deleted after 15 days.',
+		'jetpack-forms'
+	);
 	if ( status === 'spam' ) {
 		return <EmptyWrapper heading={ noSpamHeading } body={ noSpamMessage } />;
 	}

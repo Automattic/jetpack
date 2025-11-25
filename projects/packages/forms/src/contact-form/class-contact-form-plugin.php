@@ -22,6 +22,7 @@ use WP_Block;
 use WP_Block_Patterns_Registry;
 use WP_Block_Type_Registry;
 use WP_Error;
+use WP_Post;
 
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
@@ -301,6 +302,9 @@ class Contact_Form_Plugin {
 				'_builtin'               => false,
 			)
 		);
+
+		// Track when post status changes to 'spam' for accurate deletion timing
+		add_action( 'transition_post_status', array( $this, 'track_spam_status_change' ), 10, 3 );
 
 		// POST handler
 		if (
@@ -3390,6 +3394,30 @@ class Contact_Form_Plugin {
 			return 'publish';
 		}
 		return $current_status;
+	}
+
+	/**
+	 * Tracks when a feedback post status changes to 'spam' and stores the timestamp.
+	 * This allows us to accurately determine when spam was marked, independent of other post updates.
+	 *
+	 * @param string  $new_status The new post status.
+	 * @param string  $old_status The old post status.
+	 * @param WP_Post $post       The post object.
+	 */
+	public function track_spam_status_change( $new_status, $old_status, WP_Post $post ) {
+		// Only track for feedback posts
+		if ( 'feedback' !== $post->post_type ) {
+			return;
+		}
+
+		// Only track when status changes TO spam (not from spam to something else)
+		if ( 'spam' === $new_status && 'spam' !== $old_status ) {
+			// Store the current GMT timestamp when status changes to spam
+			update_post_meta( $post->ID, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
+		} elseif ( 'spam' === $old_status && 'spam' !== $new_status ) {
+			// Remove the meta when post is no longer spam
+			delete_post_meta( $post->ID, '_spam_status_changed_gmt' );
+		}
 	}
 
 	/**
