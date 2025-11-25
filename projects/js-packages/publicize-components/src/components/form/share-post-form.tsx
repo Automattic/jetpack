@@ -6,6 +6,7 @@ import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
+import NewMediaSection from '../new-media-section';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
@@ -41,15 +42,18 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 				/>
 			) }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-				<div>HERE GOES THE NEW MEDIA SECTION</div>
-			) : null }
-			{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
-				<div className={ styles[ 'share-post-form__media-section' ] }>
-					<MediaSection analyticsData={ analyticsData } />
-				</div>
+				<NewMediaSection analyticsData={ analyticsData } />
+			) : (
+				<>
+					{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+						<div className={ styles[ 'share-post-form__media-section' ] }>
+							<MediaSection analyticsData={ analyticsData } />
+						</div>
+					) }
+					{ /* Social Image Generator panel - only shown when not using unified UI */ }
+					{ postCanUseSig && <SocialImageGeneratorPanel /> }
+				</>
 			) }
-			{ /* Social Image Generator panel */ }
-			{ postCanUseSig && <SocialImageGeneratorPanel /> }
 		</>
 	);
 };
