@@ -1,6 +1,6 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useMemo, useRef } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { generateUniqueFormFieldId } from '../../shared/util/generate-unique-id.js';
 import {
 	FIRST_NAME_ID,
@@ -9,9 +9,6 @@ import {
 	DEFAULT_FIRST_NAME_LABEL,
 	DEFAULT_LAST_NAME_LABEL,
 	DEFAULT_NAME_LABEL,
-	isFirstNameVariationId,
-	isLastNameVariationId,
-	isKnownNameVariationId,
 } from '../variations.js';
 
 const getDefaultLabelForId = id => {
@@ -21,21 +18,24 @@ const getDefaultLabelForId = id => {
 };
 
 /**
- * Ensure Name-field variations keep correct, unique ids and default labels.
+ * Manages unique IDs and default labels for Name field variations during transforms.
  *
  * Behavior:
  * - On transform to Name/First/Last, assigns a unique id based on the variant
  * (e.g., 'name', 'name-2', 'first-name', 'first-name-2') and sets the default label.
  * - On transform back to the base Name field (empty id), clears id and restores the base label.
- * - No-ops when id is custom/non-variant.
+ * - No-ops when fieldVariant is custom/non-variant.
  *
- * @param {object} params          - Hook parameters.
- * @param {string} params.clientId - Name field block clientId.
- * @param {string} params.id       - Current field id (used to infer variant).
+ * @param {object} params              - Hook parameters.
+ * @param {string} params.clientId     - Name field block clientId.
+ * @param {string} params.fieldVariant - Current field variant ('name' | 'first-name' | 'last-name').
  */
-export default function useNameFieldTransforms( { clientId, id } ) {
-	const prevIdRef = useRef( id );
+export default function useNameFieldTransforms( { clientId, fieldVariant } ) {
+	const prevVariantRef = useRef( fieldVariant || NAME_ID );
+	const isTransforming = prevVariantRef.current !== fieldVariant;
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const baseId = fieldVariant || NAME_ID;
+	const finalLabel = getDefaultLabelForId( baseId );
 
 	const existingFieldIds = useSelect(
 		select => {
@@ -53,6 +53,8 @@ export default function useNameFieldTransforms( { clientId, id } ) {
 		[ clientId ]
 	);
 
+	const finalId = generateUniqueFormFieldId( baseId, existingFieldIds );
+
 	const labelClientId = useSelect(
 		select => {
 			const block = select( blockEditorStore ).getBlock( clientId );
@@ -62,63 +64,23 @@ export default function useNameFieldTransforms( { clientId, id } ) {
 		[ clientId ]
 	);
 
-	// Derive block context details once per ID change.
-	const context = useMemo( () => {
-		const newId = id;
-		const prevId = prevIdRef.current;
-		const isTransformingToBaseBlock =
-			isKnownNameVariationId( prevId ) && ( newId === undefined || newId === '' );
-		const isTransformingToVariation = isKnownNameVariationId( newId ) && newId !== prevId;
-
-		let baseId = NAME_ID;
-		if ( isFirstNameVariationId( newId ) ) {
-			baseId = FIRST_NAME_ID;
-		} else if ( isLastNameVariationId( newId ) ) {
-			baseId = LAST_NAME_ID;
-		}
-
-		return {
-			isTransformingToBaseBlock,
-			isTransformingToVariation,
-			baseId,
-			label: getDefaultLabelForId( baseId ),
-		};
-	}, [ id ] );
-
 	// Set HTML ID on the name field block.
 	useEffect( () => {
-		if ( context.isTransformingToBaseBlock ) {
-			// Only clear the id if it isn't already empty to avoid loops.
-			if ( id !== '' ) {
-				updateBlockAttributes( clientId, { id: '' } );
-			}
-			return;
+		if ( isTransforming ) {
+			updateBlockAttributes( clientId, { id: finalId } );
 		}
-		if ( context.isTransformingToVariation ) {
-			const uniqueId = generateUniqueFormFieldId( context.baseId, existingFieldIds );
-			// Only set the id when it actually changes to avoid loops.
-			if ( id !== uniqueId ) {
-				updateBlockAttributes( clientId, { id: uniqueId } );
-			}
-		}
-	}, [ context, id, clientId, updateBlockAttributes, existingFieldIds ] );
+	}, [ finalId, clientId, updateBlockAttributes, isTransforming ] );
 
 	// Set label on the label block.
 	useEffect( () => {
-		if ( ! labelClientId ) {
+		if ( ! labelClientId || ! isTransforming ) {
 			return;
 		}
-		if ( context.isTransformingToBaseBlock ) {
-			updateBlockAttributes( labelClientId, { label: DEFAULT_NAME_LABEL } );
-			return;
-		}
-		if ( context.isTransformingToVariation ) {
-			updateBlockAttributes( labelClientId, { label: context.label } );
-		}
-	}, [ context, labelClientId, updateBlockAttributes ] );
+		updateBlockAttributes( labelClientId, { label: finalLabel } );
+	}, [ finalLabel, labelClientId, updateBlockAttributes, isTransforming ] );
 
-	// Track previous ID.
+	// Track previous variant.
 	useEffect( () => {
-		prevIdRef.current = id;
-	}, [ id ] );
+		prevVariantRef.current = fieldVariant;
+	}, [ fieldVariant ] );
 }

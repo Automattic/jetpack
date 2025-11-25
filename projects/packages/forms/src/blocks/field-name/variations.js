@@ -16,25 +16,23 @@ export const DEFAULT_FIRST_NAME_LABEL = __( 'First name', 'jetpack-forms' );
 export const DEFAULT_LAST_NAME_LABEL = __( 'Last name', 'jetpack-forms' );
 export const DEFAULT_NAME_LABEL = __( 'Name', 'jetpack-forms' );
 
-// Predicates to consistently recognize variation ids (allows suffixed forms like name-2).
-export const isNameVariationId = id => typeof id === 'string' && /^name(?:-\d+)?$/.test( id );
+// Variation ids can have suffixed forms like first-name-2 to avoid duplicates.
 export const isFirstNameVariationId = id =>
 	typeof id === 'string' && /^first-name(?:-\d+)?$/.test( id );
 export const isLastNameVariationId = id =>
 	typeof id === 'string' && /^last-name(?:-\d+)?$/.test( id );
-export const isKnownNameVariationId = id =>
-	isNameVariationId( id ) || isFirstNameVariationId( id ) || isLastNameVariationId( id );
 
 const variations = [
 	{
 		name: NAME_ID,
 		title: DEFAULT_NAME_LABEL,
-		description: __( 'Collect the visitor’s name.', 'jetpack-forms' ),
+		description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'transform' ],
-		isActive: ( { id } ) => isNameVariationId( id ),
+		isActive: blockAttributes => blockAttributes.fieldVariant === NAME_ID,
 		attributes: {
-			id: NAME_ID,
+			id: '',
+			fieldVariant: NAME_ID,
 		},
 		innerBlocks: [
 			[ 'jetpack/label', { label: DEFAULT_NAME_LABEL } ],
@@ -47,9 +45,10 @@ const variations = [
 		description: __( 'Collect the visitor’s first name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
-		isActive: ( { id } ) => isFirstNameVariationId( id ),
+		isActive: blockAttributes => blockAttributes.fieldVariant === FIRST_NAME_ID,
 		attributes: {
 			id: FIRST_NAME_ID,
+			fieldVariant: FIRST_NAME_ID,
 		},
 		innerBlocks: [
 			[ 'jetpack/label', { label: DEFAULT_FIRST_NAME_LABEL } ],
@@ -78,9 +77,10 @@ const variations = [
 		description: __( 'Collect the visitor’s last name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'inserter', 'transform' ],
-		isActive: ( { id } ) => isLastNameVariationId( id ),
+		isActive: blockAttributes => blockAttributes.fieldVariant === LAST_NAME_ID,
 		attributes: {
 			id: LAST_NAME_ID,
+			fieldVariant: LAST_NAME_ID,
 		},
 		innerBlocks: [
 			[ 'jetpack/label', { label: DEFAULT_LAST_NAME_LABEL } ],
