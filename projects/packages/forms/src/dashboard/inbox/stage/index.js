@@ -412,7 +412,7 @@ export default function InboxView() {
 
 				return <ResponseMobileView response={ item } closeModal={ closeModal } />;
 			},
-			modalSize: 'large',
+			modalSize: 'fill',
 			hideModalHeader: true,
 		};
 
@@ -542,7 +542,7 @@ export default function InboxView() {
 	return (
 		<div className="jp-forms-layout__content" ref={ containerRef }>
 			<div className="jp-forms-layout__surface is-stage">{ pageContent }</div>
-			{ isResponseModalOpen && (
+			{ selection.length === 1 && isResponseModalOpen && (
 				<Modal
 					title={ __( 'Response', 'jetpack-forms' ) }
 					__experimentalHideHeader={ true }

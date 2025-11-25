@@ -18,11 +18,7 @@
 
 .jp-forms__inbox-response-header {
 	margin: 24px 0 0;
-	padding: 0 16px 0 0;
-
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		padding: 0 16px;
-	}
+	padding: 0 16px;
 }
 
 .jp-forms__inbox-response-header-title {
@@ -143,18 +139,13 @@
 
 .jp-forms__inbox__tip-container {
 	border-top: 1px solid var(--jp-forms-border-color);
-	margin: 8px 0 0 0;
-	padding: 16px 0;
+	margin: 8px 0 57px 0; // Compensate for fixed footer from DataViews
+	padding: 16px;
 	text-wrap: balance;
 
 	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
 	.components-tip {
 		align-items: anchor-center;
-	}
-
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		padding: 16px 16px;
-		margin-bottom: 57px; // Compensate for fixed footer from DataViews
 	}
 }
 
@@ -170,9 +161,12 @@
 	}
 }
 
-
-// Styling override when loaded in modal on mobile
+// Styling override when loaded in modal
 .components-modal__content {
+
+	.jp-forms__inbox-response-header {
+		padding-left: 0;
+	}
 
 	.jp-forms__inbox-response-title,
 	.jp-forms__inbox-response-subtitle,
@@ -180,6 +174,11 @@
 	.jp-forms__inbox-response-data {
 		padding-left: 0;
 		padding-right: 0;
+	}
+
+	.jp-forms__inbox__tip-container {
+		margin-bottom: 0;
+		margin-left: 0;
 	}
 
 	.jp-forms__inbox-file-preview-modal {
