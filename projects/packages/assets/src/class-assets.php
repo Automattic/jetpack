@@ -530,7 +530,7 @@ class Assets {
 		} else {
 			$data['domainMap']   = (object) $data['domainMap']; // Ensure it becomes a json object.
 			$data['domainPaths'] = (object) $data['domainPaths']; // Ensure it becomes a json object.
-			$wp_scripts->add_inline_script( $handle, 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
+			$wp_scripts->add_inline_script( $handle, 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' );
 		}
 
 		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
