@@ -214,6 +214,9 @@ export default function useInboxData(): UseInboxDataReturn {
 		if ( currentQuery?.is_unread !== undefined ) {
 			params.is_unread = currentQuery.is_unread;
 		}
+		if ( currentQuery?.form_id ) {
+			params.form_id = currentQuery.form_id;
+		}
 
 		return params;
 	}, [ currentQuery ] );

@@ -169,6 +169,16 @@ class Feedback {
 	protected $source;
 
 	/**
+	 * The logical form identifier associated with this feedback entry.
+	 *
+	 * This value is intended to be a stable identifier for a given form definition,
+	 * regardless of where that form is embedded (e.g. synced patterns, inline forms).
+	 *
+	 * @var string|null
+	 */
+	protected $form_id = null;
+
+	/**
 	 * The notification recipients of the feedback entry.
 	 *
 	 * @var array
@@ -223,8 +233,9 @@ class Feedback {
 		$this->feedback_time      = $feedback_post->post_date;
 		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
-		$this->fields = $parsed_content['fields'] ?? array();
-		$source_id    = $feedback_post->post_parent ? (int) $feedback_post->post_parent : 0;
+		$this->fields  = $parsed_content['fields'] ?? array();
+		$this->form_id = $parsed_content['form_id'] ?? null;
+		$source_id     = $feedback_post->post_parent ? (int) $feedback_post->post_parent : 0;
 
 		$this->source = new Feedback_Source(
 			$parsed_content['source_id'] ?? $source_id,
@@ -291,6 +302,11 @@ class Feedback {
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
+
+		if ( isset( $post_data['_jetpack_form_id'] ) ) {
+			$this->form_id = sanitize_text_field( wp_unslash( $post_data['_jetpack_form_id'] ) );
+		}
+
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
@@ -998,6 +1014,15 @@ class Feedback {
 	}
 
 	/**
+	 * Get the logical form identifier associated with this feedback entry.
+	 *
+	 * @return string|null
+	 */
+	public function get_form_id() {
+		return $this->form_id;
+	}
+
+	/**
 	 * Gets the notification recipients of the feedback entry.
 	 *
 	 * @return array
@@ -1225,6 +1250,10 @@ class Feedback {
 			)
 		);
 
+		if ( ! is_wp_error( $post_id ) && $post_id && ! empty( $this->form_id ) ) {
+			update_post_meta( $post_id, '_jetpack_form_id', $this->form_id );
+		}
+
 		$feedback_post = get_post( $post_id );
 		return $feedback_post ?? 0;
 	}
@@ -1239,6 +1268,7 @@ class Feedback {
 		$fields_to_serialize = array_merge(
 			array(
 				'subject'                 => $this->subject,
+				'form_id'                 => $this->form_id,
 				'ip'                      => $this->ip_address,
 				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,

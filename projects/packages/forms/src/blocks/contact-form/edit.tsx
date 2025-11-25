@@ -14,10 +14,12 @@ import {
 	BlockControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, serialize } from '@wordpress/blocks';
 import {
+	Button,
 	ExternalLink,
 	PanelBody,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextareaControl,
 	TextControl,
 	ToggleControl,
@@ -25,9 +27,9 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch, select as wpDataSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { useRef, useEffect, useCallback, useState, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
@@ -138,6 +140,7 @@ type JetpackContactFormAttributes = {
 	confirmationType: 'text' | 'redirect';
 	formTitle: string;
 	variationName: string;
+	jetpackFormId?: string;
 	emailNotifications: boolean;
 	disableGoBack: boolean;
 	disableSummary: boolean;
@@ -173,6 +176,7 @@ function JetpackContactFormEdit( {
 		confirmationType,
 		formTitle,
 		variationName,
+		jetpackFormId,
 		emailNotifications,
 		disableGoBack,
 		disableSummary,
@@ -204,6 +208,13 @@ function JetpackContactFormEdit( {
 	}, [ confirmationType, customThankyou, setAttributes ] );
 
 	const steps = useFormSteps( clientId );
+
+	// Ensure a stable form identifier for inline/non-SP forms.
+	useEffect( () => {
+		if ( ! jetpackFormId ) {
+			setAttributes( { jetpackFormId: `inline-${ clientId }` } );
+		}
+	}, [ jetpackFormId, clientId, setAttributes ] );
 
 	// Get current step info for context
 	const currentStepInfo = useSelect(
@@ -301,8 +312,73 @@ function JetpackContactFormEdit( {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
-		useDispatch( blockEditorStore );
+	const {
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+		updateBlockAttributes,
+		replaceBlocks,
+	} = useDispatch( blockEditorStore );
+	const { saveEntityRecord } = useDispatch( coreStore );
+
+	const jetpackFormsPatternCategory = useSelect( select => {
+		try {
+			const records = select( coreStore ).getEntityRecords( 'taxonomy', 'wp_pattern_category', {
+				slug: 'jetpack-forms',
+			} );
+			return records && records.length ? records[ 0 ] : null;
+		} catch {
+			return null;
+		}
+	}, [] );
+
+	const [ sharedFormTitle, setSharedFormTitle ] = useState( '' );
+	const [ isSavingSharedForm, setIsSavingSharedForm ] = useState( false );
+
+	// Detect if we are editing a synced pattern (wp_block) already.
+	const isEditingPattern = useSelect( select => {
+		const editor = select( editorStore );
+		const postType =
+			typeof editor?.getCurrentPostType === 'function' ? editor.getCurrentPostType() : null;
+		return postType === 'wp_block';
+	}, [] );
+
+	const handleSaveAsSharedForm = useCallback( async () => {
+		if ( ! sharedFormTitle ) {
+			return;
+		}
+
+		setIsSavingSharedForm( true );
+		try {
+			const formBlock = wpDataSelect( blockEditorStore ).getBlock( clientId );
+
+			if ( ! formBlock ) {
+				return;
+			}
+
+			const content = serialize( [ formBlock ] );
+
+			const newPattern = ( await saveEntityRecord( 'postType', 'wp_block', {
+				title: sharedFormTitle,
+				content,
+				status: 'publish',
+				wp_pattern_category: jetpackFormsPatternCategory?.id
+					? [ jetpackFormsPatternCategory.id ]
+					: undefined,
+				wp_pattern_sync_status: 'full',
+			} ) ) as { id?: number } | null;
+
+			if ( newPattern?.id ) {
+				const reusableRefBlock = createBlock( 'core/block', { ref: newPattern.id } );
+				replaceBlocks( clientId, reusableRefBlock );
+			}
+		} catch ( error ) {
+			// Swallow errors for this spike; the reusable conversion flow will surface its own.
+			// eslint-disable-next-line no-console
+			console.error( error );
+		} finally {
+			setIsSavingSharedForm( false );
+		}
+	}, [ saveEntityRecord, replaceBlocks, clientId, sharedFormTitle, jetpackFormsPatternCategory ] );
 
 	const currentInnerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlocks( clientId ),
@@ -832,6 +908,60 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
+					<PanelBody
+						title={ __( 'Shared form', 'jetpack-forms' ) }
+						initialOpen={ true }
+						className="jetpack-contact-form__panel jetpack-contact-form__shared-form-panel"
+					>
+						{ isEditingPattern ? (
+							<>
+								<Text as="p" variant="muted">
+									{ __(
+										"You're editing a shared form pattern. Changes here update every place this form is used.",
+										'jetpack-forms'
+									) }
+								</Text>
+								<Button
+									variant="secondary"
+									href={
+										(
+											window as unknown as {
+												jpFormsBlocks?: { defaults?: { formsResponsesUrl?: string } };
+											}
+										 ).jpFormsBlocks?.defaults?.formsResponsesUrl ||
+										'/wp-admin/admin.php?page=jetpack-forms-admin#/forms'
+									}
+									__next40pxDefaultSize={ true }
+									style={ { marginTop: '8px' } }
+								>
+									{ __( 'View forms', 'jetpack-forms' ) }
+								</Button>
+							</>
+						) : (
+							<>
+								<TextControl
+									label={ __( 'Form name', 'jetpack-forms' ) }
+									value={ sharedFormTitle }
+									onChange={ setSharedFormTitle }
+									placeholder={ postTitle }
+									__nextHasNoMarginBottom={ true }
+									__next40pxDefaultSize={ true }
+								/>
+								<Button
+									variant="secondary"
+									onClick={ handleSaveAsSharedForm }
+									disabled={ ! sharedFormTitle || isSavingSharedForm }
+									isBusy={ isSavingSharedForm }
+									__next40pxDefaultSize={ true }
+									style={ { marginTop: '8px' } }
+								>
+									{ isSavingSharedForm
+										? __( 'Saving shared form…', 'jetpack-forms' )
+										: __( 'Save as shared form', 'jetpack-forms' ) }
+								</Button>
+							</>
+						) }
+					</PanelBody>
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }

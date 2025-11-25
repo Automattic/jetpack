@@ -6,7 +6,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import CreateFormButton from '../create-form-button/index.tsx';
 
-const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
+export const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
 	<VStack alignment="center" spacing="2">
 		{ heading && (
 			<Text as="h3" weight="500" size="15">

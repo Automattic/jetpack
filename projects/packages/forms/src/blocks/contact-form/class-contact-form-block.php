@@ -798,6 +798,75 @@ class Contact_Form_Block {
 	}
 
 	/**
+	 * Enqueue a small inline script in the block editor to add a "View all forms" button
+	 * in the post status sidebar when editing Jetpack Forms synced patterns (wp_block posts
+	 * in the jetpack-forms category).
+	 *
+	 * @return void
+	 */
+	public static function add_pattern_editor_back_link() {
+		if ( ! function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( ! $screen || 'wp_block' !== $screen->post_type ) {
+			return;
+		}
+
+		$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( ! $post_id || ! taxonomy_exists( 'wp_pattern_category' ) || ! has_term( 'jetpack-forms', 'wp_pattern_category', $post_id ) ) {
+			return;
+		}
+
+		$dashboard_url = admin_url( 'admin.php?page=jetpack-forms-admin#/forms' );
+		$label         = esc_js( __( 'View all forms', 'jetpack-forms' ) );
+
+		$inline_script = "
+( function( wp ) {
+	if (
+		! wp ||
+		! wp.plugins ||
+		! wp.editPost ||
+		! wp.element ||
+		! wp.components
+	) {
+		return;
+	}
+
+	var registerPlugin = wp.plugins.registerPlugin;
+	var PluginPostStatusInfo = wp.editPost.PluginPostStatusInfo;
+	var el = wp.element.createElement;
+	var Button = wp.components.Button;
+
+	var BackToFormsControls = function() {
+		return el(
+			PluginPostStatusInfo,
+			{ className: 'jetpack-forms-back-to-dashboard' },
+			el(
+				Button,
+				{
+					isSecondary: true,
+					isSmall: true,
+					href: '" . esc_url( $dashboard_url ) . "',
+				},
+				'{$label}'
+			)
+		);
+	};
+
+	registerPlugin( 'jetpack-forms-back-to-dashboard', {
+		render: BackToFormsControls,
+	} );
+} )( window.wp );
+";
+
+		wp_add_inline_script( 'wp-edit-post', $inline_script );
+	}
+
+	/**
 	 * Add REST API endpoints to the block editor preload list.
 	 *
 	 * @param array $paths Existing paths to preload.

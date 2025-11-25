@@ -46,6 +46,17 @@ class Util {
 		$category_slug = 'forms';
 		register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack-forms' ) ) );
 
+		// Category for synced patterns (shared forms) managed via the Jetpack Forms dashboard.
+		if ( function_exists( 'register_block_pattern_category' ) ) {
+			register_block_pattern_category(
+				'jetpack-forms',
+				array(
+					/* translators: Block pattern category name. */
+					'label' => __( 'Jetpack Forms', 'jetpack-forms' ),
+				)
+			);
+		}
+
 		$patterns = array(
 			'contact-form'         => array(
 				'title'      => __( 'Contact Form', 'jetpack-forms' ),

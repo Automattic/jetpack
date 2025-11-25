@@ -61,6 +61,10 @@ export default {
 			groupName: '',
 		},
 	},
+	jetpackFormId: {
+		type: 'string',
+		default: '',
+	},
 	saveResponses: {
 		type: 'boolean',
 		default: true,

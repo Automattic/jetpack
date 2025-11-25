@@ -1,0 +1,26 @@
+.jp-forms-layout__surface.is-stage.is-forms-stage {
+
+	.jp-forms-view-actions {
+		display: flex;
+		justify-content: flex-end;
+		padding: 16px 24px 0;
+	}
+
+	.jp-forms-dataviews-layout-container {
+		display: flex;
+		flex-direction: column;
+		padding: 0 24px 24px;
+	}
+
+	.jp-forms-forms-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		justify-content: flex-end;
+	}
+
+	.jp-forms-forms-actions__link {
+		font-size: 12px;
+	}
+}
+

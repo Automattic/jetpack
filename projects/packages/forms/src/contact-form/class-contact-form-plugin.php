@@ -3006,7 +3006,7 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Create a new page with a Form block
+	 * Create a new shared form as a synced pattern containing a Form block.
 	 */
 	public function create_new_form() {
 		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
@@ -3030,18 +3030,20 @@ class Contact_Form_Plugin {
 			$pattern_content = $pattern['content'];
 		}
 
-		// If no pattern found or specified, use a default form block
+		// If no pattern found or specified, use a default form block.
 		if ( empty( $pattern_content ) ) {
 			$pattern_content = '<!-- wp:jetpack/contact-form -->
 														<div class="wp-block-jetpack-contact-form"></div>
 													<!-- /wp:jetpack/contact-form -->';
 		}
 
+		// Create a synced pattern (reusable block) that represents the shared form.
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'page',
-				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
+				'post_type'    => 'wp_block',
+				'post_title'   => esc_html__( 'Jetpack Form', 'jetpack-forms' ),
 				'post_content' => $pattern_content,
+				'post_status'  => 'publish',
 			)
 		);
 
@@ -3051,9 +3053,66 @@ class Contact_Form_Plugin {
 				500
 			);
 		} else {
+			// Assign the Jetpack Forms pattern category if the taxonomy exists.
+			if ( taxonomy_exists( 'wp_pattern_category' ) ) {
+				wp_set_object_terms( $post_id, 'jetpack-forms', 'wp_pattern_category', true );
+			}
+
+			// Ensure the pattern content includes a stable jetpackFormId attribute so
+			// responses can be grouped by this shared form across all placements.
+			if ( ! is_wp_error( $post_id ) ) {
+				$pattern_post = get_post( $post_id );
+				if ( $pattern_post && ! empty( $pattern_post->post_content ) ) {
+					$blocks     = parse_blocks( $pattern_post->post_content );
+					$form_id    = (string) $post_id;
+					$updated    = false;
+					$update_ids = function ( &$block ) use ( $form_id, &$update_ids, &$updated ) {
+						if ( isset( $block['blockName'] ) && 'jetpack/contact-form' === $block['blockName'] ) {
+							if ( ! isset( $block['attrs'] ) || ! is_array( $block['attrs'] ) ) {
+								$block['attrs'] = array();
+							}
+							if ( empty( $block['attrs']['jetpackFormId'] ) ) {
+								$block['attrs']['jetpackFormId'] = $form_id;
+								$updated                         = true;
+							}
+						}
+						if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+							foreach ( $block['innerBlocks'] as &$inner_block ) {
+								$update_ids( $inner_block );
+							}
+						}
+					};
+
+					foreach ( $blocks as &$block ) {
+						$update_ids( $block );
+					}
+
+					if ( $updated ) {
+						$new_content = serialize_blocks( $blocks );
+						wp_update_post(
+							array(
+								'ID'           => $post_id,
+								'post_content' => $new_content,
+							)
+						);
+					}
+				}
+			}
+
+			$edit_url = admin_url(
+				add_query_arg(
+					array(
+						'post'      => (int) $post_id,
+						'action'    => 'edit',
+						'post_type' => 'wp_block',
+					),
+					'post.php'
+				)
+			);
+
 			wp_send_json(
 				array(
-					'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+					'post_url' => $edit_url,
 				)
 			);
 		}

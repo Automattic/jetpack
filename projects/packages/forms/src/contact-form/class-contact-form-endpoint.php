@@ -940,6 +940,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 		}
 
+		if ( isset( $request['form_id'] ) && '' !== $request['form_id'] ) {
+			$meta_query = isset( $args['meta_query'] ) && is_array( $args['meta_query'] ) ? $args['meta_query'] : array();
+
+			$meta_query[] = array(
+				'key'   => '_jetpack_form_id',
+				'value' => sanitize_text_field( wp_unslash( $request['form_id'] ) ),
+			);
+
+			$args['meta_query'] = $meta_query;
+		}
+
 		return $args;
 	}
 
@@ -985,6 +996,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'sanitize_callback' => function ( $param ) {
 				return array_map( 'absint', (array) $param );
 			},
+			'validate_callback' => 'rest_validate_request_arg',
+		);
+		$query_params['form_id']        = array(
+			'description'       => __( 'Limit result set to items submitted to a specific form.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
 			'validate_callback' => 'rest_validate_request_arg',
 		);
 		return $query_params;

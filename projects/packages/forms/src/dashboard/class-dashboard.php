@@ -11,6 +11,11 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+
+// Ensure the Forms_Endpoint class is available even before Composer's classmap is regenerated.
+if ( ! class_exists( Forms_Endpoint::class ) ) {
+	require_once __DIR__ . '/class-forms-endpoint.php';
+}
 use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -109,6 +114,7 @@ class Dashboard {
 			$filters_locale_path,
 			$initial_responses_path,
 			$initial_responses_locale_path,
+			'/jetpack-forms/v1/forms',
 		);
 		$preload_data_raw              = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 

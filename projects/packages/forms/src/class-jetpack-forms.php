@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+use Automattic\Jetpack\Forms\Dashboard\Forms_Endpoint;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -25,6 +26,7 @@ class Jetpack_Forms {
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
+			Forms_Endpoint::init();
 		}
 
 		if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '0.30.5', '', 'This functionality will be removed in an upcoming version.' ) ) {
@@ -32,6 +34,14 @@ class Jetpack_Forms {
 		}
 
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
+
+		// Add editor affordances when editing Jetpack Forms patterns.
+		if ( is_admin() ) {
+			add_action(
+				'enqueue_block_editor_assets',
+				array( '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block', 'add_pattern_editor_back_link' )
+			);
+		}
 
 		// Add hook to delete file attachments when a feedback post is deleted
 		add_action( 'before_delete_post', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'delete_feedback_files' ) );

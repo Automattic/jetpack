@@ -217,6 +217,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
 			'formTitle'              => $attributes['formTitle'] ?? '',
+			'jetpackFormId'          => $attributes['jetpackFormId'] ?? null,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -1098,6 +1099,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$r .= '<input type="submit" style="display: none;" />';
 			}
 			$r .= "<input type='hidden' name='jetpack_contact_form_jwt' value='" . esc_attr( $form->get_jwt() ) . "' />\n";
+
+			$jetpack_form_id = $form->get_attribute( 'jetpackFormId' );
+			if ( ! empty( $jetpack_form_id ) ) {
+				$r .= "<input type='hidden' name='_jetpack_form_id' value='" . esc_attr( $jetpack_form_id ) . "' />\n";
+			}
+
 			$r .= $form->body;
 
 			if ( $is_multistep ) {

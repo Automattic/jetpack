@@ -4,6 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { Badge } from '@automattic/ui';
+import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { DataViews } from '@wordpress/dataviews/wp';
@@ -25,6 +26,7 @@ import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
+import FormsViewToggleButton from '../../components/forms-view-toggle-button/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
 import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
@@ -138,6 +140,38 @@ export default function InboxView() {
 		totalPages,
 	} = useInboxData();
 
+	const [ formFilterOptions, setFormFilterOptions ] = useState( [] );
+
+	// Fetch Jetpack Forms synced patterns to populate the "Form" filter.
+	useEffect( () => {
+		let isMounted = true;
+
+		apiFetch( {
+			path: '/jetpack-forms/v1/forms?per_page=100',
+		} )
+			.then( response => {
+				if ( ! isMounted ) {
+					return;
+				}
+				const items = response?.items || [];
+				const options = items.map( item => ( {
+					value: item.formId || String( item.id ),
+					label: decodeEntities( item.title ) || __( '(no title)', 'jetpack-forms' ),
+				} ) );
+				setFormFilterOptions( options );
+			} )
+			.catch( () => {
+				if ( ! isMounted ) {
+					return;
+				}
+				setFormFilterOptions( [] );
+			} );
+
+		return () => {
+			isMounted = false;
+		};
+	}, [] );
+
 	useEffect( () => {
 		const _filters = view.filters?.reduce( ( accumulator, { field, value } ) => {
 			if ( ! value ) {
@@ -145,6 +179,9 @@ export default function InboxView() {
 			}
 			if ( field === 'source' ) {
 				accumulator.parent = value;
+			}
+			if ( field === 'form' ) {
+				accumulator.form_id = value;
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -156,19 +193,21 @@ export default function InboxView() {
 			}
 			return accumulator;
 		}, {} );
+		const formId = searchParams.get( 'form_id' );
 		const _queryArgs = {
 			order: 'desc',
 			orderby: 'date',
 			per_page: view.perPage,
 			page: view.page,
 			...( view.search ? { search: view.search } : {} ),
+			...( formId ? { form_id: formId } : {} ),
 			..._filters,
 			status: statusFilter,
 		};
 		// We need to keep the current query args in the store to be used in `export`
 		// and for getting the total records per `status`.
 		setCurrentQuery( _queryArgs );
-	}, [ view, statusFilter, setCurrentQuery ] );
+	}, [ view, statusFilter, setCurrentQuery, searchParams ] );
 
 	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
 
@@ -356,6 +395,13 @@ export default function InboxView() {
 				enableSorting: false,
 			},
 			{
+				id: 'form',
+				label: __( 'Form', 'jetpack-forms' ),
+				elements: formFilterOptions,
+				filterBy: { operators: [ 'is' ] },
+				enableSorting: false,
+			},
+			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
 				elements: [
@@ -392,6 +438,7 @@ export default function InboxView() {
 		[
 			filterOptions?.date,
 			filterOptions?.source,
+			formFilterOptions,
 			isMobileViewport,
 			openResponseModal,
 			dateSettings.formats.date,
@@ -460,10 +507,7 @@ export default function InboxView() {
 
 	// Conditional header actions based on status filter
 	const headerActions = useMemo( () => {
-		const exportIsPrimary = statusFilter !== 'trash' && statusFilter !== 'spam';
-		const headerActionsArray = [
-			<ExportResponsesButton key="export" isPrimary={ exportIsPrimary } />,
-		];
+		const headerActionsArray = [ <FormsViewToggleButton key="toggle-view" /> ];
 
 		if ( statusFilter === 'trash' ) {
 			headerActionsArray.push( <EmptyTrashButton key="empty-trash" /> );
@@ -475,7 +519,10 @@ export default function InboxView() {
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
 				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
 			}
+			headerActionsArray.push( <CreateFormButton key="create" /> );
 		}
+
+		headerActionsArray.push( <ExportResponsesButton key="export" isPrimary={ false } /> );
 
 		return headerActionsArray;
 	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
