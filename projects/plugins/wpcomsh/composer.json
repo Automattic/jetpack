@@ -16,7 +16,8 @@
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev",
-		"tubalmartin/cssmin": "^4.1"
+		"tubalmartin/cssmin": "^4.1",
+		"automattic/jetpack-explat": "@dev"
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
