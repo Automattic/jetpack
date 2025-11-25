@@ -22,7 +22,8 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"automattic/wp-feature-api": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
