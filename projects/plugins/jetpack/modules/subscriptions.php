@@ -1013,9 +1013,9 @@ class Jetpack_Subscriptions {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int      $post_ID Post ID.
-	 * @param array    $flags   Post flags including send_subscription.
-	 * @param WP_Post  $post    Post object.
+	 * @param int     $post_ID Post ID.
+	 * @param array   $flags   Post flags including send_subscription.
+	 * @param WP_Post $post    Post object.
 	 *
 	 * @return void
 	 */
@@ -1041,11 +1041,11 @@ class Jetpack_Subscriptions {
 
 		// Store subscriber data with timestamp.
 		$data_to_store = array(
-			'timestamp'           => current_time( 'mysql' ),
-			'email_subscribers'   => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
-			'paid_subscribers'    => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
-			'all_subscribers'     => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
-			'subscriber_list'     => isset( $subscriber_data['subscriber_list'] ) && is_array( $subscriber_data['subscriber_list'] ) ? $subscriber_data['subscriber_list'] : array(),
+			'timestamp'         => current_time( 'mysql' ),
+			'email_subscribers' => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
+			'paid_subscribers'  => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
+			'all_subscribers'   => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
+			'subscriber_list'   => isset( $subscriber_data['subscriber_list'] ) && is_array( $subscriber_data['subscriber_list'] ) ? $subscriber_data['subscriber_list'] : array(),
 		);
 
 		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
@@ -1074,7 +1074,7 @@ class Jetpack_Subscriptions {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		// First, get subscriber counts from stats endpoint.
-		$stats_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
+		$stats_path     = sprintf( '/sites/%d/subscribers/stats', $site_id );
 		$stats_response = Client::wpcom_json_api_request_as_blog(
 			$stats_path,
 			'2',
@@ -1102,7 +1102,7 @@ class Jetpack_Subscriptions {
 		}
 
 		// Fetch the actual subscriber list with emails.
-		$subscriber_emails = $this->fetch_all_subscribers( $site_id );
+		$subscriber_emails                  = $this->fetch_all_subscribers( $site_id );
 		$subscriber_data['subscriber_list'] = $subscriber_emails;
 
 		return $subscriber_data;
@@ -1114,12 +1114,12 @@ class Jetpack_Subscriptions {
 	 * @since $$next-version$$
 	 *
 	 * @param int $site_id Site ID.
-	 * @return array Array of subscriber email addresses.
+	 * @return array Array of subscriber data, each containing 'email' and 'is_paid' keys.
 	 */
 	private function fetch_all_subscribers( $site_id ) {
 		$subscriber_emails = array();
-		$page = 1;
-		$per_page = 100; // Maximum per page to minimize requests.
+		$page              = 1;
+		$per_page          = 100; // Maximum per page to minimize requests.
 
 		while ( true ) {
 			$api_path = sprintf(
@@ -1151,24 +1151,38 @@ class Jetpack_Subscriptions {
 				break;
 			}
 
-			// Extract emails from subscribers array.
+			// Extract subscriber data from subscribers array.
 			if ( isset( $response_body['subscribers'] ) && is_array( $response_body['subscribers'] ) ) {
 				foreach ( $response_body['subscribers'] as $subscriber ) {
-					if ( isset( $subscriber['email'] ) && is_email( $subscriber['email'] ) ) {
-						$subscriber_emails[] = sanitize_email( $subscriber['email'] );
+					if ( isset( $subscriber['email_address'] ) && is_email( $subscriber['email_address'] ) ) {
+						// Determine if subscriber has an active paid plan.
+						$is_paid = false;
+						if ( isset( $subscriber['plans'] ) && is_array( $subscriber['plans'] ) ) {
+							foreach ( $subscriber['plans'] as $plan ) {
+								if ( isset( $plan['status'] ) && 'active' === $plan['status'] ) {
+									$is_paid = true;
+									break;
+								}
+							}
+						}
+
+						$subscriber_emails[] = array(
+							'email'   => sanitize_email( $subscriber['email_address'] ),
+							'is_paid' => $is_paid,
+						);
 					}
 				}
 			}
 
 			// Check if there are more pages.
-			$total = isset( $response_body['total'] ) ? (int) $response_body['total'] : 0;
+			$total       = isset( $response_body['total'] ) ? (int) $response_body['total'] : 0;
 			$total_pages = isset( $response_body['total_pages'] ) ? (int) $response_body['total_pages'] : 1;
 
 			if ( $page >= $total_pages || count( $subscriber_emails ) >= $total ) {
 				break;
 			}
 
-			$page++;
+			++$page;
 		}
 
 		return $subscriber_emails;
