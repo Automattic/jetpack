@@ -990,19 +990,6 @@ class Jetpack_Subscriptions {
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
-
-		$jetpack_newsletter_subscribers_when_sent = array(
-			'type'          => 'array',
-			'description'   => __( 'List of subscribers when the post was first emailed. Used for debugging purposes.', 'jetpack' ),
-			'single'        => true,
-			'default'       => array(),
-			'show_in_rest'  => array(
-				'name' => 'jetpack_newsletter_subscribers_when_sent',
-			),
-			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
-		);
-
-		register_meta( 'post', '_jetpack_newsletter_subscribers_when_sent', $jetpack_newsletter_subscribers_when_sent );
 	}
 
 	/**
