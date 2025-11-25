@@ -21,6 +21,7 @@ export const isFirstNameVariationId = id =>
 	typeof id === 'string' && /^first-name(?:-\d+)?$/.test( id );
 export const isLastNameVariationId = id =>
 	typeof id === 'string' && /^last-name(?:-\d+)?$/.test( id );
+export const isNameVariationId = id => typeof id === 'string' && /^name(?:-\d+)?$/.test( id );
 
 const variations = [
 	{
