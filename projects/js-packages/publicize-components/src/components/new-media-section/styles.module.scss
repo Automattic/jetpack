@@ -1,0 +1,26 @@
+/**
+ * Styles for the unified media section
+ */
+
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.media-section {
+	margin-bottom: 16px;
+}
+
+.description {
+	color: var(--jp-gray-40);
+	color: #757575;
+	margin: 8px 0 16px;
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.selectButton {
+	width: 100%;
+	justify-content: center;
+}
+
+.dropdownMenu {
+	width: 100%;
+}
