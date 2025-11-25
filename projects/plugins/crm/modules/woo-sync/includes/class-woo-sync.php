@@ -1543,6 +1543,7 @@ class Woo_Sync {
 		$woo_order_status_mapping = $this->woo_order_status_mapping( $obj_type_id );
 
 		if (
+			isset( $woo_order_status_mapping[ $order_status ] ) &&
 			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
 			&& 
 			( 

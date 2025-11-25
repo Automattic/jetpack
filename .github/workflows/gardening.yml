@@ -15,6 +15,20 @@ concurrency:
   group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  # ./.github/actions/turnstile
+  actions: read
+  # actions/checkout
+  contents: read
+  # ./projects/github-actions/repo-gardening
+  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
+  #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
+  issues: write
+  # ./projects/github-actions/repo-gardening
+  #   read: octokit.rest.issues.listComments, octokit.rest.pulls.listFiles, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestonesoctokit.rest.issues.listMilestones
+  #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
+  pull-requests: write
+
 jobs:
   repo-gardening:
     name: "Manage labels and assignees"
@@ -22,10 +36,6 @@ jobs:
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
     timeout-minutes: 10  # 2025-11-06: Successful runs seem to take a minute or two, primarily since we wait for previous runs to complete.
     steps:
-      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
-        with:
-          config: ${{ vars.PERMISSIONS_CONFIG }}
-
       - name: Checkout
         uses: actions/checkout@v5
 
