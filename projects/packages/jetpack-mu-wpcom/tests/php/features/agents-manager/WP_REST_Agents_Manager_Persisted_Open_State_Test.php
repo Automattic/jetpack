@@ -36,6 +36,17 @@ class WP_REST_Agents_Manager_Persisted_Open_State_Test extends \WorDBless\BaseTe
 	}
 
 	/**
+	 * Tear down test fixtures.
+	 */
+	public function tear_down() {
+		// Reset the REST server to clear registered routes.
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
+		parent::tear_down();
+	}
+
+	/**
 	 * Tests that the constructor sets the correct namespace.
 	 */
 	public function test_constructor_sets_correct_namespace() {
