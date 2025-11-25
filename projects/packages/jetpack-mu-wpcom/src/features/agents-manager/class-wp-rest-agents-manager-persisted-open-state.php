@@ -63,14 +63,18 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open        = $response->agents_manager_open ?? false;
-		$is_docked      = $response->agents_manager_docked ?? false;
-		$router_history = $response->agents_manager_router_history ?? null;
+		$calypso_preferences = $response->calypso_preferences ?? (object) array();
+
+		$is_open        = $calypso_preferences->agents_manager_open ?? false;
+		$is_docked      = $calypso_preferences->agents_manager_docked ?? false;
+		$router_history = $calypso_preferences->agents_manager_router_history ?? null;
 
 		$projected_response = array(
-			'agents_manager_open'           => (bool) $is_open,
-			'agents_manager_docked'         => (bool) $is_docked,
-			'agents_manager_router_history' => $router_history,
+			'calypso_preferences' => array(
+				'agents_manager_open'           => (bool) $is_open,
+				'agents_manager_docked'         => (bool) $is_docked,
+				'agents_manager_router_history' => $router_history,
+			),
 		);
 
 		return rest_ensure_response( $projected_response );
