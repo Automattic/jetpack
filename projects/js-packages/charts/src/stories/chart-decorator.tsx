@@ -1,8 +1,7 @@
 import { setLocale } from '@automattic/number-formatters';
 import { useEffect } from 'react';
 import { GlobalChartsProvider } from '../providers';
-import { CHART_THEME_MAP } from './theme-config';
-import type { ChartTheme } from '../types';
+import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
 import type { Decorator } from '@storybook/react';
 
 /**
@@ -11,6 +10,7 @@ import type { Decorator } from '@storybook/react';
  */
 export type ChartStoryArgs< T = Record< string, unknown > > = T & {
 	themeName?: string;
+	accentColor?: string;
 	containerWidth?: string;
 	containerHeight?: string;
 	resize?: 'none' | 'both' | 'horizontal' | 'vertical';
@@ -49,18 +49,32 @@ export const chartDecorator: Decorator = ( Story, context ) => {
 };
 
 /**
- * Wrapper component that initializes locale for Storybook environment
- * @param root0          - Props object
- * @param root0.children - Child components to render
- * @param root0.theme    - Chart theme to apply
- * @return JSX element with locale initialization and GlobalChartsProvider
+ * Validates that a string is a safe hex color value
+ * Prevents XSS by ensuring only valid hex colors are used in CSS
+ * @param color - Color string to validate
+ * @return true if the color is a valid hex format (#RGB or #RRGGBB)
  */
-const LocaleInitializer = ( {
+const isValidHexColor = ( color: string ): boolean => {
+	return /^#[0-9A-Fa-f]{3}$|^#[0-9A-Fa-f]{6}$/.test( color );
+};
+
+/**
+ * Provider wrapper for Storybook chart stories
+ * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
+ * @param root0             - Props object
+ * @param root0.children    - Child components to render
+ * @param root0.themeName   - Theme name to apply
+ * @param root0.accentColor - Accent color for custom theme (injected as CSS variable)
+ * @return JSX element with chart environment setup and GlobalChartsProvider
+ */
+const StoryChartProvider = ( {
 	children,
-	theme,
+	themeName = 'default',
+	accentColor = DEFAULT_ACCENT_COLOR,
 }: {
 	children: React.ReactNode;
-	theme: Partial< ChartTheme >;
+	themeName?: string;
+	accentColor?: string;
 } ) => {
 	// Initialize number formatters with browser locale for Storybook
 	// In WordPress, @automattic/number-formatters automatically uses the WordPress user locale
@@ -71,7 +85,32 @@ const LocaleInitializer = ( {
 		}
 	}, [] );
 
-	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
+	const theme = CHART_THEME_MAP[ themeName ];
+
+	// Sanitize accent color to prevent XSS via CSS injection
+	// Falls back to default if invalid hex color is provided
+	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
+
+	// Force GlobalChartsProvider to remount when accent color changes for custom theme
+	// This ensures CSS variables are re-resolved after the DOM updates
+	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
+
+	return (
+		<>
+			{ themeName === 'custom' && (
+				<style>
+					{ `
+						:root {
+							--wpds-color-bg-interactive-brand: ${ sanitizedAccentColor };
+						}
+					` }
+				</style>
+			) }
+			<GlobalChartsProvider key={ providerKey } theme={ theme }>
+				{ children }
+			</GlobalChartsProvider>
+		</>
+	);
 };
 
 /**
@@ -84,18 +123,19 @@ const LocaleInitializer = ( {
  * @return The story component wrapped in GlobalChartsProvider only
  */
 export const simpleChartDecorator: Decorator = ( Story, { args } ) => {
-	const themeName = ( args as unknown as ChartStoryArgs ).themeName;
-	const theme = CHART_THEME_MAP[ themeName || 'default' ];
+	const storyArgs = args as unknown as ChartStoryArgs;
+	const themeName = storyArgs.themeName;
+	const accentColor = storyArgs.accentColor;
 
 	return (
-		<LocaleInitializer theme={ theme }>
+		<StoryChartProvider themeName={ themeName } accentColor={ accentColor }>
 			<Story />
-		</LocaleInitializer>
+		</StoryChartProvider>
 	);
 };
 
 /**
- * Shared argTypes for common chart controls
+ * Shared argTypes for common chart controls (dimensions, container settings)
  */
 export const sharedChartArgTypes = {
 	maxWidth: {

@@ -9,6 +9,7 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsTheme,
+	useGlobalChartsContext,
 } from '../../providers';
 import { hexToRgba, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
@@ -49,6 +50,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -206,12 +208,16 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
-	const {
-		primaryColor: barColor,
-		backgroundColor,
-		positiveChangeColor,
-		negativeChangeColor,
-	} = conversionFunnelChartSettings;
+	const { primaryColor, backgroundColor, positiveChangeColor, negativeChangeColor } =
+		conversionFunnelChartSettings;
+
+	// Resolve bar color using getElementStyles with primaryColor as override
+	const { color: barColor } = getElementStyles
+		? getElementStyles( {
+				index: 0,
+				overrideColor: primaryColor,
+		  } )
+		: { color: primaryColor || '#000000' };
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );

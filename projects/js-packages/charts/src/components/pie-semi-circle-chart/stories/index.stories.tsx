@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
 	partialOsUsageData as data,
@@ -49,6 +50,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		containerWidth: '600px',
 		containerHeight: '325px',
 		resize: 'none',

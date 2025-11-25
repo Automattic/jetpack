@@ -1,6 +1,7 @@
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
 	medalCountsData,
@@ -79,6 +80,7 @@ type Story = StoryObj< StoryArgs >;
 // Default story with multiple series
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		withTooltips: true,
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
