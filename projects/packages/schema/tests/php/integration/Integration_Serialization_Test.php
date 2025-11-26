@@ -186,7 +186,7 @@ class Integration_Serialization_Test extends TestCase {
 
 		// Test in both directions
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
-		$this->assertSame( $expect_schema_to_be, json_decode( wp_json_encode( $schema, JSON_UNESCAPED_SLASHES ), true ) );
+		$this->assertSame( $expect_schema_to_be, json_decode( wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true ) );
 	}
 
 	public function test_serialization_assoc_nested() {

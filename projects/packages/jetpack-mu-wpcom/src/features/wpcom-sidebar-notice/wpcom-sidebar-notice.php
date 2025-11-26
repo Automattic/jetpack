@@ -90,7 +90,7 @@ function wpcom_get_sidebar_notice() {
 	}
 
 	// Serialize message as object (on Simple sites we have an array, on Atomic sites we have an object).
-	$message = json_decode( wp_json_encode( $message[0], JSON_UNESCAPED_SLASHES ) );
+	$message = json_decode( wp_json_encode( $message[0], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 	$cached_notice = array(
 		'content'       => $message->content->message,

@@ -38,7 +38,7 @@ class Utils {
 		if ( is_object( $error ) ) {
 			return array(
 				'name'    => 'Error',
-				'message' => json_decode( wp_json_encode( $error, JSON_UNESCAPED_SLASHES ), true ),
+				'message' => json_decode( wp_json_encode( $error, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true ),
 			);
 		}
 
