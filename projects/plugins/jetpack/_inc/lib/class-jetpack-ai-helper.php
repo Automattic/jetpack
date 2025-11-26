@@ -264,7 +264,8 @@ class Jetpack_AI_Helper {
 			wp_json_encode(
 				array(
 					'content' => $content,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'wpcom'
 		);
@@ -338,7 +339,8 @@ class Jetpack_AI_Helper {
 			wp_json_encode(
 				array(
 					'prompt' => $prompt,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'wpcom'
 		);

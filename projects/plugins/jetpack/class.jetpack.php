@@ -3037,7 +3037,7 @@ p {
 		}
 
 		if ( $encode ) {
-			return wp_json_encode( $data );
+			return wp_json_encode( $data, JSON_UNESCAPED_SLASHES );
 		}
 
 		return $data;
@@ -3319,7 +3319,7 @@ p {
 			}
 
 			status_header( $status_code );
-			die( wp_json_encode( (object) compact( 'error', 'error_description' ) ) );
+			die( wp_json_encode( (object) compact( 'error', 'error_description' ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		status_header( 200 );
@@ -3327,7 +3327,7 @@ p {
 			exit( 0 );
 		}
 
-		die( wp_json_encode( (object) $response ) );
+		die( wp_json_encode( (object) $response, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -3535,7 +3535,7 @@ p {
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
@@ -4658,16 +4658,16 @@ endif;
 			jQuery( document ).ready( function( $ ) {
 				$( '#jetpack-recheck-ssl-button' ).click( function( e ) {
 					var $this = $( this );
-					$this.html( <?php echo wp_json_encode( __( 'Checking', 'jetpack' ) ); ?> );
+					$this.html( <?php echo esc_html__( 'Checking', 'jetpack' ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
-					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': <?php echo wp_json_encode( $ajax_nonce ); ?> };
+					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': <?php echo wp_json_encode( $ajax_nonce, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> };
 					$.post( ajaxurl, data )
 					.done( function( response ) {
 						if ( response.enabled ) {
 							$( '#jetpack-ssl-warning' ).hide();
 						} else {
-							this.html( <?php echo wp_json_encode( __( 'Try again', 'jetpack' ) ); ?> );
+							this.html( <?php echo esc_html__( 'Try again', 'jetpack' ); ?> );
 							$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
 						}
 					}.bind( $this ) );
