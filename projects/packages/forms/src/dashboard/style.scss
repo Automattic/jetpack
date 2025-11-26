@@ -34,7 +34,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Adjust the position of the notices.
 .forms-dashboard-notices {
-	position: sticky;
+	position: absolute;
 	right: 0;
 	bottom: 44px;
 	padding-left: 24px;
