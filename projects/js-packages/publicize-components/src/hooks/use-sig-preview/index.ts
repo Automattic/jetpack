@@ -112,7 +112,7 @@ export default function useSigPreview(
 			async () => {
 				setIsLoading( true );
 
-				const sig_token = await apiFetch< string >( {
+				const sigToken = await apiFetch< string >( {
 					path: 'wpcom/v2/publicize/social-image-generator/generate-token',
 					method: 'POST',
 					data: {
@@ -123,10 +123,10 @@ export default function useSigPreview(
 					},
 				} );
 
-				setToken?.( sig_token );
-				onNewToken?.( sig_token );
+				setToken?.( sigToken );
+				onNewToken?.( sigToken );
 
-				const url = getSigImageUrl( sig_token );
+				const url = getSigImageUrl( sigToken );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
 				if ( url === generatedImageUrlRef.current ) {
