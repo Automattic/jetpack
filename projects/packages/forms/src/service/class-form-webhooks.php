@@ -166,17 +166,24 @@ class Form_Webhooks {
 			);
 
 			// Validate webhook configuration
-			if ( empty( $setup['enabled'] ) || empty( $setup['url'] ) ) {
+			if ( empty( $setup['enabled'] ) ) {
+				continue;
+			}
+			// Validate webhook configuration
+			if ( empty( $setup['url'] ) ) {
+				do_action( 'jetpack_forms_log', 'webhook_skipped', 'url_empty' );
 				continue;
 			}
 
 			// Validate format
 			if ( ! array_key_exists( strtolower( $setup['format'] ), self::VALID_FORMATS_MAP ) ) {
+				do_action( 'jetpack_forms_log', 'webhook_skipped', 'format_invalid', $setup );
 				continue;
 			}
 
 			// Validate method
 			if ( ! in_array( strtoupper( $setup['method'] ), self::VALID_METHODS, true ) ) {
+				do_action( 'jetpack_forms_log', 'webhook_skipped', 'method_invalid', $setup );
 				continue;
 			}
 
@@ -232,6 +239,7 @@ class Form_Webhooks {
 			),
 			'sslverify' => true,
 		);
+
 		return wp_remote_request( $url, $args );
 	}
 
