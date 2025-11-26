@@ -606,7 +606,9 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks->send_webhooks( 123, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'url_empty', $logged_events[0]['reason'] );
 	}
 
@@ -647,9 +649,13 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks->send_webhooks( 123, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'format_invalid', $logged_events[0]['reason'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertIsArray( $logged_events[0]['data'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'xml', $logged_events[0]['data']['format'] );
 	}
 
@@ -690,9 +696,13 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks->send_webhooks( 123, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'method_invalid', $logged_events[0]['reason'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertIsArray( $logged_events[0]['data'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
 		$this->assertEquals( 'DELETE', $logged_events[0]['data']['method'] );
 	}
 
