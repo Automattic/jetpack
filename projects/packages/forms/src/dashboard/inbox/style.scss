@@ -162,6 +162,8 @@
 	flex-direction: column;
 	flex: 1 1 auto;
 	position: relative;
+	// 3px fixes the flickering issue when the notices are displayed.
+	height: calc(100vh - var(--wp-admin-bar-height, 32px) - 3px);
 
 	// First child is the router wrapper
 	> div:first-child {
