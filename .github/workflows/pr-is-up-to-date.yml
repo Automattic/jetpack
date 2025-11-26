@@ -8,6 +8,11 @@ on:
       - pr-update-to
       - pr-update-to-projects/**
 
+permissions:
+  # ./.github/actions/turnstile
+  actions: read
+  # Note everything else, including actions/checkout, is using secrets.API_TOKEN_GITHUB, so no need for permissions.
+
 jobs:
   check:
     name: Check

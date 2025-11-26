@@ -23,6 +23,11 @@ on:
 concurrency:
   group: renovate-${{ github.ref }}
 
+permissions:
+  # actions/checkout
+  contents: read
+  # Note renovatebot/github-action is passed secrets.RENOVATE_TOKEN, so no need for permissions.
+
 jobs:
   renovate:
     name: Renovate
