@@ -93,7 +93,7 @@ class Forms_Abilities {
 			'jetpack-forms/get-submissions',
 			array(
 				'label'               => __( 'Get Form Submissions', 'jetpack-forms' ),
-				'description'         => __( 'Retrieve form submissions. Pass ids array to get specific submissions, or use filters for a list.', 'jetpack-forms' ),
+				'description'         => __( 'List or search form submissions. Returns submission data including sender info, form fields, and metadata. Supports filtering by status, date range, read state, and search terms.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -101,45 +101,45 @@ class Forms_Abilities {
 					'properties'           => array(
 						'ids'       => array(
 							'type'        => 'array',
-							'description' => __( 'Get specific submissions by IDs (e.g., [123] or [1, 2, 3]).', 'jetpack-forms' ),
+							'description' => __( 'Fetch specific submissions by their IDs.', 'jetpack-forms' ),
 							'items'       => array( 'type' => 'integer' ),
 						),
 						'page'      => array(
 							'type'        => 'integer',
-							'description' => __( 'Page number for pagination.', 'jetpack-forms' ),
+							'description' => __( 'Page number for paginated results.', 'jetpack-forms' ),
 							'default'     => 1,
 						),
 						'per_page'  => array(
 							'type'        => 'integer',
-							'description' => __( 'Number of items per page.', 'jetpack-forms' ),
+							'description' => __( 'Number of submissions to return per page (max 100).', 'jetpack-forms' ),
 							'default'     => 10,
 						),
 						'parent'    => array(
 							'type'        => 'array',
-							'description' => __( 'Filter by parent post IDs where the form was submitted.', 'jetpack-forms' ),
+							'description' => __( 'Filter by the page or post ID where the form is embedded.', 'jetpack-forms' ),
 							'items'       => array( 'type' => 'integer' ),
 						),
 						'status'    => array(
 							'type'        => 'string',
-							'description' => __( 'Filter by post status (publish, draft, spam, trash).', 'jetpack-forms' ),
+							'description' => __( 'Filter by submission status.', 'jetpack-forms' ),
 							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
 						),
 						'is_unread' => array(
 							'type'        => 'boolean',
-							'description' => __( 'Filter by read/unread status.', 'jetpack-forms' ),
+							'description' => __( 'Set true for unread only, false for read only.', 'jetpack-forms' ),
 						),
 						'search'    => array(
 							'type'        => 'string',
-							'description' => __( 'Search term to filter submissions.', 'jetpack-forms' ),
+							'description' => __( 'Search within submission content and sender info.', 'jetpack-forms' ),
 						),
 						'before'    => array(
 							'type'        => 'string',
-							'description' => __( 'Limit results to submissions before this ISO8601 date.', 'jetpack-forms' ),
+							'description' => __( 'Only submissions before this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'after'     => array(
 							'type'        => 'string',
-							'description' => __( 'Limit results to submissions after this ISO8601 date.', 'jetpack-forms' ),
+							'description' => __( 'Only submissions after this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 					),
@@ -169,7 +169,7 @@ class Forms_Abilities {
 			'jetpack-forms/update-submission',
 			array(
 				'label'               => __( 'Update Form Submission', 'jetpack-forms' ),
-				'description'         => __( 'Update a form submission. Set status to "spam" to mark as spam, "publish" to restore, or "trash" to delete. Set is_unread to mark as read/unread.', 'jetpack-forms' ),
+				'description'         => __( 'Modify a form submission. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -177,16 +177,16 @@ class Forms_Abilities {
 					'properties'           => array(
 						'id'        => array(
 							'type'        => 'integer',
-							'description' => __( 'The ID of the form submission to update.', 'jetpack-forms' ),
+							'description' => __( 'The submission ID to update.', 'jetpack-forms' ),
 						),
 						'status'    => array(
 							'type'        => 'string',
-							'description' => __( 'The new status for the submission.', 'jetpack-forms' ),
+							'description' => __( 'New status: "publish" (restore), "spam" (mark spam), "trash" (soft delete).', 'jetpack-forms' ),
 							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
 						),
 						'is_unread' => array(
 							'type'        => 'boolean',
-							'description' => __( 'Set to false to mark as read, true to mark as unread.', 'jetpack-forms' ),
+							'description' => __( 'Set false to mark as read, true to mark as unread.', 'jetpack-forms' ),
 						),
 					),
 					'additionalProperties' => false,
@@ -215,7 +215,7 @@ class Forms_Abilities {
 			'jetpack-forms/delete-submission',
 			array(
 				'label'               => __( 'Delete Form Submission', 'jetpack-forms' ),
-				'description'         => __( 'Permanently delete a form submission.', 'jetpack-forms' ),
+				'description'         => __( 'Permanently delete a form submission. This action cannot be undone. Use update-submission with status "trash" for reversible deletion.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -223,7 +223,7 @@ class Forms_Abilities {
 					'properties'           => array(
 						'id' => array(
 							'type'        => 'integer',
-							'description' => __( 'The ID of the form submission to delete.', 'jetpack-forms' ),
+							'description' => __( 'The submission ID to permanently delete.', 'jetpack-forms' ),
 						),
 					),
 					'additionalProperties' => false,
@@ -252,7 +252,7 @@ class Forms_Abilities {
 			'jetpack-forms/get-status-counts',
 			array(
 				'label'               => __( 'Get Submission Status Counts', 'jetpack-forms' ),
-				'description'         => __( 'Get counts of form submissions by status (inbox, spam, trash) with optional filtering.', 'jetpack-forms' ),
+				'description'         => __( 'Get a summary of form submissions grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new submissions.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -260,25 +260,25 @@ class Forms_Abilities {
 					'properties'           => array(
 						'search'    => array(
 							'type'        => 'string',
-							'description' => __( 'Search term to filter counts.', 'jetpack-forms' ),
+							'description' => __( 'Only count submissions matching this search term.', 'jetpack-forms' ),
 						),
 						'parent'    => array(
 							'type'        => 'integer',
-							'description' => __( 'Filter by parent post ID.', 'jetpack-forms' ),
+							'description' => __( 'Only count submissions from a specific page or post.', 'jetpack-forms' ),
 						),
 						'before'    => array(
 							'type'        => 'string',
-							'description' => __( 'Limit to submissions before this ISO8601 date.', 'jetpack-forms' ),
+							'description' => __( 'Only count submissions before this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'after'     => array(
 							'type'        => 'string',
-							'description' => __( 'Limit to submissions after this ISO8601 date.', 'jetpack-forms' ),
+							'description' => __( 'Only count submissions after this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'is_unread' => array(
 							'type'        => 'boolean',
-							'description' => __( 'Filter by read/unread status.', 'jetpack-forms' ),
+							'description' => __( 'Set true to count only unread, false for only read.', 'jetpack-forms' ),
 						),
 					),
 					'additionalProperties' => false,
