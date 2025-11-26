@@ -3,7 +3,11 @@
  * Unit tests for Jetpack Forms Abilities
  *
  * @package automattic/jetpack-forms
- * @phan-file-suppress PhanUndeclaredFunction -- wp_register_ability and wp_get_abilities are from Abilities API plugin
+ * @phan-file-suppress PhanUndeclaredFunction -- wp_register_ability and wp_get_abilities are from Abilities API (WP 6.9)
+ * @phan-file-suppress PhanUndeclaredClassMethod -- WP_Ability class is from Abilities API (WP 6.9)
+ * @phan-file-suppress PhanPluginUnreachableCode -- markTestSkipped throws but Phan doesn't know that
+ * @phan-file-suppress PhanPluginDuplicateAdjacentStatement -- Intentional for idempotency test
+ * @phan-file-suppress PhanTypeMismatchReturn -- Phan doesn't understand WP_Ability return types
  */
 
 namespace Automattic\Jetpack\Forms\Abilities;
