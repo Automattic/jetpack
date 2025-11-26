@@ -218,7 +218,7 @@ function zeroBSCRM_html_addEditSegment($potentialID = -1)
 						var zbsSegmentStemURL = '<?php echo jpcrm_esc_link( 'edit', -1, 'segment', true ); ?>';
 						var jpcrm_contact_stem_URL = '<?php echo jpcrm_esc_link( 'view', -1, 'contact', true ); ?>';
 						var zbsSegmentListURL = '<?php echo jpcrm_esc_link( $zbs->slugs['segments'] ); ?>';
-						var zbsSegmentSEC = '<?php echo esc_js( wp_create_nonce( 'zbs-ajax-nonce' ) ); ?>';
+						var zbsSegmentSEC = <?php echo wp_json_encode( wp_create_nonce( 'zbs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						var zbsSegmentLang = {
 							generalerrortitle: '<?php esc_html_e( 'General Error', 'zero-bs-crm' ); ?>',
 							generalerror: '<?php esc_html_e( 'There was a general error.', 'zero-bs-crm' ); ?>',

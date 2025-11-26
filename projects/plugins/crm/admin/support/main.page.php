@@ -207,7 +207,7 @@ if ( $has_license ) {
 			<div class="data-shared">
 				<b>Site URL:</b> <?php echo esc_html( $site_url ); ?><br>
 				<b>License:</b> <?php echo esc_html( $license_key ); ?><br>
-				<b>Site data:</b><?php echo wp_json_encode( $site_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?><br>
+				<b>Site data:</b><?php echo esc_html( wp_json_encode( $site_data, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ); ?><br>
 			</div>
 			<div class="text-center">
 				<button type="submit" class="btn btn-primary"><?php echo esc_html__( 'Submit', 'zero-bs-crm' ); ?></button>

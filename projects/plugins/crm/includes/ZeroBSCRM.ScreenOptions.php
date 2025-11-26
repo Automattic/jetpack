@@ -215,7 +215,7 @@ function zeroBS_outputScreenOptions(){
 
 	?>
 	<script type="text/javascript">
-	var zbsPageKey = '<?php echo esc_html( $zbs->pageKey ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
+	var zbsPageKey = <?php echo wp_json_encode( $zbs->pageKey, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>;
 	var zbsScreenOptions = <?php echo wp_json_encode( $screenOpts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
 	</script>
 	<?php
