@@ -22,6 +22,31 @@ class Form_Webhooks {
 	 */
 	private static $instance = null;
 
+	private const FORMAT_URL_ENCODED       = 'urlencoded';
+	private const FORMAT_JSON              = 'json';
+	private const METHOD_POST              = 'POST';
+	private const METHOD_GET               = 'GET';
+	private const METHOD_PUT               = 'PUT';
+	private const CONTENT_TYPE_URL_ENCODED = 'application/x-www-form-urlencoded';
+	private const CONTENT_TYPE_JSON        = 'application/json';
+
+	/**
+	 * Valid methods for webhook requests.
+	 *
+	 * @var array
+	 */
+	private const VALID_METHODS = array( self::METHOD_POST, self::METHOD_GET, self::METHOD_PUT );
+
+	/**
+	 * Valid formats for webhook requests.
+	 *
+	 * @var array
+	 */
+	private const VALID_FORMATS_MAP = array(
+		self::FORMAT_URL_ENCODED => self::CONTENT_TYPE_URL_ENCODED,
+		self::FORMAT_JSON        => self::CONTENT_TYPE_JSON,
+	);
+
 	/**
 	 * Initialize and return singleton instance.
 	 *
