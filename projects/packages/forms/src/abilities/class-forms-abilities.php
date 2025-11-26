@@ -2,7 +2,10 @@
 /**
  * Jetpack Forms Abilities Registration
  *
+ * Registers Jetpack Forms abilities with the WordPress Abilities API.
+ *
  * @package automattic/jetpack-forms
+ * @since 1.0.0
  */
 
 namespace Automattic\Jetpack\Forms\Abilities;
@@ -15,9 +18,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Class Forms_Abilities
- * Registers Jetpack Forms abilities with the WordPress Feature API.
+ *
+ * Registers Jetpack Forms abilities with the WordPress Abilities API.
+ * Provides abilities for managing form submissions, integrations, and status counts.
  */
 class Forms_Abilities {
+
+	/**
+	 * The category slug for forms abilities.
+	 *
+	 * @var string
+	 */
+	const CATEGORY_SLUG = 'jetpack-forms';
 
 	/**
 	 * Initialize the abilities registration.
@@ -25,13 +37,38 @@ class Forms_Abilities {
 	 * @return void
 	 */
 	public static function init() {
-		// Wait for the Feature API to be initialized
-		add_action( 'wp_feature_api_init', array( __CLASS__, 'register_abilities' ) );
+		// Register the ability category first
+		add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
+
+		// Then register abilities
+		add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_abilities' ) );
 
 		// If the API is already initialized, register immediately
-		if ( did_action( 'wp_feature_api_init' ) ) {
+		if ( did_action( 'wp_abilities_api_categories_init' ) ) {
+			self::register_category();
+		}
+		if ( did_action( 'wp_abilities_api_init' ) ) {
 			self::register_abilities();
 		}
+	}
+
+	/**
+	 * Register the Jetpack Forms ability category.
+	 *
+	 * @return void
+	 */
+	public static function register_category() {
+		if ( ! function_exists( 'wp_register_ability_category' ) ) {
+			return;
+		}
+
+		wp_register_ability_category(
+			self::CATEGORY_SLUG,
+			array(
+				'label'       => __( 'Jetpack Forms', 'jetpack-forms' ),
+				'description' => __( 'Abilities for managing Jetpack contact form submissions and integrations.', 'jetpack-forms' ),
+			)
+		);
 	}
 
 	/**
@@ -40,33 +77,32 @@ class Forms_Abilities {
 	 * @return void
 	 */
 	public static function register_abilities() {
-		// Check if wp_register_feature function exists
-		if ( ! function_exists( 'wp_register_feature' ) ) {
+		if ( ! function_exists( 'wp_register_ability' ) ) {
 			return;
 		}
 
-		// Register all abilities.
-		self::register_get_form_submissions_ability();
-		self::register_update_form_submission_ability();
-		self::register_delete_form_submission_ability();
+		self::register_get_submissions_ability();
+		self::register_update_submission_ability();
+		self::register_delete_submission_ability();
 		self::register_get_integrations_ability();
 		self::register_get_status_counts_ability();
 	}
 
 	/**
 	 * Register ability to get form submissions.
+	 *
+	 * @return void
 	 */
-	private static function register_get_form_submissions_ability() {
-		wp_register_feature(
+	private static function register_get_submissions_ability() {
+		wp_register_ability(
+			'jetpack-forms/get-submissions',
 			array(
-				'id'           => 'jetpack-forms/get-submissions',
-				'name'         => __( 'Get Form Submissions', 'jetpack-forms' ),
-				'description'  => __( 'Retrieve form submissions. Pass ids array to get specific submissions, or use filters for a list.', 'jetpack-forms' ),
-				'type'         => 'tool',
-				'callback'     => array( __CLASS__, 'get_form_submissions' ),
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
+				'label'               => __( 'Get Form Submissions', 'jetpack-forms' ),
+				'description'         => __( 'Retrieve form submissions. Pass ids array to get specific submissions, or use filters for a list.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'properties'           => array(
 						'ids'       => array(
 							'type'        => 'array',
 							'description' => __( 'Get specific submissions by IDs (e.g., [123] or [1, 2, 3]).', 'jetpack-forms' ),
@@ -111,27 +147,38 @@ class Forms_Abilities {
 							'format'      => 'date-time',
 						),
 					),
+					'additionalProperties' => false,
 				),
-				'categories'   => array( 'forms', 'submissions', 'read' ),
-				'is_eligible'  => array( __CLASS__, 'can_edit_pages' ),
+				'execute_callback'    => array( __CLASS__, 'get_form_submissions' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
 			)
 		);
 	}
 
 	/**
 	 * Register ability to update a form submission.
+	 *
+	 * @return void
 	 */
-	private static function register_update_form_submission_ability() {
-		wp_register_feature(
+	private static function register_update_submission_ability() {
+		wp_register_ability(
+			'jetpack-forms/update-submission',
 			array(
-				'id'           => 'jetpack-forms/update-submission',
-				'name'         => __( 'Update Form Submission', 'jetpack-forms' ),
-				'description'  => __( 'Update a form submission. Set status to "spam" to mark as spam, "publish" to restore, or "trash" to delete. Set is_unread to mark as read/unread.', 'jetpack-forms' ),
-				'type'         => 'tool',
-				'callback'     => array( __CLASS__, 'update_form_submission' ),
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
+				'label'               => __( 'Update Form Submission', 'jetpack-forms' ),
+				'description'         => __( 'Update a form submission. Set status to "spam" to mark as spam, "publish" to restore, or "trash" to delete. Set is_unread to mark as read/unread.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'id' ),
+					'properties'           => array(
 						'id'        => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission to update.', 'jetpack-forms' ),
@@ -146,81 +193,110 @@ class Forms_Abilities {
 							'description' => __( 'Set to false to mark as read, true to mark as unread.', 'jetpack-forms' ),
 						),
 					),
-					'required'   => array( 'id' ),
+					'additionalProperties' => false,
 				),
-				'categories'   => array( 'forms', 'submissions', 'write' ),
-				'is_eligible'  => array( __CLASS__, 'can_edit_pages' ),
+				'execute_callback'    => array( __CLASS__, 'update_form_submission' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
 			)
 		);
 	}
 
 	/**
 	 * Register ability to delete a form submission.
+	 *
+	 * @return void
 	 */
-	private static function register_delete_form_submission_ability() {
-		wp_register_feature(
+	private static function register_delete_submission_ability() {
+		wp_register_ability(
+			'jetpack-forms/delete-submission',
 			array(
-				'id'           => 'jetpack-forms/delete-submission',
-				'name'         => __( 'Delete Form Submission', 'jetpack-forms' ),
-				'description'  => __( 'Permanently delete a form submission.', 'jetpack-forms' ),
-				'type'         => 'tool',
-				'callback'     => array( __CLASS__, 'delete_form_submission' ),
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
+				'label'               => __( 'Delete Form Submission', 'jetpack-forms' ),
+				'description'         => __( 'Permanently delete a form submission.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'required'             => array( 'id' ),
+					'properties'           => array(
 						'id' => array(
 							'type'        => 'integer',
 							'description' => __( 'The ID of the form submission to delete.', 'jetpack-forms' ),
 						),
 					),
-					'required'   => array( 'id' ),
+					'additionalProperties' => false,
 				),
-				'categories'   => array( 'forms', 'submissions', 'write' ),
-				'is_eligible'  => array( __CLASS__, 'can_delete_posts' ),
+				'execute_callback'    => array( __CLASS__, 'delete_form_submission' ),
+				'permission_callback' => array( __CLASS__, 'can_delete_posts' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => false,
+						'destructive' => true,
+						'idempotent'  => false,
+					),
+					'show_in_rest' => true,
+				),
 			)
 		);
 	}
 
 	/**
 	 * Register ability to get integrations.
+	 *
+	 * @return void
 	 */
 	private static function register_get_integrations_ability() {
-		wp_register_feature(
+		wp_register_ability(
+			'jetpack-forms/get-integrations',
 			array(
-				'id'           => 'jetpack-forms/get-integrations',
-				'name'         => __( 'Get Form Integrations', 'jetpack-forms' ),
-				'description'  => __( 'Retrieve form integrations (Akismet, MailPoet, Salesforce, Google Drive, etc.) and their status. Optionally pass a slug to get a single integration.', 'jetpack-forms' ),
-				'type'         => 'tool',
-				'callback'     => array( __CLASS__, 'get_integrations' ),
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
+				'label'               => __( 'Get Form Integrations', 'jetpack-forms' ),
+				'description'         => __( 'Retrieve form integrations (Akismet, MailPoet, Salesforce, Google Drive, etc.) and their status. Optionally pass a slug to get a single integration.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'properties'           => array(
 						'slug' => array(
 							'type'        => 'string',
 							'description' => __( 'Optional integration slug to get a single integration (e.g., akismet, mailpoet, salesforce, google-drive).', 'jetpack-forms' ),
 						),
 					),
+					'additionalProperties' => false,
 				),
-				'categories'   => array( 'forms', 'integrations', 'read' ),
-				'is_eligible'  => array( __CLASS__, 'can_edit_pages' ),
+				'execute_callback'    => array( __CLASS__, 'get_integrations' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
 			)
 		);
 	}
 
 	/**
 	 * Register ability to get status counts.
+	 *
+	 * @return void
 	 */
 	private static function register_get_status_counts_ability() {
-		wp_register_feature(
+		wp_register_ability(
+			'jetpack-forms/get-status-counts',
 			array(
-				'id'           => 'jetpack-forms/get-status-counts',
-				'name'         => __( 'Get Submission Status Counts', 'jetpack-forms' ),
-				'description'  => __( 'Get counts of form submissions by status (inbox, spam, trash) with optional filtering.', 'jetpack-forms' ),
-				'type'         => 'tool',
-				'callback'     => array( __CLASS__, 'get_status_counts' ),
-				'input_schema' => array(
-					'type'       => 'object',
-					'properties' => array(
+				'label'               => __( 'Get Submission Status Counts', 'jetpack-forms' ),
+				'description'         => __( 'Get counts of form submissions by status (inbox, spam, trash) with optional filtering.', 'jetpack-forms' ),
+				'category'            => self::CATEGORY_SLUG,
+				'input_schema'        => array(
+					'type'                 => 'object',
+					'properties'           => array(
 						'search'    => array(
 							'type'        => 'string',
 							'description' => __( 'Search term to filter counts.', 'jetpack-forms' ),
@@ -244,9 +320,18 @@ class Forms_Abilities {
 							'description' => __( 'Filter by read/unread status.', 'jetpack-forms' ),
 						),
 					),
+					'additionalProperties' => false,
 				),
-				'categories'   => array( 'forms', 'submissions', 'read' ),
-				'is_eligible'  => array( __CLASS__, 'can_edit_pages' ),
+				'execute_callback'    => array( __CLASS__, 'get_status_counts' ),
+				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
+				'meta'                => array(
+					'annotations'  => array(
+						'readonly'    => true,
+						'destructive' => false,
+						'idempotent'  => true,
+					),
+					'show_in_rest' => true,
+				),
 			)
 		);
 	}
@@ -288,10 +373,11 @@ class Forms_Abilities {
 	/**
 	 * Get form submissions callback.
 	 *
-	 * @param array $args Arguments.
+	 * @param array $args Arguments from the ability input.
 	 * @return array|\WP_Error Returns array of submissions or WP_Error on failure.
 	 */
-	public static function get_form_submissions( $args ) {
+	public static function get_form_submissions( $args = array() ) {
+		$args     = is_array( $args ) ? $args : array();
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 		$request  = new \WP_REST_Request( 'GET', '/wp/v2/feedback' );
 
@@ -317,8 +403,8 @@ class Forms_Abilities {
 	/**
 	 * Update form submission callback.
 	 *
-	 * @param array $args Arguments.
-	 * @return array|\WP_Error
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns updated submission data or WP_Error on failure.
 	 */
 	public static function update_form_submission( $args ) {
 		if ( ! isset( $args['id'] ) ) {
@@ -360,8 +446,8 @@ class Forms_Abilities {
 	/**
 	 * Delete form submission callback.
 	 *
-	 * @param array $args Arguments.
-	 * @return array|\WP_Error
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns deletion result or WP_Error on failure.
 	 */
 	public static function delete_form_submission( $args ) {
 		if ( ! isset( $args['id'] ) ) {
@@ -384,10 +470,11 @@ class Forms_Abilities {
 	/**
 	 * Get integrations callback.
 	 *
-	 * @param array $args Arguments.
-	 * @return array|\WP_Error
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns integrations data or WP_Error on failure.
 	 */
-	public static function get_integrations( $args ) {
+	public static function get_integrations( $args = array() ) {
+		$args     = is_array( $args ) ? $args : array();
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 
 		// If slug provided, get single integration
@@ -411,10 +498,11 @@ class Forms_Abilities {
 	/**
 	 * Get status counts callback.
 	 *
-	 * @param array $args Arguments.
-	 * @return array|\WP_Error
+	 * @param array $args Arguments from the ability input.
+	 * @return array|\WP_Error Returns status counts or WP_Error on failure.
 	 */
-	public static function get_status_counts( $args ) {
+	public static function get_status_counts( $args = array() ) {
+		$args     = is_array( $args ) ? $args : array();
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 		$request  = new \WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
 
