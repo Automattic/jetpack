@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Ensure proper flags are used with `json_escape()`.
+Ensure proper flags are used with `json_encode()`.
