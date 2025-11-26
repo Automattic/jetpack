@@ -32,7 +32,7 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 			webhook_id: id || '',
 			url: url || '',
 			format: 'json', // Default to json, no UI for changing this yet
-			method: 'post', // Default to post, no UI for changing this yet
+			method: 'POST', // Default to POST, no UI for changing this yet
 			enabled: enabled,
 		};
 
