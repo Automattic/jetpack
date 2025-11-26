@@ -12,6 +12,10 @@ concurrency:
   group: e2e-tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
+permissions:
+  # actions/checkout, actions/cache?, actions/upload-artifact, actions/download-artifact
+  contents: read
+
 env:
   FORCE_COLOR: 1
   USE_CLOUDFLARE_TUNNEL: ${{ vars.E2E_TUNNEL_TYPE == 'cloudflare' && '1' || '' }}
@@ -370,6 +374,11 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
+    permissions:
+      # ./projects/github-actions/test-results-to-slack
+      actions: read
+      # actions/checkout, actions/download-artifact
+      contents: read
     if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
     needs: [e2e-tests]
 
