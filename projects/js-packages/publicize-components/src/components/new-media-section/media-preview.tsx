@@ -9,6 +9,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import styles from './styles.module.scss';
 import { MediaPreviewProps } from './types';
 
 /**
@@ -29,17 +30,17 @@ export default function MediaPreview( {
 	}
 
 	return (
-		<div className="editor-post-featured-image__container">
-			<div className="editor-post-featured-image__preview">
+		<div className={ styles.container }>
+			<div className={ styles.preview }>
 				{ media &&
 					! isLoading &&
 					( media.type === 'video' ? (
-						<video className="editor-post-featured-image__preview-image" controls>
+						<video className={ styles.previewImage } controls>
 							<source src={ media.url } />
 						</video>
 					) : (
 						<img
-							className="editor-post-featured-image__preview-image"
+							className={ styles.previewImage }
 							src={ media.url }
 							alt={ __( 'Media preview', 'jetpack-publicize-components' ) }
 						/>
@@ -47,10 +48,10 @@ export default function MediaPreview( {
 				{ isLoading && <Spinner /> }
 			</div>
 			{ media && ! isLoading && (
-				<HStack className="editor-post-featured-image__actions">
+				<HStack className={ styles.actions }>
 					<Button
 						__next40pxDefaultSize
-						className="editor-post-featured-image__action"
+						className={ styles.action }
 						onClick={ onReplace }
 						disabled={ disabled }
 					>
@@ -58,10 +59,9 @@ export default function MediaPreview( {
 					</Button>
 					<Button
 						__next40pxDefaultSize
-						className="editor-post-featured-image__action"
+						className={ styles.action }
 						onClick={ onRemove }
 						disabled={ disabled }
-						isDestructive
 					>
 						{ __( 'Remove', 'jetpack-publicize-components' ) }
 					</Button>
