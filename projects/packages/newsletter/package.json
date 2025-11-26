@@ -1,16 +1,16 @@
 {
-	"name": "@automattic/jetpack-newsletter-settings",
+	"name": "@automattic/jetpack-newsletter",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "The Jetpack Newsletters settings UI",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/newsletter-settings/#readme",
+	"description": "Jetpack Newsletter functionality",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/newsletter/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Newsletter Settings"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Newsletter"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/packages/newsletter-settings"
+		"directory": "projects/packages/newsletter"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

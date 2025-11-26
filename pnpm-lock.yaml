@@ -3368,7 +3368,7 @@ importers:
         specifier: 6.0.1
         version: 6.0.1(webpack@5.101.3)
 
-  projects/packages/newsletter-settings:
+  projects/packages/newsletter:
     dependencies:
       '@wordpress/dataviews':
         specifier: 10.2.0
@@ -4888,9 +4888,9 @@ importers:
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-newsletter-settings':
+      '@automattic/jetpack-newsletter':
         specifier: workspace:*
-        version: link:../../packages/newsletter-settings
+        version: link:../../packages/newsletter
       '@automattic/jetpack-partner-coupon':
         specifier: workspace:*
         version: link:../../js-packages/partner-coupon

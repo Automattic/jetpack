@@ -2,7 +2,7 @@
 /**
  * A class that adds a newsletter settings screen to wp-admin.
  *
- * @package automattic/jetpack-newsletter-settings
+ * @package automattic/jetpack-newsletter
  */
 
 namespace Automattic\Jetpack\Newsletter_Settings;
@@ -106,16 +106,16 @@ class Settings {
 	 */
 	public function load_admin_scripts() {
 		Assets::register_script(
-			'jetpack-newsletter-settings',
-			'../build/newsletter-settings.js',
+			'jetpack-newsletter',
+			'../build/newsletter.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-newsletter-settings',
+				'textdomain' => 'jetpack-newsletter',
 				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-newsletter-settings' );
+		Assets::enqueue_script( 'jetpack-newsletter' );
 	}
 
 	/**

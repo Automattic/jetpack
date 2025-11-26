@@ -1,5 +1,5 @@
 /**
- * Builds the newsletter settings JS bundle.
+ * Builds the newsletter JS bundle.
  */
 
 import { createRequire } from 'module';
@@ -33,7 +33,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
-		'newsletter-settings': path.join( __dirname, 'src/index.tsx' ),
+		newsletter: path.join( __dirname, 'src/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -53,7 +53,7 @@ export default {
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {
-			consumer_slug: 'newsletter-settings',
+			consumer_slug: 'newsletter',
 		} ),
 	},
 	module: {
@@ -88,7 +88,7 @@ export default {
 						[
 							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
 							{
-								textdomain: 'jetpack-newsletter-settings',
+								textdomain: 'jetpack-newsletter',
 								functions: {
 									...generateI18nVariants( '__', 1 ),
 									...generateI18nVariants( '_x', 2 ),

@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-newsletter-settings",
-	"description": "The Jetpack Newsletters settings UI",
+	"name": "automattic/jetpack-newsletter",
+	"description": "Jetpack Newsletter functionality",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -49,7 +49,7 @@
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
-		"textdomain": "jetpack-newsletter-settings",
+		"textdomain": "jetpack-newsletter",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-newsletter-settings.php"
 		}

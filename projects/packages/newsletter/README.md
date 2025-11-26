@@ -1,8 +1,8 @@
-# newsletter-settings
+# newsletter
 
-The Jetpack Newsletters settings UI
+Jetpack Newsletter functionality
 
-## How to install newsletter-settings
+## How to install newsletter
 
 ### Installation From Git Repo
 
@@ -20,5 +20,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-newsletter-settings is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+newsletter is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
