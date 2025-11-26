@@ -12,7 +12,7 @@ export type FooterProps = SharedProps & {
 /**
  * Renders a footer.
  *
- * @param {SharedProps} props - Props
+ * @param {FooterProps} props - Props
  *
  * @return The rendered footer.
  */

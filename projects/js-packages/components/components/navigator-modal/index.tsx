@@ -1,4 +1,5 @@
 import { Modal, Navigator } from '@wordpress/components';
+import clsx from 'clsx';
 import { useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
@@ -12,11 +13,15 @@ import { TNavigatorModalContext, SharedProps } from './types.ts';
  *
  * @return Component
  */
-function InternalNavigatorModal( { children }: SharedProps ) {
+function InternalNavigatorModal( { children, className }: SharedProps ) {
 	const context = useContext( NavigatorModalContext );
 
 	return (
-		<Modal __experimentalHideHeader onRequestClose={ context.onClose } className={ styles.modal }>
+		<Modal
+			__experimentalHideHeader
+			onRequestClose={ context.onClose }
+			className={ clsx( styles.modal, className ) }
+		>
 			<Navigator initialPath={ context.initialPath } className={ styles.navigator }>
 				{ children }
 			</Navigator>
@@ -27,7 +32,7 @@ function InternalNavigatorModal( { children }: SharedProps ) {
 /**
  * Renders a modal with navigator capabilities.
  *
- * @param {NavigatorModalProps} props - Props
+ * @param {SharedProps & TNavigatorModalContext} props - Props
  *
  * @return Component
  */
