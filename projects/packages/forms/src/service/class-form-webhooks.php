@@ -171,12 +171,12 @@ class Form_Webhooks {
 			}
 
 			// Validate format
-			if ( ! array_key_exists( $setup['format'], self::VALID_FORMATS_MAP ) ) {
+			if ( ! array_key_exists( strtolower( $setup['format'] ), self::VALID_FORMATS_MAP ) ) {
 				continue;
 			}
 
 			// Validate method
-			if ( ! in_array( $setup['method'], self::VALID_METHODS, true ) ) {
+			if ( ! in_array( strtoupper( $setup['method'] ), self::VALID_METHODS, true ) ) {
 				continue;
 			}
 
