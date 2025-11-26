@@ -520,6 +520,6 @@ class Forms_Abilities {
 			return $response;
 		}
 
-		return $response->get_data();
+		return (array) $response->get_data();
 	}
 }
