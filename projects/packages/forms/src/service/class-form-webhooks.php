@@ -151,28 +151,40 @@ class Form_Webhooks {
 
 		$enabled_webhooks = array();
 		foreach ( $attributes['webhooks'] as $webhook ) {
+			$defaults = array(
+				'webhook_id' => '',
+				'url'        => '',
+				'method'     => self::METHOD_POST,
+				'verified'   => false,
+				'format'     => self::FORMAT_JSON,
+				'enabled'    => false,
+			);
+
+			$setup = wp_parse_args(
+				is_array( $webhook ) && ! empty( $webhook ) ? $webhook : array(),
+				$defaults
+			);
+
 			// Validate webhook configuration
-			if ( empty( $webhook['enabled'] ) || empty( $webhook['url'] ) ) {
+			if ( empty( $setup['enabled'] ) || empty( $setup['url'] ) ) {
 				continue;
 			}
 
 			// Validate format
-			$format = ! empty( $webhook['format'] ) ? $webhook['format'] : 'json';
-			if ( ! in_array( $format, array( 'urlencoded', 'json' ), true ) ) {
+			if ( ! array_key_exists( $setup['format'], self::VALID_FORMATS_MAP ) ) {
 				continue;
 			}
 
 			// Validate method
-			$method = ! empty( $webhook['method'] ) ? strtoupper( $webhook['method'] ) : 'POST';
-			if ( ! in_array( $method, array( 'POST', 'GET', 'PUT' ), true ) ) {
+			if ( ! in_array( $setup['method'], self::VALID_METHODS, true ) ) {
 				continue;
 			}
 
 			$enabled_webhooks[] = array(
-				'webhook_id' => ! empty( $webhook['webhook_id'] ) ? $webhook['webhook_id'] : '',
-				'url'        => $webhook['url'],
-				'format'     => $format,
-				'method'     => $method,
+				'webhook_id' => $setup['webhook_id'],
+				'url'        => $setup['url'],
+				'format'     => $setup['format'],
+				'method'     => $setup['method'],
 			);
 		}
 
