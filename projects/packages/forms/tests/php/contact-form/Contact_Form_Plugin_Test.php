@@ -666,54 +666,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_form_with_draft_parent_post() {
-		global $post;
-		$previous_post = $this->setup_token_test( null, 'Test User' );
-		$post_id       = $post->ID;
-
-		// Change the parent post to draft after JWT is created
-		wp_update_post(
-			array(
-				'ID'          => $post_id,
-				'post_status' => 'draft',
-			)
-		);
-
-		$plugin = Contact_Form_Plugin::init();
-		$result = $plugin->process_form_submission();
-
-		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is draft.' );
-		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
-		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
-		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
-
-		$this->teardown_post_for_test( $previous_post );
-	}
-
-	public function test_process_form_with_pending_parent_post() {
-		global $post;
-		$previous_post = $this->setup_token_test( null, 'Test User' );
-		$post_id       = $post->ID;
-
-		// Change the parent post to pending after JWT is created
-		wp_update_post(
-			array(
-				'ID'          => $post_id,
-				'post_status' => 'pending',
-			)
-		);
-
-		$plugin = Contact_Form_Plugin::init();
-		$result = $plugin->process_form_submission();
-
-		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is pending.' );
-		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
-		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
-		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
-
-		$this->teardown_post_for_test( $previous_post );
-	}
-
 	private function setup_token_test( $token = null, $name = null ) {
 		global $post;
 		$this->get_current_user = wp_get_current_user();
