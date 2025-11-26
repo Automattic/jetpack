@@ -570,6 +570,187 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test logging action is triggered when webhook URL is empty.
+	 */
+	public function test_send_webhooks_logs_empty_url() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => '',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( 123, $fields, false, array() );
+
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'url_empty', $logged_events[0]['reason'] );
+	}
+
+	/**
+	 * Test logging action is triggered when webhook format is invalid.
+	 */
+	public function test_send_webhooks_logs_invalid_format() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://example.com/webhook',
+						'format'     => 'xml',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( 123, $fields, false, array() );
+
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'format_invalid', $logged_events[0]['reason'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertIsArray( $logged_events[0]['data'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'xml', $logged_events[0]['data']['format'] );
+	}
+
+	/**
+	 * Test logging action is triggered when webhook method is invalid.
+	 */
+	public function test_send_webhooks_logs_invalid_method() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://example.com/webhook',
+						'format'     => 'json',
+						'method'     => 'DELETE',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( 123, $fields, false, array() );
+
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'method_invalid', $logged_events[0]['reason'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertIsArray( $logged_events[0]['data'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'DELETE', $logged_events[0]['data']['method'] );
+	}
+
+	/**
+	 * Test webhook method validation is case-insensitive.
+	 */
+	public function test_send_webhooks_accepts_lowercase_method() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://example.com/webhook',
+						'format'     => 'json',
+						'method'     => 'post', // lowercase should be accepted
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$captured_request = null;
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$captured_request ) {
+				$captured_request = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{"success":true}',
+					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( 123, $fields, false, array() );
+
+		$this->assertNotNull( $captured_request, 'HTTP request should be made even with lowercase method' );
+		$this->assertEquals( 'post', $captured_request['args']['method'] );
+	}
+
+	/**
 	 * Helper method to create a mock form.
 	 *
 	 * @param array $attributes Form attributes.

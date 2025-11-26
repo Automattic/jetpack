@@ -1593,7 +1593,7 @@ class Contact_Form_Plugin {
 				);
 			}
 
-			if ( ! empty( $form->attributes['webhooks'] ) ) {
+			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
 			// Process the form
