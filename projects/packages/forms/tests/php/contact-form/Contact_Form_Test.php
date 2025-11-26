@@ -1461,7 +1461,7 @@ class Contact_Form_Test extends BaseTestCase {
 						'style' => 'color:gummy; font-size:14px;',
 					),
 				),
-				JSON_UNESCAPED_SLASHES
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -1493,7 +1493,7 @@ class Contact_Form_Test extends BaseTestCase {
 						'style' => 'color:gummy; font-size:14px;',
 					),
 				),
-				JSON_UNESCAPED_SLASHES
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$contact_form_attributes = array(
