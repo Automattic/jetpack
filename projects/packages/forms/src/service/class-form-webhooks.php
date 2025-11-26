@@ -218,12 +218,10 @@ class Form_Webhooks {
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];
-		$format     = $webhook['format'] === 'urlencoded' ? 'application/x-www-form-urlencoded' : 'application/json';
+		$format     = self::VALID_FORMATS_MAP[ $webhook['format'] ];
 		$method     = $webhook['method'];
-
 		// Encode body based on format
-		$body = $webhook['format'] === 'json' ? wp_json_encode( $data ) : $data;
-
+		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data ) : $data;
 		$args = array(
 			'method'    => $method,
 			'body'      => $body,
@@ -233,7 +231,6 @@ class Form_Webhooks {
 			),
 			'sslverify' => true,
 		);
-
 		return wp_remote_request( $url, $args );
 	}
 
