@@ -12,15 +12,11 @@ namespace Automattic\Jetpack\Forms\Abilities;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
-}
-
 /**
  * Class Forms_Abilities
  *
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
- * Provides abilities for managing form submissions, integrations, and status counts.
+ * Provides abilities for managing form submissions and status counts.
  */
 class Forms_Abilities {
 
@@ -66,7 +62,7 @@ class Forms_Abilities {
 			self::CATEGORY_SLUG,
 			array(
 				'label'       => __( 'Jetpack Forms', 'jetpack-forms' ),
-				'description' => __( 'Abilities for managing Jetpack contact form submissions and integrations.', 'jetpack-forms' ),
+				'description' => __( 'Abilities for managing Jetpack Forms submissions.', 'jetpack-forms' ),
 			)
 		);
 	}
@@ -84,7 +80,6 @@ class Forms_Abilities {
 		self::register_get_submissions_ability();
 		self::register_update_submission_ability();
 		self::register_delete_submission_ability();
-		self::register_get_integrations_ability();
 		self::register_get_status_counts_ability();
 	}
 
@@ -240,43 +235,6 @@ class Forms_Abilities {
 						'readonly'    => false,
 						'destructive' => true,
 						'idempotent'  => false,
-					),
-					'show_in_rest' => true,
-				),
-			)
-		);
-	}
-
-	/**
-	 * Register ability to get integrations.
-	 *
-	 * @return void
-	 */
-	private static function register_get_integrations_ability() {
-		wp_register_ability(
-			'jetpack-forms/get-integrations',
-			array(
-				'label'               => __( 'Get Form Integrations', 'jetpack-forms' ),
-				'description'         => __( 'Retrieve form integrations (Akismet, MailPoet, Salesforce, Google Drive, etc.) and their status. Optionally pass a slug to get a single integration.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'default'              => array(),
-					'properties'           => array(
-						'slug' => array(
-							'type'        => 'string',
-							'description' => __( 'Optional integration slug to get a single integration (e.g., akismet, mailpoet, salesforce, google-drive).', 'jetpack-forms' ),
-						),
-					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'get_integrations' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => true,
-						'destructive' => false,
-						'idempotent'  => true,
 					),
 					'show_in_rest' => true,
 				),
@@ -463,34 +421,6 @@ class Forms_Abilities {
 		$request->set_param( 'force', true );
 
 		$response = $endpoint->delete_item( $request );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $response->get_data();
-	}
-
-	/**
-	 * Get integrations callback.
-	 *
-	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns integrations data or WP_Error on failure.
-	 */
-	public static function get_integrations( $args = array() ) {
-		$args     = is_array( $args ) ? $args : array();
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-
-		// If slug provided, get single integration
-		if ( isset( $args['slug'] ) ) {
-			$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback/integrations/' . $args['slug'] );
-			$request->set_url_params( array( 'slug' => $args['slug'] ) );
-			$response = $endpoint->get_single_integration_status( $request );
-		} else {
-			$request = new \WP_REST_Request( 'GET', '/wp/v2/feedback/integrations' );
-			$request->set_param( 'version', 2 );
-			$response = $endpoint->get_all_integrations_status( $request );
-		}
-
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}

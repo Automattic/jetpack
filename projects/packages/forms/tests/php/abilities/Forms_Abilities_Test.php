@@ -141,7 +141,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 			'jetpack-forms/get-submissions',
 			'jetpack-forms/update-submission',
 			'jetpack-forms/delete-submission',
-			'jetpack-forms/get-integrations',
 			'jetpack-forms/get-status-counts',
 		);
 
@@ -155,32 +154,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 			}
 			$this->assertTrue( $found, "Ability {$ability_name} should be registered" );
 		}
-	}
-
-	/**
-	 * Test ability execution - get integrations.
-	 */
-	public function test_get_integrations_ability() {
-		if ( ! function_exists( 'wp_get_ability' ) ) {
-			$this->markTestSkipped( 'Abilities API functions not available' );
-			return;
-		}
-
-		$this->simulate_doing_wp_abilities_categories_init_action();
-		Forms_Abilities::register_category();
-
-		$this->simulate_doing_wp_abilities_init_action();
-		Forms_Abilities::register_abilities();
-
-		wp_set_current_user( self::$user_id );
-
-		$ability = wp_get_ability( 'jetpack-forms/get-integrations' );
-		$this->assertNotNull( $ability, 'get-integrations ability should exist' );
-
-		$result = $ability->execute( array() );
-
-		$this->assertNotInstanceOf( \WP_Error::class, $result, 'get-integrations should not return WP_Error' );
-		$this->assertIsArray( $result, 'get-integrations should return an array' );
 	}
 
 	/**
@@ -350,17 +323,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$result = Forms_Abilities::get_form_submissions( array( 'per_page' => 5 ) );
 
 		$this->assertIsArray( $result, 'get_form_submissions should return an array' );
-	}
-
-	/**
-	 * Test get_integrations callback directly.
-	 */
-	public function test_get_integrations_callback() {
-		wp_set_current_user( self::$user_id );
-
-		$result = Forms_Abilities::get_integrations( array() );
-
-		$this->assertIsArray( $result, 'get_integrations should return an array' );
 	}
 
 	/**
