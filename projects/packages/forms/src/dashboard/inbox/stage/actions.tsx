@@ -51,6 +51,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 
 const undoingMessage = __( 'Undoing…', 'jetpack-forms' );
 
+// Track pending refetch promises so undo can wait for them to complete
+const pendingRefetches = new Map< string, Promise< void > >();
+
 /**
  * Helper function to invalidate cache and navigate to correct page after removing items.
  *
@@ -312,6 +315,7 @@ export const markAsSpamAction: Action = {
 	isEligible: item => item.status !== 'spam',
 	supportsBulk: true,
 	async callback( items, { registry }, { isUndo = false } = {} ) {
+		let undoTriggered = false;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-spam',
 			multiple: items.length > 1,
@@ -363,12 +367,30 @@ export const markAsSpamAction: Action = {
 
 			// If there is at least one successful update, invalidate the cache and navigate if needed
 			if ( itemsUpdated.length ) {
-				let status = 'inbox';
-				if ( items[ 0 ]?.status === 'trash' ) {
-					status = 'trash';
-				}
-				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
-				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
+				waitForRecordsPromise = new Promise( resolve => {
+					setTimeout( () => {
+						if ( undoTriggered ) {
+							resolve();
+							return;
+						}
+
+						let status = 'inbox';
+						if ( items[ 0 ]?.status === 'trash' ) {
+							status = 'trash';
+						}
+
+						invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
+
+						if ( undoTriggered ) {
+							resolve();
+							return;
+						}
+
+						waitForEntityRecordsResolution( registry, getCurrentQuery() ).finally( resolve );
+					}, 0 );
+				} );
+				// Store promise so undo can wait for it
+				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
 
 			if ( numberOfErrors === 0 ) {
@@ -394,7 +416,18 @@ export const markAsSpamAction: Action = {
 						actions: [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => {
+								onClick: async () => {
+									undoTriggered = true;
+
+									// Wait for the original action's refetch to complete before undoing
+									const originalRefetch = pendingRefetches.get( actionId );
+									if ( originalRefetch ) {
+										await originalRefetch;
+										pendingRefetches.delete( actionId );
+									}
+
+									// Remove the original pending action before starting undo
+									removePendingAction( actionId );
 									markAsNotSpamAction.callback( items, { registry }, { isUndo: true } );
 								},
 							},
@@ -425,6 +458,8 @@ export const markAsSpamAction: Action = {
 				await waitForRecordsPromise;
 			}
 
+			// Clean up
+			pendingRefetches.delete( actionId );
 			removePendingAction( actionId );
 		}
 	},
@@ -438,6 +473,7 @@ export const markAsNotSpamAction: Action = {
 	isEligible: item => item.status === 'spam',
 	supportsBulk: true,
 	async callback( items, { registry }, { isUndo = false } = {} ) {
+		let undoTriggered = false;
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
 			action: 'mark-as-not-spam',
 			multiple: items.length > 1,
@@ -489,8 +525,25 @@ export const markAsNotSpamAction: Action = {
 
 			// If there is at least one successful update, invalidate the cache and navigate if needed
 			if ( itemsUpdated.length ) {
-				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
-				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
+				waitForRecordsPromise = new Promise( resolve => {
+					setTimeout( () => {
+						if ( undoTriggered ) {
+							resolve();
+							return;
+						}
+
+						invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'spam' );
+
+						if ( undoTriggered ) {
+							resolve();
+							return;
+						}
+
+						waitForEntityRecordsResolution( registry, getCurrentQuery() ).finally( resolve );
+					}, 0 );
+				} );
+				// Store promise so undo can wait for it
+				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
 
 			if ( numberOfErrors === 0 ) {
@@ -516,7 +569,18 @@ export const markAsNotSpamAction: Action = {
 						actions: [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => {
+								onClick: async () => {
+									undoTriggered = true;
+
+									// Wait for the original action's refetch to complete before undoing
+									const originalRefetch = pendingRefetches.get( actionId );
+									if ( originalRefetch ) {
+										await originalRefetch;
+										pendingRefetches.delete( actionId );
+									}
+
+									// Remove the original pending action before starting undo
+									removePendingAction( actionId );
 									markAsSpamAction.callback( items, { registry }, { isUndo: true } );
 								},
 							},
@@ -544,6 +608,8 @@ export const markAsNotSpamAction: Action = {
 				await waitForRecordsPromise;
 			}
 
+			// Clean up
+			pendingRefetches.delete( actionId );
 			removePendingAction( actionId );
 		}
 	},
@@ -606,6 +672,8 @@ export const restoreAction: Action = {
 			if ( itemsUpdated.length ) {
 				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, 'trash' );
 				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
+				// Store promise so undo can wait for it
+				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
 
 			if ( numberOfErrors === 0 ) {
@@ -630,7 +698,16 @@ export const restoreAction: Action = {
 						actions: [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => {
+								onClick: async () => {
+									// Wait for the original action's refetch to complete before undoing
+									const originalRefetch = pendingRefetches.get( actionId );
+									if ( originalRefetch ) {
+										await originalRefetch;
+										pendingRefetches.delete( actionId );
+									}
+
+									// Remove the original pending action before starting undo
+									removePendingAction( actionId );
 									moveToTrashAction.callback( items, { registry }, { isUndo: true } );
 								},
 							},
@@ -653,6 +730,8 @@ export const restoreAction: Action = {
 				await waitForRecordsPromise;
 			}
 
+			// Clean up
+			pendingRefetches.delete( actionId );
 			removePendingAction( actionId );
 		}
 	},
@@ -725,6 +804,8 @@ export const moveToTrashAction: Action = {
 				}
 				invalidateCacheAndNavigate( registry, getCurrentQuery(), queryParams, status );
 				waitForRecordsPromise = waitForEntityRecordsResolution( registry, getCurrentQuery() );
+				// Store promise so undo can wait for it
+				pendingRefetches.set( actionId, waitForRecordsPromise );
 			}
 
 			if ( numberOfErrors === 0 ) {
@@ -752,7 +833,16 @@ export const moveToTrashAction: Action = {
 						actions: [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => {
+								onClick: async () => {
+									// Wait for the original action's refetch to complete before undoing
+									const originalRefetch = pendingRefetches.get( actionId );
+									if ( originalRefetch ) {
+										await originalRefetch;
+										pendingRefetches.delete( actionId );
+									}
+
+									// Remove the original pending action before starting undo
+									removePendingAction( actionId );
 									restoreAction.callback(
 										items,
 										{ registry },
@@ -780,6 +870,8 @@ export const moveToTrashAction: Action = {
 				await waitForRecordsPromise;
 			}
 
+			// Clean up
+			pendingRefetches.delete( actionId );
 			removePendingAction( actionId );
 		}
 	},
