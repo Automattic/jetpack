@@ -42,7 +42,9 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 				/>
 			) }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-				<NewMediaSection analyticsData={ analyticsData } />
+				<div className={ styles[ 'share-post-form__media-section' ] }>
+					<NewMediaSection analyticsData={ analyticsData } />
+				</div>
 			) : (
 				<>
 					{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
