@@ -102,6 +102,7 @@ class Forms_Abilities {
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
+					'default'              => array(),
 					'properties'           => array(
 						'ids'       => array(
 							'type'        => 'array',
@@ -260,6 +261,7 @@ class Forms_Abilities {
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
+					'default'              => array(),
 					'properties'           => array(
 						'slug' => array(
 							'type'        => 'string',
@@ -296,6 +298,7 @@ class Forms_Abilities {
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
+					'default'              => array(),
 					'properties'           => array(
 						'search'    => array(
 							'type'        => 'string',
