@@ -198,7 +198,9 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$this->assertEquals( 'application/json', $captured_request['args']['headers']['Content-Type'] );
 
 		$body_data = json_decode( $captured_request['args']['body'], true );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'John Doe', $body_data['name'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'john@example.com', $body_data['email'] );
 	}
 
@@ -422,7 +424,9 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( 123, $fields, false, array() );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeMismatchArgumentInternal
 		$body_data = json_decode( $captured_request['args']['body'], true );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'custom_value', $body_data['custom_field'] );
 	}
 
@@ -464,6 +468,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$this->assertNotEmpty( $response_meta );
 
 		$response_data = json_decode( $response_meta, true );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 200, $response_data['http_code'] );
 		$this->assertArrayHasKey( 'timestamp', $response_data );
 	}
@@ -554,9 +559,13 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( 123, $fields, false, array() );
 
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeMismatchArgumentInternal
 		$body_data = json_decode( $captured_request['args']['body'], true );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'john@example.com', $body_data['email'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'google', $body_data['utm_source'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 		$this->assertEquals( 'summer_2025', $body_data['utm_campaign'] );
 	}
 
