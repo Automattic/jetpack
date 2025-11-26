@@ -70,7 +70,7 @@ that needs to mimic the input element styles */
 	font: inherit;
 	border: 1px solid #8c8f94;
 	border-radius: 0;
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--input-background, field);
 }
 
 :where(.contact-form textarea) {
@@ -552,7 +552,7 @@ that needs to mimic the input element styles */
 }
 
 .contact-form :where(.contact-form__select-wrapper) {
-	background-color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--input-background, field);
 	border: var(--jetpack--contact-form--border);
 	border-color: var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
@@ -1025,6 +1025,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	width: 1em;
 	min-width: 1em;
 	height: 1em;
+	min-height: 1em;
 	margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
 	padding: 0;
 
@@ -1033,6 +1034,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	color: currentColor;
 	outline-offset: 1px;
 	transform: translateY(0.15em);
+	background-color: var(--jetpack--contact-form--input-background, field);
 }
 
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.radio {
