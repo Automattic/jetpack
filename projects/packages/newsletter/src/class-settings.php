@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter_Settings;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -58,7 +59,7 @@ class Settings {
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
 			function () {
-				return \Jetpack::admin_url( array( 'page' => 'jetpack-newsletter' ) );
+				return ( new Paths() )->admin_url( array( 'page' => 'jetpack-newsletter' ) );
 			}
 		);
 	}
