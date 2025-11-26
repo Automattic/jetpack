@@ -21,7 +21,7 @@
 	},
 	"scripts": {
 		"build-development": "pnpm run build",
-		"build-production": "NODE_ENV=production pnpm run build",
+		"build-production": "pnpm run build-production",
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
@@ -32,7 +32,8 @@
 		"test-coverage": "pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'",
 		"test-php": [
 			"@composer phpunit"
-		]
+		],
+		"typecheck": "pnpm run typecheck"
 	},
 	"repositories": [
 		{
@@ -46,6 +47,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-newsletter",
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
