@@ -21,9 +21,12 @@ Retrieves the current agents manager state from user preferences.
 **Response:**
 ```json
 {
-  "agents_manager_open": true,
-  "agents_manager_minimized": false,
-  "agents_manager_router_history": { ... }
+  "calypso_preferences": {
+    "agents_manager_open": true,
+    "agents_manager_docked": false,
+    "agents_manager_floating_position": "right",
+    "agents_manager_router_history": { ... }
+  }
 }
 ```
 
@@ -35,7 +38,8 @@ Updates the agents manager state in user preferences.
 ```json
 {
   "agents_manager_open": true,
-  "agents_manager_minimized": false,
+  "agents_manager_docked": false,
+  "agents_manager_floating_position": "left",
   "agents_manager_router_history": { ... }
 }
 ```

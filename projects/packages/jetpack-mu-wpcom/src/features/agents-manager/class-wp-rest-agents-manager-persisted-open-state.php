@@ -65,15 +65,17 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 
 		$calypso_preferences = $response->calypso_preferences ?? (object) array();
 
-		$is_open        = $calypso_preferences->agents_manager_open ?? false;
-		$is_docked      = $calypso_preferences->agents_manager_docked ?? false;
-		$router_history = $calypso_preferences->agents_manager_router_history ?? null;
+		$is_open           = $calypso_preferences->agents_manager_open ?? false;
+		$is_docked         = $calypso_preferences->agents_manager_docked ?? false;
+		$floating_position = $calypso_preferences->agents_manager_floating_position ?? 'right';
+		$router_history    = $calypso_preferences->agents_manager_router_history ?? null;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
-				'agents_manager_open'           => (bool) $is_open,
-				'agents_manager_docked'         => (bool) $is_docked,
-				'agents_manager_router_history' => $router_history,
+				'agents_manager_open'              => (bool) $is_open,
+				'agents_manager_docked'            => (bool) $is_docked,
+				'agents_manager_floating_position' => $floating_position,
+				'agents_manager_router_history'    => $router_history,
 			),
 		);
 
@@ -86,9 +88,10 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function set_state( \WP_REST_Request $request ) {
-		$state          = $request['agents_manager_open'];
-		$router_history = $request['agents_manager_router_history'];
-		$docked         = $request['agents_manager_docked'];
+		$state             = $request['agents_manager_open'];
+		$router_history    = $request['agents_manager_router_history'];
+		$docked            = $request['agents_manager_docked'];
+		$floating_position = $request['agents_manager_floating_position'];
 
 		$data = array(
 			'calypso_preferences' => array(),
@@ -106,6 +109,10 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 			$data['calypso_preferences']['agents_manager_docked'] = $docked;
 		}
 
+		if ( $request->has_param( 'agents_manager_floating_position' ) ) {
+			$data['calypso_preferences']['agents_manager_floating_position'] = $floating_position;
+		}
+
 		$body = Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
 			'2',
@@ -119,15 +126,17 @@ class WP_REST_Agents_Manager_Persisted_Open_State extends \WP_REST_Controller {
 
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
-		$is_open        = $response->calypso_preferences->agents_manager_open ?? false;
-		$router_history = $response->calypso_preferences->agents_manager_router_history ?? null;
-		$is_docked      = $response->calypso_preferences->agents_manager_docked ?? false;
+		$is_open           = $response->calypso_preferences->agents_manager_open ?? false;
+		$is_docked         = $response->calypso_preferences->agents_manager_docked ?? false;
+		$floating_position = $response->calypso_preferences->agents_manager_floating_position ?? 'right';
+		$router_history    = $response->calypso_preferences->agents_manager_router_history ?? null;
 
 		$projected_response = array(
 			'calypso_preferences' => array(
-				'agents_manager_open'           => (bool) $is_open,
-				'agents_manager_router_history' => $router_history,
-				'agents_manager_docked'         => (bool) $is_docked,
+				'agents_manager_open'              => (bool) $is_open,
+				'agents_manager_docked'            => (bool) $is_docked,
+				'agents_manager_floating_position' => $floating_position,
+				'agents_manager_router_history'    => $router_history,
 			),
 		);
 
