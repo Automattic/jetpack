@@ -2836,7 +2836,7 @@ JS;
 		if ( $this->check_connection( true ) ) {
 			$registration['action'] = 'response';
 			$registration['error'] = 'VaultPress is already registered on this site.';
-			update_option( $this->auto_register_option, json_encode( $registration ) );
+			update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 			return;
 		}
 
@@ -2857,7 +2857,7 @@ JS;
 			$registration['error'] = false;
 		}
 
-		update_option( $this->auto_register_option, json_encode( $registration ) );
+		update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	function add_global_actions_and_filters() {
