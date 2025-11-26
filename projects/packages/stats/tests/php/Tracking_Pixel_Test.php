@@ -335,7 +335,7 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
 
 		$expected_pixel_details = '_stq = window._stq || [];
-_stq.push([ "view", JSON.parse("{\"v\":\"ext\",\"blog\":\"1234\",\"post\":\"0\",\"tz\":\"\",\"srv\":\"replaced.com\"}") ]);
+_stq.push([ "view", {"v":"ext","blog":"1234","post":"0","tz":"","srv":"replaced.com"} ]);
 _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
