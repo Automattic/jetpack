@@ -23,7 +23,8 @@ class Jetpack_Sync_Integration_Test extends Jetpack_Sync_TestBase {
 
 		$found          = null;
 		$target_post_id = (int) $post_id;
-		for ( $i = count( $events ) - 1; $i >= 0; $i-- ) {
+		$events_count   = count( $events );
+		for ( $i = $events_count - 1; $i >= 0; $i-- ) {
 			$event = $events[ $i ];
 			if ( 'jetpack_published_post' === $event->action && (int) $event->args[0] === $target_post_id ) {
 				$found = $event;
