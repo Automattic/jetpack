@@ -516,7 +516,7 @@ class Forms_Abilities {
 		);
 
 		$response = $endpoint->get_status_counts( $request );
-		if ( is_wp_error( $response ) ) {
+		if ( $response instanceof \WP_Error ) {
 			return $response;
 		}
 
