@@ -333,7 +333,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
             </style>
             <script type="text/javascript">
 
-                var zbsLogPerms = <?php echo json_encode(array('addedit'=>zeroBSCRM_permsLogsAddEdit(),'delete'=>zeroBSCRM_permsLogsDelete())); ?>;
+				var zbsLogPerms = <?php echo wp_json_encode( array( 'addedit' => zeroBSCRM_permsLogsAddEdit(), 'delete' => zeroBSCRM_permsLogsDelete() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound */ ?>;
 
                 var zbsLogAgainstID = <?php echo esc_html( $objid ); ?>; var zbsLogProcessingBlocker = false;
 
@@ -344,7 +344,6 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                 }
 
-                
                 #} Centralised log types :)
                 global $zeroBSCRM_logTypes; 
 
@@ -353,7 +352,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) foreach ($zeroBSCRM_logTypes[$this->postType] as $logTypeKey => $logTypeDeet){
                     if (isset($logTypeDeet['locked']) && $logTypeDeet['locked']) $lockedLogs[$logTypeKey] = true;
                 }
-                echo 'var zbsLogsLocked = '.json_encode($lockedLogs).';';
+					echo 'var zbsLogsLocked = ' . wp_json_encode( $lockedLogs, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 /*
                 var zbsLogsLocked = {
@@ -367,7 +366,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                 if (isset($zeroBSCRM_logTypes[$this->postType]) && count($zeroBSCRM_logTypes[$this->postType]) > 0) {
 
-                    echo 'var zbsLogTypes = '.json_encode($zeroBSCRM_logTypes[$this->postType]).';';
+						echo 'var zbsLogTypes = ' . wp_json_encode( $zeroBSCRM_logTypes[ $this->postType ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
                 } 
 				?>
@@ -387,9 +386,10 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                         }
 
-                        echo json_encode($zbsLogsExpose);
-                    } else
-                        echo json_encode(array());
+					echo wp_json_encode( $zbsLogsExpose, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					echo wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+				}
                 // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
                 ?>;
 

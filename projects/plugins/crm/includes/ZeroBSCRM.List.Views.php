@@ -29,7 +29,7 @@ function zeroBSCRM_render_customerslist_page() { // phpcs:ignore WordPress.Namin
 	// extra_js:
 	$status_array = $zbs->settings->get( 'customisedfields' )['customers']['status'];
 	$statuses     = is_array( $status_array ) && isset( $status_array[1] ) ? explode( ',', $status_array[1] ) : array();
-	$extra_js     = 'var zbsStatusesForBulkActions = ' . wp_json_encode( $statuses ) . ';';
+	$extra_js     = 'var zbsStatusesForBulkActions = ' . wp_json_encode( $statuses, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 
 	// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 	// Messages:

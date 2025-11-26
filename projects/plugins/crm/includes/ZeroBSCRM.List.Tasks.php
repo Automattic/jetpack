@@ -111,7 +111,8 @@ function zeroBSCRM_render_tasks_calendar_page() { // phpcs:ignore WordPress.Nami
 					'locale'   => $fullcalendar_locale,
 					'events'   => $calendar_events,
 					'firstDay' => (int) get_option( 'start_of_week', 0 ),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			);
 			?>
 

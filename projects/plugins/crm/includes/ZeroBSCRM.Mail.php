@@ -964,7 +964,7 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 						#} add to debug list + log tried
 						$emailDebugs[] = $emailDebug;
-						$emailSettingsTried[] = json_encode($smtpSettings);
+						$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 						#} Analysis of send
 
@@ -1063,57 +1063,58 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 									if (!empty($replacementPort)) $smtpSettings['port'] = $replacementPort;
 									if (!empty($replacementSecurityMode)) $smtpSettings['security'] = $replacementSecurityMode; # tls, ssl, none
 
-									#} If not already tried, try that!
-									if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
+							// If not already tried, try that!
+							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
-											// Re-test
-											$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
+								// Re-test
+								$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
+									// SMTP Settings
+									$smtpSettings['host'],
+									$smtpSettings['port'],
+									$smtpSettings['user'],
+									$smtpSettings['pass'],
+									$smtpSettings['security'],
+									// FROM
+									$sendFromEmail,
+									$sendFromName,
+									// To
+									$emTo,
+									'',
+									// Deets
+									$emSubject,
+									$emTextBody,
+									$emHTMLBody,
+									// Following returns debug
+									true,
+									true
+								);
 
-													#} SMTP Settings
-													$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
-													#'tls', #tls ssl - switched for option:
-													$smtpSettings['security'],
-													#} FROM
-													$sendFromEmail,$sendFromName,
-													#} To
-													$emTo,'',
-													#} Deets
-													$emSubject,$emTextBody,$emHTMLBody,
-													#} Following returns debug
-													true,true
-											);
+								// add to debug list + save tried settings
+								$emailDebugs[]        = $emailDebug;
+								$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
-											#} add to debug list + save tried settings
-											$emailDebugs[] = $emailDebug;
-											$emailSettingsTried[] = json_encode($smtpSettings);
+								// Analysis of send - THIS ISN'T DRY!
+								// success: or error:
+								if ( str_starts_with( $emailDebug, 'error:' ) ) {
 
-											#} Analysis of send - THIS ISN'T DRY!
-											#success: or error:
-						if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									$emailWasSent = false;
+									$emailSentMsg = __( 'Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)', 'zero-bs-crm' );
 
-												$emailWasSent = false;									
-												$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
-
-												#} various:
-												if ($emailDebug == 'error:SMTP connect() failed.'){
-														$emailSentMsg .= "
-					".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
-												}
-
-						} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-												$emailWasSent = true;								
-												$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-
-						}
-
-											$testCount++;
-
-									} // if not already tested
-
-								} // if any to test
-
-							}
+									// various:
+									if ( $emailDebug === 'error:SMTP connect() failed.' ) {
+										$emailSentMsg .= '
+					' . __( 'This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.', 'zero-bs-crm' );
+									}
+								} elseif ( str_starts_with( $emailDebug, 'success:' ) ) {
+									$emailWasSent  = true;
+									$emailSentMsg .= __( 'Success! Your SMTP details are correct. (A test email was successfully sent)', 'zero-bs-crm' );
+								}
+								++$testCount;
+							} // if not already tested
+							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						} // if any to test
+					}
 
 							#} ===============================================
 							#} ==== 3) If no success, switch security models, (ssl/tls->tls/ssl->none)
@@ -1152,54 +1153,57 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 								}
 
-								#} If not already tried, try that!
-								if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
+						// If not already tried, try that!
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
-										// Re-test
-										$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-												#} SMTP Settings
-												$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
-												#'tls', #tls ssl - switched for option:
-												$smtpSettings['security'],
-												#} FROM
-												$sendFromEmail,$sendFromName,
-												#} To
-												$emTo,'',
-												#} Deets
-												$emSubject,$emTextBody,$emHTMLBody,
-												#} Following returns debug
-												true,true
-										);
+							// Re-test
+							$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
+								// SMTP Settings
+								$smtpSettings['host'],
+								$smtpSettings['port'],
+								$smtpSettings['user'],
+								$smtpSettings['pass'],
+								$smtpSettings['security'],
+								// FROM
+								$sendFromEmail,
+								$sendFromName,
+								// To
+								$emTo,
+								'',
+								// Deets
+								$emSubject,
+								$emTextBody,
+								$emHTMLBody,
+								// Following returns debug
+								true,
+								true
+							);
 
-										#} add to debug list + save tried settings
-										$emailDebugs[] = $emailDebug;
-										$emailSettingsTried[] = json_encode($smtpSettings);
+							// add to debug list + save tried settings
+							$emailDebugs[]        = $emailDebug;
+							$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
-										#} Analysis of send - THIS ISN'T DRY
-										#success: or error:
-					if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							// Analysis of send - THIS ISN'T DRY
+							// success: or error:
+							if ( str_starts_with( $emailDebug, 'error:' ) ) {
 
-											$emailWasSent = false;									
-											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
+								$emailWasSent = false;
+								$emailSentMsg = __( 'Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)', 'zero-bs-crm' );
 
-											#} various:
-											if ($emailDebug == 'error:SMTP connect() failed.'){
-													$emailSentMsg .= "
-				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
-											}
-
-					} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-											$emailWasSent = true;								
-											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-
-					}
-
-										$testCount++;
-
-								} // if not already tested
-
+								// various:
+								if ( $emailDebug === 'error:SMTP connect() failed.' ) {
+									$emailSentMsg .= '
+				' . __( 'This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.', 'zero-bs-crm' );
+								}
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) {
+								$emailWasSent  = true;
+								$emailSentMsg .= __( 'Success! Your SMTP details are correct. (A test email was successfully sent)', 'zero-bs-crm' );
 							}
+							++$testCount;
+						} // if not already tested
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
 
 							#} ===============================================
 							#} ==== 4) If no success, and is 587, try without TLS
@@ -1218,51 +1222,57 @@ function zeroBSCRM_mailDelivery_checkSMTPDetails($sendFromName='',$sendFromEmail
 
 								}
 
-								#} If not already tried, try that!
-								if (!in_array(json_encode($smtpSettings),$emailSettingsTried)){
+						// If not already tried, try that!
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						if ( ! in_array( wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES ), $emailSettingsTried, true ) ) {
 
-										// Re-test
-										$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
-												#} SMTP Settings
-												$smtpSettings['host'],$smtpSettings['port'],$smtpSettings['user'],$smtpSettings['pass'],
-												#'tls', #tls ssl - switched for option:
-												$smtpSettings['security'],
-												#} FROM
-												$sendFromEmail,$sendFromName,
-												#} To
-												$emTo,'',
-												#} Deets
-												$emSubject,$emTextBody,$emHTMLBody,
-												#} Following returns debug
-												true,true
-										);
+							// Re-test
+							$emailDebug = zeroBSCRM_mailDelivery_sendViaSMTP(
+								// SMTP Settings
+								$smtpSettings['host'],
+								$smtpSettings['port'],
+								$smtpSettings['user'],
+								$smtpSettings['pass'],
+								$smtpSettings['security'],
+								// FROM
+								$sendFromEmail,
+								$sendFromName,
+								// To
+								$emTo,
+								'',
+								// Deets
+								$emSubject,
+								$emTextBody,
+								$emHTMLBody,
+								// Following returns debug
+								true,
+								true
+							);
 
-										#} add to debug list + save tried settings
-										$emailDebugs[] = $emailDebug;
-										$emailSettingsTried[] = json_encode($smtpSettings);
+							// add to debug list + save tried settings
+							$emailDebugs[]        = $emailDebug;
+							$emailSettingsTried[] = wp_json_encode( $smtpSettings, JSON_UNESCAPED_SLASHES );
 
-										#} Analysis of send - THIS ISN'T DRY
-										#success: or error:
-					if ( str_starts_with( $emailDebug, 'error:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							// Analysis of send - THIS ISN'T DRY
+							// success: or error:
+							if ( str_starts_with( $emailDebug, 'error:' ) ) {
 
-											$emailWasSent = false;									
-											$emailSentMsg = __('Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)',"zero-bs-crm");						
+								$emailWasSent = false;
+								$emailSentMsg = __( 'Your SMTP details do not allow mail to be sent. (A test email could not be successfully sent)', 'zero-bs-crm' );
 
-											#} various:
-											if ($emailDebug == 'error:SMTP connect() failed.'){
-													$emailSentMsg .= "
-				".__('This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.',"zero-bs-crm");
-											}
+								// various:
+								if ( $emailDebug === 'error:SMTP connect() failed.' ) {
+									$emailSentMsg .= '
+				' . __( 'This error suggests that your Port & Security settings are not correct, or that you have the wrong value for SMTP Host.', 'zero-bs-crm' );
+								}
+							} elseif ( str_starts_with( $emailDebug, 'success:' ) ) {
+								$emailWasSent  = true;
+								$emailSentMsg .= __( 'Success! Your SMTP details are correct. (A test email was successfully sent)', 'zero-bs-crm' );
+							}
 
-					} elseif ( str_starts_with( $emailDebug, 'success:' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-											$emailWasSent = true;								
-											$emailSentMsg .= __("Success! Your SMTP details are correct. (A test email was successfully sent)","zero-bs-crm");
-
-					}
-
-										++$testCount; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							++$testCount;
 						} // if not already tested
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					}
 						#} Return
 

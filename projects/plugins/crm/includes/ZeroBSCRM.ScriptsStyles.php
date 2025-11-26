@@ -660,14 +660,14 @@ function zeroBSCRM_mailTemplatesEnqueue(){
     	$settings['codemirror'] = array();
     }
     $settings['codemirror']['readOnly'] = true;
-    
-    wp_add_inline_script(
-        'code-editor',
-        sprintf(
-            'jQuery( function() { wp.codeEditor.initialize( "zbstemplatehtml", %s ); } );',
-            wp_json_encode( $settings )
-        )
-    );
+
+	wp_add_inline_script(
+		'code-editor',
+		sprintf(
+			'jQuery( function() { wp.codeEditor.initialize( "zbstemplatehtml", %s ); } );',
+			wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+		)
+	);
 }
 add_action( 'admin_enqueue_scripts', 'zeroBSCRM_mailTemplatesEnqueue');
 

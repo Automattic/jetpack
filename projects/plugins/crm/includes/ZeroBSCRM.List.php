@@ -400,9 +400,10 @@ class zeroBSCRM_list{
 					<?php
 					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
 					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+					global $zeroBSCRM_logTypes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					?>
-            // expose log types (For columns)
-            var zbsLogTypes = <?php global $zeroBSCRM_logTypes; echo json_encode($zeroBSCRM_logTypes); ?>;
+					// expose log types (For columns)
+					var zbsLogTypes = <?php echo wp_json_encode( $zeroBSCRM_logTypes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
 
             <?php
 
@@ -474,11 +475,11 @@ class zeroBSCRM_list{
 
             ?>
 
-            // General options for listview
-            var zbsListViewSettings = <?php echo wp_json_encode( $list_view_settings ) ?>;
+				// General options for listview
+				var zbsListViewSettings = <?php echo wp_json_encode( $list_view_settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-            // Vars for zbs list view drawer
-            var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters ) ?>;
+				// Vars for zbs list view drawer
+				var zbsListViewParams = <?php echo wp_json_encode( $list_view_parameters, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
             var zbsSortables = [<?php 
 
@@ -591,7 +592,7 @@ class zeroBSCRM_list{
 
 			}
 			?>
-			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels ); ?>;
+			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			var zbsTagsForBulkActions = <?php
 				// the linter was having issues with these indents, so disabling for this block
 				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
@@ -616,7 +617,7 @@ class zeroBSCRM_list{
 					}
 				}
 
-				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags );
+				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 				?>;
@@ -631,7 +632,7 @@ class zeroBSCRM_list{
 							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							global $zbsCustomerFields;
 							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-								echo wp_json_encode( $zbsCustomerFields['status'][3] );
+								echo wp_json_encode( $zbsCustomerFields['status'][3], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 							} else {
 								echo '[]';
 							}
@@ -644,9 +645,9 @@ class zeroBSCRM_list{
 						// hardcoded customer perms atm
 						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
 						if ( ! is_array( $possible_owners ) ) {
-								echo wp_json_encode( array() );
+								echo wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 						} else {
-							echo wp_json_encode( $possible_owners );
+							echo wp_json_encode( $possible_owners, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 						}
 
 					?>

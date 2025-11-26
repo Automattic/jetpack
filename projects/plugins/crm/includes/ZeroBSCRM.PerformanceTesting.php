@@ -121,7 +121,7 @@
 		    echo '<p>'.$sTime.$sTimeExtra.' seconds</p>';
 		    $retArr = $v;
 		    $retArr['took'] = $sTime;
-			$scriptVer .= 'console.log("'.$k.': '.$sTime.$sTimeExtra.'",'.json_encode($retArr).');';
+				$scriptVer .= 'console.log("' . $k . ': ' . $sTime . $sTimeExtra . '",' . wp_json_encode( $retArr, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		}
 		echo '</div>';

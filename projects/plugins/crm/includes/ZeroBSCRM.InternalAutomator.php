@@ -53,14 +53,14 @@ function zeroBSCRM_FireInternalAutomator($actionStr='',$obj=array()){
 	#} dupe catch
 	if (in_array($actionStr,$zeroBSCRM_IA_Dupeblocks)){
 
-		if (gettype($obj) != "string" && gettype($obj) != "String"){
-			#$objStr = implode('.',$obj);
-			$objStr = json_encode($obj);
-			$objStr = md5($objStr);
-			$actionHash = $actionStr.$objStr;
-		} else 
-			$actionHash = $actionStr.md5($obj);
-		
+		if ( gettype( $obj ) !== 'string' && gettype( $obj ) !== 'String' ) {
+			$objStr     = wp_json_encode( $obj, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$objStr     = md5( $objStr ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$actionHash = $actionStr . $objStr; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		} else {
+			$actionHash = $actionStr . md5( $obj ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+
 		if (isset($zeroBSCRM_IA_ActiveAutomations[$actionHash])) 
 			$goodToGo = false; #} DUPE
 		else

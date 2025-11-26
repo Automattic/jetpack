@@ -150,11 +150,11 @@ class zeroBS__Metabox_Tags extends zeroBS__Metabox {
                         </div>
                         <?php }} ?>
                     </div>
-                    <script type="text/javascript">
+										<script type="text/javascript">
 
-                        var zbsCRMJS_currentTags = <?php echo json_encode($tags); ?>;
+											var zbsCRMJS_currentTags = <?php echo wp_json_encode( $tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
-                    </script>
+										</script>
             <?php 
 
     }

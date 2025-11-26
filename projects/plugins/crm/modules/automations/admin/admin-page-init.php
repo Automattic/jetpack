@@ -84,5 +84,5 @@ function render_initial_state() {
 		)
 	);
 
-	return 'var jpcrmAutomationsInitialState=JSON.parse(decodeURIComponent( "' . rawurlencode( wp_json_encode( $initial_state ) ) . '" ) );';
+	return 'var jpcrmAutomationsInitialState=' . wp_json_encode( $initial_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 }

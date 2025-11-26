@@ -197,7 +197,7 @@ function zeroBSCRM_stripSlashesFromArr( $value ) { // phpcs:ignore WordPress.Nam
 	function jpcrm_generate_hash_of_obj( $obj ){
 
 		// note this will return different if sort order different
-		return md5( json_encode( $obj ) );
+		return md5( wp_json_encode( $obj, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	function zeroBSCRM_loadCountryList(){

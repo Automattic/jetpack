@@ -227,8 +227,9 @@ function jpcrm_mailpoet_output_language_labels( $additional_labels = array() ){
 
 	), $additional_labels );
 
-
-	?><script>var jpcrm_mailpoet_language_labels = <?php echo json_encode( $language_labels ); ?></script><?php
+	?>
+	<script>var jpcrm_mailpoet_language_labels = <?php echo wp_json_encode( $language_labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?></script>
+	<?php
 
 }
 
