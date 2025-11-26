@@ -206,15 +206,16 @@ class Form_Webhooks {
 		 * Filters the form data before sending it to the webhook.
 		 *
 		 * Allows developers to modify or augment the form data before it's sent to the webhook endpoint.
+		 * NOTE: data has to be the first argument so it can be defaulted.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $webhook_id The unique identifier for this webhook.
 		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
+		 * @param string $webhook_id The unique identifier for this webhook.
 		 *
 		 * @return array The form data to be sent (field IDs as keys, values as values).
 		 */
-		$data = apply_filters( 'jetpack_forms_before_webhook_request', $webhook['webhook_id'], $data );
+		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'] );
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];
