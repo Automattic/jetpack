@@ -575,7 +575,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$encrypted = openssl_encrypt(
 				wp_json_encode(
 					$attributes,
-					0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+					JSON_UNESCAPED_SLASHES
 				),
 				$cipher,
 				$encryption_key,
