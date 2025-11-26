@@ -1579,8 +1579,18 @@ class Contact_Form_Plugin {
 				return $form->errors;
 			}
 
-			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+			if ( ! empty( $form->attributes['salesforceData'] ) ) {
 				Post_To_Url::init();
+			}
+
+			// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+			if ( ! empty( $form->attributes['postToUrl'] ) ) {
+				// webhooks should be a collection.
+				// Turn postToUrl into a collection and merge with existing webhooks.
+				$form->attributes['webhooks'] = array_merge(
+					$form->attributes['webhooks'] ?? array(),
+					array( $form->attributes['postToUrl'] )
+				);
 			}
 
 			if ( ! empty( $form->attributes['webhooks'] ) ) {
@@ -1756,8 +1766,18 @@ class Contact_Form_Plugin {
 			return $validation_error;
 		}
 
-		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+		if ( ! empty( $form->attributes['salesforceData'] ) ) {
 			Post_To_Url::init();
+		}
+
+		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+		if ( ! empty( $form->attributes['postToUrl'] ) ) {
+			// webhooks should be a collection.
+			// Turn postToUrl into a collection and merge with existing webhooks.
+			$form->attributes['webhooks'] = array_merge(
+				$form->attributes['webhooks'] ?? array(),
+				array( $form->attributes['postToUrl'] )
+			);
 		}
 
 		if ( ! empty( $form->attributes['webhooks'] ) ) {

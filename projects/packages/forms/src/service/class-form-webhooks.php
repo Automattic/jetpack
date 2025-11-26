@@ -22,6 +22,31 @@ class Form_Webhooks {
 	 */
 	private static $instance = null;
 
+	private const FORMAT_URL_ENCODED       = 'urlencoded';
+	private const FORMAT_JSON              = 'json';
+	private const METHOD_POST              = 'POST';
+	private const METHOD_GET               = 'GET';
+	private const METHOD_PUT               = 'PUT';
+	private const CONTENT_TYPE_URL_ENCODED = 'application/x-www-form-urlencoded';
+	private const CONTENT_TYPE_JSON        = 'application/json';
+
+	/**
+	 * Valid methods for webhook requests.
+	 *
+	 * @var array
+	 */
+	private const VALID_METHODS = array( self::METHOD_POST, self::METHOD_GET, self::METHOD_PUT );
+
+	/**
+	 * Valid formats for webhook requests.
+	 *
+	 * @var array
+	 */
+	private const VALID_FORMATS_MAP = array(
+		self::FORMAT_URL_ENCODED => self::CONTENT_TYPE_URL_ENCODED,
+		self::FORMAT_JSON        => self::CONTENT_TYPE_JSON,
+	);
+
 	/**
 	 * Initialize and return singleton instance.
 	 *
@@ -126,28 +151,40 @@ class Form_Webhooks {
 
 		$enabled_webhooks = array();
 		foreach ( $attributes['webhooks'] as $webhook ) {
+			$defaults = array(
+				'webhook_id' => '',
+				'url'        => '',
+				'method'     => self::METHOD_POST,
+				'verified'   => false,
+				'format'     => self::FORMAT_JSON,
+				'enabled'    => false,
+			);
+
+			$setup = wp_parse_args(
+				is_array( $webhook ) && ! empty( $webhook ) ? $webhook : array(),
+				$defaults
+			);
+
 			// Validate webhook configuration
-			if ( empty( $webhook['enabled'] ) || empty( $webhook['url'] ) ) {
+			if ( empty( $setup['enabled'] ) || empty( $setup['url'] ) ) {
 				continue;
 			}
 
 			// Validate format
-			$format = ! empty( $webhook['format'] ) ? $webhook['format'] : 'json';
-			if ( ! in_array( $format, array( 'urlencoded', 'json' ), true ) ) {
+			if ( ! array_key_exists( $setup['format'], self::VALID_FORMATS_MAP ) ) {
 				continue;
 			}
 
 			// Validate method
-			$method = ! empty( $webhook['method'] ) ? strtoupper( $webhook['method'] ) : 'POST';
-			if ( ! in_array( $method, array( 'POST', 'GET', 'PUT' ), true ) ) {
+			if ( ! in_array( $setup['method'], self::VALID_METHODS, true ) ) {
 				continue;
 			}
 
 			$enabled_webhooks[] = array(
-				'webhook_id' => ! empty( $webhook['webhook_id'] ) ? $webhook['webhook_id'] : '',
-				'url'        => $webhook['url'],
-				'format'     => $format,
-				'method'     => $method,
+				'webhook_id' => $setup['webhook_id'],
+				'url'        => $setup['url'],
+				'format'     => $setup['format'],
+				'method'     => $setup['method'],
 			);
 		}
 
@@ -169,24 +206,23 @@ class Form_Webhooks {
 		 * Filters the form data before sending it to the webhook.
 		 *
 		 * Allows developers to modify or augment the form data before it's sent to the webhook endpoint.
+		 * NOTE: data has to be the first argument so it can be defaulted.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $webhook_id The unique identifier for this webhook.
 		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
+		 * @param string $webhook_id The unique identifier for this webhook.
 		 *
 		 * @return array The form data to be sent (field IDs as keys, values as values).
 		 */
-		$data = apply_filters( 'jetpack_forms_before_webhook_request', $webhook['webhook_id'], $data );
+		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'] );
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];
-		$format     = $webhook['format'] === 'urlencoded' ? 'application/x-www-form-urlencoded' : 'application/json';
+		$format     = self::VALID_FORMATS_MAP[ $webhook['format'] ];
 		$method     = $webhook['method'];
-
 		// Encode body based on format
-		$body = $webhook['format'] === 'json' ? wp_json_encode( $data ) : $data;
-
+		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data ) : $data;
 		$args = array(
 			'method'    => $method,
 			'body'      => $body,
@@ -196,7 +232,6 @@ class Form_Webhooks {
 			),
 			'sslverify' => true,
 		);
-
 		return wp_remote_request( $url, $args );
 	}
 
