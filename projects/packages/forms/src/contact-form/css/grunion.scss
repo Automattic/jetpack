@@ -1075,6 +1075,12 @@ on production builds, the attributes are being reordered, causing side-effects
 	left: 0;
 }
 
+.contact-form .is-style-list input.consent:checked::after {
+	// consent checkboxes are sometimes scaled.
+	// Keep it centered and with same angle.
+	transform: rotate(30deg) scale(0.7) translate(-40%, -15%);
+}
+
 .contact-form .is-style-list input.consent:checked::before,
 .contact-form .is-style-list input.checkbox:checked::before,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked::before {
