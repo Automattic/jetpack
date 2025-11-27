@@ -1065,7 +1065,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
 
 	font-size: inherit;
-	border: solid var(--jetpack--contact-form--inverted-text-color, var(--jetpack--contact-form--input-background));
+	// if checkboxes bg are --jetpack--contact-form--input-background,
+	// then border-color should text color
+	border-color: var(--jetpack--contact-form--text-color, fieldText);
+	border-style: solid;
 	border-width: 0 2px 2px 0;
 	transform: translate(-50%, -60%) rotate(40deg);
 	top: 0;
