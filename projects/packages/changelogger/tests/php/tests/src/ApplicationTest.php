@@ -72,7 +72,9 @@ class ApplicationTest extends TestCase {
 
 		$command = new Command( 'testDoRun' );
 		$command->setCode( $callback );
-		$app->addCommand( $command );
+		// Trying to change add to addCommand makes the test fail with older PHP versions.
+		// @phan-suppress-next-line PhanDeprecatedFunction -- While deprecated, it's still good.
+		$app->add( $command );
 
 		$tester = new ApplicationTester( $app );
 
