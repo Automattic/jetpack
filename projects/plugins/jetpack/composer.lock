@@ -2187,7 +2187,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "690c770624976e49994fbc0d229de9c166837416"
+				"reference": "b1dcdcaa6213d623b1e0de25a9efecdf706fbd69"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2205,6 +2205,9 @@
 			},
 			"type": "jetpack-library",
 			"extra": {
+				"autorelease": true,
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-newsletter",
 				"branch-alias": {
 					"dev-trunk": "0.1.x-dev"
 				},
@@ -2223,7 +2226,7 @@
 					"pnpm run build"
 				],
 				"build-production": [
-					"NODE_ENV=production pnpm run build"
+					"pnpm run build-production"
 				],
 				"watch": [
 					"Composer\\Config::disableProcessTimeout",
@@ -2237,6 +2240,9 @@
 				],
 				"test-php": [
 					"@composer phpunit"
+				],
+				"typecheck": [
+					"pnpm run typecheck"
 				]
 			},
 			"license": [
