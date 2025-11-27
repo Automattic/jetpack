@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix CSV export metadata header collisions by wrapping system-generated fields in brackets.
