@@ -186,7 +186,7 @@ export default function MediaSourceMenu( {
 	return (
 		<Dropdown
 			className={ styles.dropdownMenu }
-			position="bottom left"
+			popoverProps={ { placement: 'bottom-start' } }
 			renderToggle={ renderToggle }
 			renderContent={ renderContent }
 		/>
