@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
+import { Button, Panel, PanelBody, PanelRow, useNavigator } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
@@ -43,6 +43,12 @@ export function Sidebar( { onClickConnection, selectedConnection }: SidebarProps
 		[ selectedConnection ]
 	);
 
+	const navigator = useNavigator();
+
+	const gotoEditTemplate = useCallback( () => {
+		navigator.goTo( '/edit-template' );
+	}, [ navigator ] );
+
 	return (
 		<div className={ styles.sidebar }>
 			<Panel className={ styles.panel }>
@@ -61,6 +67,9 @@ export function Sidebar( { onClickConnection, selectedConnection }: SidebarProps
 				>
 					<PanelRow>
 						{ /* TODO: Replace Edit template button with full image editor UI when SIG integration is complete. */ }
+						<Button onClick={ gotoEditTemplate } variant="secondary">
+							{ __( 'Edit template', 'jetpack-publicize-components' ) }
+						</Button>
 					</PanelRow>
 				</PanelBody>
 			</Panel>

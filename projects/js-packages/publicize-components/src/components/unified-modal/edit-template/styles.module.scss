@@ -1,0 +1,18 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.sidebar {
+	padding: 1.5rem;
+}
+
+.content {
+	background-color: gb.$gray-100;
+	width: 100%;
+	min-height: 100%;
+	padding: 1.5rem;
+
+	.preview {
+		height: 100%;
+		max-width: max-content;
+		margin: 0 auto;
+	}
+}
