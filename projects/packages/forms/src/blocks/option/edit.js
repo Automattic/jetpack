@@ -1,9 +1,9 @@
 import { RichText, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
-import { ALLOWED_FORMATS } from '../shared/util/constants';
-import useEnter from './use-enter';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
+import { ALLOWED_FORMATS } from '../shared/util/constants.js';
+import useEnter from './use-enter.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 

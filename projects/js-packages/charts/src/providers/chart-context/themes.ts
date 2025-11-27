@@ -43,12 +43,9 @@ const defaultTheme: CompleteChartTheme = {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 1.5,
-		primaryColor: '#006DAB',
-		secondaryColor: '#98C8DF',
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#006DAB',
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#1F9828',
 		negativeChangeColor: '#FF8C8F',
@@ -107,7 +104,6 @@ const jetpackTheme: ChartTheme = {
 		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#006DAB',
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#1F9828',
 		negativeChangeColor: '#FF8C8F',
@@ -172,12 +168,9 @@ const wooTheme: ChartTheme = {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 1.5,
-		primaryColor: '#3858E9',
-		secondaryColor: '#66BDFF',
 		deltaColors: [ '#D63638', '#757575', '#008A20' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
-		primaryColor: '#3858E9',
 		backgroundColor: '#F3F4F6',
 		positiveChangeColor: '#008A20',
 		negativeChangeColor: '#D63638',

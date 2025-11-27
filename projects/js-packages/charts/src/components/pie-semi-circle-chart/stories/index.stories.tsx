@@ -4,6 +4,7 @@ import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
 	partialOsUsageData as data,
@@ -49,6 +50,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		containerWidth: '600px',
 		containerHeight: '325px',
 		resize: 'none',
@@ -57,6 +59,13 @@ export const Default: Story = {
 		label: 'OS',
 		note: 'Windows +10%',
 		clockwise: true,
+	},
+};
+
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
 	},
 };
 

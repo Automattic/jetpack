@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.5] - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.54.4] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.54.3] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
 ## [0.54.2] - 2025-11-12
 ### Changed
 - Internal updates.
@@ -1382,6 +1394,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.54.5]: https://github.com/Automattic/jetpack-search/compare/v0.54.4...v0.54.5
+[0.54.4]: https://github.com/Automattic/jetpack-search/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-search/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/Automattic/jetpack-search/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/Automattic/jetpack-search/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/Automattic/jetpack-search/compare/v0.53.0...v0.54.0

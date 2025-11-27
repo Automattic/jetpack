@@ -8,11 +8,11 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import { UpsellNudge } from '../shared/components/upsell-nudge';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import useParentFormClientId from '../shared/hooks/use-parent-form-client-id';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import { UpsellNudge } from '../shared/components/upsell-nudge/index.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import useParentFormClientId from '../shared/hooks/use-parent-form-client-id.js';
 import './editor.scss';
 
 const ALLOWED_BLOCKS = []; // leave this empty to prevent adding new blocks inside and duplicating them.

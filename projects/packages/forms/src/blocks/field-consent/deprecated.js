@@ -1,7 +1,7 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation';
-import deprecateFieldStyles from '../shared/util/deprecate-field-styles';
+import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation.js';
+import deprecateFieldStyles from '../shared/util/deprecate-field-styles.js';
 
 export default [
 	{

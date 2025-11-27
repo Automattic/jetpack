@@ -283,6 +283,7 @@ class Settings {
 			/**
 			 * Regular option update and handling
 			 */
+			$updated = false;
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
 					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );

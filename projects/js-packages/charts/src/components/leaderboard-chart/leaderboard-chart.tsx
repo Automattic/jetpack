@@ -8,6 +8,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
+import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsContext,
 	GlobalChartsProvider,
@@ -85,7 +86,7 @@ const BarWithLabel = ( {
 		{ isPrimaryVisible && (
 			<div
 				className={ clsx( styles.bar, {
-					[ styles.bar__animated ]: animation,
+					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
 					width: entry.currentShare + '%',
@@ -97,7 +98,7 @@ const BarWithLabel = ( {
 		{ withComparison && ! withOverlayLabel && isComparisonVisible && (
 			<div
 				className={ clsx( styles.bar, {
-					[ styles.bar__animated ]: animation,
+					[ styles[ 'bar--animated' ] ]: animation,
 				} ) }
 				style={ {
 					width: entry.previousShare + '%',
@@ -245,6 +246,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
@@ -256,7 +259,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				<div
-					className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
+					className={ clsx(
+						styles.leaderboardChart,
+						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
+						className
+					) }
 					style={ style }
 				>
 					<div className={ styles.emptyState }>
@@ -280,13 +287,16 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( styles.leaderboardChart, loading && styles.loading, className ) }
-				style={ {
-					...style,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
-					gap: showLegend ? '16px' : '0',
-				} }
+				className={ clsx(
+					styles.leaderboardChart,
+					{
+						[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						[ styles[ 'leaderboardChart--with-legend' ] ]: showLegend,
+						[ styles[ 'leaderboardChart--legend-top' ] ]: showLegend && legendPosition === 'top',
+					},
+					className
+				) }
+				style={ style }
 			>
 				{ allSeriesHidden ? (
 					<div className={ styles.emptyState }>
@@ -309,7 +319,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 											secondaryColor={ resolvedSecondaryColor }
 											isPrimaryVisible={ isPrimaryVisible }
 											isComparisonVisible={ isComparisonVisible }
-											animation={ animation && ! loading }
+											animation={ animation && ! loading && ! prefersReducedMotion }
 										/>
 									</VStack>
 

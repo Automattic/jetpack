@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import * as ESLintPkg from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.1.3';
+const APP_VERSION = '2.1.4';
 
 const { ESLint } = ESLintPkg;
 const loadESLint = ESLintPkg.loadESLint ?? ( () => ESLint );
@@ -215,12 +215,13 @@ async function main( process, argv, program ) {
 			newRef = ':0';
 			args.push( '--staged' );
 		}
-		args = args.concat( program.args );
+		args.push( '--' );
+		args = args.concat( program.args.length ? program.args : [ '.' ] );
 
 		debug( 'Running git diff command:', git, args.join( ' ' ) );
 		diff = parseDiff( doCmd( git, args ) );
 		if ( ! argv.inDiffOnly && program.args.length ) {
-			files = program.args;
+			files = program.args.map( p => path.relative( diffBase, path.resolve( process.cwd(), p ) ) );
 			debug( 'Determined files from command line:', files );
 		} else {
 			files = getFilesFromDiff( diff );
@@ -247,7 +248,7 @@ async function main( process, argv, program ) {
 				content = doCmd( git, args );
 				debug( 'Executing ESLint for orig file' );
 				ret = await eslint.lintText( content, {
-					filePath: file,
+					filePath: path.resolve( diffBase, file ),
 				} );
 				eslintOrig = eslintOrig.concat( ret );
 			}
@@ -261,7 +262,7 @@ async function main( process, argv, program ) {
 			}
 			debug( 'Executing ESLint for new file' );
 			ret = await eslint.lintText( content, {
-				filePath: file,
+				filePath: path.resolve( diffBase, file ),
 			} );
 			eslintNew = eslintNew.concat( ret );
 		}

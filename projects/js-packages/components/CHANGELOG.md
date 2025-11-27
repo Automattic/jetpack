@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.3.12] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+## [1.3.11] - 2025-11-18
+### Changed
+- Update dependencies.
+
+## [1.3.10] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
 ## [1.3.9] - 2025-11-10
 ### Changed
 - Replace icons removed from @wordpress/icons with alternatives. [#45760]
@@ -21,8 +33,7 @@
 
 ## [1.3.5] - 2025-10-02
 ### Changed
-- Update package dependencies. [#45334]
-- Update package dependencies. [#45335]
+- Update package dependencies. [#45334] [#45335]
 
 ## [1.3.4] - 2025-09-22
 ### Changed
@@ -1558,6 +1569,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.3.12]: https://github.com/Automattic/jetpack-components/compare/1.3.11...1.3.12
+[1.3.11]: https://github.com/Automattic/jetpack-components/compare/1.3.10...1.3.11
+[1.3.10]: https://github.com/Automattic/jetpack-components/compare/1.3.9...1.3.10
 [1.3.9]: https://github.com/Automattic/jetpack-components/compare/1.3.8...1.3.9
 [1.3.8]: https://github.com/Automattic/jetpack-components/compare/1.3.7...1.3.8
 [1.3.7]: https://github.com/Automattic/jetpack-components/compare/1.3.6...1.3.7

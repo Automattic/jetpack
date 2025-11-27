@@ -2,12 +2,14 @@ import { localPoint } from '@visx/event';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
+import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsTheme,
+	useGlobalChartsContext,
 } from '../../providers';
 import { hexToRgba, formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
@@ -48,6 +50,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
+	const { getElementStyles } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -205,12 +208,16 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	}, [ clearSelectionAndRef ] );
 
 	// Get component settings from theme with fallbacks
-	const {
-		primaryColor: barColor,
-		backgroundColor,
-		positiveChangeColor,
-		negativeChangeColor,
-	} = conversionFunnelChartSettings;
+	const { primaryColor, backgroundColor, positiveChangeColor, negativeChangeColor } =
+		conversionFunnelChartSettings;
+
+	// Resolve bar color using getElementStyles with primaryColor as override
+	const { color: barColor } = getElementStyles
+		? getElementStyles( {
+				index: 0,
+				overrideColor: primaryColor,
+		  } )
+		: { color: primaryColor || '#000000' };
 
 	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
@@ -237,7 +244,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
 				{ formatPercentage( step.rate ) }
-				{ step.count && ` • ${ step.count.toLocaleString() } items` }
+				{ ` • ${ step.count ?? 'no' } items` }
 			</div>
 		</>
 	);
@@ -262,6 +269,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		isDataValid,
 		metadata: chartMetadata,
 	} );
+
+	const prefersReducedMotion = usePrefersReducedMotion();
 
 	// Handle empty or undefined data
 	if ( ! isDataValid ) {
@@ -350,7 +359,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
-											[ styles[ 'funnel-bar__animated' ] ]: animation && ! loading,
+											[ styles[ 'funnel-bar--animated' ] ]:
+												animation && ! loading && ! prefersReducedMotion,
 										} ) }
 										style={ {
 											height: `${ barHeight }%`,

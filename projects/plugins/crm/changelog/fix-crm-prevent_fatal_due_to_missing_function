@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-API: Prevent PHP error when updating companies through undocumented endpoint.

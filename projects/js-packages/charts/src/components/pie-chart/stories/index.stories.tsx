@@ -6,7 +6,7 @@ import {
 } from '../../../stories/chart-decorator';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -119,6 +119,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		thickness: 1,
 		gapScale: 0,
 		cornerScale: 0,
@@ -128,6 +129,13 @@ export const Default: Story = {
 		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
+	},
+};
+
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
 	},
 };
 

@@ -647,7 +647,7 @@ if (
 								'back_color' => $back_color,
 								'align'      => $attributes['align'],
 								'style'      => $attributes['style'],
-								'id'         => $survey,
+								'id'         => $survey ?? null,
 								'site'       => $attributes['site'],
 							)
 						);

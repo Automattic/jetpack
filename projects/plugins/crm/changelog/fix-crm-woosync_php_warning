@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Prevent PHP warnings when order status does not have a mapping.

@@ -7,7 +7,9 @@ import md5 from 'crypto-js/md5';
  * Types
  */
 import type { HighlightedText } from '../types';
-import type { RichTextFormat, RichTextValue } from '@wordpress/rich-text/build-types/types';
+import type { RichTextValue } from '@wordpress/rich-text';
+
+type RichTextFormat = Parameters< typeof applyFormat >[ 1 ];
 
 export type HighlightProps = {
 	content: RichTextValue;

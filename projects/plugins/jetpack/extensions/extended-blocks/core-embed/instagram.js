@@ -1,4 +1,3 @@
-import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { InstagramIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
@@ -9,7 +8,6 @@ const instagramVariation = {
 	title: __( 'Instagram Embed', 'jetpack' ),
 	icon: {
 		src: InstagramIcon,
-		foreground: getIconColor(),
 	},
 	keywords: [
 		_x( 'image', 'block search term', 'jetpack' ),

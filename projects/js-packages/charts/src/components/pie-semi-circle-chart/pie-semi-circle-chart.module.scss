@@ -4,6 +4,10 @@
 	text-align: center;
 	gap: 20px;
 
+	&--legend-top {
+		flex-direction: column-reverse;
+	}
+
 	.label {
 		margin-bottom: 0; // Add space between label and pie chart
 		font-weight: 600; // Make label more prominent than note

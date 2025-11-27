@@ -1,4 +1,4 @@
-import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces.ts';
 import type { ReactNode } from 'react';
 
 /**

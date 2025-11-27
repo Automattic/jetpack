@@ -2,10 +2,10 @@
  * @file The root date picker file, defines public exports for the library.
  */
 
-import { DatePickerOptions } from './date-picker-options';
-import { IDatePickerOptions, IState } from './interfaces';
-import Emitter from './lib/emitter';
-import Mode from './mode/index';
+import { DatePickerOptions } from './date-picker-options.ts';
+import { IDatePickerOptions, IState } from './interfaces.ts';
+import Emitter from './lib/emitter.ts';
+import Mode from './mode/index.ts';
 import './date-picker.css';
 
 type DatePicker = {

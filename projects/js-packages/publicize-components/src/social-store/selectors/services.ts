@@ -35,10 +35,7 @@ export function getService( state: unknown, id: string ) {
  * Returns whether the services list is being fetched
  */
 export const isFetchingServicesList = createRegistrySelector( select => (): boolean => {
-	const {
-		// @ts-expect-error isResolving does exist but is not typed
-		isResolving,
-	} = select( coreStore );
+	const { isResolving } = select( coreStore );
 
 	return isResolving( 'getEntityRecords', [ 'wpcom/v2', 'publicize/services' ] );
 } );

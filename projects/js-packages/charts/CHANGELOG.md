@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.50.0] - 2025-11-26
+### Added
+- Add Charts utils to package exports [#46095]
+- Global theme: enable color generation from CSS custom properties [#45889]
+
+## [0.49.1] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- Localize numbers in legend labels and tooltips [#45991]
+
+## [0.49.0] - 2025-11-19
+### Added
+- Add animation in circular shaped charts. [#45870]
+- Add usePrefersReducedMotion hook for accecibility. [#45955]
+
+## [0.48.0] - 2025-11-18
+### Changed
+- Remove inline styles from containers to allow consumer overrides. [#45953]
+
+## [0.47.0] - 2025-11-17
+### Added
+- Chart: Add animation support. [#45837]
+
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
 ## [0.46.3] - 2025-11-12
 ### Changed
 - Internal updates.
@@ -547,6 +575,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.50.0]: https://github.com/Automattic/charts/compare/v0.49.1...v0.50.0
+[0.49.1]: https://github.com/Automattic/charts/compare/v0.49.0...v0.49.1
+[0.49.0]: https://github.com/Automattic/charts/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/charts/compare/v0.47.0...v0.48.0
+[0.47.0]: https://github.com/Automattic/charts/compare/v0.46.3...v0.47.0
 [0.46.3]: https://github.com/Automattic/charts/compare/v0.46.2...v0.46.3
 [0.46.2]: https://github.com/Automattic/charts/compare/v0.46.1...v0.46.2
 [0.46.1]: https://github.com/Automattic/charts/compare/v0.46.0...v0.46.1

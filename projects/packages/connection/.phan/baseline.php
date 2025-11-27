@@ -21,14 +21,13 @@ return [
     // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
-    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
-    // PhanTypeMismatchReturnNullable : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
+    // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -40,7 +39,6 @@ return [
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-manager.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-nonce-handler.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturnNullable'],
         'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],

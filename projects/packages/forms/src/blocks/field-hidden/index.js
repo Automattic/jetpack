@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
-import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
-import edit from './edit';
-import save from './save';
+import defaultSettings from '../shared/settings/index.js';
+import edit from './edit.js';
+import save from './save.js';
 
 const name = 'field-hidden';
 const settings = {
@@ -14,7 +13,6 @@ const settings = {
 		'jetpack-forms'
 	),
 	icon: {
-		foreground: getIconColor(),
 		src: unseen,
 	},
 	edit,

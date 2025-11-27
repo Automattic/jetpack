@@ -36,10 +36,7 @@ export const isSavingScheduledShare = createRegistrySelector( select => {
  */
 export const isFetchingScheduledSharesForPost = createRegistrySelector( select => {
 	return ( state: unknown, post_id: number ): boolean => {
-		const {
-			// @ts-expect-error isResolving does exist but is not typed
-			isResolving,
-		} = select( coreStore );
+		const { isResolving } = select( coreStore );
 
 		return isResolving( 'getEntityRecords', [
 			'wpcom/v2',

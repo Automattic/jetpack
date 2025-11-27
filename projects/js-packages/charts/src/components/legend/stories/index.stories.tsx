@@ -1,5 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
+import {
+	simpleChartDecorator,
+	ChartStoryArgs,
+	themeArgTypes,
+	sharedThemeArgs,
+} from '../../../stories';
 import { BarChart } from '../../bar-chart';
 import { LineChart } from '../../line-chart';
 import { PieChart } from '../../pie-chart';
@@ -72,10 +77,11 @@ const pieChartData: DataPointPercentage[] = [
 export const Horizontal: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
@@ -87,10 +93,11 @@ export const Horizontal: Story = {
 export const Vertical: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },

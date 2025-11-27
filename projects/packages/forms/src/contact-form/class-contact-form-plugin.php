@@ -22,6 +22,7 @@ use WP_Block;
 use WP_Block_Patterns_Registry;
 use WP_Block_Type_Registry;
 use WP_Error;
+use WP_Post;
 
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
@@ -268,6 +269,9 @@ class Contact_Form_Plugin {
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
 
+		// Don't let related posts hook into feedback post type.
+		add_filter( 'jetpack_related_posts_rest_api_allowed_post_types', array( $this, 'remove_from_related_posts_allowed_post_types' ) );
+
 		// Add "spam" as a post status
 		register_post_status(
 			'spam',
@@ -298,6 +302,9 @@ class Contact_Form_Plugin {
 				'_builtin'               => false,
 			)
 		);
+
+		// Track when post status changes to 'spam' for accurate deletion timing
+		add_action( 'transition_post_status', array( $this, 'track_spam_status_change' ), 10, 3 );
 
 		// POST handler
 		if (
@@ -349,6 +356,16 @@ class Contact_Form_Plugin {
 				4
 			);
 		}
+	}
+
+	/**
+	 * Remove feedback post type from the allowed post types for related posts.
+	 *
+	 * @param array $post_types The allowed post types.
+	 * @return array The allowed post types.
+	 */
+	public static function remove_from_related_posts_allowed_post_types( $post_types ) {
+		return array_diff( $post_types, array( 'feedback' ) );
 	}
 
 	/**
@@ -574,6 +591,7 @@ class Contact_Form_Plugin {
 					$atts['optionclasses']                    = 'wp-block-jetpack-option';
 					$atts['optionclasses']                   .= isset( $option_attrs['class'] ) ? ' ' . $option_attrs['class'] : '';
 					$atts['optionstyles']                     = $option_attrs['style'] ?? null;
+					$atts['requiredText']                     = $inner_block['attrs']['requiredText'] ?? ( $atts['requiredText'] ?? null );
 					$add_block_style_classes_to_field_wrapper = true;
 
 					continue;
@@ -3376,6 +3394,35 @@ class Contact_Form_Plugin {
 			return 'publish';
 		}
 		return $current_status;
+	}
+
+	/**
+	 * Tracks when a feedback post status changes to 'spam' and stores the timestamp.
+	 * This allows us to accurately determine when spam was marked, independent of other post updates.
+	 *
+	 * @param string       $new_status The new post status.
+	 * @param string       $old_status The old post status.
+	 * @param WP_Post|null $post       The post object, when available.
+	 */
+	public function track_spam_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
+			return;
+		}
+
+		// Only track for feedback posts
+		if ( 'feedback' !== $post->post_type ) {
+			return;
+		}
+
+		// Only track when status changes TO spam (not from spam to something else)
+		if ( 'spam' === $new_status && 'spam' !== $old_status ) {
+			// Store the current GMT timestamp when status changes to spam
+			update_post_meta( $post->ID, '_spam_status_changed_gmt', current_time( 'mysql', 1 ) );
+		} elseif ( 'spam' === $old_status && 'spam' !== $new_status ) {
+			// Remove the meta when post is no longer spam
+			delete_post_meta( $post->ID, '_spam_status_changed_gmt' );
+		}
 	}
 
 	/**

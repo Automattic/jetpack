@@ -9,6 +9,7 @@ import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
 	themeArgTypes,
@@ -88,6 +89,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
@@ -198,6 +200,13 @@ export const WithTooltipsDoughnut: Story = {
 				story: 'Doughnut chart with interactive tooltips that appear on hover.',
 			},
 		},
+	},
+};
+
+export const Animation: Story = {
+	args: {
+		...Default.args,
+		animation: true,
 	},
 };
 

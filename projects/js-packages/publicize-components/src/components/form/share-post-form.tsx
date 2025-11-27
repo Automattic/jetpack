@@ -1,10 +1,12 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { usePostCanUseSig } from '../../hooks/use-post-can-use-sig';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
+import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
 
@@ -25,6 +27,7 @@ type SharePostFormProps = {
 export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null } ) => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
+	const postCanUseSig = usePostCanUseSig();
 
 	return (
 		<>
@@ -37,11 +40,16 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 					analyticsData={ analyticsData }
 				/>
 			) }
+			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
+				<div>HERE GOES THE NEW MEDIA SECTION</div>
+			) : null }
 			{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
 				<div className={ styles[ 'share-post-form__media-section' ] }>
 					<MediaSection analyticsData={ analyticsData } />
 				</div>
 			) }
+			{ /* Social Image Generator panel */ }
+			{ postCanUseSig && <SocialImageGeneratorPanel /> }
 		</>
 	);
 };

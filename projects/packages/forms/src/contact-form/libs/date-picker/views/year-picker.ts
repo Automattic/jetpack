@@ -1,9 +1,9 @@
 /**
  * @file Manages the year-picker view.
  */
-import { IDatePicker } from '../interfaces';
-import { setYear, shiftYear, constrainDate, now } from '../lib/date';
-import { Key } from '../lib/dom';
+import { IDatePicker } from '../interfaces.ts';
+import { setYear, shiftYear, constrainDate, now } from '../lib/date.ts';
+import { Key } from '../lib/dom.ts';
 
 export default {
 	render: render,

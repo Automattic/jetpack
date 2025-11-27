@@ -8,7 +8,11 @@ import { forwardRef, useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import { features } from '../../utils/constants';
 import styles from './styles.module.scss';
-import type { ButtonProps } from '@wordpress/components/build-types/button/types';
+import type { ComponentPropsWithoutRef } from 'react';
+
+// @todo We only really want the ButtonProps defined in @wordpress/components/build-types/button/types.d.ts,
+// without DeprecatedButtonProps, but that's not exported anywhere. 🤷
+type ButtonProps = ComponentPropsWithoutRef< typeof Button >;
 
 type ModalTriggerProps = ButtonProps & {
 	withWrapper?: boolean;

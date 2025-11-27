@@ -130,6 +130,8 @@ class Jetpack_Boost {
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
+		add_action( 'jetpack_boost_general_cleanup', array( Transient::class, 'delete_expired' ) );
+
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
@@ -196,6 +198,11 @@ class Jetpack_Boost {
 			// Schedule the cronjob to preload the cache for Cornerstone Pages.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
+
+		// Setup a cleanup job
+		if ( ! wp_next_scheduled( 'jetpack_boost_general_cleanup' ) ) {
+			wp_schedule_event( time(), 'daily', 'jetpack_boost_general_cleanup' );
+		}
 	}
 
 	/**
@@ -252,6 +259,11 @@ class Jetpack_Boost {
 
 		$modules_setup = new Modules_Setup();
 
+		// Setup a cleanup job
+		if ( ! wp_next_scheduled( 'jetpack_boost_general_cleanup' ) ) {
+			wp_schedule_event( time(), 'daily', 'jetpack_boost_general_cleanup' );
+		}
+
 		/*
 		 * Check what modules are already active (from a previous activation for example).
 		 * If there are active modules, we need to ensure each module-related event is triggered again.
@@ -272,6 +284,8 @@ class Jetpack_Boost {
 	 */
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
+
+		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
 
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();

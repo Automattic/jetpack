@@ -5,6 +5,7 @@ import { useGlobalChartsTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	marketingChannelsComparison as salesByChannel,
 	salesByProduct,
@@ -35,6 +36,7 @@ type Story = StoryObj< StoryArgs >;
 // Default story with multiple series
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		withTooltips: true,
 		data: salesByProduct,
 		containerWidth: '600px',

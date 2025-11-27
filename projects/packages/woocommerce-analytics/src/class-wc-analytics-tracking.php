@@ -229,7 +229,15 @@ class WC_Analytics_Tracking extends WC_Tracks {
 		// Add request timestamp and nocache to all pixels.
 		$pixels_to_send = array();
 		foreach ( self::$pixel_batch_queue as $pixel ) {
-			$pixels_to_send[] = WC_Tracks_Client::add_request_timestamp_and_nocache( $pixel );
+			// Check if the method exists for backwards compatibility with older WooCommerce versions.
+			if ( method_exists( WC_Tracks_Client::class, 'add_request_timestamp_and_nocache' ) ) {
+				// @phan-suppress-current-line UnusedPluginSuppression @phan-suppress-next-line PhanUndeclaredStaticMethod -- We verify the method exists before using it. See also: https://github.com/phan/phan/issues/1204
+				$pixels_to_send[] = WC_Tracks_Client::add_request_timestamp_and_nocache( $pixel );
+			} else {
+				// Fallback for older versions - add timestamp and nocache parameters manually.
+				// Remove this fallback when WooCommerce minimum version is 9.7.0+.
+				$pixels_to_send[] = $pixel . '&_rt=' . WC_Tracks_Client::build_timestamp() . '&_=_';
+			}
 		}
 
 		// Send with Requests library for true parallel batching.
@@ -380,7 +388,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			$data = parent::get_server_details();
 		} elseif ( method_exists( WC_Site_Tracking::class, 'get_server_details' ) ) {
 			// WC < 6.8
-			$data = WC_Site_Tracking::get_server_details(); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
+			$data = WC_Site_Tracking::get_server_details(); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8. See also: https://github.com/phan/phan/issues/1204
 		}
 
 		return array_merge(
@@ -406,7 +414,7 @@ class WC_Analytics_Tracking extends WC_Tracks {
 			return parent::get_blog_details( $blog_id );
 		} elseif ( method_exists( WC_Site_Tracking::class, 'get_blog_details' ) ) {
 			// WC < 6.8
-			return WC_Site_Tracking::get_blog_details( $blog_id ); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8
+			return WC_Site_Tracking::get_blog_details( $blog_id ); // @phan-suppress-current-line PhanUndeclaredStaticMethod -- method is available in WC < 6.8. See also: https://github.com/phan/phan/issues/1204
 		}
 		return array();
 	}

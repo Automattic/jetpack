@@ -214,6 +214,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			// Enqueue all core WordPress editor assets
 			$this->enqueue_core_editor_assets();
 
+			// Remove problematic plugin hooks before triggering block editor asset actions
+			$this->remove_problematic_plugin_hooks();
+
 			// Trigger block editor asset actions with forced script/style loading
 			add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
 			do_action( 'enqueue_block_assets' );
@@ -466,6 +469,103 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		if ( $current_screen ) {
 			$current_screen->is_block_editor( true );
 			$current_screen->post_type = $post_type;
+		}
+	}
+
+	/**
+	 * Removes hooks from problematic plugins that cause errors in this endpoint.
+	 *
+	 * Some plugins conditionally load admin-only code based on is_admin(), which
+	 * returns false in REST API contexts. When these plugins hook into
+	 * enqueue_block_editor_assets without checking the context, they may call
+	 * undefined functions that were never loaded, causing fatal errors.
+	 *
+	 * This method preemptively removes hooks from known problematic plugins before
+	 * the enqueue_block_editor_assets action fires, preventing fatal errors.
+	 */
+	private function remove_problematic_plugin_hooks() {
+		global $wp_filter;
+
+		// Only target the enqueue_block_editor_assets hook
+		if ( ! isset( $wp_filter['enqueue_block_editor_assets'] ) ) {
+			return;
+		}
+
+		$problematic_plugins = array(
+			'wpforms-lite/wpforms.php',
+		);
+
+		// Early return if no problematic plugins are active
+		$has_active_problematic_plugin = false;
+		foreach ( $problematic_plugins as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				$has_active_problematic_plugin = true;
+				break;
+			}
+		}
+
+		if ( ! $has_active_problematic_plugin ) {
+			return;
+		}
+
+		$plugin_slugs = array_map(
+			function ( $plugin_file ) {
+				return dirname( $plugin_file );
+			},
+			$problematic_plugins
+		);
+
+		// Collect callbacks to remove (improves performance by separating detection from removal)
+		$callbacks_to_remove = array();
+
+		foreach ( $wp_filter['enqueue_block_editor_assets']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $callback_data ) {
+				$callback  = $callback_data['function'];
+				$file_path = null;
+
+				// Handle object method callbacks: [$object, 'method_name']
+				if ( is_array( $callback ) && count( $callback ) === 2 && is_object( $callback[0] ) ) {
+					try {
+						$reflection = new ReflectionClass( $callback[0] );
+						$file_path  = $reflection->getFileName();
+					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						// Skip if reflection fails
+						continue;
+					}
+				}
+
+				// Handle function name callbacks: 'function_name'
+				if ( is_string( $callback ) && function_exists( $callback ) && ! str_contains( $callback, '::' ) ) {
+					try {
+						$reflection = new ReflectionFunction( $callback );
+						$file_path  = $reflection->getFileName();
+					} catch ( ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+						// Skip if reflection fails
+						continue;
+					}
+				}
+
+				// Check if file belongs to any problematic plugin
+				if ( $file_path ) {
+					$normalized_path = wp_normalize_path( $file_path );
+					$plugin_dir      = wp_normalize_path( WP_PLUGIN_DIR );
+
+					foreach ( $plugin_slugs as $plugin_slug ) {
+						if ( str_contains( $normalized_path, $plugin_dir . '/' . $plugin_slug . '/' ) ) {
+							$callbacks_to_remove[] = array(
+								'callback' => $callback,
+								'priority' => $priority,
+							);
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// Remove all identified callbacks
+		foreach ( $callbacks_to_remove as $item ) {
+			remove_action( 'enqueue_block_editor_assets', $item['callback'], $item['priority'] );
 		}
 	}
 

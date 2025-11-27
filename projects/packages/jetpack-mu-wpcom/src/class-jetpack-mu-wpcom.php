@@ -259,6 +259,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		\Automattic\Jetpack\ExPlat::init();
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
@@ -320,6 +321,9 @@ class Jetpack_Mu_Wpcom {
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		}
+		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
+			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';

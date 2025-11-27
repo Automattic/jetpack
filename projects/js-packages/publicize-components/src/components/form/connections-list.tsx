@@ -1,61 +1,32 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { useCallback } from 'react';
+import { Disabled } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
-import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnection from '../connection';
+import { ConnectionsToggleList } from '../connections-toggle-list';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
-import styles from './styles.module.scss';
-import { useConnectionState } from './use-connection-state';
-import type { FC } from 'react';
 
-export const ConnectionsList: FC = () => {
-	const { recordEvent } = useAnalytics();
-
-	const { connections, toggleById } = useSocialMediaConnections();
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
-
+export const ConnectionsList: React.FC = () => {
 	const { needsUserConnection, isPublicizeEnabled } = usePublicizeConfig();
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
-	const toggleConnection = useCallback(
-		( connectionId: string, connection ) => () => {
-			toggleById( connectionId );
-			recordEvent( 'jetpack_social_connection_toggled', {
-				location: 'editor',
-				enabled: ! connection.enabled,
-				service_name: connection.service_name,
-			} );
-		},
-		[ recordEvent, toggleById ]
-	);
+	const disableConnectionsList =
+		// We want to disable the connections list if Publicize is disabled
+		! isPublicizeEnabled ||
+		// or if the user needs to connect their WordPress.com account
+		// to reshare a published post.
+		( isPostPublished && needsUserConnection );
 
 	return (
 		<div>
-			<ul className={ styles[ 'connections-list' ] }>
-				{ connections.map( conn => {
-					const { display_name, service_name, profile_picture, connection_id } = conn;
-
-					return (
-						<PublicizeConnection
-							disabled={ shouldBeDisabled( conn ) }
-							enabled={ canBeTurnedOn( conn ) && conn.enabled }
-							key={ connection_id }
-							id={ connection_id }
-							label={ display_name }
-							name={ service_name }
-							toggleConnection={ toggleConnection( connection_id, conn ) }
-							profilePicture={ profile_picture }
-						/>
-					);
-				} ) }
-			</ul>
+			<Disabled isDisabled={ disableConnectionsList }>
+				<ConnectionsToggleList />
+			</Disabled>
 			{ isPublicizeEnabled ? (
 				<>
 					<MediaValidationNotices />
 					<BrokenConnectionsNotice />
-					<EnabledConnectionsNotice />
 				</>
 			) : null }
 

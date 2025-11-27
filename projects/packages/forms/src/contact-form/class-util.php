@@ -242,14 +242,16 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt  = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', 1 );
+		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
-			SELECT `ID`
-			FROM $wpdb->posts
-			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
-				AND `post_type` = 'feedback'
-				AND `post_status` = 'spam'
+			SELECT p.`ID`
+			FROM $wpdb->posts p
+			LEFT JOIN $wpdb->postmeta pm ON p.`ID` = pm.`post_id` AND pm.`meta_key` = '_spam_status_changed_gmt'
+			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > COALESCE( pm.`meta_value`, p.`post_date_gmt` )
+				AND p.`post_type` = 'feedback'
+				AND p.`post_status` = 'spam'
 			LIMIT %d
 		",
 			$now_gmt,
@@ -412,6 +414,10 @@ class Util {
 					);
 				}
 				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
+				// Ensure $attrs is an array before merging (json_decode can return null on invalid JSON).
+				if ( ! is_array( $attrs ) ) {
+					$attrs = array();
+				}
 				$attrs = array_merge( $attrs, $new_attr );
 				return str_replace(
 					$match['attrs'],

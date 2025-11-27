@@ -7,12 +7,7 @@ import { getSocialScriptData } from '../utils';
  * Hydrate the data stores
  */
 export async function hydrateStores() {
-	const {
-		addEntities,
-		receiveEntityRecords,
-		// @ts-expect-error finishResolution exists but it's not typed
-		finishResolution,
-	} = dispatch( coreStore );
+	const { addEntities, receiveEntityRecords, finishResolution } = dispatch( coreStore );
 
 	const socialToggleBase = getSocialScriptData()?.api_paths?.socialToggleBase;
 
@@ -27,7 +22,6 @@ export async function hydrateStores() {
 			},
 		] );
 
-		// @ts-expect-error Only 3 arguments are required, rest are optional but types expect 7
 		await receiveEntityRecords(
 			'jetpack/v4',
 			socialToggleBase,
@@ -50,7 +44,6 @@ export async function hydrateStores() {
 			},
 		] );
 
-		// @ts-expect-error Only 3 arguments are required, rest are optional but types expect 7
 		await receiveEntityRecords(
 			'wpcom/v2',
 			'publicize/services',

@@ -12,6 +12,10 @@ concurrency:
   group: build-${{ github.event_name == 'push' && github.run_id || 'pr' }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  # actions/checkout, actions/upload-artifact, actions/download-artifact
+  contents: read
+
 env:
   COMPOSER_ROOT_VERSION: "dev-trunk"
 
@@ -20,6 +24,11 @@ jobs:
     name: Build all projects
     runs-on: ubuntu-latest
     timeout-minutes: 30  # 2025-11-06: Build times have crept up to ~15–20 minutes as we've added more projects, bump to 30.
+    permissions:
+      # actions/checkout, actions/upload-artifact
+      contents: read
+      # Comment posting
+      pull-requests: write
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
@@ -262,6 +271,12 @@ jobs:
     name: Push to mirror repos
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      # .github/actions/turnstile
+      actions: read
+      # actions/checkout, actions/download-artifact
+      contents: read
+      # push-to-mirrors uses secrets.API_TOKEN_GITHUB, so no need for permissions
 
     if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
 

@@ -4,7 +4,7 @@ Tags: jetpack, protect, security, malware, scan
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 1.4.1
+Stable tag: 4.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,18 +178,17 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 4.4.0 - 2025-10-10
+### 4.4.1 - 2025-11-21
 #### Added
-- Add typecheck script.
-- Add typecheck support for E2E tests.
+- Tested up to WordPress 6.9.
 
 #### Changed
-- My Jetpack: Fix multisite availability check for restricted products and modules.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- Remove CRM installation nudge for Complete plan users.
+- Replace icons removed from @wordpress/icons with alternatives.
+- Update dependencies.
 - Update package dependencies.
 
 #### Fixed
-- I18n: Improve context hints in comments for translators.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
+- Jetpack: remove getIconColor functions for block icons
+- My Jetpack: Fix expiring renewal prompt to show all products
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin.
 

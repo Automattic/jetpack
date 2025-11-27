@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6a2fca6dc3bbdb11873203815306fe00",
+    "content-hash": "812f024811d12d706baf8838a11452d6",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -266,7 +266,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-core",
-                "reference": "e87cba91035b78cb3c3e1aaf414010f82f80787f"
+                "reference": "2971e11f238462df5de64ea0641bf8d1d54a7db7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -288,7 +288,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-boost-core"
             },
@@ -716,7 +716,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/explat",
-                "reference": "7e7f3929e7b3cb75923ae73176ec3ccde520faed"
+                "reference": "1da7eabd28e234c67a03fc7bff5760b383a0d91d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -734,7 +734,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"

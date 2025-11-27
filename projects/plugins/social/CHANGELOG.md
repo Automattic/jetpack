@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.3.0 - 2025-11-21
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Don't translate product names. [#43961]
+- Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45756]
+- Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
+### Fixed
+- Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
 ## 7.2.0 - 2025-10-10
 ### Added
 - Add typecheck support for E2E tests. [#44788]

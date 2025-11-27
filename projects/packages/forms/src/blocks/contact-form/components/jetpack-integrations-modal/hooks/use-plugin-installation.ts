@@ -6,7 +6,7 @@ import { useState, useCallback } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management';
+import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management.js';
 
 type PluginInstallation = {
 	isInstalling: boolean;

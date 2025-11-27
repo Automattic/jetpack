@@ -7,13 +7,13 @@ import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
-import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal';
-import { INTEGRATIONS_STORE } from '../../store/integrations';
+import IntegrationsModal from '../../blocks/contact-form/components/jetpack-integrations-modal/index.tsx';
+import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';
 /**
  * Types
  */
-import type { SelectIntegrations, IntegrationsDispatch } from '../../store/integrations';
-import type { Integration } from '../../types';
+import type { SelectIntegrations, IntegrationsDispatch } from '../../store/integrations/index.ts';
+import type { Integration } from '../../types/index.ts';
 
 const EMPTY_ARRAY: Integration[] = [];
 

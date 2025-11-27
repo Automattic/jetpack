@@ -1,12 +1,12 @@
-import { UNKNOWN_ERROR_MESSAGE } from '../constants';
+import { UNKNOWN_ERROR_MESSAGE } from '../constants.ts';
 import {
 	RECEIVE_CONFIG,
 	RECEIVE_CONFIG_VALUE,
 	INVALIDATE_CONFIG,
 	SET_CONFIG_LOADING,
 	SET_CONFIG_ERROR,
-} from './action-types';
-import type { ConfigState, ConfigAction } from './types';
+} from './action-types.ts';
+import type { ConfigState, ConfigAction } from './types.ts';
 
 const DEFAULT_STATE: ConfigState = {
 	config: null,

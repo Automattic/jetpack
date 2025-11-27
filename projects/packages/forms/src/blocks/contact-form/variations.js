@@ -3,15 +3,13 @@ import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.js';
 
 const variations = [
 	{
 		name: 'regular-form',
 		title: __( 'Form', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path d="m13 7.5 h 5 v 1.5 h -5 v -1.5z" />
@@ -33,7 +31,6 @@ const variations = [
 		title: __( 'Contact Form', 'jetpack-forms' ),
 		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -86,7 +83,6 @@ const variations = [
 		title: __( 'RSVP Form', 'jetpack-forms' ),
 		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -231,7 +227,6 @@ const variations = [
 		title: __( 'Registration Form', 'jetpack-forms' ),
 		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -414,7 +409,6 @@ const variations = [
 		title: __( 'Appointment Form', 'jetpack-forms' ),
 		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V8H4V6Z" />
@@ -588,7 +582,6 @@ const variations = [
 		title: __( 'Feedback Form', 'jetpack-forms' ),
 		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -705,7 +698,6 @@ const variations = [
 		title: __( 'Multistep Form', 'jetpack-forms' ),
 		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -945,7 +937,6 @@ const variations = [
 			_x( 'signup', 'block search term', 'jetpack-forms' ),
 		],
 		icon: {
-			foreground: getIconColor(),
 			src: people,
 		},
 		innerBlocks: [

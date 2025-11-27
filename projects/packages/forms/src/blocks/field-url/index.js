@@ -1,11 +1,10 @@
 import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
-import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
-import deprecated from './deprecated';
-import edit from './edit';
-import save from './save';
+import defaultSettings from '../shared/settings/index.js';
+import deprecated from './deprecated.js';
+import edit from './edit.js';
+import save from './save.js';
 
 const name = 'field-url';
 const settings = {
@@ -19,7 +18,6 @@ const settings = {
 	],
 	description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: <Icon icon={ globe } />,
 	},
 	edit,

@@ -9,7 +9,7 @@ import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import useCreateForm from '../../hooks/use-create-form';
+import useCreateForm from '../../hooks/use-create-form.ts';
 
 type CreateFormButtonProps = {
 	label?: string;
@@ -27,7 +27,7 @@ type CreateFormButtonProps = {
  * @return {JSX.Element}                 The button to create a new form.
  */
 export default function CreateFormButton( {
-	label = __( 'Create a free form', 'jetpack-forms' ),
+	label = __( 'Create a form', 'jetpack-forms' ),
 	showPatterns = false,
 	variant = 'secondary',
 }: CreateFormButtonProps ): JSX.Element {

@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import { PatternLines, PatternCircles, PatternWaves, PatternHexagons } from '@visx/pattern';
 import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
@@ -9,6 +10,7 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementHeight,
+	usePrefersReducedMotion,
 } from '../../hooks';
 import {
 	GlobalChartsProvider,
@@ -182,7 +184,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							) }
 							:
 						</span>
-						<span className={ styles[ 'bar-chart__tooltip-value' ] }>{ nearestDatum.value }</span>
+						<span className={ styles[ 'bar-chart__tooltip-value' ] }>
+							{ formatNumber( nearestDatum.value as number ) }
+						</span>
 					</div>
 				</div>
 			);
@@ -299,6 +303,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		metadata: chartMetadata,
 	} );
 
+	const prefersReducedMotion = usePrefersReducedMotion();
+
 	if ( error ) {
 		return <div className={ clsx( 'bar-chart', styles[ 'bar-chart' ] ) }>{ error }</div>;
 	}
@@ -315,17 +321,22 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			} }
 		>
 			<div
-				className={ clsx( 'bar-chart', styles[ 'bar-chart' ], className, {
-					[ styles[ `bar-chart__animated${ horizontal ? '-horizontal' : '' }` ] ]: animation,
-				} ) }
+				className={ clsx(
+					'bar-chart',
+					styles[ 'bar-chart' ],
+					{
+						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
+							animation && ! prefersReducedMotion,
+						[ styles[ 'bar-chart--legend-top' ] ]: showLegend && legendPosition === 'top',
+					},
+					className
+				) }
 				data-testid="bar-chart"
 				role="grid"
 				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 				style={ {
 					width,
 					height,
-					display: 'flex',
-					flexDirection: showLegend && legendPosition === 'top' ? 'column-reverse' : 'column',
 				} }
 				tabIndex={ 0 }
 				onKeyDown={ onChartKeyDown }

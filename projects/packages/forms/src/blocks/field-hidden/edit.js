@@ -2,8 +2,8 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, TextControl, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import { unseen } from '@wordpress/icons';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
 import './editor.scss';
 
 export default function HiddenFieldEdit( props ) {

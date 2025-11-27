@@ -7,8 +7,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../../../hooks/use-config-value';
-import { usePluginInstallation } from '../hooks/use-plugin-installation';
+import useConfigValue from '../../../../../hooks/use-config-value.ts';
+import { usePluginInstallation } from '../hooks/use-plugin-installation.ts';
 
 type PluginActionButtonProps = {
 	slug: string;

@@ -404,7 +404,7 @@ class Colors_Manager_Common {
 	 */
 	public static function get_colors() {
 		$opts   = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
-		$colors = ( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
+		$colors = ! empty( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
 		unset( $colors['undefined'] );
 		return $colors;
 	}
@@ -1494,6 +1494,10 @@ class Colors_Manager_Common {
 	public static function css_rule( $rule, $color ) {
 		$css = '';
 
+		if ( ! isset( $rule[0] ) || ! isset( $rule[1] ) ) {
+			return $css;
+		}
+
 		if ( isset( $rule[2] ) ) {
 			// we'll need it in either case
 			if ( ! class_exists( 'Jetpack_color' ) ) {
@@ -1555,6 +1559,7 @@ class Colors_Manager_Common {
 				$color = $working_color->toCSS( 'rgba', intval( $number ) );
 			}
 		}
+
 		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
 		return $css;
 	}
@@ -1733,6 +1738,11 @@ class Colors_Manager_Common {
 				),
 			)
 		);
+
+		if ( ! $top_palette ) {
+			return array();
+		}
+
 		$top_palette = $top_palette[0];
 
 		$equivalent_color_hex = $top_palette['colors'][ $role ];

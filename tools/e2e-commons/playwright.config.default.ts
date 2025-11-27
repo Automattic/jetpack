@@ -16,6 +16,21 @@ const reporter: ReporterDescription[] = [
 			suiteTitle: false,
 		},
 	],
+	[
+		'junit',
+		{
+			outputFile: `${ config.get( 'dirs.output' ) }/results.xml`,
+			stripANSIControlSequences: true,
+			includeProjectInTestName: true,
+		},
+	],
+	[
+		'playwright-ctrf-json-reporter',
+		{
+			outputDir: `${ config.get( 'dirs.output' ) }`,
+			outputFile: `ctrf-report-${ Date.now() }.json`,
+		},
+	],
 ];
 
 if ( process.env.CI ) {

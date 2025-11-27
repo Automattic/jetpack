@@ -1,2 +1,2 @@
-export { default as notSpam } from './not-spam';
-export { default as spam } from './spam';
+export { default as notSpam } from './not-spam.tsx';
+export { default as spam } from './spam.tsx';

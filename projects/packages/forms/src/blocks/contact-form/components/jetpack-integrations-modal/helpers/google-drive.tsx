@@ -1,9 +1,9 @@
 import { Button, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
-import GoogleSheetsIcon from '../../../../../icons/google-sheets';
-import GoogleDriveConnectButton from '../components/google-drive-connect-button';
-import GoogleDriveDisconnectButton from '../components/google-drive-disconnect-button';
-import type { CardItem, CardBuilderProps } from './types';
+import GoogleSheetsIcon from '../../../../../icons/google-sheets.tsx';
+import GoogleDriveConnectButton from '../components/google-drive-connect-button.tsx';
+import GoogleDriveDisconnectButton from '../components/google-drive-disconnect-button.tsx';
+import type { CardItem, CardBuilderProps } from './types.ts';
 
 export function buildGoogleDriveCard( {
 	integration,

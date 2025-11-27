@@ -11,6 +11,13 @@ const { createBlock }: Window[ 'wp' ][ 'blocks' ] = wpBlocks;
 
 const CODE_FENCE_REGEXP = /^```([a-z0-9+-]*)$/i;
 
+interface SyntaxHighlighterCodeAttributes {
+	content?: string;
+	language?: string;
+	lineNumbers?: boolean;
+	firstLineNumber?: string;
+}
+
 export const transforms = {
 	from: [
 		// Handle code fence openers, e.g. ```js
@@ -39,6 +46,19 @@ export const transforms = {
 
 				return createBlock< Attributes >( BLOCK_NAME, {
 					language,
+					languageConfidence: 'certain',
+				} );
+			},
+		},
+
+		{
+			type: 'block',
+			blocks: [ 'core/html' ],
+			priority: 5,
+			transform: ( { content: text }: { content: string } ) => {
+				return createBlock( 'core/code', {
+					content: RichTextData.fromPlainText( text ),
+					language: 'HTML',
 					languageConfidence: 'certain',
 				} );
 			},
@@ -84,15 +104,7 @@ export const transforms = {
 		{
 			type: 'block',
 			blocks: [ 'syntaxhighlighter/code' ],
-			transform: ( {
-				content = '',
-				...attributes
-			}: {
-				content?: string;
-				language?: string;
-				lineNumbers?: boolean;
-				firstLineNumber?: string;
-			} ) => {
+			transform: ( { content = '', ...attributes }: SyntaxHighlighterCodeAttributes ) => {
 				const blockAttributes: Partial< Attributes > = {
 					content: RichTextData.fromPlainText( content ),
 				};
@@ -168,6 +180,59 @@ export const transforms = {
 					} );
 				} );
 				return block;
+			},
+		},
+
+		{
+			type: 'raw',
+			priority: 5,
+			isMatch: ( node: Node ) =>
+				node.nodeName === 'PRE' &&
+				( node as HTMLPreElement ).children.length === 1 &&
+				( node as HTMLPreElement ).firstChild!.nodeName === 'CODE',
+			transform: ( node: HTMLPreElement ) => {
+				// This structure was validated by the match already.
+				const codeElement = node.firstChild as HTMLElement;
+
+				const blockAttributes: Partial< Attributes > = {
+					content: RichTextData.fromPlainText( codeElement.textContent || '' ),
+				};
+
+				const detectedLanguage = externalLanguageToBlockLanguage(
+					codeElement.classList[ 0 ]?.substring( 'language-'.length )
+				);
+
+				if ( typeof detectedLanguage === 'string' ) {
+					blockAttributes.language = detectedLanguage;
+					blockAttributes.languageConfidence = 'certain';
+				}
+
+				return createBlock< Attributes >( BLOCK_NAME, blockAttributes );
+			},
+			schema: {
+				pre: {
+					children: {
+						code: {
+							classes: [ /^language-/i ],
+							children: { '#text': {} },
+						},
+					},
+				},
+			},
+		},
+	],
+
+	to: [
+		{
+			type: 'block',
+			blocks: [ 'syntaxhighlighter/code' ],
+			transform: ( attributes: Attributes ) => {
+				const blockAttributes: SyntaxHighlighterCodeAttributes = {
+					content: attributes.content.toPlainText(),
+					lineNumbers: Boolean( attributes.showLineNumbers ),
+					firstLineNumber: String( attributes.lineNumbersStartAt || 1 ),
+				};
+				return createBlock( 'syntaxhighlighter/code', blockAttributes );
 			},
 		},
 	],
