@@ -3491,6 +3491,15 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../../js-packages/api
+      '@automattic/jetpack-components':
+        specifier: workspace:*
+        version: link:../../js-packages/components
+      '@wordpress/components':
+        specifier: 30.9.0
+        version: 30.9.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/dataviews':
         specifier: 11.0.0
         version: 11.0.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react@18.3.1)
@@ -3500,6 +3509,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.10.0
         version: 6.10.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
+      '@wordpress/notices':
+        specifier: 5.35.0
+        version: 5.35.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)(react@18.3.1)
       debug:
         specifier: 4.4.3
         version: 4.4.3

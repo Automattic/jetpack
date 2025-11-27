@@ -32,10 +32,14 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@wordpress/components": "30.9.0",
 		"@wordpress/dataviews": "11.0.0",
 		"@wordpress/element": "6.37.0",
 		"@wordpress/i18n": "6.10.0",
-		"debug": "4.4.3"
+		"debug": "4.4.3",
+		"@wordpress/notices": "5.35.0"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

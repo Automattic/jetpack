@@ -123,6 +123,69 @@ class Settings {
 				'enqueue'    => true,
 			)
 		);
+
+		wp_add_inline_script(
+			'jetpack-newsletter',
+			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data() ) . ';',
+			'before'
+		);
+	}
+
+	/**
+	 * Get the data to be passed to the newsletter settings page.
+	 *
+	 * @return array
+	 */
+	private function get_settings_data() {
+		$current_user = wp_get_current_user();
+		$theme        = wp_get_theme();
+
+		// Get blog ID if available (for WordPress.com sites).
+		$blog_id = defined( 'Jetpack_Options' ) && class_exists( 'Jetpack_Options' )
+			? \Jetpack_Options::get_option( 'id', 0 )
+			: 0;
+
+		// Get site URL without protocol.
+		$site_url     = get_site_url();
+		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
+
+		return array(
+			'isBlockTheme'      => wp_is_block_theme(),
+			'siteAdminUrl'      => admin_url(),
+			'themeStylesheet'   => $theme->get_stylesheet(),
+			'blogID'            => $blog_id,
+			'siteRawUrl'        => $site_raw_url,
+			'email'             => $current_user->user_email,
+			'gravatar'          => get_avatar_url( $current_user->ID ),
+			'displayName'       => $current_user->display_name,
+			'wpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wpcom_subscriber_management_enabled', false ),
+			'isSubscriptionSiteEditSupported'    => wp_is_block_theme(),
+			'setupPaymentPlansUrl' => $this->get_jetpack_cloud_url( 'monetize/payments' ),
+			'isSitePublic'      => (int) get_option( 'blog_public' ) === 1,
+		);
+	}
+
+	/**
+	 * Get a Jetpack Cloud URL.
+	 *
+	 * @param string $path The path to append to the Jetpack Cloud URL.
+	 * @return string
+	 */
+	private function get_jetpack_cloud_url( $path = '' ) {
+		$site_suffix = '';
+		if ( defined( 'Jetpack_Options' ) && class_exists( 'Jetpack_Options' ) ) {
+			$blog_id = \Jetpack_Options::get_option( 'id', 0 );
+			if ( $blog_id ) {
+				$site_suffix = $blog_id;
+			}
+		}
+
+		if ( ! $site_suffix ) {
+			$site_url    = get_site_url();
+			$site_suffix = preg_replace( '(^https?://)', '', $site_url );
+		}
+
+		return 'https://cloud.jetpack.com/' . ltrim( $path, '/' ) . '/' . $site_suffix;
 	}
 
 	/**
