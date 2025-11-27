@@ -6,9 +6,8 @@ on:
 concurrency:
   group: update-phan-stubs-${{ github.ref }}
 
-permissions:
-  contents: write
-  pull-requests: write
+# We use secrets.STUB_UPDATE_TOKEN_GITHUB for everything here (other than some public API queries against other repos), so no need for permissions.
+permissions: {}
 
 env:
   GIT_AUTHOR_NAME: matticbot

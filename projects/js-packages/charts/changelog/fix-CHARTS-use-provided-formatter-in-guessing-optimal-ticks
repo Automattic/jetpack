@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Improve guessOptimalNumTicks to use custom formatter and handle empty data.
