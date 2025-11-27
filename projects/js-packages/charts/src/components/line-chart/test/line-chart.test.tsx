@@ -50,7 +50,7 @@ describe( 'LineChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {}, themeName = 'jetpack' ) => {
+	const renderWithTheme = ( props = {}, themeName = 'default' ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -61,7 +61,7 @@ describe( 'LineChart', () => {
 		);
 	};
 
-	const renderUnwrappedWithTheme = ( props = {}, themeName = 'jetpack', ref = undefined ) => {
+	const renderUnwrappedWithTheme = ( props = {}, themeName = 'default', ref = undefined ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -813,7 +813,7 @@ describe( 'LineChart', () => {
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
 			const ref = createRef< SingleChartRef >();
-			renderUnwrappedWithTheme( {}, 'jetpack', ref );
+			renderUnwrappedWithTheme( {}, 'default', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
 			expect( ref.current?.getScales()?.xScale ).toBeDefined();
@@ -822,7 +822,7 @@ describe( 'LineChart', () => {
 
 		test( 'exposes getChartDimensions method via ref', () => {
 			const ref = createRef< SingleChartRef >();
-			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'jetpack', ref );
+			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'default', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
 			expect( dimensions?.width ).toBe( 800 );
@@ -834,7 +834,7 @@ describe( 'LineChart', () => {
 		const renderWithAnnotations = (
 			children: React.ReactNode,
 			props = {},
-			themeName = 'jetpack'
+			themeName = 'default'
 		) => {
 			const theme = THEME_MAP[ themeName ];
 
