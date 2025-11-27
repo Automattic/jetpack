@@ -1,5 +1,6 @@
 import { MenuItem } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import {
 	internalMediaSources,
 	externalMediaSources,
@@ -17,6 +18,7 @@ import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-p
  * @param {Function} props.open           - To handle the open.
  * @param {Function} props.setSource      - To set the source.
  * @param {boolean}  props.isFeatured     - Whether it's featured.
+ * @param {object}   props.mediaProps     - The original button properties.
  * @return {import('react').ReactElement} The `MediaSources` component.
  */
 function MediaSources( {
@@ -25,67 +27,52 @@ function MediaSources( {
 	open,
 	setSource,
 	isFeatured = false,
+	mediaProps = {},
 } ) {
+	const extraMediaSources = applyFilters( 'jetpack.externalMedia.extraMediaSources', [], {
+		onClick,
+		isFeatured,
+		allowedTypes: mediaProps.allowedTypes,
+		multiple: mediaProps.multiple,
+		onSelect: mediaProps.onSelect,
+	} );
+
+	const renderMenuItem = ( { id, icon, label, onClick: customOnClick } ) => {
+		return (
+			<MenuItem
+				icon={ icon }
+				key={ id }
+				onClick={
+					customOnClick ||
+					( () => {
+						onClick();
+						setSource( id );
+					} )
+				}
+			>
+				{ label }
+			</MenuItem>
+		);
+	};
+
 	return (
 		<Fragment>
 			{ originalButton && originalButton( { open } ) }
-			{ internalMediaSources.map( ( { icon, id, label } ) => (
-				<MenuItem
-					icon={ icon }
-					key={ id }
-					onClick={ () => {
-						onClick();
-						setSource( id );
-					} }
-				>
-					{ label }
-				</MenuItem>
-			) ) }
+			{ internalMediaSources.map( renderMenuItem ) }
 
 			{ isFeatured &&
 				isFeaturedImageGeneratorEnabled() &&
-				featuredImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
-					<MenuItem
-						icon={ icon }
-						key={ id }
-						onClick={ () => {
-							onClick();
-							setSource( id );
-						} }
-					>
-						{ label }
-					</MenuItem>
-				) ) }
+				featuredImageExclusiveMediaSources.map( renderMenuItem ) }
 
 			{ ! isFeatured &&
 				isGeneralPurposeImageGeneratorBetaEnabled() &&
-				generalPurposeImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
-					<MenuItem
-						icon={ icon }
-						key={ id }
-						onClick={ () => {
-							onClick();
-							setSource( id );
-						} }
-					>
-						{ label }
-					</MenuItem>
-				) ) }
+				generalPurposeImageExclusiveMediaSources.map( renderMenuItem ) }
+
+			{ extraMediaSources.map( renderMenuItem ) }
 
 			<hr style={ { marginLeft: '-8px', marginRight: '-8px' } } />
 
-			{ externalMediaSources.map( ( { icon, id, label } ) => (
-				<MenuItem
-					icon={ icon }
-					key={ id }
-					onClick={ () => {
-						onClick();
-						setSource( id );
-					} }
-				>
-					{ label }
-				</MenuItem>
-			) ) }
+			{ externalMediaSources.map( renderMenuItem ) }
 		</Fragment>
 	);
 }
