@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .more-link {
 	display: inline-block;
@@ -58,6 +59,12 @@
 .unsupported-connections-list {
 	margin-inline-start: 1rem;
 	list-style-type: disc;
+}
+
+.connections-list {
+	border-radius: 2px;
+	border: 1px solid gb.$gray-200;
+	margin-bottom: 0.75rem;
 }
 
 .empty-state {
