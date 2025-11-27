@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Sync: Only send a single updated_post_meta action per attachment metadata request.
