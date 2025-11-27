@@ -763,8 +763,6 @@ class Jetpack_Gutenberg {
 			$modules              = $module_list_endpoint->get_modules();
 		}
 
-		$is_wpcom_platform = ( new Host() )->is_wpcom_platform();
-
 		$jetpack_plan  = Jetpack_Plan::get();
 		$initial_state = array(
 			'available_blocks'        => self::get_availability(),
@@ -812,12 +810,7 @@ class Jetpack_Gutenberg {
 			 *
 			 * @param boolean true Enable Jetpack block collection in block categories. Defaults to true.
 			 */
-			'registerBlockCollection' => apply_filters(
-				'jetpack_register_block_collection',
-				function () use ( $is_wpcom_platform ) {
-					return ! $is_wpcom_platform;
-				}
-			),
+			'registerBlockCollection' => apply_filters( 'jetpack_register_block_collection', true ),
 			/**
 			 * Add your own feature flags to the block editor.
 			 *
