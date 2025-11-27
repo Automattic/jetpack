@@ -698,18 +698,17 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertEquals(
 			array(
-
-				'ID'           => array( $post_id_1, $post_id_2 ),
-				'Date'         => array( $post_1->post_date, $post_2->post_date ),
-				'Title'        => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'      => array( 'value1', 'value1' ),
-				'field_B'      => array( 'value2', '' ),
-				'field_C'      => array( '', 'value2' ),
-				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'      => array( $default_consent, $default_consent ),
-				'IP Address'   => array( $ip, $ip ),
-				'Country code' => array( $country_code, $country_code ),
-				'Browser'      => array( null, null ), // No browser for legacy feedback
+				'[ID]'           => array( $post_id_1, $post_id_2 ),
+				'[Date]'         => array( $post_1->post_date, $post_2->post_date ),
+				'[Title]'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'        => array( 'value1', 'value1' ),
+				'field_B'        => array( 'value2', '' ),
+				'field_C'        => array( '', 'value2' ),
+				'[Source]'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				'[Consent]'      => array( $default_consent, $default_consent ),
+				'[IP Address]'   => array( $ip, $ip ),
+				'[Country code]' => array( $country_code, $country_code ),
+				'[Browser]'      => array( null, null ), // No browser for legacy feedback
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -832,13 +831,13 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		// Verify the basic structure
 		$this->assertIsArray( $result );
-		$this->assertTrue( isset( $result['ID'] ) );
-		$this->assertTrue( isset( $result['Date'] ) );
-		$this->assertTrue( isset( $result['Title'] ) );
-		$this->assertTrue( isset( $result['Source'] ) );
-		$this->assertTrue( isset( $result['Consent'] ) );
-		$this->assertTrue( isset( $result['IP Address'] ) );
-		$this->assertTrue( isset( $result['Browser'] ) );
+		$this->assertTrue( isset( $result['[ID]'] ) );
+		$this->assertTrue( isset( $result['[Date]'] ) );
+		$this->assertTrue( isset( $result['[Title]'] ) );
+		$this->assertTrue( isset( $result['[Source]'] ) );
+		$this->assertTrue( isset( $result['[Consent]'] ) );
+		$this->assertTrue( isset( $result['[IP Address]'] ) );
+		$this->assertTrue( isset( $result['[Browser]'] ) );
 
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
@@ -849,8 +848,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 
 		// Each field should be an array with one entry
-		$this->assertCount( 1, $result['ID'] );
-		$this->assertEquals( $post_id, $result['ID'][0] );
+		$this->assertCount( 1, $result['[ID]'] );
+		$this->assertEquals( $post_id, $result['[ID]'][0] );
 
 		foreach ( $equals as $key => $value ) {
 			$this->assertTrue( isset( $result[ $key ] ) );
@@ -862,7 +861,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	public function test_interpersonal_data_exporter() {
-
 		$post_id = Utility::create_legacy_feedback(
 			array(
 				'1_field' => 'value1',
@@ -880,15 +878,15 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			'item_id'     => 'feedback-' . $post_id,
 			'data'        => array(
 				array(
-					'name'  => 'Date',
+					'name'  => '[Date]',
 					'value' => get_post_field( 'post_date', $post_id ),
 				),
 				array(
-					'name'  => 'Source Title',
+					'name'  => '[Source Title]',
 					'value' => '(deleted) Cool Post Title', // the default value in the create_legacy_feedback
 				),
 				array(
-					'name'  => 'Source URL:',
+					'name'  => '[Source URL]',
 					'value' => '',
 				),
 				array(
@@ -904,15 +902,15 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 					'value' => 'hello@example.com',
 				),
 				array(
-					'name'  => 'Consent',
+					'name'  => '[Consent]',
 					'value' => 'No',
 				),
 				array(
-					'name'  => 'IP Address',
+					'name'  => '[IP Address]',
 					'value' => 'https://127.0.0.1',
 				), // same as the default value in the create_legacy_feedback
 				array(
-					'name'  => 'Country code',
+					'name'  => '[Country code]',
 					'value' => null,
 				), // no country code for legacy feedback
 			),

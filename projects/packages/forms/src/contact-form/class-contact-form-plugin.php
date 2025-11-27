@@ -2441,17 +2441,17 @@ class Contact_Form_Plugin {
 			}
 			$fields             = $feedback->get_compiled_fields( 'personal_export', 'all' );
 			$post_export_data[] = array(
-				'name'  => __( 'Date', 'jetpack-forms' ),
+				'name'  => '[' . __( 'Date', 'jetpack-forms' ) . ']',
 				'value' => $feedback->get_time(),
 			);
 
 			$post_export_data[] = array(
-				'name'  => __( 'Source Title', 'jetpack-forms' ),
+				'name'  => '[' . __( 'Source Title', 'jetpack-forms' ) . ']',
 				'value' => $feedback->get_entry_title(),
 			);
 
 			$post_export_data[] = array(
-				'name'  => __( 'Source URL:', 'jetpack-forms' ),
+				'name'  => '[' . __( 'Source URL', 'jetpack-forms' ) . ']',
 				'value' => $feedback->get_entry_permalink(),
 			);
 
@@ -2463,17 +2463,17 @@ class Contact_Form_Plugin {
 			}
 
 			$post_export_data[] = array(
-				'name'  => __( 'Consent', 'jetpack-forms' ),
+				'name'  => '[' . __( 'Consent', 'jetpack-forms' ) . ']',
 				'value' => $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' ),
 			);
 
 			$post_export_data[] = array(
-				'name'  => __( 'IP Address', 'jetpack-forms' ),
+				'name'  => '[' . __( 'IP Address', 'jetpack-forms' ) . ']',
 				'value' => $feedback->get_ip_address(),
 			);
 
 			$post_export_data[] = array(
-				'name'  => __( 'Country code', 'jetpack-forms' ),
+				'name'  => '[' . __( 'Country code', 'jetpack-forms' ) . ']',
 				'value' => $feedback->get_country_code(),
 			);
 
