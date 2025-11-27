@@ -1,14 +1,6 @@
-# newsletter
+# Jetpack Newsletter
 
-Jetpack Newsletter functionality
-
-## How to install newsletter
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+This package will hold the implementation for Jetpack's newsletter functionality - dashboard, blocks and more.
 
 ## Using this package in your WordPress plugin
 
@@ -20,5 +12,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-newsletter is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Jetpack Newsletter is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
