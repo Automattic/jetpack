@@ -116,7 +116,6 @@ class Settings {
 				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jetpack-newsletter' );
 	}
 
 	/**
