@@ -5,7 +5,7 @@
  * @package automattic/jetpack-newsletter
  */
 
-namespace Automattic\Jetpack\Newsletter_Settings;
+namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
