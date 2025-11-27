@@ -244,7 +244,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
 				{ formatPercentage( step.rate ) }
-				{ step.count && ` • ${ step.count.toLocaleString() } items` }
+				{ ` • ${ step.count ?? 'no' } items` }
 			</div>
 		</>
 	);

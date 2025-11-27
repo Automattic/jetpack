@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Fix zero value tooltip in conversion funnel chart.
