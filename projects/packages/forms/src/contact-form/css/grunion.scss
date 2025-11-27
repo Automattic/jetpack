@@ -1049,12 +1049,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	border-radius: 50%;
 }
 
-.contact-form .is-style-list input.consent:checked,
-.contact-form .is-style-list input.checkbox:checked,
-.contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked {
-	background-color: currentColor;
-
-}
 
 .contact-form .is-style-list input.consent::before,
 .contact-form .is-style-list input.checkbox::before,
