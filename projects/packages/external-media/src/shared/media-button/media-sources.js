@@ -6,6 +6,7 @@ import {
 	featuredImageExclusiveMediaSources,
 	generalPurposeImageExclusiveMediaSources,
 } from '../sources';
+import { isFeaturedImageGeneratorEnabled } from '../utils/is-featured-image-generator-enabled';
 import { isGeneralPurposeImageGeneratorBetaEnabled } from '../utils/is-general-purpose-image-generator-beta-enabled';
 
 /**
@@ -42,6 +43,7 @@ function MediaSources( {
 			) ) }
 
 			{ isFeatured &&
+				isFeaturedImageGeneratorEnabled() &&
 				featuredImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }
