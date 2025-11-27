@@ -11,6 +11,7 @@
 	--jetpack--contact-form--input-padding: 16px;
 	--jetpack--contact-form--font-size: 16px;
 	--jetpack--contact-form--error-color: #b32d2e;
+	// mind that this is not really "inverted", just fixed to white.
 	--jetpack--contact-form--inverted-text-color: #fff;
 }
 
@@ -738,7 +739,6 @@ that needs to mimic the input element styles */
 :where(.wp-block-jetpack-contact-form.is-style-outlined) .wp-block-jetpack-options {
 	background-color: var(--jetpack--contact-form--input-background);
 }
-
 
 /*
 For some reason, when keeping the rule below together with the above selector,
