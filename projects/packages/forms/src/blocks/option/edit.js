@@ -68,7 +68,6 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 					<input
 						className="jetpack-field-option__checkbox"
 						checked={ !! defaultValue }
-						disabled
 						type={ type }
 					/>
 				) }
@@ -102,7 +101,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 
 	return (
 		<li { ...blockProps }>
-			<input type={ type } disabled className="jetpack-option__type" tabIndex="-1" />
+			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				ref={ useEnterRef }
 				identifier="label"
