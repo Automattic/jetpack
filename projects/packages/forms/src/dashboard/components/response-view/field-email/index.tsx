@@ -2,6 +2,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import CopyClipboardButton from '../../../components/copy-clipboard-button';
+import './style.scss';
 
 const FieldEmail = ( { email } ) => {
 	const emailParts = email.split( '@' );
