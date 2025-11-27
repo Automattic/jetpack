@@ -7,12 +7,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
-import { GlobalChartsProvider, jetpackTheme, wooTheme } from '../../../providers';
+import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
 const customTheme = {
-	...jetpackTheme,
+	...defaultTheme,
 	glyphs: [
 		props =>
 			createElement(
@@ -31,8 +31,6 @@ const customTheme = {
 
 const THEME_MAP = {
 	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
 	custom: customTheme,
 };
 
