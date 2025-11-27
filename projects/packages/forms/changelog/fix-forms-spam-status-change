@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix spam status change tracking when post is not available

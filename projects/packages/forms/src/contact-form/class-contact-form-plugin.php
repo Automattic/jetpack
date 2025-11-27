@@ -3400,11 +3400,16 @@ class Contact_Form_Plugin {
 	 * Tracks when a feedback post status changes to 'spam' and stores the timestamp.
 	 * This allows us to accurately determine when spam was marked, independent of other post updates.
 	 *
-	 * @param string  $new_status The new post status.
-	 * @param string  $old_status The old post status.
-	 * @param WP_Post $post       The post object.
+	 * @param string       $new_status The new post status.
+	 * @param string       $old_status The old post status.
+	 * @param WP_Post|null $post       The post object, when available.
 	 */
-	public function track_spam_status_change( $new_status, $old_status, WP_Post $post ) {
+	public function track_spam_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
+			return;
+		}
+
 		// Only track for feedback posts
 		if ( 'feedback' !== $post->post_type ) {
 			return;

@@ -10,6 +10,11 @@ concurrency:
   group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
   cancel-in-progress: true
 
+permissions:
+  # actions/checkout, actions/upload-artifact, actions/download-artifact
+  contents: read
+  # Note posting the coverage comment uses an app token, so no need for permissions
+
 env:
   COMPOSER_ROOT_VERSION: 'dev-trunk'
 

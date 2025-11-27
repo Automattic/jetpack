@@ -5,6 +5,10 @@ name: Update Jetpack Staging Test Sites
 on:
   workflow_dispatch:
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
   run_shell_script:
     runs-on: ubuntu-latest

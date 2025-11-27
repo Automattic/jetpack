@@ -1,0 +1,77 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.modal {
+	width: 80rem;
+	height: 40rem;
+	max-height: 90%;
+
+	:global(.components-modal__content) {
+		padding: 0;
+
+		> div {
+			height: 100%;
+		}
+	}
+}
+
+.navigator {
+	height: 100%;
+}
+
+.screen {
+	height: 100%;
+
+	.header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.5rem;
+		height: 4.5rem;
+		border-bottom: 1px solid gb.$gray-200;
+		flex-shrink: 0;
+
+		.title-wrap {
+			display: flex;
+			align-items: center;
+			gap: 1rem;
+		}
+
+		h1 {
+			margin: 0;
+			font-size: 15px;
+			font-weight: 500;
+			line-height: 24px;
+			color: gb.$gray-900;
+		}
+	}
+
+	.body {
+		display: flex;
+		height: 100%;
+		overflow: auto;
+	}
+
+	.sidebar {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		max-width: 22rem;
+		flex-shrink: 0;
+		border-inline-end: 1px solid gb.$gray-300;
+	}
+
+	.content {
+		height: 100%;
+		flex: 1;
+		overflow: auto;
+	}
+
+	.footer {
+		padding: 1rem 1.5rem;
+		border-top: 1px solid gb.$gray-300;
+		height: 4.5rem;
+		flex-shrink: 0;
+	}
+
+}

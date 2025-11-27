@@ -3,6 +3,10 @@ on:
   create:
   delete:
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
   notify:
     name: Notify

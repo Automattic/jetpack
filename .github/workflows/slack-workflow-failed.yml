@@ -17,6 +17,10 @@ on:
       - Update Phan stubs
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
   notify:
     name: Notify failure
