@@ -282,14 +282,22 @@ const customTheme = {
 
 ### Theme Integration
 
-Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Custom themes can be applied using the `GlobalChartsProvider`:
+Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Create a custom theme by defining the properties you want to override:
 
 <Source
 	language="jsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-    <GlobalChartsProvider theme={ jetpackTheme }>
+    const customTheme = {
+    	colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+    };
+
+    <GlobalChartsProvider theme={ customTheme }>
     	<PieChart data={ data } />
     </GlobalChartsProvider>` }
 
 />
+
+**Available themes:**
+- **Default**: Neutral colors and styling
+- **Custom**: Define your own theme object with properties to override

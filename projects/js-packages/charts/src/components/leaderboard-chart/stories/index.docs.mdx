@@ -461,22 +461,24 @@ The component supports CSS custom properties for advanced styling:
 
 ### Theme Integration
 
-The chart integrates with the global charts theming system:
+The chart integrates with the global charts theming system. Create a custom theme by defining the properties you want to override:
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-	<GlobalChartsProvider theme={jetpackTheme}>
+	const customTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
 		<LeaderboardChart data={data} />
 	</GlobalChartsProvider>` }
 />
 
 **Available themes:**
 - **Default**: Neutral colors and styling
-- **Jetpack**: Jetpack brand colors and styling
-- **Woo**: WooCommerce brand colors and styling
-- **Custom**: Define your own theme object
+- **Custom**: Define your own theme object with properties to override
 
 ## Accessibility
 

@@ -176,7 +176,14 @@ Controls [what this category affects]:
 
 ### Theme Integration
 
-Explanation of how feature integrates with chart themes.
+For the Theme Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should:
+
+- Show how to create a custom theme by defining properties to override
+- Include a code example with `GlobalChartsProvider`
+- List available themes (Default and Custom)
+- Include a note explaining that the provider automatically merges properties
+
+See the template for the complete section structure.
 ```
 
 ### 8. Advanced Usage
