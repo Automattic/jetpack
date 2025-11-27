@@ -286,6 +286,8 @@ const ResponseViewBody = ( {
 	const gravatarEmail = response.author_email || response.ip;
 	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
 
+	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
+
 	return (
 		<>
 			<div ref={ ref } className="jp-forms__inbox-response">
@@ -301,7 +303,10 @@ const ResponseViewBody = ( {
 							<h3 className="jp-forms__inbox-response-name">{ displayName }</h3>
 							{ response.author_email && displayName !== response.author_email && (
 								<p className="jp-forms__inbox-response-email">
-									<a href={ `mailto:${ response.author_email }` }>{ response.author_email }</a>
+									<a href={ `mailto:${ response.author_email }` }>
+										{ responseAuthorEmailParts[ 0 ] }
+										<wbr />@{ responseAuthorEmailParts[ 1 ] }
+									</a>
 									<CopyClipboardButton text={ response.author_email } />
 								</p>
 							) }

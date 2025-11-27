@@ -73,13 +73,13 @@
 
 	@include mixins.flex-center;
 	flex-shrink: 0;
-	gap: 4px;
 	font-size: 14px;
 	font-weight: 500;
-	height: 24px;
+	gap: 4px;
 	line-height: 24px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	max-width: 100%;
+	min-height: 24px;
+	word-break: break-word;
 }
 
 .jp-forms__inbox-response-meta {
