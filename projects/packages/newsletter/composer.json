@@ -55,7 +55,7 @@
 		},
 		"textdomain": "jetpack-newsletter",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-newsletter-settings.php"
+			"::PACKAGE_VERSION": "src/class-settings.php"
 		}
 	},
 	"suggest": {
