@@ -2714,10 +2714,10 @@ class Contact_Form_Plugin {
 			if ( ! $feedback instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
 			}
-			$results[ __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
-			$results[ __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
-			$results[ __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
-			$results[ __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
+			$results[ '[' . __( 'ID', 'jetpack-forms' ) . ']' ][]     = $feedback_id;
+			$results[ '[' . __( 'Date', 'jetpack-forms' ) . ']' ][]   = $feedback->get_time();
+			$results[ '[' . __( 'Title', 'jetpack-forms' ) . ']' ][]  = $feedback->get_entry_title();
+			$results[ '[' . __( 'Source', 'jetpack-forms' ) . ']' ][] = $feedback->get_entry_short_permalink();
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current feedback.
@@ -2733,10 +2733,10 @@ class Contact_Form_Plugin {
 				$results[ $single_field_name ][] = isset( $compiled_fields[ $single_field_name ] ) ? $compiled_fields[ $single_field_name ] : '';
 			}
 
-			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
-			$results[ __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
-			$results[ __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
-			$results[ __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
+			$results[ '[' . __( 'Consent', 'jetpack-forms' ) . ']' ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ '[' . __( 'IP Address', 'jetpack-forms' ) . ']' ][]   = $feedback->get_ip_address();
+			$results[ '[' . __( 'Country code', 'jetpack-forms' ) . ']' ][] = $feedback->get_country_code();
+			$results[ '[' . __( 'Browser', 'jetpack-forms' ) . ']' ][]      = $feedback->get_browser();
 
 		}
 		return $results;
