@@ -65,10 +65,13 @@ export function usePostMeta() {
 	}, [ metaValues.isPublicizeEnabled, updateMeta ] );
 
 	const updateJetpackSocialOptions = useCallback(
-		( key, value ) => {
+		( keyOrUpdates, value ) => {
+			// Support both single key-value and object of updates
+			const updates = typeof keyOrUpdates === 'string' ? { [ keyOrUpdates ]: value } : keyOrUpdates;
+
 			updateMeta( 'jetpack_social_options', {
 				...metaValues.jetpackSocialOptions,
-				[ key ]: value,
+				...updates,
 				version: 2,
 			} );
 		},

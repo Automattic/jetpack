@@ -38,8 +38,10 @@ export type UsePostMeta = {
 		metaKey: K,
 		metaValue: JetpackSocialPostMeta[ K ]
 	) => void;
-	updateJetpackSocialOptions: < K extends keyof JetpackSocialOptions >(
-		key: K,
-		value: JetpackSocialOptions[ K ]
-	) => void;
+	updateJetpackSocialOptions: {
+		// Single key-value update
+		< K extends keyof JetpackSocialOptions >( key: K, value: JetpackSocialOptions[ K ] ): void;
+		// Batch update with object
+		( updates: Partial< JetpackSocialOptions > ): void;
+	};
 };

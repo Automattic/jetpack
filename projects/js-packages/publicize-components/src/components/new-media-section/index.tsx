@@ -14,6 +14,7 @@ import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
+import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
 import MediaPreview from './media-preview';
 import MediaSourceMenu, { getMediaSourceDescription } from './media-source-menu';
@@ -68,6 +69,7 @@ export default function NewMediaSection( {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled, setIsEnabled: setSigEnabled } = useImageGeneratorConfig();
+	const { imageGeneratorSettings, updateJetpackSocialOptions } = usePostMeta();
 
 	// Get SIG preview URL when SIG is enabled
 	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview( sigEnabled );
@@ -133,23 +135,42 @@ export default function NewMediaSection( {
 				source,
 			} );
 
-			// Clear "no media" flag since user is selecting something
 			setUserSelectedNoMedia( false );
 
-			// Clear sources based on what's currently active to avoid race conditions
-			// Only clear attached media if there is any
-			if ( attachedMedia && attachedMedia.length > 0 ) {
-				updateAttachedMedia( [] );
-			}
+			switch ( source ) {
+				case 'featured-image':
+					// Turn SIG off, clear attached media (batch update to avoid race condition)
+					updateJetpackSocialOptions( {
+						attached_media: [],
+						image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+					} );
+					break;
 
-			// Handle SIG state - only update if needed to avoid race conditions
-			if ( source === 'sig' && ! sigEnabled ) {
-				setSigEnabled( true );
-			} else if ( source !== 'sig' && sigEnabled ) {
-				setSigEnabled( false );
+				case 'sig':
+					// Turn SIG on, clear attached media (batch update to avoid race condition)
+					updateJetpackSocialOptions( {
+						attached_media: [],
+						image_generator_settings: { ...imageGeneratorSettings, enabled: true },
+					} );
+					break;
+
+				case 'media-library':
+				case 'upload-video':
+					// Turn SIG off, attached media is set in handleMediaLibrarySelect
+					if ( sigEnabled ) {
+						setSigEnabled( false );
+					}
+					break;
 			}
 		},
-		[ recordEvent, analyticsData, updateAttachedMedia, setSigEnabled, attachedMedia, sigEnabled ]
+		[
+			recordEvent,
+			analyticsData,
+			updateJetpackSocialOptions,
+			imageGeneratorSettings,
+			setSigEnabled,
+			sigEnabled,
+		]
 	);
 
 	// Handle media selection from Media Library
