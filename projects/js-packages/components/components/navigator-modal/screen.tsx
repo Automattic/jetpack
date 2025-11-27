@@ -3,18 +3,12 @@ import clsx from 'clsx';
 import { Footer, FooterProps } from './footer.tsx';
 import { Header } from './header.tsx';
 import styles from './styles.module.scss';
-import { SharedProps } from './types.ts';
 
-export type ScreenProps = Partial< SharedProps > & {
+export type ScreenProps = {
 	/**
 	 * The title of the screen.
 	 */
 	title?: string;
-
-	/**
-	 * The content of the screen.
-	 */
-	content?: React.ReactNode;
 
 	/**
 	 * The path of the screen.
@@ -39,7 +33,25 @@ export type ScreenProps = Partial< SharedProps > & {
 	 * The footer actions
 	 */
 	footerActions?: FooterProps[ 'actions' ];
-};
+
+	/**
+	 * className to be applied to the modal.
+	 */
+	className?: string;
+} & (
+	| {
+			/**
+			 * The content of the screen.
+			 */
+			children: React.ReactNode;
+	  }
+	| {
+			/**
+			 * The content of the screen.
+			 */
+			content: React.ReactNode;
+	  }
+);
 
 /**
  * Renders a screen.
@@ -52,12 +64,11 @@ export function Screen( {
 	path,
 	className,
 	title,
-	content,
 	sidebar,
-	children,
 	isScreenLocked,
 	footerContent,
 	footerActions,
+	...props
 }: ScreenProps ) {
 	const hasFooter = Boolean( footerContent || ( footerActions && footerActions.length ) );
 
@@ -69,7 +80,10 @@ export function Screen( {
 				<div className={ styles.body }>
 					<Flex gap={ 0 } align="start">
 						{ sidebar ? <div className={ styles.sidebar }>{ sidebar }</div> : null }
-						<div className={ styles.content }>{ children || content }</div>
+						<div className={ styles.content }>
+							{ ( 'children' in props && props.children ) ||
+								( 'content' in props && props.content ) }
+						</div>
 					</Flex>
 				</div>
 				{ hasFooter ? (
