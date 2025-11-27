@@ -22,7 +22,7 @@
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf build/",
-		"test": "jest --config=tests/jest.config.js",
+		"test": "jest --config=tests/jest.config.js --passWithNoTests",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit",
 		"validate": "pnpm exec validate-es build/",
