@@ -72,7 +72,7 @@ class ApplicationTest extends TestCase {
 
 		$command = new Command( 'testDoRun' );
 		$command->setCode( $callback );
-		$app->add( $command );
+		$app->addCommand( $command );
 
 		$tester = new ApplicationTester( $app );
 
