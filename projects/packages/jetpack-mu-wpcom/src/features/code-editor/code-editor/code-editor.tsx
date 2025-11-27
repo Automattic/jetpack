@@ -82,9 +82,10 @@ const setupEditor = async ( target: ReactHTMLTextAreaElement ): Promise< void > 
 	const containerStyleMap = containerElement.computedStyleMap();
 	const left = containerStyleMap.get( 'padding-left' )?.toString() || '0';
 	const right = containerStyleMap.get( 'padding-right' )?.toString() || '0';
+	const paddingBottom = containerStyleMap.get( 'padding-bottom' )?.toString() || '12px';
 
 	const top = `${ target.offsetTop }px`;
-	div.style = `position: absolute; top: ${ top }; left: ${ left }; right: ${ right }; height: calc(100% - ${ top });`;
+	div.style = `position: absolute; top: ${ top }; left: ${ left }; right: ${ right }; padding-bottom: ${ paddingBottom };`;
 
 	editor = new View.EditorView( {
 		doc: target.value,
