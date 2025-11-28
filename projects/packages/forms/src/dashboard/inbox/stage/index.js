@@ -524,7 +524,7 @@ export default function InboxView() {
 						style={ {
 							display: 'flex',
 							gap: '8px',
-							justifyContent: containerWidth < 600 ? 'space-between' : 'flex-end',
+							justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
 						} }
 					>
 						<DataViews.Search />
