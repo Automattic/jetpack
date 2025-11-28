@@ -33,7 +33,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
-		newsletter: path.join( __dirname, 'src/index.tsx' ),
+		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
