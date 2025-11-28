@@ -9,7 +9,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/tiled-gallery/tiled-galler
 
 // Include mock classes for WooCommerce Email Editor helpers
 require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
-require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
 
