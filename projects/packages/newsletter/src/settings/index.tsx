@@ -3,13 +3,14 @@
  */
 import restApi from '@automattic/jetpack-api';
 import { Button, Notice, ExternalLink, Snackbar } from '@wordpress/components';
-import { DataForm } from '@wordpress/dataviews';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { Header } from './components/header';
+import { ToggleWithEditorLink } from './components/toggle-with-link';
 import './style.scss';
 
 /**
@@ -37,6 +38,7 @@ interface NewsletterSettings {
 	subscription_options?: {
 		welcome: string;
 	};
+	[ key: string ]: unknown;
 }
 
 /**
@@ -196,6 +198,18 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ senderName, data ] );
 
+	// Helper to check if we can show editor links for block theme features
+	const canShowBlockThemeEditorLinks =
+		jetpackSettings?.isBlockTheme &&
+		jetpackSettings?.siteAdminUrl &&
+		jetpackSettings?.themeStylesheet;
+
+	// Helper to check if we can show editor links for subscription site edit features
+	const canShowSubscriptionEditorLinks =
+		jetpackSettings?.isSubscriptionSiteEditSupported &&
+		jetpackSettings?.siteAdminUrl &&
+		jetpackSettings?.themeStylesheet;
+
 	// Define form fields
 	const fields = [
 		{
@@ -211,37 +225,157 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
 			label: __( 'Subscribe block at post end', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowSubscriptionEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template"
+							templateId="single"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'sm_enabled',
 			label: __( 'Subscription pop-up when scrolling', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowBlockThemeEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template_part"
+							templateId="jetpack-subscribe-modal"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'jetpack_subscribe_overlay_enabled',
 			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowBlockThemeEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template_part"
+							templateId="jetpack-subscribe-overlay"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'jetpack_subscribe_floating_button_enabled',
 			label: __( 'Floating subscribe button', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowBlockThemeEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template_part"
+							templateId="jetpack-subscribe-floating-button"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
 			label: __( 'Subscribe block in navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowSubscriptionEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template"
+							templateId="index"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'jetpack_subscriptions_login_navigation_enabled',
 			label: __( 'Subscriber login block in navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: canShowSubscriptionEditorLinks
+				? ( {
+						data: formData,
+						field,
+						onChange,
+				  }: {
+						data: NewsletterSettings;
+						field: Field< Record< string, unknown > >;
+						onChange: ( updates: Partial< NewsletterSettings > ) => void;
+				  } ) => (
+						<ToggleWithEditorLink
+							data={ formData }
+							field={ field }
+							onChange={ onChange }
+							siteAdminUrl={ jetpackSettings.siteAdminUrl }
+							themeStylesheet={ jetpackSettings.themeStylesheet }
+							postType="wp_template"
+							templateId="index"
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 		{
 			id: 'stb_enabled',

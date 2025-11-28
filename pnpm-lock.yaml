@@ -3512,6 +3512,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.35.0
         version: 5.35.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.35.0
+        version: 4.35.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       debug:
         specifier: 4.4.3
         version: 4.4.3
