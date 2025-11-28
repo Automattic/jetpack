@@ -29,6 +29,18 @@ function MediaSources( {
 	isFeatured = false,
 	mediaProps = {},
 } ) {
+	/**
+	 * Filters extra media sources to be displayed in the media sources dropdown.
+	 *
+	 * @param {object[]} extraMediaSources - Empty array (initial value for the filter).
+	 * @param {object}   args              - The filter arguments.
+	 * @param {Function} args.onClick      - The function to handle the click event.
+	 * @param {boolean}  args.isFeatured   - Whether it's a featured image.
+	 * @param {string[]} args.allowedTypes - The allowed media types (from the original MediaUpload component).
+	 * @param {boolean}  args.multiple     - Whether multiple media selection is allowed (from the original MediaUpload component).
+	 * @param {Function} args.onSelect     - The function to handle the media selection event (from the original MediaUpload component).
+	 * @return {object[]} Array of media source objects.
+	 */
 	const extraMediaSources = applyFilters( 'jetpack.externalMedia.extraMediaSources', [], {
 		onClick,
 		isFeatured,
