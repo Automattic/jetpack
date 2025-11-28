@@ -15,9 +15,33 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
  */
 class Holiday_Snow {
 	/**
-	 * Option to decide if Holiday snow is enabled on the site.
+	 * Slug where one can find the Holiday Snow settings.
+	 *
+	 * @var string
 	 */
-	private const HOLIDAY_SNOW_OPTION_NAME = 'jetpack_holiday_snow_enabled';
+	private const SETTINGS_PAGE_SLUG = 'jetpack-holiday-snow';
+
+	/**
+	 * Option names.
+	 */
+	private const OPTION_ENABLED    = 'jetpack_holiday_snow_enabled';
+	private const OPTION_GRID_WIDTH = 'jetpack_holiday_snow_grid_width';
+	private const OPTION_DENSITY    = 'jetpack_holiday_snow_density';
+	private const OPTION_SPEED      = 'jetpack_holiday_snow_speed';
+
+	/**
+	 * Settings config; defined in init().
+	 *
+	 * @var array<string, array>
+	 */
+	private static $holiday_snow_config = array();
+
+	/**
+	 * Cached value for snow enabled option.
+	 *
+	 * @var bool|null
+	 */
+	private static $is_snow_enabled_cache = null;
 
 	/**
 	 * Check if it is the holiday snow season.
@@ -67,7 +91,10 @@ class Holiday_Snow {
 	 * @return bool
 	 */
 	public static function is_snow_enabled() {
-		return (bool) get_option( self::HOLIDAY_SNOW_OPTION_NAME );
+		if ( null === self::$is_snow_enabled_cache ) {
+			self::$is_snow_enabled_cache = (bool) get_option( self::OPTION_ENABLED );
+		}
+		return self::$is_snow_enabled_cache;
 	}
 
 	/**
@@ -80,10 +107,49 @@ class Holiday_Snow {
 			return;
 		}
 
+		self::$holiday_snow_config = array(
+			self::OPTION_ENABLED    => array(
+				'default'     => false,
+				'type'        => 'boolean',
+				'description' => __( 'Show falling snow on my site until January 4th.', 'jetpack-mu-wpcom' ),
+				'label'       => __( 'Enable Holiday Snow', 'jetpack-mu-wpcom' ),
+			),
+			self::OPTION_GRID_WIDTH => array(
+				'default'     => 600,
+				'min'         => 100,
+				'max'         => 1000,
+				'step'        => 10,
+				'type'        => 'integer',
+				'description' => __( 'How wide a grid of snow is.', 'jetpack-mu-wpcom' ),
+				'label'       => __( 'Snow Grid Width', 'jetpack-mu-wpcom' ),
+				'hidden'      => true, // Disabled for now, as it's used in a SCSS for loop
+			),
+			self::OPTION_DENSITY    => array(
+				'default'     => 10,
+				'min'         => 1,
+				'max'         => 30,
+				'step'        => 1,
+				'type'        => 'integer',
+				'description' => __( 'How many snowflakes appear on the screen at a given time.', 'jetpack-mu-wpcom' ),
+				'label'       => __( 'Snow Density', 'jetpack-mu-wpcom' ),
+				'hidden'      => true, // Disabled for now, as it's used in a SCSS for loop
+			),
+			self::OPTION_SPEED      => array(
+				'default'     => 9,
+				'min'         => 1,
+				'max'         => 20,
+				'step'        => 1,
+				'type'        => 'integer',
+				'description' => __( 'How long it takes for a snowflake to get to the bottom of the screen. The lower the number, the faster it goes.', 'jetpack-mu-wpcom' ),
+				'label'       => __( 'Snow Speed', 'jetpack-mu-wpcom' ),
+			),
+		);
+
 		add_filter( 'site_settings_endpoint_get', array( __CLASS__, 'add_option_api' ) );
 		add_filter( 'rest_api_update_site_settings', array( __CLASS__, 'update_option_api' ), 10, 2 );
+		add_action( 'update_option_' . self::OPTION_ENABLED, array( __CLASS__, 'holiday_snow_option_updated' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-		add_action( 'update_option_' . self::HOLIDAY_SNOW_OPTION_NAME, array( __CLASS__, 'holiday_snow_option_updated' ) );
+		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
 
 		if ( self::is_snow_enabled() ) {
 			add_action( 'wp_footer', array( __CLASS__, 'holiday_snow_markup' ) );
@@ -98,7 +164,10 @@ class Holiday_Snow {
 	 * @since 6.1.0
 	 */
 	public static function holiday_snow_markup() {
-		echo '<div id="jetpack-holiday-snow"></div>';
+		// Get the snow speed option, fallback to default if not set.
+		$snow_speed = get_option( self::OPTION_SPEED, self::$holiday_snow_config[ self::OPTION_SPEED ]['default'] );
+		$snow_speed = self::sanitize_option( $snow_speed, self::$holiday_snow_config[ self::OPTION_SPEED ] );
+		echo '<div id="jetpack-holiday-snow" style="--jetpack-holiday-snow-speed: ' . esc_attr( $snow_speed ) . 's;" ></div>';
 	}
 
 	/**
@@ -127,22 +196,6 @@ class Holiday_Snow {
 		 */
 		do_action( 'jetpack_stats_extra', 'holiday_snow', 'snowing' );
 
-		/**
-		 * Filter the URL of the snowstorm script.
-		 *
-		 * @since 6.1.0
-		 * @deprecated 6.1.0 We've switched to a CSS-only snow effect.
-		 *
-		 * @param string $snowstorm_url URL of the snowstorm script.
-		 */
-		$snowstorm_url = apply_filters_deprecated( // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			'jetpack_holiday_snow_js_url',
-			array( plugins_url( 'snowstorm.js', __FILE__ ) ),
-			'6.1.1',
-			'',
-			'This filter is no longer useful. We use a CSS-only snow effect instead.'
-		);
-
 		wp_enqueue_style(
 			'holiday-snow',
 			plugins_url( 'build/holiday-snow/holiday-snow.css', \Automattic\Jetpack\Jetpack_Mu_Wpcom::BASE_FILE ),
@@ -158,8 +211,10 @@ class Holiday_Snow {
 	 * @return array
 	 */
 	public static function add_option_api( $settings ) {
-		$settings[ self::HOLIDAY_SNOW_OPTION_NAME ] = self::is_snow_enabled();
-
+		foreach ( self::$holiday_snow_config as $option_name => $option_config ) {
+			$value                    = get_option( $option_name, $option_config['default'] );
+			$settings[ $option_name ] = self::sanitize_option( $value, $option_config );
+		}
 		return $settings;
 	}
 
@@ -173,10 +228,11 @@ class Holiday_Snow {
 	 * @return array
 	 */
 	public static function update_option_api( $input, $unfiltered_input ) {
-		if ( isset( $unfiltered_input[ self::HOLIDAY_SNOW_OPTION_NAME ] ) ) {
-			$input[ self::HOLIDAY_SNOW_OPTION_NAME ] = (bool) $unfiltered_input[ self::HOLIDAY_SNOW_OPTION_NAME ];
+		foreach ( self::$holiday_snow_config as $option_name => $option_config ) {
+			if ( isset( $unfiltered_input[ $option_name ] ) ) {
+				$input[ $option_name ] = self::sanitize_option( $unfiltered_input[ $option_name ], $option_config );
+			}
 		}
-
 		return $input;
 	}
 
@@ -186,49 +242,106 @@ class Holiday_Snow {
 	 * @return void
 	 */
 	public static function register_settings() {
-		register_setting(
-			'general',
-			self::HOLIDAY_SNOW_OPTION_NAME,
-			array(
-				'type'              => 'boolean',
-				'description'       => esc_attr__( 'Show falling snow on my site', 'jetpack-mu-wpcom' ),
-				'show_in_rest'      => true,
-				'default'           => false,
-				'sanitize_callback' => function ( $value ) {
-					return (bool) $value;
-				},
-			)
-		);
+		foreach ( self::$holiday_snow_config as $option_name => $option_config ) {
+			if ( $option_config['type'] === 'boolean' ) {
+				$sanitize_callback = 'boolval';
+			} elseif ( $option_config['type'] === 'integer' ) {
+				$sanitize_callback = function ( $value ) use ( $option_config ) {
+					return self::sanitize_option_within_int_range( $value, $option_config );
+				};
+			} else {
+				// This shouldn't ever happen, but let's be careful anyway.
+				continue;
+			}
+			register_setting(
+				self::SETTINGS_PAGE_SLUG,
+				$option_name,
+				array(
+					'type'              => $option_config['type'],
+					'description'       => esc_attr( $option_config['description'] ),
+					'show_in_rest'      => true,
+					'default'           => $option_config['default'],
+					'sanitize_callback' => $sanitize_callback,
+				)
+			);
 
-		add_settings_field(
-			self::HOLIDAY_SNOW_OPTION_NAME,
-			esc_attr__( 'Snow', 'jetpack-mu-wpcom' ),
-			array( __CLASS__, 'option_field_display' ),
-			'general',
-			'default',
-			array(
-				'label_for' => self::HOLIDAY_SNOW_OPTION_NAME,
-			)
+			// Hide settings as desired.
+			if ( ! empty( $option_config['hidden'] ) ) {
+				continue;
+			}
+
+			add_settings_field(
+				$option_name,
+				esc_attr( $option_config['label'] ),
+				function () use ( $option_name, $option_config ) {
+					$value = get_option( $option_name, $option_config['default'] );
+					if ( $option_config['type'] === 'boolean' ) {
+						printf(
+							'<input type="checkbox" name="%1$s" id="%1$s" value="1" %2$s /><label for="%1$s">%3$s</label>',
+							esc_attr( $option_name ),
+							checked( $value, true, false ),
+							esc_html( $option_config['description'] )
+						);
+					} elseif ( $option_config['type'] === 'integer' ) {
+						printf(
+							'<input type="number" name="%1$s" id="%1$s" value="%2$d" min="%3$d" max="%4$d" step="%5$d" />',
+							esc_attr( $option_name ),
+							(int) $value,
+							(int) $option_config['min'],
+							(int) $option_config['max'],
+							(int) $option_config['step']
+						);
+						printf(
+							'<p>%s</p>',
+							esc_html( $option_config['description'] )
+						);
+						printf(
+							'<p>%s</p>',
+							// translators: %s is the default snow speed value.
+							esc_html( sprintf( __( 'Default: %s', 'jetpack-mu-wpcom' ), $option_config['default'] ) )
+						);
+					}
+				},
+				self::SETTINGS_PAGE_SLUG,
+				self::SETTINGS_PAGE_SLUG,
+				array(
+					'label_for' => $option_name,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Add a new settings page for Holiday Snow.
+	 */
+	public static function add_settings_page() {
+		add_options_page(
+			esc_attr__( 'Holiday Snow Settings', 'jetpack-mu-wpcom' ),
+			esc_attr__( 'Holiday Snow', 'jetpack-mu-wpcom' ),
+			'manage_options',
+			self::SETTINGS_PAGE_SLUG,
+			array( __CLASS__, 'render_settings_page' )
 		);
 	}
 
 	/**
-	 * Renders the Snow settings markup.
-	 *
-	 * @return void
+	 * Render the Holiday Snow settings page.
 	 */
-	public static function option_field_display() {
-		printf(
-			'<input type="checkbox" name="%1$s" id="%1$s" %2$s/><label for="%1$s">%3$s</label>',
-			esc_attr( self::HOLIDAY_SNOW_OPTION_NAME ),
-			checked( self::is_snow_enabled(), true, false ),
-			wp_kses(
-				__( 'Show falling snow on my site until January 4<sup>th</sup>.', 'jetpack-mu-wpcom' ),
-				array(
-					'sup' => array(),
-				)
-			)
-		);
+	public static function render_settings_page() {
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'Holiday Snow Settings', 'jetpack-mu-wpcom' ); ?></h1>
+			<form method="post" action="options.php">
+				<?php settings_fields( self::SETTINGS_PAGE_SLUG ); ?>
+				<table class="form-table">
+					<tbody>
+						<?php do_settings_fields( self::SETTINGS_PAGE_SLUG, self::SETTINGS_PAGE_SLUG ); ?>
+					</tbody>
+				</table>
+				<?php submit_button(); ?>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
@@ -240,5 +353,38 @@ class Holiday_Snow {
 	public static function holiday_snow_option_updated() {
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'holiday_snow', 'toggle' );
+	}
+
+	/**
+	 * Sanitize a single option value using config.
+	 *
+	 * @param mixed $value   The option value to sanitize.
+	 * @param array $config  Option config array.
+	 * @return bool|int|null Sanitized value, or null if an unknown type.
+	 */
+	public static function sanitize_option( $value, $config ) {
+		if ( $config['type'] === 'boolean' ) {
+			return (bool) $value;
+		} elseif ( $config['type'] === 'integer' ) {
+			return self::sanitize_option_within_int_range( $value, $config );
+		}
+		// this shouldn't ever happen, but just in case...
+		return null;
+	}
+
+	/**
+	 * Sanitize a value to be within a given min/max range, falling back to default as needed.
+	 * Assumes 'min', 'max', and 'default' always exist in $config.
+	 *
+	 * @param mixed $value  The value to sanitize.
+	 * @param array $config Option config array.
+	 * @return int          The sanitized value, or default if out of range.
+	 */
+	public static function sanitize_option_within_int_range( $value, $config ) {
+		$value = (int) $value;
+		if ( $value < $config['min'] || $value > $config['max'] ) {
+			return $config['default'];
+		}
+		return $value;
 	}
 }
