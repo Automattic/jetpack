@@ -9,9 +9,9 @@ require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-membership
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/button/button.php';
 
 // Include mock classes for WooCommerce Email Editor helpers
-require_once __DIR__ . '/class-mock-styles-helper.php';
-require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
-require_once __DIR__ . '/class-mock-woocommerce-button-renderer.php';
+require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
+require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/mocks/class-mock-woocommerce-button-renderer.php';
 
 use PHPUnit\Framework\Attributes\CoversMethod;
 
