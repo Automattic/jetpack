@@ -56,6 +56,9 @@
 		"textdomain": "jetpack-newsletter",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-settings.php"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-newsletter/compare/v${old}...v${new}"
 		}
 	},
 	"suggest": {
