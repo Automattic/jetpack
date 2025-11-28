@@ -135,8 +135,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 
 		$expected_abilities = array(
-			'jetpack-forms/get-submissions',
-			'jetpack-forms/update-submission',
+			'jetpack-forms/get-responses',
+			'jetpack-forms/update-response',
 			'jetpack-forms/get-status-counts',
 		);
 
@@ -153,9 +153,9 @@ class Forms_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test ability execution - get form submissions (empty list is okay).
+	 * Test ability execution - get form responses (empty list is okay).
 	 */
-	public function test_get_form_submissions_ability() {
+	public function test_get_form_responses_ability() {
 		if ( ! function_exists( 'wp_get_ability' ) ) {
 			$this->markTestSkipped( 'Abilities API functions not available' );
 			return;
@@ -169,8 +169,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 
 		wp_set_current_user( self::$user_id );
 
-		$ability = wp_get_ability( 'jetpack-forms/get-submissions' );
-		$this->assertNotNull( $ability, 'get-submissions ability should exist' );
+		$ability = wp_get_ability( 'jetpack-forms/get-responses' );
+		$this->assertNotNull( $ability, 'get-responses ability should exist' );
 
 		$result = $ability->execute(
 			array(
@@ -179,8 +179,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 			)
 		);
 
-		$this->assertNotInstanceOf( \WP_Error::class, $result, 'get-submissions should not return WP_Error' );
-		$this->assertIsArray( $result, 'get-submissions should return an array' );
+		$this->assertNotInstanceOf( \WP_Error::class, $result, 'get-responses should not return WP_Error' );
+		$this->assertIsArray( $result, 'get-responses should return an array' );
 	}
 
 	/**
@@ -226,10 +226,10 @@ class Forms_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test ability callback - update_form_submission with missing ID.
+	 * Test ability callback - update_form_response with missing ID.
 	 */
-	public function test_update_form_submission_missing_id() {
-		$result = Forms_Abilities::update_form_submission( array() );
+	public function test_update_form_response_missing_id() {
+		$result = Forms_Abilities::update_form_response( array() );
 
 		$this->assertInstanceOf( \WP_Error::class, $result, 'Should return WP_Error when ID is missing' );
 		$this->assertEquals( 'missing_id', $result->get_error_code() );
@@ -288,14 +288,14 @@ class Forms_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_form_submissions callback directly.
+	 * Test get_form_responses callback directly.
 	 */
-	public function test_get_form_submissions_callback() {
+	public function test_get_form_responses_callback() {
 		wp_set_current_user( self::$user_id );
 
-		$result = Forms_Abilities::get_form_submissions( array( 'per_page' => 5 ) );
+		$result = Forms_Abilities::get_form_responses( array( 'per_page' => 5 ) );
 
-		$this->assertIsArray( $result, 'get_form_submissions should return an array' );
+		$this->assertIsArray( $result, 'get_form_responses should return an array' );
 	}
 
 	/**

@@ -16,7 +16,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Endpoint;
  * Class Forms_Abilities
  *
  * Registers Jetpack Forms abilities with the WordPress Abilities API.
- * Provides abilities for managing form submissions and status counts.
+ * Provides abilities for managing form responses and status counts.
  */
 class Forms_Abilities {
 
@@ -63,7 +63,7 @@ class Forms_Abilities {
 			array(
 				// "Jetpack Forms" is a product name and should not be translated.
 				'label'       => 'Jetpack Forms',
-				'description' => __( 'Abilities for managing Jetpack Forms submissions.', 'jetpack-forms' ),
+				'description' => __( 'Abilities for managing Jetpack Forms responses.', 'jetpack-forms' ),
 			)
 		);
 	}
@@ -78,22 +78,22 @@ class Forms_Abilities {
 			return;
 		}
 
-		self::register_get_submissions_ability();
-		self::register_update_submission_ability();
+		self::register_get_responses_ability();
+		self::register_update_response_ability();
 		self::register_get_status_counts_ability();
 	}
 
 	/**
-	 * Register ability to get form submissions.
+	 * Register ability to get form responses.
 	 *
 	 * @return void
 	 */
-	private static function register_get_submissions_ability() {
+	private static function register_get_responses_ability() {
 		wp_register_ability(
-			'jetpack-forms/get-submissions',
+			'jetpack-forms/get-responses',
 			array(
-				'label'               => __( 'Get Form Submissions', 'jetpack-forms' ),
-				'description'         => __( 'List or search form submissions. Returns submission data including sender info, form fields, and metadata. Supports filtering by status, date range, read state, and search terms.', 'jetpack-forms' ),
+				'label'               => __( 'Get form responses', 'jetpack-forms' ),
+				'description'         => __( 'List or search form responses. Returns response data including sender info, form fields, and metadata. Supports filtering by status, date range, read state, and search terms.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -101,7 +101,7 @@ class Forms_Abilities {
 					'properties'           => array(
 						'ids'       => array(
 							'type'        => 'array',
-							'description' => __( 'Fetch specific submissions by their IDs.', 'jetpack-forms' ),
+							'description' => __( 'Fetch specific responses by their IDs.', 'jetpack-forms' ),
 							'items'       => array( 'type' => 'integer' ),
 						),
 						'page'      => array(
@@ -111,7 +111,7 @@ class Forms_Abilities {
 						),
 						'per_page'  => array(
 							'type'        => 'integer',
-							'description' => __( 'Number of submissions to return per page (max 100).', 'jetpack-forms' ),
+							'description' => __( 'Number of responses to return per page (max 100).', 'jetpack-forms' ),
 							'default'     => 10,
 						),
 						'parent'    => array(
@@ -121,7 +121,7 @@ class Forms_Abilities {
 						),
 						'status'    => array(
 							'type'        => 'string',
-							'description' => __( 'Filter by submission status.', 'jetpack-forms' ),
+							'description' => __( 'Filter by response status.', 'jetpack-forms' ),
 							'enum'        => array( 'publish', 'draft', 'spam', 'trash' ),
 						),
 						'is_unread' => array(
@@ -130,22 +130,22 @@ class Forms_Abilities {
 						),
 						'search'    => array(
 							'type'        => 'string',
-							'description' => __( 'Search within submission content and sender info.', 'jetpack-forms' ),
+							'description' => __( 'Search within response content and sender info.', 'jetpack-forms' ),
 						),
 						'before'    => array(
 							'type'        => 'string',
-							'description' => __( 'Only submissions before this date (ISO8601 format).', 'jetpack-forms' ),
+							'description' => __( 'Only responses before this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'after'     => array(
 							'type'        => 'string',
-							'description' => __( 'Only submissions after this date (ISO8601 format).', 'jetpack-forms' ),
+							'description' => __( 'Only responses after this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 					),
 					'additionalProperties' => false,
 				),
-				'execute_callback'    => array( __CLASS__, 'get_form_submissions' ),
+				'execute_callback'    => array( __CLASS__, 'get_form_responses' ),
 				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -160,16 +160,16 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Register ability to update a form submission.
+	 * Register ability to update a form response.
 	 *
 	 * @return void
 	 */
-	private static function register_update_submission_ability() {
+	private static function register_update_response_ability() {
 		wp_register_ability(
-			'jetpack-forms/update-submission',
+			'jetpack-forms/update-response',
 			array(
-				'label'               => __( 'Update form submission', 'jetpack-forms' ),
-				'description'         => __( 'Modify a form submission. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
+				'label'               => __( 'Update form response', 'jetpack-forms' ),
+				'description'         => __( 'Modify a form response. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -177,7 +177,7 @@ class Forms_Abilities {
 					'properties'           => array(
 						'id'        => array(
 							'type'        => 'integer',
-							'description' => __( 'The submission ID to update.', 'jetpack-forms' ),
+							'description' => __( 'The response ID to update.', 'jetpack-forms' ),
 						),
 						'status'    => array(
 							'type'        => 'string',
@@ -191,7 +191,7 @@ class Forms_Abilities {
 					),
 					'additionalProperties' => false,
 				),
-				'execute_callback'    => array( __CLASS__, 'update_form_submission' ),
+				'execute_callback'    => array( __CLASS__, 'update_form_response' ),
 				'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 				'meta'                => array(
 					'annotations'  => array(
@@ -214,8 +214,8 @@ class Forms_Abilities {
 		wp_register_ability(
 			'jetpack-forms/get-status-counts',
 			array(
-				'label'               => __( 'Get submission status counts', 'jetpack-forms' ),
-				'description'         => __( 'Get a summary of form submissions grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new submissions.', 'jetpack-forms' ),
+				'label'               => __( 'Get response status counts', 'jetpack-forms' ),
+				'description'         => __( 'Get a summary of form responses grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new responses.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -223,20 +223,20 @@ class Forms_Abilities {
 					'properties'           => array(
 						'search'    => array(
 							'type'        => 'string',
-							'description' => __( 'Only count submissions matching this search term.', 'jetpack-forms' ),
+							'description' => __( 'Only count responses matching this search term.', 'jetpack-forms' ),
 						),
 						'parent'    => array(
 							'type'        => 'integer',
-							'description' => __( 'Only count submissions from a specific page or post.', 'jetpack-forms' ),
+							'description' => __( 'Only count responses from a specific page or post.', 'jetpack-forms' ),
 						),
 						'before'    => array(
 							'type'        => 'string',
-							'description' => __( 'Only count submissions before this date (ISO8601 format).', 'jetpack-forms' ),
+							'description' => __( 'Only count responses before this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'after'     => array(
 							'type'        => 'string',
-							'description' => __( 'Only count submissions after this date (ISO8601 format).', 'jetpack-forms' ),
+							'description' => __( 'Only count responses after this date (ISO8601 format).', 'jetpack-forms' ),
 							'format'      => 'date-time',
 						),
 						'is_unread' => array(
@@ -286,12 +286,12 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Get form submissions callback.
+	 * Get form responses callback.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns array of submissions or WP_Error on failure.
+	 * @return array|\WP_Error Returns array of responses or WP_Error on failure.
 	 */
-	public static function get_form_submissions( $args = array() ) {
+	public static function get_form_responses( $args = array() ) {
 		$args     = is_array( $args ) ? $args : array();
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 		$request  = new \WP_REST_Request( 'GET', '/wp/v2/feedback' );
@@ -316,14 +316,14 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Update form submission callback.
+	 * Update form response callback.
 	 *
 	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns updated submission data or WP_Error on failure.
+	 * @return array|\WP_Error Returns updated response data or WP_Error on failure.
 	 */
-	public static function update_form_submission( $args ) {
+	public static function update_form_response( $args ) {
 		if ( ! isset( $args['id'] ) ) {
-			return new \WP_Error( 'missing_id', __( 'Submission ID is required.', 'jetpack-forms' ) );
+			return new \WP_Error( 'missing_id', __( 'Response ID is required.', 'jetpack-forms' ) );
 		}
 
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
