@@ -41,10 +41,13 @@ const showError = () => {
 
 			// Add on load event for the iframe to check it's visibility.
 			embedIframe.addEventListener( 'load', function () {
-				if ( Object.keys( this.contentWindow ).length === 0 ) {
-					// Remove iframe and show an error msg
-					embed.innerHTML = privateErrorMsg;
-				}
+				// Give a little time for any internal redirects/navigation to complete before checking
+				setTimeout( () => {
+					if ( Object.keys( this.contentWindow ).length === 0 ) {
+						// Remove iframe and show an error msg
+						embed.innerHTML = privateErrorMsg;
+					}
+				}, 100 );
 			} );
 
 			return;
