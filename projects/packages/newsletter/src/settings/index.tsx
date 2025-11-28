@@ -223,7 +223,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
-			label: __( 'Subscribe block at post end', 'jetpack-newsletter' ),
+			label: __( 'Add the Subscribe Block at the end of each post.', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
 				? ( {
@@ -249,7 +249,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'sm_enabled',
-			label: __( 'Subscription pop-up when scrolling', 'jetpack-newsletter' ),
+			label: __( 'Show subscription pop-up when scrolling a post.', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
 				? ( {
@@ -301,7 +301,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_subscribe_floating_button_enabled',
-			label: __( 'Floating subscribe button', 'jetpack-newsletter' ),
+			label: __( "Floating subscribe button on site's bottom corner", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
 				? ( {
@@ -327,7 +327,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
-			label: __( 'Subscribe block in navigation', 'jetpack-newsletter' ),
+			label: __( 'Add the Subscribe Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
 				? ( {
@@ -353,7 +353,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_subscriptions_login_navigation_enabled',
-			label: __( 'Subscriber login block in navigation', 'jetpack-newsletter' ),
+			label: __( 'Add the Subscriber Login Block to the navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
 				? ( {
@@ -379,13 +379,19 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'stb_enabled',
-			label: __( '"Subscribe to site" on comment form', 'jetpack-newsletter' ),
+			label: __(
+				'Enable the "Subscribe to site" option on your comment form',
+				'jetpack-newsletter'
+			),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 		},
 		{
 			id: 'stc_enabled',
-			label: __( '"Subscribe to comments" on comment form', 'jetpack-newsletter' ),
+			label: __(
+				'Enable the "Subscribe to comments" option on yourcomment form',
+				'jetpack-newsletter'
+			),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 		},
@@ -421,7 +427,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_gravatar_in_email',
-			label: __( 'Show author avatar', 'jetpack-newsletter' ),
+			label: __( 'Show author avatar on your emails', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 			description: __(
@@ -437,7 +443,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		},
 		{
 			id: 'jetpack_post_date_in_email',
-			label: __( 'Add post date', 'jetpack-newsletter' ),
+			label: __( 'Add the post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 			description: __(
@@ -462,7 +468,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				{ value: 'no-reply', label: __( 'Replies are not allowed', 'jetpack-newsletter' ) },
 			],
 			description: __(
-				"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+				'Chooses who receives emails when subscribers reply to your newsletter.',
 				'jetpack-newsletter'
 			),
 		},
@@ -471,10 +477,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			description: __(
-				"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters.",
-				'jetpack-newsletter'
-			),
 		},
 	];
 
@@ -656,6 +658,33 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				</div>
 			) }
 
+			{ /* Newsletter Categories Section */ }
+			<div className="newsletter-settings__section">
+				<h3 className="newsletter-settings__section-title">
+					{ __( 'Newsletter categories', 'jetpack-newsletter' ) }
+				</h3>
+				<p className="newsletter-settings__section-description">
+					{ __(
+						"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the subscribe block.",
+						'jetpack-newsletter'
+					) }
+				</p>
+				<div className="newsletter-settings__section-content">
+					<DataForm
+						data={ data }
+						fields={ fields.filter( f => f.id === 'wpcom_newsletter_categories_enabled' ) }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [ 'wpcom_newsletter_categories_enabled' ],
+						} }
+						onChange={ handleAutoSave }
+					/>
+				</div>
+			</div>
+
 			{ /* Email Configuration Section */ }
 			<div className="newsletter-settings__section">
 				<h3 className="newsletter-settings__section-title">
@@ -772,40 +801,11 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				</div>
 			</div>
 
-			{ /* Newsletter Categories Section */ }
-			<div className="newsletter-settings__section">
-				<h3 className="newsletter-settings__section-title">
-					{ __( 'Newsletter categories', 'jetpack-newsletter' ) }
-				</h3>
-				<p className="newsletter-settings__section-description">
-					{ __(
-						"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters.",
-						'jetpack-newsletter'
-					) }
-				</p>
-				<div className="newsletter-settings__section-content">
-					<DataForm
-						data={ data }
-						fields={ fields.filter( f => f.id === 'wpcom_newsletter_categories_enabled' ) }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'wpcom_newsletter_categories_enabled' ],
-						} }
-						onChange={ handleAutoSave }
-					/>
-				</div>
-			</div>
-
-			{ /* Snackbar for success notifications */ }
 			{ snackbarMessage && <Snackbar onRemove={ clearSnackbar }>{ snackbarMessage }</Snackbar> }
 		</div>
 	);
 }
 
-// Initialize the app when DOM is ready
 const container = document.getElementById( 'newsletter-settings-root' );
 if ( container ) {
 	const root = createRoot( container );
