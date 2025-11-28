@@ -206,70 +206,60 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
 			label: __( 'Subscribe block at post end', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'sm_enabled',
 			label: __( 'Subscription pop-up when scrolling', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_subscribe_overlay_enabled',
 			label: __( 'Subscription overlay on homepage', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_subscribe_floating_button_enabled',
 			label: __( 'Floating subscribe button', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_subscriptions_subscribe_navigation_enabled',
 			label: __( 'Subscribe block in navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_subscriptions_login_navigation_enabled',
 			label: __( 'Subscriber login block in navigation', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'stb_enabled',
 			label: __( '"Subscribe to site" on comment form', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'stc_enabled',
 			label: __( '"Subscribe to comments" on comment form', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'wpcom_featured_image_in_email',
 			label: __( 'Featured image in emails', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 			description: __(
 				"Includes your post's featured image in the email sent out to your readers.",
 				'jetpack-newsletter'
@@ -290,7 +280,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					label: __( 'Excerpt', 'jetpack-newsletter' ),
 				},
 			],
-			enableSorting: false,
 			description: __(
 				'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version.',
 				'jetpack-newsletter'
@@ -301,7 +290,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			label: __( 'Show author avatar', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 			description: __(
 				'We use Gravatar, a service that associates an avatar image with your primary email address.',
 				'jetpack-newsletter'
@@ -312,14 +300,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			label: __( 'Show author display name', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 		},
 		{
 			id: 'jetpack_post_date_in_email',
 			label: __( 'Add post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 			description: __(
 				"You can customize the date format in your site's general settings.",
 				'jetpack-newsletter'
@@ -341,7 +327,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				},
 				{ value: 'no-reply', label: __( 'Replies are not allowed', 'jetpack-newsletter' ) },
 			],
-			enableSorting: false,
 			description: __(
 				"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
 				'jetpack-newsletter'
@@ -352,7 +337,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			enableSorting: false,
 			description: __(
 				"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters.",
 				'jetpack-newsletter'
