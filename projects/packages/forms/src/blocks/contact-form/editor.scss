@@ -98,7 +98,9 @@
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-33,
 			&.jetpack-field__width-50,
-			&.jetpack-field__width-75 {
+			&.jetpack-field__width-75,
+			&.jetpack-field__width-100,
+			&.jetpack-field__width-auto {
 				box-sizing: border-box;
 			}
 
@@ -125,7 +127,8 @@
 				max-width: 75%;
 			}
 
-			&.wp-block-button__width-100 {
+			&.wp-block-button__width-100,
+			&.jetpack-field__width-100 {
 				flex: 1 1 100%;
 				max-width: 100%;
 			}

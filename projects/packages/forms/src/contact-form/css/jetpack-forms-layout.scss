@@ -22,7 +22,16 @@
 	}
 
 	&.is-vertical {
-		align-items: stretch;
+		// align-items: stretch;
+		.jetpack-field__width-25,
+		.jetpack-field__width-33,
+		.jetpack-field__width-50,
+		.jetpack-field__width-75,
+		.jetpack-field__width-100,
+		.jetpack-field__width-auto {
+			align-self: stretch;
+		}
+
 	}
 
 	// multistep forms must remain vertical and pass down layout rules.
