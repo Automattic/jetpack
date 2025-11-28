@@ -61,7 +61,8 @@ class Forms_Abilities {
 		wp_register_ability_category(
 			self::CATEGORY_SLUG,
 			array(
-				'label'       => __( 'Jetpack Forms', 'jetpack-forms' ),
+				// "Jetpack Forms" is a product name and should not be translated.
+				'label'       => 'Jetpack Forms',
 				'description' => __( 'Abilities for managing Jetpack Forms submissions.', 'jetpack-forms' ),
 			)
 		);
@@ -168,7 +169,7 @@ class Forms_Abilities {
 		wp_register_ability(
 			'jetpack-forms/update-submission',
 			array(
-				'label'               => __( 'Update Form Submission', 'jetpack-forms' ),
+				'label'               => __( 'Update form submission', 'jetpack-forms' ),
 				'description'         => __( 'Modify a form submission. Use to mark as spam, move to trash, restore from trash, or toggle read/unread state.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
@@ -214,7 +215,7 @@ class Forms_Abilities {
 		wp_register_ability(
 			'jetpack-forms/delete-submission',
 			array(
-				'label'               => __( 'Delete Form Submission', 'jetpack-forms' ),
+				'label'               => __( 'Delete form submission', 'jetpack-forms' ),
 				'description'         => __( 'Permanently delete a form submission. This action cannot be undone. Use update-submission with status "trash" for reversible deletion.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(
@@ -251,7 +252,7 @@ class Forms_Abilities {
 		wp_register_ability(
 			'jetpack-forms/get-status-counts',
 			array(
-				'label'               => __( 'Get Submission Status Counts', 'jetpack-forms' ),
+				'label'               => __( 'Get submission status counts', 'jetpack-forms' ),
 				'description'         => __( 'Get a summary of form submissions grouped by status. Returns counts for inbox (active), spam, and trash. Useful for dashboard stats or checking if there are new submissions.', 'jetpack-forms' ),
 				'category'            => self::CATEGORY_SLUG,
 				'input_schema'        => array(

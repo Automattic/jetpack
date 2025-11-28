@@ -43,10 +43,8 @@ class Forms_Abilities_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		// Initialize the plugin
 		Contact_Form_Plugin::init();
 
-		// Create admin user
 		self::$user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_admin',
@@ -56,7 +54,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 		);
 		wp_set_current_user( self::$user_id );
 
-		// Create subscriber user (no permissions)
 		self::$subscriber_user_id = wp_insert_user(
 			array(
 				'user_login' => 'test_subscriber',
