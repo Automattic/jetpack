@@ -586,7 +586,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_process_from_with_jwt() {
+	public function test_process_form_with_jwt() {
 		$previous_post = $this->setup_token_test( null, 'Test User' );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -598,7 +598,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_jwt_validation_error() {
+	public function test_process_form_with_jwt_validation_error() {
 		$previous_post = $this->setup_token_test( null );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -610,7 +610,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_fake_jwt() {
+	public function test_process_form_with_fake_jwt() {
 		$previous_post = $this->setup_token_test( 'fake.jwt.token' );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -618,6 +618,49 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
 		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_form_with_deleted_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Delete the parent post after JWT is created
+		wp_delete_post( $post_id, true );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is deleted.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$post = $previous_post; // Restore the previous post.
+		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
+		unset( $_POST['contact-form-hash'] );
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		unset( $_POST['contact-form-id'] );
+		unset( $_POST[ 'g' . $post_id . '-name' ] );
+	}
+
+	public function test_process_form_with_trashed_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Move the parent post to trash after JWT is created
+		wp_trash_post( $post_id );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is trashed.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );

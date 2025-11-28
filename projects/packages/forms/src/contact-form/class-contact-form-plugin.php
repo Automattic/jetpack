@@ -1566,6 +1566,12 @@ class Contact_Form_Plugin {
 				);
 			}
 
+			// Validate that the parent post/page where the form lives still exists and is not trashed/deleted
+			$validation_error = $this->validate_parent_post( $form );
+			if ( $validation_error ) {
+				return $validation_error;
+			}
+
 			$form->validate();
 
 			if ( $form->has_errors() ) {
@@ -1739,6 +1745,12 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
+		// Validate that the parent post/page where the form lives still exists and is not trashed/deleted (legacy submission path where we don't have a JWT)
+		$validation_error = $this->validate_parent_post( $form );
+		if ( $validation_error ) {
+			return $validation_error;
+		}
+
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
 			Post_To_Url::init();
 		}
@@ -1821,6 +1833,35 @@ class Contact_Form_Plugin {
 			)
 		);
 		die();
+	}
+
+	/**
+	 * Validates that the parent post/page where the form lives still exists and is not trashed/deleted.
+	 *
+	 * @param Contact_Form $form The contact form instance.
+	 * @return Form_Submission_Error|null Returns a Form_Submission_Error if validation fails, null otherwise.
+	 */
+	private function validate_parent_post( Contact_Form $form ) {
+		$source    = $form->get_source();
+		$source_id = $source->get_id();
+
+		// Only check for regular posts/pages (numeric IDs), not widgets or templates
+		if ( is_numeric( $source_id ) && $source_id > 0 ) {
+			$parent_post = get_post( (int) $source_id );
+
+			// If the parent post doesn't exist or is not trashed/deleted, reject the submission
+			if ( ! $parent_post || in_array( $parent_post->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+				/** This action is documented already in this file. */
+				do_action( 'jetpack_forms_log', 'submission_rejected_parent_trashed_or_deleted' );
+
+				return Form_Submission_Error::system_error(
+					'form_unavailable',
+					__( 'This form is no longer available.', 'jetpack-forms' )
+				);
+			}
+		}
+
+		return null;
 	}
 
 	/**
