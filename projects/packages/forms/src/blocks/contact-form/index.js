@@ -8,7 +8,7 @@ import blockMetadata from './block.json';
 import deprecated from './deprecated.js';
 import edit from './edit.tsx';
 import transforms from './transforms.js';
-import variations from './variations';
+import variations from './variations.js';
 
 export const name = 'contact-form';
 
