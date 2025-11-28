@@ -47,8 +47,6 @@ class Holiday_Snow {
 	/**
 	 * Whether to show the holiday snow settings.
 	 * Shows from 1 December through 6 January and from 1 June through 6 July.
-	 *
-	 * @var bool
 	 */
 	public static function show_settings() {
 		$today = time();
@@ -209,7 +207,7 @@ class Holiday_Snow {
 		// Get the snow speed option, fallback to default if not set.
 		$snow_speed = get_option( self::OPTION_SPEED, self::$holiday_snow_config[ self::OPTION_SPEED ]['default'] );
 		$snow_speed = self::sanitize_option( $snow_speed, self::$holiday_snow_config[ self::OPTION_SPEED ] );
-		echo '<div id="jetpack-holiday-snow" style="--jetpack-holiday-snow-speed: ' . esc_attr( $snow_speed ) . 's;" ></div>';
+		echo '<div id="jetpack-holiday-snow" style="--jetpack-holiday-snow-speed: ' . (int) $snow_speed . 's;" ></div>';
 	}
 
 	/**
