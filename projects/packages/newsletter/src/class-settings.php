@@ -41,6 +41,13 @@ class Settings {
 	 * @return bool
 	 */
 	private function expose_to_users() {
+		/**
+		 * Enables the new in-development newsletter settings UI in wp-admin.
+		 *
+		 * @since 15.3.0
+		 *
+		 * @param bool $enabled Whether to enable the new newsletter settings UI. Default false.
+		 */
 		return apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false );
 	}
 
