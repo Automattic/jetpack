@@ -64,7 +64,7 @@ class Payment_Buttons_Block_Email_Test extends WP_UnitTestCase {
 	 * Test render_block_email renders two buttons.
 	 */
 	public function test_render_block_email_with_valid_payment_buttons() {
-		require_once __DIR__ . '/class-mock-flex-layout-renderer.php';
+		require_once __DIR__ . '/mocks/class-mock-flex-layout-renderer.php';
 
 		$mock_context = $this->create_rendering_context_mock();
 
@@ -90,7 +90,7 @@ class Payment_Buttons_Block_Email_Test extends WP_UnitTestCase {
 	 * Test render_block_email render with no inner blocks.
 	 */
 	public function test_render_block_email_with_no_inner_blocks() {
-		require_once __DIR__ . '/class-mock-flex-layout-renderer.php';
+		require_once __DIR__ . '/mocks/class-mock-flex-layout-renderer.php';
 
 		$mock_context = $this->create_rendering_context_mock();
 
