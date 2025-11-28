@@ -2187,7 +2187,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "fbd875a5bdf48818551d0847c92d54f509c94e42"
+				"reference": "70c4fd8f9ebed459812e69b15a21152a4a8e9a0d"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -2214,6 +2214,9 @@
 				"textdomain": "jetpack-newsletter",
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-settings.php"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-newsletter/compare/v${old}...v${new}"
 				}
 			},
 			"autoload": {
