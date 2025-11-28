@@ -473,6 +473,7 @@
 			width: 1em;
 			transform: translateY(-0.35em);
 			background-color: var(--jetpack--contact-form--input-background, field);
+			pointer-events: none;
 		}
 
 		&[type="radio"]::before {
