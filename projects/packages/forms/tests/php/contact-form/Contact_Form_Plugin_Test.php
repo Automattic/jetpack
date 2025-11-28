@@ -686,6 +686,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			array(
 				'1_field_A' => 'value1',
 				'2_field_C' => 'value2',
+				'3_Date'    => '2024-01-01',
 			)
 		);
 		$post_2     = get_post( $post_id_2 );
@@ -695,21 +696,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$ip              = 'https://127.0.0.1';
 
 		$country_code = null; // No country code for legacy feedback
-
+		$prefix_meta  = ' ';
 		$this->assertEquals(
 			array(
-
-				'ID'           => array( $post_id_1, $post_id_2 ),
-				'Date'         => array( $post_1->post_date, $post_2->post_date ),
-				'Title'        => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'      => array( 'value1', 'value1' ),
-				'field_B'      => array( 'value2', '' ),
-				'field_C'      => array( '', 'value2' ),
-				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'      => array( $default_consent, $default_consent ),
-				'IP Address'   => array( $ip, $ip ),
-				'Country code' => array( $country_code, $country_code ),
-				'Browser'      => array( null, null ), // No browser for legacy feedback
+				$prefix_meta . 'ID'           => array( $post_id_1, $post_id_2 ),
+				$prefix_meta . 'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				$prefix_meta . 'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'                     => array( 'value1', 'value1' ),
+				'field_B'                     => array( 'value2', '' ),
+				'field_C'                     => array( '', 'value2' ),
+				'Date'                        => array( '', '2024-01-01' ),
+				$prefix_meta . 'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				$prefix_meta . 'Consent'      => array( $default_consent, $default_consent ),
+				$prefix_meta . 'IP Address'   => array( $ip, $ip ),
+				$prefix_meta . 'Country code' => array( $country_code, $country_code ),
+				$prefix_meta . 'Browser'      => array( null, null ), // No browser for legacy feedback
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -830,15 +831,17 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin       = Contact_Form_Plugin::init();
 		$result       = $plugin->get_export_feedback_data( array( $post_id ) );
 
+		$prefix_meta = ' ';
+
 		// Verify the basic structure
 		$this->assertIsArray( $result );
-		$this->assertTrue( isset( $result['ID'] ) );
-		$this->assertTrue( isset( $result['Date'] ) );
-		$this->assertTrue( isset( $result['Title'] ) );
-		$this->assertTrue( isset( $result['Source'] ) );
-		$this->assertTrue( isset( $result['Consent'] ) );
-		$this->assertTrue( isset( $result['IP Address'] ) );
-		$this->assertTrue( isset( $result['Browser'] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'ID' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Date' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Title' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Source' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
 
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
@@ -849,8 +852,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 
 		// Each field should be an array with one entry
-		$this->assertCount( 1, $result['ID'] );
-		$this->assertEquals( $post_id, $result['ID'][0] );
+		$this->assertCount( 1, $result[ $prefix_meta . 'ID' ] );
+		$this->assertEquals( $post_id, $result[ $prefix_meta . 'ID' ][0] );
 
 		foreach ( $equals as $key => $value ) {
 			$this->assertTrue( isset( $result[ $key ] ) );
