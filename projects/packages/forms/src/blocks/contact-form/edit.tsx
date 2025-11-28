@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useModuleStatus, hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -180,7 +180,7 @@ function JetpackContactFormEdit( {
 		webhooks,
 	} = attributes;
 	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
-	const showWebhooks = useConfigValue( 'isWebhooksEnabled' );
+	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
