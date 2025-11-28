@@ -2746,7 +2746,8 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
-		$results = array();
+		$results            = array();
+		$prefix_meta_fields = ' '; // Prefix all meta fields with a space to ensure that they don't clash with form field names.
 		foreach ( $feedback_data as $feedback_id => $data ) {
 
 			$feedback        = $data['response'];
@@ -2755,10 +2756,11 @@ class Contact_Form_Plugin {
 			if ( ! $feedback instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
 			}
-			$results[ __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
-			$results[ __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
-			$results[ __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
-			$results[ __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
+
+			$results[ $prefix_meta_fields . __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
+			$results[ $prefix_meta_fields . __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
+			$results[ $prefix_meta_fields . __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
+			$results[ $prefix_meta_fields . __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current feedback.
@@ -2767,17 +2769,18 @@ class Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
-				if ( ! isset( $results[ $single_field_name ] ) ) {
-					$results[ $single_field_name ] = array();
+				$trimmed_field_name = trim( $single_field_name );
+				if ( ! isset( $results[ $trimmed_field_name ] ) ) {
+					$results[ $trimmed_field_name ] = array();
 				}
 				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $single_field_name ][] = isset( $compiled_fields[ $single_field_name ] ) ? $compiled_fields[ $single_field_name ] : '';
+				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
 			}
 
-			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
-			$results[ __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
-			$results[ __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
-			$results[ __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
+			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
+			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
+			$results[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
 
 		}
 		return $results;
