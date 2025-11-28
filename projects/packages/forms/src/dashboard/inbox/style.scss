@@ -8,6 +8,7 @@
 .jp-forms-view-actions {
 	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 	padding-inline: variables.$grid-unit * 2.5;
+	padding-block-start: variables.$grid-unit;
 	overflow-x: auto;
 	width: 100%;
 	box-sizing: border-box;
