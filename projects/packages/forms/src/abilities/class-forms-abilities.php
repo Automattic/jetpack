@@ -33,18 +33,18 @@ class Forms_Abilities {
 	 * @return void
 	 */
 	public static function init() {
-		// Register the ability category first
-		add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
-
-		// Then register abilities
-		add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_abilities' ) );
-
-		// If the API is already initialized, register immediately
+		// Register category
 		if ( did_action( 'wp_abilities_api_categories_init' ) ) {
 			self::register_category();
+		} else {
+			add_action( 'wp_abilities_api_categories_init', array( __CLASS__, 'register_category' ) );
 		}
+
+		// Register abilities
 		if ( did_action( 'wp_abilities_api_init' ) ) {
 			self::register_abilities();
+		} else {
+			add_action( 'wp_abilities_api_init', array( __CLASS__, 'register_abilities' ) );
 		}
 	}
 
