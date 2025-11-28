@@ -167,13 +167,14 @@ function get_file_content( $file_content, $file_id ) {
 }
 
 /**
- * Determine if a file is previable based on its extension.
+ * Check which file extensions can be previewed in the browser without downloading them.
  *
  * @param string $file_name The name of the file.
  * @return bool True if the file is previable, false otherwise.
  */
 function is_file_previable( $file_name ) {
-	$previable_extensions = array( 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'pdf' );
+	// List of file extensions that we can preview in the browser without downloading them.
+	$previable_extensions = array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf' );
 	$extension            = pathinfo( $file_name, PATHINFO_EXTENSION );
 
 	return in_array( strtolower( $extension ), $previable_extensions, true );
