@@ -55,7 +55,7 @@ function Page( {
 	contentWidth?: 'default' | 'full' | 'constrained';
 	showSidebarToggle?: boolean;
 } ) {
-	const classes = clsx( 'admin-ui-page', className );
+	const classes = clsx( 'jp-forms-page', 'admin-ui-page', className );
 
 	return (
 		<NavigableRegion className={ classes } ariaLabel={ title }>

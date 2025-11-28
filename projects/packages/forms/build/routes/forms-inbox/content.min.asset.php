@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('react-jsx-runtime', 'wp-i18n'), 'version' => '1763514114429');
+<?php return array('dependencies' => array('react-jsx-runtime', 'wp-element'), 'module_dependencies' => array(array('id' => '@wordpress/route', 'import' => 'static')), 'version' => '1764414977432');

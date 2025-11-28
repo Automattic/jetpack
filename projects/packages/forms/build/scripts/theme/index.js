@@ -52,23 +52,23 @@ var wp;
     }
   });
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/index.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/index.js
   var build_module_exports = {};
   __export(build_module_exports, {
     privateApis: () => privateApis
   });
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/lock-unlock.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/lock-unlock.js
   var import_private_apis = __toESM(require_private_apis());
   var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
     "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
     "@wordpress/theme"
   );
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/theme-provider.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/theme-provider.js
   var import_element3 = __toESM(require_element());
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/context.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/context.js
   var import_element = __toESM(require_element());
   var ThemeContext = (0, import_element.createContext)({
     resolvedSettings: {
@@ -2710,16 +2710,16 @@ var wp;
     return memoized;
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/use-theme-provider-styles.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/use-theme-provider-styles.js
   var import_element2 = __toESM(require_element());
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/register-color-spaces.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/register-color-spaces.js
   ColorSpace.register(srgb_default);
   ColorSpace.register(oklch_default);
   ColorSpace.register(p3_default);
   ColorSpace.register(hsl_default);
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/prebuilt/ts/color-tokens.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/prebuilt/ts/color-tokens.js
   var color_tokens_default = {
     "primary-bgFill1": ["bg-interactive-brand-strong"],
     "primary-fgFill": [
@@ -2833,7 +2833,7 @@ var wp;
     "caution-fgSurface3": ["fg-content-caution-weak"]
   };
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/color-utils.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/color-utils.js
   function getColorString(color) {
     return serialize(to(color, srgb_default), { format: "hex", inGamut: true });
   }
@@ -2844,7 +2844,7 @@ var wp;
     return to(toGamut(c, { space: srgb_default, method: "css" }), oklch_default);
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/constants.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/constants.js
   var WHITE = to("white", oklch_default);
   var BLACK = to("black", oklch_default);
   var UNIVERSAL_CONTRAST_TOPUP = 0.02;
@@ -2865,7 +2865,7 @@ var wp;
     error: "#cc1818"
   };
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/utils.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/utils.js
   function buildDependencyGraph(config) {
     const dependencies = /* @__PURE__ */ new Map();
     const dependents = /* @__PURE__ */ new Map();
@@ -2991,7 +2991,7 @@ var wp;
     return bestC;
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/taper-chroma.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/taper-chroma.js
   function taperChroma(seed, lTarget, options = {}) {
     const gamut = options.gamut ?? "p3";
     const gamutSpace = gamut === "p3" ? p3_default : srgb_default;
@@ -3129,7 +3129,7 @@ var wp;
     return ok;
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/find-color-with-constraints.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/find-color-with-constraints.js
   function cdiff(c13, c23) {
     return Math.log(c13 / c23);
   }
@@ -3206,7 +3206,7 @@ var wp;
     };
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/index.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/index.js
   function calculateRamp({
     seed,
     sortedSteps,
@@ -3402,7 +3402,7 @@ var wp;
     };
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/ramp-configs.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/lib/ramp-configs.js
   var lightnessConstraintForegroundHighContrast = (direction) => direction === "lighter" ? 0.9551 : 0.235;
   var lightnessConstraintForegroundMediumContrast = (direction) => direction === "lighter" ? 0.77 : 0.56;
   var lightnessConstraintBgFill = (direction) => direction === "lighter" ? 0.67 : 0.45;
@@ -3689,7 +3689,7 @@ var wp;
     }
   };
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/index.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/color-ramps/index.js
   function buildBgRamp(seed) {
     if (typeof seed !== "string" || seed.trim() === "") {
       throw new Error("Seed color must be a non-empty string");
@@ -3717,7 +3717,7 @@ var wp;
     return buildRamp(seed, ACCENT_RAMP_CONFIG, bgRampInfo);
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/use-theme-provider-styles.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/use-theme-provider-styles.js
   var getCachedBgRamp = memize(buildBgRamp, { maxSize: 10 });
   var getCachedAccentRamp = memize(buildAccentRamp, { maxSize: 10 });
   var legacyWpComponentsOverridesCSS = [
@@ -3905,7 +3905,7 @@ var wp;
     };
   }
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/theme-provider.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/theme-provider.js
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   var css = `.style-module__root__26kw6 {
 	display: contents;
@@ -3936,7 +3936,8 @@ var wp;
   var ThemeProvider = ({
     children,
     color = {},
-    isRoot = false
+    isRoot = false,
+    density
   }) => {
     const instanceId = (0, import_element3.useId)();
     const { themeProviderStyles, resolvedSettings } = useThemeProviderStyles({
@@ -3958,6 +3959,7 @@ var wp;
         {
           "data-wpds-theme-provider-id": instanceId,
           "data-wpds-root-provider": isRoot,
+          "data-wpds-density": density,
           className: style_default.root,
           children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ThemeContext.Provider, { value: contextValue, children })
         }
@@ -3965,7 +3967,7 @@ var wp;
     ] });
   };
 
-  // ../../../node_modules/.pnpm/@wordpress+theme@0.2.1-next.dc3f6d3c1.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/private-apis.js
+  // ../../../node_modules/.pnpm/@wordpress+theme@0.3.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/theme/build-module/private-apis.js
   var privateApis = {};
   lock(privateApis, {
     ThemeProvider,

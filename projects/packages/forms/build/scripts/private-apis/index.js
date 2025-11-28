@@ -18,13 +18,13 @@ var wp;
   };
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-  // ../../../node_modules/.pnpm/@wordpress+private-apis@1.35.1-next.dc3f6d3c1.0_patch_hash=2659f08edd4c0250f15fb428f013_d39e716e71a9f702a7bedc72c4010fa6/node_modules/@wordpress/private-apis/build-module/index.js
+  // ../../../node_modules/.pnpm/@wordpress+private-apis@1.36.1-next.8b30e05b0.0_patch_hash=2659f08edd4c0250f15fb428f013_deeaa40cb312346d12eaf1100e0929d3/node_modules/@wordpress/private-apis/build-module/index.js
   var build_module_exports = {};
   __export(build_module_exports, {
     __dangerousOptInToUnstableAPIsOnlyForCoreModules: () => __dangerousOptInToUnstableAPIsOnlyForCoreModules
   });
 
-  // ../../../node_modules/.pnpm/@wordpress+private-apis@1.35.1-next.dc3f6d3c1.0_patch_hash=2659f08edd4c0250f15fb428f013_d39e716e71a9f702a7bedc72c4010fa6/node_modules/@wordpress/private-apis/build-module/implementation.js
+  // ../../../node_modules/.pnpm/@wordpress+private-apis@1.36.1-next.8b30e05b0.0_patch_hash=2659f08edd4c0250f15fb428f013_deeaa40cb312346d12eaf1100e0929d3/node_modules/@wordpress/private-apis/build-module/implementation.js
   var CORE_MODULES_USING_PRIVATE_APIS = [
     "@wordpress/block-directory",
     "@wordpress/block-editor",

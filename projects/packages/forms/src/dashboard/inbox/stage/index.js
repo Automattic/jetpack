@@ -8,13 +8,12 @@ import { ExternalLink, Modal } from '@wordpress/components';
 import { useResizeObserver, useViewportMatch } from '@wordpress/compose';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Icon, globe } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router';
+import { createPortal } from 'react-dom';
 /**
  * Internal dependencies
  */
@@ -30,6 +29,11 @@ import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
 import IntegrationsButton from '../../components/integrations-button/index.tsx';
 import Page from '../../components/page/index.tsx';
+import {
+	useSelectedIds,
+	useUpdateSelection,
+	useSetInspectorResponse,
+} from '../../hooks/use-forms-state.ts';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import { getPath, getItemId } from '../utils.js';
 import {
@@ -82,9 +86,17 @@ const setupSidebarWidthObserver = () => {
  *
  * @return {import('react').JSX.Element} The DataViews component.
  */
+
+/**
+ * InboxView component that displays form responses using DataViews.
+ *
+ * @return {import('react').ReactNode} The inbox view component.
+ */
 export default function InboxView() {
 	const [ view, setView ] = useView();
-	const [ searchParams, setSearchParams ] = useSearchParams();
+	const selectedIds = useSelectedIds();
+	const updateSelection = useUpdateSelection();
+	const setInspectorResponse = useSetInspectorResponse();
 	const [ containerWidth, setContainerWidth ] = useState( 0 );
 
 	const dateSettings = getDateSettings();
@@ -95,7 +107,6 @@ export default function InboxView() {
 		{ box: 'border-box' }
 	);
 	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
-	const selectedResponses = searchParams.get( 'r' );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
 	const [ responseModal, setResponseModal ] = useState( null );
@@ -170,7 +181,7 @@ export default function InboxView() {
 		setCurrentQuery( _queryArgs );
 	}, [ view, statusFilter, setCurrentQuery ] );
 
-	const selection = selectedResponses?.split( ',' ) || EMPTY_ARRAY;
+	const selection = selectedIds.length > 0 ? selectedIds : EMPTY_ARRAY;
 
 	// We need to keep the valid selection item in state to be used in `export`.
 	// We do this because a user can have in their selection either ids that
@@ -185,19 +196,9 @@ export default function InboxView() {
 
 	const onChangeSelection = useCallback(
 		items => {
-			// Update URL params with selected items
-			// The useEffect above will handle updating the sidebar
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( items.length ) {
-					_searchParams.set( 'r', items.join( ',' ) );
-				} else {
-					_searchParams.delete( 'r' );
-				}
-				return _searchParams;
-			} );
+			updateSelection( items );
 		},
-		[ setSearchParams ]
+		[ updateSelection ]
 	);
 
 	const [ sidePanelItem, setSidePanelItem ] = useState();
@@ -235,6 +236,11 @@ export default function InboxView() {
 			setSidePanelItem( recordToShow );
 		}
 	}, [ isMobileViewport, records, selection, sidePanelItem ] );
+
+	// Update the global inspector state for boot package integration
+	useEffect( () => {
+		setInspectorResponse( sidePanelItem || null );
+	}, [ sidePanelItem, setInspectorResponse ] );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -538,9 +544,11 @@ export default function InboxView() {
 		</Page>
 	);
 
+	const inspectorContainer = document.getElementById( 'jp-forms-inspector' );
+
 	return (
 		<>
-			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
+			<div ref={ containerRef } style={ { height: '100%', width: '100%' } }>
 				{ pageContent }
 			</div>
 			{ isResponseModalOpen && (
@@ -552,8 +560,11 @@ export default function InboxView() {
 					{ responseModal }
 				</Modal>
 			) }
-			{ selection.length === 1 && sidePanelItem && ! isMobileViewport && (
-				<div className="jp-forms-layout__surface is-inspector">
+			{ selection.length === 1 &&
+				sidePanelItem &&
+				! isMobileViewport &&
+				inspectorContainer &&
+				createPortal(
 					<SingleResponseView
 						sidePanelItem={ sidePanelItem }
 						setSidePanelItem={ setSidePanelItem }
@@ -561,9 +572,9 @@ export default function InboxView() {
 						isMobile={ isMobile }
 						onChangeSelection={ onChangeSelection }
 						selection={ selection }
-					/>
-				</div>
-			) }
+					/>,
+					inspectorContainer
+				) }
 		</>
 	);
 }

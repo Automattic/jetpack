@@ -6,11 +6,11 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useMemo, useRef, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { isEmpty } from 'lodash';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
 import { store as dashboardStore } from '../store/index.js';
+import { useStatus } from './use-forms-state.ts';
 /**
  * Types
  */
@@ -73,9 +73,8 @@ interface UseInboxDataReturn {
  * @return {UseInboxDataReturn} The inbox related data.
  */
 export default function useInboxData(): UseInboxDataReturn {
-	const [ searchParams ] = useSearchParams();
+	const urlStatus = useStatus();
 	const { setCurrentQuery, setSelectedResponses } = useDispatch( dashboardStore );
-	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
 	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions, invalidRecords } =

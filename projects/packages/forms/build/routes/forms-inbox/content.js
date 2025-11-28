@@ -24,10 +24,10 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// package-external:@wordpress/i18n
-var require_i18n = __commonJS({
-  "package-external:@wordpress/i18n"(exports, module) {
-    module.exports = window.wp.i18n;
+// package-external:@wordpress/element
+var require_element = __commonJS({
+  "package-external:@wordpress/element"(exports, module) {
+    module.exports = window.wp.element;
   }
 });
 
@@ -39,23 +39,97 @@ var require_jsx_runtime = __commonJS({
 });
 
 // routes/forms-inbox/stage.tsx
-var import_i18n = __toESM(require_i18n());
+var import_element = __toESM(require_element());
 var import_jsx_runtime = __toESM(require_jsx_runtime());
+import { useSearch, useNavigate } from "@wordpress/route";
+var STATE_CHANGE_EVENT = "jetpack-forms-state-change";
 var stage = () => {
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "20px" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", { children: (0, import_i18n.__)("Forms Inbox", "jetpack-forms") }),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: (0, import_i18n.__)("This is the stage view placeholder.", "jetpack-forms") })
-  ] });
+  const searchParams = useSearch({ strict: false });
+  const navigate = useNavigate();
+  const updateSearchParams = (0, import_element.useCallback)(
+    (params) => {
+      navigate({
+        search: (prev) => ({
+          ...prev,
+          ...params
+        }),
+        replace: true
+      });
+    },
+    [navigate]
+  );
+  (0, import_element.useEffect)(() => {
+    const state = {
+      status: searchParams?.status || "inbox",
+      selectedIds: searchParams?.r?.split(",").filter(Boolean) || [],
+      search: searchParams?.search || ""
+    };
+    if (!window.__jetpackForms) {
+      window.__jetpackForms = {
+        state,
+        navigate: updateSearchParams,
+        inspectorResponse: null,
+        setInspectorResponse(response) {
+          this.inspectorResponse = response;
+          window.dispatchEvent(new CustomEvent("jetpack-forms-inspector-change"));
+        }
+      };
+    } else {
+      window.__jetpackForms.state = state;
+      window.__jetpackForms.navigate = updateSearchParams;
+    }
+    window.dispatchEvent(new CustomEvent(STATE_CHANGE_EVENT));
+  }, [searchParams, updateSearchParams]);
+  (0, import_element.useEffect)(() => {
+    if (typeof window.jetpackFormsInit === "function") {
+      window.jetpackFormsInit();
+    }
+  }, []);
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    "div",
+    {
+      id: "jp-forms-dashboard",
+      className: "jp-forms-dashboard",
+      style: { height: "100%", width: "100%" }
+    }
+  );
 };
 
 // routes/forms-inbox/inspector.tsx
-var import_i18n2 = __toESM(require_i18n());
+var import_element2 = __toESM(require_element());
 var import_jsx_runtime2 = __toESM(require_jsx_runtime());
+var INSPECTOR_CHANGE_EVENT = "jetpack-forms-inspector-change";
+function subscribeToInspector(callback) {
+  window.addEventListener(INSPECTOR_CHANGE_EVENT, callback);
+  return () => window.removeEventListener(INSPECTOR_CHANGE_EVENT, callback);
+}
+function getInspectorSnapshot() {
+  return window.__jetpackForms?.inspectorResponse ?? null;
+}
+function useInspectorResponse() {
+  return (0, import_element2.useSyncExternalStore)(subscribeToInspector, getInspectorSnapshot, () => null);
+}
 var inspector = () => {
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { padding: "20px" }, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h2", { children: (0, import_i18n2.__)("Inspector", "jetpack-forms") }),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: (0, import_i18n2.__)("This is the inspector view placeholder.", "jetpack-forms") })
-  ] });
+  const response = useInspectorResponse();
+  const containerRef = (0, import_element2.useRef)(null);
+  (0, import_element2.useLayoutEffect)(() => {
+    const surface = containerRef.current?.closest(".boot-layout__inspector");
+    if (surface instanceof HTMLElement) {
+      surface.style.display = response ? "" : "none";
+    }
+  }, [response]);
+  if (!response) {
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { ref: containerRef, style: { display: "none" } });
+  }
+  return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    "div",
+    {
+      ref: containerRef,
+      id: "jp-forms-inspector",
+      className: "jp-forms-inspector",
+      style: { height: "100%", overflow: "auto" }
+    }
+  );
 };
 export {
   inspector,

@@ -1,6 +1,13 @@
+@use "../../mixins" as jp-mixins;
 @use "@wordpress/base-styles/variables";
 @use "@wordpress/base-styles/mixins";
 @use "@wordpress/base-styles/colors";
+
+// Jetpack Forms custom header title
+.jp-forms-page-header-title {
+	@include jp-mixins.flex-center;
+	gap: 8px;
+}
 
 // Stack component styles for layout
 .jp-forms-stack {
@@ -18,65 +25,66 @@
 	}
 }
 
-.admin-ui-page {
+// Forms Page overrides - use .jp-forms-page wrapper for specificity
+// to override @wordpress/admin-ui styles from wp-build
+.jp-forms-page.admin-ui-page {
 	color: var(--wpds-color-fg-content-neutral);
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-}
 
-.admin-ui-page__header {
-	padding: variables.$grid-unit-10 variables.$grid-unit * 2.5;
-	position: sticky;
-	top: 0;
-	background: var(--wpds-color-bg-surface-neutral-strong);
-	transition: padding ease-out 0.1s;
-	flex-shrink: 0;
+	.admin-ui-page__header {
+		padding: variables.$grid-unit-10 variables.$grid-unit * 2.5;
+		position: sticky;
+		top: 0;
+		background: var(--wpds-color-bg-surface-neutral-strong);
+		transition: padding ease-out 0.1s;
+		flex-shrink: 0;
+		border-bottom: none;
 
-	&.has-tabs {
-		padding-block-end: 0;
-		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
-
-	@container (max-width: 430px) {
-		padding: variables.$grid-unit-15 variables.$grid-unit-30;
-	}
-}
-
-.admin-ui-page__header-subtitle {
-	padding-block-end: variables.$grid-unit-10;
-	color: var(--wpds-color-fg-content-neutral-weak);
-
-	@include mixins.body-medium();
-	margin: 0;
-}
-
-.admin-ui-page__content {
-	flex-grow: 1;
-	overflow: auto;
-	display: flex;
-	flex-direction: column;
-	gap: variables.$grid-unit-30;
-
-	&.has-padding {
-		padding: variables.$grid-unit-60 variables.$grid-unit * 2.5;
+		&.has-tabs {
+			padding-block-end: 0;
+			border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
 
 		@container (max-width: 430px) {
 			padding: variables.$grid-unit-15 variables.$grid-unit-30;
 		}
 	}
 
-	&.has-border {
-		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	.admin-ui-page__header-subtitle {
+		padding-block-end: variables.$grid-unit-10;
+		color: var(--wpds-color-fg-content-neutral-weak);
+		@include mixins.body-medium();
+		margin: 0;
 	}
 
-	&.is-constrained {
+	.admin-ui-page__content {
+		flex-grow: 1;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+		gap: variables.$grid-unit-30;
 
-		> * {
-			max-width: 660px;
-			width: 100%;
-			margin: 0 auto;
+		&.has-padding {
+			padding: variables.$grid-unit-60 variables.$grid-unit * 2.5;
+
+			@container (max-width: 430px) {
+				padding: variables.$grid-unit-15 variables.$grid-unit-30;
+			}
+		}
+
+		&.has-border {
+			border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		}
+
+		&.is-constrained {
+			> * {
+				max-width: 660px;
+				width: 100%;
+				margin: 0 auto;
+			}
 		}
 	}
 }

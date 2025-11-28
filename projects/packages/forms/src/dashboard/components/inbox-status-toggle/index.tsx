@@ -7,10 +7,10 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
+import { useStatus, useUpdateStatus } from '../../hooks/use-forms-state.ts';
 import useInboxData from '../../hooks/use-inbox-data.ts';
 import * as Tabs from '../tabs/index.ts';
 
@@ -41,8 +41,8 @@ type InboxStatusToggleProps = {
  * @return {JSX.Element} The status toggle component.
  */
 export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
-	const [ searchParams, setSearchParams ] = useSearchParams();
-	const status = searchParams.get( 'status' ) || 'inbox';
+	const status = useStatus();
+	const updateStatus = useUpdateStatus();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const { totalItemsInbox, totalItemsSpam, totalItemsTrash, setSelectedResponses } = useInboxData();
@@ -64,16 +64,11 @@ export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps 
 				previous_status: status,
 			} );
 
-			setSearchParams( prev => {
-				const params = new URLSearchParams( prev );
-				params.set( 'status', newStatus );
-				params.delete( 'r' ); // Clear selected responses when changing tabs.
-				return params;
-			} );
+			updateStatus( newStatus );
 			setSelectedResponses( [] );
 			onChange( newStatus );
 		},
-		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
+		[ isSm, status, onChange, setSelectedResponses, updateStatus ]
 	);
 
 	return (
