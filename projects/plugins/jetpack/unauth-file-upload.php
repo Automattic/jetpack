@@ -78,7 +78,7 @@ function handle_file_download() {
 	$file['type']    = $file['type'] ?? 'application/octet-stream';
 	$file['name']    = $file['name'] ?? '';
 
-	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'];
+	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_previable( $file['name'] );
 
 	// Clean output buffer
 	if ( ob_get_length() ) {
@@ -164,4 +164,17 @@ function get_file_content( $file_content, $file_id ) {
 		'type'    => $type,
 		'name'    => $filename,
 	);
+}
+
+/**
+ * Determine if a file is previable based on its extension.
+ *
+ * @param string $file_name The name of the file.
+ * @return bool True if the file is previable, false otherwise.
+ */
+function is_file_previable( $file_name ) {
+	$previable_extensions = array( 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'pdf' );
+	$extension            = pathinfo( $file_name, PATHINFO_EXTENSION );
+
+	return in_array( strtolower( $extension ), $previable_extensions, true );
 }

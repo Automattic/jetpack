@@ -506,6 +506,11 @@ class Feedback_Field {
 	 * @return bool True if the file is previewable, false otherwise.
 	 */
 	private function is_previewable_file( $file ) {
+
+		if ( function_exists( '\Automattic\Jetpack\UnauthFileUpload\is_file_previable' ) ) {
+			return \Automattic\Jetpack\UnauthFileUpload\is_file_previable( $file['name'] );
+		}
+
 		$file_type = strtolower( pathinfo( $file['name'], PATHINFO_EXTENSION ) );
 		// Check if the file is previewable based on its type or extension.
 		// Note: This is a simplified check and does not match if the file is allowed to be uploaded by the server.
