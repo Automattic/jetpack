@@ -80,7 +80,6 @@ class Forms_Abilities {
 
 		self::register_get_submissions_ability();
 		self::register_update_submission_ability();
-		self::register_delete_submission_ability();
 		self::register_get_status_counts_ability();
 	}
 
@@ -207,43 +206,6 @@ class Forms_Abilities {
 	}
 
 	/**
-	 * Register ability to delete a form submission.
-	 *
-	 * @return void
-	 */
-	private static function register_delete_submission_ability() {
-		wp_register_ability(
-			'jetpack-forms/delete-submission',
-			array(
-				'label'               => __( 'Delete form submission', 'jetpack-forms' ),
-				'description'         => __( 'Permanently delete a form submission. This action cannot be undone. Use update-submission with status "trash" for reversible deletion.', 'jetpack-forms' ),
-				'category'            => self::CATEGORY_SLUG,
-				'input_schema'        => array(
-					'type'                 => 'object',
-					'required'             => array( 'id' ),
-					'properties'           => array(
-						'id' => array(
-							'type'        => 'integer',
-							'description' => __( 'The submission ID to permanently delete.', 'jetpack-forms' ),
-						),
-					),
-					'additionalProperties' => false,
-				),
-				'execute_callback'    => array( __CLASS__, 'delete_form_submission' ),
-				'permission_callback' => array( __CLASS__, 'can_delete_posts' ),
-				'meta'                => array(
-					'annotations'  => array(
-						'readonly'    => false,
-						'destructive' => true,
-						'idempotent'  => false,
-					),
-					'show_in_rest' => true,
-				),
-			)
-		);
-	}
-
-	/**
 	 * Register ability to get status counts.
 	 *
 	 * @return void
@@ -305,15 +267,6 @@ class Forms_Abilities {
 	 */
 	public static function can_edit_pages() {
 		return current_user_can( 'edit_pages' );
-	}
-
-	/**
-	 * Check if user can delete posts.
-	 *
-	 * @return bool
-	 */
-	public static function can_delete_posts() {
-		return current_user_can( 'delete_posts' );
 	}
 
 	/**
@@ -403,30 +356,6 @@ class Forms_Abilities {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Delete form submission callback.
-	 *
-	 * @param array $args Arguments from the ability input.
-	 * @return array|\WP_Error Returns deletion result or WP_Error on failure.
-	 */
-	public static function delete_form_submission( $args ) {
-		if ( ! isset( $args['id'] ) ) {
-			return new \WP_Error( 'missing_id', __( 'Submission ID is required.', 'jetpack-forms' ) );
-		}
-
-		$endpoint = new Contact_Form_Endpoint( 'feedback' );
-		$request  = new \WP_REST_Request( 'DELETE', '/wp/v2/feedback/' . $args['id'] );
-		$request->set_url_params( array( 'id' => $args['id'] ) );
-		$request->set_param( 'force', true );
-
-		$response = $endpoint->delete_item( $request );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return $response->get_data();
 	}
 
 	/**

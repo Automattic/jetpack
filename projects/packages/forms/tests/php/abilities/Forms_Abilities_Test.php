@@ -137,7 +137,6 @@ class Forms_Abilities_Test extends BaseTestCase {
 		$expected_abilities = array(
 			'jetpack-forms/get-submissions',
 			'jetpack-forms/update-submission',
-			'jetpack-forms/delete-submission',
 			'jetpack-forms/get-status-counts',
 		);
 
@@ -227,33 +226,10 @@ class Forms_Abilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test permission checks - can_delete_posts.
-	 */
-	public function test_permission_check_can_delete_posts() {
-		// Test with admin user
-		wp_set_current_user( self::$user_id );
-		$this->assertTrue( Forms_Abilities::can_delete_posts(), 'Admin user should have delete_posts capability' );
-
-		// Test with subscriber user
-		wp_set_current_user( self::$subscriber_user_id );
-		$this->assertFalse( Forms_Abilities::can_delete_posts(), 'Subscriber user should not have delete_posts capability' );
-	}
-
-	/**
 	 * Test ability callback - update_form_submission with missing ID.
 	 */
 	public function test_update_form_submission_missing_id() {
 		$result = Forms_Abilities::update_form_submission( array() );
-
-		$this->assertInstanceOf( \WP_Error::class, $result, 'Should return WP_Error when ID is missing' );
-		$this->assertEquals( 'missing_id', $result->get_error_code() );
-	}
-
-	/**
-	 * Test ability callback - delete_form_submission with missing ID.
-	 */
-	public function test_delete_form_submission_missing_id() {
-		$result = Forms_Abilities::delete_form_submission( array() );
 
 		$this->assertInstanceOf( \WP_Error::class, $result, 'Should return WP_Error when ID is missing' );
 		$this->assertEquals( 'missing_id', $result->get_error_code() );
