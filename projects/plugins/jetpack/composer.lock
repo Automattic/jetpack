@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "f214640a0b0363c7ea072ef5c75267a7e75b12c2"
+				"reference": "7d7596f1a9c4e2f83d437ad253f3dbfbdfd64da4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1511,6 +1511,7 @@
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-test-environment": "@dev",
 				"automattic/phpunit-select-config": "@dev",
+				"automattic/wp-feature-api": "@dev",
 				"yoast/phpunit-polyfills": "^4.0.0"
 			},
 			"suggest": {
