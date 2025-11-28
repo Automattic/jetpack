@@ -1,5 +1,6 @@
 .cache/
 dist/
+build/
 node_modules/
 vendor/
 wordpress/

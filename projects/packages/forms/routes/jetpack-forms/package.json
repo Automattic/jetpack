@@ -1,0 +1,12 @@
+{
+	"dependencies": {
+		"@wordpress/components": "30.8.0"
+	},
+	"devDependencies": {
+		"@types/react": "18.3.26"
+	},
+	"route": {
+		"path": "/",
+		"page": "jetpack-forms"
+	}
+}

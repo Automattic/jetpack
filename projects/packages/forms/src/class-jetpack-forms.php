@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard;
+
 /**
  * Understands the Jetpack Forms package.
  */
@@ -21,6 +22,12 @@ class Jetpack_Forms {
 	 */
 	public static function load_contact_form() {
 		Util::init();
+
+		$wp_build_bootstrapped = self::maybe_bootstrap_wp_build();
+
+		if ( $wp_build_bootstrapped && is_admin() ) {
+			self::jetpack_forms_register_menu();
+		}
 
 		if ( self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
@@ -120,5 +127,44 @@ class Jetpack_Forms {
 		 * @param bool true Whether to enable the Integrations UI. Default true.
 		 */
 		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
+	}
+
+	/**
+	 * Attempt to load wp-build generated assets if they exist.
+	 *
+	 * @return bool
+	 */
+	private static function maybe_bootstrap_wp_build() {
+		$build_entry = dirname( __DIR__ ) . '/build/index.php';
+
+		if ( ! file_exists( $build_entry ) ) {
+			return false;
+		}
+
+		require_once $build_entry;
+
+		return true;
+	}
+
+	/**
+	 * Register a menu entry that opens the wp-build single page inside wp-admin.
+	 */
+	private static function jetpack_forms_register_menu() {
+		add_action(
+			'admin_menu',
+			static function () {
+				$menu_slug = 'admin.php?page=jetpack-forms-wp-admin&p=' . rawurlencode( '/' );
+
+				add_menu_page(
+					__( 'Jetpack Forms', 'jetpack-forms' ),
+					__( 'Forms', 'jetpack-forms' ),
+					'edit_pages',
+					$menu_slug,
+					'',
+					'dashicons-feedback',
+					58
+				);
+			}
+		);
 	}
 }
