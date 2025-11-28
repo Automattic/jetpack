@@ -129,15 +129,6 @@ class Holiday_Snow {
 	 * @return void
 	 */
 	public static function init() {
-		/**
-		 * We should show settings if:
-		 * 1. It's in one of the seasons.
-		 * 2. It's snow season, which can be configured with a filter.
-		 */
-		if ( ! self::show_settings() && ! self::is_snow_season() ) {
-			return;
-		}
-
 		self::$holiday_snow_config = array(
 			self::OPTION_ENABLED    => array(
 				'default'     => false,
@@ -181,6 +172,15 @@ class Holiday_Snow {
 				'label'       => __( 'Southern Hemisphere', 'jetpack-mu-wpcom' ),
 			),
 		);
+
+		/**
+		 * We should show settings if:
+		 * 1. It's in one of the seasons.
+		 * 2. It's snow season, which can be configured with a filter.
+		 */
+		if ( ! self::show_settings() && ! self::is_snow_season() ) {
+			return;
+		}
 
 		add_filter( 'site_settings_endpoint_get', array( __CLASS__, 'add_option_api' ) );
 		add_filter( 'rest_api_update_site_settings', array( __CLASS__, 'update_option_api' ), 10, 2 );
