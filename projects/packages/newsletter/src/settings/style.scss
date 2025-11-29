@@ -9,95 +9,43 @@
 		border: 1px solid #c3c4c7;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 		margin-bottom: 20px;
-		padding: 0;
-	}
-
-	&__section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 16px 20px;
-		border-bottom: 1px solid #c3c4c7;
-		gap: 16px;
+		padding: 1.5em;
 	}
 
 	&__section-title {
-		font-size: 18px;
-		font-weight: 600;
-		line-height: 1.4;
 		margin: 0;
-		padding: 16px 20px;
-		border-bottom: 1px solid #c3c4c7;
-		color: #1e1e1e;
-
-		// When title is in header with button
-		.newsletter-settings__section-header & {
-			padding: 0;
-			border: none;
-		}
+		padding: 0;
 	}
 
 	&__section-description {
-		font-size: 14px;
-		line-height: 1.6;
 		margin: 0;
-		padding: 16px 20px;
-		color: #646970;
-		background: #f6f7f7;
-		border-bottom: 1px solid #dcdcde;
+		padding: 0;
 	}
 
 	&__section-content {
-		padding: 20px;
+		padding-top: 1em;
 	}
 
 	&__section-actions {
-		margin-top: 24px;
+		margin-top: 2em;
 		display: flex;
 		justify-content: flex-start;
 	}
 
 	// Links styling
 	&__link {
-		margin-top: 12px;
-		padding-top: 12px;
-
-		a {
-			font-size: 14px;
-			text-decoration: none;
-
-			&:hover {
-				text-decoration: underline;
-			}
-		}
+		margin-top: 2em;
 	}
 
 	// Help text with links
 	&__help-text {
 		margin-top: 12px;
 		font-size: 13px;
-
-		a {
-			font-size: 13px;
-			text-decoration: none;
-
-			&:hover {
-				text-decoration: underline;
-			}
-		}
 	}
 
 	// Sender name field with inline save button
 	&__sender-name {
 		margin-top: 24px;
-	}
-
-	&__field-label {
-		display: block;
-		margin-bottom: 8px;
-		font-size: 11px;
-		font-weight: 600;
-		color: #1e1e1e;
 	}
 
 	&__sender-name-controls {
@@ -123,13 +71,6 @@
 		}
 	}
 
-	&__field-description {
-		font-size: 13px;
-		line-height: 1.5;
-		margin: 8px 0 0;
-		color: #646970;
-	}
-
 	&--error {
 		padding: 20px;
 
@@ -144,147 +85,6 @@
 		}
 	}
 
-	// DataForm wrapper styling
-	.dataviews-view-form {
-		padding: 0;
-	}
-
-	.dataforms-layouts-panel__field,
-	.dataforms-layouts-regular__field {
-		margin-bottom: 20px;
-
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-
-	.dataforms-layouts-panel__field-label,
-	.dataforms-layouts-regular__field-label {
-		display: flex;
-		align-items: flex-start;
-		margin-bottom: 8px;
-		font-size: 11px;
-		font-weight: 600;
-		color: #1e1e1e;
-		line-height: 1.6;
-	}
-
-	.dataforms-field-description {
-		display: block;
-		margin-top: 8px;
-		font-size: 13px;
-		color: #646970;
-		font-style: normal;
-		line-height: 1.5;
-	}
-
-	// Group/section labels
-	.dataforms-layouts-panel__group-label {
-		display: block;
-		margin: 24px 0 16px;
-		font-size: 13px;
-		font-weight: 600;
-		color: #1e1e1e;
-
-		&:first-child {
-			margin-top: 0;
-		}
-	}
-
-	.components-toggle-control {
-
-		.components-base-control__field {
-			display: flex;
-			align-items: flex-start;
-			margin-bottom: 0;
-		}
-
-		.components-form-toggle {
-			flex-shrink: 0;
-		}
-
-		.components-toggle-control__label {
-			font-weight: 400;
-			font-size: 14px;
-			line-height: 1.6;
-			flex: 1;
-		}
-	}
-
-	.components-radio-control {
-
-		.components-base-control__field {
-			margin-top: 8px;
-		}
-
-		.components-radio-control__option {
-			display: flex;
-			align-items: center;
-			margin-bottom: 8px;
-			padding: 8px 0;
-
-			&:last-child {
-				margin-bottom: 0;
-			}
-
-			input[type="radio"] {
-				margin: 0 8px 0 0;
-				flex-shrink: 0;
-			}
-
-			label {
-				margin: 0;
-				font-weight: 400;
-				font-size: 14px;
-				line-height: 1.5;
-			}
-		}
-	}
-
-	.components-text-control__input,
-	.components-textarea-control__input {
-		width: 100%;
-		max-width: 25rem;
-		padding: 8px 12px;
-		border: 1px solid #8c8f94;
-		border-radius: 4px;
-		font-size: 14px;
-		line-height: 1.5;
-
-		&:focus {
-			border-color: #2271b1;
-			box-shadow: 0 0 0 1px #2271b1;
-			outline: 2px solid transparent;
-		}
-	}
-
-	.components-textarea-control__input {
-		min-height: 100px;
-		resize: vertical;
-	}
-
-	.components-button {
-		font-size: 13px;
-		height: auto;
-		padding: 6px 12px;
-
-		&.is-primary {
-			background-color: #2271b1;
-			border-color: #2271b1;
-			color: #fff;
-
-			&:hover:not(:disabled) {
-				background-color: #135e96;
-				border-color: #135e96;
-			}
-
-			&:focus:not(:disabled) {
-				background-color: #135e96;
-				border-color: #135e96;
-				box-shadow: 0 0 0 1px #fff, 0 0 0 3px #2271b1;
-			}
-		}
-	}
 
 	// Notice component styling
 	.components-notice {
