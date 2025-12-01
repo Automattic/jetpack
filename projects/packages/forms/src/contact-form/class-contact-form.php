@@ -169,7 +169,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
-			$page_number      = is_int( $page ) ? $page : 1;
+			$page_number      = is_numeric( $page ) ? intval( $page ) : 1;
 			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page_number );
 		}
 		$this->hash = sha1( wp_json_encode( $attributes ) );
