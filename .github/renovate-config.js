@@ -31,7 +31,7 @@ const versions = Object.fromEntries(
 
 // We don't have a yaml parser when this is being processed, so hack it with regexes instead.
 const workspaceYaml = fs.readFileSync( path.join( monorepoBase, 'pnpm-workspace.yaml' ), 'utf8' );
-const minimumReleaseAge = workspaceYaml.match( /^minimumReleaseAge: (\d+)$/m )[ 0 ];
+const minimumReleaseAge = workspaceYaml.match( /^minimumReleaseAge: (\d+)$/m )[ 1 ];
 const minimumReleaseAgeExcludes = [];
 for ( const exclude of
 	 // prettier-ignore
