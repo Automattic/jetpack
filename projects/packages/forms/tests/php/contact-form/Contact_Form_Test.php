@@ -846,6 +846,13 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the email does not contain "powered".
+	 */
+	public function test_no_powered_by_jetpack_in_email_header() {
+		$this->assertStringNotContainsString( 'powered', Contact_Form::wrap_message_in_html_tags( '$title', '$message', '$footer', '$actions', false ) );
+	}
+
+	/**
 	 * This method is hooked to the wp-mail filter.
 	 *
 	 * @param array $args A compacted array of wp_mail() arguments, including the "to" email,
