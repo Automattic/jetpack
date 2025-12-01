@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useParams } from '@tanstack/react-router';
+import { useParams, useSearch, useNavigate } from '@tanstack/react-router';
 
 /**
  * WordPress dependencies
@@ -31,6 +31,10 @@ const DEFAULT_VIEW = {
 	fields: [ 'from', 'date', 'source' ],
 };
 
+/**
+ *
+ * @param item
+ */
 function getItemId( item ) {
 	return item.id.toString();
 }
@@ -40,19 +44,30 @@ function getItemId( item ) {
  */
 export function stage() {
 	const params = useParams( { from: '/responses/$view' } );
-	const status =
-		params.view === 'spam' ? 'spam' : params.view === 'trash' ? 'trash' : 'publish';
+	const searchParams = useSearch( { from: '/responses/$view' } );
+	const navigate = useNavigate();
+	const status = params.view === 'spam' ? 'spam' : params.view === 'trash' ? 'trash' : 'publish';
 
 	const [ view, setView ] = useState( DEFAULT_VIEW );
-	const [ selection, setSelection ] = useState( [] );
 
-	const onChangeView = useCallback( ( newView ) => {
+	// Selection is driven by URL search params
+	const selection = searchParams?.responseIds ?? [];
+
+	const onChangeView = useCallback( newView => {
 		setView( newView );
 	}, [] );
 
-	const onChangeSelection = useCallback( ( items ) => {
-		setSelection( items );
-	}, [] );
+	const onChangeSelection = useCallback(
+		items => {
+			navigate( {
+				search: {
+					...searchParams,
+					responseIds: items.length > 0 ? items : undefined,
+				},
+			} );
+		},
+		[ searchParams, navigate ]
+	);
 
 	const { records, isResolving, totalItems, totalPages } = useEntityRecords(
 		'postType',
@@ -91,6 +106,49 @@ export function stage() {
 		[]
 	);
 
+	// Actions with supportsBulk enable selection checkboxes
+	const actions = useMemo(
+		() => [
+			{
+				id: 'view-details',
+				label: __( 'View details', 'jetpack-forms' ),
+				isPrimary: true,
+				callback: items => {
+					const ids = items.map( item => getItemId( item ) );
+					navigate( {
+						search: {
+							...searchParams,
+							responseIds: ids,
+						},
+					} );
+				},
+			},
+			{
+				id: 'mark-as-spam',
+				label: __( 'Mark as spam', 'jetpack-forms' ),
+				supportsBulk: true,
+				isDestructive: true,
+				callback: items => {
+					// TODO: Implement mark as spam
+					// eslint-disable-next-line no-console
+					console.log( 'Mark as spam:', items );
+				},
+			},
+			{
+				id: 'move-to-trash',
+				label: __( 'Move to trash', 'jetpack-forms' ),
+				supportsBulk: true,
+				isDestructive: true,
+				callback: items => {
+					// TODO: Implement move to trash
+					// eslint-disable-next-line no-console
+					console.log( 'Move to trash:', items );
+				},
+			},
+		],
+		[ navigate, searchParams ]
+	);
+
 	const paginationInfo = useMemo(
 		() => ( {
 			totalItems: totalItems || 0,
@@ -112,6 +170,7 @@ export function stage() {
 				defaultLayouts={ defaultLayouts }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
+				actions={ actions }
 			/>
 		</Page>
 	);

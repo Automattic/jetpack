@@ -9,7 +9,9 @@
 		"@wordpress/core-data": "next",
 		"@wordpress/data": "next",
 		"@wordpress/dataviews": "next",
+		"@wordpress/date": "next",
 		"@wordpress/element": "next",
+		"@wordpress/html-entities": "next",
 		"@wordpress/i18n": "next",
 		"@wordpress/icons": "next"
 	},
