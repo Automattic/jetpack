@@ -101,7 +101,7 @@ class Verbum_Comments {
 	 */
 	public function get_form_action() {
 		return is_jetpack_comments() ?
-			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ), JSON_UNESCAPED_SLASHES ) : site_url( '/wp-comments-post.php' );
+			esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) : site_url( '/wp-comments-post.php' );
 	}
 
 	/**
