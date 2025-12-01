@@ -1,3 +1,4 @@
 Significance: patch
-Type: fixed
-Comment: Fix two esc_html_x calls by adding echo in form.php
+Type: bugfix
+
+Cookies & Consents Banner Widget: ensure form headings are properly displayed.
