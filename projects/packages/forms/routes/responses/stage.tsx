@@ -7,10 +7,16 @@ import { useParams, useSearch, useNavigate } from '@tanstack/react-router';
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
+import { Button } from '@wordpress/components';
 import { useEntityRecords } from '@wordpress/core-data';
 import { DataViews } from '@wordpress/dataviews';
 import { useMemo, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import * as Tabs from '../../src/dashboard/components/tabs';
 
 const EMPTY_ARRAY = [];
 
@@ -157,8 +163,71 @@ export function stage() {
 		[ totalItems, totalPages ]
 	);
 
+	// Status tabs configuration
+	const statusTabs = [
+		{ slug: 'inbox', label: __( 'Inbox', 'jetpack-forms' ) },
+		{ slug: 'spam', label: __( 'Spam', 'jetpack-forms' ) },
+		{ slug: 'trash', label: __( 'Trash', 'jetpack-forms' ) },
+	];
+
+	const handleTabChange = useCallback(
+		( newView ) => {
+			navigate( {
+				to: '/responses/$view',
+				params: { view: newView },
+			} );
+		},
+		[ navigate ]
+	);
+
+	// Header actions based on current view
+	const headerActions = useMemo( () => {
+		const actionsArray = [];
+
+		// Export button (always shown)
+		actionsArray.push(
+			<Button key="export" variant="secondary" size="compact">
+				{ __( 'Export', 'jetpack-forms' ) }
+			</Button>
+		);
+
+		// Empty Trash button (only in trash view)
+		if ( params.view === 'trash' ) {
+			actionsArray.push(
+				<Button key="empty-trash" variant="primary" isDestructive size="compact">
+					{ __( 'Empty Trash', 'jetpack-forms' ) }
+				</Button>
+			);
+		}
+
+		// Empty Spam button (only in spam view)
+		if ( params.view === 'spam' ) {
+			actionsArray.push(
+				<Button key="empty-spam" variant="primary" isDestructive size="compact">
+					{ __( 'Empty Spam', 'jetpack-forms' ) }
+				</Button>
+			);
+		}
+
+		return actionsArray;
+	}, [ params.view ] );
+
 	return (
-		<Page title={ __( 'Form Responses', 'jetpack-forms' ) }>
+		<Page
+			title={ __( 'Forms', 'jetpack-forms' ) }
+			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			actions={ headerActions }
+			hasPadding={ false }
+		>
+			<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
+				<Tabs.List density="compact">
+					{ statusTabs.map( ( tab ) => (
+						<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+							{ tab.label }
+						</Tabs.Tab>
+					) ) }
+				</Tabs.List>
+			</Tabs.Root>
 			<DataViews
 				data={ records || EMPTY_ARRAY }
 				fields={ fields }
