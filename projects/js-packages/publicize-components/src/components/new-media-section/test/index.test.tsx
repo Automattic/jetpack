@@ -1,24 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import NewMediaSection from '..';
-import useAttachedMedia from '../../../hooks/use-attached-media';
 import useFeaturedImage from '../../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
+import { usePostMeta } from '../../../hooks/use-post-meta';
 import useSigPreview from '../../../hooks/use-sig-preview';
 
 // Mock functions
-const mockUpdateAttachedMedia = jest.fn();
-const mockSetSigEnabled = jest.fn();
 const mockUpdateJetpackSocialOptions = jest.fn();
 const mockRecordEvent = jest.fn();
-
-jest.mock( '../../../hooks/use-attached-media', () => {
-	return jest.fn( () => ( {
-		attachedMedia: [],
-		updateAttachedMedia: mockUpdateAttachedMedia,
-	} ) );
-} );
 
 jest.mock( '../../../hooks/use-featured-image', () => {
 	return jest.fn( () => 123 );
@@ -27,7 +18,7 @@ jest.mock( '../../../hooks/use-featured-image', () => {
 jest.mock( '../../../hooks/use-image-generator-config', () => {
 	return jest.fn( () => ( {
 		isEnabled: false,
-		setIsEnabled: mockSetSigEnabled,
+		setIsEnabled: jest.fn(),
 	} ) );
 } );
 
@@ -46,7 +37,9 @@ jest.mock( '../../../hooks/use-media-details', () => {
 
 jest.mock( '../../../hooks/use-post-meta', () => ( {
 	usePostMeta: jest.fn( () => ( {
+		attachedMedia: [],
 		imageGeneratorSettings: { enabled: false },
+		mediaSource: undefined,
 		updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
 	} ) ),
 } ) );
@@ -141,9 +134,11 @@ describe( 'NewMediaSection', () => {
 
 	describe( 'Attached media state', () => {
 		beforeEach( () => {
-			( useAttachedMedia as jest.Mock ).mockReturnValue( {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [ { id: 789, url: 'https://example.com/attached.jpg', type: 'image/jpeg' } ],
-				updateAttachedMedia: mockUpdateAttachedMedia,
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: 'media-library',
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
 			} );
 			( useMediaDetails as jest.Mock ).mockReturnValue( [
 				{
@@ -154,9 +149,11 @@ describe( 'NewMediaSection', () => {
 		} );
 
 		afterEach( () => {
-			( useAttachedMedia as jest.Mock ).mockReturnValue( {
+			( usePostMeta as jest.Mock ).mockReturnValue( {
 				attachedMedia: [],
-				updateAttachedMedia: mockUpdateAttachedMedia,
+				imageGeneratorSettings: { enabled: false },
+				mediaSource: undefined,
+				updateJetpackSocialOptions: mockUpdateJetpackSocialOptions,
 			} );
 		} );
 
@@ -171,14 +168,14 @@ describe( 'NewMediaSection', () => {
 		beforeEach( () => {
 			( useImageGeneratorConfig as jest.Mock ).mockReturnValue( {
 				isEnabled: true,
-				setIsEnabled: mockSetSigEnabled,
+				setIsEnabled: jest.fn(),
 			} );
 		} );
 
 		afterEach( () => {
 			( useImageGeneratorConfig as jest.Mock ).mockReturnValue( {
 				isEnabled: false,
-				setIsEnabled: mockSetSigEnabled,
+				setIsEnabled: jest.fn(),
 			} );
 		} );
 
@@ -227,6 +224,7 @@ describe( 'NewMediaSection', () => {
 			await user.click( screen.getByRole( 'menuitem', { name: 'Social Image Template' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
+				media_source: 'sig',
 				attached_media: [],
 				image_generator_settings: { enabled: true },
 			} );
@@ -238,7 +236,7 @@ describe( 'NewMediaSection', () => {
 			// Start with SIG enabled
 			( useImageGeneratorConfig as jest.Mock ).mockReturnValue( {
 				isEnabled: true,
-				setIsEnabled: mockSetSigEnabled,
+				setIsEnabled: jest.fn(),
 			} );
 
 			render( <NewMediaSection /> );
@@ -250,6 +248,7 @@ describe( 'NewMediaSection', () => {
 			await user.click( screen.getByRole( 'menuitem', { name: 'Featured Image' } ) );
 
 			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
+				media_source: 'featured-image',
 				attached_media: [],
 				image_generator_settings: { enabled: false },
 			} );
@@ -257,7 +256,7 @@ describe( 'NewMediaSection', () => {
 			// Reset
 			( useImageGeneratorConfig as jest.Mock ).mockReturnValue( {
 				isEnabled: false,
-				setIsEnabled: mockSetSigEnabled,
+				setIsEnabled: jest.fn(),
 			} );
 		} );
 
@@ -287,8 +286,11 @@ describe( 'NewMediaSection', () => {
 
 			await user.click( screen.getByRole( 'button', { name: 'Remove' } ) );
 
-			expect( mockUpdateAttachedMedia ).toHaveBeenCalledWith( [] );
-			expect( mockSetSigEnabled ).toHaveBeenCalledWith( false );
+			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
+				media_source: 'none',
+				attached_media: [],
+				image_generator_settings: { enabled: false },
+			} );
 			expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_social_media_removed', {
 				test: 'data',
 				source: 'featured-image',

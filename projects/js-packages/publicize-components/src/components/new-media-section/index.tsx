@@ -98,17 +98,6 @@ export default function NewMediaSection( {
 	// Attachment mode: check if attached_media has items (matches backend is_social_post())
 	const isShareAsAttachment = attachedMedia?.length > 0;
 
-	// Debug logging - remove before merging
-	// eslint-disable-next-line no-console
-	console.log( '[MediaSection]', {
-		mediaSource,
-		currentSource,
-		isShareAsAttachment,
-		attachedMedia,
-		sigEnabled,
-		featuredImageId,
-	} );
-
 	// Get media ID for preview
 	const mediaId = useMemo( () => {
 		if ( currentSource === 'featured-image' ) {
