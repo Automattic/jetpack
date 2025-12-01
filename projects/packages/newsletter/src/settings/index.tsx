@@ -3,7 +3,7 @@
  */
 import restApi from '@automattic/jetpack-api';
 import { Button, Notice, ExternalLink, Snackbar } from '@wordpress/components';
-import { DataForm, type Field } from '@wordpress/dataviews';
+import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -34,7 +34,7 @@ interface NewsletterSettings {
 	jetpack_subscriptions_reply_to: 'comment' | 'author' | 'no-reply';
 	jetpack_subscriptions_from_name: string;
 	wpcom_newsletter_categories_enabled: boolean;
-	wpcom_newsletter_categories: number[];
+	wpcom_newsletter_categories: string[];
 	subscription_options?: {
 		welcome: string;
 	};
@@ -60,6 +60,14 @@ interface JetpackNewsletterSettings {
 }
 
 /**
+ * Type definition for WordPress category
+ */
+interface WordPressCategory {
+	id: string;
+	name: string;
+}
+
+/**
  * Newsletter Settings App
  *
  * @return {JSX.Element | null} The newsletter settings component or null.
@@ -81,6 +89,16 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Snackbar notification state
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string | null >( null );
+
+	// Categories state
+	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
+	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
+
+	// Newsletter categories state (for manual save)
+	const [ newsletterCategoriesChanges, setNewsletterCategoriesChanges ] = useState<
+		Partial< NewsletterSettings >
+	>( {} );
+	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
 
 	// Get settings from PHP
 	const jetpackSettings = (
@@ -111,14 +129,54 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 		restApi
 			.fetchSettings()
-			.then( ( settings: NewsletterSettings ) => {
-				setData( settings );
-				setSenderName( settings.jetpack_subscriptions_from_name || '' );
+			.then( ( settings: Record< string, unknown > ) => {
+				// Convert category IDs from numbers to strings
+				const normalizedSettings: NewsletterSettings = {
+					...( settings as NewsletterSettings ),
+					wpcom_newsletter_categories: (
+						( settings.wpcom_newsletter_categories as number[] ) || []
+					).map( String ),
+				};
+				setData( normalizedSettings );
+				setSenderName( normalizedSettings.jetpack_subscriptions_from_name || '' );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
 				setError( err.message || 'Failed to load settings' );
 				setIsLoading( false );
+			} );
+	}, [] );
+
+	// Fetch WordPress categories on mount
+	useEffect( () => {
+		const wpApiSettings = ( window as Window & { wpApiSettings?: { root: string; nonce: string } } )
+			.wpApiSettings;
+
+		if ( ! wpApiSettings?.root ) {
+			setIsFetchingCategories( false );
+			return;
+		}
+
+		// Fetch categories from WordPress REST API
+		fetch( `${ wpApiSettings.root }wp/v2/categories?per_page=100`, {
+			headers: {
+				'X-WP-Nonce': wpApiSettings.nonce,
+			},
+		} )
+			.then( response => response.json() )
+			.then( ( fetchedCategories: { id: number; name: string }[] ) => {
+				// Convert category IDs to strings
+				setCategories(
+					fetchedCategories.map( cat => ( {
+						id: String( cat.id ),
+						name: cat.name,
+					} ) )
+				);
+				setIsFetchingCategories( false );
+			} )
+			.catch( ( err: Error ) => {
+				setError( err.message || __( 'Failed to load categories', 'jetpack-newsletter' ) );
+				setIsFetchingCategories( false );
 			} );
 	}, [] );
 
@@ -197,6 +255,53 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setIsSavingSenderName( false );
 			} );
 	}, [ senderName, data ] );
+
+	// Handle newsletter categories changes (staged, not auto-saved)
+	const handleNewsletterCategoriesChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			if ( ! data ) {
+				return;
+			}
+
+			// Update local state
+			setData( { ...data, ...updates } );
+
+			// Track changes for save button
+			setNewsletterCategoriesChanges( { ...newsletterCategoriesChanges, ...updates } );
+		},
+		[ data, newsletterCategoriesChanges ]
+	);
+
+	// Save newsletter categories settings
+	const saveNewsletterCategories = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingNewsletterCategories( true );
+		setError( null );
+
+		// Convert categories from strings to numbers for API
+		const apiUpdates: Record< string, unknown > = { ...newsletterCategoriesChanges };
+		if ( apiUpdates.wpcom_newsletter_categories ) {
+			apiUpdates.wpcom_newsletter_categories = (
+				apiUpdates.wpcom_newsletter_categories as string[]
+			 ).map( Number );
+		}
+
+		restApi
+			.updateSettings( apiUpdates )
+			.then( () => {
+				setNewsletterCategoriesChanges( {} );
+				setSnackbarMessage( __( 'Newsletter categories saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				setError( err.message || 'Failed to save newsletter categories' );
+			} )
+			.finally( () => {
+				setIsSavingNewsletterCategories( false );
+			} );
+	}, [ newsletterCategoriesChanges, data ] );
 
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
@@ -478,7 +583,64 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 		},
+		{
+			id: 'wpcom_newsletter_categories',
+			label: __(
+				'Which categories will you use for newsletter subscribers? Select all that apply:',
+				'jetpack-newsletter'
+			),
+			type: 'array' as const,
+			elements: categories.map( cat => ( {
+				value: cat.id,
+				label: cat.name,
+			} ) ),
+			isValid: {
+				elements: true,
+				custom: ( item: NewsletterSettings ) => {
+					if (
+						item.wpcom_newsletter_categories_enabled &&
+						! item.wpcom_newsletter_categories?.length
+					) {
+						return __(
+							'Please select at least one category when newsletter categories are enabled.',
+							'jetpack-newsletter'
+						);
+					}
+					return null;
+				},
+			},
+		},
 	];
+
+	// Field list for newsletter categories section
+	const newsletterCategoriesFieldIds = data?.wpcom_newsletter_categories_enabled
+		? [ 'wpcom_newsletter_categories_enabled', 'wpcom_newsletter_categories' ]
+		: [ 'wpcom_newsletter_categories_enabled' ];
+
+	const newsletterCategoriesFields = fields.filter( f =>
+		newsletterCategoriesFieldIds.includes( f.id )
+	);
+
+	// Form configuration for newsletter categories
+	const newsletterCategoriesForm = {
+		layout: {
+			type: 'regular' as const,
+			labelPosition: 'top' as const,
+		},
+		fields: newsletterCategoriesFieldIds,
+	};
+
+	// Get form validity state for newsletter categories
+	// Use empty defaults when data is not yet loaded to satisfy hook call requirements
+	const {
+		validity: newsletterCategoriesValidity = {},
+		isValid: newsletterCategoriesIsValid = true,
+	} =
+		useFormValidity(
+			data || ( {} as NewsletterSettings ),
+			newsletterCategoriesFields,
+			newsletterCategoriesForm
+		) || {};
 
 	if ( isLoading ) {
 		return (
@@ -504,6 +666,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
 	const hasSenderNameChanged = senderName !== ( data.jetpack_subscriptions_from_name || '' );
+	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
 
 	// Helper function to get "Manage all subscribers" URL
 	const getManageSubscribersUrl = () => {
@@ -672,16 +835,39 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				<div className="newsletter-settings__section-content">
 					<DataForm
 						data={ data }
-						fields={ fields.filter( f => f.id === 'wpcom_newsletter_categories_enabled' ) }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'wpcom_newsletter_categories_enabled' ],
-						} }
-						onChange={ handleAutoSave }
+						fields={ newsletterCategoriesFields }
+						form={ newsletterCategoriesForm }
+						onChange={ handleNewsletterCategoriesChange }
+						validity={ newsletterCategoriesValidity }
 					/>
+
+					{ data.wpcom_newsletter_categories_enabled && jetpackSettings?.siteAdminUrl && (
+						<div className="newsletter-settings__link">
+							<ExternalLink
+								href={ `${ jetpackSettings.siteAdminUrl }edit-tags.php?taxonomy=category&referer=newsletter-categories` }
+							>
+								{ __( 'Add New Category', 'jetpack-newsletter' ) }
+							</ExternalLink>
+						</div>
+					) }
+
+					<div className="newsletter-settings__section-actions">
+						<Button
+							variant="primary"
+							onClick={ saveNewsletterCategories }
+							disabled={
+								isSavingNewsletterCategories ||
+								! hasNewsletterCategoriesChanges ||
+								isFetchingCategories ||
+								( data.wpcom_newsletter_categories_enabled! && ! newsletterCategoriesIsValid )
+							}
+							isBusy={ isSavingNewsletterCategories }
+						>
+							{ isSavingNewsletterCategories
+								? __( 'Saving…', 'jetpack-newsletter' )
+								: __( 'Save', 'jetpack-newsletter' ) }
+						</Button>
+					</div>
 				</div>
 			</div>
 
