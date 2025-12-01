@@ -20,7 +20,7 @@
 		"php-stubs/wp-cli-stubs": "^2.10",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-changed": "^2.11.5",
-		"squizlabs/php_codesniffer": "^3.6.2"
+		"squizlabs/php_codesniffer": "^4.0.1"
 	},
 	"scripts": {
 		"php:lint": [
