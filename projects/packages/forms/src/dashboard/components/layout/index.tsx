@@ -19,8 +19,7 @@ const Layout = () => {
 
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
-	const isLoadingConfig =
-		isIntegrationsEnabled === undefined || showDashboardIntegrations === undefined;
+	const isLoadingConfig = isIntegrationsEnabled === undefined;
 
 	const isIntegrationsOpen = location.pathname === '/integrations';
 
