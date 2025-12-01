@@ -1052,7 +1052,7 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-list input.consent:checked,
 .contact-form .is-style-list input.checkbox:checked,
 .contact-form .grunion-field-wrap:not(.is-style-plain) input.checkbox-multiple:checked {
-	background-color: currentColor;
+	filter: invert(1);
 
 }
 
