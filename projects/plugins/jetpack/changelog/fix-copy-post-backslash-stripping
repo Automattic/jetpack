@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Copy Post & Markdown: Fix issue where backslash characters were being stripped from post content when duplicating a post or restoring a revision.

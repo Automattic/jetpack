@@ -168,7 +168,9 @@ class Jetpack_Copy_Post {
 		 * @param int     $target_post_id Target post ID.
 		 */
 		$data = apply_filters( 'jetpack_copy_post_data', $data, $source_post, $target_post_id );
-		return wp_update_post( $data );
+		// wp_update_post expects slashed data (like from $_POST) and internally calls wp_unslash,
+		// so we need to slash the data first to preserve backslash characters in the content.
+		return wp_update_post( wp_slash( $data ) );
 	}
 
 	/**
