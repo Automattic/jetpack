@@ -17,10 +17,8 @@ const Layout = () => {
 	const location = useLocation();
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
-	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
-	const isLoadingConfig =
-		isIntegrationsEnabled === undefined || showDashboardIntegrations === undefined;
+	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
+	const isLoadingConfig = enableIntegrationsTab === undefined;
 
 	const isIntegrationsOpen = location.pathname === '/integrations';
 
@@ -34,9 +32,7 @@ const Layout = () => {
 		<div className="jp-forms-layout">
 			<div className="jp-forms-layout__content">
 				{ ! isLoadingConfig && <Outlet /> }
-				{ isIntegrationsOpen && isIntegrationsEnabled && showDashboardIntegrations && (
-					<Integrations />
-				) }
+				{ isIntegrationsOpen && <Integrations /> }
 			</div>
 		</div>
 	);
