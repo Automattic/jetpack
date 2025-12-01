@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix checkbox styling in forms by using filter invert and correct border color variable
