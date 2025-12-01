@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Sync: Only sync one woo update order item action per order item update.
