@@ -18,6 +18,9 @@ on:
           - full
           - lookup
           - extract
+      doOSV:
+        description: 'Do OSV database lookups (slow)'
+        type: boolean
   schedule:
     - cron: '0 0/2 * * *'
 concurrency:
@@ -36,9 +39,12 @@ jobs:
       - uses: actions/checkout@v5
         with:
           path: monorepo
-      - run: |
+      - env:
+          DO_OSV: ${{ github.event.inputs.doOSV || 'true' }}
+        run: |
           mv monorepo /tmp/monorepo
           sudo chown -R 1000:root /tmp/monorepo/
+          printf "%s" "$DO_OSV" > /tmp/.do-osv
       - name: Check rate limit pre-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}

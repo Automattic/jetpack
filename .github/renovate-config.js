@@ -51,6 +51,7 @@ module.exports = {
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 	minimumReleaseAge: `${ minimumReleaseAge } minutes`,
+	osvVulnerabilityAlerts: fs.readFileSync( '/tmp/.do-osv', 'utf8' ) !== 'false',
 
 	// Extra code to run before creating a commit.
 	allowedCommands: [ monorepoBase + '.github/files/renovate-post-upgrade-run.sh' ],
