@@ -744,9 +744,7 @@ jQuery( function() {
 			$this->monitoring['restore'] = true;
 			// let's not make a revision of our fixing update.
 			add_filter( 'wp_revisions_to_keep', '__return_false', 99 );
-			// wp_update_post expects slashed data and internally calls wp_unslash,
-			// so we need to slash the data first to preserve backslash characters.
-			wp_update_post( wp_slash( $post ) );
+			wp_update_post( $post );
 			$this->fix_latest_revision_on_restore( $post_id );
 			remove_filter( 'wp_revisions_to_keep', '__return_false', 99 );
 		}
@@ -763,9 +761,7 @@ jQuery( function() {
 		$post                                 = get_post( $post_id );
 		$last_revision                        = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $wpdb->posts WHERE post_type = 'revision' AND post_parent = %d ORDER BY ID DESC", $post->ID ) );
 		$last_revision->post_content_filtered = $post->post_content_filtered;
-		// wp_insert_post expects slashed data and internally calls wp_unslash,
-		// so we need to slash the data first to preserve backslash characters.
-		wp_insert_post( wp_slash( (array) $last_revision ) );
+		wp_insert_post( (array) $last_revision );
 	}
 
 	/**
