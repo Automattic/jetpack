@@ -78,17 +78,24 @@ export default function useInboxData(): UseInboxDataReturn {
 	const urlStatus = searchParams.get( 'status' );
 	const statusFilter = getStatusFilter( urlStatus );
 
-	const { selectedResponsesCount, currentStatus, currentQuery, filterOptions, invalidRecords } =
-		useSelect(
-			select => ( {
-				selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
-				currentStatus: select( dashboardStore ).getCurrentStatus(),
-				currentQuery: select( dashboardStore ).getCurrentQuery(),
-				filterOptions: select( dashboardStore ).getFilters(),
-				invalidRecords: select( dashboardStore ).getInvalidRecords(),
-			} ),
-			[]
-		);
+	const {
+		selectedResponsesCount,
+		currentStatus,
+		currentQuery,
+		filterOptions,
+		invalidRecords,
+		hasPendingActions,
+	} = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+			currentQuery: select( dashboardStore ).getCurrentQuery(),
+			filterOptions: select( dashboardStore ).getFilters(),
+			invalidRecords: select( dashboardStore ).getInvalidRecords(),
+			hasPendingActions: select( dashboardStore ).hasPendingActions(),
+		} ),
+		[]
+	);
 
 	// Track the frozen invalid_ids for the current page
 	// This prevents re-fetching when new items are marked as invalid
@@ -147,19 +154,6 @@ export default function useInboxData(): UseInboxDataReturn {
 	);
 
 	/**
-	 * Helper function to determine the effective status of a record,
-	 * considering optimistic edits (status field in edits).
-	 *
-	 * @param {FormResponse} record - The record to check.
-	 * @return {string} The effective status of the record.
-	 */
-	const getEffectiveStatus = ( record: FormResponse ): string => {
-		// getEditedEntityRecord merges edits with the original record,
-		// so if status was edited, it will be in the edited record
-		return record.status || 'publish';
-	};
-
-	/**
 	 * Helper function to check if a status matches the current status filter.
 	 *
 	 * @param {string} status - The status to check.
@@ -178,9 +172,7 @@ export default function useInboxData(): UseInboxDataReturn {
 	const records = useMemo( () => {
 		// Filter records based on their effective status (considering optimistic edits)
 		const filteredRecords = ( editedRecords || [] ).filter( ( record: FormResponse ) => {
-			const effectiveStatus = getEffectiveStatus( record );
-
-			return statusMatchesFilter( effectiveStatus, statusFilter );
+			return statusMatchesFilter( record.status, statusFilter );
 		} );
 
 		return filteredRecords.map( record => {
@@ -243,7 +235,13 @@ export default function useInboxData(): UseInboxDataReturn {
 		[ countsQueryParams ]
 	);
 
-	const isLoadingData = ! rawRecords?.length && ! hasResolved;
+	// Show loading if:
+	// 1. No records and query hasn't resolved yet (initial load)
+	// 2. No filtered records but there are pending actions (optimistic update removed all items from current view)
+	// Note: We check records.length (filtered) not rawRecords.length because optimistic updates
+	// change status, so items are filtered out of records but still exist in rawRecords
+	const isLoadingData =
+		( ! rawRecords?.length && ! hasResolved ) || ( ! records?.length && hasPendingActions );
 
 	return {
 		totalItemsInbox,

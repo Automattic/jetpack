@@ -331,9 +331,12 @@ const ResponseViewBody = ( {
 							<tr>
 								<th>{ __( 'Source:', 'jetpack-forms' ) }</th>
 								<td>
-									<ExternalLink href={ response.entry_permalink }>
-										{ decodeEntities( response.entry_title ) || getPath( response ) }
-									</ExternalLink>
+									{ response.entry_permalink && (
+										<ExternalLink href={ response.entry_permalink }>
+											{ decodeEntities( response.entry_title ) || getPath( response ) }
+										</ExternalLink>
+									) }
+									{ ! response.entry_permalink && decodeEntities( response.entry_title ) }
 								</td>
 							</tr>
 							<tr>

@@ -340,6 +340,9 @@ export default function InboxView() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					if ( ! item.entry_permalink ) {
+						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
+					}
 					return (
 						<ExternalLink href={ item.entry_permalink }>
 							{ wrapperUnread(
@@ -521,7 +524,7 @@ export default function InboxView() {
 						style={ {
 							display: 'flex',
 							gap: '8px',
-							justifyContent: containerWidth < 600 ? 'space-between' : 'flex-end',
+							justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
 						} }
 					>
 						<DataViews.Search />
