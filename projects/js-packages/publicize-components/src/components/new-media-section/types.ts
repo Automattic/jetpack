@@ -5,7 +5,13 @@
 /**
  * Media source types
  */
-export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
+export type MediaSourceType =
+	| 'featured-image'
+	| 'media-library'
+	| 'upload-video'
+	| 'sig'
+	| 'ai-image'
+	| null;
 
 /**
  * WordPress media object from MediaUpload
@@ -77,6 +83,11 @@ export interface MediaSourceMenuProps {
 	 * Callback when Media Library option is clicked
 	 */
 	onMediaLibraryClick?: () => void;
+
+	/**
+	 * Callback when Generate with AI option is clicked
+	 */
+	onAiImageClick?: () => void;
 
 	/**
 	 * Whether the menu is disabled

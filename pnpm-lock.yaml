@@ -1387,6 +1387,9 @@ importers:
 
   projects/js-packages/publicize-components:
     dependencies:
+      '@automattic/jetpack-ai-client':
+        specifier: workspace:*
+        version: link:../ai-client
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../analytics
