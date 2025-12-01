@@ -1,0 +1,123 @@
+let wp;
+( wp ||= {} ).privateApis = ( () => {
+	const __defProp = Object.defineProperty;
+	const __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+	const __getOwnPropNames = Object.getOwnPropertyNames;
+	const __hasOwnProp = Object.prototype.hasOwnProperty;
+	const __export = ( target, all ) => {
+		for ( const name in all ) __defProp( target, name, { get: all[ name ], enumerable: true } );
+	};
+	const __copyProps = ( to, from, except, desc ) => {
+		if ( ( from && typeof from === 'object' ) || typeof from === 'function' ) {
+			for ( const key of __getOwnPropNames( from ) )
+				if ( ! __hasOwnProp.call( to, key ) && key !== except )
+					__defProp( to, key, {
+						get: () => from[ key ],
+						enumerable: ! ( desc = __getOwnPropDesc( from, key ) ) || desc.enumerable,
+					} );
+		}
+		return to;
+	};
+	const __toCommonJS = mod => __copyProps( __defProp( {}, '__esModule', { value: true } ), mod );
+
+	// ../../../node_modules/.pnpm/@wordpress+private-apis@1.36.1-next.8b30e05b0.0_patch_hash=2659f08edd4c0250f15fb428f013_deeaa40cb312346d12eaf1100e0929d3/node_modules/@wordpress/private-apis/build-module/index.js
+	const build_module_exports = {};
+	__export( build_module_exports, {
+		__dangerousOptInToUnstableAPIsOnlyForCoreModules: () =>
+			__dangerousOptInToUnstableAPIsOnlyForCoreModules,
+	} );
+
+	// ../../../node_modules/.pnpm/@wordpress+private-apis@1.36.1-next.8b30e05b0.0_patch_hash=2659f08edd4c0250f15fb428f013_deeaa40cb312346d12eaf1100e0929d3/node_modules/@wordpress/private-apis/build-module/implementation.js
+	const CORE_MODULES_USING_PRIVATE_APIS = [
+		'@wordpress/block-directory',
+		'@wordpress/block-editor',
+		'@wordpress/block-library',
+		'@wordpress/blocks',
+		'@wordpress/boot',
+		'@wordpress/commands',
+		'@wordpress/workflows',
+		'@wordpress/components',
+		'@wordpress/core-commands',
+		'@wordpress/core-data',
+		'@wordpress/customize-widgets',
+		'@wordpress/data',
+		'@wordpress/edit-post',
+		'@wordpress/edit-site',
+		'@wordpress/edit-widgets',
+		'@wordpress/editor',
+		'@wordpress/format-library',
+		'@wordpress/patterns',
+		'@wordpress/preferences',
+		'@wordpress/reusable-blocks',
+		'@wordpress/route',
+		'@wordpress/router',
+		'@wordpress/routes',
+		'@wordpress/sync',
+		'@wordpress/theme',
+		'@wordpress/dataviews',
+		'@wordpress/fields',
+		'@wordpress/lazy-editor',
+		'@wordpress/media-utils',
+		'@wordpress/upload-media',
+		'@wordpress/global-styles-ui',
+	];
+	const registeredPrivateApis = [];
+	const requiredConsent =
+		'I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.';
+	const allowReRegistration = false ? false : true;
+	var __dangerousOptInToUnstableAPIsOnlyForCoreModules = ( consent, moduleName ) => {
+		if ( ! CORE_MODULES_USING_PRIVATE_APIS.includes( moduleName ) ) {
+			throw new Error(
+				`You tried to opt-in to unstable APIs as module "${ moduleName }". This feature is only for JavaScript modules shipped with WordPress core. Please do not use it in plugins and themes as the unstable APIs will be removed without a warning. If you ignore this error and depend on unstable features, your product will inevitably break on one of the next WordPress releases.`
+			);
+		}
+		if ( ! allowReRegistration && registeredPrivateApis.includes( moduleName ) ) {
+			throw new Error(
+				`You tried to opt-in to unstable APIs as module "${ moduleName }" which is already registered. This feature is only for JavaScript modules shipped with WordPress core. Please do not use it in plugins and themes as the unstable APIs will be removed without a warning. If you ignore this error and depend on unstable features, your product will inevitably break on one of the next WordPress releases.`
+			);
+		}
+		if ( consent !== requiredConsent ) {
+			throw new Error(
+				`You tried to opt-in to unstable APIs without confirming you know the consequences. This feature is only for JavaScript modules shipped with WordPress core. Please do not use it in plugins and themes as the unstable APIs will removed without a warning. If you ignore this error and depend on unstable features, your product will inevitably break on the next WordPress release.`
+			);
+		}
+		registeredPrivateApis.push( moduleName );
+		return {
+			lock,
+			unlock,
+		};
+	};
+	/**
+	 *
+	 * @param object
+	 * @param privateData
+	 */
+	function lock( object, privateData ) {
+		if ( ! object ) {
+			throw new Error( 'Cannot lock an undefined object.' );
+		}
+		const _object = object;
+		if ( ! ( __private in _object ) ) {
+			_object[ __private ] = {};
+		}
+		lockedData.set( _object[ __private ], privateData );
+	}
+	/**
+	 *
+	 * @param object
+	 */
+	function unlock( object ) {
+		if ( ! object ) {
+			throw new Error( 'Cannot unlock an undefined object.' );
+		}
+		const _object = object;
+		if ( ! ( __private in _object ) ) {
+			throw new Error( 'Cannot unlock an object that was not locked before. ' );
+		}
+		return lockedData.get( _object[ __private ] );
+	}
+	var lockedData = /* @__PURE__ */ new WeakMap();
+	var __private = Symbol( 'Private API ID' );
+	return __toCommonJS( build_module_exports );
+} )();
+//# sourceMappingURL=index.js.map
