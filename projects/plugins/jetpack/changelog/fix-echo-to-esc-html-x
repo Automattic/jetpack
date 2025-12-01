@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Fix two esc_html_x calls by adding echo in form.php
