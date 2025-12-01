@@ -125,8 +125,7 @@ export default function InboxView() {
 		return setupSidebarWidthObserver();
 	}, [] );
 
-	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
-	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
 
 	const {
 		setCurrentQuery,
@@ -477,13 +476,13 @@ export default function InboxView() {
 		} else {
 			headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
-			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
+			if ( enableIntegrationsTab ) {
 				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
 			}
 		}
 
 		return headerActionsArray;
-	}, [ statusFilter, isIntegrationsEnabled, showDashboardIntegrations ] );
+	}, [ statusFilter, enableIntegrationsTab ] );
 
 	const pageContent = (
 		<Page

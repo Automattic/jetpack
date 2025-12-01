@@ -236,10 +236,6 @@ export interface FormsConfigData {
 	isIntegrationsEnabled?: boolean;
 	/** Whether webhooks are enabled (feature-flagged). */
 	isWebhooksEnabled?: boolean;
-	/** Whether to show integrations in the Forms dashboard UI. */
-	showDashboardIntegrations?: boolean;
-	/** Whether to show integrations in the Form block editor UI. */
-	showBlockIntegrations?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
