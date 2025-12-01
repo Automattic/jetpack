@@ -20,6 +20,10 @@ const MEDIA_SOURCE_OPTIONS: MediaSourceOption[] = [
 		description: __( 'You are using your post featured image', 'jetpack-publicize-components' ),
 		icon: image,
 		group: 'link-preview',
+		attachmentDescription: __(
+			'Shares your image as a regular post, without a link preview card, for higher engagement.',
+			'jetpack-publicize-components'
+		),
 	},
 	{
 		id: 'sig',
@@ -27,6 +31,10 @@ const MEDIA_SOURCE_OPTIONS: MediaSourceOption[] = [
 		description: __( 'You are using the template', 'jetpack-publicize-components' ),
 		icon: starEmpty,
 		group: 'link-preview',
+		attachmentDescription: __(
+			'Shares your template as an attached image, without a link preview card, for higher engagement.',
+			'jetpack-publicize-components'
+		),
 	},
 	{
 		id: 'media-library',
@@ -58,6 +66,20 @@ export function getMediaSourceDescription( sourceType: MediaSourceType ): string
 	return (
 		option?.description || __( "Your post won't show an image.", 'jetpack-publicize-components' )
 	);
+}
+
+/**
+ * Get the attachment toggle description for a media source
+ *
+ * @param {string} sourceType - Media source type
+ * @return {string|undefined} Attachment description for the media source
+ */
+export function getAttachmentDescription( sourceType: MediaSourceType ): string | undefined {
+	if ( ! sourceType ) {
+		return undefined;
+	}
+	const option = MEDIA_SOURCE_OPTIONS.find( opt => opt.id === sourceType );
+	return option?.attachmentDescription;
 }
 
 /**

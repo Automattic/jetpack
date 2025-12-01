@@ -17,6 +17,7 @@
 .selectButton {
 	width: 100%;
 	justify-content: center;
+	margin-top: 6px;
 }
 
 .dropdownMenu {
@@ -74,4 +75,8 @@
 		backdrop-filter: blur(16px) saturate(180%);
 		background: rgba(255, 255, 255, 0.75);
 	}
+}
+
+.custom-media-toggle {
+	margin-top: 16px;
 }

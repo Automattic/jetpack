@@ -30,6 +30,7 @@ export interface MediaSourceOption {
 	description: string;
 	icon: JSX.Element;
 	group: MenuGroupType;
+	attachmentDescription?: string;
 }
 
 /**

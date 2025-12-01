@@ -30,6 +30,7 @@ export function usePostMeta() {
 			const attachedMedia = jetpackSocialOptions.attached_media || DEFAULT_ATTACHED_MEDIA;
 			const imageGeneratorSettings =
 				jetpackSocialOptions.image_generator_settings ?? DEFAULT_IMAGE_GENERATOR_SETTINGS;
+			const mediaSource = jetpackSocialOptions.media_source;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
 			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
@@ -42,6 +43,7 @@ export function usePostMeta() {
 				jetpackSocialOptions,
 				attachedMedia,
 				imageGeneratorSettings,
+				mediaSource,
 				isPostAlreadyShared,
 				shareMessage,
 			};

@@ -14,9 +14,12 @@ export type AttachedMedia = {
 	url: string;
 };
 
+export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upload-video' | 'none';
+
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
 	image_generator_settings?: SIGSettings;
+	media_source?: MediaSourceValue;
 };
 
 export type JetpackSocialPostMeta = {
@@ -32,6 +35,7 @@ export type UsePostMeta = {
 	isPostAlreadyShared: boolean;
 	isPublicizeEnabled: boolean;
 	jetpackSocialOptions: JetpackSocialOptions;
+	mediaSource: MediaSourceValue | undefined;
 	shareMessage: string;
 	togglePublicizeFeature: VoidFunction;
 	updateMeta: < K extends keyof JetpackSocialPostMeta >(

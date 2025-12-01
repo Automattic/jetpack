@@ -6,23 +6,23 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl } from '@wordpress/components';
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import { BaseControl, Button } from '@wordpress/components';
+import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
+import CustomMediaToggle from './custom-media-toggle';
 import MediaPreview from './media-preview';
 import MediaSourceMenu, { getMediaSourceDescription } from './media-source-menu';
 import styles from './styles.module.scss';
 import { MediaSourceType, NewMediaSectionProps, MediaPreviewData, WPMediaObject } from './types';
 
 /**
- * Detect the current media source based on existing data
+ * Detect the current media source based on existing data (for backward compatibility)
  *
  * @param {Array}   attachedMedia   - Attached media array
  * @param {number}  featuredImageId - Featured image ID
@@ -36,6 +36,14 @@ function detectMediaSource(
 ): MediaSourceType {
 	// Priority 1: Attached media (uploaded content)
 	if ( attachedMedia && attachedMedia.length > 0 ) {
+		// Check if attached media is the featured image (shared as attachment)
+		if ( featuredImageId && attachedMedia[ 0 ].id === featuredImageId ) {
+			return 'featured-image';
+		}
+		// Check if it's SIG in attachment mode (id=0 with SIG enabled)
+		if ( sigEnabled && attachedMedia[ 0 ].id === 0 ) {
+			return 'sig';
+		}
 		return attachedMedia[ 0 ].type?.startsWith( 'video/' ) ? 'upload-video' : 'media-library';
 	}
 
@@ -66,28 +74,40 @@ export default function NewMediaSection( {
 	disabled = false,
 }: NewMediaSectionProps ) {
 	const { recordEvent } = useAnalytics();
-	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
-	const { isEnabled: sigEnabled, setIsEnabled: setSigEnabled } = useImageGeneratorConfig();
-	const { imageGeneratorSettings, updateJetpackSocialOptions } = usePostMeta();
+	const { isEnabled: sigEnabled } = useImageGeneratorConfig();
+	const { attachedMedia, imageGeneratorSettings, mediaSource, updateJetpackSocialOptions } =
+		usePostMeta();
 
 	// Get SIG preview URL when SIG is enabled
 	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview( sigEnabled );
 
-	// Track if user explicitly chose "no media" (to override featured image detection)
-	const [ userSelectedNoMedia, setUserSelectedNoMedia ] = useState( false );
-
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
 
-	// Detect current media source
+	// Determine current media source
+	// Priority 1: Explicit user choice (if media_source is set)
+	// Priority 2: Detect from existing data (backward compatibility)
 	const currentSource = useMemo( () => {
-		// If user explicitly selected "no media", respect that choice
-		if ( userSelectedNoMedia ) {
-			return null;
+		if ( mediaSource !== undefined ) {
+			return mediaSource === 'none' ? null : ( mediaSource as MediaSourceType );
 		}
 		return detectMediaSource( attachedMedia, featuredImageId, sigEnabled );
-	}, [ attachedMedia, featuredImageId, sigEnabled, userSelectedNoMedia ] );
+	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
+
+	// Attachment mode: check if attached_media has items (matches backend is_social_post())
+	const isShareAsAttachment = attachedMedia.length > 0;
+
+	// Debug logging - remove before merging
+	// eslint-disable-next-line no-console
+	console.log( '[MediaSection]', {
+		mediaSource,
+		currentSource,
+		isShareAsAttachment,
+		attachedMedia,
+		sigEnabled,
+		featuredImageId,
+	} );
 
 	// Get media ID for preview
 	const mediaId = useMemo( () => {
@@ -135,57 +155,37 @@ export default function NewMediaSection( {
 				source,
 			} );
 
-			setUserSelectedNoMedia( false );
-
-			switch ( source ) {
-				case 'featured-image':
-					// Turn SIG off, clear attached media (batch update to avoid race condition)
-					updateJetpackSocialOptions( {
-						attached_media: [],
-						image_generator_settings: { ...imageGeneratorSettings, enabled: false },
-					} );
-					break;
-
-				case 'sig':
-					// Turn SIG on, clear attached media (batch update to avoid race condition)
-					updateJetpackSocialOptions( {
-						attached_media: [],
-						image_generator_settings: { ...imageGeneratorSettings, enabled: true },
-					} );
-					break;
-
-				case 'media-library':
-				case 'upload-video':
-					// Turn SIG off, attached media is set in handleMediaLibrarySelect
-					if ( sigEnabled ) {
-						setSigEnabled( false );
-					}
-					break;
-			}
+			// Single batch update with explicit media_source and all related fields
+			updateJetpackSocialOptions( {
+				media_source: source || 'none',
+				attached_media: [], // Reset attachment when changing source
+				image_generator_settings: {
+					...imageGeneratorSettings,
+					enabled: source === 'sig',
+				},
+			} );
 		},
-		[
-			recordEvent,
-			analyticsData,
-			updateJetpackSocialOptions,
-			imageGeneratorSettings,
-			setSigEnabled,
-			sigEnabled,
-		]
+		[ recordEvent, analyticsData, updateJetpackSocialOptions, imageGeneratorSettings ]
 	);
 
 	// Handle media selection from Media Library
 	const handleMediaLibrarySelect = useCallback(
 		( media: WPMediaObject ) => {
 			const { id, url, mime: type } = media;
-			updateAttachedMedia( [ { id, url, type } ] );
-			setUserSelectedNoMedia( false );
+
+			// Single batch update with explicit media_source
+			updateJetpackSocialOptions( {
+				media_source: 'media-library',
+				attached_media: [ { id, url, type } ],
+				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+			} );
 
 			recordEvent( 'jetpack_social_media_source_changed', {
 				...analyticsData,
 				source: 'media-library',
 			} );
 		},
-		[ updateAttachedMedia, recordEvent, analyticsData ]
+		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
 	);
 
 	const handleMediaLibraryClick = useCallback( () => {
@@ -201,15 +201,66 @@ export default function NewMediaSection( {
 
 	// Handle remove - go to "no image" state
 	const handleRemove = useCallback( () => {
-		updateAttachedMedia( [] );
-		setSigEnabled( false );
-		setUserSelectedNoMedia( true );
+		// Single batch update with explicit 'none' source
+		updateJetpackSocialOptions( {
+			media_source: 'none',
+			attached_media: [],
+			image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+		} );
 
 		recordEvent( 'jetpack_social_media_removed', {
 			...analyticsData,
 			source: currentSource,
 		} );
-	}, [ updateAttachedMedia, setSigEnabled, recordEvent, analyticsData, currentSource ] );
+	}, [
+		updateJetpackSocialOptions,
+		imageGeneratorSettings,
+		recordEvent,
+		analyticsData,
+		currentSource,
+	] );
+
+	// Handle attachment toggle change
+	const handleAttachmentToggle = useCallback(
+		( checked: boolean ) => {
+			if ( currentSource === 'featured-image' && previewData ) {
+				// Featured image: toggle attachment mode
+				updateJetpackSocialOptions( {
+					media_source: 'featured-image',
+					attached_media: checked
+						? [ { id: previewData.id, url: previewData.url, type: 'image/jpeg' } ]
+						: [],
+				} );
+			} else if ( currentSource === 'sig' && sigPreviewUrl ) {
+				// SIG: toggle attachment mode (add SIG URL to attached_media)
+				updateJetpackSocialOptions( {
+					media_source: 'sig',
+					attached_media: checked ? [ { id: 0, url: sigPreviewUrl, type: 'image/jpeg' } ] : [],
+					// Keep SIG enabled regardless
+					image_generator_settings: { ...imageGeneratorSettings, enabled: true },
+				} );
+			}
+
+			recordEvent(
+				checked
+					? 'jetpack_social_share_as_attachment_enabled'
+					: 'jetpack_social_share_as_attachment_disabled',
+				{
+					...analyticsData,
+					source: currentSource,
+				}
+			);
+		},
+		[
+			currentSource,
+			previewData,
+			sigPreviewUrl,
+			updateJetpackSocialOptions,
+			imageGeneratorSettings,
+			recordEvent,
+			analyticsData,
+		]
+	);
 
 	return (
 		<ThemeProvider>
@@ -230,22 +281,40 @@ export default function NewMediaSection( {
 
 					{ /* Show dropdown + preview when there's media */ }
 					{ previewData && (
-						<MediaSourceMenu
-							currentSource={ currentSource }
-							onSelect={ handleSourceSelect }
-							onMediaLibraryClick={ handleMediaLibraryClick }
-							disabled={ disabled }
-						>
-							{ ( { open } ) => (
-								<MediaPreview
-									media={ previewData }
-									isLoading={ currentSource === 'sig' && sigIsLoading }
-									onReplace={ open }
-									onRemove={ handleRemove }
+						<>
+							<MediaSourceMenu
+								currentSource={ currentSource }
+								onSelect={ handleSourceSelect }
+								onMediaLibraryClick={ handleMediaLibraryClick }
+								disabled={ disabled }
+							>
+								{ ( { open } ) => (
+									<MediaPreview
+										media={ previewData }
+										isLoading={ currentSource === 'sig' && sigIsLoading }
+										onReplace={ open }
+										onRemove={ handleRemove }
+										disabled={ disabled }
+									/>
+								) }
+							</MediaSourceMenu>
+							{ currentSource === 'sig' && (
+								<Button
+									className={ styles.selectButton }
+									variant="secondary"
+									// onClick={ /* TODO: Add Sig modal here */ }
 									disabled={ disabled }
-								/>
+								>
+									{ __( 'Edit template', 'jetpack-publicize-components' ) }
+								</Button>
 							) }
-						</MediaSourceMenu>
+							<CustomMediaToggle
+								source={ currentSource }
+								checked={ isShareAsAttachment }
+								onChange={ handleAttachmentToggle }
+								disabled={ disabled }
+							/>
+						</>
 					) }
 
 					{ /* Show dropdown when no media */ }
