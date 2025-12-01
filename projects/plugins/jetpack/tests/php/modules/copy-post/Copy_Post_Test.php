@@ -5,17 +5,13 @@
  * @package automattic/jetpack
  */
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/copy-post.php';
 
 /**
  * Test class for Jetpack_Copy_Post.
- *
- * @covers Jetpack_Copy_Post
  */
-#[CoversClass( Jetpack_Copy_Post::class )]
 class Copy_Post_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
