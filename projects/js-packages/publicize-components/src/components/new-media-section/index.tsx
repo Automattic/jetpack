@@ -6,7 +6,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl, Button } from '@wordpress/components';
+import { BaseControl, Button, Notice } from '@wordpress/components';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -96,7 +96,7 @@ export default function NewMediaSection( {
 	}, [ mediaSource, attachedMedia, featuredImageId, sigEnabled ] );
 
 	// Attachment mode: check if attached_media has items (matches backend is_social_post())
-	const isShareAsAttachment = attachedMedia.length > 0;
+	const isShareAsAttachment = attachedMedia?.length > 0;
 
 	// Debug logging - remove before merging
 	// eslint-disable-next-line no-console
@@ -319,12 +319,22 @@ export default function NewMediaSection( {
 
 					{ /* Show dropdown when no media */ }
 					{ ! previewData && (
-						<MediaSourceMenu
-							currentSource={ currentSource }
-							onSelect={ handleSourceSelect }
-							onMediaLibraryClick={ handleMediaLibraryClick }
-							disabled={ disabled }
-						/>
+						<>
+							<MediaSourceMenu
+								currentSource={ currentSource }
+								onSelect={ handleSourceSelect }
+								onMediaLibraryClick={ handleMediaLibraryClick }
+								disabled={ disabled }
+							/>
+							{ currentSource === 'featured-image' && ! featuredImageId && (
+								<Notice status="warning" isDismissible={ false } className={ styles.notice }>
+									{ __(
+										'Your post does not have a featured image.',
+										'jetpack-publicize-components'
+									) }
+								</Notice>
+							) }
+						</>
 					) }
 				</BaseControl>
 			</div>
