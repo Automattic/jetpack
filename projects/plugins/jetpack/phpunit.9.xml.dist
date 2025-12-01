@@ -36,6 +36,9 @@
 		<testsuite name="comment-likes">
 			<directory suffix="Test.php">tests/php/modules/comment-likes</directory>
 		</testsuite>
+		<testsuite name="copy-post">
+			<directory suffix="Test.php">tests/php/modules/copy-post</directory>
+		</testsuite>
 		<testsuite name="likes">
 			<directory suffix="Test.php">tests/php/modules/likes</directory>
 		</testsuite>
