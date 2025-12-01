@@ -1,7 +1,8 @@
-import { SelectControl } from '@wordpress/components';
+import { BaseControl, SelectControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSocialImageFontOptions } from '../../../hooks/use-social-image-font-options';
+import TemplatePicker from '../../social-image-generator/template-picker/picker';
 import styles from './styles.module.scss';
 import { LocalState } from './types';
 
@@ -28,6 +29,15 @@ export function Sidebar( { localState, setLocalState }: SidebarProps ) {
 
 	return (
 		<div className={ styles.sidebar }>
+			<BaseControl __nextHasNoMarginBottom={ true } className={ styles.templateControl }>
+				<BaseControl.VisualLabel>
+					{ __( 'Templates', 'jetpack-publicize-components' ) }
+				</BaseControl.VisualLabel>
+				<TemplatePicker
+					value={ localState.template }
+					onTemplateSelected={ updateLocalField( 'template' ) }
+				/>
+			</BaseControl>
 			<SelectControl
 				__nextHasNoMarginBottom
 				__next40pxDefaultSize
