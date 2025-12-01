@@ -65,6 +65,15 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
+	 * Per-request map of order_item_id => change info observed during this request.
+	 *
+	 * @access private
+	 *
+	 * @var array
+	 */
+	private $order_item_change_map = array();
+
+	/**
 	 * The table name.
 	 *
 	 * @access public
@@ -128,9 +137,16 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
+		// Dedupe order item updates within a request.
+		add_action( 'woocommerce_before_order_item_object_save', array( $this, 'on_before_order_item_object_save' ), 10, 1 );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'on_before_enqueue_update_order_item' ), 1 );
+
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
+
+		// Track meta touches on items within the request.
+		add_action( 'added_order_item_meta', array( $this, 'on_order_item_meta_added' ), 10, 4 );
+		add_action( 'updated_order_item_meta', array( $this, 'on_order_item_meta_updated' ), 10, 4 );
 
 		// Blacklist Action Scheduler comment types.
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', array( $this, 'filter_action_scheduler_comments' ), 10, 2 );
@@ -226,6 +242,7 @@ class WooCommerce extends Module {
 	 */
 	public function init_before_send() {
 		// Full sync.
+		add_filter( 'jetpack_sync_before_send_woocommerce_update_order_item', array( $this, 'refresh_update_order_item_before_send' ), 5 );
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_woocommerce_order_items', array( $this, 'build_full_sync_action_array' ) );
 	}
 
@@ -238,9 +255,171 @@ class WooCommerce extends Module {
 	 * @return array $args The hook arguments.
 	 */
 	public function filter_order_item( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 1 ) {
+			// Upstream filters may return false, in which case pass it through unchanged.
+			return $args;
+		}
 		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details.
 		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
+	}
+
+	/**
+	 * Refresh the order item data before sending it during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $args The hook arguments.
+	 * @return array $args The hook arguments.
+	 */
+	public function refresh_update_order_item_before_send( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 1 ) {
+			return $args;
+		}
+		$order_item_id = (int) $args[0];
+		if ( $order_item_id > 0 ) {
+			$args[1] = $this->build_order_item( $order_item_id );
+		}
+		return $args;
+	}
+
+	/**
+	 * Capture changed keys for an order item before it is saved.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WC_Order_Item $item The order item object about to be saved.
+	 * @return void
+	 */
+	public function on_before_order_item_object_save( $item ) {
+		if ( ! is_object( $item ) || ! method_exists( $item, 'get_id' ) ) {
+			return;
+		}
+
+		$order_item_id = (int) $item->get_id();
+		if ( $order_item_id <= 0 ) {
+			return;
+		}
+
+		$changes = method_exists( $item, 'get_changes' ) ? (array) $item->get_changes() : array();
+		if ( ! isset( $this->order_item_change_map[ $order_item_id ] ) ) {
+			$this->order_item_change_map[ $order_item_id ] = array(
+				'changed_keys'             => array(),
+				'meta_touched'             => false,
+				'whitelisted_meta_touched' => false,
+				'meta_keys'                => array(),
+			);
+		}
+		// Meta-only: leave changed_keys empty; meta hooks will mark touches.
+		if ( isset( $changes['meta_data'] ) && count( $changes ) === 1 ) {
+			$this->order_item_change_map[ $order_item_id ]['changed_keys'] = array();
+			return;
+		}
+		$this->order_item_change_map[ $order_item_id ]['changed_keys'] = array_keys( $changes );
+	}
+
+	/**
+	 * Record meta addition.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $meta_id       Meta row ID.
+	 * @param int    $order_item_id Order item ID.
+	 * @param string $meta_key      Meta key.
+	 * @param mixed  $meta_value    Meta value.
+	 * @return void
+	 */
+	public function on_order_item_meta_added( $meta_id, $order_item_id, $meta_key, $meta_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Needed for hook signature.
+		$this->record_item_meta_touch( (int) $order_item_id, (string) $meta_key );
+	}
+
+	/**
+	 * Record meta update.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $meta_id       Meta row ID.
+	 * @param int    $order_item_id Order item ID.
+	 * @param string $meta_key      Meta key.
+	 * @param mixed  $meta_value    Meta value.
+	 * @return void
+	 */
+	public function on_order_item_meta_updated( $meta_id, $order_item_id, $meta_key, $meta_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Needed for hook signature.
+		$this->record_item_meta_touch( (int) $order_item_id, (string) $meta_key );
+	}
+
+	/**
+	 * Mark that an order item had meta touched.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int    $order_item_id Order item ID.
+	 * @param string $meta_key      Meta key.
+	 * @return void
+	 */
+	private function record_item_meta_touch( $order_item_id, $meta_key ) {
+		$id  = (int) $order_item_id;
+		$key = trim( (string) $meta_key );
+		if ( $id <= 0 || ! $key ) {
+			return;
+		}
+
+		if ( ! isset( $this->order_item_change_map[ $id ] ) ) {
+			$this->order_item_change_map[ $id ] = array(
+				'changed_keys'             => array(),
+				'meta_touched'             => false,
+				'whitelisted_meta_touched' => false,
+				'meta_keys'                => array(),
+			);
+		}
+
+		$this->order_item_change_map[ $id ]['meta_touched']      = true;
+		$this->order_item_change_map[ $id ]['meta_keys'][ $key ] = true;
+		if ( $this->is_whitelisted_order_item_meta( $key ) ) {
+			$this->order_item_change_map[ $id ]['whitelisted_meta_touched'] = true;
+		}
+	}
+	/**
+	 * Before enqueueing woocommerce_update_order_item, suppress unchanged items and dedupe per item per request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $args Hook arguments as captured by Sync.
+	 * @return array|false Arguments to enqueue, or false to drop.
+	 */
+	public function on_before_enqueue_update_order_item( $args ) {
+		// Prevent multiple triggers on a single request.
+		static $processed = array();
+
+		if ( ! is_array( $args ) || ! isset( $args[0] ) ) {
+			return $args;
+		}
+
+		$order_item_id = (int) $args[0];
+		if ( $order_item_id <= 0 ) {
+			return $args;
+		}
+
+		if ( isset( $processed[ $order_item_id ] ) ) {
+			return false;
+		}
+
+		$entry = isset( $this->order_item_change_map[ $order_item_id ] ) ? $this->order_item_change_map[ $order_item_id ] : null;
+		if ( null === $entry ) {
+			return false;
+		}
+
+		$has_non_meta = ! empty( $entry['changed_keys'] );
+		$allow        = $has_non_meta || ! empty( $entry['meta_touched'] );
+		if ( ! $allow ) {
+			return false;
+		}
+
+		$processed[ $order_item_id ] = true;
+
+		return array( $order_item_id );
 	}
 
 	/**
