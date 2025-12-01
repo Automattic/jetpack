@@ -326,16 +326,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-a.9 - 2025-11-24
+### 15.3-beta - 2025-12-01
 #### Enhancements
-- Forms: Update dashboard header buttons.
-- Forms: Use first/last name for author.
-- Social: Improve the sidebar by making titles more descriptive and combining sections.
+- Forms: Add form response webhook support.
+- Forms: Add WordPress Abilities API integration for form submissions management and integrations access.
+- Forms: Improve name variation handling.
+- Forms: Remove related-posts from API calls.
+- Premium Content Block: Added email rendering callback.
 
 #### Bug fixes
-- Forms: Fix name variation isActive setting.
-- Remove `getIconColor` functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
+- Cookies & Consents Banner Widget: ensure form headings are properly displayed.
+- Forms: Do not link to empty source link.
+- Forms: Reject form submissions when the parent post/page with the form has been deleted or is no longer published.
+- Forms: Remove clashing between meta dn field names on export.
+- GSheets embed: Give time for the iframe to finish before showing an error.
 
 --------
 

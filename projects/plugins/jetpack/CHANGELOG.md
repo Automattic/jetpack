@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-beta - 2025-12-01
+### Enhancements
+- Forms: Add form response webhook support. [#46059]
+- Forms: Add WordPress Abilities API integration for form submissions management and integrations access. [#45998]
+- Forms: Improve name variation handling. [#46054]
+- Forms: Remove related-posts from API calls. [#45928]
+- Premium Content Block: Added email rendering callback. [#46006]
+
+### Bug fixes
+- Cookies & Consents Banner Widget: ensure form headings are properly displayed. [#46144]
+- Forms: Do not link to empty source link. [#46133]
+- Forms: Reject form submissions when the parent post/page with the form has been deleted or is no longer published. [#46103]
+- Forms: Remove clashing between meta dn field names on export. [#46130]
+- GSheets embed: Give time for the iframe to finish before showing an error. [#46109]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blocks: Add filter to disable Jetpack block collection in editor. [#46077]
+- Media Summary: Allow skipping excerpt and text counts. [#46091]
+- Newsletters: Add skeleton for new settings screen. [#46049]
+- Podcasts block: Prevent warnings when podcast content is malformed. [#46083]
+- Updated Jetpack sidebar labels for post editor sidebar. [#46098]
+- Update package dependencies. [#46072] [#46079] [#46143]
+
 ## 15.3-a.9 - 2025-11-24
 ### Enhancements
 - Forms: Update dashboard header buttons. [#45983]

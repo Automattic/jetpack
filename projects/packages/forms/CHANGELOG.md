@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.21.0] - 2025-12-01
+### Added
+- Add form response webhook support. [#46059]
+- Add WordPress Abilities API integration for form submissions management and integrations access. [#45998]
+- Use parse_blocks instead of preg_replace for attribute appending on templates and widgets. [#45999]
+- Form Webhooks: add logging and filter flag for initialization. [#46059]
+
+### Changed
+- Enable form webhooks feature based on current plan support. [#46059]
+- Add notice after optimistic response status update. [#46056]
+- Improve name variation handling. [#46054]
+- Remove related-posts from API calls. [#45928]
+- Form Webhooks: clean up and consolidate webhooks to take over the unused-yet-present postToUrl. [#46059]
+- Update package dependencies. [#46072] [#46143]
+
+### Fixed
+- Add fallback values to CSS custom properties to improve form styling compatibility across themes. [#46038]
+- Fix checkbox styling and block interaction in editor by removing disabled attribute and using CSS pointer-events instead. [#46125]
+- Do not link to to empty source_link. [#46133]
+- Fix inbox reponse email copy button alignment. [#46088]
+- Fix notices positioning on dashboard. [#46097]
+- Fix spam status change tracking when post is not available. [#46107]
+- Make the filter count not be cut off. [#46132]
+- Outlined style leading notch was missing base border settings. [#46048]
+- Reject form submissions when the parent post/page with the form has been deleted or is no longer published. [#46103]
+- Remove clashing between meta and field names. [#46130]
+- Trash old spam instead of fully deleting. [#46033]
+- Use fallback page value on feedback source if variable is polluted. [#46075]
+- Wrap long emails in response. [#46121]
+
 ## [6.20.0] - 2025-11-24
 ### Added
 - Add docs on classes and usage. [#46047]
@@ -1904,6 +1934,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[6.21.0]: https://github.com/automattic/jetpack-forms/compare/v6.20.0...v6.21.0
 [6.20.0]: https://github.com/automattic/jetpack-forms/compare/v6.19.0...v6.20.0
 [6.19.0]: https://github.com/automattic/jetpack-forms/compare/v6.18.0...v6.19.0
 [6.18.0]: https://github.com/automattic/jetpack-forms/compare/v6.17.0...v6.18.0
