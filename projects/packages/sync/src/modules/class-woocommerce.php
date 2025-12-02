@@ -280,7 +280,14 @@ class WooCommerce extends Module {
 		}
 		$order_item_id = (int) $args[0];
 		if ( $order_item_id > 0 ) {
-			$args[1] = $this->build_order_item( $order_item_id );
+			$order_item = $this->build_order_item( $order_item_id );
+			if ( $order_item ) {
+				$args[1] = $order_item;
+				// Ensure the order_id is present as the third argument for consumers/tests expecting it.
+				if ( ! isset( $args[2] ) && isset( $order_item->order_id ) ) {
+					$args[2] = (int) $order_item->order_id;
+				}
+			}
 		}
 		return $args;
 	}
