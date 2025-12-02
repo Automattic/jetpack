@@ -39,7 +39,10 @@ for ( const exclude of
 		.match( /^minimumReleaseAgeExclude:\n(\n|[ \t][^\n]+\n)+/m )[ 0 ]
 		.matchAll( /^[ \t]+- \x27?([^\x27\n]+)\x27?$/gm )
 ) {
-	minimumReleaseAgeExcludes.push( exclude[ 1 ] );
+	// Ignore any versioned excludes. They're probably for security updates, which Renovate already ignores its own minimumReleaseAge setting for.
+	if ( ! /.@/.test( exclude[ 1 ] ) ) {
+		minimumReleaseAgeExcludes.push( exclude[ 1 ] );
+	}
 }
 
 module.exports = {
