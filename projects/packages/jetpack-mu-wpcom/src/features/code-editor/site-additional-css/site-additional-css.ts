@@ -66,7 +66,6 @@ const setupEditor = async (
 	target: ReactHTMLTextAreaElement,
 	cssParseStartsAtStyles: boolean
 ): Promise< void > => {
-	// biome-ignore lint/style/noNonNullAssertion: Please.
 	const controlElement = target.parentElement!;
 	// We'll use absolute positioning to place the editor.
 	// This must be set early so that we can calculate the top offset.

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.4.4
+ * Stubs automatically generated from PHPUnit 12.4.5
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -19728,19 +19728,7 @@ final class TestSuiteSorter
     /**
      * @throws Exception
      */
-    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects, bool $isRootTestSuite = true): void
-    {
-    }
-    /**
-     * @return array<string>
-     */
-    public function getOriginalExecutionOrder(): array
-    {
-    }
-    /**
-     * @return array<string>
-     */
-    public function getExecutionOrder(): array
+    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects): void
     {
     }
 }

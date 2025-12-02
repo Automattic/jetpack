@@ -77,15 +77,12 @@ export function Screen( {
 			<Flex direction="column" gap={ 0 }>
 				<Header title={ title } isScreenLocked={ isScreenLocked } />
 
-				<div className={ styles.body }>
-					<Flex gap={ 0 } align="start">
-						{ sidebar ? <div className={ styles.sidebar }>{ sidebar }</div> : null }
-						<div className={ styles.content }>
-							{ ( 'children' in props && props.children ) ||
-								( 'content' in props && props.content ) }
-						</div>
-					</Flex>
-				</div>
+				<Flex gap={ 0 } align="start" className={ styles.body }>
+					{ sidebar ? <div className={ styles.sidebar }>{ sidebar }</div> : null }
+					<div className={ styles.content }>
+						{ ( 'children' in props && props.children ) || ( 'content' in props && props.content ) }
+					</div>
+				</Flex>
 				{ hasFooter ? (
 					<Footer actions={ footerActions } isScreenLocked={ isScreenLocked }>
 						{ footerContent }
