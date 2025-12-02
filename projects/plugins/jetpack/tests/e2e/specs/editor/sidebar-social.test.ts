@@ -12,10 +12,10 @@ test.describe( 'Editor sidebar: Social', () => {
 		const settingsSidebar = editor.getEditorSettingsSidebar();
 
 		const socialPanel = settingsSidebar.getByRole( 'button', {
-			name: 'Share to Social Media',
+			name: 'Share to social media',
 		} );
 
-		logger.debug( 'Expand "Share to Social Media" panel' );
+		logger.debug( 'Expand "Share to social media" panel' );
 		await socialPanel.click();
 
 		const activateSocialLink = settingsSidebar.getByRole( 'link', {

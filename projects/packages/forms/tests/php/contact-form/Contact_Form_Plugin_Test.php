@@ -586,7 +586,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 	}
 
-	public function test_process_from_with_jwt() {
+	public function test_process_form_with_jwt() {
 		$previous_post = $this->setup_token_test( null, 'Test User' );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -598,7 +598,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_jwt_validation_error() {
+	public function test_process_form_with_jwt_validation_error() {
 		$previous_post = $this->setup_token_test( null );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -610,7 +610,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->teardown_post_for_test( $previous_post );
 	}
 
-	public function test_process_from_with_fake_jwt() {
+	public function test_process_form_with_fake_jwt() {
 		$previous_post = $this->setup_token_test( 'fake.jwt.token' );
 
 		$plugin = Contact_Form_Plugin::init();
@@ -618,6 +618,49 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when processing the form submission with invalid JWT.' );
 		$this->assertEquals( 'invalid_jwt', $result->get_error_code(), 'Expected the error code to be "invalid_jwt".' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$this->teardown_post_for_test( $previous_post );
+	}
+
+	public function test_process_form_with_deleted_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Delete the parent post after JWT is created
+		wp_delete_post( $post_id, true );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is deleted.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
+		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
+
+		$post = $previous_post; // Restore the previous post.
+		remove_filter( 'jetpack_contact_form_is_spam', array( $this, 'return_error_for_test' ) );
+		unset( $_POST['contact-form-hash'] );
+		unset( $_POST['jetpack_contact_form_jwt'] );
+		unset( $_POST['contact-form-id'] );
+		unset( $_POST[ 'g' . $post_id . '-name' ] );
+	}
+
+	public function test_process_form_with_trashed_parent_post() {
+		global $post;
+		$previous_post = $this->setup_token_test( null, 'Test User' );
+		$post_id       = $post->ID;
+
+		// Move the parent post to trash after JWT is created
+		wp_trash_post( $post_id );
+
+		$plugin = Contact_Form_Plugin::init();
+		$result = $plugin->process_form_submission();
+
+		$this->assertInstanceOf( Form_Submission_Error::class, $result, 'Expected a Form_Submission_Error when parent post is trashed.' );
+		$this->assertEquals( 'form_unavailable', $result->get_error_code(), 'Expected the error code to be "form_unavailable".' );
+		$this->assertEquals( 'This form is no longer available.', $result->get_error_message(), 'Expected appropriate error message.' );
 		$this->assertTrue( $result->is_system_type(), 'Expected this to be a system error.' );
 
 		$this->teardown_post_for_test( $previous_post );
@@ -686,6 +729,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 			array(
 				'1_field_A' => 'value1',
 				'2_field_C' => 'value2',
+				'3_Date'    => '2024-01-01',
 			)
 		);
 		$post_2     = get_post( $post_id_2 );
@@ -695,21 +739,21 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$ip              = 'https://127.0.0.1';
 
 		$country_code = null; // No country code for legacy feedback
-
+		$prefix_meta  = ' ';
 		$this->assertEquals(
 			array(
-
-				'ID'           => array( $post_id_1, $post_id_2 ),
-				'Date'         => array( $post_1->post_date, $post_2->post_date ),
-				'Title'        => array( $current_post->post_title, $current_post->post_title ),
-				'field_A'      => array( 'value1', 'value1' ),
-				'field_B'      => array( 'value2', '' ),
-				'field_C'      => array( '', 'value2' ),
-				'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
-				'Consent'      => array( $default_consent, $default_consent ),
-				'IP Address'   => array( $ip, $ip ),
-				'Country code' => array( $country_code, $country_code ),
-				'Browser'      => array( null, null ), // No browser for legacy feedback
+				$prefix_meta . 'ID'           => array( $post_id_1, $post_id_2 ),
+				$prefix_meta . 'Date'         => array( $post_1->post_date, $post_2->post_date ),
+				$prefix_meta . 'Title'        => array( $current_post->post_title, $current_post->post_title ),
+				'field_A'                     => array( 'value1', 'value1' ),
+				'field_B'                     => array( 'value2', '' ),
+				'field_C'                     => array( '', 'value2' ),
+				'Date'                        => array( '', '2024-01-01' ),
+				$prefix_meta . 'Source'       => array( '/?p=' . $current_post->ID, '/?p=' . $current_post->ID ),
+				$prefix_meta . 'Consent'      => array( $default_consent, $default_consent ),
+				$prefix_meta . 'IP Address'   => array( $ip, $ip ),
+				$prefix_meta . 'Country code' => array( $country_code, $country_code ),
+				$prefix_meta . 'Browser'      => array( null, null ), // No browser for legacy feedback
 			),
 			$plugin->get_export_feedback_data( $post_ids )
 		);
@@ -830,15 +874,17 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$plugin       = Contact_Form_Plugin::init();
 		$result       = $plugin->get_export_feedback_data( array( $post_id ) );
 
+		$prefix_meta = ' ';
+
 		// Verify the basic structure
 		$this->assertIsArray( $result );
-		$this->assertTrue( isset( $result['ID'] ) );
-		$this->assertTrue( isset( $result['Date'] ) );
-		$this->assertTrue( isset( $result['Title'] ) );
-		$this->assertTrue( isset( $result['Source'] ) );
-		$this->assertTrue( isset( $result['Consent'] ) );
-		$this->assertTrue( isset( $result['IP Address'] ) );
-		$this->assertTrue( isset( $result['Browser'] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'ID' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Date' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Title' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Source' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
 
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
@@ -849,8 +895,8 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		);
 
 		// Each field should be an array with one entry
-		$this->assertCount( 1, $result['ID'] );
-		$this->assertEquals( $post_id, $result['ID'][0] );
+		$this->assertCount( 1, $result[ $prefix_meta . 'ID' ] );
+		$this->assertEquals( $post_id, $result[ $prefix_meta . 'ID' ][0] );
 
 		foreach ( $equals as $key => $value ) {
 			$this->assertTrue( isset( $result[ $key ] ) );

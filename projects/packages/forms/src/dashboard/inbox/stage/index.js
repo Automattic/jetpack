@@ -46,7 +46,6 @@ import {
 import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
-const MOBILE_BREAKPOINT = 780;
 
 const updateSidebarWidth = () => {
 	const wrapper = document.querySelector( '.dataviews-wrapper' );
@@ -94,7 +93,7 @@ export default function InboxView() {
 		},
 		{ box: 'border-box' }
 	);
-	const isMobile = containerWidth <= MOBILE_BREAKPOINT;
+
 	const selectedResponses = searchParams.get( 'r' );
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
@@ -227,11 +226,7 @@ export default function InboxView() {
 		}
 
 		// Update sidebar if item changed or needs refresh
-		if (
-			! sidePanelItem ||
-			getItemId( sidePanelItem ) !== getItemId( recordToShow ) ||
-			sidePanelItem !== recordToShow
-		) {
+		if ( ! sidePanelItem || getItemId( sidePanelItem ) !== getItemId( recordToShow ) ) {
 			setSidePanelItem( recordToShow );
 		}
 	}, [ isMobileViewport, records, selection, sidePanelItem ] );
@@ -340,6 +335,9 @@ export default function InboxView() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					if ( ! item.entry_permalink ) {
+						return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
+					}
 					return (
 						<ExternalLink href={ item.entry_permalink }>
 							{ wrapperUnread(
@@ -521,7 +519,7 @@ export default function InboxView() {
 						style={ {
 							display: 'flex',
 							gap: '8px',
-							justifyContent: containerWidth < 600 ? 'space-between' : 'flex-end',
+							justifyContent: containerWidth < 600 ? 'unset' : 'flex-end',
 						} }
 					>
 						<DataViews.Search />
@@ -558,7 +556,7 @@ export default function InboxView() {
 						sidePanelItem={ sidePanelItem }
 						setSidePanelItem={ setSidePanelItem }
 						isLoadingData={ isLoadingData }
-						isMobile={ isMobile }
+						isMobile={ isMobileViewport }
 						onChangeSelection={ onChangeSelection }
 						selection={ selection }
 					/>

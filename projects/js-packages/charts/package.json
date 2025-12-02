@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.49.1",
+	"version": "0.50.1",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -89,6 +89,11 @@
 			"require": "./dist/components/tooltip/index.cjs"
 		},
 		"./tooltip/style.css": "./dist/components/tooltip/index.css",
+		"./utils": {
+			"jetpack:src": "./src/utils/index.ts",
+			"import": "./dist/utils/index.js",
+			"require": "./dist/utils/index.cjs"
+		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
@@ -144,6 +149,9 @@
 			],
 			"providers": [
 				"./dist/providers/index.d.ts"
+			],
+			"utils": [
+				"./dist/utils/index.d.ts"
 			],
 			"visx/group": [
 				"./dist/visx/group/index.d.ts"
@@ -204,8 +212,8 @@
 		"@types/react": "18.3.26",
 		"@types/react-dom": "18.3.7",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "30.8.0",
-		"@wordpress/element": "6.35.0",
+		"@wordpress/components": "30.9.0",
+		"@wordpress/element": "6.36.0",
 		"babel-jest": "30.2.0",
 		"esbuild": "0.25.9",
 		"esbuild-sass-plugin": "^3.1.0",

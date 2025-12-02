@@ -1,5 +1,6 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
+import { _x, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { Connection } from '../../social-store/types';
@@ -7,27 +8,39 @@ import { ConnectionIcon } from '../connection-icon';
 import { useConnectionState } from '../form/use-connection-state';
 import styles from './styles.module.scss';
 
+export type ConnectionsToggleListProps = {
+	onClickItem: ( connection: Connection ) => void;
+	onClickToggle?: ( connection: Connection ) => void;
+	getItemClassName?: ( connection: Connection ) => string;
+};
+
 /**
  * The component to render a list of social media connections as a toggle list.
  *
+ * @param {ConnectionsToggleListProps} props - The component props.
  * @return React element
  */
-export function ConnectionsToggleList() {
-	const { recordEvent } = useAnalytics();
-
+export function ConnectionsToggleList( {
+	onClickItem,
+	onClickToggle,
+	getItemClassName,
+}: ConnectionsToggleListProps ) {
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
-	const { connections, toggleById } = useSocialMediaConnections();
+	const { connections } = useSocialMediaConnections();
 
-	const toggleConnection = useCallback(
-		( connectionId: string, connection: Connection ) => () => {
-			toggleById( connectionId );
-			recordEvent( 'jetpack_social_connection_toggled', {
-				location: 'editor',
-				enabled: ! connection.enabled,
-				service_name: connection.service_name,
-			} );
+	const onClickConnection = useCallback(
+		( connection: Connection ) => () => {
+			onClickItem( connection );
 		},
-		[ recordEvent, toggleById ]
+		[ onClickItem ]
+	);
+
+	const onClickToggleConnection = useCallback(
+		( connection: Connection ) => ( event: React.MouseEvent ) => {
+			event.stopPropagation();
+			onClickToggle?.( connection );
+		},
+		[ onClickToggle ]
 	);
 
 	return (
@@ -36,6 +49,16 @@ export function ConnectionsToggleList() {
 				const isSelected = canBeTurnedOn( connection ) && connection.enabled;
 				const isDisabled = shouldBeDisabled( connection );
 
+				const ariaLabel = sprintf(
+					/* translators: %s: Connection display name */
+					_x(
+						'Toggle connection: %s',
+						'Toggle to turn ON/OFF a social media account.',
+						'jetpack-publicize-components'
+					),
+					connection.display_name
+				);
+
 				return (
 					<MenuItem
 						key={ connection.connection_id }
@@ -43,16 +66,17 @@ export function ConnectionsToggleList() {
 						disabled={ isDisabled }
 						icon={
 							<FormToggle
-								tabIndex={ -1 }
+								tabIndex={ ! onClickToggle ? -1 : 0 }
 								checked={ isSelected }
 								disabled={ isDisabled }
-								aria-hidden="true"
+								onClick={ onClickToggle ? onClickToggleConnection( connection ) : undefined }
+								aria-label={ ariaLabel }
 							/>
 						}
 						isSelected={ isSelected }
-						onClick={ toggleConnection( connection.connection_id, connection ) }
-						aria-label={ connection.display_name }
-						className={ styles.item }
+						onClick={ onClickConnection( connection ) }
+						aria-label={ ariaLabel }
+						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
 					>
 						<div className={ styles[ 'item-content' ] }>
 							<ConnectionIcon

@@ -222,8 +222,16 @@ export type ChartTheme = {
  * Useful for merged themes where defaults are provided for all optional properties.
  */
 export type CompleteChartTheme = Required< ChartTheme > & {
-	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
-	conversionFunnelChart: Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >;
+	leaderboardChart: Omit<
+		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
+		'primaryColor' | 'secondaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+	conversionFunnelChart: Omit<
+		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
+		'primaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};

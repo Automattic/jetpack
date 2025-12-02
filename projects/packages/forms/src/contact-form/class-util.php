@@ -242,14 +242,16 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt  = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', 1 );
+		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
-			SELECT `ID`
-			FROM $wpdb->posts
-			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
-				AND `post_type` = 'feedback'
-				AND `post_status` = 'spam'
+			SELECT p.`ID`
+			FROM $wpdb->posts p
+			LEFT JOIN $wpdb->postmeta pm ON p.`ID` = pm.`post_id` AND pm.`meta_key` = '_spam_status_changed_gmt'
+			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > COALESCE( pm.`meta_value`, p.`post_date_gmt` )
+				AND p.`post_type` = 'feedback'
+				AND p.`post_status` = 'spam'
 			LIMIT %d
 		",
 			$now_gmt,
@@ -396,35 +398,45 @@ class Util {
 		if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
 			return $content;
 		}
-		return preg_replace_callback(
-			'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
-			function ( $match ) use ( $new_attr ) {
-				// Ignore block closers.
-				if ( ! empty( $match['closer'] ) ) {
-					return $match[0];
-				}
-				// If block doesn't have attributes, add our own.
-				if ( empty( $match['attrs'] ) ) {
-					return str_replace(
-						'wp:jetpack/contact-form ',
-						'wp:jetpack/contact-form ' . wp_json_encode( $new_attr, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' ',
-						$match[0]
-					);
-				}
-				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
-				// Ensure $attrs is an array before merging (json_decode can return null on invalid JSON).
-				if ( ! is_array( $attrs ) ) {
-					$attrs = array();
-				}
-				$attrs = array_merge( $attrs, $new_attr );
-				return str_replace(
-					$match['attrs'],
-					wp_json_encode( $attrs, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' ',
-					$match[0]
+
+		// Parse blocks using WordPress core function.
+		$blocks = parse_blocks( $content );
+
+		// Recursively modify contact form blocks.
+		$modified_blocks = self::modify_contact_form_blocks_recursive( $blocks, $new_attr );
+
+		// Serialize back to block markup.
+		return serialize_blocks( $modified_blocks );
+	}
+
+	/**
+	 * Recursively modifies contact form blocks to add new attributes.
+	 *
+	 * @param array $blocks    Array of parsed blocks.
+	 * @param array $new_attr  New attributes to add.
+	 * @return array Modified blocks array.
+	 */
+	private static function modify_contact_form_blocks_recursive( $blocks, $new_attr ) {
+		foreach ( $blocks as &$block ) {
+			// Check if this is a contact form block.
+			if ( 'jetpack/contact-form' === $block['blockName'] ) {
+				// Merge new attributes with existing ones.
+				$block['attrs'] = array_merge(
+					$block['attrs'] ?? array(),
+					$new_attr
 				);
-			},
-			$content
-		);
+			}
+
+			// Recursively process inner blocks.
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block['innerBlocks'] = self::modify_contact_form_blocks_recursive(
+					$block['innerBlocks'],
+					$new_attr
+				);
+			}
+		}
+
+		return $blocks;
 	}
 
 	/**

@@ -234,6 +234,8 @@ export interface FormsConfigData {
 	isHostingerReachEnabled?: boolean;
 	/** Whether integrations UI is enabled (feature-flagged). */
 	isIntegrationsEnabled?: boolean;
+	/** Whether webhooks are enabled (feature-flagged). */
+	isWebhooksEnabled?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */

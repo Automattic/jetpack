@@ -1,7 +1,8 @@
-import { defaultTheme } from '../../../providers';
+import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
+	sharedThemeArgs,
 	ChartStoryArgs,
 	trafficSourcesData as sampleData,
 	shortTrafficSourcesData as smallDataset,
@@ -9,7 +10,6 @@ import {
 	decliningMetricsData as negativeGrowth,
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
-	CHART_THEME_MAP,
 } from '../../../stories';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { formatMetricValue } from '../../../utils';
@@ -151,6 +151,7 @@ type Story = StoryObj< StoryArgs >;
 
 export const Default: Story = {
 	args: {
+		...sharedThemeArgs,
 		data: sampleData,
 		withComparison: true,
 		loading: false,
@@ -327,6 +328,18 @@ export const AdvancedFormatting: Story = {
 	},
 };
 
+const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
+	const { getElementStyles } = useGlobalChartsContext();
+	const { color: primaryColor } = getElementStyles( {
+		index: 0,
+		overrideColor: args.primaryColor,
+	} );
+
+	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+
+	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
+};
+
 export const OverlayLabelWithImage: Story = {
 	args: {
 		data: dataWithImageColor.map( entry => ( {
@@ -347,15 +360,7 @@ export const OverlayLabelWithImage: Story = {
 			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
-	render: args => {
-		const themeName = args.themeName || 'default';
-		const theme = CHART_THEME_MAP[ themeName ];
-		const primaryColor =
-			theme?.leaderboardChart?.primaryColor || defaultTheme.leaderboardChart.primaryColor;
-		const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
-
-		return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
-	},
+	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
 };
 
 export const WithLegend: Story = {

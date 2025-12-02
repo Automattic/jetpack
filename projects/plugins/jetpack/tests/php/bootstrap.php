@@ -130,14 +130,16 @@ tests_add_filter(
 );
 
 /** Activates this plugin in WordPress so it can be tested. */
-function _manually_load_plugin() {
-	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
-	}
+if ( ! function_exists( '_manually_load_plugin' ) ) {
+	function _manually_load_plugin() {
+		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
+		}
 
-	require __DIR__ . '/../../jetpack.php';
-	$jetpack = Jetpack::init();
-	$jetpack->configure();
+		require __DIR__ . '/../../jetpack.php';
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+	}
 }
 
 function _manually_install_woocommerce() {

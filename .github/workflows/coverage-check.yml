@@ -14,9 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  checks: read
-  pull-requests: write
-  statuses: write
+  # actions/checkout
+  contents: read
+  # Everything else uses an app token, so no need for permissions.
 
 jobs:
   code-coverage-label:
