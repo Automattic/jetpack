@@ -45,9 +45,9 @@ export interface MediaPreviewData {
 }
 
 /**
- * Props for NewMediaSection component
+ * Props for MediaSectionV2 component
  */
-export interface NewMediaSectionProps {
+export interface MediaSectionV2Props {
 	/**
 	 * Analytics data to be passed to tracking events
 	 */

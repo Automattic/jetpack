@@ -1,5 +1,5 @@
 /**
- * NewMediaSection component
+ * MediaSectionV2 component
  * Unified media selection interface for social posts
  */
 
@@ -19,7 +19,7 @@ import CustomMediaToggle from './custom-media-toggle';
 import MediaPreview from './media-preview';
 import MediaSourceMenu, { getMediaSourceDescription } from './media-source-menu';
 import styles from './styles.module.scss';
-import { MediaSourceType, NewMediaSectionProps, MediaPreviewData, WPMediaObject } from './types';
+import { MediaSourceType, MediaSectionV2Props, MediaPreviewData, WPMediaObject } from './types';
 
 /**
  * Detect the current media source based on existing data (for backward compatibility)
@@ -62,17 +62,17 @@ function detectMediaSource(
 }
 
 /**
- * NewMediaSection component
+ * MediaSectionV2 component
  *
  * @param {object}  props               - Component props
  * @param {object}  props.analyticsData - Analytics data
  * @param {boolean} props.disabled      - Whether the section is disabled
- * @return {object} NewMediaSection component
+ * @return {object} MediaSectionV2 component
  */
-export default function NewMediaSection( {
+export default function MediaSectionV2( {
 	analyticsData = {},
 	disabled = false,
-}: NewMediaSectionProps ) {
+}: MediaSectionV2Props ) {
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled } = useImageGeneratorConfig();

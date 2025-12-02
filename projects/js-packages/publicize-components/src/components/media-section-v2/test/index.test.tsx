@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import NewMediaSection from '..';
+import MediaSectionV2 from '..';
 import useFeaturedImage from '../../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
@@ -76,26 +76,26 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	},
 } ) );
 
-describe( 'NewMediaSection', () => {
+describe( 'MediaSectionV2', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
 	describe( 'Initial rendering', () => {
 		it( 'should render the Media label', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show featured image description when featured image is detected', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( 'You are using your post featured image' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show featured image preview', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			const img = screen.getByRole( 'img' );
 			expect( img ).toBeInTheDocument();
@@ -120,13 +120,13 @@ describe( 'NewMediaSection', () => {
 		} );
 
 		it( 'should show "no image" description when no media source is selected', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( "Your post won't show an image." ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show Select button when no media', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByRole( 'button', { name: 'Select' } ) ).toBeInTheDocument();
 		} );
@@ -158,7 +158,7 @@ describe( 'NewMediaSection', () => {
 		} );
 
 		it( 'should show custom image description when attached media exists', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( 'You are using a custom image.' ) ).toBeInTheDocument();
 		} );
@@ -180,13 +180,13 @@ describe( 'NewMediaSection', () => {
 		} );
 
 		it( 'should show SIG description when SIG is enabled', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			expect( screen.getByText( 'You are using the template' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show SIG preview image', () => {
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			const img = screen.getByRole( 'img' );
 			expect( img ).toHaveAttribute( 'src', 'https://example.com/sig-preview.jpg' );
@@ -198,7 +198,7 @@ describe( 'NewMediaSection', () => {
 				isLoading: true,
 			} );
 
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			// When SIG is loading, the preview image should not be visible yet
 			expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
@@ -215,7 +215,7 @@ describe( 'NewMediaSection', () => {
 		it( 'should call updateJetpackSocialOptions when selecting SIG', async () => {
 			const user = userEvent.setup();
 
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
@@ -239,7 +239,7 @@ describe( 'NewMediaSection', () => {
 				setIsEnabled: jest.fn(),
 			} );
 
-			render( <NewMediaSection /> );
+			render( <MediaSectionV2 /> );
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
@@ -263,7 +263,7 @@ describe( 'NewMediaSection', () => {
 		it( 'should record analytics event when source is changed', async () => {
 			const user = userEvent.setup();
 
-			render( <NewMediaSection analyticsData={ { test: 'data' } } /> );
+			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
 
 			// Open dropdown
 			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
@@ -282,7 +282,7 @@ describe( 'NewMediaSection', () => {
 		it( 'should clear media and record event when Remove is clicked', async () => {
 			const user = userEvent.setup();
 
-			render( <NewMediaSection analyticsData={ { test: 'data' } } /> );
+			render( <MediaSectionV2 analyticsData={ { test: 'data' } } /> );
 
 			await user.click( screen.getByRole( 'button', { name: 'Remove' } ) );
 
@@ -300,7 +300,7 @@ describe( 'NewMediaSection', () => {
 
 	describe( 'Disabled state', () => {
 		it( 'should disable buttons when disabled prop is true', () => {
-			render( <NewMediaSection disabled={ true } /> );
+			render( <MediaSectionV2 disabled={ true } /> );
 
 			expect( screen.getByRole( 'button', { name: 'Replace' } ) ).toBeDisabled();
 			expect( screen.getByRole( 'button', { name: 'Remove' } ) ).toBeDisabled();
