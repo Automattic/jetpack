@@ -25,22 +25,18 @@ class Jetpack_Plugin_Compatibility {
 		'advanced-wp-reset/advanced-wp-reset.php'          => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'backup/backup.php'                                => '"backup" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'better-wp-security/better-wp-security.php'        => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'cf7-pipedrive-integration/class-cf7-pipedrive.php' => '"cf7-pipedrive-integration" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'database-browser/database-browser.php'            => '"database-browser" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'duplicator/duplicator.php'                        => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'extended-wp-reset/extended-wp-reset.php'          => '"extended-wp-reset" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'file-manager-advanced/file_manager_advanced.php'  => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'file-manager/file-manager.php'                    => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'hide-my-wp/index.php'                             => '"hide-my-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'plugins-garbage-collector/plugins-garbage-collector.php' => '"plugins-garbage-collector" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'post-type-switcher/post-type-switcher.php'        => '"post-type-switcher" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset-wp/reset-wp.php'                            => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'reset/data_reset.php'                             => '"reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'secure-file-manager/secure-file-manager.php'      => '"secure-file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-reset/ultimate-reset.php'                => '"ultimate-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'ultimate-wp-reset/ultimate-wordpress-reset.php'   => '"ultimate-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'username-changer/username-changer.php'            => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'username-updater/username-updater.php'            => '"username-updater" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'username-changer/class-username-changer.php'      => '"username-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'vamtam-offline-jetpack/vamtam-offline-jetpack.php' => '"vamtam-offline-jetpack" has been deactivated, an active Jetpack Connection is required for your site to operate properly on WordPress.com.',
 		'wd-youtube/wd-youtube.php'                        => '"wd-youtube" has been deactivated, it interferes with site operation and is not supported on WordPress.com.',
 		'wordpress-database-reset/wp-reset.php'            => '"wordpress-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
@@ -61,11 +57,13 @@ class Jetpack_Plugin_Compatibility {
 
 		// Backup.
 		'backup-wd/backup-wd.php'                          => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
-		'backupwordpress/backupwordpress.php'              => '"backupwordpress" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup/backwpup.php'                            => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup-pro/backwpup.php'                        => '"backwpup-pro" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'duplicator/duplicator.php'                        => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'duplicator-pro/duplicator-pro.php'                => '"duplicator-pro" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'jetpack-backup/jetpack-backup.php'                => '"jetpack-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
-		'wp-db-backup/wp-db-backup.php'                    => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'siteground-migrator/siteground-migrator.php'      => '"siteground-migrator" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'wp-backitup/wp-backitup.php'                      => '"wp-backitup" has been deactivated, WordPress.com handles managing your site backups for you.',
 
 		// Caching/performance.
 		'breeze/breeze.php'                                => '"breeze" has been deactivated, WordPress.com automatically handles caching for your site.',
@@ -82,14 +80,14 @@ class Jetpack_Plugin_Compatibility {
 		'w3-total-cache/w3-total-cache.php'                => '"w3-total-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-cache/wp-cache.php'                            => '"wp-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-fastest-cache/wpFastestCache.php'              => '"wp-fastest-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
-		'wp-optimizer/wp-optizer.php'                      => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
+		'wp-optimizer/wp-optimizer.php'                    => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
+		'wp-scss/wp-scss.php'                              => '"wp-scss" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-speed-of-light/wp-speed-of-light.php'          => '"wp-speed-of-light" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-super-cache/wp-cache.php'                      => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
 
 		// SQL heavy.
 		'another-wordpress-classifieds-plugin/awpcp.php'   => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'broken-link-checker/broken-link-checker.php'      => '"broken-link-checker" has been deactivated, it is known to cause severe database performance issues and is not supported.',
-		'leads/leads.php'                                  => '"leads" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'mass-pagesposts-creator/mass-pages-posts-creator.php' => '"mass-pagesposts-creator" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'native-ads-adnow/adnow-widget.php'                => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'ol_scrapes/ol_scrapes.php'                        => '"ol_scrapes" has been deactivated, it is known to cause severe database performance issues and is not supported.',
@@ -113,21 +111,16 @@ class Jetpack_Plugin_Compatibility {
 
 		// Security.
 		'antihacker/antihacker.php'                        => '"antihacker" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
-		'deactivate-xml-rpc-service/deactivate-xml-rpc-service.php' => '"deactivate-xml-rpc-service" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'disable-xml-rpc-api/disable-xml-rpc-api.php'      => '"disable-xml-rpc-api" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
-		'disable-xml-rpc-fully/disable-xml-rpc-fully.php'  => '"disable-xml-rpc-fully" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
-		'disable-xml-rpc-unset-x-pingback/index.php'       => '"disable-xml-rpc-unset-x-pingback" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
-		'disable-xml-rpc/disable-xml-rpc.php'              => '"disable-xml-rpc" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'manage-xml-rpc/manage-xml-rpc.php'                => '"manage-xml-rpc" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'one-click-ssl/ssl.php'                            => '"one-click-ssl" has been deactivated, because it is not supported on WordPress.com.',
+		'really-simple-ssl/rlrsssl-really-simple-ssl.php'  => '"really-simple-ssl" is not supported on WordPress.com.',
 		'really-simple-ssl-pro/really-simple-ssl-pro.php'  => '"really-simple-ssl-pro" is not supported on WordPress.com.',
 		'sg-security/sg-security.php'                      => '"sg-security" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
-		'simple-xml-rpc-disabler/simple-xml-rpc-disabler.php' => '"simple-xml-rpc-disabler" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'stopbadbots/stopbadbots.php'                      => '"stopbadbots" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'wee-remove-xmlrpc-methods/wee-remove-xmlrpc-methods.php' => '"wee-remove-xmlrpc-methods" has been deactivated, XML-RPC is required for your Jetpack Connection on WordPress.com.',
 		'wordfence/wordfence.php'                          => '"wordfence" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
 		'wp-hide-security-enhancer/wp-hide.php'            => '"wp-hide-security-enhancer" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
-		'wp-security-hardening/wp-hardening.php'           => '"wp-security-hardening" has been deactivated. It breaks WordPress.com required plugins.', // p9F6qB-66o-p2
 		'wp-simple-firewall/wp-simple-firewall.php'        => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'wp-simple-firewall/icwp-wpsf.php'                 => '"wp-simple-firewall" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 
@@ -135,9 +128,6 @@ class Jetpack_Plugin_Compatibility {
 		'e-mail-broadcasting/e-mail-broadcasting.php'      => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
 		'mailit/mailit.php'                                => '"mailit" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
 		'send-email-from-admin/send-email-from-admin.php'  => '"send-email-from-admin" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
-
-		// Cloning/staging.
-		'flo-launch/flo-launch.php'                        => 'Staging plugins delete data necessary to manage your site and are not supported on WordPress.com. flo-launch has been deactivated.',
 
 		// Misc.
 		'adult-mass-photos-downloader/adult-mass-photos-downloader.php' => '"adult-mass-photos-downloader" is not supported on WordPress.com.',
@@ -147,12 +137,7 @@ class Jetpack_Plugin_Compatibility {
 		'blogmatic-poster/index.php'                       => '"blogmatic-poster" is not supported on WordPress.com.',
 		'blogmatic/index.php'                              => '"blogmatic" is not supported on WordPress.com.',
 		'bwp-minify/bwp-minify.php'                        => '"bwp-minify" is not supported on WordPress.com.',
-		'clearfy/clearfy.php'                              => '"clearfy" is not supported on WordPress.com.',
-		'cornerstone/main.php'                             => '"cornerstone" is not supported on WordPress.com.',
-		'cryptocurrency-pricing-list/cryptocurrency-pricing-list-and-ticker.php' => '"cryptocurrency-pricing-list" is not supported on WordPress.com.',
 		'db-access-adminer/db-access-adminer.php'          => '"db-access-adminer" is not supported on WordPress.com.',
-		'event-espresso-decaf/espresso.php'                => '"event-espresso-decaf" is not supported on WordPress.com.',
-		'facetwp-manipulator/facetwp-manipulator.php'      => '"facetwp-manipulator" is not supported on WordPress.com.',
 		'fast-velocity-minify/fvm.php'                     => '"fast-velocity-minify" is not supported on WordPress.com.',
 		'nginx-helper/nginx-helper.php'                    => '"nginx-helper" is not supported on WordPress.com.',
 		'p3/p3.php'                                        => '"p3" is not supported on WordPress.com.',
@@ -160,21 +145,16 @@ class Jetpack_Plugin_Compatibility {
 		'plugin-detective/plugin-detective.php'            => '"plugin-detective" is not supported on WordPress.com.',
 		'porn-embed/Porn-Embed.php'                        => '"porn-embed" is not supported on WordPress.com.',
 		'propellerads-official/propeller-ads.php'          => '"propellerads-official" is not supported on WordPress.com.',
-		'really-simple-ssl/rlrsssl-really-simple-ssl.php'  => '"really-simple-ssl" is not supported on WordPress.com.',
-		'speed-contact-bar/speed-contact-bar.php'          => '"speed-contact-bar" is not supported on WordPress.com.',
 		'trafficzion/trafficzion.php'                      => '"trafficzion" is not supported on WordPress.com.',
 		'tubeace/tubeace.php'                              => '"tubeace" is not supported on WordPress.com.',
-		'unplug-jetpack/unplug-jetpack.php'                => '"unplug-jetpack" is not supported on WordPress.com.',
-		'video-importer/video-importer.php'                => '"video-importer" is not supported on WordPress.com.',
 		'woozone/plugin.php'                               => '"woozone" is not supported on WordPress.com.',
 		'wp-cleanfix/index.php'                            => '"wp-cleanfix" is not supported on WordPress.com.',
 		'wp-file-upload/wordpress_file_upload.php'         => '"wp-file-upload" is not supported on WordPress.com.',
 		'wp-monero-miner-pro/monero-miner-pro.php'         => '"wp-monero-miner-pro" is not supported on WordPress.com.',
-		'wp-monero-miner-using-coin-hive/wp-coin-hive.php' => '"wp-monero-miner-using-coin-hive" is not supported on WordPress.com.',
 		'wp-optimize-by-xtraffic/wp-optimize-by-xtraffic.php' => '"wp-optimize-by-xtraffic" is not supported on WordPress.com.',
 		'wpematico/wpematico.php'                          => '"wpematico" is not supported on WordPress.com.',
 		'wpstagecoach/wpstagecoach.php'                    => '"wpstagecoach" is not supported on WordPress.com.', // p9F6qB-66o-p2
-		'yuzo-related-post/yuzo_related_post.php'          => '"yuzo-related-post" is not supported on WordPress.com.',
+		'yuzo-related-post/yuzo.php'                       => '"yuzo-related-post" is not supported on WordPress.com.',
 		'zapp-proxy-server/zapp-proxy-server.php'          => '"zapp-proxy-server" is not supported on WordPress.com.',
 
 		// CRM.
