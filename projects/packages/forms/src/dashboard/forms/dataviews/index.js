@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { ExternalLink } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useMemo, useCallback } from '@wordpress/element';
@@ -53,9 +52,6 @@ export default function FormsView() {
 		orderby: tableView.sort?.field || 'modified',
 		order: tableView.sort?.direction || 'desc',
 	} );
-
-	// Debug: Log the forms data
-	console.log( 'Forms data:', { forms, isLoadingForms, totalItems, totalPages } );
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
