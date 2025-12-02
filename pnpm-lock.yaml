@@ -999,6 +999,9 @@ importers:
         specifier: 0.8.1
         version: 0.8.1
     devDependencies:
+      eslint:
+        specifier: '>=7.0.0'
+        version: 9.39.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -1638,12 +1641,6 @@ importers:
       debug:
         specifier: 4.4.1
         version: 4.4.1
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@storybook/addon-docs':
         specifier: 10.0.8
@@ -1669,6 +1666,12 @@ importers:
       jest-environment-jsdom:
         specifier: 30.2.0
         version: 30.2.0
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
       storybook:
         specifier: 10.0.8
         version: 10.0.8(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1799,12 +1802,6 @@ importers:
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@types/react':
         specifier: 18.3.26
@@ -1815,6 +1812,12 @@ importers:
       glob:
         specifier: 11.1.0
         version: 11.1.0
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       svg2ttf:
         specifier: ^6.0.3
         version: 6.0.3
@@ -3957,9 +3960,6 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
-      '@automattic/jetpack-base-styles':
-        specifier: workspace:*
-        version: link:../../js-packages/base-styles
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -3969,9 +3969,6 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
-      '@automattic/jetpack-shared-extension-utils':
-        specifier: workspace:*
-        version: link:../../js-packages/shared-extension-utils
       '@wordpress/api-fetch':
         specifier: 7.36.0
         version: 7.36.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
@@ -4057,6 +4054,12 @@ importers:
       '@automattic/calypso-color-schemes':
         specifier: 4.0.0
         version: 4.0.0
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -4796,10 +4799,6 @@ importers:
         version: 6.0.1(webpack@5.101.3)
 
   projects/plugins/inspect:
-    dependencies:
-      tslib:
-        specifier: 2.8.1
-        version: 2.8.1
     devDependencies:
       '@babel/core':
         specifier: 7.28.4
@@ -4846,6 +4845,9 @@ importers:
       svelte-preprocess:
         specifier: 6.0.2
         version: 6.0.2(@babel/core@7.28.4)(postcss@8.5.6)(sass-embedded@1.87.0)(svelte@4.2.19)(typescript@5.9.3)
+      tslib:
+        specifier: 2.8.1
+        version: 2.8.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
