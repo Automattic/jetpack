@@ -1061,30 +1061,16 @@ class Jetpack_Subscriptions {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		// First, get subscriber counts from stats endpoint.
-		$stats_path     = sprintf( '/sites/%d/subscribers/stats', $site_id );
-		$stats_response = Client::wpcom_json_api_request_as_blog(
-			$stats_path,
-			'2',
-			array(),
-			null,
-			'wpcom'
-		);
-
-		if ( ! is_wp_error( $stats_response ) ) {
-			$stats_code = wp_remote_retrieve_response_code( $stats_response );
-			if ( 200 === $stats_code ) {
-				$subscriber_counts = json_decode( wp_remote_retrieve_body( $stats_response ), true );
-				if ( is_array( $subscriber_counts ) ) {
-					if ( isset( $subscriber_counts['counts']['email_subscribers'] ) ) {
-						$subscriber_data['email_subscribers'] = (int) $subscriber_counts['counts']['email_subscribers'];
-					}
-					if ( isset( $subscriber_counts['counts']['paid_subscribers'] ) ) {
-						$subscriber_data['paid_subscribers'] = (int) $subscriber_counts['counts']['paid_subscribers'];
-					}
-					if ( isset( $subscriber_counts['counts']['all_subscribers'] ) ) {
-						$subscriber_data['all_subscribers'] = (int) $subscriber_counts['counts']['all_subscribers'];
-					}
-				}
+		$stats = Jetpack_Subscriptions_Helper::fetch_subscriber_stats( $site_id );
+		if ( ! is_wp_error( $stats ) ) {
+			if ( isset( $stats['email_subscribers'] ) ) {
+				$subscriber_data['email_subscribers'] = $stats['email_subscribers'];
+			}
+			if ( isset( $stats['paid_subscribers'] ) ) {
+				$subscriber_data['paid_subscribers'] = $stats['paid_subscribers'];
+			}
+			if ( isset( $stats['all_subscribers'] ) ) {
+				$subscriber_data['all_subscribers'] = $stats['all_subscribers'];
 			}
 		}
 
@@ -1267,6 +1253,7 @@ class Jetpack_Subscriptions {
 Jetpack_Subscriptions::init();
 
 require __DIR__ . '/subscriptions/views.php';
+require __DIR__ . '/subscriptions/class-jetpack-subscriptions-helper.php';
 require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.php';
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
