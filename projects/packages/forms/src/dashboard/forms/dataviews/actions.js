@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { external, edit, copy, trash } from '@wordpress/icons';
+import { external, pencil, copy, trash } from '@wordpress/icons';
 
 /**
  * View form action - opens the form in the editor.
@@ -25,7 +25,7 @@ export const viewFormAction = {
 export const editFormAction = {
 	id: 'edit-form',
 	label: __( 'Edit', 'jetpack-forms' ),
-	icon: edit,
+	icon: pencil,
 	callback( items ) {
 		const [ item ] = items;
 		// Navigate to the WordPress post editor for this form
@@ -83,6 +83,7 @@ export const deleteFormAction = {
 		const [ item ] = items;
 
 		if (
+			// eslint-disable-next-line no-alert
 			! window.confirm( __( 'Are you sure you want to move this form to trash?', 'jetpack-forms' ) )
 		) {
 			return;
