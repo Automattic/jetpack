@@ -47,13 +47,12 @@ import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
 import { CORE_BLOCKS } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
-import FormSelector from './components/form-selector.js';
+import FormSelector from './components/form-selector.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
 import useFormLoader from './hooks/use-form-loader.ts';
-import useFormRef from './hooks/use-form-ref.ts';
 import useFormSync from './hooks/use-form-sync.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import VariationPicker from './variation-picker.js';
@@ -131,7 +130,7 @@ type Webhook = {
 	enabled: boolean;
 };
 
-type JetpackContactFormAttributes = {
+export type JetpackContactFormAttributes = {
 	formRef: number;
 	to: string;
 	subject: string;
@@ -148,6 +147,12 @@ type JetpackContactFormAttributes = {
 	disableSummary: boolean;
 	notificationRecipients: string[];
 	webhooks: Webhook[];
+	jetpackCRM?: boolean;
+	salesforceData?: Record< string, unknown >;
+	mailpoet?: Record< string, unknown >;
+	hostingerReach?: Record< string, unknown >;
+	saveResponses?: boolean;
+	formNotifications?: boolean;
 };
 
 type JetpackContactFormEditProps = {
@@ -166,7 +171,7 @@ function JetpackContactFormEdit( {
 	className,
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
-	useFormBlockDefaults( { attributes, setAttributes } );
+	useFormBlockDefaults( { attributes: attributes as JetpackContactFormAttributes, setAttributes } );
 
 	const {
 		formRef,
@@ -187,13 +192,6 @@ function JetpackContactFormEdit( {
 	} = attributes;
 
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
-
-	// Create jetpack_form CPT reference if needed
-	const { isCreating: isCreatingForm, error: formCreationError } = useFormRef( {
-		formRef,
-		setAttributes,
-		attributes,
-	} );
 
 	// Sync form blocks and settings to CPT
 	useFormSync( {
