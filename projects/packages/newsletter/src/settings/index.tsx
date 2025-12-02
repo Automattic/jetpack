@@ -254,14 +254,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				</Notice>
 			) }
 
-			{ /* Newsletter Section */ }
 			<NewsletterSection
 				data={ data }
 				jetpackSettings={ jetpackSettings }
 				onChange={ handleAutoSave }
 			/>
 
-			{ /* Subscriptions Section */ }
 			<SubscriptionsSection
 				data={ data }
 				jetpackSettings={ jetpackSettings }
@@ -272,13 +270,11 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			{ /* Paid Newsletter Section */ }
 			<PaidNewsletterSection
 				jetpackSettings={ jetpackSettings }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			{ /* Newsletter Categories Section */ }
 			<NewsletterCategoriesSection
 				data={ data }
 				onChange={ handleNewsletterCategoriesChange }
@@ -290,7 +286,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			{ /* Email Configuration Section */ }
 			<EmailConfigurationSection
 				data={ data }
 				onChange={ handleAutoSave }
