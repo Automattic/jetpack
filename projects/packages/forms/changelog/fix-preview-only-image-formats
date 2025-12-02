@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Not really important
+Comment: Restricts inline file preview to only image formats and PDFs, forces download for other file types for security.
 
 
