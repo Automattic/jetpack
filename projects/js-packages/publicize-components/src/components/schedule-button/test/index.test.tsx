@@ -8,7 +8,6 @@ const setTimezone = ( abbr = '+00', offset = 0, offsetFormatted = '0', string = 
 		...getSettings(),
 		timezone: {
 			abbr,
-			// @ts-expect-error Offset can be a string or number
 			offset,
 			offsetFormatted,
 			string,

@@ -2652,6 +2652,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['saveResponses']          = 'yes';
 		$expected_attributes['disableGoBack']          = '';
 		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
@@ -3822,5 +3823,34 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertIsString( $result5, 'Parse should return a string with multiple fields' );
 		$this->assertStringNotContainsString( 'is-single-input-form', $result5, 'Should not have single-input-form class with multiple fields' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled returns false by default.
+	 */
+	public function test_is_webhooks_enabled_default() {
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to enable webhooks.
+	 */
+	public function test_is_webhooks_enabled_filter_enable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to keep webhooks disabled.
+	 */
+	public function test_is_webhooks_enabled_filter_disable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
 	}
 }

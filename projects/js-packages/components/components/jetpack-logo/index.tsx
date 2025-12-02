@@ -8,9 +8,11 @@ const JetpackLogo: FC< JetpackLogoProps > = ( {
 	showText = true,
 	className,
 	height = 32,
+	title,
 	...otherProps
 } ) => {
 	const viewBox = showText ? '0 0 118 32' : '0 0 32 32';
+	const logoTitle = title ?? __( 'Jetpack Logo', 'jetpack-components' );
 
 	return (
 		<svg
@@ -25,7 +27,7 @@ const JetpackLogo: FC< JetpackLogoProps > = ( {
 			// role="img" is required to prevent VoiceOver on Safari reading the content of the SVG
 			role="img"
 		>
-			<title id="jetpack-logo-title">{ __( 'Jetpack Logo', 'jetpack-components' ) }</title>
+			<title id="jetpack-logo-title">{ logoTitle }</title>
 			<path
 				fill={ logoColor }
 				d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"

@@ -62,6 +62,7 @@ class Contact_Form_Block {
 	public static function register_feature( $features ) {
 		// Features that are only available to users with a paid plan.
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
 		return $features;
 	}

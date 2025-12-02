@@ -64,10 +64,17 @@ export type SharePost = {
 	isModalOpen?: boolean;
 };
 
+export type UnifiedModalState = {
+	isOpen?: boolean;
+	initialPath?: string;
+	isScreenLocked?: boolean;
+};
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
+	unifiedModal?: UnifiedModalState;
 };
 
 export interface KeyringAdditionalUser {
