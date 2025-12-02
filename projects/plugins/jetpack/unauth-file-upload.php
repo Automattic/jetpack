@@ -78,7 +78,7 @@ function handle_file_download() {
 	$file['type']    = $file['type'] ?? 'application/octet-stream';
 	$file['name']    = $file['name'] ?? '';
 
-	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_previable( $file['name'] );
+	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previable( $file['type'] );
 
 	// Clean output buffer
 	if ( ob_get_length() ) {
@@ -167,15 +167,21 @@ function get_file_content( $file_content, $file_id ) {
 }
 
 /**
- * Check which file extensions can be previewed in the browser without downloading them.
+ * Check which file type is previewable in the browser without downloading them.
  *
- * @param string $file_name The name of the file.
+ * Allow images with extensions jpg, jpeg, png, gif, webp and pdf files.
+ *
+ * @param string $file_type The MIME type of the file.
  * @return bool True if the file is previable, false otherwise.
  */
-function is_file_previable( $file_name ) {
-	// List of file extensions that we can preview in the browser without downloading them.
-	$previable_extensions = array( 'jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf' );
-	$extension            = pathinfo( $file_name, PATHINFO_EXTENSION );
+function is_file_type_previable( $file_type ) {
+	$previable_types = array(
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/webp',
+		'application/pdf',
+	);
 
-	return in_array( strtolower( $extension ), $previable_extensions, true );
+	return in_array( $file_type, $previable_types, true );
 }
