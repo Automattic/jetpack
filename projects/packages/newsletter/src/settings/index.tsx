@@ -269,10 +269,14 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				onSave={ saveSubscriptionSettings }
 				isSaving={ isSavingSubscriptions }
 				hasChanges={ hasSubscriptionChanges }
+				isNewsletterEnabled={ data.subscriptions }
 			/>
 
 			{ /* Paid Newsletter Section */ }
-			<PaidNewsletterSection jetpackSettings={ jetpackSettings } />
+			<PaidNewsletterSection
+				jetpackSettings={ jetpackSettings }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
 
 			{ /* Newsletter Categories Section */ }
 			<NewsletterCategoriesSection
@@ -283,6 +287,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				hasChanges={ hasNewsletterCategoriesChanges }
 				jetpackSettings={ jetpackSettings }
 				onError={ setError }
+				isNewsletterEnabled={ data.subscriptions }
 			/>
 
 			{ /* Email Configuration Section */ }
@@ -295,6 +300,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				onSenderNameSave={ saveSenderName }
 				isSavingSenderName={ isSavingSenderName }
 				hasSenderNameChanged={ hasSenderNameChanged }
+				isNewsletterEnabled={ data.subscriptions }
 			/>
 
 			{ snackbarMessage && <Snackbar onRemove={ clearSnackbar }>{ snackbarMessage }</Snackbar> }

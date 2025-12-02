@@ -10,6 +10,7 @@ import type { JetpackNewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {
 	jetpackSettings: JetpackNewsletterSettings | undefined;
+	isNewsletterEnabled: boolean;
 }
 
 /**
@@ -20,6 +21,7 @@ interface PaidNewsletterSectionProps {
  */
 export function PaidNewsletterSection( {
 	jetpackSettings,
+	isNewsletterEnabled,
 }: PaidNewsletterSectionProps ): JSX.Element | null {
 	if ( ! jetpackSettings?.setupPaymentPlansUrl ) {
 		return null;
@@ -30,7 +32,7 @@ export function PaidNewsletterSection( {
 			<h3 className="newsletter-settings__section-title">
 				{ __( 'Paid Newsletter', 'jetpack-newsletter' ) }
 			</h3>
-			<div className="newsletter-settings__section-content">
+			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<p>
 					{ __(
 						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
@@ -42,10 +44,11 @@ export function PaidNewsletterSection( {
 					href={ jetpackSettings.setupPaymentPlansUrl }
 					target="_blank"
 					rel="noopener noreferrer"
+					disabled={ ! isNewsletterEnabled }
 				>
 					{ __( 'Add Plans', 'jetpack-newsletter' ) }
 				</Button>
-			</div>
+			</fieldset>
 		</div>
 	);
 }

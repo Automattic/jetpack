@@ -18,6 +18,7 @@ interface EmailConfigurationSectionProps {
 	onSenderNameSave: () => void;
 	isSavingSenderName: boolean;
 	hasSenderNameChanged: boolean;
+	isNewsletterEnabled: boolean;
 }
 
 /**
@@ -35,6 +36,7 @@ export function EmailConfigurationSection( {
 	onSenderNameSave,
 	isSavingSenderName,
 	hasSenderNameChanged,
+	isNewsletterEnabled,
 }: EmailConfigurationSectionProps ): JSX.Element {
 	const fields: Field< NewsletterSettings >[] = [
 		{
@@ -121,7 +123,7 @@ export function EmailConfigurationSection( {
 			<h3 className="newsletter-settings__section-title">
 				{ __( 'Email configuration', 'jetpack-newsletter' ) }
 			</h3>
-			<div className="newsletter-settings__section-content">
+			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<DataForm
 					data={ data }
 					fields={ fields }
@@ -195,7 +197,7 @@ export function EmailConfigurationSection( {
 							<Button
 								variant="primary"
 								onClick={ onSenderNameSave }
-								disabled={ isSavingSenderName }
+								disabled={ ! isNewsletterEnabled || isSavingSenderName }
 								isBusy={ isSavingSenderName }
 							>
 								{ isSavingSenderName
@@ -220,7 +222,7 @@ export function EmailConfigurationSection( {
 						) }
 					</p>
 				</div>
-			</div>
+			</fieldset>
 		</div>
 	);
 }

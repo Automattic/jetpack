@@ -18,6 +18,7 @@ interface NewsletterCategoriesSectionProps {
 	hasChanges: boolean;
 	jetpackSettings: JetpackNewsletterSettings | undefined;
 	onError: ( error: string ) => void;
+	isNewsletterEnabled: boolean;
 }
 
 /**
@@ -34,6 +35,7 @@ export function NewsletterCategoriesSection( {
 	hasChanges,
 	jetpackSettings,
 	onError,
+	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
@@ -141,7 +143,7 @@ export function NewsletterCategoriesSection( {
 					'jetpack-newsletter'
 				) }
 			</p>
-			<div className="newsletter-settings__section-content">
+			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<DataForm
 					data={ data }
 					fields={ newsletterCategoriesFields }
@@ -165,6 +167,7 @@ export function NewsletterCategoriesSection( {
 						variant="primary"
 						onClick={ onSave }
 						disabled={
+							! isNewsletterEnabled ||
 							isSaving ||
 							! hasChanges ||
 							isFetchingCategories ||
@@ -177,7 +180,7 @@ export function NewsletterCategoriesSection( {
 							: __( 'Save', 'jetpack-newsletter' ) }
 					</Button>
 				</div>
-			</div>
+			</fieldset>
 		</div>
 	);
 }

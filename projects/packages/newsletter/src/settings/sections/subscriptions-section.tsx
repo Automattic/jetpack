@@ -17,6 +17,7 @@ interface SubscriptionsSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
+	isNewsletterEnabled: boolean;
 }
 
 /**
@@ -32,6 +33,7 @@ export function SubscriptionsSection( {
 	onSave,
 	isSaving,
 	hasChanges,
+	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
@@ -233,7 +235,7 @@ export function SubscriptionsSection( {
 					'jetpack-newsletter'
 				) }
 			</p>
-			<div className="newsletter-settings__section-content">
+			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<DataForm
 					data={ data }
 					fields={ fields }
@@ -275,7 +277,7 @@ export function SubscriptionsSection( {
 					<Button
 						variant="primary"
 						onClick={ onSave }
-						disabled={ isSaving || ! hasChanges }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>
 						{ isSaving
@@ -283,7 +285,7 @@ export function SubscriptionsSection( {
 							: __( 'Save', 'jetpack-newsletter' ) }
 					</Button>
 				</div>
-			</div>
+			</fieldset>
 		</div>
 	);
 }
