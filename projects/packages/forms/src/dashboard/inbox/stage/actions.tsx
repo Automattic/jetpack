@@ -284,29 +284,6 @@ export const viewAction: Action = {
 	modalHeader: __( 'Response', 'jetpack-forms' ),
 };
 
-export const editFormAction: Action = {
-	id: 'edit-form',
-	isPrimary: false,
-	icon: <Icon icon={ backup } />,
-	label: __( 'Edit form', 'jetpack-forms' ),
-	isEligible: item => !! item?.edit_form_url,
-	supportsBulk: false,
-	async callback( items ) {
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
-			action: 'edit-form',
-			multiple: false,
-		} );
-
-		const [ item ] = items;
-
-		if ( item?.edit_form_url ) {
-			const url = new URL( item.edit_form_url, window.location.origin );
-			// redirect to the form edit page
-			window.location.href = url.toString();
-		}
-	},
-};
-
 export const markAsSpamAction: Action = {
 	id: 'mark-as-spam',
 	isPrimary: true,
