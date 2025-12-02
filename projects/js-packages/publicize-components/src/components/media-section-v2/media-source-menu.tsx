@@ -3,6 +3,7 @@
  * Displays a dropdown menu with grouped media source options
  */
 
+import { AiSVG } from '@automattic/jetpack-ai-client';
 import { Button, Dropdown, MenuGroup, MenuItem } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -50,6 +51,17 @@ const MEDIA_SOURCE_OPTIONS: MediaSourceOption[] = [
 		icon: video,
 		group: 'attachment',
 	},
+	{
+		id: 'ai-image',
+		label: __( 'Generate with AI', 'jetpack-publicize-components' ),
+		description: __( 'You are using an AI-generated image.', 'jetpack-publicize-components' ),
+		icon: AiSVG,
+		group: 'attachment',
+		attachmentDescription: __(
+			'Shares your AI-generated image as an attachment for higher engagement.',
+			'jetpack-publicize-components'
+		),
+	},
 ];
 
 /**
@@ -91,6 +103,7 @@ interface MediaSourceMenuItemProps {
 	onSelect: ( optionId: MediaSourceType ) => void;
 	onClose: () => void;
 	onMediaLibraryClick?: () => void;
+	onAiImageClick?: () => void;
 }
 
 /**
@@ -102,6 +115,7 @@ interface MediaSourceMenuItemProps {
  * @param {Function} props.onSelect            - Selection handler
  * @param {Function} props.onClose             - Close dropdown handler
  * @param {Function} props.onMediaLibraryClick - Media library click handler
+ * @param {Function} props.onAiImageClick      - AI image generation click handler
  * @return {object} MediaSourceMenuItem component
  */
 function MediaSourceMenuItem( {
@@ -110,15 +124,18 @@ function MediaSourceMenuItem( {
 	onSelect,
 	onClose,
 	onMediaLibraryClick,
+	onAiImageClick,
 }: MediaSourceMenuItemProps ) {
 	const handleClick = useCallback( () => {
 		if ( option.id === 'media-library' ) {
 			onMediaLibraryClick?.();
+		} else if ( option.id === 'ai-image' ) {
+			onAiImageClick?.();
 		} else {
 			onSelect( option.id );
 		}
 		onClose();
-	}, [ option.id, onSelect, onClose, onMediaLibraryClick ] );
+	}, [ option.id, onSelect, onClose, onMediaLibraryClick, onAiImageClick ] );
 
 	return (
 		<MenuItem
@@ -139,6 +156,7 @@ function MediaSourceMenuItem( {
  * @param {string}   props.currentSource       - Currently selected media source
  * @param {Function} props.onSelect            - Callback when a source is selected
  * @param {Function} props.onMediaLibraryClick - Callback when Media Library option is clicked
+ * @param {Function} props.onAiImageClick      - Callback when Generate with AI option is clicked
  * @param {boolean}  props.disabled            - Whether the menu is disabled
  * @param {Function} props.children            - Optional children render function that receives open function
  * @return {object} MediaSourceMenu component
@@ -147,6 +165,7 @@ export default function MediaSourceMenu( {
 	currentSource,
 	onSelect,
 	onMediaLibraryClick,
+	onAiImageClick,
 	disabled = false,
 	children,
 }: MediaSourceMenuProps ) {
@@ -197,12 +216,20 @@ export default function MediaSourceMenu( {
 							onSelect={ onSelect }
 							onClose={ onClose }
 							onMediaLibraryClick={ onMediaLibraryClick }
+							onAiImageClick={ onAiImageClick }
 						/>
 					) ) }
 				</MenuGroup>
 			</>
 		),
-		[ linkPreviewOptions, attachmentOptions, currentSource, onSelect, onMediaLibraryClick ]
+		[
+			linkPreviewOptions,
+			attachmentOptions,
+			currentSource,
+			onSelect,
+			onMediaLibraryClick,
+			onAiImageClick,
+		]
 	);
 
 	return (

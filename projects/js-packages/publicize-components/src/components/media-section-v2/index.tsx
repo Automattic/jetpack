@@ -3,11 +3,12 @@
  * Unified media selection interface for social posts
  */
 
+import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -85,6 +86,9 @@ export default function MediaSectionV2( {
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
 
+	// State for AI image generation modal
+	const [ showAiImageModal, setShowAiImageModal ] = useState( false );
+
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
 	// Priority 2: Detect from existing data (backward compatibility)
@@ -103,7 +107,11 @@ export default function MediaSectionV2( {
 		if ( currentSource === 'featured-image' ) {
 			return featuredImageId;
 		}
-		if ( currentSource === 'media-library' || currentSource === 'upload-video' ) {
+		if (
+			currentSource === 'media-library' ||
+			currentSource === 'upload-video' ||
+			currentSource === 'ai-image'
+		) {
 			return attachedMedia?.[ 0 ]?.id;
 		}
 		return null;
@@ -182,6 +190,35 @@ export default function MediaSectionV2( {
 			openMediaLibraryRef.current();
 		}, 0 );
 	}, [] );
+
+	// Handle AI image generation click
+	const handleAiImageClick = useCallback( () => {
+		setShowAiImageModal( true );
+	}, [] );
+
+	// Handle AI image modal close
+	const handleAiImageModalClose = useCallback( () => {
+		setShowAiImageModal( false );
+	}, [] );
+
+	// Handle AI image selection
+	const handleAiImageSelect = useCallback(
+		( { id, url }: { id: number; url: string } ) => {
+			updateJetpackSocialOptions( {
+				media_source: 'ai-image',
+				attached_media: [ { id, url, type: 'image/png' } ],
+				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+			} );
+
+			recordEvent( 'jetpack_social_media_source_changed', {
+				...analyticsData,
+				source: 'ai-image',
+			} );
+
+			setShowAiImageModal( false );
+		},
+		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+	);
 
 	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
 		openMediaLibraryRef.current = open;
@@ -275,6 +312,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ handleAiImageClick }
 								disabled={ disabled }
 							>
 								{ ( { open } ) => (
@@ -313,6 +351,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ handleAiImageClick }
 								disabled={ disabled }
 							/>
 							{ currentSource === 'featured-image' && ! featuredImageId && (
@@ -327,6 +366,13 @@ export default function MediaSectionV2( {
 					) }
 				</BaseControl>
 			</div>
+			{ showAiImageModal && (
+				<GeneralPurposeImage
+					placement="social-media-dropdown"
+					onClose={ handleAiImageModalClose }
+					onSetImage={ handleAiImageSelect }
+				/>
+			) }
 		</ThemeProvider>
 	);
 }
