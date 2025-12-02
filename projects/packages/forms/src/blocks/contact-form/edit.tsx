@@ -212,7 +212,7 @@ function JetpackContactFormEdit( {
 	);
 
 	const findButtonsBlock = useCallback(
-		block => block.name === 'core/buttons' || block.name === 'jetpack/button',
+		block => block.name === 'core/button' || block.name === 'jetpack/button',
 		[]
 	);
 
@@ -240,7 +240,7 @@ function JetpackContactFormEdit( {
 
 				const isSingleButtonBlock =
 					innerBlocksData.length === 1 &&
-					( innerBlocksData[ 0 ].name === 'core/buttons' ||
+					( innerBlocksData[ 0 ].name === 'core/button' ||
 						innerBlocksData[ 0 ].name === 'jetpack/button' );
 
 				const title = getEditedPostAttribute( 'title' );
@@ -350,7 +350,7 @@ function JetpackContactFormEdit( {
 			// Find the submit button
 			const submitButtonIndex = currentInnerBlocks.findIndex(
 				block =>
-					( block.name === 'core/buttons' || block.name === 'jetpack/button' ) &&
+					( block.name === 'core/button' || block.name === 'jetpack/button' ) &&
 					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
 			);
 
@@ -728,14 +728,12 @@ function JetpackContactFormEdit( {
 		// Ensure we have a submit button at the end of the form.
 		if ( ! finalSubmitButton ) {
 			// Create a fresh submit button if none was found.
-			finalSubmitButton = createBlock( 'core/buttons', {}, [
-				createBlock( 'core/button', {
-					text: __( 'Submit', 'jetpack-forms' ),
-					type: 'submit',
-					tagName: 'button',
-					className: 'wp-block-jetpack-button jetpack-form-submit-button',
-				} ),
-			] );
+			finalSubmitButton = createBlock( 'core/button', {
+				text: __( 'Submit', 'jetpack-forms' ),
+				type: 'submit',
+				tagName: 'button',
+				className: 'wp-block-jetpack-button jetpack-form-submit-button',
+			} );
 		}
 
 		const finalBlocks = [ ...flattenedInnerBlocks, finalSubmitButton ];

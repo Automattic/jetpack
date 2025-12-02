@@ -54,7 +54,8 @@
 			flex: 1 1 100%;
 		}
 
-		.wp-block:not(.wp-block-buttons):not(.wp-block-button) {
+		// .wp-block:not(.wp-block-buttons):not(.wp-block-button) {
+		.wp-block {
 			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
