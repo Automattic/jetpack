@@ -279,9 +279,9 @@ class Legacy {
 								(string) $order->get_billing_city(),
 								(string) $order->get_billing_state(),
 								(string) $order->get_billing_country(),
-							)
-						),
-						JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+							),
+							JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+						)
 					)
 				);
 
@@ -304,9 +304,9 @@ class Legacy {
 										Utils::get_product_categories_concatenated( $product ),
 										(string) $order->get_item_total( $item ),
 										(string) $item['qty'],
-									)
-								),
-								JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+									),
+									JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+								)
 							)
 						);
 					}
