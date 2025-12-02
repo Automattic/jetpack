@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix the flickering between the sidebar loading on different browser widths
