@@ -10,9 +10,14 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useFormsData from '../../hooks/use-forms-data';
-import { viewFormAction, editFormAction, duplicateFormAction, deleteFormAction } from './actions';
-import { useView, defaultLayouts } from './views';
+import useFormsData from '../../hooks/use-forms-data.js';
+import {
+	viewFormAction,
+	editFormAction,
+	duplicateFormAction,
+	deleteFormAction,
+} from './actions.js';
+import { useView, defaultLayouts } from './views.js';
 
 const EMPTY_ARRAY = [];
 
