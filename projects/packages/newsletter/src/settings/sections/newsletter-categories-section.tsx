@@ -1,0 +1,183 @@
+/**
+ * External dependencies
+ */
+import { Button, ExternalLink } from '@wordpress/components';
+import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
+
+interface NewsletterCategoriesSectionProps {
+	data: NewsletterSettings;
+	onChange: ( updates: Partial< NewsletterSettings > ) => void;
+	onSave: () => void;
+	isSaving: boolean;
+	hasChanges: boolean;
+	jetpackSettings: JetpackNewsletterSettings | undefined;
+	onError: ( error: string ) => void;
+}
+
+/**
+ * Newsletter Categories Section Component
+ *
+ * @param {NewsletterCategoriesSectionProps} props - Component props
+ * @return {JSX.Element} The newsletter categories section
+ */
+export function NewsletterCategoriesSection( {
+	data,
+	onChange,
+	onSave,
+	isSaving,
+	hasChanges,
+	jetpackSettings,
+	onError,
+}: NewsletterCategoriesSectionProps ): JSX.Element {
+	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
+	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
+
+	// Fetch WordPress categories on mount
+	useEffect( () => {
+		const wpApiSettings = ( window as Window & { wpApiSettings?: { root: string; nonce: string } } )
+			.wpApiSettings;
+
+		if ( ! wpApiSettings?.root ) {
+			setIsFetchingCategories( false );
+			return;
+		}
+
+		// Fetch categories from WordPress REST API
+		fetch( `${ wpApiSettings.root }wp/v2/categories?per_page=100`, {
+			headers: {
+				'X-WP-Nonce': wpApiSettings.nonce,
+			},
+		} )
+			.then( response => response.json() )
+			.then( ( fetchedCategories: { id: number; name: string }[] ) => {
+				// Convert category IDs to strings
+				setCategories(
+					fetchedCategories.map( cat => ( {
+						id: String( cat.id ),
+						name: cat.name,
+					} ) )
+				);
+				setIsFetchingCategories( false );
+			} )
+			.catch( ( err: Error ) => {
+				onError( err.message || __( 'Failed to load categories', 'jetpack-newsletter' ) );
+				setIsFetchingCategories( false );
+			} );
+	}, [ onError ] );
+
+	// Define fields
+	const fields: Field< NewsletterSettings >[] = [
+		{
+			id: 'wpcom_newsletter_categories_enabled',
+			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
+			type: 'boolean' as const,
+			Edit: 'toggle' as const,
+		},
+		{
+			id: 'wpcom_newsletter_categories',
+			label: __(
+				'Which categories will you use for newsletter subscribers? Select all that apply:',
+				'jetpack-newsletter'
+			),
+			type: 'array' as const,
+			elements: categories.map( cat => ( {
+				value: cat.id,
+				label: cat.name,
+			} ) ),
+			isValid: {
+				elements: true,
+				custom: ( item: NewsletterSettings ) => {
+					if (
+						item.wpcom_newsletter_categories_enabled &&
+						! item.wpcom_newsletter_categories?.length
+					) {
+						return __(
+							'Please select at least one category when newsletter categories are enabled.',
+							'jetpack-newsletter'
+						);
+					}
+					return null;
+				},
+			},
+		},
+	];
+
+	// Field list for newsletter categories section
+	const newsletterCategoriesFieldIds = data.wpcom_newsletter_categories_enabled
+		? [ 'wpcom_newsletter_categories_enabled', 'wpcom_newsletter_categories' ]
+		: [ 'wpcom_newsletter_categories_enabled' ];
+
+	const newsletterCategoriesFields = fields.filter( f =>
+		newsletterCategoriesFieldIds.includes( f.id )
+	);
+
+	// Form configuration for newsletter categories
+	const newsletterCategoriesForm = {
+		layout: {
+			type: 'regular' as const,
+			labelPosition: 'top' as const,
+		},
+		fields: newsletterCategoriesFieldIds,
+	};
+
+	// Get form validity state for newsletter categories
+	const { validity = {}, isValid = true } =
+		useFormValidity( data, newsletterCategoriesFields, newsletterCategoriesForm ) || {};
+
+	return (
+		<div className="newsletter-settings__section">
+			<h3 className="newsletter-settings__section-title">
+				{ __( 'Newsletter categories', 'jetpack-newsletter' ) }
+			</h3>
+			<p className="newsletter-settings__section-description">
+				{ __(
+					"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the subscribe block.",
+					'jetpack-newsletter'
+				) }
+			</p>
+			<div className="newsletter-settings__section-content">
+				<DataForm
+					data={ data }
+					fields={ newsletterCategoriesFields }
+					form={ newsletterCategoriesForm }
+					onChange={ onChange }
+					validity={ validity }
+				/>
+
+				{ data.wpcom_newsletter_categories_enabled && jetpackSettings?.siteAdminUrl && (
+					<div className="newsletter-settings__link">
+						<ExternalLink
+							href={ `${ jetpackSettings.siteAdminUrl }edit-tags.php?taxonomy=category&referer=newsletter-categories` }
+						>
+							{ __( 'Add New Category', 'jetpack-newsletter' ) }
+						</ExternalLink>
+					</div>
+				) }
+
+				<div className="newsletter-settings__section-actions">
+					<Button
+						variant="primary"
+						onClick={ onSave }
+						disabled={
+							isSaving ||
+							! hasChanges ||
+							isFetchingCategories ||
+							( data.wpcom_newsletter_categories_enabled && ! isValid )
+						}
+						isBusy={ isSaving }
+					>
+						{ isSaving
+							? __( 'Saving…', 'jetpack-newsletter' )
+							: __( 'Save', 'jetpack-newsletter' ) }
+					</Button>
+				</div>
+			</div>
+		</div>
+	);
+}
