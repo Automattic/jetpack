@@ -408,7 +408,9 @@ class WooCommerce extends Module {
 
 		$entry = isset( $this->order_item_change_map[ $order_item_id ] ) ? $this->order_item_change_map[ $order_item_id ] : null;
 		if ( null === $entry ) {
-			return false;
+			// Conservative fallback: allow the first unknown update for this item in this request.
+			$processed[ $order_item_id ] = true;
+			return array( $order_item_id );
 		}
 
 		$has_non_meta = ! empty( $entry['changed_keys'] );
