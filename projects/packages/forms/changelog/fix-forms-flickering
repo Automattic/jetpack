@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix the clifering between the sidebar loading on different browser widths
