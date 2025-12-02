@@ -1,11 +1,16 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { Connection } from '../../social-store/types';
 import { ConnectionsToggleList } from '../connections-toggle-list';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
+import styles from './styles.module.scss';
 
 export const ConnectionsList: React.FC = () => {
 	const { needsUserConnection, isPublicizeEnabled } = usePublicizeConfig();
@@ -17,11 +22,27 @@ export const ConnectionsList: React.FC = () => {
 		// or if the user needs to connect their WordPress.com account
 		// to reshare a published post.
 		( isPostPublished && needsUserConnection );
+	const { recordEvent } = useAnalytics();
+	const { toggleById } = useSocialMediaConnections();
+
+	const onClickConnection = useCallback(
+		( connection: Connection ) => {
+			toggleById( connection.connection_id );
+			recordEvent( 'jetpack_social_connection_toggled', {
+				location: 'editor',
+				enabled: ! connection.enabled,
+				service_name: connection.service_name,
+			} );
+		},
+		[ recordEvent, toggleById ]
+	);
 
 	return (
 		<div>
 			<Disabled isDisabled={ disableConnectionsList }>
-				<ConnectionsToggleList />
+				<div className={ styles[ 'connections-list' ] }>
+					<ConnectionsToggleList onClickItem={ onClickConnection } />
+				</div>
 			</Disabled>
 			{ isPublicizeEnabled ? (
 				<>

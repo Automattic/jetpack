@@ -5,8 +5,8 @@ import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
+import MediaSectionV2 from '../media-section-v2';
 import MessageBoxControl from '../message-box-control';
-import NewMediaSection from '../new-media-section';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
@@ -43,7 +43,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 			) }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
 				<div className={ styles[ 'share-post-form__media-section' ] }>
-					<NewMediaSection analyticsData={ analyticsData } />
+					<MediaSectionV2 analyticsData={ analyticsData } />
 				</div>
 			) : (
 				<>
