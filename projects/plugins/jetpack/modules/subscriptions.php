@@ -16,7 +16,6 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
@@ -1075,52 +1074,36 @@ class Jetpack_Subscriptions {
 		}
 
 		// Fetch the actual subscriber list with emails.
-		$subscriber_emails                  = $this->fetch_all_subscribers( $site_id );
-		$subscriber_data['subscriber_list'] = $subscriber_emails;
+		$subscriber_emails                        = $this->fetch_email_subscribers( $site_id );
+		$subscriber_data['email_subscriber_list'] = $subscriber_emails;
 
 		return $subscriber_data;
 	}
 
 	/**
-	 * Fetch all subscribers from WordPress.com API with pagination.
+	 * Fetch all email subscribers from WordPress.com API with pagination.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int $site_id Site ID.
 	 * @return array Array of subscriber data, each containing 'email' and 'is_paid' keys.
 	 */
-	private function fetch_all_subscribers( $site_id ) {
+	private function fetch_email_subscribers( $site_id ) {
 		$subscriber_emails = array();
 		$page              = 1;
 		$per_page          = 100; // Maximum per page to minimize requests.
 
 		while ( true ) {
-			$api_path = sprintf(
-				'/sites/%d/subscribers/?page=%d&per_page=%d&filter=email_subscriber',
+			$response_body = Jetpack_Subscriptions_Helper::fetch_subscribers(
 				$site_id,
-				$page,
-				$per_page
+				array(
+					'page'     => $page,
+					'per_page' => $per_page,
+					'filter'   => 'email_subscriber',
+				)
 			);
 
-			$response = Client::wpcom_json_api_request_as_blog(
-				$api_path,
-				'2',
-				array(),
-				null,
-				'wpcom'
-			);
-
-			if ( is_wp_error( $response ) ) {
-				break;
-			}
-
-			$response_code = wp_remote_retrieve_response_code( $response );
-			if ( 200 !== $response_code ) {
-				break;
-			}
-
-			$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( ! is_array( $response_body ) ) {
+			if ( is_wp_error( $response_body ) ) {
 				break;
 			}
 

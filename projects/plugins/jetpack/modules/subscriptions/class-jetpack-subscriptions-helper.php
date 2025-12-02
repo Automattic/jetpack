@@ -83,4 +83,59 @@ class Jetpack_Subscriptions_Helper {
 
 		return $stats;
 	}
+
+	/**
+	 * Fetch subscribers from WordPress.com API.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int   $site_id The site ID to fetch subscribers for.
+	 * @param array $query_params Optional. Array of query parameters to add to the request.
+	 *                            Common params: 'page', 'per_page', 'filter'.
+	 * @return array|WP_Error Associative array with subscriber data on success, WP_Error on failure.
+	 */
+	public static function fetch_subscribers( $site_id, $query_params = array() ) {
+		if ( ! $site_id ) {
+			return new WP_Error( 'invalid_site_id', __( 'Invalid site ID provided.', 'jetpack' ) );
+		}
+
+		$api_path = sprintf( '/sites/%d/subscribers/', $site_id );
+
+		// Build query string from parameters.
+		if ( ! empty( $query_params ) ) {
+			$api_path = add_query_arg( $query_params, $api_path );
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			$api_path,
+			'2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'http_error',
+				sprintf(
+					/* translators: %d is the HTTP response code */
+					__( 'HTTP error %d when fetching subscribers.', 'jetpack' ),
+					$response_code
+				),
+				array( 'status' => $response_code )
+			);
+		}
+
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $response_body ) ) {
+			return new WP_Error( 'invalid_response', __( 'Invalid response format from API.', 'jetpack' ) );
+		}
+
+		return $response_body;
+	}
 }
