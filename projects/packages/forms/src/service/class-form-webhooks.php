@@ -215,7 +215,7 @@ class Form_Webhooks {
 		 * Allows developers to modify or augment the form data before it's sent to the webhook endpoint.
 		 * NOTE: data has to be the first argument so it can be defaulted.
 		 *
-		 * @since $$next-version$$
+		 * @since 6.21.0
 		 *
 		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
 		 * @param string $webhook_id The unique identifier for this webhook.

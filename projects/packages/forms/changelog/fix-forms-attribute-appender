@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Forms: use parse_blocks instead of preg_replace for attribute appending on templates and widgets
