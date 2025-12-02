@@ -13,7 +13,8 @@ export const defaultView = {
 	filters: [],
 	page: 1,
 	perPage: 20,
-	fields: [ 'from', 'date', 'source', 'ip' ],
+	titleField: 'from',
+	fields: [ 'date', 'source', 'ip' ],
 };
 
 export const defaultLayouts = {
