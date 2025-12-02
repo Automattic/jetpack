@@ -23,9 +23,6 @@
 		"clean": "rm -rf app-ui/build/",
 		"typecheck": "tsc --noEmit"
 	},
-	"dependencies": {
-		"tslib": "2.8.1"
-	},
 	"devDependencies": {
 		"@babel/core": "7.28.4",
 		"@babel/preset-env": "7.28.3",
