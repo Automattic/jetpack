@@ -3,7 +3,7 @@ import type { SparklineProps } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< SparklineProps > = {
-	title: 'JS Packages/Charts/Types/Sparkline',
+	title: 'JS Packages/Charts/Types/Sparkline Chart',
 	component: Sparkline,
 	parameters: {
 		layout: 'padded',
