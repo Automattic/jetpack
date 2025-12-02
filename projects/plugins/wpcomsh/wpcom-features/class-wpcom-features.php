@@ -417,6 +417,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FIELD_FILE                        = 'field-file';
+	public const FORM_WEBHOOKS                     = 'form-webhooks';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GITHUB_DEPLOYMENTS                = 'github-deployments';
@@ -782,6 +783,10 @@ class WPCOM_Features {
 		self::FIELD_FILE                        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::FORM_WEBHOOKS                     => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::FREE_BLOG                         => array(
 			self::WPCOM_ALL_SITES,

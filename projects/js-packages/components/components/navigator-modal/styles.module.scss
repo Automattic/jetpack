@@ -1,9 +1,15 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .modal {
+	container-type: inline-size;
+	container-name: navigator-modal;
+
 	width: 80rem;
-	height: 40rem;
-	max-height: 90%;
+
+	@include gb.break-medium() {
+		height: 40rem;
+		max-height: 90%;
+	}
 
 	:global(.components-modal__content) {
 		padding: 0;
@@ -46,22 +52,39 @@
 	}
 
 	.body {
-		display: flex;
 		height: 100%;
 		overflow: auto;
+		flex-direction: column;
+
+		@container navigator-modal (width >= #{gb.$break-small}) {
+
+			& {
+				flex-direction: row;
+			}
+		}
 	}
 
 	.sidebar {
-		height: 100%;
+		width: 100%;
 		display: flex;
 		flex-direction: column;
 		gap: 1.5rem;
-		max-width: 22rem;
-		flex-shrink: 0;
-		border-inline-end: 1px solid gb.$gray-300;
+		flex-basis: 30%;
+
+		@container navigator-modal (width >= #{gb.$break-small}) {
+
+			& {
+				height: 100%;
+				max-width: 22rem;
+				min-width: 18rem;
+				flex-shrink: 0;
+				border-inline-end: 1px solid gb.$gray-300;
+			}
+		}
 	}
 
 	.content {
+		width: 100%;
 		height: 100%;
 		flex: 1;
 		overflow: auto;

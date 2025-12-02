@@ -124,4 +124,18 @@ class Jetpack_Forms {
 		 */
 		return apply_filters( 'jetpack_forms_is_integrations_enabled', true );
 	}
+
+	/**
+	 * Returns true if webhooks are enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_webhooks_enabled() {
+		/**
+		 * Whether to enable webhooks for Jetpack Forms.
+		 *
+		 * @param bool false Whether webhooks should be enabled. Default false.
+		 */
+		return apply_filters( 'jetpack_forms_webhooks_enabled', false );
+	}
 }
