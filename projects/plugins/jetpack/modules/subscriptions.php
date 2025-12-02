@@ -1027,11 +1027,11 @@ class Jetpack_Subscriptions {
 
 		// Store subscriber data with timestamp.
 		$data_to_store = array(
-			'timestamp'              => current_time( 'mysql' ),
-			'email_subscribers'      => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
-			'paid_subscribers'       => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
-			'all_subscribers'        => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
-			'email_subscribers_list' => isset( $subscriber_data['email_subscribers_list'] ) && is_array( $subscriber_data['email_subscribers_list'] ) ? $subscriber_data['email_subscribers_list'] : array(),
+			'timestamp'             => current_time( 'mysql' ),
+			'email_subscribers'     => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
+			'paid_subscribers'      => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
+			'all_subscribers'       => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
+			'email_subscriber_list' => isset( $subscriber_data['email_subscriber_list'] ) && is_array( $subscriber_data['email_subscriber_list'] ) ? $subscriber_data['email_subscriber_list'] : array(),
 		);
 
 		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
@@ -1046,10 +1046,10 @@ class Jetpack_Subscriptions {
 	 */
 	private function get_subscriber_data() {
 		$subscriber_data = array(
-			'email_subscribers'      => 0,
-			'paid_subscribers'       => 0,
-			'all_subscribers'        => 0,
-			'email_subscribers_list' => array(),
+			'email_subscribers'     => 0,
+			'paid_subscribers'      => 0,
+			'all_subscribers'       => 0,
+			'email_subscriber_list' => array(),
 		);
 
 		// Only fetch if Jetpack is connected.
