@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.3-beta.2 - 2025-12-02
+### Bug fixes
+- Forms: Fix the flickering between the sidebar loading on different browser widths.
+- Restrict inline file preview to only image formats and PDFs, force download for other file types for security.
+
 ## 15.3-beta - 2025-12-01
 ### Enhancements
 - Forms: Add form response webhook support. [#46059]

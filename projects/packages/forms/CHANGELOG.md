@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Trash old spam instead of fully deleting. [#46033]
 - Use fallback page value on feedback source if variable is polluted. [#46075]
 - Wrap long emails in response. [#46121]
+- Forms: Fix the flickering between the sidebar loading on different browser widths. [#46159]
+- Restrict inline file preview to only image formats and PDFs, force download for other file types for security. [#46140]
 
 ## [6.20.0] - 2025-11-24
 ### Added

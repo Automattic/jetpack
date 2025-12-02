@@ -326,43 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-beta - 2025-12-01
-#### Enhancements
-- Forms: Add browser info to the form response email notification.
-- Forms: Add form response webhook support.
-- Forms: Add integrations to dashboard mobile menu.
-- Forms: Add keyboard navigation to go through reponses quickly.
-- Forms: Add WordPress Abilities API integration for form submissions management and integrations access.
-- Forms: Change integrations modal width.
-- Forms: Improve MailPoet subscriber handling.
-- Forms: Improve name variation handling.
-- Forms: Remove related-posts from API calls.
-- Forms: Update dashboard header buttons.
-- Forms: Use core WP colors for basic primitive components such as buttons at Forms dashboard.
-- Forms: Use first/last name for author.
-- Premium Content Block: Added email rendering callback.
-- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions.
-- Social: Improve the sidebar by making titles more descriptive and combining sections.
-- Social: Update the connections list in the editor to a vertical toggle list with labels and icons.
-
-#### Improved compatibility
-- Replace icons removed from @wordpress/icons with alternatives.
-
-#### Bug fixes
-- Cookies & Consents Banner Widget: ensure form headings are properly displayed.
-- Fix a compatibility bug with the Gutenberg plugin.
-- Forms: Do not link to empty source link.
-- Forms: Ensure we show duplicate form field values on export.
-- Forms: Fix integrations modal flash.
-- Forms: Fix name variation isActive setting.
-- Forms: Reject form submissions when the parent post/page with the form has been deleted or is no longer published.
-- Forms: Remove clashing between meta dn field names on export.
-- GifBlock: Ensure url is not reset when publishing post.
-- Google Docs: Ensure that slides/sheets embeds render on the front-end.
-- GSheets embed: Give time for the iframe to finish before showing an error.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- Remove `getIconColor` functions for block icons.
-- Social: Fix connection icon not reflecting the change when profile picture is updated.
+## 15.3-beta.2 - 2025-12-02
+### Bug fixes
+- Forms: Fix the flickering between the sidebar loading on different browser widths.
+- Restrict inline file preview to only image formats and PDFs, force download for other file types for security.
 
 --------
 
