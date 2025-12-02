@@ -2447,6 +2447,22 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the constructor handles non-integer $page global without warnings.
+	 */
+	public function test_constructor_handles_non_integer_page_global() {
+		global $page;
+		$original_page = $page;
+		$page          = 'not-an-integer'; // Simulating theme overwriting $page
+
+		$attributes = array( 'to' => 'test@example.com' );
+		$form       = new Contact_Form( $attributes );
+
+		// Verify no warnings and form is created successfully
+		$this->assertInstanceOf( Contact_Form::class, $form );
+		$page = $original_page; // Restore original value
+	}
+
+	/**
 	 * Tests get_default_to method with null post author ID.
 	 */
 	public function test_get_default_to_with_null_post_author() {
