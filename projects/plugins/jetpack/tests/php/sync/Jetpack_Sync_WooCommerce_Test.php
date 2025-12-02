@@ -113,9 +113,20 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 
 		$this->sender->do_sync();
 
-		$update_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_update_order_item' );
+		$all_update_order_item_events = $this->server_event_storage->get_all_events( 'woocommerce_update_order_item' );
+		$this->assertNotEmpty( $all_update_order_item_events );
 
-		$this->assertTrue( (bool) $update_order_item_event );
+		$updates_for_order_item = array_values(
+			array_filter(
+				$all_update_order_item_events,
+				function ( $event ) use ( $order_item ) {
+					return isset( $event->args[0] ) && (int) $event->args[0] === (int) $order_item->get_id();
+				}
+			)
+		);
+		$this->assertCount( 1, $updates_for_order_item );
+
+		$update_order_item_event = $updates_for_order_item[0];
 		$this->assertEquals( $order_item->get_id(), $update_order_item_event->args[0] );
 		$this->assertHasOrderItemProperties( $update_order_item_event->args[1], $order_item );
 		$this->assertEquals( $order->get_id(), $update_order_item_event->args[2] );
