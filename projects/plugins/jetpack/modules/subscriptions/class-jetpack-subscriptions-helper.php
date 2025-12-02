@@ -15,6 +15,7 @@ use Automattic\Jetpack\Connection\Client;
 class Jetpack_Subscriptions_Helper {
 	/**
 	 * Fetch subscriber statistics from WordPress.com API.
+	 * Results are cached for 5 minutes to reduce API requests.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -25,6 +26,13 @@ class Jetpack_Subscriptions_Helper {
 	public static function fetch_subscriber_stats( $site_id ) {
 		if ( ! $site_id ) {
 			return new WP_Error( 'invalid_site_id', __( 'Invalid site ID provided.', 'jetpack' ) );
+		}
+
+		// Check cache first.
+		$cache_key = 'jetpack_subscriber_stats_' . $site_id;
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
 		}
 
 		$stats_path = sprintf( '/sites/%d/subscribers/stats', $site_id );
@@ -81,11 +89,15 @@ class Jetpack_Subscriptions_Helper {
 			$stats['aggregate'] = $subscriber_counts['aggregate'];
 		}
 
+		// Cache successful responses for 5 minutes.
+		set_transient( $cache_key, $stats, 5 * MINUTE_IN_SECONDS );
+
 		return $stats;
 	}
 
 	/**
 	 * Fetch subscribers from WordPress.com API.
+	 * Results are cached for 5 minutes to reduce API requests.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -97,6 +109,18 @@ class Jetpack_Subscriptions_Helper {
 	public static function fetch_subscribers( $site_id, $query_params = array() ) {
 		if ( ! $site_id ) {
 			return new WP_Error( 'invalid_site_id', __( 'Invalid site ID provided.', 'jetpack' ) );
+		}
+
+		// Build cache key based on site_id and query parameters.
+		// Sort keys to ensure deterministic cache keys regardless of parameter order.
+		$sorted_params = $query_params;
+		ksort( $sorted_params );
+		$cache_key = 'jetpack_subscribers_' . $site_id . '_' . md5( wp_json_encode( $sorted_params ) );
+
+		// Check cache first.
+		$cached = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $cached;
 		}
 
 		$api_path = sprintf( '/sites/%d/subscribers/', $site_id );
@@ -135,6 +159,9 @@ class Jetpack_Subscriptions_Helper {
 		if ( ! is_array( $response_body ) ) {
 			return new WP_Error( 'invalid_response', __( 'Invalid response format from API.', 'jetpack' ) );
 		}
+
+		// Cache successful responses for 5 minutes.
+		set_transient( $cache_key, $response_body, 5 * MINUTE_IN_SECONDS );
 
 		return $response_body;
 	}
