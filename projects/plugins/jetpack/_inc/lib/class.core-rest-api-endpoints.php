@@ -824,7 +824,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
 			),
-			wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'wpcom'
 		);
 

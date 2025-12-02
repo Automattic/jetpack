@@ -3318,16 +3318,15 @@ p {
 				$status_code = 400;
 			}
 
-			status_header( $status_code );
-			die( wp_json_encode( (object) compact( 'error', 'error_description' ), JSON_UNESCAPED_SLASHES ) );
+			wp_send_json( (object) compact( 'error', 'error_description' ), $status_code, JSON_UNESCAPED_SLASHES );
 		}
 
-		status_header( 200 );
 		if ( true === $response ) {
+			status_header( 200 );
 			exit( 0 );
 		}
 
-		die( wp_json_encode( (object) $response, JSON_UNESCAPED_SLASHES ) );
+		wp_send_json( (object) $response, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -4658,7 +4657,7 @@ endif;
 			jQuery( document ).ready( function( $ ) {
 				$( '#jetpack-recheck-ssl-button' ).click( function( e ) {
 					var $this = $( this );
-					$this.html( <?php echo esc_html__( 'Checking', 'jetpack' ); ?> );
+					$this.html( <?php echo wp_json_encode( esc_html__( 'Checking', 'jetpack' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
 					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': <?php echo wp_json_encode( $ajax_nonce, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> };
@@ -4667,7 +4666,7 @@ endif;
 						if ( response.enabled ) {
 							$( '#jetpack-ssl-warning' ).hide();
 						} else {
-							this.html( <?php echo esc_html__( 'Try again', 'jetpack' ); ?> );
+							this.html( <?php echo wp_json_encode( esc_html__( 'Try again', 'jetpack' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 							$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
 						}
 					}.bind( $this ) );

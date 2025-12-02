@@ -419,7 +419,7 @@ class Jetpack_Carousel {
 			' ',
 			array_map(
 				function ( $data_key, $data_values ) {
-					return esc_attr( $data_key ) . "='" . wp_json_encode( $data_values, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . "'";
+					return esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . "'";
 				},
 				array_keys( $extra_data ),
 				array_values( $extra_data )
@@ -978,7 +978,7 @@ class Jetpack_Carousel {
 			unset( $img_meta['keywords'] );
 		}
 
-		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES );
+		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 
 		$attr['data-attachment-id']   = $attachment_id;
 		$attr['data-permalink']       = esc_attr( get_permalink( $attachment_id ) );
