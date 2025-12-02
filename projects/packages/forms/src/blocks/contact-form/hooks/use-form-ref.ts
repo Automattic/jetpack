@@ -11,29 +11,12 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { JetpackContactFormAttributes } from '../edit.tsx';
 
 interface UseFormRefProps {
 	formRef: number;
 	setAttributes: ( attributes: { formRef: number } ) => void;
-	attributes: {
-		subject?: string;
-		to?: string;
-		customThankyouHeading?: string;
-		customThankyouMessage?: string;
-		customThankyouRedirect?: string;
-		confirmationType?: 'text' | 'redirect';
-		jetpackCRM?: boolean;
-		formTitle?: string;
-		salesforceData?: Record< string, unknown >;
-		mailpoet?: Record< string, unknown >;
-		hostingerReach?: Record< string, unknown >;
-		saveResponses?: boolean;
-		emailNotifications?: boolean;
-		disableGoBack?: boolean;
-		disableSummary?: boolean;
-		formNotifications?: boolean;
-		notificationRecipients?: number[];
-	};
+	attributes: JetpackContactFormAttributes;
 }
 
 interface CreateFormResponse {
@@ -45,10 +28,11 @@ interface CreateFormResponse {
 /**
  * Hook to create jetpack_form CPT if formRef is not set
  *
- * @param {number}   formRef       - Current form reference ID
- * @param {Function} setAttributes - Function to update block attributes
- * @param {object}   attributes    - Current block attributes
- * @return {object} Hook state with loading and error
+ * @param {object}   props               - Hook props
+ * @param {number}   props.formRef       - Current form reference ID
+ * @param {Function} props.setAttributes - Function to update block attributes
+ * @param {object}   props.attributes    - Current block attributes
+ * @return {{ isCreating: boolean, error: (string|null) }} Hook state
  */
 export default function useFormRef( { formRef, setAttributes, attributes }: UseFormRefProps ): {
 	isCreating: boolean;

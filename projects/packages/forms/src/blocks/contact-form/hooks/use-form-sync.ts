@@ -12,29 +12,12 @@ import { serialize } from '@wordpress/blocks';
 import { debounce } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useCallback } from '@wordpress/element';
+import { JetpackContactFormAttributes } from '../edit.tsx';
 
 interface UseFormSyncProps {
 	formRef: number;
 	clientId: string;
-	attributes: {
-		subject?: string;
-		to?: string;
-		customThankyouHeading?: string;
-		customThankyouMessage?: string;
-		customThankyouRedirect?: string;
-		confirmationType?: 'text' | 'redirect';
-		jetpackCRM?: boolean;
-		formTitle?: string;
-		salesforceData?: Record< string, unknown >;
-		mailpoet?: Record< string, unknown >;
-		hostingerReach?: Record< string, unknown >;
-		saveResponses?: boolean;
-		emailNotifications?: boolean;
-		disableGoBack?: boolean;
-		disableSummary?: boolean;
-		formNotifications?: boolean;
-		notificationRecipients?: number[];
-	};
+	attributes: JetpackContactFormAttributes;
 }
 
 interface SyncBlocksResponse {
@@ -50,9 +33,10 @@ interface SyncSettingsResponse {
 /**
  * Hook to sync form blocks and settings to CPT
  *
- * @param {number} formRef    - Form reference ID
- * @param {string} clientId   - Block client ID
- * @param {object} attributes - Block attributes
+ * @param {object} props            - Hook props
+ * @param {number} props.formRef    - Form reference ID
+ * @param {string} props.clientId   - Block client ID
+ * @param {object} props.attributes - Block attributes
  */
 export default function useFormSync( { formRef, clientId, attributes }: UseFormSyncProps ): void {
 	const previousBlocksRef = useRef< string >( '' );
@@ -68,6 +52,7 @@ export default function useFormSync( { formRef, clientId, attributes }: UseFormS
 	);
 
 	// Create debounced sync functions
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debouncedSyncBlocks = useCallback(
 		debounce( ( formId: number, serializedBlocks: string ) => {
 			apiFetch< SyncBlocksResponse >( {
@@ -84,6 +69,7 @@ export default function useFormSync( { formRef, clientId, attributes }: UseFormS
 		[]
 	);
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const debouncedSyncSettings = useCallback(
 		debounce(
 			(
