@@ -27,8 +27,8 @@ class Unauth_File_Upload_Test extends WP_UnitTestCase {
 	 * @dataProvider provider_is_file_type_previable
 	 */
 	#[DataProvider( 'provider_is_file_type_previable' )]
-	public function test_is_file_type_previable( $mime_type, $expected ) {
-		$this->assertEquals( $expected, \Automattic\Jetpack\UnauthFileUpload\is_file_type_previable( $mime_type ) );
+	public function is_file_type_previewable( $mime_type, $expected ) {
+		$this->assertEquals( $expected, \Automattic\Jetpack\UnauthFileUpload\is_file_type_previewable( $mime_type ) );
 	}
 
 	/**

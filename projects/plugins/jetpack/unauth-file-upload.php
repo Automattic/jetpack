@@ -78,7 +78,7 @@ function handle_file_download() {
 	$file['type']    = $file['type'] ?? 'application/octet-stream';
 	$file['name']    = $file['name'] ?? '';
 
-	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previable( $file['type'] );
+	$is_preview = isset( $_GET['preview'] ) && 'true' === $_GET['preview'] && is_file_type_previewable( $file['type'] );
 
 	// Clean output buffer
 	if ( ob_get_length() ) {
@@ -174,7 +174,7 @@ function get_file_content( $file_content, $file_id ) {
  * @param string $file_type The MIME type of the file.
  * @return bool True if the file is previable, false otherwise.
  */
-function is_file_type_previable( $file_type ) {
+function is_file_type_previewable( $file_type ) {
 	$previable_types = array(
 		'image/jpeg',
 		'image/png',
