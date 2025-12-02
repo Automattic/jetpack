@@ -1035,12 +1035,15 @@ class Admin {
 
 		if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', (int) $_POST['post_id'] ) ) {
 			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		} elseif ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		}
 
 		if ( ! isset( $_POST['content'] ) || ! is_numeric( $_POST['post_id'] ) ) {
 			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		}
 
 		$content = sanitize_text_field( wp_unslash( $_POST['content'] ) );
