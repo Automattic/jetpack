@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Update Sync test to ensure we only sync one WooCommerce order item update action per relevant action.
