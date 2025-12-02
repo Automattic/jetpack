@@ -1034,13 +1034,13 @@ class Admin {
 		check_ajax_referer( 'grunion_shortcode_to_json' );
 
 		if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', (int) $_POST['post_id'] ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
 		} elseif ( ! current_user_can( 'edit_posts' ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
 		}
 
 		if ( ! isset( $_POST['content'] ) || ! is_numeric( $_POST['post_id'] ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
 		}
 
 		$content = sanitize_text_field( wp_unslash( $_POST['content'] ) );
@@ -1074,7 +1074,7 @@ class Admin {
 			$out[ $attribute ] = $value;
 		}
 
-		die( wp_json_encode( $out, JSON_UNESCAPED_SLASHES ) );
+		wp_send_json( $out, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
