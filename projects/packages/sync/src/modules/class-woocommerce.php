@@ -413,7 +413,7 @@ class WooCommerce extends Module {
 			return false;
 		}
 
-		$entry = isset( $this->order_item_change_map[ $order_item_id ] ) ? $this->order_item_change_map[ $order_item_id ] : null;
+		$entry = $this->order_item_change_map[ $order_item_id ] ?? null;
 		if ( null === $entry ) {
 			// Conservative fallback: allow the first unknown update for this item in this request.
 			$processed[ $order_item_id ] = true;
