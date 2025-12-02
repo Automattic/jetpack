@@ -790,6 +790,7 @@ class Defaults {
 		'videopress_guid',
 		'vimeo_poster_image',
 		'_jetpack_blogging_prompt_key',
+		'_jetpack_newsletter_subscribers_when_sent',
 		'footnotes', // Core footnotes block
 	);
 
