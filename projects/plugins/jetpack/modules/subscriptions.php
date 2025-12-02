@@ -1123,7 +1123,7 @@ class Jetpack_Subscriptions {
 						}
 
 						$subscriber_emails[] = array(
-							'email'   => sanitize_email( $subscriber['email_address'] ),
+							'email'   => $subscriber['email_address'],
 							'is_paid' => $is_paid,
 						);
 					}
