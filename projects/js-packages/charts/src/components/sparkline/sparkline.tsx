@@ -4,6 +4,7 @@ import { buildChartTheme, XYChart, LineSeries, AreaSeries } from '@visx/xychart'
 import clsx from 'clsx';
 import { useMemo, forwardRef, useCallback } from 'react';
 import { GlobalChartsProvider, useGlobalChartsTheme, useChartId } from '../../providers';
+import { withResponsive } from '../private/with-responsive';
 import styles from './sparkline.module.scss';
 import type { SparklineProps, GradientConfig } from './types';
 
@@ -178,7 +179,7 @@ SparklineComponent.displayName = 'SparklineComponent';
 /**
  * Sparkline chart component with GlobalChartsProvider wrapper
  */
-export const SparklineUnresponsive = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
+const SparklineUnresponsive = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
 	( props, ref ) => {
 		return (
 			<GlobalChartsProvider>
@@ -189,3 +190,10 @@ export const SparklineUnresponsive = forwardRef< HTMLDivElement | SVGSVGElement,
 );
 
 SparklineUnresponsive.displayName = 'SparklineUnresponsive';
+
+/**
+ * Responsive Sparkline chart component
+ */
+const Sparkline = withResponsive< SparklineProps >( SparklineUnresponsive );
+
+export { Sparkline as default, SparklineUnresponsive };
