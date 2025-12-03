@@ -278,6 +278,8 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			children,
+			showAxes = true,
+			showGrid = true,
 		},
 		ref
 	) => {
@@ -488,9 +490,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							onPointerOut={ onPointerOut }
 							pointerEventsDataKey="nearest"
 						>
-							<Grid columns={ false } numTicks={ 4 } />
-							<Axis { ...chartOptions.axis.x } />
-							<Axis { ...chartOptions.axis.y } />
+							{ showGrid && <Grid columns={ false } numTicks={ 4 } /> }
+							{ showAxes && (
+								<>
+									<Axis { ...chartOptions.axis.x } />
+									<Axis { ...chartOptions.axis.y } />
+								</>
+							) }
 
 							{ allSeriesHidden ? (
 								<text
