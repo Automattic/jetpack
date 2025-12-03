@@ -11,14 +11,12 @@ const additionalCssTextareaSelector =
 	'.block-editor-global-styles-advanced-panel__custom-css-input textarea';
 
 // Prevent a flash of the textarea before we cover it.
-{
-	const styleElement = document.createElement( 'style' );
-	styleElement.textContent = `
+const styleElement = document.createElement( 'style' );
+styleElement.textContent = `
 ${ additionalCssTextareaSelector } {
   visibility: hidden;
 }`;
-	document.head.appendChild( styleElement );
-}
+document.head.appendChild( styleElement );
 
 const observer = new MutationObserver( () => {
 	const additionalCSSTextarea: ReactHTMLTextAreaElement | null = document.querySelector(
@@ -36,7 +34,11 @@ const observer = new MutationObserver( () => {
 		// And the editor isn't loaded or initializing
 		if ( ! editor ) {
 			// Do it
-			setupEditor( additionalCSSTextarea, isSingleBlockStyleEditor );
+			setupEditor( additionalCSSTextarea, isSingleBlockStyleEditor ).catch( () => {
+				// Clean up in case of problems.
+				observer.disconnect();
+				styleElement.remove();
+			} );
 		}
 	}
 	// If there's no textarea but the editor is loaded

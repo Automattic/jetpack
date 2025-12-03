@@ -13,7 +13,7 @@ class Type_Any_JSON implements Parser {
 			throw new Schema_Error( $message, $value );
 		}
 		// Attempt to encode the JSON data and throw errors if it fails
-		if ( false === wp_json_encode( $value ) ) {
+		if ( false === wp_json_encode( $value, JSON_UNESCAPED_SLASHES ) ) {
 			$message = 'JSON Data must be valid JSON';
 			throw new Schema_Error( $message, $value );
 		}

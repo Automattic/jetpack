@@ -980,7 +980,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'email_marketing_consent' => 'yes',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1034,7 +1034,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'<strong>field2</strong>' => 'value2',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1460,7 +1460,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -1491,7 +1492,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$contact_form_attributes = array(

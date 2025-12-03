@@ -4,7 +4,7 @@
  * This plugin creates a virtual module that can be imported using:
  * import { extensionToLang } from '@@codemirrorLanguageData@@';
  *
- * The plugin generates the data from @codemirror/language-data at build time
+ * The plugin generates the data from `@codemirror/language-data` at build time
  * and makes it available as a virtual module without writing files to disk.
  */
 
@@ -91,6 +91,7 @@ class CodeMirrorLanguageDataPlugin {
 	 * @param {string}                  contents - File contents.
 	 */
 	writeVirtualFile( fs, filePath, contents ) {
+		// eslint-disable-next-line jsdoc/ts-no-empty-object-type
 		/** @type {Extract<ReturnType<NonNullable<webpack.InputFileSystem['statSync']>>,{}>} */
 		const stats = {
 			isFile: () => true,

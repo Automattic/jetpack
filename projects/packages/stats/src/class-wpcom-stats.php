@@ -445,7 +445,7 @@ class WPCOM_Stats {
 	protected function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
 		$api_version    = self::STATS_REST_API_VERSION;
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
 		$stats_cache    = get_transient( $transient_name );
 
@@ -463,7 +463,7 @@ class WPCOM_Stats {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
 		// To reduce size in storage: store with time as key, store JSON encoded data.
-		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
+		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
 
 		/**
 		 * Filters the expiration time for the stats cache.
@@ -585,7 +585,7 @@ class WPCOM_Stats {
 		if ( is_wp_error( $stats_array ) ) {
 			return $stats_array;
 		}
-		$encoded_array = wp_json_encode( $stats_array );
+		$encoded_array = wp_json_encode( $stats_array, JSON_UNESCAPED_SLASHES );
 		if ( ! $encoded_array ) {
 			return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
 		}

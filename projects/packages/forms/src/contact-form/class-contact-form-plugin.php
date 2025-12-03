@@ -645,7 +645,7 @@ class Contact_Form_Plugin {
 					}
 
 					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
+					$atts['optionsdata'] = \wp_json_encode( $options_data, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 
 					/*
 						Borders for the outlined notched HTML.
@@ -715,7 +715,7 @@ class Contact_Form_Plugin {
 					}
 
 					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
+					$atts['optionsdata'] = \wp_json_encode( $options_data, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 
 					/*
 						Borders for the outlined notched HTML.
@@ -1021,7 +1021,7 @@ class Contact_Form_Plugin {
 						<div class="jetpack-form-progress-indicator-step"
 							data-wp-class--is-active="state.isStepActive"
 							data-wp-class--is-completed="state.isStepCompleted"
-							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
+							data-wp-context='<?php echo esc_attr( wp_json_encode( $step_context, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ); ?>'>
 							<div class="jetpack-form-progress-indicator-line"></div>
 							<div class="jetpack-form-progress-indicator-dot">
 								<span class="jetpack-form-progress-indicator-step-number">
@@ -1081,7 +1081,7 @@ class Contact_Form_Plugin {
 
 		$block_support_styles = self::get_block_support_classes_and_styles( $block_name, $picked_attributes );
 		return array(
-			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'] ) : '',
+			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'], JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) : '',
 			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
 			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
 		);
@@ -1690,7 +1690,7 @@ class Contact_Form_Plugin {
 				'slug'    => $block_template_part_slug,
 				'tagName' => 'div',
 			);
-			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
+			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
 

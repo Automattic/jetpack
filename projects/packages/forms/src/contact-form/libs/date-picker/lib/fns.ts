@@ -6,8 +6,8 @@
  * bufferFn buffers calls to fn so they only happen every ms milliseconds
  *
  * @param {number}   ms number of milliseconds
- * @param {function} fn the function to be buffered
- * @returns {function}
+ * @param {Function} fn the function to be buffered
+ * @returns {Function}
  */
 export function bufferFn( ms: number, fn: ( ...args: unknown[] ) => unknown ): () => void {
 	let timeout: ReturnType< typeof setTimeout > | undefined;

@@ -44,7 +44,7 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 		$values = $runtime->normalize_targets( array( $target_name => array() ) );
 		$this->assertCount( $expected_count, $values, "$target_name 'all' test returned incorrect count" );
 		foreach ( $expected as $exp ) {
-			$this->assertContains( $exp, $values, "$target_name 'all' test did not contain " . json_encode( $exp ) . ' in ' . json_encode( $values ) );
+			$this->assertContains( $exp, $values, "$target_name 'all' test did not contain " . json_encode( $exp, JSON_UNESCAPED_SLASHES ) . ' in ' . json_encode( $values, JSON_UNESCAPED_SLASHES ) );
 		}
 		// test "only" filter
 		$values = $runtime->normalize_targets( array( $target_name => array( 'only' => array( $expected[1]['name'] ) ) ) );

@@ -70,7 +70,7 @@ class External_Media {
 
 		wp_add_inline_script(
 			$asset_name,
-			sprintf( 'var JetpackExternalMediaData = %s;', wp_json_encode( self::get_data() ) ),
+			sprintf( 'var JetpackExternalMediaData = %s;', wp_json_encode( self::get_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) ),
 			'before'
 		);
 
