@@ -180,5 +180,5 @@ The component handles various edge cases gracefully:
 Full TypeScript support with exported types:
 
 ```tsx
-import type { SparklineProps, CurveType, GradientConfig } from '@automattic/charts/sparkline';
+import type { SparklineProps, GradientConfig } from '@automattic/charts/sparkline';
 ```
