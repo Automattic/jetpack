@@ -49,12 +49,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -101,12 +101,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -160,7 +160,7 @@ const variations = [
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -168,7 +168,7 @@ const variations = [
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -246,12 +246,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -313,7 +313,7 @@ const variations = [
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
@@ -326,7 +326,7 @@ const variations = [
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
@@ -430,12 +430,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -502,7 +502,7 @@ const variations = [
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -510,7 +510,7 @@ const variations = [
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -611,12 +611,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -648,7 +648,7 @@ const variations = [
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -656,7 +656,7 @@ const variations = [
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -752,7 +752,7 @@ const variations = [
 						[
 							[
 								'jetpack/field-name',
-								{ placeholder: __( 'Jamie Smith', 'jetpack-forms' ), width: 50 },
+								{ placeholder: __( 'Jamie Smith', 'jetpack-forms' ) },
 								[
 									[ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ],
 									[ 'jetpack/input' ],
@@ -762,7 +762,6 @@ const variations = [
 								'jetpack/field-email',
 								{
 									required: true,
-									width: 50,
 									placeholder: __( 'jamie.smith@example.com', 'jetpack-forms' ),
 								},
 								[
@@ -943,12 +942,12 @@ const variations = [
 		innerBlocks: [
 			[
 				'jetpack/field-name',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Name', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
 				'jetpack/field-email',
-				{ required: true, width: 50 },
+				{ required: true },
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
@@ -970,7 +969,7 @@ const variations = [
 			innerBlocks: [
 				{
 					name: 'jetpack/field-name',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Name', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
@@ -978,7 +977,7 @@ const variations = [
 				},
 				{
 					name: 'jetpack/field-email',
-					attributes: { required: true, width: 50 },
+					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Email', 'jetpack-forms' ) } },
 						{ name: 'jetpack/input' },
