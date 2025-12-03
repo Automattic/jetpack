@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Improve performance by extending cache duration for site features and purchases API calls from seconds to 1 hour.
