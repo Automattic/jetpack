@@ -63,7 +63,10 @@ class Holiday_Snow_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function get_hemisphere_setting_method(): ReflectionMethod {
 		$method = $this->reflection_class->getMethod( 'get_hemisphere_setting' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method;
 	}
 
