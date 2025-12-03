@@ -1,7 +1,7 @@
 /**
  * Validate hex color format
- * @param hex - The hex color string to validate
- * @throws Error if hex string is malformed
+ * @param  hex - The hex color string to validate
+ * @throws {Error} if hex string is malformed
  */
 const validateHexColor = ( hex: string ): void => {
 	// Validate hex format
@@ -29,10 +29,10 @@ const validateHexColor = ( hex: string ): void => {
 /**
  * Convert hex color to rgba with specified opacity
  * This is genuinely reusable across chart components
- * @param hex   - The hex color string (e.g., '#ff0000')
- * @param alpha - The opacity value between 0 and 1
+ * @param  hex   - The hex color string (e.g., '#ff0000')
+ * @param  alpha - The opacity value between 0 and 1
  * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
- * @throws Error if hex string is malformed
+ * @throws {Error} if hex string is malformed
  */
 export const hexToRgba = ( hex: string, alpha: number ): string => {
 	validateHexColor( hex );
@@ -50,9 +50,9 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
 
 /**
  * Convert hex color to HSL
- * @param hex - hex color string
+ * @param  hex - hex color string
  * @return HSL values as [h, s, l]
- * @throws Error if hex string is malformed
+ * @throws {Error} if hex string is malformed
  */
 export const hexToHsl = ( hex: string ): [ number, number, number ] => {
 	validateHexColor( hex );

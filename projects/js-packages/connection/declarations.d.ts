@@ -10,7 +10,7 @@ declare module '@automattic/jetpack-script-data' {
 declare global {
 	interface Window {
 		/**
-		 * @deprecated In favor of getScriptData from @automattic/jetpack-script-data
+		 * @deprecated In favor of getScriptData from `@automattic/jetpack-script-data`
 		 */
 		JP_CONNECTION_INITIAL_STATE: ConnectionScriptData;
 	}

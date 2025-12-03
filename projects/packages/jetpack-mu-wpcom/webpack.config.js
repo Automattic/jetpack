@@ -91,7 +91,7 @@ module.exports = async () => {
 				...jetpackWebpackConfig.resolve,
 				alias: {
 					...jetpackWebpackConfig.resolve.alias,
-					/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
+					/** Replace the `classnames` used by `@automattic/newspack-blocks` with `clsx` because we changed to use `clsx` */
 					classnames: await findPackage( 'clsx' ),
 				},
 				fallback: {
