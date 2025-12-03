@@ -179,10 +179,6 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/full-site-editing/theme-blocks/comments-block/',
 		postId: 218903,
 	},
-	'core/post-time-to-read': {
-		link: 'https://wordpress.com/support/wordpress-editor/blocks/time-to-read-block/',
-		postId: 243241,
-	},
 	'core/details': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/details-block/',
 		postId: 254286,
@@ -435,6 +431,16 @@ export const blockInfoWithVariations: {
 		'group-grid': {
 			link: 'https://wordpress.com/support/wordpress-editor/blocks/grid-block/',
 			postId: 339584,
+		},
+	},
+	'core/post-time-to-read': {
+		'time-to-read': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/time-to-read-block/',
+			postId: 243241,
+		},
+		'word-count': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/time-to-read-block/',
+			postId: 243241,
 		},
 	},
 };
