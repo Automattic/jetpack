@@ -298,7 +298,7 @@ class Help_Center {
 						'site'             => $this->get_current_site(),
 						'locale'           => self::determine_iso_639_locale(),
 					)
-				) . ';',
+				),
 				'before'
 			);
 		}

@@ -24,7 +24,9 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 100 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
+		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1001 );
 	}
 
 	/**
@@ -43,6 +45,8 @@ class Agents_Manager {
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		// For now, we want this added wherever the help-center script is enqueued.
+		// This allows us to be quite blunt here because the logic for whether to inject this is currently
+		// in the help-center script.
 		wp_add_inline_script(
 			'help-center',
 			'const agentsManagerData = ' . wp_json_encode(

@@ -307,7 +307,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->agents_manager->add_inline_script();
 
-		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array();
+		// Re-fetch global after wp_register_script initializes it.
+		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
 
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
