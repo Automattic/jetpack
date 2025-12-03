@@ -81,10 +81,10 @@ const setupEditor = async ( target: ReactHTMLTextAreaElement ): Promise< void > 
 
 	const div = document.createElement( 'div' );
 
-	const containerStyleMap = containerElement.computedStyleMap();
-	const left = containerStyleMap.get( 'padding-left' )?.toString() || '0';
-	const right = containerStyleMap.get( 'padding-right' )?.toString() || '0';
-	const paddingBottom = containerStyleMap.get( 'padding-bottom' )?.toString() || '12px';
+	const styles = getComputedStyle( containerElement );
+	const left = styles.paddingLeft || '0';
+	const right = styles.paddingRight || '0';
+	const paddingBottom = styles.paddingBottom || '12px';
 
 	const top = `${ target.offsetTop }px`;
 	div.style = `position: absolute; top: ${ top }; left: ${ left }; right: ${ right }; padding-bottom: ${ paddingBottom };`;
