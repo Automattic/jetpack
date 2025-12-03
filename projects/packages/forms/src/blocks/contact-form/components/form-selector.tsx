@@ -84,9 +84,8 @@ export default function FormSelector( {
 					setForms( fetchedForms );
 				}
 			} )
-			.catch( err => {
+			.catch( () => {
 				setIsSavingTitle( false );
-				console.error( 'Failed to save form title:', err );
 			} );
 	}, 1000 );
 
@@ -247,6 +246,14 @@ export default function FormSelector( {
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
+					<Button
+						variant="secondary"
+						href={ `${ window.location.origin }/wp-admin/post.php?post=${ formRef }&action=edit` }
+						style={ { marginTop: '12px' } }
+						__next40pxDefaultSize={ true }
+					>
+						{ __( 'Edit Form', 'jetpack-forms' ) }
+					</Button>
 					<div
 						style={ {
 							marginTop: '8px',
