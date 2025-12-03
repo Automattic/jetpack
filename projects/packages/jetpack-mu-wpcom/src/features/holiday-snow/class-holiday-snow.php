@@ -74,13 +74,17 @@ class Holiday_Snow {
 		if ( $do_southern_hemisphere ) {
 			$first_snow_day = mktime( 0, 0, 0, 6, 1 );
 			$last_snow_day  = mktime( 0, 0, 0, 7, 7 );
+			// Southern hemisphere: June 1 - July 7 (doesn't span year boundary, use AND)
+			if ( $today >= $first_snow_day && $today < $last_snow_day ) {
+				$is_snow_season = true;
+			}
 		} else {
 			$first_snow_day = mktime( 0, 0, 0, 12, 1 );
 			$last_snow_day  = mktime( 0, 0, 0, 1, 7 );
-		}
-
-		if ( $today >= $first_snow_day || $today < $last_snow_day ) {
-			$is_snow_season = true;
+			// Northern hemisphere: Dec 1 - Jan 7 (spans year boundary, use OR)
+			if ( $today >= $first_snow_day || $today < $last_snow_day ) {
+				$is_snow_season = true;
+			}
 		}
 
 		/**
