@@ -31,7 +31,6 @@ const noop = () => {};
 const IntegrationCardHeader = ( {
 	title,
 	description,
-	icon,
 	isExpanded,
 	onToggle,
 	cardData = {},
@@ -109,13 +108,25 @@ const IntegrationCardHeader = ( {
 				<div className="integration-card__header-main">
 					{ showIntegrationIcons !== false && (
 						<div className="integration-card__service-icon-container">
-							<Icon
-								icon={ icon }
-								className={ `integration-card__service-icon ${
-									cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
-								}` }
-								size={ 30 }
-							/>
+							{ cardData?.iconUrl ? (
+								<img
+									src={ cardData.iconUrl as string }
+									alt={ title }
+									width={ 30 }
+									height={ 30 }
+									className={ `integration-card__service-icon ${
+										cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
+									}` }
+								/>
+							) : (
+								<Icon
+									icon="admin-plugins"
+									className={ `integration-card__service-icon ${
+										cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
+									}` }
+									size={ 30 }
+								/>
+							) }
 						</div>
 					) }
 					<div className="integration-card__title-section">

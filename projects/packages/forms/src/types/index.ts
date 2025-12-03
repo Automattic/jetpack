@@ -20,6 +20,8 @@ export interface IntegrationMetadata {
 	marketingUrl?: string | null;
 	/** Whether this integration should be enabled by default for new forms. */
 	enabledByDefault?: boolean;
+	/** URL to an SVG/icon for this integration provided by the backend. */
+	iconUrl?: string | null;
 }
 
 /**
