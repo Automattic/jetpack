@@ -1,8 +1,12 @@
 import { Meta } from '@storybook/addon-docs/blocks';
 
-<Meta title="JS Packages/Charts/Types/Sparkline Chart/API Reference" />
+<Meta title="JS Packages/Charts/Types/Line Chart/Sparkline/API Reference" />
 
-# Sparkline Chart API Reference
+# Sparkline API Reference
+
+## Overview
+
+Sparkline is a preconfigured variant of [LineChart](?path=/docs/js-packages-charts-types-line-chart--docs) optimized for compact, inline visualizations. It provides a simplified API while using LineChart's rendering engine internally.
 
 ## Sparkline
 
@@ -202,3 +206,23 @@ const data: SparklineDataPoint[] = [10, 15, 12, 18, 22, 25];
 
 <Sparkline data={data} gradient={config} />
 ```
+
+## Relationship to LineChart
+
+Sparkline is built on LineChart with the following preconfigured settings:
+
+```typescript
+// Sparkline internally uses LineChart like this:
+<LineChart
+	data={transformedSeriesData}  // number[] → SeriesData[]
+	showAxes={false}
+	showGrid={false}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+	margin={{ top: 2, right: 2, bottom: 2, left: 2 }}
+/>
+```
+
+For more control over rendering, use LineChart directly with these props. See [LineChart API Reference](?path=/docs/js-packages-charts-types-line-chart-api-reference--docs) for full documentation.

@@ -1,9 +1,9 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as SparklineStories from './index.stories';
 
-<Meta title="JS Packages/Charts/Types/Sparkline Chart" of={ SparklineStories } />
+<Meta title="JS Packages/Charts/Types/Line Chart/Sparkline" of={ SparklineStories } />
 
-# Sparkline Chart
+# Sparkline
 
 A minimal, word-sized chart component designed for showing trends at a glance. Perfect for dashboard metrics and inline data visualization.
 
@@ -11,7 +11,15 @@ A minimal, word-sized chart component designed for showing trends at a glance. P
 
 ## Overview
 
-The Sparkline component provides a clean, minimal visualization for trend data. Built on `@visx/xychart`, it supports smooth monotone curves, optional gradient fills, and handles edge cases gracefully:
+The Sparkline component is a preconfigured variant of [LineChart](?path=/docs/js-packages-charts-types-line-chart--docs) optimized for compact, inline visualizations. It provides a simplified API for trend data while leveraging LineChart's rendering engine under the hood.
+
+**Key differences from LineChart:**
+- Simplified `number[]` data format (no dates required)
+- No axes, grid, tooltips, or legend by default
+- Compact default dimensions (100x40px)
+- Smooth monotone curve interpolation
+
+For full control over axes, tooltips, and other features, use LineChart directly with `showAxes={false}` and `showGrid={false}`.
 
 <Source
 	language="jsx"
@@ -28,7 +36,7 @@ import '@automattic/charts/sparkline/style.css';
 
 ## API Reference
 
-For detailed information about component props and types, see the [Sparkline Chart API Reference](./?path=/docs/js-packages-charts-types-sparkline-chart-api-reference--docs).
+For detailed information about component props and types, see the [Sparkline API Reference](./?path=/docs/js-packages-charts-types-line-chart-sparkline-api-reference--docs).
 
 ## Basic Usage
 
@@ -63,7 +71,35 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 - **`className`**: Additional CSS class name
 - **`margin`** (default: `{2,2,2,2}`): Margin around the chart
 
-For detailed prop information and type definitions, see the [Sparkline Chart API Reference](./?path=/docs/js-packages-charts-types-sparkline-chart-api-reference--docs).
+For detailed prop information and type definitions, see the [Sparkline API Reference](./?path=/docs/js-packages-charts-types-line-chart-sparkline-api-reference--docs).
+
+## Using LineChart Directly
+
+For more control, you can use LineChart with minimal chrome. This is what Sparkline does internally:
+
+<Source
+	language="jsx"
+	code={ `import { LineChart } from '@automattic/charts';
+
+<LineChart
+	data={[{
+		label: 'trend',
+		data: [
+			{ date: new Date('2024-01-01'), value: 10 },
+			{ date: new Date('2024-01-02'), value: 15 },
+			// ...
+		]
+	}]}
+	showAxes={false}
+	showGrid={false}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+	width={120}
+	height={48}
+/>` }
+/>
 
 ## Visual Customization
 
@@ -237,10 +273,10 @@ Sparkline charts are compatible with all modern browsers:
 ## Performance
 
 Sparklines are optimized for performance with:
-- Memoized calculations for theme and gradient config
-- Efficient data transformation
-- Minimal re-renders via `useCallback` for accessors
-- Small footprint (no axes, grids, or interactivity)
+- Built on LineChart's optimized rendering engine
+- Memoized data transformation from `number[]` to series format
+- No axes, grid, or tooltip overhead
+- Efficient gradient and theme integration
 
 **Performance Tips:**
 - Keep data arrays reasonably sized (under 100 points for sparklines)
