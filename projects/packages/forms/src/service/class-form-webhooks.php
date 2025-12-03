@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
 /**
@@ -75,13 +76,25 @@ class Form_Webhooks {
 	 *
 	 * @param int   $post_id - the post_id for the CPT that is created.
 	 * @param array $fields - a collection of Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field instances.
-	 * @param bool  $is_spam - marked as spam by Akismet(?).
+	 * @param bool  $is_spam - marked as spam by Akismet.
 	 * @param array $entry_values - extra fields added to from the contact form.
 	 *
 	 * @return null|void
 	 */
 	public function send_webhooks( $post_id, $fields, $is_spam, $entry_values ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Try and get the form from any of the fields
+		// Get the Feedback object from the post_id
+		$feedback = Feedback::get( $post_id );
+
+		if ( ! $feedback ) {
+			return;
+		}
+
+		// if spam (hinted by akismet), don't process
+		if ( $is_spam ) {
+			return;
+		}
+
+		// Get the form from any of the fields to access form attributes (webhooks configuration)
 		$form = null;
 		foreach ( $fields as $field ) {
 			if ( ! empty( $field->form ) ) {
@@ -93,18 +106,13 @@ class Form_Webhooks {
 			return;
 		}
 
-		// if spam (hinted by akismet?), don't process
-		if ( $is_spam ) {
-			return;
-		}
-
 		$webhooks = $this->get_enabled_webhooks( $form->attributes );
 
 		if ( empty( $webhooks ) ) {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $form );
+		$form_data = $this->get_form_data( $feedback );
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
@@ -244,21 +252,15 @@ class Form_Webhooks {
 	}
 
 	/**
-	 * Gather fields key/value pairs from the form
-	 * Sanitizes the hidden fields values
+	 * Gather fields key/value pairs from the Feedback object
 	 *
-	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
+	 * @param Feedback $feedback The Feedback instance containing submitted form data.
+	 * @return array The form data key/value pairs.
 	 */
-	private function get_form_data( $form ) {
+	private function get_form_data( $feedback ) {
 		$fields = array();
-		foreach ( $form->fields as $field ) {
-			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
-		}
-
-		if ( ! empty( $form->attributes['hiddenFields'] ) ) {
-			foreach ( $form->attributes['hiddenFields'] as $hidden_field ) {
-				$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
-			}
+		foreach ( $feedback->get_fields() as $field ) {
+			$fields[ $field->get_form_field_id() ] = $field->get_value();
 		}
 
 		return $fields;
