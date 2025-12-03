@@ -41,7 +41,7 @@ export function EmailConfigurationSection( {
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'wpcom_featured_image_in_email',
-			label: __( 'Featured image in emails', 'jetpack-newsletter' ),
+			label: __( 'Enable featured image on your new post emails', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 			description: __(
@@ -51,7 +51,7 @@ export function EmailConfigurationSection( {
 		},
 		{
 			id: 'wpcom_subscription_emails_use_excerpt',
-			label: __( 'Email content', 'jetpack-newsletter' ),
+			label: __( 'For each new post email, include', 'jetpack-newsletter' ),
 			type: 'integer' as const,
 			Edit: 'radio' as const,
 			elements: [
@@ -65,7 +65,7 @@ export function EmailConfigurationSection( {
 				},
 			],
 			description: __(
-				'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version.',
+				'Sets whether email subscribers can read full posts in emails or just an excerpt and link to the full version of the post.',
 				'jetpack-newsletter'
 			),
 		},
@@ -112,7 +112,7 @@ export function EmailConfigurationSection( {
 				{ value: 'no-reply', label: __( 'Replies are not allowed', 'jetpack-newsletter' ) },
 			],
 			description: __(
-				'Chooses who receives emails when subscribers reply to your newsletter.',
+				'Chooses who receives emails when subscribers reply to your newsletter. The author’s account must be connected to WordPress.com to use their email as the reply-to address.',
 				'jetpack-newsletter'
 			),
 		},
