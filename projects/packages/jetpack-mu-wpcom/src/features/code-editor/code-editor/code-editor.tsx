@@ -18,14 +18,12 @@ const codeEditorTextareaSelector = 'textarea.editor-post-text-editor';
 let editor: EditorView | true | null = null;
 
 // Prevent a flash of the textarea before we cover it.
-{
-	const styleElement = document.createElement( 'style' );
-	styleElement.textContent = `
+const styleElement = document.createElement( 'style' );
+styleElement.textContent = `
 ${ codeEditorTextareaSelector } {
   visibility: hidden;
 }`;
-	document.head.appendChild( styleElement );
-}
+document.head.appendChild( styleElement );
 
 const observer = new MutationObserver( () => {
 	const codeEditorTextarea: ReactHTMLTextAreaElement | null = document.querySelector(
@@ -37,7 +35,11 @@ const observer = new MutationObserver( () => {
 		// And the editor isn't loaded or initializing
 		if ( ! editor ) {
 			// Do it
-			setupEditor( codeEditorTextarea );
+			setupEditor( codeEditorTextarea ).catch( () => {
+				// Clean up in case of problems.
+				styleElement.remove();
+				observer.disconnect();
+			} );
 		}
 	}
 	// If there's no textarea but the editor is loaded
