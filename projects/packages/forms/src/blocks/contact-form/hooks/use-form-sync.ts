@@ -1,8 +1,9 @@
 /**
  * Hook to sync form blocks and settings to jetpack_form CPT
  *
- * This hook watches for changes to inner blocks and form settings,
+ * This hook watches for changes to the form block (including wrapper) and form settings,
  * then syncs them to the corresponding jetpack_form custom post type.
+ * The entire jetpack/contact-form block is serialized to preserve the wrapper structure.
  * Changes are debounced to avoid excessive API calls.
  */
 
@@ -31,22 +32,22 @@ interface SyncSettingsResponse {
 }
 
 /**
- * Hook to sync form blocks and settings to CPT
+ * Hook to sync form block and settings to CPT
  *
  * @param {object} props            - Hook props
  * @param {number} props.formRef    - Form reference ID
- * @param {string} props.clientId   - Block client ID
+ * @param {string} props.clientId   - Block client ID (the form block wrapper)
  * @param {object} props.attributes - Block attributes
  */
 export default function useFormSync( { formRef, clientId, attributes }: UseFormSyncProps ): void {
 	const previousBlocksRef = useRef< string >( '' );
 	const previousSettingsRef = useRef< string >( '' );
 
-	// Get inner blocks
-	const innerBlocks = useSelect(
+	// Get the entire form block (including wrapper)
+	const formBlock = useSelect(
 		select => {
-			const { getBlocks } = select( blockEditorStore );
-			return getBlocks( clientId );
+			const { getBlock } = select( blockEditorStore );
+			return getBlock( clientId );
 		},
 		[ clientId ]
 	);
@@ -94,22 +95,27 @@ export default function useFormSync( { formRef, clientId, attributes }: UseFormS
 		[]
 	);
 
-	// Sync inner blocks when they change
+	// Sync entire form block (including wrapper) when it changes
 	useEffect( () => {
 		// Don't sync if formRef is not set yet
 		if ( ! formRef || formRef === 0 ) {
 			return;
 		}
 
-		// Serialize current blocks
-		const serializedBlocks = serialize( innerBlocks );
+		// Don't sync if formBlock is not loaded yet
+		if ( ! formBlock ) {
+			return;
+		}
+
+		// Serialize the entire form block (including the jetpack/contact-form wrapper)
+		const serializedBlocks = serialize( [ formBlock ] );
 
 		// Only sync if blocks have actually changed
 		if ( serializedBlocks !== previousBlocksRef.current ) {
 			previousBlocksRef.current = serializedBlocks;
 			debouncedSyncBlocks( formRef, serializedBlocks );
 		}
-	}, [ formRef, innerBlocks, debouncedSyncBlocks ] );
+	}, [ formRef, formBlock, debouncedSyncBlocks ] );
 
 	// Sync settings when they change
 	useEffect( () => {
