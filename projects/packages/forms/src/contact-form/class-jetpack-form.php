@@ -144,7 +144,7 @@ class Jetpack_Form {
 			'template'           => array(
 				array( 'jetpack/contact-form' ),
 			),
-			'template_lock'      => 'all',
+			'template_lock'      => 'insert',
 			'can_export'         => true,
 			'delete_with_user'   => false,
 		);

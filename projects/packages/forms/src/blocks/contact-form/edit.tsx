@@ -252,41 +252,49 @@ function JetpackContactFormEdit( {
 		block => block.name === 'jetpack/button'
 	);
 
-	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
-		useSelect(
-			select => {
-				const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-					select( blockEditorStore );
-				const { getEditedPostAttribute } = select( editorStore );
-				const selectedBlockId = getSelectedBlockClientId();
-				const selectedBlock = getBlock( selectedBlockId );
-				let selectedStepBlockId = selectedBlockId;
+	const {
+		postTitle,
+		hasAnyInnerBlocks,
+		postAuthorEmail,
+		selectedBlockClientId,
+		onlySubmitBlock,
+		postType,
+	} = useSelect(
+		select => {
+			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+				select( blockEditorStore );
+			const { getEditedPostAttribute } = select( editorStore );
+			const selectedBlockId = getSelectedBlockClientId();
+			const selectedBlock = getBlock( selectedBlockId );
+			let selectedStepBlockId = selectedBlockId;
 
-				if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
-					selectedStepBlockId = getBlockParentsByBlockName(
-						selectedBlockId,
-						'jetpack/form-step'
-					)[ 0 ];
-				}
+			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+				selectedStepBlockId = getBlockParentsByBlockName(
+					selectedBlockId,
+					'jetpack/form-step'
+				)[ 0 ];
+			}
 
-				const { getUser } = select( coreStore );
-				const innerBlocksData = getBlocks( clientId );
+			const { getUser } = select( coreStore );
+			const innerBlocksData = getBlocks( clientId );
 
-				const title = getEditedPostAttribute( 'title' );
-				const authorId = getEditedPostAttribute( 'author' );
-				const authorEmail = authorId && getUser( authorId )?.email;
+			const title = getEditedPostAttribute( 'title' );
+			const authorId = getEditedPostAttribute( 'author' );
+			const authorEmail = authorId && getUser( authorId )?.email;
+			const currentPostType = getEditedPostAttribute( 'type' );
 
-				return {
-					postTitle: title,
-					hasAnyInnerBlocks: innerBlocksData.length > 0,
-					postAuthorEmail: authorEmail,
-					selectedBlockClientId: selectedStepBlockId,
-					onlySubmitBlock:
-						innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
-				};
-			},
-			[ clientId ]
-		);
+			return {
+				postTitle: title,
+				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				postAuthorEmail: authorEmail,
+				selectedBlockClientId: selectedStepBlockId,
+				onlySubmitBlock:
+					innerBlocksData.length === 1 && innerBlocksData[ 0 ].name === 'jetpack/button',
+				postType: currentPostType,
+			};
+		},
+		[ clientId ]
+	);
 
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
@@ -332,6 +340,8 @@ function JetpackContactFormEdit( {
 				variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
 			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
 			templateInsertUpdatesSelection: false,
+			// When in jetpack-form CPT, disable template lock to allow adding/editing blocks
+			templateLock: postType === 'jetpack-form' ? false : undefined,
 		}
 	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
@@ -868,17 +878,19 @@ function JetpackContactFormEdit( {
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
 				<InspectorControls>
-					<PanelBody
-						title={ __( 'Form Selection', 'jetpack-forms' ) }
-						className="jetpack-contact-form__panel jetpack-contact-form__form-selector-panel"
-						initialOpen={ true }
-					>
-						<FormSelector
-							formRef={ formRef }
-							onFormSelect={ handleFormSelect }
-							currentFormTitle={ formTitle }
-						/>
-					</PanelBody>
+					{ postType !== 'jetpack-form' && (
+						<PanelBody
+							title={ __( 'Form Selection', 'jetpack-forms' ) }
+							className="jetpack-contact-form__panel jetpack-contact-form__form-selector-panel"
+							initialOpen={ true }
+						>
+							<FormSelector
+								formRef={ formRef }
+								onFormSelect={ handleFormSelect }
+								currentFormTitle={ formTitle }
+							/>
+						</PanelBody>
+					) }
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }
