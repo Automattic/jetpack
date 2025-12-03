@@ -301,7 +301,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'agents_manager_agent_providers',
 			function () {
-				return array( 'my-plugin/tool-provider', 'another-plugin/context-provider' );
+				return array( 'my-plugin/tool-provider.js', 'another-plugin/context-provider.js' );
 			}
 		);
 
@@ -315,8 +315,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		// JSON encodes forward slashes as \/.
-		$this->assertStringContainsString( 'my-plugin\\/tool-provider', $inline_script );
-		$this->assertStringContainsString( 'another-plugin\\/context-provider', $inline_script );
+		$this->assertStringContainsString( 'my-plugin\\/tool-provider.js', $inline_script );
+		$this->assertStringContainsString( 'another-plugin\\/context-provider.js', $inline_script );
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );
