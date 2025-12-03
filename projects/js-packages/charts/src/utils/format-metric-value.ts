@@ -13,7 +13,7 @@ type FormatMetricValueOptions = {
 
 /**
  * Format a numeric metric value based on type, precision and scale.
- * Supports currency, number and percentage, using @automattic/number-formatters.
+ * Supports currency, number and percentage, using `@automattic/number-formatters`.
  *
  * @param value                  - The value to format
  * @param type                   - The type of formatting to apply
