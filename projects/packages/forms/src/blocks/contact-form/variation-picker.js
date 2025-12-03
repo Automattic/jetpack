@@ -9,6 +9,7 @@ import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import useCreateFormFromVariation from './hooks/use-create-form-from-variation.ts';
 import './util/form-styles.js';
 
 const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
@@ -23,6 +24,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
+	const { createForm } = useCreateFormFromVariation();
 	const { blockType, defaultVariation, variations } = useSelect(
 		select => {
 			const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( blocksStore );
@@ -56,10 +58,29 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					'jetpack-forms'
 				) }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
-				onSelect={ ( nextVariation = defaultVariation ) => {
+				onSelect={ async ( nextVariation = defaultVariation ) => {
+					// Create a new form in the database
+					const formId = await createForm( {
+						variationTitle: nextVariation.title,
+					} );
+
+					// Only proceed if form was successfully created
+					if ( ! formId ) {
+						// Form creation failed, don't update the block
+						return;
+					}
+
 					registry.batch( () => {
 						if ( nextVariation.attributes ) {
-							setAttributes( nextVariation.attributes );
+							setAttributes( {
+								...nextVariation.attributes,
+								// Set the formRef to the newly created form ID
+								formRef: formId,
+								// Set the form title to match the variation title
+								formTitle: nextVariation.title,
+								// Store the variation name for reference
+								variationName: nextVariation.name,
+							} );
 						}
 
 						if ( nextVariation.innerBlocks ) {
