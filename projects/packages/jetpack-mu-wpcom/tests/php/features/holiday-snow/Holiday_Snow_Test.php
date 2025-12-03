@@ -45,6 +45,7 @@ class Holiday_Snow_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		// Clean up any filters.
 		remove_all_filters( 'jetpack_holiday_snow_hemisphere' );
+		remove_all_filters( 'jetpack_is_holiday_snow_season' );
 
 		// Reset timezone to default.
 		delete_option( 'timezone_string' );
@@ -326,5 +327,60 @@ class Holiday_Snow_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'id="jetpack-holiday-snow"', $output, 'Output should contain the div with correct id' );
 		$this->assertStringContainsString( '--jetpack-holiday-snow-speed:', $output, 'Output should contain the CSS variable' );
 		$this->assertStringContainsString( '12s', $output, 'Output should contain the correct speed value' );
+	}
+
+	/**
+	 * Data provider for test_is_snow_season_boolean_values.
+	 *
+	 * @return \Iterator
+	 */
+	public static function get_is_snow_season_boolean_scenarios(): \Iterator {
+		// Filter override scenarios.
+		yield 'Filter returns true' => array(
+			'filter_return' => true,
+			'expected'      => true,
+		);
+
+		yield 'Filter returns false' => array(
+			'filter_return' => false,
+			'expected'      => false,
+		);
+
+		// No filter scenarios - should return boolean based on natural behavior.
+		yield 'No filter with Northern hemisphere timezone' => array(
+			'filter_return' => null,
+			'expected'      => null,
+		);
+	}
+
+	/**
+	 * Test that is_snow_season returns the correct boolean values, including filter overrides.
+	 *
+	 * @dataProvider get_is_snow_season_boolean_scenarios
+	 * @param mixed     $filter_return The value the filter should return, or null for no filter.
+	 * @param bool|null $expected The expected boolean result from is_snow_season, or null if we just verify it's a boolean.
+	 */
+	#[DataProvider( 'get_is_snow_season_boolean_scenarios' )]
+	public function test_is_snow_season_boolean_values( $filter_return, ?bool $expected ) {
+		// Add filter if specified.
+		if ( $filter_return !== null ) {
+			add_filter(
+				'jetpack_is_holiday_snow_season',
+				function () use ( $filter_return ) {
+					return $filter_return;
+				}
+			);
+		}
+
+		$result = Holiday_Snow::is_snow_season();
+
+		// We can't predict the actual boolean,
+		// but we can verify it returns a boolean.
+		$this->assertIsBool( $result, 'is_snow_season should always return a boolean' );
+
+		// If we have an expected value, verify it matches.
+		if ( $expected !== null ) {
+			$this->assertSame( $expected, $result );
+		}
 	}
 }
