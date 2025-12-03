@@ -24,13 +24,13 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_scripts' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 100 );
 	}
 
 	/**
-	 * Enqueue the scripts for the frontend.
+	 * Add inline script data for the Agents Manager.
 	 */
-	public function enqueue_wp_scripts() {
+	public function add_inline_script() {
 		/**
 		 * Filter to register agent provider modules for the Agents Manager.
 		 *
@@ -42,13 +42,14 @@ class Agents_Manager {
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
+		// For now, we want this added wherever the help-center script is enqueued.
 		wp_add_inline_script(
-			'agents-manager',
+			'help-center',
 			'const agentsManagerData = ' . wp_json_encode(
 				array(
 					'agentProviders' => $agent_providers,
 				)
-			),
+			) . ';',
 			'before'
 		);
 	}
