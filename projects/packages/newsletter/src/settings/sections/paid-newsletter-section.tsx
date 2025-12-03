@@ -30,7 +30,7 @@ export function PaidNewsletterSection( {
 	return (
 		<div className="newsletter-settings__section">
 			<h3 className="newsletter-settings__section-title">
-				{ __( 'Paid Newsletter', 'jetpack-newsletter' ) }
+				{ __( 'Paid newsletter', 'jetpack-newsletter' ) }
 			</h3>
 			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<p>

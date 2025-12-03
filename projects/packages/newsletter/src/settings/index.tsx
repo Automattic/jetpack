@@ -10,7 +10,10 @@ import { __ } from '@wordpress/i18n';
  */
 import { Header } from './components/header';
 import {
-	EmailConfigurationSection,
+	EmailContentSection,
+	EmailBylineSection,
+	EmailSenderSettingsSection,
+	EmailReplyToSettingsSection,
 	NewsletterSection,
 	NewsletterCategoriesSection,
 	PaidNewsletterSection,
@@ -286,15 +289,33 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
-			<EmailConfigurationSection
+			<EmailContentSection
 				data={ data }
 				onChange={ handleAutoSave }
+				isSitePublic={ jetpackSettings?.isSitePublic ?? true }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<EmailBylineSection
+				data={ data }
+				onChange={ handleAutoSave }
+				jetpackSettings={ jetpackSettings }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<EmailSenderSettingsSection
 				jetpackSettings={ jetpackSettings }
 				senderName={ senderName }
 				onSenderNameChange={ handleSenderNameChange }
 				onSenderNameSave={ saveSenderName }
 				isSavingSenderName={ isSavingSenderName }
 				hasSenderNameChanged={ hasSenderNameChanged }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<EmailReplyToSettingsSection
+				data={ data }
+				onChange={ handleAutoSave }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 
