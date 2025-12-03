@@ -10,7 +10,7 @@ import type { SparklineProps, GradientConfig } from './types';
 const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 40;
 const DEFAULT_MARGIN = { top: 2, right: 2, bottom: 2, left: 2 };
-const DEFAULT_STROKE_WIDTH = 2;
+const DEFAULT_STROKE_WIDTH = 1;
 const DEFAULT_WITH_GRADIENT_FILL = true;
 const DEFAULT_GRADIENT_FROM_OPACITY = 0.5;
 const DEFAULT_GRADIENT_TO_OPACITY = 0.0;

@@ -53,7 +53,7 @@ export interface SparklineProps {
 
 	/**
 	 * Line stroke width in pixels
-	 * @default 2
+	 * @default 1
 	 */
 	strokeWidth?: number;
 
