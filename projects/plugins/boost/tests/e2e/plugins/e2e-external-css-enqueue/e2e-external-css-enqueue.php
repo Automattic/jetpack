@@ -10,7 +10,7 @@
  * @package automattic/jetpack
  */
 
-add_action( 'wp_enqueue_scripts', 'e2e_enqueue_enqueue' );
+add_action( 'wp_enqueue_scripts', 'e2e_enqueue_external_stylesheet' );
 
 function e2e_enqueue_external_stylesheet() {
 	wp_enqueue_style( 'e2e-external-stylesheet', plugins_url( 'assets/e2e-external-stylesheet.css', __FILE__ ), array(), '1.0.0' );
