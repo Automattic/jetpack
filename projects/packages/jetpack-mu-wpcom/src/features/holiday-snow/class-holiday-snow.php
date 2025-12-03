@@ -229,8 +229,9 @@ class Holiday_Snow {
 	public static function holiday_snow_markup() {
 		// Get the snow speed option, fallback to default if not set.
 		// Use hardcoded default (9) if config is not initialized yet.
-		$speed_config = self::get_config( self::OPTION_SPEED );
-		$snow_speed   = get_option( self::OPTION_SPEED, $speed_config['default'] ?? 9 );
+		$speed_config  = self::get_config( self::OPTION_SPEED );
+		$default_speed = $speed_config ? $speed_config['default'] : 9;
+		$snow_speed    = get_option( self::OPTION_SPEED, $default_speed );
 
 		// Sanitize the value, using config if available, otherwise use hardcoded defaults.
 		if ( $speed_config ) {
