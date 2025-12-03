@@ -1,0 +1,294 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as SparklineStories from './index.stories';
+
+<Meta title="JS Packages/Charts/Types/Sparkline Chart" of={ SparklineStories } />
+
+# Sparkline Chart
+
+A minimal, word-sized chart component designed for showing trends at a glance. Perfect for dashboard metrics and inline data visualization.
+
+<Canvas of={ SparklineStories.Default } />
+
+## Overview
+
+The Sparkline component provides a clean, minimal visualization for trend data. Built on `@visx/xychart`, it supports smooth monotone curves, optional gradient fills, and handles edge cases gracefully:
+
+<Source
+	language="jsx"
+	code={ `import { Sparkline } from '@automattic/charts';
+import '@automattic/charts/sparkline/style.css';
+
+<Sparkline
+	data={ [10, 15, 12, 18, 22, 25, 23, 28] }
+	width={ 120 }
+	height={ 48 }
+	color="#4CAF50"
+/>` }
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [Sparkline Chart API Reference](./?path=/docs/js-packages-charts-types-sparkline-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Sparkline
+
+The simplest sparkline requires only a `data` prop with an array of numeric values:
+
+<Canvas of={ SparklineStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `<Sparkline
+	data={[10, 15, 12, 18, 22, 25, 23, 28]}
+	width={120}
+	height={48}
+	color="#4CAF50"
+/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of numeric values to plot
+
+### Optional Props
+
+- **`width`** (default: `100`): Width of the sparkline in pixels
+- **`height`** (default: `40`): Height of the sparkline in pixels
+- **`color`**: Color for the line stroke (defaults to theme color)
+- **`strokeWidth`** (default: `1`): Line stroke width in pixels
+- **`withGradientFill`** (default: `true`): Whether to render gradient fill beneath the line
+- **`gradient`**: Custom gradient configuration (from, to, fromOpacity, toOpacity)
+- **`className`**: Additional CSS class name
+- **`margin`** (default: `{2,2,2,2}`): Margin around the chart
+
+For detailed prop information and type definitions, see the [Sparkline Chart API Reference](./?path=/docs/js-packages-charts-types-sparkline-chart-api-reference--docs).
+
+## Chart Variations
+
+### Trending Up
+
+Show positive trends with green:
+
+<Canvas of={ SparklineStories.TrendingUp } />
+
+<Source
+	language="jsx"
+	code={ `<Sparkline
+	data={[10, 15, 12, 18, 22, 25, 23, 28]}
+	color="#4CAF50"
+	width={120}
+	height={48}
+/>` }
+/>
+
+### Trending Down
+
+Show negative trends with red:
+
+<Canvas of={ SparklineStories.TrendingDown } />
+
+<Source
+	language="jsx"
+	code={ `<Sparkline
+	data={[28, 25, 22, 20, 18, 15, 12, 10]}
+	color="#F44336"
+	width={120}
+	height={48}
+/>` }
+/>
+
+### No Gradient Fill
+
+Disable the gradient for a cleaner line-only appearance:
+
+<Canvas of={ SparklineStories.NoGradient } />
+
+<Source
+	language="jsx"
+	code={ `<Sparkline
+	data={[10, 15, 12, 18, 22, 25]}
+	color="#2196F3"
+	withGradientFill={false}
+	width={120}
+	height={48}
+/>` }
+/>
+
+## Visual Customization
+
+### Custom Gradient
+
+Customize the gradient fill with specific colors and opacity:
+
+<Canvas of={ SparklineStories.CustomGradient } />
+
+<Source
+	language="jsx"
+	code={ `<Sparkline
+	data={[10, 15, 12, 18, 22, 25]}
+	color="#00BCD4"
+	gradient={{
+		from: "#00BCD4",
+		to: "#ffffff",
+		fromOpacity: 0.8,
+		toOpacity: 0.1,
+	}}
+	width={120}
+	height={48}
+/>` }
+/>
+
+### Responsive Sparkline
+
+The default `Sparkline` export includes responsive behavior. Wrap in a container and use `aspectRatio`:
+
+<Canvas of={ SparklineStories.Responsive } />
+
+<Source
+	language="jsx"
+	code={ `<div style={{ width: '100%', maxWidth: '200px' }}>
+	<Sparkline
+		data={[10, 15, 12, 18, 22, 25]}
+		color="#9C27B0"
+		aspectRatio={0.3}
+	/>
+</div>` }
+/>
+
+## Dashboard Integration
+
+### Metric Cards
+
+Sparklines work great alongside metrics in dashboard cards:
+
+<Canvas of={ SparklineStories.Dashboard } />
+
+<Source
+	language="jsx"
+	code={ `const metrics = [
+	{ label: 'Speeding up', value: 28, data: [10, 15, 12, 18, 22, 25, 23, 28], color: '#4CAF50' },
+	{ label: 'Efficient', value: 90, data: [80, 82, 85, 83, 87, 90, 88, 92], color: '#2196F3' },
+	{ label: 'Unstable', value: 65, data: [50, 75, 45, 80, 40, 85, 55, 65], color: '#FF9800' },
+];
+
+return (
+	<div style={{ display: 'flex', gap: '24px' }}>
+		{metrics.map(metric => (
+			<div key={metric.label} className="metric-card">
+				<div className="metric-header">
+					<span>{metric.label}</span>
+					<span>{metric.value}</span>
+				</div>
+				<Sparkline
+					data={metric.data}
+					width={180}
+					height={48}
+					color={metric.color}
+				/>
+			</div>
+		))}
+	</div>
+);` }
+/>
+
+## Theme Integration
+
+Sparklines integrate with the global charts theme. When no color is specified, the first theme color is used:
+
+<Source
+	language="jsx"
+	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts/providers';
+
+<GlobalChartsProvider theme={jetpackTheme}>
+	<Sparkline data={[10, 15, 12, 18]} />
+</GlobalChartsProvider>` }
+/>
+
+## Edge Cases and Error Handling
+
+The component handles various edge cases gracefully:
+
+### Empty Data
+
+When data is empty (`[]`), renders an empty container with the `sparkline--empty` class:
+
+<Canvas of={ SparklineStories.EmptyData } />
+
+### Single Data Point
+
+When data has only one point (`[42]`), renders a circle:
+
+<Canvas of={ SparklineStories.SinglePoint } />
+
+### Two Data Points
+
+Renders a minimal line connecting two points:
+
+<Canvas of={ SparklineStories.TwoPoints } />
+
+### Negative Values
+
+Negative values are fully supported:
+
+<Canvas of={ SparklineStories.NegativeValues } />
+
+### Flat Line
+
+All values the same renders a horizontal line:
+
+<Canvas of={ SparklineStories.FlatLine } />
+
+### Customizing Empty State
+
+The empty state can be styled using the `sparkline--empty` class:
+
+<Source
+	language="css"
+	code={ `.sparkline--empty {
+	background: rgba(0, 0, 0, 0.02);
+	border: 1px dashed rgba(0, 0, 0, 0.1);
+	border-radius: 4px;
+}` }
+/>
+
+## Accessibility
+
+Sparklines are decorative visualizations. For accessibility, ensure the parent container provides context:
+
+<Source
+	language="jsx"
+	code={ `<div role="img" aria-label="Momentum trending upward, current value 28">
+	<span>Momentum</span>
+	<span>28</span>
+	<Sparkline data={data} aria-hidden="true" />
+</div>` }
+/>
+
+**Best Practices:**
+- Use `role="img"` on the container
+- Provide `aria-label` describing the trend and current value
+- Add `aria-hidden="true"` to the sparkline itself
+- Always show the actual metric value as text alongside the sparkline
+
+## Browser Compatibility
+
+Sparkline charts are compatible with all modern browsers:
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Performance
+
+Sparklines are optimized for performance with:
+- Memoized calculations for theme and gradient config
+- Efficient data transformation
+- Minimal re-renders via `useCallback` for accessors
+- Small footprint (no axes, grids, or interactivity)
+
+**Performance Tips:**
+- Keep data arrays reasonably sized (under 100 points for sparklines)
+- Use the responsive variant only when needed
+- Reuse theme objects to prevent unnecessary recalculations
