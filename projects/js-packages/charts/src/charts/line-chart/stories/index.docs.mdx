@@ -78,6 +78,8 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
 - **`renderGlyph`**: Custom glyph render function
 - **`glyphStyle`**: Styling for chart glyphs
+- **`showAxes`**: Show or hide x and y axes (`true` by default)
+- **`showGrid`**: Show or hide grid lines (`true` by default)
 
 **Interactivity:**
 - **`withTooltips`**: Enable interactive tooltips (`true` by default)
@@ -692,4 +694,42 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 	<GlobalChartsProvider theme={customTheme}>
 		<LineChart data={data} />
 	</GlobalChartsProvider>` }
+/>
+
+**Available themes:**
+- **Default**: Neutral colors and styling
+- **Jetpack**: Jetpack brand colors and styling
+- **Woo**: WooCommerce brand colors and styling
+- **Custom**: Define your own theme object
+
+## Sparkline Variant
+
+For compact, inline visualizations without axes or interactivity, use the [Sparkline](?path=/docs/js-packages-charts-library-charts-sparkline--docs) component. It provides a simplified API built on LineChart:
+
+<Source
+	language="jsx"
+	code={ `import { Sparkline } from '@automattic/charts';
+
+// Simple number array - no dates needed
+<Sparkline
+	data={[10, 15, 12, 18, 22, 25, 23, 28]}
+	width={120}
+	height={48}
+	color="#4CAF50"
+/>` }
+/>
+
+Alternatively, create a minimal LineChart directly:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+	data={data}
+	showAxes={false}
+	showGrid={false}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+/>` }
 />
