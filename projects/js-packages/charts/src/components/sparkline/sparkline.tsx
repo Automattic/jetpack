@@ -20,7 +20,7 @@ type ChartDataPoint = {
 	y: number;
 };
 
-const SparklineComponent = forwardRef< SVGSVGElement, SparklineProps >(
+const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
 	(
 		{
 			data,
@@ -93,6 +93,7 @@ const SparklineComponent = forwardRef< SVGSVGElement, SparklineProps >(
 		if ( ! data || data.length === 0 ) {
 			return (
 				<div
+					ref={ ref as React.Ref< HTMLDivElement > }
 					className={ clsx( styles.sparkline, styles[ 'sparkline--empty' ], className ) }
 					style={ { width, height } }
 					data-testid="sparkline-empty"
@@ -107,7 +108,7 @@ const SparklineComponent = forwardRef< SVGSVGElement, SparklineProps >(
 
 			return (
 				<svg
-					ref={ ref }
+					ref={ ref as React.Ref< SVGSVGElement > }
 					width={ width }
 					height={ height }
 					className={ clsx( styles.sparkline, styles[ 'sparkline--single-point' ], className ) }
@@ -120,7 +121,11 @@ const SparklineComponent = forwardRef< SVGSVGElement, SparklineProps >(
 
 		// Full sparkline with line and optional gradient
 		return (
-			<div className={ clsx( styles.sparkline, className ) } data-testid="sparkline">
+			<div
+				ref={ ref as React.Ref< HTMLDivElement > }
+				className={ clsx( styles.sparkline, className ) }
+				data-testid="sparkline"
+			>
 				<XYChart
 					theme={ xychartTheme }
 					width={ width }
@@ -173,7 +178,7 @@ SparklineComponent.displayName = 'SparklineComponent';
 /**
  * Sparkline chart component with GlobalChartsProvider wrapper
  */
-export const SparklineUnresponsive = forwardRef< SVGSVGElement, SparklineProps >(
+export const SparklineUnresponsive = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
 	( props, ref ) => {
 		return (
 			<GlobalChartsProvider>
