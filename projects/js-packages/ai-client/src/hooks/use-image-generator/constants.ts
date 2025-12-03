@@ -45,4 +45,5 @@ export type ImageStyle =
 export type ImageStyleObject = {
 	label: string;
 	value: ImageStyle;
+	image?: string;
 };
