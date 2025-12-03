@@ -26,7 +26,7 @@ class Agents_Manager {
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
-		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1001 );
+		add_action( 'next_admin_init', array( $this, 'add_inline_script' ), 1001 );
 	}
 
 	/**
