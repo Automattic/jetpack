@@ -42,7 +42,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Remove hooks added by the Agents_Manager constructor.
 		remove_action( 'rest_api_init', array( $this->agents_manager, 'register_rest_api' ) );
 		remove_filter( 'calypso_preferences_update', array( $this->agents_manager, 'calypso_preferences_update' ) );
-		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 100 );
+		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
+		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
+		remove_action( 'next_admin_init', array( $this->agents_manager, 'add_inline_script' ), 1001 );
 
 		// Reset the REST server to clear any registered routes.
 		global $wp_rest_server;
