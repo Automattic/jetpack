@@ -77,26 +77,103 @@ export const Default: Story = {
 };
 
 /**
+ * Empty data renders empty container
+ */
+export const EmptyData: Story = {
+	args: {
+		data: [],
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Sparkline showing upward trend
+ */
+export const TrendingUp: Story = {
+	args: {
+		data: [ 10, 15, 12, 18, 22, 25, 23, 28 ],
+		color: '#4CAF50',
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Sparkline showing downward trend
+ */
+export const TrendingDown: Story = {
+	args: {
+		data: [ 28, 25, 22, 20, 18, 15, 12, 10 ],
+		color: '#F44336',
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Sparkline without gradient fill
+ */
+export const NoGradient: Story = {
+	args: {
+		data: [ 10, 15, 12, 18, 22, 25 ],
+		color: '#2196F3',
+		withGradientFill: false,
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Sparkline with custom gradient configuration
+ */
+export const CustomGradient: Story = {
+	args: {
+		data: [ 10, 15, 12, 18, 22, 25 ],
+		color: '#00BCD4',
+		gradient: {
+			from: '#00BCD4',
+			to: '#ffffff',
+			fromOpacity: 0.8,
+			toOpacity: 0.1,
+		},
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Responsive sparkline that adjusts to container width
+ */
+export const Responsive: Story = {
+	render: () => (
+		<div style={ { width: '100%', maxWidth: '200px' } }>
+			<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
+		</div>
+	),
+};
+
+/**
  * Dashboard example showing sparklines in metric cards
  */
-export const DashboardExample: Story = {
+export const Dashboard: Story = {
 	render: () => {
 		const metrics = [
 			{
-				label: 'Revenue',
-				value: '$28k',
+				label: 'Speeding up',
+				value: 28,
 				data: [ 10, 15, 12, 18, 22, 25, 23, 28 ],
 				color: '#4CAF50',
 			},
 			{
-				label: 'Users',
-				value: '1.2k',
+				label: 'Efficient',
+				value: 90,
 				data: [ 80, 82, 85, 83, 87, 90, 88, 92 ],
 				color: '#2196F3',
 			},
 			{
-				label: 'Traffic',
-				value: '856',
+				label: 'Unstable',
+				value: 65,
 				data: [ 50, 75, 45, 80, 40, 85, 55, 65 ],
 				color: '#FF9800',
 			},
@@ -133,11 +210,24 @@ export const DashboardExample: Story = {
 };
 
 /**
- * Empty data renders empty container
+ * Single data point renders as a circle
  */
-export const EmptyData: Story = {
+export const SinglePoint: Story = {
 	args: {
-		data: [],
+		data: [ 42 ],
+		color: '#9C27B0',
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Two data points render as a minimal line
+ */
+export const TwoPoints: Story = {
+	args: {
+		data: [ 10, 20 ],
+		color: '#3F51B5',
 		width: 120,
 		height: 48,
 	},
@@ -150,6 +240,18 @@ export const NegativeValues: Story = {
 	args: {
 		data: [ -10, -5, 0, 5, 10, 5, 0, -5 ],
 		color: '#E91E63',
+		width: 120,
+		height: 48,
+	},
+};
+
+/**
+ * Flat line with all same values
+ */
+export const FlatLine: Story = {
+	args: {
+		data: [ 15, 15, 15, 15, 15, 15 ],
+		color: '#607D8B',
 		width: 120,
 		height: 48,
 	},
