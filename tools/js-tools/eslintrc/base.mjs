@@ -322,6 +322,10 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-returns': 'warn',
 				'jsdoc/require-yields': 'warn',
 
+				// Too many of these to clean up now. Unclear if we even want to.
+				'jsdoc/reject-any-type': 'off',
+				'jsdoc/reject-function-type': 'off',
+
 				'jsx-a11y/anchor-has-content': 'off',
 				'jsx-a11y/anchor-is-valid': 'off',
 				// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
