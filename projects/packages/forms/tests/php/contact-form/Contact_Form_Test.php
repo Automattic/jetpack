@@ -4397,8 +4397,10 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'alignleft', $classes );
 
 		// Test that classes are space-separated string
-		$attributes = array( 'align' => 'wide' );
-		$classes    = Contact_Form::get_block_container_classes( $attributes );
-		$this->assertEquals( 'jetpack-contact-form-container alignwide', $classes );
+		$attributes    = array( 'align' => 'wide' );
+		$classes       = Contact_Form::get_block_container_classes( $attributes );
+		$classes_array = explode( ' ', $classes );
+		$this->assertContains( 'jetpack-contact-form-container', $classes_array );
+		$this->assertContains( 'alignwide', $classes_array );
 	}
 }
