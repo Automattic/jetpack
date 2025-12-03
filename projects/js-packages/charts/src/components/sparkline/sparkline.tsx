@@ -47,7 +47,7 @@ const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, Sparkline
 
 		// Transform data from number[] to {x, y}[] format for visx
 		const chartData = useMemo< ChartDataPoint[] >( () => {
-			return data.map( ( value, index ) => ( {
+			return ( data || [] ).map( ( value, index ) => ( {
 				x: index,
 				y: value,
 			} ) );
