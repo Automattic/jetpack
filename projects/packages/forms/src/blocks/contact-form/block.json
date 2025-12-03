@@ -25,7 +25,7 @@
 				"type": "flex",
 				"flexWrap": "nowrap",
 				"orientation": "vertical",
-				"justifyContent": "left"
+				"justifyContent": "stretch"
 			},
 			"allowSwitching": false,
 			"allowEditing": true,
