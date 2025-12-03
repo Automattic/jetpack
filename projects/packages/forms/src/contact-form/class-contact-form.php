@@ -553,11 +553,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Only encrypt the attributes field as it contains sensitive information
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
-		// Check cipher availability with fallback support. We store and compare
-		// cipher names in lowercase so that we behave consistently across
-		// environments where OpenSSL reports methods in uppercase.
+
+		// Check cipher availability with fallback support
 		$cipher                   = 'aes-256-gcm';
-		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
+		$available_cipher_methods = openssl_get_cipher_methods();
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
@@ -599,7 +598,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $encrypted === false ) {
 				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
-
 				return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 			}
 
