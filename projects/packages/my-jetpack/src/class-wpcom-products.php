@@ -344,8 +344,8 @@ class Wpcom_Products {
 
 		$body      = wp_remote_retrieve_body( $response );
 		$purchases = json_decode( $body );
-		// Set short transient to help with repeated lookups on the same page load
-		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, 5 );
+		// Cache for 1 hour to reduce repeated API calls during admin browsing.
+		set_transient( self::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
 
 		return $purchases;
 	}

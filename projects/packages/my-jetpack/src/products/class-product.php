@@ -343,8 +343,8 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
-		// set a short transient to help with multiple lookups on the same page load.
-		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
+		// Cache for 1 hour to reduce repeated API calls during admin browsing.
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, HOUR_IN_SECONDS );
 
 		return $features;
 	}
