@@ -282,7 +282,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( 'window.agentsManagerData =', $inline_script );
+		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
 	}
 
@@ -312,7 +312,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
-		$this->assertStringContainsString( 'window.agentsManagerData =', $inline_script );
+		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		// JSON encodes forward slashes as \/.
 		$this->assertStringContainsString( 'my-plugin\\/tool-provider', $inline_script );
 		$this->assertStringContainsString( 'another-plugin\\/context-provider', $inline_script );
