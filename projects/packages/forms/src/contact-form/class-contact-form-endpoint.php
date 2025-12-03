@@ -1497,6 +1497,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'isWebhooksEnabled'         => Jetpack_Forms::is_webhooks_enabled(),
 			'showDashboardIntegrations' => Jetpack_Forms::show_dashboard_integrations(),
 			'showBlockIntegrations'     => Jetpack_Forms::show_block_integrations(),
+			'showIntegrationIcons'      => Jetpack_Forms::show_integration_icons(),
 			'dashboardURL'              => Forms_Dashboard::get_forms_admin_url(),
 			// New data.
 			'canInstallPlugins'         => current_user_can( 'install_plugins' ),
