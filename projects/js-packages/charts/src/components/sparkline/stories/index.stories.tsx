@@ -65,7 +65,8 @@ type Story = StoryObj< typeof Sparkline >;
 const defaultData = [ 10, 15, 12, 18, 22, 25, 23, 28 ];
 
 /**
- * Basic sparkline with all controls available for customization
+ * Basic sparkline with all controls available for customization.
+ * Use the controls panel to experiment with colors, gradients, dimensions, and data.
  */
 export const Default: Story = {
 	args: {
@@ -77,7 +78,7 @@ export const Default: Story = {
 };
 
 /**
- * Empty data renders empty container
+ * Empty data renders an empty container gracefully.
  */
 export const EmptyData: Story = {
 	args: {
@@ -88,62 +89,31 @@ export const EmptyData: Story = {
 };
 
 /**
- * Sparkline showing upward trend
+ * Single data point renders as a circle instead of a line.
  */
-export const TrendingUp: Story = {
+export const SinglePoint: Story = {
 	args: {
-		data: [ 10, 15, 12, 18, 22, 25, 23, 28 ],
-		color: '#4CAF50',
+		data: [ 42 ],
+		color: '#9C27B0',
 		width: 120,
 		height: 48,
 	},
 };
 
 /**
- * Sparkline showing downward trend
+ * Two data points render as a minimal line segment.
  */
-export const TrendingDown: Story = {
+export const TwoPoints: Story = {
 	args: {
-		data: [ 28, 25, 22, 20, 18, 15, 12, 10 ],
-		color: '#F44336',
+		data: [ 10, 20 ],
+		color: '#3F51B5',
 		width: 120,
 		height: 48,
 	},
 };
 
 /**
- * Sparkline without gradient fill
- */
-export const NoGradient: Story = {
-	args: {
-		data: [ 10, 15, 12, 18, 22, 25 ],
-		color: '#2196F3',
-		withGradientFill: false,
-		width: 120,
-		height: 48,
-	},
-};
-
-/**
- * Sparkline with custom gradient configuration
- */
-export const CustomGradient: Story = {
-	args: {
-		data: [ 10, 15, 12, 18, 22, 25 ],
-		color: '#00BCD4',
-		gradient: {
-			from: '#00BCD4',
-			to: '#ffffff',
-			fromOpacity: 0.8,
-			toOpacity: 0.1,
-		},
-		width: 120,
-		height: 48,
-	},
-};
-
-/**
- * Responsive sparkline that adjusts to container width
+ * Responsive sparkline that adjusts to container width using aspectRatio.
  */
 export const Responsive: Story = {
 	render: () => (
@@ -154,7 +124,7 @@ export const Responsive: Story = {
 };
 
 /**
- * Dashboard example showing sparklines in metric cards
+ * Dashboard example showing sparklines in metric cards - a common real-world use case.
  */
 export const Dashboard: Story = {
 	render: () => {
@@ -206,53 +176,5 @@ export const Dashboard: Story = {
 				) ) }
 			</div>
 		);
-	},
-};
-
-/**
- * Single data point renders as a circle
- */
-export const SinglePoint: Story = {
-	args: {
-		data: [ 42 ],
-		color: '#9C27B0',
-		width: 120,
-		height: 48,
-	},
-};
-
-/**
- * Two data points render as a minimal line
- */
-export const TwoPoints: Story = {
-	args: {
-		data: [ 10, 20 ],
-		color: '#3F51B5',
-		width: 120,
-		height: 48,
-	},
-};
-
-/**
- * Negative values are supported
- */
-export const NegativeValues: Story = {
-	args: {
-		data: [ -10, -5, 0, 5, 10, 5, 0, -5 ],
-		color: '#E91E63',
-		width: 120,
-		height: 48,
-	},
-};
-
-/**
- * Flat line with all same values
- */
-export const FlatLine: Story = {
-	args: {
-		data: [ 15, 15, 15, 15, 15, 15 ],
-		color: '#607D8B',
-		width: 120,
-		height: 48,
 	},
 };

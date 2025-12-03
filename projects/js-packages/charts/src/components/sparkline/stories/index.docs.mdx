@@ -65,69 +65,33 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 
 For detailed prop information and type definitions, see the [Sparkline Chart API Reference](./?path=/docs/js-packages-charts-types-sparkline-chart-api-reference--docs).
 
-## Chart Variations
-
-### Trending Up
-
-Show positive trends with green:
-
-<Canvas of={ SparklineStories.TrendingUp } />
-
-<Source
-	language="jsx"
-	code={ `<Sparkline
-	data={[10, 15, 12, 18, 22, 25, 23, 28]}
-	color="#4CAF50"
-	width={120}
-	height={48}
-/>` }
-/>
-
-### Trending Down
-
-Show negative trends with red:
-
-<Canvas of={ SparklineStories.TrendingDown } />
-
-<Source
-	language="jsx"
-	code={ `<Sparkline
-	data={[28, 25, 22, 20, 18, 15, 12, 10]}
-	color="#F44336"
-	width={120}
-	height={48}
-/>` }
-/>
-
-### No Gradient Fill
-
-Disable the gradient for a cleaner line-only appearance:
-
-<Canvas of={ SparklineStories.NoGradient } />
-
-<Source
-	language="jsx"
-	code={ `<Sparkline
-	data={[10, 15, 12, 18, 22, 25]}
-	color="#2196F3"
-	withGradientFill={false}
-	width={120}
-	height={48}
-/>` }
-/>
-
 ## Visual Customization
 
-### Custom Gradient
+### Trend Colors
 
-Customize the gradient fill with specific colors and opacity:
-
-<Canvas of={ SparklineStories.CustomGradient } />
+Use colors to indicate trend direction - green for positive, red for negative:
 
 <Source
 	language="jsx"
-	code={ `<Sparkline
-	data={[10, 15, 12, 18, 22, 25]}
+	code={ `// Positive trend
+<Sparkline data={[10, 15, 18, 22, 28]} color="#4CAF50" />
+
+// Negative trend
+<Sparkline data={[28, 22, 18, 15, 10]} color="#F44336" />` }
+/>
+
+### Gradient Control
+
+Disable the gradient for a cleaner line-only appearance, or customize it:
+
+<Source
+	language="jsx"
+	code={ `// No gradient fill
+<Sparkline data={data} color="#2196F3" withGradientFill={false} />
+
+// Custom gradient
+<Sparkline
+	data={data}
 	color="#00BCD4"
 	gradient={{
 		from: "#00BCD4",
@@ -135,8 +99,6 @@ Customize the gradient fill with specific colors and opacity:
 		fromOpacity: 0.8,
 		toOpacity: 0.1,
 	}}
-	width={120}
-	height={48}
 />` }
 />
 
@@ -206,7 +168,7 @@ Sparklines integrate with the global charts theme. When no color is specified, t
 </GlobalChartsProvider>` }
 />
 
-## Edge Cases and Error Handling
+## Edge Cases
 
 The component handles various edge cases gracefully:
 
@@ -218,7 +180,7 @@ When data is empty (`[]`), renders an empty container with the `sparkline--empty
 
 ### Single Data Point
 
-When data has only one point (`[42]`), renders a circle:
+When data has only one point, renders a circle:
 
 <Canvas of={ SparklineStories.SinglePoint } />
 
@@ -228,17 +190,9 @@ Renders a minimal line connecting two points:
 
 <Canvas of={ SparklineStories.TwoPoints } />
 
-### Negative Values
+### Negative and Flat Values
 
-Negative values are fully supported:
-
-<Canvas of={ SparklineStories.NegativeValues } />
-
-### Flat Line
-
-All values the same renders a horizontal line:
-
-<Canvas of={ SparklineStories.FlatLine } />
+Negative values and flat lines (all same values) are fully supported - experiment with the Default story controls to see these in action.
 
 ### Customizing Empty State
 
