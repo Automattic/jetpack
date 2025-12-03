@@ -26,9 +26,11 @@
 	}
 }
 
-input[type="text"].jetpack-field-slider__min-text-label,
-input[type="text"].jetpack-field-slider__max-text-label {
+input[type="text"].jetpack-field-slider__min-text-label.jetpack-field-slider__min-text-label,
+input[type="text"].jetpack-field-slider__max-text-label.jetpack-field-slider__max-text-label {
 	border: none;
+	outline: none;
+	box-shadow: none;
 	background: transparent;
 	font: inherit;
 	color: inherit;
