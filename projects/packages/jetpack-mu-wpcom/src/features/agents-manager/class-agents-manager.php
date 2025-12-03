@@ -24,6 +24,33 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_scripts' ), 100 );
+	}
+
+	/**
+	 * Enqueue the scripts for the frontend.
+	 */
+	public function enqueue_wp_scripts() {
+		/**
+		 * Filter to register agent provider modules for the Agents Manager.
+		 *
+		 * Plugins can hook into this filter to register script module IDs that export
+		 * toolProvider and/or contextProvider. The Agents Manager JS will dynamically
+		 * import these modules and merge their providers.
+		 *
+		 * @param array $providers Array of provider script module IDs.
+		 */
+		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
+
+		wp_add_inline_script(
+			'agents-manager',
+			'const agentsManagerData = ' . wp_json_encode(
+				array(
+					'agentProviders' => $agent_providers,
+				)
+			),
+			'before'
+		);
 	}
 
 	/**
