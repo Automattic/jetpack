@@ -169,7 +169,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( $set_id ) {
-			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page );
+			$page_number      = is_numeric( $page ) ? intval( $page ) : 1;
+			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page_number );
 		}
 		$this->hash = sha1( wp_json_encode( $attributes ) );
 
@@ -207,6 +208,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'saveResponses'          => 'yes',
 			'emailNotifications'     => 'yes',
 			'notificationRecipients' => array(), // Array of user IDs who should receive form response notifications.
+			'webhooks'               => array(), // Array of webhooks to send the form data to.
 			'disableGoBack'          => $attributes['disableGoBack'] ?? false,
 			'disableSummary'         => $attributes['disableSummary'] ?? false,
 			'formTitle'              => $attributes['formTitle'] ?? '',

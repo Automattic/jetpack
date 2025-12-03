@@ -94,6 +94,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 		getSpamCount: jest.fn().mockReturnValue( 1 ),
 		getTrashCount: jest.fn().mockReturnValue( 0 ),
 		getInvalidRecords: jest.fn().mockReturnValue( new Set() ),
+		hasPendingActions: jest.fn().mockReturnValue( false ),
 	};
 
 	return {

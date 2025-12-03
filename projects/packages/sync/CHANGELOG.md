@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.22.6] - 2025-12-01
+### Changed
+- Sync: Only send a single updated_post_meta action per attachment metadata request. [#45921]
+
 ## [4.22.5] - 2025-11-20
 ### Fixed
 - Improve compatibility with old WooCommerce versions. [#46003]
@@ -1586,6 +1590,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.22.6]: https://github.com/Automattic/jetpack-sync/compare/v4.22.5...v4.22.6
 [4.22.5]: https://github.com/Automattic/jetpack-sync/compare/v4.22.4...v4.22.5
 [4.22.4]: https://github.com/Automattic/jetpack-sync/compare/v4.22.3...v4.22.4
 [4.22.3]: https://github.com/Automattic/jetpack-sync/compare/v4.22.2...v4.22.3

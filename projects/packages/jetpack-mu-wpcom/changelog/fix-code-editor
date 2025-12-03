@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gutenberg removed the feature used to render the improved code editor. Fix it by switching to an alternate implementation.

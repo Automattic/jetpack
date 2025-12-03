@@ -12,6 +12,7 @@ export type QueryParams = {
 	is_unread?: boolean;
 	per_page?: number;
 	page?: number;
+	status?: string;
 };
 
 /**
@@ -21,6 +22,7 @@ export type NoticeOptions = {
 	type?: string;
 	id?: string;
 	actions?: { label: string; onClick: () => void }[];
+	icon?: React.ReactNode;
 };
 
 /**
@@ -30,6 +32,8 @@ export type DispatchActions = {
 	// Notices store actions
 	createSuccessNotice: ( message: string, options: NoticeOptions ) => void;
 	createErrorNotice: ( message: string, options: NoticeOptions ) => void;
+	createInfoNotice: ( message: string, options: NoticeOptions ) => void;
+	removeNotice: ( id: string ) => void;
 
 	// Core store actions
 	saveEntityRecord: (
@@ -56,7 +60,8 @@ export type DispatchActions = {
 		records: FormResponse[],
 		query?: QueryParams,
 		invalidateCache?: boolean
-	) => Promise< void >;
+	) => void;
+	invalidateResolution: ( selector: string, args: unknown[] ) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (
@@ -70,6 +75,8 @@ export type DispatchActions = {
 	invalidateCounts: () => void;
 	markRecordsAsInvalid: ( ids: number[] ) => void;
 	setCurrentQuery: ( queryParams: QueryParams ) => void;
+	addPendingAction: ( actionId: string ) => void;
+	removePendingAction: ( actionId: string ) => void;
 };
 
 /**
@@ -90,12 +97,21 @@ export type SelectActions = {
 	) => Record< string, unknown > | undefined;
 };
 
+export type ResolveSelectActions = {
+	getEntityRecords: (
+		kind: string,
+		name: string,
+		query?: QueryParams
+	) => Promise< FormResponse[] | null >;
+};
+
 /**
  * Store actions
  */
 export type Registry = {
 	dispatch: ( store: StoreDescriptor ) => DispatchActions;
 	select: ( store: StoreDescriptor ) => SelectActions;
+	resolveSelect: ( store: StoreDescriptor ) => ResolveSelectActions;
 };
 
 export type Action = {

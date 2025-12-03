@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/root-variables";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .more-link {
 	display: inline-block;
@@ -60,6 +61,12 @@
 	list-style-type: disc;
 }
 
+.connections-list {
+	border-radius: 2px;
+	border: 1px solid gb.$gray-200;
+	margin-bottom: 0.75rem;
+}
+
 .empty-state {
 
 	.illustration {
@@ -77,4 +84,10 @@
 			width: 100%;
 		}
 	}
+}
+
+.preview-posts-trigger {
+	width: 100%;
+	justify-content: center;
+	margin-block: 1rem;
 }
