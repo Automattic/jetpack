@@ -216,7 +216,7 @@ export function SubscriptionsSection( {
 		{
 			id: 'stc_enabled',
 			label: __(
-				'Enable the "Subscribe to comments" option on yourcomment form',
+				'Enable the "Subscribe to comments" option on your comment form',
 				'jetpack-newsletter'
 			),
 			type: 'boolean' as const,
