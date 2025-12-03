@@ -1,27 +1,49 @@
-import { curveMonotoneX } from '@visx/curve';
-import { LinearGradient } from '@visx/gradient';
-import { buildChartTheme, XYChart, LineSeries, AreaSeries } from '@visx/xychart';
 import clsx from 'clsx';
-import { useMemo, forwardRef, useCallback } from 'react';
-import { GlobalChartsProvider, useGlobalChartsTheme, useChartId } from '../../providers';
+import { useMemo, forwardRef } from 'react';
+import { LineChartUnresponsive } from '../line-chart';
 import { withResponsive } from '../private/with-responsive';
 import styles from './sparkline.module.scss';
-import type { SparklineProps, GradientConfig } from './types';
+import type { SparklineProps } from './types';
+import type { SeriesData } from '../../types';
 
 const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 40;
 const DEFAULT_MARGIN = { top: 2, right: 2, bottom: 2, left: 2 };
-const DEFAULT_STROKE_WIDTH = 1;
-const DEFAULT_WITH_GRADIENT_FILL = true;
-const DEFAULT_GRADIENT_FROM_OPACITY = 0.5;
-const DEFAULT_GRADIENT_TO_OPACITY = 0.0;
+const DEFAULT_STROKE_WIDTH = 1.5;
 
-type ChartDataPoint = {
-	x: number;
-	y: number;
+/**
+ * Transforms a simple number array into SeriesData format for LineChart.
+ * Uses index-based dates to create a linear x-axis.
+ *
+ * @param data        - Array of numeric values to plot
+ * @param color       - Optional color for the line stroke
+ * @param strokeWidth - Optional stroke width for the line
+ * @return SeriesData array suitable for LineChart
+ */
+const transformToSeriesData = (
+	data: number[],
+	color?: string,
+	strokeWidth?: number
+): SeriesData[] => {
+	// Use a fixed base date and increment by index to create linear spacing
+	const baseDate = new Date( 2000, 0, 1 );
+
+	return [
+		{
+			label: 'sparkline',
+			data: data.map( ( value, index ) => ( {
+				date: new Date( baseDate.getTime() + index * 86400000 ), // Add days
+				value,
+			} ) ),
+			options: {
+				stroke: color,
+				seriesLineStyle: strokeWidth ? { strokeWidth } : undefined,
+			},
+		},
+	];
 };
 
-const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
+const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 	(
 		{
 			data,
@@ -29,51 +51,21 @@ const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, Sparkline
 			height = DEFAULT_HEIGHT,
 			color,
 			strokeWidth = DEFAULT_STROKE_WIDTH,
-			withGradientFill = DEFAULT_WITH_GRADIENT_FILL,
+			withGradientFill = true,
 			gradient,
 			className,
-			chartId: providedChartId,
+			chartId,
 			margin = DEFAULT_MARGIN,
 		},
 		ref
 	) => {
-		const theme = useGlobalChartsTheme();
-		const generatedChartId = useChartId();
-		const chartId = providedChartId || generatedChartId;
-
-		// Determine line color (use prop or default to first theme color)
-		const lineColor = useMemo( () => {
-			return color || theme?.colors?.[ 0 ] || '#000000';
-		}, [ color, theme ] );
-
-		// Transform data from number[] to {x, y}[] format for visx
-		const chartData = useMemo< ChartDataPoint[] >( () => {
-			return ( data || [] ).map( ( value, index ) => ( {
-				x: index,
-				y: value,
-			} ) );
-		}, [ data ] );
-
-		// Compute gradient configuration
-		const gradientConfig = useMemo< Required< GradientConfig > >( () => {
-			const defaultFrom = lineColor;
-			const defaultTo = theme?.backgroundColor || '#ffffff';
-
-			return {
-				from: gradient?.from || defaultFrom,
-				to: gradient?.to || defaultTo,
-				fromOpacity: gradient?.fromOpacity ?? DEFAULT_GRADIENT_FROM_OPACITY,
-				toOpacity: gradient?.toOpacity ?? DEFAULT_GRADIENT_TO_OPACITY,
-			};
-		}, [ lineColor, gradient, theme ] );
-
-		// Build visx theme
-		const xychartTheme = useMemo( () => {
-			return buildChartTheme( {
-				...theme,
-				colors: [ lineColor, ...( theme?.colors ?? [] ) ],
-			} );
-		}, [ theme, lineColor ] );
+		// Transform number[] to SeriesData[] for LineChart
+		const seriesData = useMemo( () => {
+			if ( ! data || data.length === 0 ) {
+				return [];
+			}
+			return transformToSeriesData( data, color, strokeWidth );
+		}, [ data, color, strokeWidth ] );
 
 		// Merge margins
 		const finalMargin = useMemo( () => {
@@ -83,18 +75,32 @@ const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, Sparkline
 			};
 		}, [ margin ] );
 
-		// Generate unique gradient ID
-		const gradientId = `sparkline-gradient-${ chartId }`;
+		// Build gradient options for the series if custom gradient is provided
+		// Note: This must be called before any early returns to follow React hooks rules
+		const seriesWithGradient = useMemo( () => {
+			if ( ! gradient || seriesData.length === 0 ) {
+				return seriesData;
+			}
 
-		// Create accessor functions
-		const xAccessor = useCallback( ( d: ChartDataPoint ) => d.x, [] );
-		const yAccessor = useCallback( ( d: ChartDataPoint ) => d.y, [] );
+			return seriesData.map( series => ( {
+				...series,
+				options: {
+					...series.options,
+					gradient: {
+						from: gradient.from || color || '#000000',
+						to: gradient.to || '#ffffff',
+						fromOpacity: gradient.fromOpacity ?? 0.5,
+						toOpacity: gradient.toOpacity ?? 0.0,
+					},
+				},
+			} ) );
+		}, [ seriesData, gradient, color ] );
 
-		// Handle edge cases
+		// Handle empty data
 		if ( ! data || data.length === 0 ) {
 			return (
 				<div
-					ref={ ref as React.Ref< HTMLDivElement > }
+					ref={ ref }
 					className={ clsx( styles.sparkline, styles[ 'sparkline--empty' ], className ) }
 					style={ { width, height } }
 					data-testid="sparkline-empty"
@@ -102,73 +108,39 @@ const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, Sparkline
 			);
 		}
 
-		// Single point: render a circle
+		// Handle single data point - render a simple dot
 		if ( data.length === 1 ) {
 			const cx = width / 2;
 			const cy = height / 2;
+			const resolvedColor = color || '#000000';
 
 			return (
 				<svg
-					ref={ ref as React.Ref< SVGSVGElement > }
 					width={ width }
 					height={ height }
 					className={ clsx( styles.sparkline, styles[ 'sparkline--single-point' ], className ) }
 					data-testid="sparkline-single-point"
 				>
-					<circle cx={ cx } cy={ cy } r={ strokeWidth * 1.5 } fill={ lineColor } />
+					<circle cx={ cx } cy={ cy } r={ strokeWidth * 1.5 } fill={ resolvedColor } />
 				</svg>
 			);
 		}
 
-		// Full sparkline with line and optional gradient
 		return (
-			<div
-				ref={ ref as React.Ref< HTMLDivElement > }
-				className={ clsx( styles.sparkline, className ) }
-				data-testid="sparkline"
-			>
-				<XYChart
-					theme={ xychartTheme }
+			<div ref={ ref } className={ clsx( styles.sparkline, className ) } data-testid="sparkline">
+				<LineChartUnresponsive
+					data={ seriesWithGradient }
 					width={ width }
 					height={ height }
 					margin={ finalMargin }
-					xScale={ { type: 'linear' } }
-					yScale={ { type: 'linear', nice: true, zero: false } }
-					captureEvents={ false }
-				>
-					{ withGradientFill && (
-						<LinearGradient
-							id={ gradientId }
-							from={ gradientConfig.from }
-							to={ gradientConfig.to }
-							fromOpacity={ gradientConfig.fromOpacity }
-							toOpacity={ gradientConfig.toOpacity }
-							vertical
-						/>
-					) }
-
-					{ withGradientFill && (
-						<AreaSeries
-							dataKey="sparkline-area"
-							data={ chartData }
-							xAccessor={ xAccessor }
-							yAccessor={ yAccessor }
-							fill={ `url(#${ gradientId })` }
-							renderLine={ false }
-							curve={ curveMonotoneX }
-						/>
-					) }
-
-					<LineSeries
-						dataKey="sparkline-line"
-						data={ chartData }
-						xAccessor={ xAccessor }
-						yAccessor={ yAccessor }
-						stroke={ lineColor }
-						strokeWidth={ strokeWidth }
-						curve={ curveMonotoneX }
-					/>
-				</XYChart>
+					chartId={ chartId }
+					withGradientFill={ withGradientFill }
+					withTooltips={ false }
+					showLegend={ false }
+					showAxes={ false }
+					showGrid={ false }
+					curveType="monotone"
+				/>
 			</div>
 		);
 	}
@@ -177,17 +149,16 @@ const SparklineComponent = forwardRef< HTMLDivElement | SVGSVGElement, Sparkline
 SparklineComponent.displayName = 'SparklineComponent';
 
 /**
- * Sparkline chart component with GlobalChartsProvider wrapper
+ * Sparkline - A minimal line chart for inline data visualization.
+ *
+ * Sparklines are compact charts designed to be embedded inline with text or
+ * displayed in small spaces like table cells or dashboards. They show trends
+ * without axes, labels, or other chart chrome.
+ *
+ * This component is built on top of LineChart with preconfigured settings
+ * for minimal display (no axes, grid, tooltips, or legend).
  */
-const SparklineUnresponsive = forwardRef< HTMLDivElement | SVGSVGElement, SparklineProps >(
-	( props, ref ) => {
-		return (
-			<GlobalChartsProvider>
-				<SparklineComponent { ...props } ref={ ref } />
-			</GlobalChartsProvider>
-		);
-	}
-);
+const SparklineUnresponsive = SparklineComponent;
 
 SparklineUnresponsive.displayName = 'SparklineUnresponsive';
 
