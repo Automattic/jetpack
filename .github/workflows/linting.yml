@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - if: github.event_name == 'pull_request'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - if: github.event_name == 'pull_request'
         uses: dorny/paths-filter@v3
@@ -222,7 +222,7 @@ jobs:
         experimental: [ false ]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -256,7 +256,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~2 minutes. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -284,7 +284,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Successful runs seem to take ~1 minute. Leaving some extra for future expansion.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -315,7 +315,7 @@ jobs:
 
     steps:
       # We don't need full git history, but phpcs-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -352,7 +352,7 @@ jobs:
     timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all php/js deps to ensure valid linting.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -376,7 +376,7 @@ jobs:
 
     steps:
       # We don't need full git history, but eslint-changed does need everything up to the merge-base.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -405,7 +405,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Takes a bit more than a minute, so give a little wiggle room.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -426,7 +426,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.ghactionsfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -445,7 +445,7 @@ jobs:
     timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - run: ./tools/check-copied-files.sh
 
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
@@ -459,7 +459,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.excludelist == 'true'
     timeout-minutes: 10  # 2025-11-06: The check itself takes 2 minutes.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -482,7 +482,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-06: Takes a few seconds.
     steps:
       # We don't need full git history, but tools/check-changelogger-use.php does need everything up to the merge-base.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 10
@@ -506,7 +506,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes less than a minute.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -528,7 +528,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Successful runs seem to take about 2 minutes.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -546,7 +546,7 @@ jobs:
     if: github.event_name == 'push' || needs.changed_files.outputs.lockfiles == 'true' || needs.changed_files.outputs.misc == 'true'
     timeout-minutes: 7  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - run: pnpm install
@@ -560,7 +560,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5  # 2025-11-06: Takes a minute or two.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -581,7 +581,7 @@ jobs:
       # step "Warn about stubs"
       pull-requests: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/deepen-to-merge-base
         id: deepen
       - name: Warn about stubs
@@ -609,7 +609,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10 # 2025-11-20: Takes around 3 minutes.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
@@ -632,7 +632,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25 # 2025-11-20: Up to about 10 minutes now that we're running against the old WP and Woo stubs too.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup tools
         uses: ./.github/actions/tool-setup
       - name: Pnpm install
