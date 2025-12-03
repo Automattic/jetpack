@@ -39,7 +39,9 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const [ isSavingSubscriptions, setIsSavingSubscriptions ] = useState( false );
 
 	// Sender name state (for manual save)
-	const [ senderName, setSenderName ] = useState( '' );
+	const [ senderNameChanges, setSenderNameChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
 	const [ isSavingSenderName, setIsSavingSenderName ] = useState( false );
 
 	// Snackbar notification state
@@ -62,12 +64,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	// Callback to clear snackbar
 	const clearSnackbar = useCallback( () => setSnackbarMessage( null ), [] );
 
-	// Callback for sender name input change
-	const handleSenderNameChange = useCallback(
-		( e: React.ChangeEvent< HTMLInputElement > ) => setSenderName( e.target.value ),
-		[]
-	);
-
 	// Load settings on mount
 	useEffect( () => {
 		// Initialize the REST API with WordPress settings
@@ -89,7 +85,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					).map( String ),
 				};
 				setData( normalizedSettings );
-				setSenderName( normalizedSettings.jetpack_subscriptions_from_name || '' );
 				setIsLoading( false );
 			} )
 			.catch( ( err: Error ) => {
@@ -153,17 +148,33 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ subscriptionChanges ] );
 
+	// Handle sender name changes (staged, not auto-saved)
+	const handleSenderNameChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			if ( ! data ) {
+				return;
+			}
+
+			// Merge updates into staged changes
+			setSenderNameChanges( { ...senderNameChanges, ...updates } );
+		},
+		[ data, senderNameChanges ]
+	);
+
 	// Save sender name
 	const saveSenderName = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
 		setIsSavingSenderName( true );
 		setError( null );
 
 		restApi
-			.updateSettings( { jetpack_subscriptions_from_name: senderName } )
+			.updateSettings( senderNameChanges )
 			.then( () => {
-				if ( data ) {
-					setData( { ...data, jetpack_subscriptions_from_name: senderName } );
-				}
+				setData( { ...data, ...senderNameChanges } );
+				setSenderNameChanges( {} );
 				setSnackbarMessage( __( 'Sender name saved', 'jetpack-newsletter' ) );
 			} )
 			.catch( ( err: Error ) => {
@@ -172,7 +183,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			.finally( () => {
 				setIsSavingSenderName( false );
 			} );
-	}, [ senderName, data ] );
+	}, [ senderNameChanges, data ] );
 
 	// Handle newsletter categories changes (staged, not auto-saved)
 	const handleNewsletterCategoriesChange = useCallback(
@@ -244,7 +255,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	}
 
 	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
-	const hasSenderNameChanged = senderName !== ( data.jetpack_subscriptions_from_name || '' );
+	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
 	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
 
 	return (
@@ -304,12 +315,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			/>
 
 			<EmailSenderSettingsSection
+				data={ { ...data, ...senderNameChanges } }
+				onChange={ handleSenderNameChange }
+				onSave={ saveSenderName }
+				isSaving={ isSavingSenderName }
+				hasChanges={ hasSenderNameChanges }
 				jetpackSettings={ jetpackSettings }
-				senderName={ senderName }
-				onSenderNameChange={ handleSenderNameChange }
-				onSenderNameSave={ saveSenderName }
-				isSavingSenderName={ isSavingSenderName }
-				hasSenderNameChanged={ hasSenderNameChanged }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 

@@ -2,19 +2,20 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { DataForm, type Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface EmailSenderSettingsSectionProps {
+	data: NewsletterSettings;
+	onChange: ( updates: Partial< NewsletterSettings > ) => void;
+	onSave: () => void;
+	isSaving: boolean;
+	hasChanges: boolean;
 	jetpackSettings: JetpackNewsletterSettings | undefined;
-	senderName: string;
-	onSenderNameChange: ( e: React.ChangeEvent< HTMLInputElement > ) => void;
-	onSenderNameSave: () => void;
-	isSavingSenderName: boolean;
-	hasSenderNameChanged: boolean;
 	isNewsletterEnabled: boolean;
 }
 
@@ -27,45 +28,50 @@ interface EmailSenderSettingsSectionProps {
  * @return {JSX.Element} The email sender settings section
  */
 export function EmailSenderSettingsSection( {
+	data,
+	onChange,
+	onSave,
+	isSaving,
+	hasChanges,
 	jetpackSettings,
-	senderName,
-	onSenderNameChange,
-	onSenderNameSave,
-	isSavingSenderName,
-	hasSenderNameChanged,
 	isNewsletterEnabled,
 }: EmailSenderSettingsSectionProps ): JSX.Element {
+	const fields: Field< NewsletterSettings >[] = [
+		{
+			id: 'jetpack_subscriptions_from_name',
+			label: __( 'Sender name', 'jetpack-newsletter' ),
+			type: 'text' as const,
+			description: __(
+				"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
+				'jetpack-newsletter'
+			),
+		},
+	];
+
+	// Get the current sender name value
+	const senderName = data.jetpack_subscriptions_from_name || '';
+
 	return (
 		<div className="newsletter-settings__section">
 			<h3 className="newsletter-settings__section-title">
 				{ __( 'Sender settings', 'jetpack-newsletter' ) }
 			</h3>
 			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<div className="newsletter-settings__sender-name">
-					<label htmlFor="sender-name-input" className="newsletter-settings__field-label">
-						{ __( 'Sender name', 'jetpack-newsletter' ) }
-					</label>
-					<div className="newsletter-settings__sender-name-controls">
-						<input
-							id="sender-name-input"
-							type="text"
-							className="newsletter-settings__text-input"
-							value={ senderName }
-							onChange={ onSenderNameChange }
-						/>
-						{ hasSenderNameChanged && (
-							<Button
-								variant="primary"
-								onClick={ onSenderNameSave }
-								disabled={ ! isNewsletterEnabled || isSavingSenderName }
-								isBusy={ isSavingSenderName }
-							>
-								{ isSavingSenderName
-									? __( 'Saving…', 'jetpack-newsletter' )
-									: __( 'Save', 'jetpack-newsletter' ) }
-							</Button>
-						) }
-					</div>
+				<DataForm
+					data={ data }
+					fields={ fields }
+					form={ {
+						layout: {
+							type: 'regular',
+							labelPosition: 'top',
+						},
+						fields: [ 'jetpack_subscriptions_from_name' ],
+					} }
+					onChange={ onChange }
+				/>
+
+				{ /* Inline preview of how the sender name appears in email */ }
+				<div className="newsletter-settings__sender-preview">
 					<p className="newsletter-settings__field-description">
 						{ __( 'Preview:', 'jetpack-newsletter' ) }{ ' ' }
 						<strong>
@@ -75,12 +81,19 @@ export function EmailSenderSettingsSection( {
 						</strong>{ ' ' }
 						&lt;comment-reply@wordpress.com&gt;
 					</p>
-					<p className="newsletter-settings__field-description">
-						{ __(
-							"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
-							'jetpack-newsletter'
-						) }
-					</p>
+				</div>
+
+				<div className="newsletter-settings__section-actions">
+					<Button
+						variant="primary"
+						onClick={ onSave }
+						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+						isBusy={ isSaving }
+					>
+						{ isSaving
+							? __( 'Saving…', 'jetpack-newsletter' )
+							: __( 'Save', 'jetpack-newsletter' ) }
+					</Button>
 				</div>
 			</fieldset>
 		</div>
