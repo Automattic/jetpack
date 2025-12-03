@@ -13,5 +13,7 @@
 add_action( 'wp_enqueue_scripts', 'e2e_enqueue_external_stylesheet' );
 
 function e2e_enqueue_external_stylesheet() {
-	wp_enqueue_style( 'e2e-external-stylesheet', plugins_url( 'assets/e2e-external-stylesheet.css', __FILE__ ), array(), '1.0.0' );
+	if ( is_front_page() ) {
+		wp_enqueue_style( 'e2e-external-stylesheet', plugins_url( 'assets/e2e-external-stylesheet.css', __FILE__ ), array(), '1.0.0' );
+	}
 }
