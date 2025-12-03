@@ -15,7 +15,9 @@ export const viewFormAction = {
 	icon: external,
 	callback( items ) {
 		const [ item ] = items;
-		window.open( item.link, '_blank' );
+		// The jetpack_form CPT is not publicly viewable; open the editor instead.
+		const editUrl = `/wp-admin/post.php?post=${ item.id }&action=edit`;
+		window.open( editUrl, '_blank' );
 	},
 };
 

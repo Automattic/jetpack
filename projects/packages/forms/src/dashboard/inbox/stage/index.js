@@ -25,6 +25,7 @@ import EmptySpamButton from '../../components/empty-spam-button/index.tsx';
 import EmptyTrashButton from '../../components/empty-trash-button/index.tsx';
 import ExportResponsesButton from '../../components/export-responses/button.tsx';
 import Flag from '../../components/flag/index.tsx';
+import FormsResponsesToggleButton from '../../components/forms-responses-toggle-button/index.tsx';
 import Gravatar from '../../components/gravatar/index.tsx';
 import InboxStatusToggle from '../../components/inbox-status-toggle/index.tsx';
 import { ResponseMobileView, SingleResponseView } from '../../components/inspector/index.tsx';
@@ -475,6 +476,8 @@ export default function InboxView() {
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
 				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
 			}
+			// Insert the View Forms/Responses toggle before Manage Integrations
+			headerActionsArray.unshift( <FormsResponsesToggleButton key="toggle" /> );
 		}
 
 		return headerActionsArray;

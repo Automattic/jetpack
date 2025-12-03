@@ -40,10 +40,13 @@ export default function FormsView() {
 	const dateSettings = getDateSettings();
 
 	// Ensure view type is always table
-	const tableView = {
-		...view,
-		type: 'table',
-	};
+	const tableView = useMemo(
+		() => ( {
+			...view,
+			type: 'table',
+		} ),
+		[ view ]
+	);
 
 	const { forms, isLoadingForms, totalItems, totalPages } = useFormsData( {
 		per_page: tableView.perPage || 20,
@@ -116,6 +119,21 @@ export default function FormsView() {
 		[ dateSettings.formats.datetime ]
 	);
 
+	// Guard against an all-hidden configuration: if every field is hidden, show all by default
+	const sanitizedTableView = useMemo( () => {
+		const fieldIds = ( fields || [] ).map( f => f.id );
+		const hidden = Array.isArray( tableView.hiddenFields ) ? tableView.hiddenFields : [];
+		const allHidden = fieldIds.length > 0 && fieldIds.every( id => hidden.includes( id ) );
+		if ( allHidden ) {
+			return { ...tableView, hiddenFields: [] };
+		}
+		// Ensure title is always visible by default
+		if ( hidden?.includes( 'title' ) ) {
+			return { ...tableView, hiddenFields: hidden.filter( id => id !== 'title' ) };
+		}
+		return tableView;
+	}, [ tableView, fields ] );
+
 	const actions = useMemo(
 		() => [ viewFormAction, editFormAction, duplicateFormAction, deleteFormAction ],
 		[]
@@ -140,7 +158,7 @@ export default function FormsView() {
 				actions={ actions }
 				data={ forms || EMPTY_ARRAY }
 				isLoading={ isLoadingForms }
-				view={ tableView }
+				view={ sanitizedTableView }
 				onChangeView={ handleViewChange }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
