@@ -240,6 +240,8 @@ export interface FormsConfigData {
 	showDashboardIntegrations?: boolean;
 	/** Whether to show integrations in the Form block editor UI. */
 	showBlockIntegrations?: boolean;
+	/** Whether to show integration icons across UI (editor sidebar and modal). */
+	showIntegrationIcons?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */

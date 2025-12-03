@@ -174,4 +174,25 @@ class Jetpack_Forms {
 		 */
 		return apply_filters( 'jetpack_forms_show_block_integrations', true );
 	}
+
+	/**
+	 * Returns true if integration icons should be shown (editor sidebar and integrations modal).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return boolean
+	 */
+	public static function show_integration_icons() {
+		/**
+		 * Whether to show integration icons in the UI.
+		 *
+		 * If set to false, the ActiveIntegrations component (editor sidebar) will be hidden
+		 * and integration icons in the integrations modal will not be rendered.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool true Whether to show integration icons. Default true.
+		 */
+		return apply_filters( 'jetpack_forms_show_integration_icons', true );
+	}
 }
