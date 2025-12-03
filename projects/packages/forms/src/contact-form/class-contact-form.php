@@ -555,20 +555,30 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 
 		// Check cipher availability with fallback support
-		$cipher                   = 'aes-256-gcm';
 		$available_cipher_methods = openssl_get_cipher_methods();
+		$cipher                   = null;
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
-		if ( in_array( $cipher, $available_cipher_methods, true ) ) {
-			$use_encryption = true;
-			// IV length already set to 12 (NIST recommended for AES-GCM)
-		} else {
-			// Try fallback to AES-256-CBC
-			$cipher = 'aes-256-cbc';
-			if ( in_array( $cipher, $available_cipher_methods, true ) ) {
+		// Try to find AES-256-GCM first (case-insensitive search)
+		foreach ( $available_cipher_methods as $method ) {
+			if ( strtolower( $method ) === 'aes-256-gcm' ) {
+				$cipher         = $method; // Use the actual name with original casing
 				$use_encryption = true;
-				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
+				// IV length already set to 12 (NIST recommended for AES-GCM)
+				break;
+			}
+		}
+
+		// If GCM not found, try fallback to AES-256-CBC
+		if ( ! $use_encryption ) {
+			foreach ( $available_cipher_methods as $method ) {
+				if ( strtolower( $method ) === 'aes-256-cbc' ) {
+					$cipher         = $method; // Use the actual name with original casing
+					$use_encryption = true;
+					$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
+					break;
+				}
 			}
 		}
 
@@ -600,9 +610,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
 				return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 			}
-
 			// For GCM, include the authentication tag; for CBC, tag will be empty
-			$encrypted_blob = stripos( $cipher, 'gcm' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
+			$encrypted_blob = stripos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
 
 			return JWT::encode(
 				array(
