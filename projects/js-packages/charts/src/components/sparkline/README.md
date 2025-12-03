@@ -52,7 +52,7 @@ function MetricCard() {
 | `width` | `number` | `100` | Width of the sparkline in pixels |
 | `height` | `number` | `40` | Height of the sparkline in pixels |
 | `color` | `string` | theme color | Color for the line stroke (hex or CSS color) |
-| `strokeWidth` | `number` | `2` | Line stroke width in pixels |
+| `strokeWidth` | `number` | `1` | Line stroke width in pixels |
 | `withGradientFill` | `boolean` | `true` | Whether to render gradient fill beneath the line |
 | `gradient` | `GradientConfig` | auto | Gradient configuration (from, to, fromOpacity, toOpacity) |
 | `className` | `string` | - | Additional CSS class name |
@@ -169,11 +169,23 @@ Sparklines are decorative visualizations. For accessibility, ensure the parent c
 
 The component handles various edge cases gracefully:
 
-- **Empty data** (`[]`): Renders empty container
+- **Empty data** (`[]`): Renders empty container with `sparkline--empty` class for custom styling
 - **Single point** (`[42]`): Renders a circle
 - **Two points** (`[10, 20]`): Renders minimal line
 - **Negative values**: Supported
 - **Flat line** (all same values): Renders horizontal line
+
+### Customizing Empty State
+
+The empty state can be styled using the `sparkline--empty` class:
+
+```css
+.sparkline--empty {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+```
 
 ## TypeScript
 
