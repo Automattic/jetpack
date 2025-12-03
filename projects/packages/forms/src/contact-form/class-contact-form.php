@@ -172,7 +172,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$page_number      = is_numeric( $page ) ? intval( $page ) : 1;
 			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page_number );
 		}
-		$this->hash = sha1( wp_json_encode( $attributes ) );
+		$this->hash = sha1(
+			wp_json_encode(
+				$attributes,
+				0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+			)
+		);
 
 		if ( $set_id ) {
 			self::$forms[ $this->hash ] = $this; // This increments the form count.
@@ -570,7 +575,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$iv        = random_bytes( $iv_length );
 			$tag       = ''; // Will be populated by openssl_encrypt for GCM
 			$encrypted = openssl_encrypt(
-				wp_json_encode( $attributes ),
+				wp_json_encode(
+					$attributes,
+					JSON_UNESCAPED_SLASHES
+				),
 				$cipher,
 				$encryption_key,
 				OPENSSL_RAW_DATA, // Return raw binary data, not base64

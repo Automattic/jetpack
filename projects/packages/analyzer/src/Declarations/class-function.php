@@ -30,7 +30,7 @@ class Function_ extends Declaration {
 			'',
 			$this->func_name,
 			'',
-			json_encode( $this->params ),
+			json_encode( $this->params, JSON_UNESCAPED_SLASHES ),
 			$this->deprecated,
 		);
 	}

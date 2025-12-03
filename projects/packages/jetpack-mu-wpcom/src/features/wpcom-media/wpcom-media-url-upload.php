@@ -35,7 +35,8 @@ function enqueue_wpcom_media_url_upload_form() {
 			'action'  => 'wpcom_media_url_upload',
 			'nonce'   => wp_create_nonce( 'wpcom_media_url_upload' ),
 			'page'    => $page,
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 
 	wp_add_inline_script(

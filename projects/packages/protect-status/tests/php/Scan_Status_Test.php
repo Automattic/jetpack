@@ -397,7 +397,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_sample_response() ),
+			'body'     => wp_json_encode( $this->get_sample_response(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -440,7 +440,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_empty_response() {
 		return array(
-			'body'     => wp_json_encode( static::get_sample_empty_response() ),
+			'body'     => wp_json_encode( static::get_sample_empty_response(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -455,7 +455,7 @@ class Scan_Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_error_response() {
 		return array(
-			'body'     => wp_json_encode( 'error' ),
+			'body'     => wp_json_encode( 'error', JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 400,
 				'message' => '',

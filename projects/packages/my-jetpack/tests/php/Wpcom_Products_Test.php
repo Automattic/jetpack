@@ -55,7 +55,7 @@ class Wpcom_Products_Test extends TestCase {
 	 */
 	public function mock_success_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_mock_products_data() ),
+			'body'     => wp_json_encode( $this->get_mock_products_data(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',

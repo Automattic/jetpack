@@ -89,7 +89,7 @@ class UI {
 	 * @return string
 	 */
 	private static function get_initial_state() {
-		return 'var JP_IDENTITY_CRISIS__INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( static::get_initial_state_data() ) ) . '"));';
+		return 'var JP_IDENTITY_CRISIS__INITIAL_STATE=' . wp_json_encode( static::get_initial_state_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 
 	/**

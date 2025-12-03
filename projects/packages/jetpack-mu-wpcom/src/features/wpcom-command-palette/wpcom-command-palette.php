@@ -76,7 +76,8 @@ function wpcom_load_command_palette() {
 			'siteHostname'     => wpcom_get_site_slug(),
 			'siteName'         => get_option( 'blogname' ),
 			'isWpcomStore'     => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 	wp_add_inline_script(
 		$command_palette_js_handle,
