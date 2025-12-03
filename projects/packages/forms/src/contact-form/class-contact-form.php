@@ -324,7 +324,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'AES-256-GCM';
+			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -333,7 +333,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine IV and tag sizes based on cipher
-			$is_gcm = strpos( $cipher, 'GCM' ) !== false;
+			$is_gcm = stripos( $cipher, 'gcm' ) !== false;
 			if ( $is_gcm ) {
 				// GCM: 12-byte IV + 16-byte tag + ciphertext
 				if ( strlen( $encrypted_blob ) < 29 ) { // 12 + 16 + at least 1 byte
@@ -553,19 +553,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Only encrypt the attributes field as it contains sensitive information
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
-		// Check cipher availability with fallback support
-		$cipher                   = 'AES-256-GCM';
+		// Check cipher availability with fallback support. We store and compare
+		// cipher names in lowercase so that we behave consistently across
+		// environments where OpenSSL reports methods in uppercase.
+		$cipher                   = 'aes-256-gcm';
 		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
-		if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+		if ( in_array( $cipher, $available_cipher_methods, true ) ) {
 			$use_encryption = true;
 			// IV length already set to 12 (NIST recommended for AES-GCM)
 		} else {
 			// Try fallback to AES-256-CBC
-			$cipher = 'AES-256-CBC';
-			if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+			$cipher = 'aes-256-cbc';
+			if ( in_array( $cipher, $available_cipher_methods, true ) ) {
 				$use_encryption = true;
 				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
 			}
@@ -587,11 +589,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			if ( $encrypted === false ) {
+				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
 				throw new \Exception( 'Failed to encrypt JWT payload' );
 			}
 
 			// For GCM, include the authentication tag; for CBC, tag will be empty
-			$encrypted_blob = strpos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
+			$encrypted_blob = stripos( $cipher, 'gcm' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
 
 			return JWT::encode(
 				array(
