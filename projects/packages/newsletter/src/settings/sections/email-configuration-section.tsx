@@ -3,10 +3,12 @@
  */
 import { Button, ExternalLink } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { BylinePreview } from '../components/byline-preview';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface EmailConfigurationSectionProps {
@@ -90,10 +92,6 @@ export function EmailConfigurationSection( {
 			label: __( 'Add the post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
-			description: __(
-				"You can customize the date format in your site's general settings.",
-				'jetpack-newsletter'
-			),
 		},
 		{
 			id: 'jetpack_subscriptions_reply_to',
@@ -162,6 +160,31 @@ export function EmailConfigurationSection( {
 					<ExternalLink href="https://wordpress.com/support/featured-images/">
 						{ __( 'Learn more about featured images', 'jetpack-newsletter' ) }
 					</ExternalLink>
+				</div>
+
+				{ /* Byline Preview */ }
+				{ jetpackSettings && (
+					<BylinePreview
+						isGravatarEnabled={ data.jetpack_gravatar_in_email }
+						isAuthorEnabled={ data.jetpack_author_in_email }
+						isPostDateEnabled={ data.jetpack_post_date_in_email }
+						gravatar={ jetpackSettings.gravatar }
+						displayName={ jetpackSettings.displayName }
+						dateExample={ jetpackSettings.dateExample }
+					/>
+				) }
+
+				{ /* Date format customization link */ }
+				<div className="newsletter-settings__help-text">
+					{ createInterpolateElement(
+						__(
+							"You can customize the date format in your <link>site's general settings</link>.",
+							'jetpack-newsletter'
+						),
+						{
+							link: <a href={ jetpackSettings?.siteAdminUrl + 'options-general.php' }>{ '' }</a>,
+						}
+					) }
 				</div>
 
 				{ /* Gravatar link */ }
