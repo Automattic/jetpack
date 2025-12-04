@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms;
 
+use Automattic\Jetpack\Extensions\Contact_Form\Form_Block;
+
 /**
  * Handles Reusable Forms functionality.
  */
@@ -17,6 +19,15 @@ class Reusable_Forms {
 	 */
 	public static function init() {
 		self::register_post_type();
+		self::register_block();
+	}
+
+	/**
+	 * Register the jetpack/form block.
+	 */
+	private static function register_block() {
+		// Register the block
+		Form_Block::register_block();
 	}
 
 	/**
