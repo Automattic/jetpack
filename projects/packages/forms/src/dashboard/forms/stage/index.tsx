@@ -144,10 +144,10 @@ export default function FormsStage() {
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ __( 'Forms > View Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'Manage your shared forms in one place.', 'jetpack-forms' ) }
+			subTitle={ __( 'Below is a list of all your re-usable forms', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
 		>

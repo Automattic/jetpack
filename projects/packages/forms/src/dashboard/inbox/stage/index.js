@@ -514,10 +514,10 @@ export default function InboxView() {
 		} else if ( statusFilter === 'spam' ) {
 			headerActionsArray.push( <EmptySpamButton key="empty-spam" /> );
 		} else {
-			headerActionsArray.unshift( <CreateFormButton key="create" /> );
+			// headerActionsArray.unshift( <CreateFormButton key="create" /> );
 			// Only show Create Form and Integrations buttons on inbox (when not in trash or spam)
 			if ( isIntegrationsEnabled && showDashboardIntegrations ) {
-				headerActionsArray.unshift( <IntegrationsButton key="integrations" /> );
+				headerActionsArray.push( <IntegrationsButton key="integrations" /> );
 			}
 			headerActionsArray.push( <CreateFormButton key="create" /> );
 		}
@@ -532,7 +532,7 @@ export default function InboxView() {
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms', 'jetpack-forms' ) }
+					{ __( 'Forms > View Responses', 'jetpack-forms' ) }
 				</div>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
