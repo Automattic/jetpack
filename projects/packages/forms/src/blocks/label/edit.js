@@ -146,7 +146,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 				<RichText
 					allowedFormats={ ALLOWED_FORMATS }
 					className="jetpack-field-label__input"
-					onChange={ value => setAttributes( { label: value } ) }
+					onChange={ value => setAttributes( { label: value.trim() } ) }
 					placeholder={ placeholderValue }
 					onKeyDown={ onKeyDown }
 					tagName="label"
@@ -158,7 +158,7 @@ const LabelEdit = ( { clientId, attributes, name, setAttributes, context } ) => 
 					<RichText
 						allowedFormats={ ALLOWED_FORMATS }
 						className="required"
-						onChange={ value => setAttributes( { requiredText: value } ) }
+						onChange={ value => setAttributes( { requiredText: value.trim() } ) }
 						tagName="span"
 						value={ requiredText || __( '(required)', 'jetpack-forms' ) }
 						withoutInteractiveFormatting
