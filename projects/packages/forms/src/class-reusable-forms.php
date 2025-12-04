@@ -56,7 +56,7 @@ class Reusable_Forms {
 				'show_in_rest'          => true,
 				'rest_base'             => 'jetpack-forms',
 				'rest_controller_class' => 'Automattic\Jetpack\Forms\ContactForm\REST_Jetpack_Form_Controller',
-				'capability_type'       => 'jetpack-form',
+				'capability_type'       => 'post',
 				'capabilities'          => array(
 					// You need to be able to edit posts, in order to read blocks in their raw form.
 					'read'                   => 'edit_posts',
@@ -70,6 +70,7 @@ class Reusable_Forms {
 					'edit_others_posts'      => 'edit_others_posts',
 					'delete_others_posts'    => 'delete_others_posts',
 				),
+				'map_meta_cap'          => true,
 				'supports'              => array(
 					'title',
 					'excerpt',

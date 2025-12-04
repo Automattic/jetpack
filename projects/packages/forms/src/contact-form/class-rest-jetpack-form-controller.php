@@ -12,11 +12,66 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  *
  * Responsible for handling REST API requests for Jetpack forms custom post type.
  */
-class REST_Jetpack_Form_Controller extends WP_REST_Posts_Controller {
+class REST_Jetpack_Form_Controller extends \WP_REST_Posts_Controller {
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct( 'jetpack-form' );
+	}
+
+	/**
+	 * Checks if a given request has access to get items.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|\WP_Error True if the request has read access, WP_Error object otherwise.
+	 */
+	public function get_items_permissions_check( $request ) {
+		$post_type = get_post_type_object( $this->post_type );
+
+		if ( ! current_user_can( $post_type->cap->edit_posts ) ) {
+			return new \WP_Error(
+				'rest_cannot_read',
+				__( 'Sorry, you are not allowed to view forms.', 'jetpack-forms' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return parent::get_items_permissions_check( $request );
+	}
+
+	/**
+	 * Checks if a given request has access to create items.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 * @return true|\WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 */
+	public function create_item_permissions_check( $request ) {
+		$post_type = get_post_type_object( $this->post_type );
+
+		if ( ! current_user_can( $post_type->cap->create_posts ) ) {
+			return new \WP_Error(
+				'rest_cannot_create',
+				__( 'Sorry, you are not allowed to create forms.', 'jetpack-forms' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return parent::create_item_permissions_check( $request );
+	}
+
+	/**
+	 * Checks if a jetpack-form can be read.
+	 *
+	 * @param WP_Post $post Post object that backs the block.
+	 * @return bool Whether the pattern can be read.
+	 */
+	public function check_read_permission( $post ) {
+		// By default the read_post capability is mapped to edit_posts.
+		if ( ! current_user_can( 'read_post', $post->ID ) ) {
+			return false;
+		}
+
+		return parent::check_read_permission( $post );
 	}
 }
