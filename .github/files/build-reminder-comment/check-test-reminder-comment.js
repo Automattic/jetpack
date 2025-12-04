@@ -13,7 +13,7 @@ const getCheckComments = require( './get-check-comments.js' );
  * @param {string} owner  - Repository owner.
  * @param {string} repo   - Repository name.
  * @param {string} number - PR number.
- * @param {Core}   core   - A reference to the @actions/core package
+ * @param {Core}   core   - A reference to the `@actions/core` package
  * @return {Promise} Promise resolving to an object with keys `simple` and `woa`, each being an array of strings identifying what needs testing.
  */
 async function touchedProjectsNeedingTesting( github, owner, repo, number, core ) {
@@ -51,7 +51,7 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
  *
  * @param {github} github  - Pre-authenticated octokit/rest.js client with pagination plugins
  * @param {object} context - Context of the workflow run
- * @param {core}   core    - A reference to the @actions/core package
+ * @param {core}   core    - A reference to the `@actions/core` package
  * @return {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
  * - {simple} - an array of strings identifying what needs testing on Simple.
@@ -146,7 +146,7 @@ async function checkTestPendingComment( github, context, core ) {
  *
  * @param {github} github  - Pre-authenticated octokit/rest.js client with pagination plugins
  * @param {object} context - Context of the workflow run
- * @param {core}   core    - A reference to the @actions/core package
+ * @param {core}   core    - A reference to the `@actions/core` package
  * @return {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
  * - {simple} - an array of strings identifying what needs testing on Simple.

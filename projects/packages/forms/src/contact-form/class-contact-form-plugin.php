@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
@@ -644,7 +645,7 @@ class Contact_Form_Plugin {
 					}
 
 					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
+					$atts['optionsdata'] = \wp_json_encode( $options_data, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 
 					/*
 						Borders for the outlined notched HTML.
@@ -714,7 +715,7 @@ class Contact_Form_Plugin {
 					}
 
 					$atts['options']     = implode( ',', $options );
-					$atts['optionsdata'] = \wp_json_encode( $options_data );
+					$atts['optionsdata'] = \wp_json_encode( $options_data, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 
 					/*
 						Borders for the outlined notched HTML.
@@ -1020,7 +1021,7 @@ class Contact_Form_Plugin {
 						<div class="jetpack-form-progress-indicator-step"
 							data-wp-class--is-active="state.isStepActive"
 							data-wp-class--is-completed="state.isStepCompleted"
-							data-wp-context='<?php echo wp_json_encode( $step_context ); ?>'>
+							data-wp-context='<?php echo esc_attr( wp_json_encode( $step_context, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ); ?>'>
 							<div class="jetpack-form-progress-indicator-line"></div>
 							<div class="jetpack-form-progress-indicator-dot">
 								<span class="jetpack-form-progress-indicator-step-number">
@@ -1080,7 +1081,7 @@ class Contact_Form_Plugin {
 
 		$block_support_styles = self::get_block_support_classes_and_styles( $block_name, $picked_attributes );
 		return array(
-			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'] ) : '',
+			'stylevariationattributes' => isset( $picked_attributes['style'] ) ? \wp_json_encode( $picked_attributes['style'], JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) : '',
 			'stylevariationclasses'    => isset( $block_support_styles['class'] ) ? ' ' . $block_support_styles['class'] : '',
 			'stylevariationstyles'     => isset( $block_support_styles['style'] ) ? $block_support_styles['style'] : '',
 		);
@@ -1566,14 +1567,34 @@ class Contact_Form_Plugin {
 				);
 			}
 
+			// Validate that the parent post/page where the form lives still exists and is not trashed/deleted
+			$validation_error = $this->validate_parent_post( $form );
+			if ( $validation_error ) {
+				return $validation_error;
+			}
+
 			$form->validate();
 
 			if ( $form->has_errors() ) {
 				return $form->errors;
 			}
 
-			if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+			if ( ! empty( $form->attributes['salesforceData'] ) ) {
 				Post_To_Url::init();
+			}
+
+			// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+			if ( ! empty( $form->attributes['postToUrl'] ) ) {
+				// webhooks should be a collection.
+				// Turn postToUrl into a collection and merge with existing webhooks.
+				$form->attributes['webhooks'] = array_merge(
+					$form->attributes['webhooks'] ?? array(),
+					array( $form->attributes['postToUrl'] )
+				);
+			}
+
+			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
+				Form_Webhooks::init();
 			}
 			// Process the form
 			return $form->process_submission();
@@ -1669,7 +1690,7 @@ class Contact_Form_Plugin {
 				'slug'    => $block_template_part_slug,
 				'tagName' => 'div',
 			);
-			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
+			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
 
@@ -1739,8 +1760,28 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
-		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+		// Validate that the parent post/page where the form lives still exists and is not trashed/deleted (legacy submission path where we don't have a JWT)
+		$validation_error = $this->validate_parent_post( $form );
+		if ( $validation_error ) {
+			return $validation_error;
+		}
+
+		if ( ! empty( $form->attributes['salesforceData'] ) ) {
 			Post_To_Url::init();
+		}
+
+		// Deprecate postToUrl, migrate to webhooks in case someone put it to work.
+		if ( ! empty( $form->attributes['postToUrl'] ) ) {
+			// webhooks should be a collection.
+			// Turn postToUrl into a collection and merge with existing webhooks.
+			$form->attributes['webhooks'] = array_merge(
+				$form->attributes['webhooks'] ?? array(),
+				array( $form->attributes['postToUrl'] )
+			);
+		}
+
+		if ( ! empty( $form->attributes['webhooks'] ) ) {
+			Form_Webhooks::init();
 		}
 
 		// Process the form
@@ -1821,6 +1862,35 @@ class Contact_Form_Plugin {
 			)
 		);
 		die();
+	}
+
+	/**
+	 * Validates that the parent post/page where the form lives still exists and is not trashed/deleted.
+	 *
+	 * @param Contact_Form $form The contact form instance.
+	 * @return Form_Submission_Error|null Returns a Form_Submission_Error if validation fails, null otherwise.
+	 */
+	private function validate_parent_post( Contact_Form $form ) {
+		$source    = $form->get_source();
+		$source_id = $source->get_id();
+
+		// Only check for regular posts/pages (numeric IDs), not widgets or templates
+		if ( is_numeric( $source_id ) && $source_id > 0 ) {
+			$parent_post = get_post( (int) $source_id );
+
+			// If the parent post doesn't exist or is not trashed/deleted, reject the submission
+			if ( ! $parent_post || in_array( $parent_post->post_status, array( 'trash', 'auto-draft' ), true ) ) {
+				/** This action is documented already in this file. */
+				do_action( 'jetpack_forms_log', 'submission_rejected_parent_trashed_or_deleted' );
+
+				return Form_Submission_Error::system_error(
+					'form_unavailable',
+					__( 'This form is no longer available.', 'jetpack-forms' )
+				);
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -2705,7 +2775,8 @@ class Contact_Form_Plugin {
 	 * @return array
 	 */
 	private function format_feedback_data_for_csv( $feedback_data, $field_names ) {
-		$results = array();
+		$results            = array();
+		$prefix_meta_fields = ' '; // Prefix all meta fields with a space to ensure that they don't clash with form field names.
 		foreach ( $feedback_data as $feedback_id => $data ) {
 
 			$feedback        = $data['response'];
@@ -2714,10 +2785,11 @@ class Contact_Form_Plugin {
 			if ( ! $feedback instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
 			}
-			$results[ __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
-			$results[ __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
-			$results[ __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
-			$results[ __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
+
+			$results[ $prefix_meta_fields . __( 'ID', 'jetpack-forms' ) ][]     = $feedback_id;
+			$results[ $prefix_meta_fields . __( 'Date', 'jetpack-forms' ) ][]   = $feedback->get_time();
+			$results[ $prefix_meta_fields . __( 'Title', 'jetpack-forms' ) ][]  = $feedback->get_entry_title();
+			$results[ $prefix_meta_fields . __( 'Source', 'jetpack-forms' ) ][] = $feedback->get_entry_short_permalink();
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current feedback.
@@ -2726,17 +2798,18 @@ class Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
-				if ( ! isset( $results[ $single_field_name ] ) ) {
-					$results[ $single_field_name ] = array();
+				$trimmed_field_name = trim( $single_field_name );
+				if ( ! isset( $results[ $trimmed_field_name ] ) ) {
+					$results[ $trimmed_field_name ] = array();
 				}
 				// Use the compiled fields directly (which already have incremented labels)
-				$results[ $single_field_name ][] = isset( $compiled_fields[ $single_field_name ] ) ? $compiled_fields[ $single_field_name ] : '';
+				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
 			}
 
-			$results[ __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
-			$results[ __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
-			$results[ __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
-			$results[ __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
+			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address();
+			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code();
+			$results[ $prefix_meta_fields . __( 'Browser', 'jetpack-forms' ) ][]      = $feedback->get_browser();
 
 		}
 		return $results;

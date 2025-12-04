@@ -1170,7 +1170,7 @@ class Actions {
 			"\n",
 			array_map(
 				function ( $key, $value ) {
-					return wp_json_encode( array( $key => $value ) );
+					return wp_json_encode( array( $key => $value ), JSON_UNESCAPED_SLASHES );
 				},
 				array_keys( (array) $data ),
 				array_values( (array) $data )

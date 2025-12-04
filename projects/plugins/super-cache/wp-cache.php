@@ -471,10 +471,12 @@ function wp_cache_manager_error_checks() {
 		return false;
 	}
 
+	// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_modeDeprecatedRemoved -- Version is checked before access.
 	if ( PHP_VERSION_ID < 50300 && ( ini_get( 'safe_mode' ) === '1' || strtolower( ini_get( 'safe_mode' ) ) === 'on' ) ) { // @codingStandardsIgnoreLine
 		echo '<div class="notice notice-error"><h4>' . esc_html__( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h4>';
 		echo '<p>' . esc_html__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . '<br />';
 
+		// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_mode_gidDeprecatedRemoved -- Version is checked before access.
 		if ( ! ini_get( 'safe_mode_gid' ) ) { // @codingStandardsIgnoreLine
 			esc_html_e( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' );
 			echo '<br />';

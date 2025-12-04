@@ -1007,7 +1007,7 @@ class Brute_Force_Protection {
 		$request['action']            = $action;
 		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
-		$request['headers']           = wp_json_encode( $this->get_headers() );
+		$request['headers']           = wp_json_encode( $this->get_headers(), JSON_UNESCAPED_SLASHES );
 		$request['jetpack_version']   = null;
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
@@ -1085,7 +1085,7 @@ class Brute_Force_Protection {
 	 */
 	public function get_transient_name() {
 		$headers     = $this->get_headers();
-		$header_hash = md5( wp_json_encode( $headers ) );
+		$header_hash = md5( wp_json_encode( $headers, JSON_UNESCAPED_SLASHES ) );
 
 		return 'jpp_li_' . $header_hash;
 	}

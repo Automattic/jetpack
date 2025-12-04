@@ -2605,7 +2605,7 @@ JS;
 			return;
 
 		switch( $type ) {
-			case 'editedtables';
+			case 'editedtables':
 				$vaultpress_pings[$type] = $data;
 				return;
 			case 'uploads':

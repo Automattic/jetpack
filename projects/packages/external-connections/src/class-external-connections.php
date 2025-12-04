@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.6';
+	const PACKAGE_VERSION = '0.1.7';
 	const BASE_FILE       = __FILE__;
 
 	/**
@@ -274,7 +274,7 @@ class External_Connections {
 
 			wp_add_inline_script(
 				$asset_name,
-				'const jetpackExternalConnectionsData = ' . wp_json_encode( $script_data ) . ';',
+				'const jetpackExternalConnectionsData = ' . wp_json_encode( $script_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 		}

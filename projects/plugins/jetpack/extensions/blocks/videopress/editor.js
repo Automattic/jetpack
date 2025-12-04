@@ -539,7 +539,8 @@ function mapV6AttributesToV5( attributes ) {
  *
  * Blocks list:
  * - core/video
- * - core/embed is not auto-converted for the moment. @todo: consider to do it in the future.
+ * - core/embed is not auto-converted for the moment.
+ * @todo consider to do it in the future.
  */
 const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {

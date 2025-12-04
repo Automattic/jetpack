@@ -152,7 +152,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <p>
 	<strong>
-		<?php esc_html_x( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
+		<?php echo esc_html_x( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -214,7 +214,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <p>
 	<strong>
-		<?php esc_html_x( 'Consent expires after', 'action', 'jetpack' ); ?>
+		<?php echo esc_html_x( 'Consent expires after', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>

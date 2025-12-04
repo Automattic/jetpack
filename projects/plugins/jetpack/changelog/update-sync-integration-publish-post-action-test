@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Check the publish post action exists, but is not necessarily the last action.
