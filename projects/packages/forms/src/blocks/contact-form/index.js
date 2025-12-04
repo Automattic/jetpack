@@ -42,7 +42,6 @@ export const settings = {
 	// Import valid metadata from block.json to ensure consistency
 	...validBlockMetadata,
 	// Override/extend with JS-specific settings
-	apiVersion: 3,
 	title: __( 'Form', 'jetpack-forms' ),
 	description: __(
 		'Create forms to collect data from site visitors and manage their responses.',
