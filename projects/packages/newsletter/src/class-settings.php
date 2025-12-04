@@ -149,6 +149,11 @@ class Settings {
 		$site_url     = get_site_url();
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
+		// Build setup payment plans URL based on platform.
+		$is_wpcom_simple        = ( new Host() )->is_wpcom_platform();
+		$base_url               = $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
+		$setup_payment_plan_url = $base_url . $site_raw_url;
+
 		return array(
 			'isBlockTheme'                       => wp_is_block_theme(),
 			'siteAdminUrl'                       => admin_url(),
@@ -161,32 +166,9 @@ class Settings {
 			'dateExample'                        => gmdate( get_option( 'date_format' ), time() ),
 			'wpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wpcom_subscriber_management_enabled', false ),
 			'isSubscriptionSiteEditSupported'    => wp_is_block_theme(),
-			'setupPaymentPlansUrl'               => $this->get_jetpack_cloud_url( 'monetize/payments' ),
+			'setupPaymentPlansUrl'               => $setup_payment_plan_url,
 			'isSitePublic'                       => (int) get_option( 'blog_public' ) === 1,
 		);
-	}
-
-	/**
-	 * Get a Jetpack Cloud URL.
-	 *
-	 * @param string $path The path to append to the Jetpack Cloud URL.
-	 * @return string
-	 */
-	private function get_jetpack_cloud_url( $path = '' ) {
-		$site_suffix = '';
-		if ( defined( 'Jetpack_Options' ) && class_exists( 'Jetpack_Options' ) ) {
-			$blog_id = \Jetpack_Options::get_option( 'id', 0 );
-			if ( $blog_id ) {
-				$site_suffix = $blog_id;
-			}
-		}
-
-		if ( ! $site_suffix ) {
-			$site_url    = get_site_url();
-			$site_suffix = preg_replace( '(^https?://)', '', $site_url );
-		}
-
-		return 'https://cloud.jetpack.com/' . ltrim( $path, '/' ) . '/' . $site_suffix;
 	}
 
 	/**
