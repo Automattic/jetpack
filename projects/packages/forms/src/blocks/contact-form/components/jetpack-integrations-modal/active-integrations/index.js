@@ -1,5 +1,6 @@
 import { Icon, Spinner, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { plugins } from '@wordpress/icons';
 import { isValidSalesforceOrgId } from '../helpers/salesforce.tsx';
 import './style.scss';
 
@@ -93,7 +94,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 							/>
 						) : (
 							<Icon
-								icon="admin-plugins"
+								icon={ plugins }
 								size={ 30 }
 								className="jetpack-forms-active-integrations__icon"
 							/>

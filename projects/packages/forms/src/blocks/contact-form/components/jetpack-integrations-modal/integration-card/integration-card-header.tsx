@@ -16,7 +16,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { chevronDown, chevronUp, plugins } from '@wordpress/icons';
 import clsx from 'clsx';
 import useConfigValue from '../../../../../hooks/use-config-value.ts';
 import PluginActionButton from './plugin-action-button.tsx';
@@ -120,7 +120,7 @@ const IntegrationCardHeader = ( {
 								/>
 							) : (
 								<Icon
-									icon="admin-plugins"
+									icon={ plugins }
 									className={ `integration-card__service-icon ${
 										cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
 									}` }
