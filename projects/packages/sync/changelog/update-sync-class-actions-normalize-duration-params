@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Normalize duration params for sent data in case commas are included.
