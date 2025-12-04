@@ -48,4 +48,9 @@
 			</property>
 		</properties>
 	</rule>
+
+	<!-- Pending https://github.com/Automattic/jetpack/pull/46111 -->
+	<rule ref="Jetpack.Functions.JsonEncodeFlags">
+		<exclude name="Jetpack.Functions.JsonEncodeFlags.Missing"/>
+	</rule>
 </ruleset>

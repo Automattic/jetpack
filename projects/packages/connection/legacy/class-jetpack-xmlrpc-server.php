@@ -721,7 +721,7 @@ class Jetpack_XMLRPC_Server {
 					'nonce'     => $nonce,
 					'code'      => (string) $api_user_code,
 				),
-				0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 			),
 			$jetpack_token->secret
 		);
