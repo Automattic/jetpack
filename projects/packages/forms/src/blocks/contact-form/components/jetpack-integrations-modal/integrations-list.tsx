@@ -65,7 +65,6 @@ const IntegrationsList = ( {
 					key={ item.id }
 					title={ item.title }
 					description={ item.description }
-					icon={ item.icon }
 					isExpanded={ !! expandedCards[ item.id ] }
 					onToggle={ () => toggleCard( item.id ) }
 					cardData={ item.cardData }

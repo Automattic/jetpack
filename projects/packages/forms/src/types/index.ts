@@ -20,6 +20,8 @@ export interface IntegrationMetadata {
 	marketingUrl?: string | null;
 	/** Whether this integration should be enabled by default for new forms. */
 	enabledByDefault?: boolean;
+	/** URL to an SVG/icon for this integration provided by the backend. */
+	iconUrl?: string | null;
 }
 
 /**
@@ -165,6 +167,8 @@ declare global {
  * This type extends Integration and includes additional UI and state fields used by cards.
  */
 export type IntegrationCardData = Partial< Integration > & {
+	/** URL to an SVG/icon for this integration used in card UIs. */
+	iconUrl?: string | null;
 	/** Whether to show the header toggle. */
 	showHeaderToggle?: boolean;
 	/** The value of the header toggle (on/off). */
@@ -240,6 +244,8 @@ export interface FormsConfigData {
 	showDashboardIntegrations?: boolean;
 	/** Whether to show integrations in the Form block editor UI. */
 	showBlockIntegrations?: boolean;
+	/** Whether to show integration icons across UI (editor sidebar and modal). */
+	showIntegrationIcons?: boolean;
 	/** Whether the current user can install plugins (install_plugins). */
 	canInstallPlugins?: boolean;
 	/** Whether the current user can activate plugins (activate_plugins). */
