@@ -49,7 +49,8 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	protected function send_json_error( string $message ): void {
-		wp_send_json_error( array( 'message' => $message ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( array( 'message' => $message ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -60,7 +61,8 @@ class Password_Strength_Meter {
 	 * @return void
 	 */
 	protected function send_json_success( array $data ): void {
-		wp_send_json_success( $data );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( $data, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

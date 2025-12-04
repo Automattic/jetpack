@@ -4453,7 +4453,9 @@ endif;
 			array(
 				'enabled' => $result,
 				'message' => get_transient( 'jetpack_https_test_message' ),
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
