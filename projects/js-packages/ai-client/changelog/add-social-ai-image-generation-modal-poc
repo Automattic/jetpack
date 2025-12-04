@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed minification issue with production build.
