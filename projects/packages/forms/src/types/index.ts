@@ -167,6 +167,8 @@ declare global {
  * This type extends Integration and includes additional UI and state fields used by cards.
  */
 export type IntegrationCardData = Partial< Integration > & {
+	/** URL to an SVG/icon for this integration used in card UIs. */
+	iconUrl?: string | null;
 	/** Whether to show the header toggle. */
 	showHeaderToggle?: boolean;
 	/** The value of the header toggle (on/off). */
