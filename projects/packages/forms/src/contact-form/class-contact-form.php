@@ -573,6 +573,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
+		// Lazy fallback payload in case encryption fails or is unavailable.
+		$unencrypted_payload = array(
+			'attributes' => $attributes,
+			'content'    => $this->content,
+			'hash'       => $this->hash,
+			'source'     => $this->source->serialize(),
+			// No version field = version 1 (unencrypted)
+		);
+
 		if ( $use_encryption ) {
 			$iv        = random_bytes( $iv_length );
 			$tag       = ''; // Will be populated by openssl_encrypt for GCM
@@ -590,7 +599,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			if ( $encrypted === false ) {
 				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
-				throw new \Exception( 'Failed to encrypt JWT payload' );
+
+				return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 			}
 
 			// For GCM, include the authentication tag; for CBC, tag will be empty
@@ -607,19 +617,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 				$jwt_signing_key
 			);
-		} else {
-			// No encryption available - fall back to version 1 format (unencrypted)
-			return JWT::encode(
-				array(
-					'attributes' => $attributes,
-					'content'    => $this->content,
-					'hash'       => $this->hash,
-					'source'     => $this->source->serialize(),
-					// No version field = version 1 (unencrypted)
-				),
-				$jwt_signing_key
-			);
 		}
+
+		return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 	}
 
 	/**
