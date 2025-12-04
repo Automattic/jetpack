@@ -59,10 +59,20 @@ export function usePostData() {
 				};
 			};
 
-			for ( const { id } of attachedMedia ) {
-				const mediaDetails = getMediaDetails( id );
-				if ( mediaDetails ) {
-					media.push( mediaDetails );
+			for ( const attachedItem of attachedMedia ) {
+				// Use URL directly from attachedMedia if available (e.g., for newly uploaded images)
+				// Fall back to fetching from entity record for cached items
+				if ( attachedItem.url && attachedItem.type ) {
+					media.push( {
+						type: attachedItem.type,
+						url: attachedItem.url,
+						alt: '',
+					} );
+				} else {
+					const mediaDetails = getMediaDetails( attachedItem.id );
+					if ( mediaDetails ) {
+						media.push( mediaDetails );
+					}
 				}
 			}
 
