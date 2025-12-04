@@ -47,6 +47,7 @@ export function ToggleWithLink( {
 
 	return (
 		<ToggleControl
+			__nextHasNoMarginBottom
 			checked={ !! data[ field.id ] }
 			onChange={ handleChange }
 			label={
