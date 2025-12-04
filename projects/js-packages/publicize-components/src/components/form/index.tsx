@@ -62,7 +62,7 @@ export default function PublicizeForm() {
 			<EmptyState />
 			{ hasConnections ? (
 				<>
-					{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
+					{ ! siteHasFeature( features.UNIFIED_UI_V1 ) ? (
 						<PreviewPostsTrigger />
 					) : (
 						<SocialPostModal />

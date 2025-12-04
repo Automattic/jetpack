@@ -5,13 +5,12 @@
 /**
  * Media source types
  */
-export type MediaSourceType =
-	| 'featured-image'
-	| 'media-library'
-	| 'upload-video'
-	| 'sig'
-	| 'ai-image'
-	| null;
+export type MediaSourceType = 'featured-image' | 'media-library' | 'upload-video' | 'sig' | null;
+
+/**
+ * Menu option IDs - includes all menu items including 'ai-image' which is handled specially
+ */
+export type MenuOptionId = MediaSourceType | 'ai-image';
 
 /**
  * WordPress media object from MediaUpload
@@ -31,7 +30,7 @@ export type MenuGroupType = 'link-preview' | 'attachment';
  * Media source option definition
  */
 export interface MediaSourceOption {
-	id: MediaSourceType;
+	id: MenuOptionId;
 	label: string;
 	description: string;
 	icon: JSX.Element;

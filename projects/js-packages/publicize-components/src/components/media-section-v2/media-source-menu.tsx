@@ -53,7 +53,7 @@ const MEDIA_SOURCE_OPTIONS: MediaSourceOption[] = [
 	},
 	{
 		id: 'ai-image',
-		label: __( 'Generate with AI', 'jetpack-publicize-components' ),
+		label: __( 'Generate image', 'jetpack-publicize-components' ),
 		description: __( 'You are using an AI-generated image.', 'jetpack-publicize-components' ),
 		icon: AiSVG,
 		group: 'attachment',

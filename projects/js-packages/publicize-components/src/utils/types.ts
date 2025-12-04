@@ -14,13 +14,7 @@ export type AttachedMedia = {
 	url: string;
 };
 
-export type MediaSourceValue =
-	| 'featured-image'
-	| 'sig'
-	| 'media-library'
-	| 'upload-video'
-	| 'ai-image'
-	| 'none';
+export type MediaSourceValue = 'featured-image' | 'sig' | 'media-library' | 'upload-video' | 'none';
 
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;

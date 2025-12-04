@@ -107,11 +107,7 @@ export default function MediaSectionV2( {
 		if ( currentSource === 'featured-image' ) {
 			return featuredImageId;
 		}
-		if (
-			currentSource === 'media-library' ||
-			currentSource === 'upload-video' ||
-			currentSource === 'ai-image'
-		) {
+		if ( currentSource === 'media-library' || currentSource === 'upload-video' ) {
 			return attachedMedia?.[ 0 ]?.id;
 		}
 		return null;
@@ -204,12 +200,14 @@ export default function MediaSectionV2( {
 	// Handle AI image selection
 	const handleAiImageSelect = useCallback(
 		( { id, url }: { id: number; url: string } ) => {
+			// Use 'media-library' as the source since the AI image is uploaded to the media library
 			updateJetpackSocialOptions( {
-				media_source: 'ai-image',
+				media_source: 'media-library',
 				attached_media: [ { id, url, type: 'image/png' } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 
+			// Track as 'ai-image' in analytics to distinguish from regular media library selections
 			recordEvent( 'jetpack_social_media_source_changed', {
 				...analyticsData,
 				source: 'ai-image',
