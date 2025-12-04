@@ -388,7 +388,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// create a fallback source
 				$source = array(
 					'source_id'   => $post->ID,
-					'entry_title' => $post->post_title,
+					'entry_title' => html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 					'entry_page'  => 1,
 					'source_type' => 'single',
 					'request_url' => get_permalink( $post ),
