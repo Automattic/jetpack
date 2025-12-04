@@ -324,16 +324,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'AES-256-GCM';
+			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : self::get_default_available_cipher();
 
 			// Check if the cipher is available on this server
-			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
-			if ( ! in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+			if ( ! in_array( $cipher, openssl_get_cipher_methods(), true ) ) {
 				throw new \Exception( 'Required encryption cipher ' . $cipher . ' is not available on this server' );
 			}
 
 			// Determine IV and tag sizes based on cipher
-			$is_gcm = strpos( $cipher, 'GCM' ) !== false;
+			$is_gcm = stripos( $cipher, 'gcm' ) !== false;
 			if ( $is_gcm ) {
 				// GCM: 12-byte IV + 16-byte tag + ciphertext
 				if ( strlen( $encrypted_blob ) < 29 ) { // 12 + 16 + at least 1 byte
@@ -533,6 +532,19 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function get_attributes() {
 		return $this->attributes;
 	}
+	/**
+	 * Get the default available cipher method.
+	 *
+	 * @return string|null The default available cipher method, or null if none are available.
+	 */
+	public static function get_default_available_cipher() {
+		$allowed_methods = array( 'aes-256-ctr', 'aes-256-cbc' );
+		$methods         = array_intersect( $allowed_methods, openssl_get_cipher_methods() );
+		if ( empty( $methods ) ) {
+			return null;
+		}
+		return array_shift( $methods );
+	}
 
 	/**
 	 * Get the JWT token for the contact form instance.
@@ -554,22 +566,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
 		// Check cipher availability with fallback support
-		$cipher                   = 'AES-256-GCM';
-		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
-		$use_encryption           = false;
-		$iv_length                = 12; // Default for GCM
-
-		if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
-			$use_encryption = true;
-			// IV length already set to 12 (NIST recommended for AES-GCM)
-		} else {
-			// Try fallback to AES-256-CBC
-			$cipher = 'AES-256-CBC';
-			if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
-				$use_encryption = true;
-				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
-			}
-		}
+		$cipher         = self::get_default_available_cipher();
+		$use_encryption = $cipher !== null;
+		$iv_length      = $cipher === 'aes-256-gcm' ? 12 : 16; // Default for GCM
 
 		if ( $use_encryption ) {
 			$iv        = random_bytes( $iv_length );
