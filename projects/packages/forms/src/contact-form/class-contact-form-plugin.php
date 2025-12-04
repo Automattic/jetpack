@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Reusable_Forms;
 use Automattic\Jetpack\Forms\Service\Form_Webhooks;
 use Automattic\Jetpack\Forms\Service\Hostinger_Reach_Integration;
 use Automattic\Jetpack\Forms\Service\MailPoet_Integration;
@@ -265,6 +266,13 @@ class Contact_Form_Plugin {
 				'map_meta_cap'          => true,
 			)
 		);
+
+		// Initialize Reusable Forms feature if enabled
+		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
+		if ( ! empty( $feature_flags['reusable-forms'] ) ) {
+			Reusable_Forms::init();
+		}
+
 		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_feedback_status_handler' ), 10, 3 );
 
 		// Add to REST API post type allowed list.
