@@ -45,7 +45,7 @@ export function EmailReplyToSettingsSection( {
 				{ value: 'no-reply', label: __( 'Replies are not allowed', 'jetpack-newsletter' ) },
 			],
 			description: __(
-				"Chooses who receives emails when subscribers reply to your newsletter. The author's account must be connected to WordPress.com to use their email as the reply-to address.",
+				"Choose who receives emails when subscribers reply to your newsletter. The author's account must be connected to WordPress.com to use their email as the reply-to address.",
 				'jetpack-newsletter'
 			),
 		},
