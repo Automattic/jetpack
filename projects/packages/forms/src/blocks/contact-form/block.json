@@ -24,7 +24,7 @@
 			"default": {
 				"type": "flex",
 				"flexWrap": "wrap",
-				"orientation": "vertical",
+				"orientation": "horizontal",
 				"justifyContent": "stretch",
 				"verticalAlignment": "bottom"
 			},
