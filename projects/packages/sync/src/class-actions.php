@@ -469,17 +469,11 @@ class Actions {
 		 * @param array $query_args associative array of query parameters.
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
-
 		// Normalizing could be extended to include other params in the future as needed.
-		foreach ( array( 'cd', 'pd' ) as $k ) {
-			if ( isset( $query_args[ $k ] ) ) {
+		foreach ( array( 'cd', 'pd' ) as $duration_param ) {
+			if ( isset( $query_args[ $duration_param ] ) && is_string( $query_args[ $duration_param ] ) && strpos( $query_args[ $duration_param ], ',' ) !== false ) {
 				// Prevent locale issues where comma is used as decimal separator.
-				$query_args[ $k ] = number_format(
-					(float) strtr( (string) $query_args[ $k ], array( ',' => '.' ) ),
-					4,
-					'.',
-					''
-				);
+				$query_args[ $duration_param ] = strtr( $query_args[ $duration_param ], array( ',' => '.' ) );
 			}
 		}
 
