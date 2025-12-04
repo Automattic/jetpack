@@ -150,8 +150,8 @@ class Settings {
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
 		// Build setup payment plans URL based on platform.
-		$is_wpcom_simple        = ( new Host() )->is_wpcom_platform();
-		$base_url               = $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
+		$is_wpcom               = ( new Host() )->is_wpcom_platform();
+		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
 		$setup_payment_plan_url = $base_url . $site_raw_url;
 
 		return array(
