@@ -470,6 +470,19 @@ class Actions {
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
+		// Normalizing could be extended to include other params in the future as needed.
+		foreach ( array( 'cd', 'pd' ) as $k ) {
+			if ( isset( $query_args[ $k ] ) ) {
+				// Prevent locale issues where comma is used as decimal separator.
+				$query_args[ $k ] = number_format(
+					(float) strtr( (string) $query_args[ $k ], array( ',' => '.' ) ),
+					4,
+					'.',
+					''
+				);
+			}
+		}
+
 		$retry_after_header    = false;
 		$dedicated_sync_header = false;
 
