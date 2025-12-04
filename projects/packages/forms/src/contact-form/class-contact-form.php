@@ -538,7 +538,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string|null The default available cipher method, or null if none are available.
 	 */
 	public static function get_default_available_cipher() {
-		$allowed_methods = array( 'aes-256-ctr', 'aes-256-cbc' );
+		$allowed_methods = array( 'aes-256-gcm', 'aes-256-cbc' );
 		$methods         = array_intersect( $allowed_methods, openssl_get_cipher_methods() );
 		if ( empty( $methods ) ) {
 			return null;
