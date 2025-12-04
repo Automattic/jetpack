@@ -111,20 +111,24 @@ const IntegrationCardHeader = ( {
 							{ cardData?.iconUrl ? (
 								<img
 									src={ cardData.iconUrl as string }
-									alt={ title }
+									alt=""
+									aria-hidden={ true }
 									width={ 30 }
 									height={ 30 }
-									className={ `integration-card__service-icon ${
-										cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
-									}` }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
 								/>
 							) : (
 								<Icon
 									icon={ plugins }
-									className={ `integration-card__service-icon ${
-										cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
-									}` }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
 									size={ 30 }
+									aria-hidden={ true }
 								/>
 							) }
 						</div>
