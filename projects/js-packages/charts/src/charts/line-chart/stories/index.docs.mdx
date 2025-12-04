@@ -78,8 +78,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
 - **`renderGlyph`**: Custom glyph render function
 - **`glyphStyle`**: Styling for chart glyphs
-- **`showAxes`**: Show or hide x and y axes (`true` by default)
-- **`showGrid`**: Show or hide grid lines (`true` by default)
+- **`gridVisibility`**: Control grid visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 
 **Interactivity:**
 - **`withTooltips`**: Enable interactive tooltips (`true` by default)
@@ -719,14 +718,19 @@ For compact, inline visualizations without axes or interactivity, use the [Spark
 />` }
 />
 
-Alternatively, create a minimal LineChart directly:
+Alternatively, create a minimal LineChart directly using the `options` prop to hide axes and `gridVisibility` to hide the grid:
 
 <Source
 	language="jsx"
 	code={ `<LineChart
 	data={data}
-	showAxes={false}
-	showGrid={false}
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
 	showLegend={false}
 	withTooltips={false}
 	withGradientFill={true}

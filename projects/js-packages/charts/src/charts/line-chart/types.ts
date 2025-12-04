@@ -43,16 +43,6 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 	};
 	legendInteractive?: boolean;
 	children?: ReactNode;
-	/**
-	 * Whether to show axes (x and y). Set to false for minimal/sparkline style.
-	 * @default true
-	 */
-	showAxes?: boolean;
-	/**
-	 * Whether to show the grid lines. Set to false for minimal/sparkline style.
-	 * @default true
-	 */
-	showGrid?: boolean;
 }
 
 export type TooltipDatum = {

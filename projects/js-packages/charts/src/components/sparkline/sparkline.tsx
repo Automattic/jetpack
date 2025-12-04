@@ -137,8 +137,13 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 					withGradientFill={ withGradientFill }
 					withTooltips={ false }
 					showLegend={ false }
-					showAxes={ false }
-					showGrid={ false }
+					gridVisibility="none"
+					options={ {
+						axis: {
+							x: { display: false },
+							y: { display: false },
+						},
+					} }
 					curveType="monotone"
 				/>
 			</div>

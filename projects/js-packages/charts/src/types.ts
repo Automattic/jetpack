@@ -246,6 +246,10 @@ declare type AxisOptions = {
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
 	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
+	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
 	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;

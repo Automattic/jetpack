@@ -215,8 +215,13 @@ Sparkline is built on LineChart with the following preconfigured settings:
 // Sparkline internally uses LineChart like this:
 <LineChart
 	data={transformedSeriesData}  // number[] → SeriesData[]
-	showAxes={false}
-	showGrid={false}
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
 	showLegend={false}
 	withTooltips={false}
 	withGradientFill={true}

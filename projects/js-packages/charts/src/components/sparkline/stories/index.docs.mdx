@@ -90,8 +90,13 @@ For more control, you can use LineChart with minimal chrome. This is what Sparkl
 			// ...
 		]
 	}]}
-	showAxes={false}
-	showGrid={false}
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
 	showLegend={false}
 	withTooltips={false}
 	withGradientFill={true}
