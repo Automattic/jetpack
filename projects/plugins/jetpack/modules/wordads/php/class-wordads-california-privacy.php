@@ -56,7 +56,7 @@ class WordAds_California_Privacy {
 				'ccpaCssUrl'                => esc_url( Assets::get_file_url_for_environment( '/css/wordads-ccpa.min.css', '/css/wordads-ccpa.css' ) . '?ver=' . JETPACK__VERSION ),
 				'ajaxUrl'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
 				'ajaxNonce'                 => wp_create_nonce( 'ccpa_optout' ),
-				'forceApplies'              => wp_json_encode( is_user_logged_in() && current_user_can( 'manage_options' ) ),
+				'forceApplies'              => is_user_logged_in() && current_user_can( 'manage_options' ) ? 'true' : 'false',
 				'strings'                   => array(
 					'pleaseWait' => esc_html__( 'Please Wait', 'jetpack' ),
 				),

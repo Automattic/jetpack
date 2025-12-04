@@ -23,17 +23,19 @@ class Utils {
 	/**
 	 * Encodes a value to JSON.
 	 *
-	 * @param mixed $value The value to encode.
+	 * @param mixed $value   The value to encode.
+	 * @param int   $flags   Options to be passed to json_encode(). Default 0.
+	 * @param int   $depth   Maximum depth to walk through $value. Must be greater than 0.
 	 *
-	 * @return string The JSON-encoded string.
+	 * @return string|false The JSON-encoded string, or false on failure.
 	 */
-	public function json_encode( $value ) {
+	public function json_encode( $value, $flags = 0, $depth = 512 ) {
 		if ( $this->use_wp ) {
-			return wp_json_encode( $value );
+			return wp_json_encode( $value, $flags, $depth );
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		return json_encode( $value );
+		return json_encode( $value, $flags, $depth );
 	}
 
 	/**

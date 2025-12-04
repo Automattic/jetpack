@@ -43,7 +43,7 @@ class PlanNoticesTest extends WP_UnitTestCase {
 			'product_slug' => 'business-bundle',
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 
 		$plan_date = gmdate( 'F j, Y', time() + WEEK_IN_SECONDS );
 

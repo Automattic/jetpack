@@ -3383,7 +3383,7 @@ function wpsc_update_active_preload( $group = null, $progress = null, $url = nul
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_active_preload: failed to write to $filename" );
 	}
 }
@@ -3403,7 +3403,7 @@ function wpsc_update_idle_preload( $finish_time = null ) {
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_idle_preload: failed to write to $filename" );
 	}
 }

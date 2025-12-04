@@ -25,7 +25,7 @@ class FeatureHookTest extends WP_UnitTestCase {
 		);
 
 		// Give the site an atomic supported plan.
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
 
 		$input_caps = array( 'edit_themes' );
 		$theme_caps = wpcomsh_map_feature_cap( $input_caps, 'edit_themes' );
@@ -50,7 +50,7 @@ class FeatureHookTest extends WP_UnitTestCase {
 		);
 
 		// Give the site no purchases.
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
 
 		$input_caps   = array( 'edit_themes' );
 		$theme_caps   = wpcomsh_map_feature_cap( $input_caps, 'edit_themes' );

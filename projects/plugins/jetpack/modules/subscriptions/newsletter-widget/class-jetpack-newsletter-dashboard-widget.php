@@ -228,7 +228,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 		if ( ! empty( $options['config_data'] ) ) {
 			wp_add_inline_script(
 				$asset_handle,
-				"window.{$options['config_variable_name']} = " . wp_json_encode( $options['config_data'] ) . ';',
+				"window.{$options['config_variable_name']} = " . wp_json_encode( $options['config_data'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 		}
