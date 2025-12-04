@@ -269,6 +269,53 @@ class Actions_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests send_data normalizes cd and pd query parameters from filter.
+	 */
+	public function test_send_data_normalizes_cd_pd_from_filter() {
+		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );
+
+		add_filter(
+			'jetpack_sync_send_data_query_args',
+			function ( $args ) {
+				$args['cd'] = '0,0066';
+				$args['pd'] = '0,0049';
+				return $args;
+			},
+			10
+		);
+
+		$captured_url = null;
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$captured_url ) {
+				$captured_url = $url;
+				return array(
+					'response'    => array( 'code' => 200 ),
+					'status_code' => 200,
+					'body'        => wp_json_encode( array( 'processed_items' => array() ) ),
+				);
+			},
+			10,
+			3
+		);
+
+		Actions::send_data( array( 1 ), 'dummy', microtime( true ), 'sync', 0.0066, 0.0049 );
+
+		remove_all_filters( 'jetpack_sync_send_data_query_args' );
+		remove_all_filters( 'pre_http_request' );
+
+		$this->assertIsString( $captured_url, 'Expected to capture the outgoing URL' );
+		$query_params = array();
+		$query_string = wp_parse_url( $captured_url, PHP_URL_QUERY );
+		if ( ! is_string( $query_string ) ) {
+			$query_string = '';
+		}
+		parse_str( $query_string, $query_params );
+		$this->assertSame( '0.0066', $query_params['cd'] ?? null );
+		$this->assertSame( '0.0049', $query_params['pd'] ?? null );
+	}
+
+	/**
 	 * Intercept jetpack.syncActions XML-RPC request and return 'Jetpack-Dedicated-Sync' header with value 'on'.
 	 *
 	 * @param false  $preempt A preemptive return value of an HTTP request.
