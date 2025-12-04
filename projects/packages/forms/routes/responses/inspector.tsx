@@ -1,8 +1,4 @@
-/**
- * External dependencies
- */
-import { useSearch, useNavigate } from '@tanstack/react-router';
-
+/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * WordPress dependencies
  */
@@ -22,10 +18,14 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { useCallback } from '@wordpress/element';
+import { useSearch, useNavigate } from '@wordpress/route';
 
 /**
- * Get display name from response
- * @param response - The form response object
+ * Get display name from response.
+ *
+ * @param {object} response - The form response object.
+ * @return {string} The display name.
  */
 const getDisplayName = response => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -33,9 +33,11 @@ const getDisplayName = response => {
 };
 
 /**
- * Single response view component
- * @param props
- * @param props.responseId - The ID of the response to display
+ * Single response view component.
+ *
+ * @param {object} props            - Component props.
+ * @param {number} props.responseId - The ID of the response to display.
+ * @return {JSX.Element} The response view component.
  */
 function SingleResponseView( { responseId } ) {
 	const { response, isLoading } = useSelect(
@@ -76,7 +78,6 @@ function SingleResponseView( { responseId } ) {
 
 	return (
 		<div className="jp-forms__inspector-response">
-			{ /* Header with name and email */ }
 			<div className="jp-forms__inspector-header" style={ { marginBottom: '20px' } }>
 				<HStack alignment="topLeft" spacing="3">
 					<VStack spacing="0">
@@ -90,7 +91,6 @@ function SingleResponseView( { responseId } ) {
 				</HStack>
 			</div>
 
-			{ /* Meta information */ }
 			<div className="jp-forms__inspector-meta" style={ { marginBottom: '20px' } }>
 				<table style={ { width: '100%', borderCollapse: 'collapse' } }>
 					<tbody>
@@ -154,7 +154,6 @@ function SingleResponseView( { responseId } ) {
 				</table>
 			</div>
 
-			{ /* Form fields */ }
 			{ response.fields && Object.keys( response.fields ).length > 0 && (
 				<div className="jp-forms__inspector-fields">
 					{ Object.entries( response.fields ).map( ( [ key, value ] ) => (
@@ -185,16 +184,16 @@ function SingleResponseView( { responseId } ) {
 }
 
 /**
- * Render a field value, handling different types
- * @param value - The field value to render
+ * Render a field value, handling different types.
+ *
+ * @param {*} value - The field value to render.
+ * @return {JSX.Element|string} The rendered value.
  */
 function renderFieldValue( value ) {
-	// Handle null/undefined
 	if ( value === null || value === undefined ) {
 		return '-';
 	}
 
-	// Handle file uploads
 	if ( value && typeof value === 'object' && 'files' in value ) {
 		return (
 			<ul style={ { margin: 0, paddingLeft: '20px' } }>
@@ -207,49 +206,46 @@ function renderFieldValue( value ) {
 		);
 	}
 
-	// Handle arrays
 	if ( Array.isArray( value ) ) {
 		return value.join( ', ' );
 	}
 
-	// Handle objects
 	if ( typeof value === 'object' ) {
 		return JSON.stringify( value );
 	}
 
-	// Handle emails
 	const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 	if ( typeof value === 'string' && emailRegEx.test( value ) ) {
 		return <a href={ `mailto:${ value }` }>{ value }</a>;
 	}
 
-	// Default: return as string
 	return String( value );
 }
 
 /**
- * Inspector component for viewing response details
+ * Inspector component for viewing response details.
+ *
+ * @return {JSX.Element|null} The inspector component.
  */
 export function inspector() {
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
 	const responseIds = searchParams?.responseIds || [];
 
-	// Don't render if no response is selected
 	if ( ! responseIds.length ) {
 		return null;
 	}
 
 	const isBulk = responseIds.length > 1;
 
-	const handleClose = () => {
+	const handleClose = useCallback( () => {
 		navigate( {
 			search: {
 				...searchParams,
 				responseIds: undefined,
 			},
 		} );
-	};
+	}, [ navigate, searchParams ] );
 
 	return (
 		<Page

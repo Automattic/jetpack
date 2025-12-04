@@ -5673,14 +5673,14 @@ function useCanGoBack() {
   return useRouterState({ select: (s) => s.location.state.__TSR_index !== 0 });
 }
 
-// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/route/build-module/lock-unlock.js
+// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_patch_hash=387d67308945581b64bee308485f04a188b1_e592cf21d0b4dabaae306488b75c01b5/node_modules/@wordpress/route/build-module/lock-unlock.js
 var import_private_apis = __toESM(require_private_apis());
 var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
   "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
   "@wordpress/route"
 );
 
-// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/route/build-module/private-apis.js
+// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_patch_hash=387d67308945581b64bee308485f04a188b1_e592cf21d0b4dabaae306488b75c01b5/node_modules/@wordpress/route/build-module/private-apis.js
 var privateApis = {};
 lock(privateApis, {
   // Router creation and setup
@@ -5695,13 +5695,14 @@ lock(privateApis, {
   redirect,
   createLink,
   useCanGoBack,
+  useLoaderData,
   useMatches,
   useRouter,
   // History utilities
   parseHref
 });
 
-// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/@wordpress/route/build-module/index.js
+// ../../../node_modules/.pnpm/@wordpress+route@0.2.1-next.8b30e05b0.0_patch_hash=387d67308945581b64bee308485f04a188b1_e592cf21d0b4dabaae306488b75c01b5/node_modules/@wordpress/route/build-module/index.js
 function useInvalidate() {
   const router = useRouter();
   return () => router.invalidate();

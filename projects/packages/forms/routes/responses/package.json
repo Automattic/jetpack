@@ -5,6 +5,7 @@
 	"dependencies": {
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
 		"@wordpress/admin-ui": "next",
+		"@wordpress/api-fetch": "next",
 		"@wordpress/components": "next",
 		"@wordpress/core-data": "next",
 		"@wordpress/data": "next",
@@ -13,7 +14,9 @@
 		"@wordpress/element": "next",
 		"@wordpress/html-entities": "next",
 		"@wordpress/i18n": "next",
-		"@wordpress/icons": "next"
+		"@wordpress/icons": "next",
+		"@wordpress/notices": "next",
+		"@wordpress/route": "next"
 	},
 	"route": {
 		"path": "/responses/$view",
