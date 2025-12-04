@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do the right thing for `--git --diff-only` and input paths not relative to the repo root.
