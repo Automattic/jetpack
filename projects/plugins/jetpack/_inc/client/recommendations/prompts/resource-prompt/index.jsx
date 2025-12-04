@@ -28,7 +28,6 @@ import { PromptLayout } from '../prompt-layout';
  * Similar to Feature prompt, but a resource/ link is provided instead of a feature to enable.
  *
  * @param {object} props - Component props.
- * @function Object() { [native code] }
  * @return {Element} - A react component.
  */
 const ResourcePromptComponent = props => {

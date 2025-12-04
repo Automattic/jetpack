@@ -2,7 +2,7 @@ import clsx from 'clsx';
 
 /**
  * Returns a class based on the context a color is being used and its slug.
- * Note: This helper function was copied from core @wordpress/block-editor lib,
+ * Note: This helper function was copied from core `@wordpress/block-editor` lib,
  * in order to avoid requiring not-needed dependencies to reduce the size of
  * compiled files used in the front-end.
  *
