@@ -26,19 +26,23 @@
 	}
 }
 
-input[type="text"].jetpack-field-slider__min-text-label.jetpack-field-slider__min-text-label,
-input[type="text"].jetpack-field-slider__max-text-label.jetpack-field-slider__max-text-label {
-	border: none;
-	outline: none;
-	box-shadow: none;
-	background: transparent;
-	font: inherit;
-	color: inherit;
-	padding: 0 0.2em;
-	margin: 0;
-	width: auto;
+input[type="text"].jetpack-field-slider__min-text-label,
+input[type="text"].jetpack-field-slider__max-text-label {
+	border: none !important;
+	outline: none !important;
+	box-shadow: none !important;
+	background: transparent !important;
+	font: inherit !important;
+	font-size: 0.9em !important;
+	line-height: 1.5 !important;
+	color: inherit !important;
+	padding: 0 0.2em !important;
+	margin: 0 !important;
+	width: auto !important;
+	height: auto !important;
 	field-sizing: content;
 	min-width: 3ch;
 	max-width: 24ch;
-	text-transform: inherit;
+	text-transform: inherit !important;
+	vertical-align: baseline !important;
 }
