@@ -61,34 +61,6 @@
 		font-size: 13px;
 	}
 
-	// Sender name field with inline save button
-	&__sender-name {
-		margin-top: 24px;
-	}
-
-	&__sender-name-controls {
-		display: flex;
-		gap: 8px;
-		align-items: center;
-		margin-bottom: 8px;
-	}
-
-	&__text-input {
-		flex: 1;
-		max-width: 400px;
-		padding: 8px 12px;
-		border: 1px solid #8c8f94;
-		border-radius: 4px;
-		font-size: 14px;
-		line-height: 1.5;
-
-		&:focus {
-			border-color: #2271b1;
-			box-shadow: 0 0 0 1px #2271b1;
-			outline: 2px solid transparent;
-		}
-	}
-
 	&--error {
 		padding: 20px;
 
