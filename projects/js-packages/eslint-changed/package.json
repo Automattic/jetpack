@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.1.4",
+	"version": "2.1.5",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"keywords": [
 		"eslint",
