@@ -150,19 +150,19 @@ class Settings {
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
 		return array(
-			'isBlockTheme'      => wp_is_block_theme(),
-			'siteAdminUrl'      => admin_url(),
-			'themeStylesheet'   => $theme->get_stylesheet(),
-			'blogID'            => $blog_id,
-			'siteRawUrl'        => $site_raw_url,
-			'email'             => $current_user->user_email,
-			'gravatar'          => get_avatar_url( $current_user->ID ),
-			'displayName'       => $current_user->display_name,
-			'dateExample'       => gmdate( get_option( 'date_format' ), time() ),
+			'isBlockTheme'                       => wp_is_block_theme(),
+			'siteAdminUrl'                       => admin_url(),
+			'themeStylesheet'                    => $theme->get_stylesheet(),
+			'blogID'                             => $blog_id,
+			'siteRawUrl'                         => $site_raw_url,
+			'email'                              => $current_user->user_email,
+			'gravatar'                           => get_avatar_url( $current_user->ID ),
+			'displayName'                        => $current_user->display_name,
+			'dateExample'                        => gmdate( get_option( 'date_format' ), time() ),
 			'wpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wpcom_subscriber_management_enabled', false ),
 			'isSubscriptionSiteEditSupported'    => wp_is_block_theme(),
-			'setupPaymentPlansUrl' => $this->get_jetpack_cloud_url( 'monetize/payments' ),
-			'isSitePublic'      => (int) get_option( 'blog_public' ) === 1,
+			'setupPaymentPlansUrl'               => $this->get_jetpack_cloud_url( 'monetize/payments' ),
+			'isSitePublic'                       => (int) get_option( 'blog_public' ) === 1,
 		);
 	}
 
