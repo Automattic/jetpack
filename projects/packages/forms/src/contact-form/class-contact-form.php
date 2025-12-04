@@ -553,10 +553,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Only encrypt the attributes field as it contains sensitive information
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
-
 		// Check cipher availability with fallback support
 		$available_cipher_methods = openssl_get_cipher_methods();
 		$cipher                   = null;
+		$cipher_fallback          = null;
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
@@ -568,18 +568,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// IV length already set to 12 (NIST recommended for AES-GCM)
 				break;
 			}
+			// If AES-256-GCM not found, try fallback to AES-256-CBC
+			if ( strtolower( $method ) === 'aes-256-cbc' ) {
+				$cipher_fallback = $method; // Use the actual name with original casing
+				$use_encryption  = true;
+			}
 		}
 
-		// If GCM not found, try fallback to AES-256-CBC
-		if ( ! $use_encryption ) {
-			foreach ( $available_cipher_methods as $method ) {
-				if ( strtolower( $method ) === 'aes-256-cbc' ) {
-					$cipher         = $method; // Use the actual name with original casing
-					$use_encryption = true;
-					$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
-					break;
-				}
-			}
+		// Use the fallback cipher if the primary cipher is not available.
+		if ( $cipher === null && $cipher_fallback !== null ) {
+			$cipher    = $cipher_fallback;
+			$iv_length = 16; // 16-byte (128-bit) IV for AES-CBC
 		}
 
 		// Lazy fallback payload in case encryption fails or is unavailable.
