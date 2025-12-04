@@ -626,6 +626,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 		}
 
+		// No encryption available - fall back to version 1 format (unencrypted)
 		return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 	}
 
