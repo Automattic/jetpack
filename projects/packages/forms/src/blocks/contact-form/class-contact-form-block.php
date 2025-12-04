@@ -47,14 +47,17 @@ class Contact_Form_Block {
 				'supports'              => array(
 					'layout' => array(
 						'default'                => array(
-							'type'     => 'flex',
-							'flexWrap' => 'wrap',
+							'type'              => 'flex',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'vertical',
+							'justifyContent'    => 'stretch',
+							'verticalAlignment' => 'bottom',
 						),
 						'allowSwitching'         => false,
 						'allowEditing'           => true,
 						'allowOrientation'       => true,
 						'allowVerticalAlignment' => false,
-						'allowJustification'     => false,
+						'allowJustification'     => true,
 					),
 				),
 				'style_handles'         => array( 'jetpack-forms-layout' ),

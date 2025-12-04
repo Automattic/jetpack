@@ -23,14 +23,15 @@
 		"layout": {
 			"default": {
 				"type": "flex",
-				"flexWrap": "nowrap",
+				"flexWrap": "wrap",
 				"orientation": "vertical",
-				"justifyContent": "stretch"
+				"justifyContent": "stretch",
+				"verticalAlignment": "bottom"
 			},
 			"allowSwitching": false,
 			"allowEditing": true,
 			"allowOrientation": true,
-			"allowVerticalAlignment": true,
+			"allowVerticalAlignment": false,
 			"allowJustification": true
 		}
 	},
