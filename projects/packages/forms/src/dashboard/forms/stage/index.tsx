@@ -15,7 +15,6 @@ import useFormsData from '../../hooks/use-forms-data.ts';
 import { defaultLayouts, useView } from '../views.ts';
 
 const EMPTY_ARRAY: never[] = [];
-const MOBILE_BREAKPOINT = 780;
 
 /**
  * Forms list DataViews implementation.
@@ -25,7 +24,6 @@ const MOBILE_BREAKPOINT = 780;
 export default function FormsStage() {
 	const [ view, setView ] = useView();
 	const dateSettings = getDateSettings();
-	const [ containerWidth, setContainerWidth ] = useState( 0 );
 	const [ selectedFormId, setSelectedFormId ] = useState< string | null >( null );
 	const navigate = useNavigate();
 	const enableIntegrationsTab = useConfigValue( 'isIntegrationsEnabled' );
@@ -116,8 +114,12 @@ export default function FormsStage() {
 		[ totalItems, totalPages ]
 	);
 
+	// The admin-ui DataViews View type does not exactly match our lightweight
+	// view shape used for the Forms list, so we keep the runtime behavior but
+	// relax the TypeScript typing here for this spike.
 	const onChangeView = useCallback(
-		( newView: typeof view ) => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		( newView: any ) => {
 			setView( newView );
 		},
 		[ setView ]
@@ -137,14 +139,12 @@ export default function FormsStage() {
 
 	const getItemId = useCallback( ( item: { id: number } ) => String( item.id ), [] );
 
-	const handleResize = useCallback( ( width: number ) => setContainerWidth( width ), [] );
-
 	const pageContent = (
 		<Page
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms > View Forms', 'jetpack-forms' ) }
+					{ __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
 			subTitle={ __( 'Below is a list of all your re-usable forms', 'jetpack-forms' ) }
@@ -157,18 +157,22 @@ export default function FormsStage() {
 				data={ records || EMPTY_ARRAY }
 				isLoading={ isLoading }
 				empty={ <EmptyForms /> }
-				view={ view }
+				// The admin-ui DataViews typing currently expects a more specific View
+				// shape (e.g. activity views). Our forms view matches the inbox view
+				// structure used elsewhere but doesn't align perfectly with those TS
+				// unions, so we cast here for this spike implementation.
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				view={ view as any }
 				onChangeView={ onChangeView }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
-				onResize={ handleResize }
 			>
 				<div className="jp-forms-view-actions">
 					<div
 						style={ {
 							display: 'flex',
 							gap: '8px',
-							justifyContent: containerWidth < MOBILE_BREAKPOINT ? 'space-between' : 'flex-end',
+							justifyContent: 'flex-end',
 						} }
 					>
 						<DataViews.Search />

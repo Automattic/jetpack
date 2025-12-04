@@ -10,6 +10,7 @@ const LAYOUT_TABLE = 'table';
 export const defaultView = {
 	type: LAYOUT_TABLE,
 	search: '',
+	filters: [],
 	page: 1,
 	perPage: 20,
 	fields: [ 'title', 'modified', 'responses', 'actions' ],

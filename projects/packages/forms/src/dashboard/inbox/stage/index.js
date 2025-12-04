@@ -532,7 +532,7 @@ export default function InboxView() {
 			title={
 				<div className="jp-forms-page-header-title">
 					<JetpackLogo showText={ false } width={ 20 } />
-					{ __( 'Forms > View Responses', 'jetpack-forms' ) }
+					{ __( 'Form Responses', 'jetpack-forms' ) }
 				</div>
 			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }

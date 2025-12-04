@@ -22,5 +22,22 @@
 	.jp-forms-forms-actions__link {
 		font-size: 12px;
 	}
+
+	// Adjust column widths in the Forms DataViews table so the Actions column
+	// has more space, especially when the inspector sidebar is open.
+	.dataviews-view-table__row {
+		// Narrow the Responses column (3rd column).
+		td:nth-child(3) {
+			width: 80px;
+			max-width: 80px;
+			text-align: right;
+		}
+
+		// Give the Actions column (4th column) a minimum width so its links
+		// have more room before wrapping.
+		td:nth-child(4) {
+			min-width: 220px;
+		}
+	}
 }
 
