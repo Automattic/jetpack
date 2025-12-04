@@ -126,7 +126,7 @@ class Settings {
 
 		wp_add_inline_script(
 			'jetpack-newsletter',
-			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data() ) . ';',
+			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
 	}
