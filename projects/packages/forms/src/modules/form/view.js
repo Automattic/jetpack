@@ -342,7 +342,11 @@ const { state, actions } = store( NAMESPACE, {
 		get showFormErrors() {
 			const context = getContext();
 
-			return ! state.isFormValid && context.showErrors;
+			return (
+				! state.isFormValid &&
+				context.showErrors &&
+				! ( context.isSingleInputForm || context.isForcedHorizontal )
+			);
 		},
 
 		get showSubmissionError() {
