@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Currently sometimes ciphers are avialbe in upper case but not in lowercase versions. this checks if they are only available in lowercase versions if not then pproceed with the no encription
