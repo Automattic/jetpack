@@ -32,13 +32,13 @@ export function PaidNewsletterSection( {
 			<h3 className="newsletter-settings__section-title">
 				{ __( 'Paid newsletter', 'jetpack-newsletter' ) }
 			</h3>
+			<p className="newsletter-settings__section-description">
+				{ __(
+					'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
+					'jetpack-newsletter'
+				) }
+			</p>
 			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<p>
-					{ __(
-						'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
-						'jetpack-newsletter'
-					) }
-				</p>
 				<Button
 					variant="primary"
 					href={ jetpackSettings.setupPaymentPlansUrl }

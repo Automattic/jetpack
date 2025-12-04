@@ -59,6 +59,7 @@ export function ToggleWithLink( {
 					) }
 				</span>
 			}
+			help={ field.description }
 		/>
 	);
 }

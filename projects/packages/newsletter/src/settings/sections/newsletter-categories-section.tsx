@@ -139,7 +139,7 @@ export function NewsletterCategoriesSection( {
 			</h3>
 			<p className="newsletter-settings__section-description">
 				{ __(
-					"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the subscribe block.",
+					"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the subscribe block. When you add a new category, your existing subscribers will be automatically subscribed to it.",
 					'jetpack-newsletter'
 				) }
 			</p>
