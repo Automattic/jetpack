@@ -609,6 +609,7 @@ that needs to mimic the input element styles */
 	padding-left: 0;
 }
 
+.wp-block-jetpack-contact-form-container.is-forced-horizontal-form,
 .wp-block-jetpack-contact-form-container.is-single-input-form {
 
 	&:has(.contact-form__input-error.has-errors) {
@@ -1495,6 +1496,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	transform: translateY(0);
 	transition: opacity 200ms cubic-bezier(0.34, 0.8, 0.34, 1), transform 200ms cubic-bezier(0.34, 0.8, 0.34, 1);
 
+	.is-forced-horizontal-form &,
 	.is-single-input-form & {
 		position: absolute;
 	}
