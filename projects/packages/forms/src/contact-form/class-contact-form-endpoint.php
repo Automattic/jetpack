@@ -1209,8 +1209,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private function get_integration_metadata_fields( $slug, $config ) {
 		$type                    = $config['type'] ?? null;
 		$marketing_redirect_slug = $config['marketing_redirect_slug'] ?? null;
-
-		$icon_url = isset( $config['icon_url'] ) ? $config['icon_url'] : null;
+		$icon_url                = $config['icon_url'] ?? null;
 
 		return array(
 			'id'               => $slug,
