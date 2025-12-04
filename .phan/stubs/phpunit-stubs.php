@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.4.2
+ * Stubs automatically generated from PHPUnit 12.4.5
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -19728,19 +19728,7 @@ final class TestSuiteSorter
     /**
      * @throws Exception
      */
-    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects, bool $isRootTestSuite = true): void
-    {
-    }
-    /**
-     * @return array<string>
-     */
-    public function getOriginalExecutionOrder(): array
-    {
-    }
-    /**
-     * @return array<string>
-     */
-    public function getExecutionOrder(): array
+    public function reorderTestsInSuite(\PHPUnit\Framework\Test $suite, int $order, bool $resolveDependencies, int $orderDefects): void
     {
     }
 }
@@ -28250,7 +28238,7 @@ namespace SebastianBergmann\CodeCoverage;
 /**
  * Provides collection functionality for PHP code coverage information.
  *
- * @phan-type TestType array{size: string, status: string}
+ * @phan-type TestType array{size: string, status: string, time: float}
  * @phan-type TargetedLines array<non-empty-string, list<positive-int>>
  */
 final class CodeCoverage
@@ -28312,7 +28300,7 @@ final class CodeCoverage
     public function start(string $id, ?\SebastianBergmann\CodeCoverage\Test\TestSize\TestSize $size = null, bool $clear = false): void
     {
     }
-    public function stop(bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData
+    public function stop(bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null, float $time = 0.0): \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData
     {
     }
     /**
@@ -28320,7 +28308,7 @@ final class CodeCoverage
      * @throws TestIdMissingException
      * @throws UnintentionallyCoveredCodeException
      */
-    public function append(\SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData $rawData, ?string $id = null, bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null): void
+    public function append(\SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData $rawData, ?string $id = null, bool $append = true, ?\SebastianBergmann\CodeCoverage\Test\TestStatus\TestStatus $status = null, null|false|\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $covers = null, ?\SebastianBergmann\CodeCoverage\Test\Target\TargetCollection $uses = null, float $time = 0.0): void
     {
     }
     /**
@@ -28503,26 +28491,98 @@ namespace SebastianBergmann\CodeCoverage\Data;
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  *
+ * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
+ * @phpstan-import-type XdebugBranchCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ */
+final class ProcessedBranchCoverageData
+{
+    public readonly int $op_start;
+    public readonly int $op_end;
+    public readonly int $line_start;
+    public readonly int $line_end;
+    /** @var list<TestIdType> */
+    public array $hit;
+    /** @var array<int, int> */
+    public readonly array $out;
+    /** @var array<int, int> */
+    public readonly array $out_hit;
+    /**
+     * @param XdebugBranchCoverageType $xdebugCoverageData
+     */
+    public static function fromXdebugCoverage(array $xdebugCoverageData): self
+    {
+    }
+    /**
+     * @param list<TestIdType> $hit
+     * @param array<int, int>  $out
+     * @param array<int, int>  $out_hit
+     */
+    public function __construct(int $op_start, int $op_end, int $line_start, int $line_end, array $hit, array $out, array $out_hit)
+    {
+    }
+    #[\NoDiscard]
+    public function merge(self $data): self
+    {
+    }
+    /**
+     * @param TestIdType $testCaseId
+     */
+    public function recordHit(string $testCaseId): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ProcessedClassType
+{
+    public readonly string $className;
+    public readonly string $namespace;
+    /**
+     * @var array<string, ProcessedMethodType>
+     */
+    public array $methods;
+    public readonly int $startLine;
+    public int $executableLines;
+    public int $executedLines;
+    public int $executableBranches;
+    public int $executedBranches;
+    public int $executablePaths;
+    public int $executedPaths;
+    public int $ccn;
+    public float|int $coverage;
+    public int|string $crap;
+    public readonly string $link;
+    public function __construct(
+        string $className,
+        string $namespace,
+        /**
+         * @var array<string, ProcessedMethodType>
+         */
+        array $methods,
+        int $startLine,
+        int $executableLines,
+        int $executedLines,
+        int $executableBranches,
+        int $executedBranches,
+        int $executablePaths,
+        int $executedPaths,
+        int $ccn,
+        float|int $coverage,
+        int|string $crap,
+        string $link
+    )
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
  * @phpstan-import-type XdebugFunctionCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
  *
  * @phan-type TestIdType string
- * @phan-type FunctionCoverageDataType array{
- *      branches: array<int, array{
- *          op_start: int,
- *          op_end: int,
- *          line_start: int,
- *          line_end: int,
- *          hit: list<TestIdType>,
- *          out: array<int, int>,
- *          out_hit: array<int, int>,
- *      }>,
- *      paths: array<int, array{
- *          path: array<int, int>,
- *          hit: list<TestIdType>,
- *      }>,
- *      hit: list<TestIdType>
- *  }
- * @phan-type FunctionCoverageType array<string, array<string, FunctionCoverageDataType>>
+ * @phan-type FunctionCoverageType array<string, array<string, ProcessedFunctionCoverageData>>
+ * @phan-type LineCoverageType array<string, array<int, null|list<TestIdType>>>
  */
 final class ProcessedCodeCoverageData
 {
@@ -28532,18 +28592,33 @@ final class ProcessedCodeCoverageData
     public function markCodeAsExecutedByTestCase(string $testCaseId, \SebastianBergmann\CodeCoverage\Data\RawCodeCoverageData $executedCode): void
     {
     }
+    /**
+     * @param LineCoverageType $lineCoverage
+     */
     public function setLineCoverage(array $lineCoverage): void
     {
     }
+    /**
+     * @return LineCoverageType
+     */
     public function lineCoverage(): array
     {
     }
+    /**
+     * @param FunctionCoverageType $functionCoverage
+     */
     public function setFunctionCoverage(array $functionCoverage): void
     {
     }
+    /**
+     * @return FunctionCoverageType
+     */
     public function functionCoverage(): array
     {
     }
+    /**
+     * @return array<string>
+     */
     public function coveredFiles(): array
     {
     }
@@ -28551,6 +28626,176 @@ final class ProcessedCodeCoverageData
     {
     }
     public function merge(self $newData): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
+ * @phpstan-import-type XdebugFunctionCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ */
+final readonly class ProcessedFunctionCoverageData
+{
+    /** @var array<int, ProcessedBranchCoverageData> */
+    public array $branches;
+    /** @var array<int, ProcessedPathCoverageData> */
+    public array $paths;
+    /**
+     * @param XdebugFunctionCoverageType $xdebugCoverageData
+     */
+    public static function fromXdebugCoverage(array $xdebugCoverageData): self
+    {
+    }
+    /**
+     * @param array<int, ProcessedBranchCoverageData> $branches
+     * @param array<int, ProcessedPathCoverageData>   $paths
+     */
+    public function __construct(array $branches, array $paths)
+    {
+    }
+    #[\NoDiscard]
+    public function merge(self $data): self
+    {
+    }
+    /**
+     * @param TestIdType $testCaseId
+     */
+    public function recordBranchHit(int $branchId, string $testCaseId): void
+    {
+    }
+    /**
+     * @param TestIdType $testCaseId
+     */
+    public function recordPathHit(int $pathId, string $testCaseId): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ProcessedFunctionType
+{
+    public readonly string $functionName;
+    public readonly string $namespace;
+    public readonly string $signature;
+    public readonly int $startLine;
+    public readonly int $endLine;
+    public int $executableLines;
+    public int $executedLines;
+    public int $executableBranches;
+    public int $executedBranches;
+    public int $executablePaths;
+    public int $executedPaths;
+    public int $ccn;
+    public float|int $coverage;
+    public int|string $crap;
+    public readonly string $link;
+    public function __construct(string $functionName, string $namespace, string $signature, int $startLine, int $endLine, int $executableLines, int $executedLines, int $executableBranches, int $executedBranches, int $executablePaths, int $executedPaths, int $ccn, float|int $coverage, int|string $crap, string $link)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ProcessedMethodType
+{
+    public readonly string $methodName;
+    public readonly string $visibility;
+    public readonly string $signature;
+    public readonly int $startLine;
+    public readonly int $endLine;
+    public int $executableLines;
+    public int $executedLines;
+    public int $executableBranches;
+    public int $executedBranches;
+    public int $executablePaths;
+    public int $executedPaths;
+    public int $ccn;
+    public float|int $coverage;
+    public int|string $crap;
+    public readonly string $link;
+    public function __construct(string $methodName, string $visibility, string $signature, int $startLine, int $endLine, int $executableLines, int $executedLines, int $executableBranches, int $executedBranches, int $executablePaths, int $executedPaths, int $ccn, float|int $coverage, int|string $crap, string $link)
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ *
+ * @phpstan-import-type TestIdType from ProcessedCodeCoverageData
+ * @phpstan-import-type XdebugPathCoverageType from \SebastianBergmann\CodeCoverage\Driver\XdebugDriver
+ */
+final class ProcessedPathCoverageData
+{
+    /** @var array<int, int> */
+    public readonly array $path;
+    /** @var list<TestIdType> */
+    public array $hit;
+    /**
+     * @param XdebugPathCoverageType $xdebugCoverageData
+     */
+    public static function fromXdebugCoverage(array $xdebugCoverageData): self
+    {
+    }
+    /**
+     * @param array<int, int>  $path
+     * @param list<TestIdType> $hit
+     */
+    public function __construct(array $path, array $hit)
+    {
+    }
+    #[\NoDiscard]
+    public function merge(self $data): self
+    {
+    }
+    /**
+     * @param TestIdType $testCaseId
+     */
+    public function recordHit(string $testCaseId): void
+    {
+    }
+}
+/**
+ * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+final class ProcessedTraitType
+{
+    public readonly string $traitName;
+    public readonly string $namespace;
+    /**
+     * @var array<string, ProcessedMethodType>
+     */
+    public array $methods;
+    public readonly int $startLine;
+    public int $executableLines;
+    public int $executedLines;
+    public int $executableBranches;
+    public int $executedBranches;
+    public int $executablePaths;
+    public int $executedPaths;
+    public int $ccn;
+    public float|int $coverage;
+    public int|string $crap;
+    public readonly string $link;
+    public function __construct(
+        string $traitName,
+        string $namespace,
+        /**
+         * @var array<string, ProcessedMethodType>
+         */
+        array $methods,
+        int $startLine,
+        int $executableLines,
+        int $executedLines,
+        int $executableBranches,
+        int $executedBranches,
+        int $executablePaths,
+        int $executedPaths,
+        int $ccn,
+        float|int $coverage,
+        int|string $crap,
+        string $link
+    )
     {
     }
 }
@@ -28809,10 +29054,6 @@ namespace SebastianBergmann\CodeCoverage\Node;
 
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
- *
- * @phpstan-import-type ProcessedFunctionType from File
- * @phpstan-import-type ProcessedClassType from File
- * @phpstan-import-type ProcessedTraitType from File
  */
 abstract class AbstractNode implements \Countable
 {
@@ -28871,7 +29112,7 @@ abstract class AbstractNode implements \Countable
     {
     }
     /**
-     * @return array<string, ProcessedClassType|ProcessedTraitType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedClassType|\SebastianBergmann\CodeCoverage\Data\ProcessedTraitType>
      */
     public function classesAndTraits(): array
     {
@@ -28889,15 +29130,15 @@ abstract class AbstractNode implements \Countable
     {
     }
     /**
-     * @return array<string, ProcessedClassType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedClassType>
      */
     abstract public function classes(): array;
     /**
-     * @return array<string, ProcessedTraitType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedTraitType>
      */
     abstract public function traits(): array;
     /**
-     * @return array<string, ProcessedFunctionType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType>
      */
     abstract public function functions(): array;
     abstract public function linesOfCode(): \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode;
@@ -28945,10 +29186,6 @@ final readonly class CrapIndex
 /**
  * @template-implements \IteratorAggregate<int, AbstractNode>
  *
- * @phpstan-import-type ProcessedFunctionType from File
- * @phpstan-import-type ProcessedClassType from File
- * @phpstan-import-type ProcessedTraitType from File
- *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode implements \IteratorAggregate
@@ -28987,19 +29224,19 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
     {
     }
     /**
-     * @return array<string, ProcessedClassType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedClassType>
      */
     public function classes(): array
     {
     }
     /**
-     * @return array<string, ProcessedTraitType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedTraitType>
      */
     public function traits(): array
     {
     }
     /**
-     * @return array<string, ProcessedFunctionType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType>
      */
     public function functions(): array
     {
@@ -29055,87 +29292,27 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Node\AbstractNode 
  *
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  * @phpstan-import-type LinesType from \SebastianBergmann\CodeCoverage\StaticAnalysis\AnalysisResult
- *
- * @phan-type ProcessedFunctionType array{
- *     functionName: string,
- *     namespace: string,
- *     signature: string,
- *     startLine: int,
- *     endLine: int,
- *     executableLines: int,
- *     executedLines: int,
- *     executableBranches: int,
- *     executedBranches: int,
- *     executablePaths: int,
- *     executedPaths: int,
- *     ccn: int,
- *     coverage: int|float,
- *     crap: int|string,
- *     link: string
- * }
- * @phan-type ProcessedMethodType array{
- *     methodName: string,
- *     visibility: string,
- *     signature: string,
- *     startLine: int,
- *     endLine: int,
- *     executableLines: int,
- *     executedLines: int,
- *     executableBranches: int,
- *     executedBranches: int,
- *     executablePaths: int,
- *     executedPaths: int,
- *     ccn: int,
- *     coverage: float|int,
- *     crap: int|string,
- *     link: string
- * }
- * @phan-type ProcessedClassType array{
- *     className: string,
- *     namespace: string,
- *     methods: array<string, ProcessedMethodType>,
- *     startLine: int,
- *     executableLines: int,
- *     executedLines: int,
- *     executableBranches: int,
- *     executedBranches: int,
- *     executablePaths: int,
- *     executedPaths: int,
- *     ccn: int,
- *     coverage: int|float,
- *     crap: int|string,
- *     link: string
- * }
- * @phan-type ProcessedTraitType array{
- *     traitName: string,
- *     namespace: string,
- *     methods: array<string, ProcessedMethodType>,
- *     startLine: int,
- *     executableLines: int,
- *     executedLines: int,
- *     executableBranches: int,
- *     executedBranches: int,
- *     executablePaths: int,
- *     executedPaths: int,
- *     ccn: int,
- *     coverage: float|int,
- *     crap: int|string,
- *     link: string
- * }
  */
 final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
 {
     /**
+     * @param non-empty-string                    $sha1
      * @param array<int, ?list<non-empty-string>> $lineCoverageData
      * @param array<string, TestType>             $testData
      * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Class_>               $classes
      * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Trait_>               $traits
      * @param array<string, \SebastianBergmann\CodeCoverage\StaticAnalysis\Function_>            $functions
      */
-    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode $linesOfCode)
+    public function __construct(string $name, \SebastianBergmann\CodeCoverage\Node\AbstractNode $parent, string $sha1, array $lineCoverageData, array $functionCoverageData, array $testData, array $classes, array $traits, array $functions, \SebastianBergmann\CodeCoverage\StaticAnalysis\LinesOfCode $linesOfCode)
     {
     }
     public function count(): int
+    {
+    }
+    /**
+     * @return non-empty-string
+     */
+    public function sha1(): string
     {
     }
     /**
@@ -29154,19 +29331,19 @@ final class File extends \SebastianBergmann\CodeCoverage\Node\AbstractNode
     {
     }
     /**
-     * @return array<string, ProcessedClassType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedClassType>
      */
     public function classes(): array
     {
     }
     /**
-     * @return array<string, ProcessedTraitType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedTraitType>
      */
     public function traits(): array
     {
     }
     /**
-     * @return array<string, ProcessedFunctionType>
+     * @return array<string, \SebastianBergmann\CodeCoverage\Data\ProcessedFunctionType>
      */
     public function functions(): array
     {
@@ -29438,9 +29615,6 @@ abstract class Renderer
     }
 }
 /**
- * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
- *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class Dashboard extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
@@ -29459,11 +29633,6 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Html\Render
     }
 }
 /**
- * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedMethodType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
- *
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final class File extends \SebastianBergmann\CodeCoverage\Report\Html\Renderer
@@ -29479,16 +29648,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
  */
 final readonly class BuildInformation
 {
-    public function __construct(\DOMElement $contextNode)
-    {
-    }
-    public function setRuntimeInformation(\SebastianBergmann\Environment\Runtime $runtime): void
-    {
-    }
-    public function setBuildTime(\DateTimeImmutable $date): void
-    {
-    }
-    public function setGeneratorVersions(string $phpUnitVersion, string $coverageVersion): void
+    public function __construct(\DOMElement $contextNode, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
     {
     }
 }
@@ -29500,13 +29660,7 @@ final class Coverage
     public function __construct(\DOMElement $context, string $line)
     {
     }
-    /**
-     * @throws \SebastianBergmann\CodeCoverage\ReportAlreadyFinalizedException
-     */
-    public function addTest(string $test): void
-    {
-    }
-    public function finalize(): void
+    public function finalize(array $tests): void
     {
     }
 }
@@ -29517,14 +29671,12 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
 }
 /**
- * @phpstan-import-type ProcessedClassType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedTraitType from \SebastianBergmann\CodeCoverage\Node\File
- * @phpstan-import-type ProcessedFunctionType from \SebastianBergmann\CodeCoverage\Node\File
  * @phpstan-import-type TestType from \SebastianBergmann\CodeCoverage\CodeCoverage
  */
 final class Facade
 {
-    public function __construct(string $version)
+    public const XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
+    public function __construct(string $version, bool $includeSource = true)
     {
     }
     /**
@@ -29539,6 +29691,7 @@ final class Facade
  */
 class File
 {
+    protected readonly \DOMDocument $dom;
     public function __construct(\DOMElement $context)
     {
     }
@@ -29551,28 +29704,13 @@ class File
     protected function contextNode(): \DOMElement
     {
     }
-    protected function dom(): \DOMDocument
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Method
 {
-    public function __construct(\DOMElement $context, string $name)
-    {
-    }
-    public function setSignature(string $signature): void
-    {
-    }
-    public function setLines(string $start, ?string $end = null): void
-    {
-    }
-    public function setTotals(string $executable, string $executed, string $coverage): void
-    {
-    }
-    public function setCrap(string $crap): void
+    public function __construct(\DOMElement $context, string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap)
     {
     }
 }
@@ -29581,10 +29719,8 @@ final readonly class Method
  */
 abstract class Node
 {
+    protected readonly \DOMDocument $dom;
     public function __construct(\DOMElement $context)
-    {
-    }
-    public function dom(): \DOMDocument
     {
     }
     public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
@@ -29593,10 +29729,7 @@ abstract class Node
     public function addDirectory(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Directory
     {
     }
-    public function addFile(string $name, string $href): \SebastianBergmann\CodeCoverage\Report\Xml\File
-    {
-    }
-    protected function setContextNode(\DOMElement $context): void
+    public function addFile(string $name, string $href, string $hash): \SebastianBergmann\CodeCoverage\Report\Xml\File
     {
     }
     protected function contextNode(): \DOMElement
@@ -29608,16 +29741,13 @@ abstract class Node
  */
 final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
-    /**
-     * @phpstan-ignore constructor.missingParentCall
-     */
     public function __construct(string $directory)
     {
     }
     public function projectSourceDirectory(): string
     {
     }
-    public function buildInformation(): \SebastianBergmann\CodeCoverage\Report\Xml\BuildInformation
+    public function buildInformation(\SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion): void
     {
     }
     public function tests(): \SebastianBergmann\CodeCoverage\Report\Xml\Tests
@@ -29632,19 +29762,19 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
  */
 final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 {
-    public function __construct(string $name)
+    public function __construct(string $name, string $sha1)
     {
     }
     public function asDom(): \DOMDocument
     {
     }
-    public function functionObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Method
+    public function functionObject(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
     {
     }
-    public function classObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
+    public function classObject(string $name, string $namespace, int $start, int $executable, int $executed, float $crap): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
     {
     }
-    public function traitObject(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
+    public function traitObject(string $name, string $namespace, int $start, int $executable, int $executed, float $crap): \SebastianBergmann\CodeCoverage\Report\Xml\Unit
     {
     }
     public function source(): \SebastianBergmann\CodeCoverage\Report\Xml\Source
@@ -29709,19 +29839,10 @@ final readonly class Totals
  */
 final readonly class Unit
 {
-    public function __construct(\DOMElement $context, string $name)
+    public function __construct(\DOMElement $context, string $name, string $namespace, int $start, int $executable, int $executed, float $crap)
     {
     }
-    public function setLines(int $start, int $executable, int $executed): void
-    {
-    }
-    public function setCrap(float $crap): void
-    {
-    }
-    public function setNamespace(string $namespace): void
-    {
-    }
-    public function addMethod(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Method
+    public function addMethod(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
     {
     }
 }

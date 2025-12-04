@@ -71,7 +71,7 @@ class Functions {
 	public static function sanitize_taxonomy( $taxonomy ) {
 
 		// Lets clone the taxonomy object instead of modifing the global one.
-		$cloned_taxonomy = json_decode( wp_json_encode( $taxonomy ) );
+		$cloned_taxonomy = json_decode( wp_json_encode( $taxonomy, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// recursive taxonomies are no fun.
 		if ( $cloned_taxonomy === null ) {

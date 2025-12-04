@@ -360,7 +360,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			// Return a mock response to prevent actual calls
 			return array(
 				'headers'  => array(),
-				'body'     => wp_json_encode( array() ),
+				'body'     => wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
 				'response' => array(
 					'code'    => 200,
 					'message' => 'OK',

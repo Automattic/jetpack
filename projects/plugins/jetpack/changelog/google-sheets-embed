@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-GSheets embed: Give time for the iframe to finish before showing an error

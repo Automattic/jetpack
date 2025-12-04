@@ -17,7 +17,7 @@ import './style.scss';
  *
  * @param {(object|Array)} result -- the result from the attachLicenses request
  * @return {number} The activatedProductId from the result
- * @throws Errors either from the API response or from any issues parsing the response
+ * @throws {Error} either from the API response or from any issues parsing the response
  */
 const parseAttachLicensesResult = result => {
 	let currentResult = result;

@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import * as ESLintPkg from 'eslint';
 import parseDiff from 'parse-diff';
 
-const APP_VERSION = '2.1.4';
+const APP_VERSION = '2.1.5';
 
 const { ESLint } = ESLintPkg;
 const loadESLint = ESLintPkg.loadESLint ?? ( () => ESLint );
@@ -220,14 +220,23 @@ async function main( process, argv, program ) {
 
 		debug( 'Running git diff command:', git, args.join( ' ' ) );
 		diff = parseDiff( doCmd( git, args ) );
+
+		let argfiles = program.args.map( p =>
+			path.relative( diffBase, path.resolve( process.cwd(), p ) )
+		);
+		// Avoid problems on Windows, git wants forward-slashes while path uses backslashes there.
+		if ( argfiles.length && path.sep !== path.posix.sep ) {
+			argfiles = argfiles.map( f => f.replaceAll( path.sep, path.posix.sep ) );
+		}
+
 		if ( ! argv.inDiffOnly && program.args.length ) {
-			files = program.args.map( p => path.relative( diffBase, path.resolve( process.cwd(), p ) ) );
+			files = argfiles;
 			debug( 'Determined files from command line:', files );
 		} else {
 			files = getFilesFromDiff( diff );
 			debug( 'Determined files from diff:', files );
-			if ( program.args.length ) {
-				const cmdLineFiles = new Set( program.args );
+			if ( argfiles.length ) {
+				const cmdLineFiles = new Set( argfiles );
 				files = files.filter( file => cmdLineFiles.has( file ) );
 				debug( 'Intersected files with those from the command line:', files );
 			}

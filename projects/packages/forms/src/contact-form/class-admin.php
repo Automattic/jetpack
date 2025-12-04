@@ -141,7 +141,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
-				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener ); ?> );
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php
@@ -447,7 +447,7 @@ class Admin {
 			return;
 		}
 
-		$script = 'var __grunionPostStatusNonce = ' . wp_json_encode( wp_create_nonce( 'grunion-post-status' ) ) . ';';
+		$script = 'var __grunionPostStatusNonce = ' . wp_json_encode( wp_create_nonce( 'grunion-post-status' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 		wp_add_inline_script( 'grunion-admin', $script, 'before' );
 	}
 
@@ -1034,13 +1034,16 @@ class Admin {
 		check_ajax_referer( 'grunion_shortcode_to_json' );
 
 		if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', (int) $_POST['post_id'] ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		} elseif ( ! current_user_can( 'edit_posts' ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		}
 
 		if ( ! isset( $_POST['content'] ) || ! is_numeric( $_POST['post_id'] ) ) {
-			die( '-1' );
+			wp_send_json( -1, 200, JSON_UNESCAPED_SLASHES );
+			exit( 0 ); // wp_send_json never returns, but Phan doesn't know that.
 		}
 
 		$content = sanitize_text_field( wp_unslash( $_POST['content'] ) );
@@ -1074,7 +1077,7 @@ class Admin {
 			$out[ $attribute ] = $value;
 		}
 
-		die( wp_json_encode( $out ) );
+		wp_send_json( $out, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -1387,7 +1390,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function ( $ ) {
-				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html ); ?> );
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $button_html, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php
@@ -1417,7 +1420,7 @@ class Admin {
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
-				$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html ); ?> );
+				$( '.tablenav.bottom .bulkactions' ).append( <?php echo wp_json_encode( $button_html, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			} );
 		</script>
 		<?php

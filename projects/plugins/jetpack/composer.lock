@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "7d7596f1a9c4e2f83d437ad253f3dbfbdfd64da4"
+				"reference": "c74516952383eed65e04e1a654c1ae370dd10508"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1525,7 +1525,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.20.x-dev"
+					"dev-trunk": "6.21.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2396,7 +2396,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "2781fe2e68b74e34348f529fd944ce9ac3f638ad"
+				"reference": "26f4ed44e15ea1e285b6b80870c7b8f3da56e9f8"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2420,7 +2420,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.10.x-dev"
+					"dev-trunk": "0.11.x-dev"
 				}
 			},
 			"autoload": {
@@ -3498,7 +3498,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "b23b0251945e33c95918649859829d9e04e5b136"
+				"reference": "fb8bcf0334e3554fb4fadbfaf07cd818dc5140a7"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3524,7 +3524,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.12.x-dev"
+					"dev-trunk": "0.13.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {

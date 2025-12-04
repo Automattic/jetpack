@@ -980,7 +980,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'email_marketing_consent' => 'yes',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1034,7 +1034,7 @@ class Contact_Form_Test extends BaseTestCase {
 			'<strong>field2</strong>' => 'value2',
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		// Create a mock post with JSON_DATA format
 		$post_id = wp_insert_post(
 			array(
@@ -1460,7 +1460,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'checkbox' ) );
@@ -1491,7 +1492,8 @@ class Contact_Form_Test extends BaseTestCase {
 						'class' => 'has-text-color',
 						'style' => 'color:gummy; font-size:14px;',
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 			),
 		);
 		$contact_form_attributes = array(
@@ -2447,6 +2449,22 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the constructor handles non-integer $page global without warnings.
+	 */
+	public function test_constructor_handles_non_integer_page_global() {
+		global $page;
+		$original_page = $page;
+		$page          = 'not-an-integer'; // Simulating theme overwriting $page
+
+		$attributes = array( 'to' => 'test@example.com' );
+		$form       = new Contact_Form( $attributes );
+
+		// Verify no warnings and form is created successfully
+		$this->assertInstanceOf( Contact_Form::class, $form );
+		$page = $original_page; // Restore original value
+	}
+
+	/**
 	 * Tests get_default_to method with null post author ID.
 	 */
 	public function test_get_default_to_with_null_post_author() {
@@ -2652,6 +2670,7 @@ class Contact_Form_Test extends BaseTestCase {
 		$expected_attributes['saveResponses']          = 'yes';
 		$expected_attributes['disableGoBack']          = '';
 		$expected_attributes['notificationRecipients'] = array();
+		$expected_attributes['webhooks']               = array();
 		$expected_attributes['disableSummary']         = '';
 		$expected_attributes['confirmationType']       = '';
 		$expected_attributes['hostingerReach']         = '';
@@ -3822,5 +3841,34 @@ class Contact_Form_Test extends BaseTestCase {
 
 		$this->assertIsString( $result5, 'Parse should return a string with multiple fields' );
 		$this->assertStringNotContainsString( 'is-single-input-form', $result5, 'Should not have single-input-form class with multiple fields' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled returns false by default.
+	 */
+	public function test_is_webhooks_enabled_default() {
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to enable webhooks.
+	 */
+	public function test_is_webhooks_enabled_filter_enable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+
+		$this->assertTrue( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_true' );
+	}
+
+	/**
+	 * Test is_webhooks_enabled filter can be used to keep webhooks disabled.
+	 */
+	public function test_is_webhooks_enabled_filter_disable() {
+		add_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
+
+		$this->assertFalse( \Automattic\Jetpack\Forms\Jetpack_Forms::is_webhooks_enabled() );
+
+		remove_filter( 'jetpack_forms_webhooks_enabled', '__return_false' );
 	}
 }

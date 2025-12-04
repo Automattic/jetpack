@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix checkbox styling and block interaction in editor by removing disabled attribute and using CSS pointer-events instead

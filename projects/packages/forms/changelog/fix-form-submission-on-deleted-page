@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: reject form submissions when the parent post/page with the form has been deleted or is no longer published.

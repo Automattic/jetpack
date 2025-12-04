@@ -506,7 +506,7 @@ function render_block( $attributes ) {
 		</div>',
 		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attributes, array( 'wp-story', 'aligncenter' ) ) ),
 		esc_attr( 'wp-story-' . get_the_ID() . '-' . strval( ++$story_block_counter ) ),
-		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
+		filter_var( wp_json_encode( $settings, JSON_UNESCAPED_SLASHES ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		get_permalink() . '?wp-story-load-in-fullscreen=true&amp;wp-story-play-on-load=true',
 		__( 'Play story in new tab', 'jetpack' ),
 		__( 'Site icon', 'jetpack' ),

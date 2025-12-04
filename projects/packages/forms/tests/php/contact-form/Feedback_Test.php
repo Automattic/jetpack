@@ -1434,7 +1434,8 @@ class Feedback_Test extends BaseTestCase {
 						'label'  => 'Choice C',
 						'image'  => $create_image_block( 'https://www.example.com/choice-c.png', 'Choice C' ),
 					),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			)
 		);
 
@@ -2570,7 +2571,7 @@ class Feedback_Test extends BaseTestCase {
 			),
 		);
 		foreach ( $test_cases_data as $case ) {
-			$this->assertEquals( wp_json_encode( $case ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case ) ) ) );
+			$this->assertEquals( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ), Feedback::fix_malformed_json( stripslashes( wp_json_encode( $case, JSON_UNESCAPED_SLASHES ) ) ) );
 		}
 	}
 

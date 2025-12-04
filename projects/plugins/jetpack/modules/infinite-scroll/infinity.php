@@ -985,7 +985,7 @@ class The_Neverending_Home_Page {
 
 		?>
 		<script type="text/javascript">
-		var infiniteScroll = <?php echo wp_json_encode( array( 'settings' => $js_settings ), JSON_HEX_TAG ); ?>;
+		var infiniteScroll = <?php echo wp_json_encode( array( 'settings' => $js_settings ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<?php
 	}
@@ -1104,8 +1104,8 @@ class The_Neverending_Home_Page {
 
 					return out;
 				};
-				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts ); ?> );
-				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
+				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			})();
 		</script>
 		<?php
@@ -1831,7 +1831,7 @@ class The_Neverending_Home_Page {
 				$scripts_data[ $key ]['extra_data'] = sprintf(
 					'window.%s = %s',
 					'_wpmejsSettings',
-					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ) )
+					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 				);
 			}
 		}
@@ -1992,7 +1992,7 @@ class The_Neverending_Home_Page {
 <amp-next-page max-pages="<?php echo esc_attr( static::amp_get_max_pages() ); ?>">
 	<script type="application/json">
 		[
-			<?php echo wp_json_encode( $this->amp_next_page() ); ?>
+			<?php echo wp_json_encode( $this->amp_next_page(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 		]
 	</script>
 	<div separator>
