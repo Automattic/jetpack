@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { ExternalLink } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { BylinePreview } from '../components/byline-preview';
+import { ToggleWithLink } from '../components/toggle-with-link';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface EmailBylineSectionProps {
@@ -37,7 +36,17 @@ export function EmailBylineSection( {
 			id: 'jetpack_gravatar_in_email',
 			label: __( 'Show author avatar on your emails', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: jetpackSettings?.email
+				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
+						<ToggleWithLink
+							data={ fieldData as Record< string, unknown > }
+							field={ field as Field< Record< string, unknown > > }
+							onChange={ fieldOnChange }
+							url={ `https://gravatar.com/${ jetpackSettings.email }` }
+							linkText={ __( 'Update your Gravatar', 'jetpack-newsletter' ) }
+						/>
+				  )
+				: ( 'toggle' as const ),
 			description: __(
 				'We use Gravatar, a service that associates an avatar image with your primary email address.',
 				'jetpack-newsletter'
@@ -53,7 +62,18 @@ export function EmailBylineSection( {
 			id: 'jetpack_post_date_in_email',
 			label: __( 'Add the post date', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: jetpackSettings?.siteAdminUrl
+				? ( { data: fieldData, field, onChange: fieldOnChange } ) => (
+						<ToggleWithLink
+							data={ fieldData as Record< string, unknown > }
+							field={ field as Field< Record< string, unknown > > }
+							onChange={ fieldOnChange }
+							url={ `${ jetpackSettings.siteAdminUrl }options-general.php` }
+							linkText={ __( 'Customize date format', 'jetpack-newsletter' ) }
+							isExternal={ false }
+						/>
+				  )
+				: ( 'toggle' as const ),
 		},
 	];
 
@@ -96,28 +116,6 @@ export function EmailBylineSection( {
 						displayName={ jetpackSettings.displayName }
 						dateExample={ jetpackSettings.dateExample }
 					/>
-				) }
-
-				{ /* Date format customization link */ }
-				<div className="newsletter-settings__help-text">
-					{ createInterpolateElement(
-						__(
-							"You can customize the date format in your <link>site's general settings</link>.",
-							'jetpack-newsletter'
-						),
-						{
-							link: <a href={ jetpackSettings?.siteAdminUrl + 'options-general.php' }>{ '' }</a>,
-						}
-					) }
-				</div>
-
-				{ /* Gravatar link */ }
-				{ data.jetpack_gravatar_in_email && jetpackSettings?.email && (
-					<div className="newsletter-settings__link">
-						<ExternalLink href={ `https://gravatar.com/${ jetpackSettings.email }` }>
-							{ __( 'Update my Gravatar', 'jetpack-newsletter' ) }
-						</ExternalLink>
-					</div>
 				) }
 			</fieldset>
 		</div>

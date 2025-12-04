@@ -18,25 +18,28 @@ interface ToggleWithLinkProps {
 	onChange: ( updates: Record< string, unknown > ) => void;
 	url: string;
 	linkText: string;
+	isExternal?: boolean;
 }
 
 /**
- * Generic toggle control with an external link in the label
+ * Generic toggle control with a link in the label
  *
- * @param {object}   props          - Component props
- * @param {object}   props.data     - The data object
- * @param {object}   props.field    - The field definition
- * @param {Function} props.onChange - Change handler
- * @param {string}   props.url      - URL for the external link
- * @param {string}   props.linkText - Text for the link
+ * @param {object}   props            - Component props
+ * @param {object}   props.data       - The data object
+ * @param {object}   props.field      - The field definition
+ * @param {Function} props.onChange   - Change handler
+ * @param {string}   props.url        - URL for the link
+ * @param {string}   props.linkText   - Text for the link
+ * @param {boolean}  props.isExternal - Whether the link is external (default: true)
  * @return {JSX.Element} The toggle control with link
  */
-function ToggleWithLink( {
+export function ToggleWithLink( {
 	data,
 	field,
 	onChange,
 	url,
 	linkText,
+	isExternal = true,
 }: ToggleWithLinkProps ): JSX.Element {
 	const handleChange = useCallback( () => {
 		onChange( { [ field.id ]: ! data[ field.id ] } );
@@ -49,7 +52,11 @@ function ToggleWithLink( {
 			label={
 				<span className="toggle-with-link__label">
 					{ field.label }
-					<ExternalLink href={ url }>{ linkText }</ExternalLink>
+					{ isExternal ? (
+						<ExternalLink href={ url }>{ linkText }</ExternalLink>
+					) : (
+						<a href={ url }>{ linkText }</a>
+					) }
 				</span>
 			}
 		/>
