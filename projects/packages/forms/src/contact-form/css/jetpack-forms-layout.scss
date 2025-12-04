@@ -1,14 +1,13 @@
 // Gutenberg versions will use different classname strategies
 // for layout flex support, make it backwards compatible using both.
+.wp-block-jetpack-contact-form-container.is-layout-flex,
 .wp-block-jetpack-contact-form.is-layout-flex,
 .wp-block-jetpack-contact-form-is-layout-flex {
 
-
 	&.is-horizontal {
-
-		&.is-nowrap {
-			align-items: flex-end;
-		}
+		// without vertical alignment working, we'll enforce flex-start on
+		//fields and flex-end on buttons.
+		align-items: flex-start;
 
 		.wp-block-jetpack-button {
 			align-self: flex-end;
@@ -21,28 +20,45 @@
 		}
 	}
 
-	&.is-vertical {
-		// align-items: stretch;
-		.jetpack-field__width-25,
-		.jetpack-field__width-33,
-		.jetpack-field__width-50,
-		.jetpack-field__width-75,
-		.jetpack-field__width-100,
+	&.is-vertical:not(.is-content-justification-stretch) {
+
 		.jetpack-field__width-auto {
 			align-self: stretch;
+		}
+
+		.jetpack-field__width-25 {
+			width: 25%;
+		}
+
+		.jetpack-field__width-33 {
+			width: 33.33%;
+		}
+
+		.jetpack-field__width-50 {
+			width: 50%;
+		}
+
+		.jetpack-field__width-75 {
+			width: 75%;
+		}
+
+		.jetpack-field__width-100 {
+			width: 100%;
 		}
 
 	}
 
 	// multistep forms must remain vertical and pass down layout rules.
 	.is-multistep & {
-		flex-direction: column;
-		align-items: flex-end;
+		// multistep has a complex structure, the outer container needs to be a block
+		// so the auxiliary elements (nav/progress) remain on top/bottom of the step.
+		display: block;
 
 		.wp-block-jetpack-form-step {
+			display: flex;
 			flex-wrap: wrap;
+			width: 100%;
 		}
-
 
 		.jetpack-form-steps-wrapper {
 			width: 100%;
@@ -50,6 +66,26 @@
 
 		.wp-block-jetpack-form-progress-indicator {
 			align-self: normal;
+		}
+
+		&.is-content-justification-left .wp-block-jetpack-form-step {
+			align-items: flex-start;
+		}
+
+		&.is-content-justification-right .wp-block-jetpack-form-step {
+			align-items: flex-end;
+		}
+
+		&.is-content-justification-center .wp-block-jetpack-form-step {
+			align-items: center;
+		}
+
+
+		&.is-horizontal {
+
+			.wp-block-jetpack-form-step {
+				align-items: flex-end;
+			}
 		}
 
 		&.is-vertical {
