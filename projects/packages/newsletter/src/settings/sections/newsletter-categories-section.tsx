@@ -133,6 +133,10 @@ export function NewsletterCategoriesSection( {
 	const { validity = {}, isValid = true } =
 		useFormValidity( data, newsletterCategoriesFields, newsletterCategoriesForm ) || {};
 
+	// Translation strings for save button
+	const savingText = __( 'Saving…', 'jetpack-newsletter' );
+	const saveText = __( 'Save', 'jetpack-newsletter' );
+
 	// Build subscribe block documentation URL and component
 	const subscribeBlockUrl = jetpackSettings?.isWpcomPlatform
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
@@ -194,9 +198,7 @@ export function NewsletterCategoriesSection( {
 						}
 						isBusy={ isSaving }
 					>
-						{ isSaving
-							? __( 'Saving…', 'jetpack-newsletter' )
-							: __( 'Save', 'jetpack-newsletter' ) }
+						{ isSaving ? savingText : saveText }
 					</Button>
 				</div>
 			</fieldset>

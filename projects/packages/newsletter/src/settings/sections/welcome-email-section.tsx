@@ -48,6 +48,10 @@ export function WelcomeEmailSection( {
 		[ data.subscription_options?.welcome ]
 	);
 
+	// Translation strings for save button
+	const savingText = __( 'Saving…', 'jetpack-newsletter' );
+	const saveText = __( 'Save', 'jetpack-newsletter' );
+
 	const fields: Field< WelcomeEmailFormData >[] = [
 		{
 			id: 'welcome_message',
@@ -109,9 +113,7 @@ export function WelcomeEmailSection( {
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>
-						{ isSaving
-							? __( 'Saving…', 'jetpack-newsletter' )
-							: __( 'Save', 'jetpack-newsletter' ) }
+						{ isSaving ? savingText : saveText }
 					</Button>
 				</div>
 			</fieldset>

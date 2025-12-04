@@ -36,6 +36,10 @@ export function EmailSenderSettingsSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
 }: EmailSenderSettingsSectionProps ): JSX.Element {
+	// Translation strings for save button
+	const savingText = __( 'Saving…', 'jetpack-newsletter' );
+	const saveText = __( 'Save', 'jetpack-newsletter' );
+
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'jetpack_subscriptions_from_name',
@@ -90,9 +94,7 @@ export function EmailSenderSettingsSection( {
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>
-						{ isSaving
-							? __( 'Saving…', 'jetpack-newsletter' )
-							: __( 'Save', 'jetpack-newsletter' ) }
+						{ isSaving ? savingText : saveText }
 					</Button>
 				</div>
 			</fieldset>

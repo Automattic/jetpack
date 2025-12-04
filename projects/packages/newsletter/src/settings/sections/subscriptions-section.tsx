@@ -35,6 +35,10 @@ export function SubscriptionsSection( {
 	hasChanges,
 	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
+	// Translation strings for save button
+	const savingText = __( 'Saving…', 'jetpack-newsletter' );
+	const saveText = __( 'Save', 'jetpack-newsletter' );
+
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
 		jetpackSettings?.isBlockTheme &&
@@ -280,9 +284,7 @@ export function SubscriptionsSection( {
 						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
 						isBusy={ isSaving }
 					>
-						{ isSaving
-							? __( 'Saving…', 'jetpack-newsletter' )
-							: __( 'Save', 'jetpack-newsletter' ) }
+						{ isSaving ? savingText : saveText }
 					</Button>
 				</div>
 			</fieldset>
