@@ -140,16 +140,13 @@ class Settings {
 		$current_user = wp_get_current_user();
 		$theme        = wp_get_theme();
 
-		// Get blog ID if available (for WordPress.com sites).
 		$blog_id = defined( 'Jetpack_Options' ) && class_exists( 'Jetpack_Options' )
 			? \Jetpack_Options::get_option( 'id', 0 )
 			: 0;
 
-		// Get site URL without protocol.
 		$site_url     = get_site_url();
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
-		// Build setup payment plans URL based on platform.
 		$is_wpcom               = ( new Host() )->is_wpcom_platform();
 		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
 		$setup_payment_plan_url = $base_url . $site_raw_url;
