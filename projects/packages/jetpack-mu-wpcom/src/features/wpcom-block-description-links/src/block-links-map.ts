@@ -179,9 +179,21 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/full-site-editing/theme-blocks/comments-block/',
 		postId: 218903,
 	},
-	'core/post-time-to-read': {
-		link: 'https://wordpress.com/support/site-editing/theme-blocks/time-to-read-block',
-		postId: 243241,
+	'core/details': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/details-block/',
+		postId: 254286,
+	},
+	'core/accordion-item': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/accordion-block/',
+		postId: 423535,
+	},
+	'core/math': {
+		link: 'https://wordpress.com/support/latex/',
+		postId: 97,
+	},
+	'core/terms-query': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/terms-query-block/',
+		postId: 423600,
 	},
 	'syntaxhighlighter/code': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/syntax-highlighter-code-block/',
@@ -217,6 +229,10 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 	'a8c/blog-posts': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/blog-posts-block/',
 		postId: 158419,
+	},
+	'videopress/video': {
+		link: 'https://wordpress.com/support/videopress/',
+		postId: 4458,
 	},
 	/**
 	 * Jetpack Blocks
@@ -357,6 +373,37 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/',
 		postId: 168671,
 	},
+	'jetpack/blogging-prompt': {
+		link: 'https://wordpress.com/support/writing-prompts/',
+		postId: 227456,
+	},
+	'jetpack/paypal-payment-buttons': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/pay-with-paypal/',
+		postId: 168671,
+	},
+	'jetpack/payment-buttons': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/payments/',
+		postId: 169123,
+	},
+	/**
+	 * ActivityPub Blocks
+	 */
+	'activitypub/follow-me': {
+		link: 'https://wordpress.com/support/enter-the-fediverse/fediverse-blocks/',
+		postId: 414647,
+	},
+	'activitypub/followers': {
+		link: 'https://wordpress.com/support/enter-the-fediverse/fediverse-blocks/',
+		postId: 414647,
+	},
+	'activitypub/reactions': {
+		link: 'https://wordpress.com/support/enter-the-fediverse/fediverse-blocks/',
+		postId: 414647,
+	},
+	'activitypub/reply': {
+		link: 'https://wordpress.com/support/enter-the-fediverse/fediverse-blocks/',
+		postId: 414647,
+	},
 };
 
 export const blockInfoWithVariations: {
@@ -384,6 +431,16 @@ export const blockInfoWithVariations: {
 		'group-grid': {
 			link: 'https://wordpress.com/support/wordpress-editor/blocks/grid-block/',
 			postId: 339584,
+		},
+	},
+	'core/post-time-to-read': {
+		'time-to-read': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/time-to-read-block/',
+			postId: 243241,
+		},
+		'word-count': {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/time-to-read-block/',
+			postId: 243241,
 		},
 	},
 };

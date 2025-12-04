@@ -147,7 +147,7 @@ class Email_Service_Test extends BaseTestCase {
 			)->willReturn(
 				array(
 					'response' => array( 'code' => 200 ),
-					'body'     => json_encode( array( 'email_send_success' => true ) ),
+					'body'     => json_encode( array( 'email_send_success' => true ), JSON_UNESCAPED_SLASHES ),
 				)
 			);
 
@@ -197,7 +197,8 @@ class Email_Service_Test extends BaseTestCase {
 							'code'               => 'email_send_error',
 							'message'            => 'Failed to send authentication code.',
 							'email_send_success' => true,
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);
@@ -252,7 +253,7 @@ class Email_Service_Test extends BaseTestCase {
 			->willReturn(
 				array(
 					'response' => array( 'code' => 200 ),
-					'body'     => json_encode( array( 'email_sent' => false ) ),
+					'body'     => json_encode( array( 'email_sent' => false ), JSON_UNESCAPED_SLASHES ),
 				)
 			);
 

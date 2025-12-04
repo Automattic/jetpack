@@ -1258,7 +1258,7 @@ class Feedback {
 			$fields_to_serialize['country_code'] = null;
 		}
 
-		return addslashes( wp_json_encode( $fields_to_serialize ) );
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**

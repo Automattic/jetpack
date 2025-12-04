@@ -501,6 +501,7 @@ class Feedback_Field {
 
 	/**
 	 * Checks if the file is previewable based on its type or extension.
+	 * Only image formats are allowed to be previewed in the modal. PDFs may be previewed in the browser elsewhere, but not in the modal.
 	 *
 	 * @param array $file File data.
 	 * @return bool True if the file is previewable, false otherwise.

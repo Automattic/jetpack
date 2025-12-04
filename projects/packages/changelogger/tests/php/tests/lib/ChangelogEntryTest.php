@@ -234,7 +234,7 @@ class ChangelogEntryTest extends TestCase {
 			$this->expectExceptionMessage( $entry );
 			ChangelogEntry::jsonUnserialize( json_decode( $json ) );
 		} else {
-			$this->assertSame( $json, json_encode( $entry ) );
+			$this->assertSame( $json, json_encode( $entry, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			$this->assertEquals( $entry, ChangelogEntry::jsonUnserialize( json_decode( $json ) ) );
 		}
 	}
@@ -249,7 +249,7 @@ class ChangelogEntryTest extends TestCase {
 				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18' ),
 			),
 			'Serialization with data'           => array(
-				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https:\\/\\/example.org","timestamp":"2021-02-18T12:07:16-0500","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+0000","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}]}',
+				'{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangelogEntry","version":"1.0","link":"https://example.org","timestamp":"2021-02-18T12:07:16-0500","prologue":"Foo","epilogue":"Bar","changes":[{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-17T00:00:00+0000","subheading":"","author":"","content":""},{"__class__":"Automattic\\\\Jetpack\\\\Changelog\\\\ChangeEntry","significance":null,"timestamp":"2021-02-18T00:00:00+0000","subheading":"","author":"","content":""}]}',
 				( new ChangelogEntry( '1.0' ) )->setTimestamp( '2021-02-18T12:07:16-0500' )->setPrologue( 'Foo' )->setEpilogue( 'Bar' )->setLink( 'https://example.org' )->setChanges(
 					array(
 						new ChangeEntry( array( 'timestamp' => '2021-02-17' ) ),

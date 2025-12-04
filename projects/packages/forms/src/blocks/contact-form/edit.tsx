@@ -179,8 +179,9 @@ function JetpackContactFormEdit( {
 		notificationRecipients,
 		webhooks,
 	} = attributes;
-	const showFormIntegrations = useConfigValue( 'isIntegrationsEnabled' );
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
+	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
@@ -921,7 +922,7 @@ function JetpackContactFormEdit( {
 							setAttributes={ setAttributes }
 						/>
 					</PanelBody>
-					{ showFormIntegrations && (
+					{ isIntegrationsEnabled && showBlockIntegrations && (
 						<Suspense fallback={ <div /> }>
 							<IntegrationControls attributes={ attributes } setAttributes={ setAttributes } />
 						</Suspense>

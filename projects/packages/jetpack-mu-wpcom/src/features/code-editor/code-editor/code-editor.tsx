@@ -18,14 +18,12 @@ const codeEditorTextareaSelector = 'textarea.editor-post-text-editor';
 let editor: EditorView | true | null = null;
 
 // Prevent a flash of the textarea before we cover it.
-{
-	const styleElement = document.createElement( 'style' );
-	styleElement.textContent = `
+const styleElement = document.createElement( 'style' );
+styleElement.textContent = `
 ${ codeEditorTextareaSelector } {
   visibility: hidden;
 }`;
-	document.head.appendChild( styleElement );
-}
+document.head.appendChild( styleElement );
 
 const observer = new MutationObserver( () => {
 	const codeEditorTextarea: ReactHTMLTextAreaElement | null = document.querySelector(
@@ -37,7 +35,11 @@ const observer = new MutationObserver( () => {
 		// And the editor isn't loaded or initializing
 		if ( ! editor ) {
 			// Do it
-			setupEditor( codeEditorTextarea );
+			setupEditor( codeEditorTextarea ).catch( () => {
+				// Clean up in case of problems.
+				styleElement.remove();
+				observer.disconnect();
+			} );
 		}
 	}
 	// If there's no textarea but the editor is loaded
@@ -79,10 +81,10 @@ const setupEditor = async ( target: ReactHTMLTextAreaElement ): Promise< void > 
 
 	const div = document.createElement( 'div' );
 
-	const containerStyleMap = containerElement.computedStyleMap();
-	const left = containerStyleMap.get( 'padding-left' )?.toString() || '0';
-	const right = containerStyleMap.get( 'padding-right' )?.toString() || '0';
-	const paddingBottom = containerStyleMap.get( 'padding-bottom' )?.toString() || '12px';
+	const styles = getComputedStyle( containerElement );
+	const left = styles.paddingLeft || '0';
+	const right = styles.paddingRight || '0';
+	const paddingBottom = styles.paddingBottom || '12px';
 
 	const top = `${ target.offsetTop }px`;
 	div.style = `position: absolute; top: ${ top }; left: ${ left }; right: ${ right }; padding-bottom: ${ paddingBottom };`;

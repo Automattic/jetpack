@@ -18,6 +18,9 @@ on:
           - full
           - lookup
           - extract
+      doOSV:
+        description: 'Do OSV database lookups (slow)'
+        type: boolean
   schedule:
     - cron: '0 0/2 * * *'
 concurrency:
@@ -33,12 +36,15 @@ jobs:
     name: Renovate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: monorepo
-      - run: |
+      - env:
+          DO_OSV: ${{ github.event.inputs.doOSV || 'true' }}
+        run: |
           mv monorepo /tmp/monorepo
           sudo chown -R 1000:root /tmp/monorepo/
+          printf "%s" "$DO_OSV" > /tmp/.do-osv
       - name: Check rate limit pre-run
         env:
           TOKEN: ${{ secrets.RENOVATE_TOKEN }}
@@ -49,7 +55,7 @@ jobs:
           configurationFile: /tmp/monorepo/.github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN }}
           mount-docker-socket: true
-          renovate-version: 41.12.1
+          renovate-version: 42.29.4
         env:
           LOG_LEVEL: ${{ github.event.inputs.logLevel || 'debug' }}
           RENOVATE_DRY_RUN: ${{ github.event.inputs.dryRun == 'no' && 'null' || github.event.inputs.dryRun || 'null' }}

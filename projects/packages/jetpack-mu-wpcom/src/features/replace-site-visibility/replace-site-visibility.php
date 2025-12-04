@@ -130,7 +130,7 @@ function replace_site_visibility_load_assets() {
 		$data['blogPublic'] = \Private_Site\site_is_private() ? '-1' : '1';
 	}
 
-	$encoded_data = wp_json_encode( $data );
+	$encoded_data = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 	wp_add_inline_script(
 		$handle,
 		"var JETPACK_MU_WPCOM_SITE_VISIBILITY = $encoded_data;",
@@ -167,7 +167,7 @@ HTML;
 
 	?>
 <noscript>
-<p><?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
+<p><?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?></p>
 </noscript>
 <script>
 ( function() {
@@ -175,7 +175,7 @@ HTML;
 	if ( ! widgetArea ) {
 		return;
 	}
-	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+	widgetArea.innerHTML = <?php echo wp_json_encode( $escaped_content, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 } )()
 </script>
 		<?php
@@ -243,7 +243,7 @@ function load_options_update_site_visibility() {
 				'content-type' => 'application/json',
 			),
 		),
-		wp_json_encode( $data ),
+		wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 		'wpcom'
 	);
 
