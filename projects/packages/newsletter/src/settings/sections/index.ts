@@ -9,3 +9,4 @@ export { NewsletterSection } from './newsletter-section';
 export { NewsletterCategoriesSection } from './newsletter-categories-section';
 export { PaidNewsletterSection } from './paid-newsletter-section';
 export { SubscriptionsSection } from './subscriptions-section';
+export { WelcomeEmailSection } from './welcome-email-section';

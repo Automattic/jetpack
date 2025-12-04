@@ -18,6 +18,7 @@ import {
 	NewsletterCategoriesSection,
 	PaidNewsletterSection,
 	SubscriptionsSection,
+	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
@@ -52,6 +53,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		Partial< NewsletterSettings >
 	>( {} );
 	const [ isSavingNewsletterCategories, setIsSavingNewsletterCategories ] = useState( false );
+
+	// Welcome email state (for manual save)
+	const [ welcomeEmailChanges, setWelcomeEmailChanges ] = useState< Partial< NewsletterSettings > >(
+		{}
+	);
+	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
 	// Get settings from PHP
 	const jetpackSettings = (
@@ -232,6 +239,45 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ newsletterCategoriesChanges, data ] );
 
+	// Handle welcome email changes (staged, not auto-saved)
+	const handleWelcomeEmailChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			if ( ! data ) {
+				return;
+			}
+
+			// Update local state
+			setData( { ...data, ...updates } );
+
+			// Track changes for save button
+			setWelcomeEmailChanges( { ...welcomeEmailChanges, ...updates } );
+		},
+		[ data, welcomeEmailChanges ]
+	);
+
+	// Save welcome email settings
+	const saveWelcomeEmail = useCallback( () => {
+		if ( ! data ) {
+			return;
+		}
+
+		setIsSavingWelcomeEmail( true );
+		setError( null );
+
+		restApi
+			.updateSettings( welcomeEmailChanges )
+			.then( () => {
+				setWelcomeEmailChanges( {} );
+				setSnackbarMessage( __( 'Welcome email message saved', 'jetpack-newsletter' ) );
+			} )
+			.catch( ( err: Error ) => {
+				setError( err.message || 'Failed to save welcome email message' );
+			} )
+			.finally( () => {
+				setIsSavingWelcomeEmail( false );
+			} );
+	}, [ welcomeEmailChanges, data ] );
+
 	if ( isLoading ) {
 		return (
 			<div className="newsletter-settings">
@@ -257,6 +303,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
 	const hasSenderNameChanges = Object.keys( senderNameChanges ).length > 0;
 	const hasNewsletterCategoriesChanges = Object.keys( newsletterCategoriesChanges ).length > 0;
+	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
 		<div className="newsletter-settings">
@@ -327,6 +374,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			<EmailReplyToSettingsSection
 				data={ data }
 				onChange={ handleAutoSave }
+				isNewsletterEnabled={ data.subscriptions }
+			/>
+
+			<WelcomeEmailSection
+				data={ { ...data, ...welcomeEmailChanges } }
+				onChange={ handleWelcomeEmailChange }
+				onSave={ saveWelcomeEmail }
+				isSaving={ isSavingWelcomeEmail }
+				hasChanges={ hasWelcomeEmailChanges }
 				isNewsletterEnabled={ data.subscriptions }
 			/>
 

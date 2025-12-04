@@ -25,7 +25,9 @@ export interface NewsletterSettings {
 	wpcom_newsletter_categories_enabled: boolean;
 	wpcom_newsletter_categories: string[];
 	subscription_options?: {
+		invitation: string;
 		welcome: string;
+		comment_follow: string;
 	};
 	[ key: string ]: unknown;
 }
