@@ -40,8 +40,8 @@
 		"@wordpress/element": "6.37.0",
 		"@wordpress/i18n": "6.10.0",
 		"debug": "4.4.3",
-		"@wordpress/notices": "5.35.0",
-		"@wordpress/url": "4.35.0"
+		"@wordpress/notices": "5.36.0",
+		"@wordpress/url": "4.36.0"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
