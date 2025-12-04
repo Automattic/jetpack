@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/components": "30.9.0",
 		"@wordpress/dataviews": "11.0.0",
 		"@wordpress/element": "6.37.0",

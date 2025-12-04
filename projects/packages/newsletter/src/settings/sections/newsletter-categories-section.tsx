@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
-import { useEffect, useState } from '@wordpress/element';
+import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -132,15 +133,33 @@ export function NewsletterCategoriesSection( {
 	const { validity = {}, isValid = true } =
 		useFormValidity( data, newsletterCategoriesFields, newsletterCategoriesForm ) || {};
 
+	// Build subscribe block documentation URL and component
+	const subscribeBlockUrl = jetpackSettings?.isWpcomPlatform
+		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
+		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&site=${
+				jetpackSettings?.blogID || ''
+		  }`;
+
+	const SubscribeBlockLink = jetpackSettings?.isWpcomPlatform ? (
+		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
+	) : (
+		<ExternalLink href={ subscribeBlockUrl } />
+	);
+
 	return (
 		<div className="newsletter-settings__section">
 			<h3 className="newsletter-settings__section-title">
 				{ __( 'Newsletter categories', 'jetpack-newsletter' ) }
 			</h3>
 			<p className="newsletter-settings__section-description">
-				{ __(
-					"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the subscribe block. When you add a new category, your existing subscribers will be automatically subscribed to it.",
-					'jetpack-newsletter'
+				{ createInterpolateElement(
+					__(
+						"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <link>subscribe block</link>. When you add a new category, your existing subscribers will be automatically subscribed to it.",
+						'jetpack-newsletter'
+					),
+					{
+						link: SubscribeBlockLink,
+					}
 				) }
 			</p>
 			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>

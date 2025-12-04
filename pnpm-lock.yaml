@@ -3497,6 +3497,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@wordpress/components':
         specifier: 30.9.0
         version: 30.9.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

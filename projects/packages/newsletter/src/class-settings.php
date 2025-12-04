@@ -168,6 +168,7 @@ class Settings {
 			'isSubscriptionSiteEditSupported'    => wp_is_block_theme(),
 			'setupPaymentPlansUrl'               => $setup_payment_plan_url,
 			'isSitePublic'                       => (int) get_option( 'blog_public' ) === 1,
+			'isWpcomPlatform'                    => $is_wpcom,
 		);
 	}
 

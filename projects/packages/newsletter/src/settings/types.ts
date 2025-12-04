@@ -49,6 +49,7 @@ export interface JetpackNewsletterSettings {
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;
+	isWpcomPlatform: boolean;
 }
 
 /**
