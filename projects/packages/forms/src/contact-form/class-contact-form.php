@@ -910,7 +910,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'error_types'    => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
-				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
+				'invalid_form'       => __( 'Please complete all required fields to continue.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
 			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
