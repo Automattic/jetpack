@@ -315,11 +315,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				</Notice>
 			) }
 
-			<NewsletterSection
-				data={ data }
-				jetpackSettings={ jetpackSettings }
-				onChange={ handleAutoSave }
-			/>
+			{ ! jetpackSettings?.isWpcomSimple && (
+				<NewsletterSection
+					data={ data }
+					jetpackSettings={ jetpackSettings }
+					onChange={ handleAutoSave }
+				/>
+			) }
 
 			<SubscriptionsSection
 				data={ data }

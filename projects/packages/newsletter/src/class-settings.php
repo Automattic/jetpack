@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Status\Host;
 
@@ -53,6 +54,15 @@ class Settings {
 	}
 
 	/**
+	 * Check if the subscriptions module is active.
+	 *
+	 * @return bool
+	 */
+	private function is_subscriptions_active() {
+		return ( new Modules() )->is_active( 'subscriptions' );
+	}
+
+	/**
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
@@ -76,17 +86,23 @@ class Settings {
 	 * Add the newsletter settings menu to the Jetpack menu.
 	 */
 	public function add_wp_admin_menu() {
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			$page_suffix = add_submenu_page(
-				'jetpack',
-				/** "Newsletter" is a product name, do not translate. */
-				'Newsletter',
-				'Newsletter',
-				'manage_options',
-				'jetpack-newsletter',
-				array( $this, 'render' )
-			);
+		$is_module_active = $this->is_subscriptions_active();
+		$host             = new Host();
+
+		// Determine parent slug and menu registration method.
+		// - wpcom simple: Always show in Jetpack menu (module always active).
+		// - wpcom atomic: Show in Jetpack menu if active, hidden page if inactive.
+		// - Jetpack: Show in Jetpack menu if active, hidden page if inactive.
+		if ( $host->is_wpcom_platform() ) {
+			$parent_slug      = ( $host->is_wpcom_simple() || $is_module_active ) ? 'jetpack' : '';
+			$use_jetpack_menu = false; // Use add_submenu_page for all wpcom sites.
 		} else {
+			$parent_slug      = $is_module_active ? 'jetpack' : '';
+			$use_jetpack_menu = $is_module_active;
+		}
+
+		// Register menu item.
+		if ( $use_jetpack_menu ) {
 			$page_suffix = Admin_Menu::add_menu(
 				/** "Newsletter" is a product name, do not translate. */
 				'Newsletter',
@@ -95,6 +111,16 @@ class Settings {
 				'jetpack-newsletter',
 				array( $this, 'render' ),
 				10
+			);
+		} else {
+			$page_suffix = add_submenu_page(
+				$parent_slug,
+				/** "Newsletter" is a product name, do not translate. */
+				'Newsletter',
+				'Newsletter',
+				'manage_options',
+				'jetpack-newsletter',
+				array( $this, 'render' )
 			);
 		}
 
@@ -146,7 +172,9 @@ class Settings {
 		$site_url     = get_site_url();
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
-		$is_wpcom               = ( new Host() )->is_wpcom_platform();
+		$host                   = new Host();
+		$is_wpcom               = $host->is_wpcom_platform();
+		$is_wpcom_simple        = $host->is_wpcom_simple();
 		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
 		$setup_payment_plan_url = $base_url . $site_raw_url;
 
@@ -165,6 +193,8 @@ class Settings {
 			'setupPaymentPlansUrl'               => $setup_payment_plan_url,
 			'isSitePublic'                       => (int) get_option( 'blog_public' ) === 1,
 			'isWpcomPlatform'                    => $is_wpcom,
+			'isWpcomSimple'                      => $is_wpcom_simple,
+			'isSubscriptionsActive'              => $this->is_subscriptions_active(),
 		);
 	}
 

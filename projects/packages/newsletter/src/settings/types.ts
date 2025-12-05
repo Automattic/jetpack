@@ -50,6 +50,8 @@ export interface JetpackNewsletterSettings {
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;
 	isWpcomPlatform: boolean;
+	isWpcomSimple: boolean;
+	isSubscriptionsActive: boolean;
 }
 
 /**
