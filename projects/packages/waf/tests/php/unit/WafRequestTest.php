@@ -155,7 +155,8 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		unset( $_SERVER['CONTENT_LENGTH'] );
 		$request = new Waf_Request();
 		$headers = $request->get_headers();
-		$this->assertContains( array( 'content-type', 'application/octet-stream' ), $headers );
+		// ModSecurity does not follow RFC 7231 - an empty Content-Type is _not_ set to octet-stream.
+		$this->assertNotContains( array( 'content-type', 'application/octet-stream' ), $headers );
 		$this->assertContains( array( 'content-length', '0' ), $headers );
 	}
 
