@@ -258,11 +258,6 @@ class Form_Webhooks {
 	 * @return array The form data key/value pairs.
 	 */
 	private function get_form_data( $feedback ) {
-		$fields = array();
-		foreach ( $feedback->get_fields() as $field ) {
-			$fields[ $field->get_form_field_id() ] = $field->get_value();
-		}
-
-		return $fields;
+		return $feedback->get_compiled_fields( 'webhook', 'id-value' );
 	}
 }
