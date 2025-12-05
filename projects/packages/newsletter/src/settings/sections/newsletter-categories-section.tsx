@@ -57,7 +57,14 @@ export function NewsletterCategoriesSection( {
 				'X-WP-Nonce': wpApiSettings.nonce,
 			},
 		} )
-			.then( response => response.json() )
+			.then( response => {
+				if ( ! response.ok ) {
+					throw new Error(
+						`Failed to load categories: ${ response.status } ${ response.statusText }`
+					);
+				}
+				return response.json();
+			} )
 			.then( ( fetchedCategories: { id: number; name: string }[] ) => {
 				// Convert category IDs to strings
 				setCategories(

@@ -66,7 +66,7 @@ export function BylinePreview( {
 			),
 			{
 				Author: <strong className="byline-preview__author">{ displayName }</strong>,
-				Date: <time className="byline-preview__date">{ dateExample }</time>,
+				Date: <span className="byline-preview__date">{ dateExample }</span>,
 			}
 		);
 	} else if ( isAuthorEnabled && ! isPostDateEnabled ) {
@@ -78,7 +78,7 @@ export function BylinePreview( {
 			}
 		);
 	} else if ( ! isAuthorEnabled && isPostDateEnabled ) {
-		byline = <time className="byline-preview__date">{ dateExample }</time>;
+		byline = <span className="byline-preview__date">{ dateExample }</span>;
 	}
 
 	return (

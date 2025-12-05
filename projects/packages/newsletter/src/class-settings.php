@@ -174,7 +174,7 @@ class Settings {
 		$is_wpcom               = $host->is_wpcom_platform();
 		$is_wpcom_simple        = $host->is_wpcom_simple();
 		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
-		$setup_payment_plan_url = $base_url . $site_raw_url;
+		$setup_payment_plan_url = $base_url . rawurlencode( $site_raw_url );
 
 		return array(
 			'isBlockTheme'                       => wp_is_block_theme(),

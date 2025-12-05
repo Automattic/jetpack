@@ -65,9 +65,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		window as Window & { jetpackNewsletterSettings?: JetpackNewsletterSettings }
 	 ).jetpackNewsletterSettings;
 
-	// Callback to clear error
-	const clearError = useCallback( () => setError( null ), [] );
-
 	// Callback to clear snackbar
 	const clearSnackbar = useCallback( () => setSnackbarMessage( null ), [] );
 
@@ -306,12 +303,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	return (
 		<div className="newsletter-settings">
 			<Header />
-
-			{ error && (
-				<Notice status="error" isDismissible onRemove={ clearError }>
-					{ error }
-				</Notice>
-			) }
 
 			{ ! jetpackSettings?.isWpcomSimple && (
 				<NewsletterSection
