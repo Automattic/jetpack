@@ -1,0 +1,10 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.Functions.EscJs sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable WordPress, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+esc_js( $data );
