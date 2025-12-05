@@ -82,6 +82,7 @@ class Reusable_Forms {
 					'delete_others_posts'    => 'delete_others_posts',
 				),
 				'map_meta_cap'          => true,
+				'template'              => array( array( 'jetpack/contact-form' ) ),
 				'supports'              => array(
 					'title',
 					'excerpt',
