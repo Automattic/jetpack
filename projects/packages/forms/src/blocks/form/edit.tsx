@@ -6,7 +6,13 @@ import { Spinner } from '@wordpress/components';
 import { useEntityBlockEditor, useEntityRecord } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 
-export default function FormEdit( { attributes } ) {
+type FormEditProps = {
+	attributes: {
+		ref?: number;
+	};
+};
+
+export default function FormEdit( { attributes }: FormEditProps ) {
 	const { ref } = attributes;
 
 	// Fetch the form post from the jetpack-form post type
