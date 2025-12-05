@@ -73,12 +73,10 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Load settings on mount
 	useEffect( () => {
-		// Initialize the REST API with WordPress settings
-		const wpApiSettings = ( window as Window & { wpApiSettings?: { root: string; nonce: string } } )
-			.wpApiSettings;
-		if ( wpApiSettings ) {
-			restApi.setApiRoot( wpApiSettings.root );
-			restApi.setApiNonce( wpApiSettings.nonce );
+		// Initialize the REST API with settings from PHP
+		if ( jetpackSettings?.restApiRoot && jetpackSettings?.restApiNonce ) {
+			restApi.setApiRoot( jetpackSettings.restApiRoot );
+			restApi.setApiNonce( jetpackSettings.restApiNonce );
 		}
 
 		restApi
@@ -98,7 +96,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				setError( err.message || 'Failed to load settings' );
 				setIsLoading( false );
 			} );
-	}, [] );
+	}, [ jetpackSettings ] );
 
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(

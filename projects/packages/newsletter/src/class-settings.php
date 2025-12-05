@@ -193,6 +193,8 @@ class Settings {
 			'isWpcomPlatform'                    => $is_wpcom,
 			'isWpcomSimple'                      => $is_wpcom_simple,
 			'isSubscriptionsActive'              => $this->is_subscriptions_active(),
+			'restApiRoot'                        => esc_url_raw( rest_url() ),
+			'restApiNonce'                       => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 

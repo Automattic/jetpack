@@ -52,6 +52,8 @@ export interface JetpackNewsletterSettings {
 	isWpcomPlatform: boolean;
 	isWpcomSimple: boolean;
 	isSubscriptionsActive: boolean;
+	restApiRoot: string;
+	restApiNonce: string;
 }
 
 /**
