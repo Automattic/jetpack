@@ -20,7 +20,7 @@ export function getManageSubscribersUrl(
 		return `${ jetpackSettings.siteAdminUrl }admin.php?page=subscribers`;
 	}
 
-	// Fallback to WordPress.com URL
-	const site = jetpackSettings.blogID || jetpackSettings.siteRawUrl;
+	// Fallback to WordPress.com URL (prefer siteRawUrl, fallback to blogID)
+	const site = jetpackSettings.siteRawUrl || jetpackSettings.blogID;
 	return `https://wordpress.com/subscribers/${ site }`;
 }
