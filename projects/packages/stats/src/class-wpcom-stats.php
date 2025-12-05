@@ -496,39 +496,8 @@ class WPCOM_Stats {
 	 * @return array|WP_Error
 	 */
 	protected function fetch_post_stats( $args, $post_id ) {
-		$endpoint    = $this->build_endpoint();
-		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
-		$stats_cache = get_post_meta( $post_id, $meta_name, false );
-
-		if ( $stats_cache ) {
-			$data = reset( $stats_cache );
-
-			if (
-				! is_array( $data )
-				|| empty( $data )
-				|| is_wp_error( $data )
-			) {
-				return $data;
-			}
-
-			$time  = key( $data );
-			$views = $data[ $time ] ?? null;
-
-			// Bail if data is malformed.
-			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
-				return $data;
-			}
-
-			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
-			$expiration = apply_filters(
-				'jetpack_fetch_stats_cache_expiration',
-				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-			);
-
-			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $views );
-			}
-		}
+		$endpoint  = $this->build_endpoint();
+		$meta_name = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
