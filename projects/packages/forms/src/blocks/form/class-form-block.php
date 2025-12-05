@@ -19,8 +19,11 @@ class Form_Block {
 	 * This block only registers when the reusable-forms feature flag is enabled.
 	 */
 	public static function register_block() {
+		// Point to the dist folder where the compiled block.json and assets are
+		$block_dir = dirname( __DIR__, 3 ) . '/dist/blocks/form';
+
 		Blocks::jetpack_register_block(
-			'jetpack/form',
+			$block_dir,
 			array(
 				'render_callback' => array( __CLASS__, 'render' ),
 			)

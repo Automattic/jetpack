@@ -20,6 +20,7 @@ const sharedWebpackConfig = {
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
 		view: './src/blocks/contact-form/view.ts',
+		'form/index': './src/blocks/form/index.tsx',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
 		'field-rating/style': './src/blocks/field-rating/style.scss',
@@ -105,7 +106,13 @@ export default [
 				patterns: [
 					{
 						from: 'src/blocks/**/block.json',
-						to: '[name][ext]',
+						to: ( { absoluteFilename } ) => {
+							const relativePath = path.relative(
+								path.join( __dirname, '../src/blocks' ),
+								absoluteFilename
+							);
+							return relativePath;
+						},
 						noErrorOnMissing: true,
 					},
 				],
