@@ -12,7 +12,6 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-
 /**
  * Internal dependencies
  */
@@ -34,7 +33,7 @@ const DEFAULT_VIEW = {
 		direction: 'desc',
 	},
 	titleField: 'from',
-	fields: [ 'from', 'date', 'source', 'ip' ],
+	fields: [ 'date', 'source', 'ip' ],
 };
 
 /**
