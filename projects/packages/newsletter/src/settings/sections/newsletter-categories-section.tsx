@@ -3,7 +3,7 @@
  */
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink } from '@wordpress/components';
-import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews';
+import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**

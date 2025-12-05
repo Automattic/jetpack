@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { DataForm, type Field } from '@wordpress/dataviews';
+import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
