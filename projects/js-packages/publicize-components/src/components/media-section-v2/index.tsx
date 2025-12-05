@@ -7,7 +7,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -15,6 +15,7 @@ import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
+import EditTemplateModal from '../social-image-generator/edit-template-modal';
 import CustomMediaToggle from './custom-media-toggle';
 import MediaPreview from './media-preview';
 import MediaSourceMenu, { getMediaSourceDescription } from './media-source-menu';
@@ -84,6 +85,11 @@ export default function MediaSectionV2( {
 
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
+
+	// State for Edit Template modal visibility
+	const [ isEditTemplateModalOpen, setIsEditTemplateModalOpen ] = useState( false );
+	const openEditTemplateModal = useCallback( () => setIsEditTemplateModalOpen( true ), [] );
+	const closeEditTemplateModal = useCallback( () => setIsEditTemplateModalOpen( false ), [] );
 
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
@@ -288,14 +294,19 @@ export default function MediaSectionV2( {
 								) }
 							</MediaSourceMenu>
 							{ currentSource === 'sig' && (
-								<Button
-									className={ styles.selectButton }
-									variant="secondary"
-									// onClick={ /* TODO: Add Sig modal here */ }
-									disabled={ disabled }
-								>
-									{ __( 'Edit template', 'jetpack-publicize-components' ) }
-								</Button>
+								<>
+									<Button
+										className={ styles.selectButton }
+										variant="secondary"
+										onClick={ openEditTemplateModal }
+										disabled={ disabled }
+									>
+										{ __( 'Edit template', 'jetpack-publicize-components' ) }
+									</Button>
+									{ isEditTemplateModalOpen && (
+										<EditTemplateModal onClose={ closeEditTemplateModal } />
+									) }
+								</>
 							) }
 							<CustomMediaToggle
 								source={ currentSource }
