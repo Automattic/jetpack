@@ -260,7 +260,9 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		// Use reflection to access private method
 		$reflection   = new \ReflectionClass( Contact_Form_Block::class );
 		$count_method = $reflection->getMethod( 'count_form_steps_in_block' );
-		$count_method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$count_method->setAccessible( true );
+		}
 
 		$result = $count_method->invoke( null, $block_structure );
 		$this->assertEquals( $expected_steps, $result );
@@ -401,7 +403,9 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		// Use reflection to set the private static property for testing
 		$reflection          = new \ReflectionClass( Contact_Form_Block::class );
 		$step_count_property = $reflection->getProperty( 'form_step_count' );
-		$step_count_property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$step_count_property->setAccessible( true );
+		}
 		$step_count_property->setValue( null, 5 );
 
 		$result = Contact_Form_Block::get_form_step_count();
