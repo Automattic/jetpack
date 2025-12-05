@@ -2188,12 +2188,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/newsletter",
-				"reference": "cdeccf8a1bd0771403060a1eb088caf6d565c69d"
+				"reference": "70c4fd8f9ebed459812e69b15a21152a4a8e9a0d"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
 				"automattic/jetpack-assets": "@dev",
-				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"php": ">=7.2"
 			},

@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Status\Host;
@@ -167,12 +166,11 @@ class Settings {
 		$current_user = wp_get_current_user();
 		$theme        = wp_get_theme();
 
-		$blog_id = Manager::get_site_id( true ) ?? 0;
-
 		$site_url     = get_site_url();
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
 		$host                   = new Host();
+		$blog_id                = (int) $host->get_wpcom_site_id();
 		$is_wpcom               = $host->is_wpcom_platform();
 		$is_wpcom_simple        = $host->is_wpcom_simple();
 		$base_url               = $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/';
