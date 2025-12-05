@@ -165,7 +165,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'text-image' => __( 'Text & Image Links', 'jetpack' ),
 		);
 		echo '<p><label for="' . esc_attr( $this->get_field_id( 'format' ) ) . '">' . esc_html_x( 'Format:', 'Noun', 'jetpack' ) . '
-		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'format' ) ) . '" name="' . esc_attr( $this->get_field_name( 'format' ) ) . '" onchange="if ( this.value == \'text\' ) jQuery( \'#' . esc_js( $this->get_field_id( 'image-settings' ) ) . '\' ).fadeOut(); else jQuery( \'#' . esc_js( $this->get_field_id( 'image-settings' ) ) . '\' ).fadeIn();">';
+		<select class="widefat" id="' . esc_attr( $this->get_field_id( 'format' ) ) . '" name="' . esc_attr( $this->get_field_name( 'format' ) ) . '" onchange="if ( this.value == \'text\' ) jQuery( ' . esc_attr( wp_json_encode( '#' . $this->get_field_id( 'image-settings' ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . ' ).fadeOut(); else jQuery( ' . esc_attr( wp_json_encode( '#' . $this->get_field_id( 'image-settings' ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . ' ).fadeIn();">';
 		foreach ( $formats as $format_option => $label ) {
 			echo '<option value="' . esc_attr( $format_option ) . '"';
 			if ( $format_option === $format ) {

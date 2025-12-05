@@ -112,7 +112,7 @@ function jpcrm_show_admin_nag_modal( $message = '' ) {
 	if ( ! get_transient( 'jpcrm-license-modal' ) ) {
 
 		?>
-		<script type="text/javascript">var jpcrm_modal_message_licensing_nonce = '<?php echo esc_js( wp_create_nonce( 'jpcrm-set-transient-nonce' ) ); ?>';</script>
+		<script type="text/javascript">var jpcrm_modal_message_licensing_nonce = <?php echo wp_json_encode( wp_create_nonce( 'jpcrm-set-transient-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;</script>
 		<div class="zbs_overlay" id="jpcrm-modal-message-licensing">
 			<div class='close_nag_modal'>
 				<span id="jpcrm-close-licensing-modal">x</span>

@@ -411,7 +411,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		// If coming back to the widgets page from an action, expand this widget.
 		if ( isset( $_GET['instagram_widget_id'] ) && (int) $_GET['instagram_widget_id'] === (int) $this->number ) {
-			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
+			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . intval( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
 		}
 
 		$status = $this->get_token_status( $instance['token_id'] );
@@ -476,20 +476,20 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 						'_blank',
 						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
 					);
-					button.innerText = '<?php echo esc_js( __( 'Connecting…', 'jetpack' ) ); ?>';
+					button.innerText = <?php echo wp_json_encode( __( 'Connecting…', 'jetpack' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 					button.disabled = true;
 					window.onmessage = function( { data } ) {
 						if ( !! data.keyring_id ) {
 							var payload = {
 								action: 'wpcom_instagram_widget_update_widget_token_id',
-								savetoken: '<?php echo esc_js( wp_create_nonce( 'instagram-widget-save-token' ) ); ?>',
+								savetoken: <?php echo wp_json_encode( wp_create_nonce( 'instagram-widget-save-token' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								keyring_id: data.keyring_id,
 								instagram_widget_id: button.dataset.widgetid,
 							};
 							jQuery.post( ajaxurl, payload, function( response ) {
 								var widget = jQuery(button).closest('div.widget');
 								if ( ! window.wpWidgets ) {
-									window.location = '<?php echo esc_js( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) ); ?>';
+									window.location = <?php echo wp_json_encode( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 								} else {
 									wpWidgets.save( widget, 0, 1, 1 );
 								}
