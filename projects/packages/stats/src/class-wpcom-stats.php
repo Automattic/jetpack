@@ -496,11 +496,60 @@ class WPCOM_Stats {
 	 * @return array|WP_Error
 	 */
 	protected function fetch_post_stats( $args, $post_id ) {
-		$endpoint  = $this->build_endpoint();
-		$meta_name = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
+		$endpoint    = $this->build_endpoint();
+		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
+		$stats_cache = get_post_meta( $post_id, $meta_name, false );
 
+		if ( $stats_cache ) {
+			$data = reset( $stats_cache );
+
+			if (
+				! is_array( $data )
+				|| empty( $data )
+				|| is_wp_error( $data )
+			) {
+				return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
+			}
+
+			$time  = key( $data );
+			$views = $data[ $time ] ?? null;
+
+			// Bail if data is malformed.
+			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
+				return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
+			}
+
+			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
+			$expiration = apply_filters(
+				'jetpack_fetch_stats_cache_expiration',
+				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+			);
+
+			if ( ( time() - $time ) < $expiration ) {
+				return array_merge( array( 'cached_at' => $time ), $views );
+			}
+		}
+
+		return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
+	}
+
+	/**
+	 * Force fetch stats from WPCOM, and update cache if needed.
+	 *
+	 * @param string $endpoint The stats endpoint.
+	 * @param array  $args The query arguments.
+	 * @param int    $post_id The post ID.
+	 * @param string $meta_name The meta name.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name ) {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
-		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
+
+		// Don't write error or empty results to cache.
+		if ( ! is_wp_error( $wpcom_stats ) && ! empty( $wpcom_stats ) ) {
+			update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
+		}
 
 		return $wpcom_stats;
 	}
