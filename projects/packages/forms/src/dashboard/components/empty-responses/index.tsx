@@ -1,9 +1,17 @@
+/**
+ * External dependencies
+ */
 import {
+	Button,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import useConfigValue from '../../../hooks/use-config-value.ts';
+import useInstallAkismet from '../../hooks/use-install-akismet.ts';
 import CreateFormButton from '../create-form-button/index.tsx';
 
 const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
@@ -26,6 +34,15 @@ type EmptyResponsesProps = {
 
 const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+
+	const {
+		shouldShowAkismetCta,
+		isInstallingAkismet,
+		isIntegrationsLoading,
+		canPerformAkismetAction,
+		isInstalled,
+		handleAkismetSetup,
+	} = useInstallAkismet();
 
 	// Handle search and filter states first
 	const hasReadStatusFilter = !! readStatusFilter;
@@ -60,7 +77,40 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 		'Spam responses are permanently deleted after 15 days.',
 		'jetpack-forms'
 	);
+
 	if ( status === 'spam' ) {
+		const installAndActivateMessage = __(
+			'Install and activate Jetpack Akismet Anti-spam to automatically filter form spam.',
+			'jetpack-forms'
+		);
+
+		const activateMessage = __(
+			'Activate Jetpack Akismet Anti-spam to automatically filter form spam.',
+			'jetpack-forms'
+		);
+
+		if ( shouldShowAkismetCta && ! isIntegrationsLoading ) {
+			return (
+				<EmptyWrapper
+					heading={ noSpamHeading }
+					body={ isInstalled ? activateMessage : installAndActivateMessage }
+					actions={
+						<Button
+							variant="primary"
+							isBusy={ isInstallingAkismet }
+							disabled={ isInstallingAkismet || ! canPerformAkismetAction }
+							onClick={ handleAkismetSetup }
+							__next40pxDefaultSize
+						>
+							{ isInstalled
+								? __( 'Activate Akismet Anti-spam', 'jetpack-forms' )
+								: __( 'Install Akismet Anti-spam', 'jetpack-forms' ) }
+						</Button>
+					}
+				/>
+			);
+		}
+
 		return <EmptyWrapper heading={ noSpamHeading } body={ noSpamMessage } />;
 	}
 
