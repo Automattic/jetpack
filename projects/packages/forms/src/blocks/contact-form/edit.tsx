@@ -22,6 +22,7 @@ import {
 	TextControl,
 	ToggleControl,
 	RadioControl,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
@@ -47,6 +48,7 @@ import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
 import { CORE_BLOCKS } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
+import ConvertToReusableButton from './components/convert-to-reusable-button';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
@@ -830,6 +832,9 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					<ToolbarGroup>
+						<ConvertToReusableButton clientId={ clientId } />
+					</ToolbarGroup>
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
