@@ -90,6 +90,9 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 		);
 
 		if ( shouldShowAkismetCta && ! isIntegrationsLoading ) {
+			const activateText = __( 'Activate Akismet Anti-spam', 'jetpack-forms' );
+			const installAndActivateText = __( 'Install Akismet Anti-spam', 'jetpack-forms' );
+
 			return (
 				<EmptyWrapper
 					heading={ noSpamHeading }
@@ -102,9 +105,7 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 							onClick={ handleAkismetSetup }
 							__next40pxDefaultSize
 						>
-							{ isInstalled
-								? __( 'Activate Akismet Anti-spam', 'jetpack-forms' )
-								: __( 'Install Akismet Anti-spam', 'jetpack-forms' ) }
+							{ isInstalled ? activateText : installAndActivateText }
 						</Button>
 					}
 				/>

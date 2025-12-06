@@ -80,10 +80,14 @@ export const useInstallAkismet = () => {
 				await installAndActivatePlugin( 'akismet' );
 			}
 
+			const activatedMessage = __( 'Akismet activated.', 'jetpack-forms' );
+			const installedAndActivatedMessage = __(
+				'Akismet installed and activated.',
+				'jetpack-forms'
+			);
+
 			createSuccessNotice(
-				akismetIntegration?.isInstalled
-					? __( 'Akismet activated.', 'jetpack-forms' )
-					: __( 'Akismet installed and activated.', 'jetpack-forms' ),
+				akismetIntegration?.isInstalled ? activatedMessage : installedAndActivatedMessage,
 				{ type: 'snackbar', id: 'akismet-install-success' }
 			);
 
