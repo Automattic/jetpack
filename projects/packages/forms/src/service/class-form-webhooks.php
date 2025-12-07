@@ -112,7 +112,7 @@ class Form_Webhooks {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $feedback );
+		$form_data = $feedback->get_compiled_fields( 'webhook', 'id-value' );
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
@@ -249,15 +249,5 @@ class Form_Webhooks {
 		);
 
 		return wp_remote_request( $url, $args );
-	}
-
-	/**
-	 * Gather fields key/value pairs from the Feedback object
-	 *
-	 * @param Feedback $feedback The Feedback instance containing submitted form data.
-	 * @return array The form data key/value pairs.
-	 */
-	private function get_form_data( $feedback ) {
-		return $feedback->get_compiled_fields( 'webhook', 'id-value' );
 	}
 }
