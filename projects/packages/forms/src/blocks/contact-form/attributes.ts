@@ -4,6 +4,10 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
+	ref: {
+		type: 'number',
+		default: null,
+	},
 	subject: {
 		type: 'string',
 		default: window.jpFormsBlocks?.defaults?.subject || '',

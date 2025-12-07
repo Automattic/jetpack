@@ -1,0 +1,14 @@
+.jetpack-form-title-modal {
+
+	.components-modal__content {
+		padding-bottom: 0;
+	}
+
+	.jetpack-form-title-modal__actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 12px;
+		margin-top: 24px;
+		padding: 16px 0;
+	}
+}

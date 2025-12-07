@@ -3,6 +3,7 @@
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus, hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 import {
 	URLInput,
 	InspectorAdvancedControls,
@@ -14,20 +15,28 @@ import {
 	BlockControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, serialize } from '@wordpress/blocks';
 import {
+	Button,
 	ExternalLink,
 	PanelBody,
 	TextareaControl,
 	TextControl,
 	ToggleControl,
 	RadioControl,
+	ToolbarGroup,
+	ToolbarButton,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-import { store as coreStore } from '@wordpress/core-data';
+import {
+	store as coreStore,
+	useEntityRecord,
+	useEntityBlockEditor,
+	EntityProvider,
+} from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { useRef, useEffect, useCallback, useState, lazy, Suspense } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
@@ -47,6 +56,7 @@ import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
 import { CORE_BLOCKS } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
+import FormTitleModal from './components/form-title-modal.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
@@ -56,6 +66,42 @@ import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
 
 const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.js' ) );
+
+/**
+ * Inner component for reusable forms that uses useEntityBlockEditor.
+ * This must be rendered inside EntityProvider to work correctly.
+ *
+ * @param {object} root0                   - Component props.
+ * @param {object} root0.innerBlocksConfig - Configuration for inner blocks.
+ * @param {object} root0.innerRef          - Ref for the inner blocks container.
+ * @param {string} root0.formClassnames    - CSS classes for the form.
+ * @return {Element} The inner blocks component.
+ */
+function ReusableFormInnerBlocks( { innerBlocksConfig, innerRef, formClassnames } ) {
+	const [ entityBlocks, onEntityInput, onEntityChange ] = useEntityBlockEditor(
+		'postType',
+		'jetpack-form'
+	);
+
+	// Apply entity block editor values
+	const configWithEntity = {
+		...innerBlocksConfig,
+		value: entityBlocks,
+		onInput: onEntityInput,
+		onChange: onEntityChange,
+	};
+
+	const innerBlocksProps = useInnerBlocksProps(
+		{
+			ref: innerRef,
+			className: formClassnames,
+			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
+		},
+		configWithEntity
+	);
+
+	return <div { ...innerBlocksProps } />;
+}
 
 // Transforms
 const FormTransitionState = {
@@ -143,6 +189,7 @@ type JetpackContactFormAttributes = {
 	disableSummary: boolean;
 	notificationRecipients: string[];
 	webhooks: Webhook[];
+	ref: number | null;
 };
 
 type JetpackContactFormEditProps = {
@@ -178,11 +225,27 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 		webhooks,
+		ref,
 	} = attributes;
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Modal state for creating reusable forms
+	const [ titleModalState, setTitleModalState ] = useState< {
+		isOpen: boolean;
+		variation: null | {
+			title?: string;
+			innerBlocks?: Array< unknown >;
+			attributes?: Record< string, unknown >;
+		};
+		isCreating: boolean;
+	} >( {
+		isOpen: false,
+		variation: null,
+		isCreating: false,
+	} );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
@@ -285,28 +348,43 @@ function JetpackContactFormEdit( {
 		isLastStep && 'is-last-step',
 		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
 	);
+
+	// Configure inner blocks
+	const innerBlocksConfig = {
+		allowedBlocks: variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
+		prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
+		templateInsertUpdatesSelection: false,
+	};
+
+	// For inline forms (not reusable), use regular inner blocks
 	const innerBlocksProps = useInnerBlocksProps(
 		{
 			ref: innerRef,
 			className: formClassnames,
 			style: window.jetpackForms.generateStyleVariables( innerRef.current ),
 		},
-		{
-			allowedBlocks:
-				variationName === 'multistep' ? ALLOWED_MULTI_STEP_BLOCKS : ALLOWED_FORM_BLOCKS,
-			prioritizedInserterBlocks: PRIORITIZED_INSERTER_BLOCKS,
-			templateInsertUpdatesSelection: false,
-		}
+		innerBlocksConfig
 	);
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'contact-form' );
 
-	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
-		useDispatch( blockEditorStore );
+	const {
+		replaceInnerBlocks,
+		__unstableMarkNextChangeAsNotPersistent,
+		updateBlockAttributes,
+		selectBlock,
+	} = useDispatch( blockEditorStore );
 
 	const currentInnerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlocks( clientId ),
 		[ clientId ]
+	);
+
+	// Load form post if ref is set
+	const { record: formPost, isResolving: isLoadingPost } = useEntityRecord(
+		'postType',
+		'jetpack-form',
+		ref || undefined
 	);
 
 	// Track previous block count to detect insertions
@@ -395,6 +473,121 @@ function JetpackContactFormEdit( {
 				b.name === 'jetpack/form-step-divider' ||
 				( b.innerBlocks?.length && hasMultistep( b.innerBlocks ) )
 		);
+	}, [] );
+
+	// Helper to create blocks from inner blocks template (same as variation-picker.js)
+	const createBlocksFromInnerBlocksTemplate = useCallback( innerBlocksTemplate => {
+		const blocks = innerBlocksTemplate.map( ( [ blockName, attr, innerBlocks = [] ] ) =>
+			createBlock( blockName, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
+		);
+		return blocks;
+	}, [] );
+
+	// Helper to create draft form post
+	const createDraftFormPost = useCallback(
+		async ( title, innerBlocks ) => {
+			// Create blocks from template
+			const blocks = createBlocksFromInnerBlocksTemplate( innerBlocks );
+			const content = serialize( blocks );
+
+			const response = await apiFetch( {
+				path: '/wp/v2/jetpack-forms',
+				method: 'POST',
+				data: {
+					title,
+					content,
+					status: 'draft',
+				},
+			} );
+
+			return response;
+		},
+		[ createBlocksFromInnerBlocksTemplate ]
+	);
+
+	// Handle variation selection
+	const handleVariationSelect = useCallback(
+		variation => {
+			const TEMPLATE_VARIATIONS = [
+				'contact-form',
+				'rsvp-form',
+				'registration-form',
+				'appointment-form',
+				'feedback-form',
+				'lead-capture-form',
+			];
+
+			if ( hasFeatureFlag( 'multistep-form' ) ) {
+				TEMPLATE_VARIATIONS.push( 'multistep-form' );
+			}
+
+			if ( TEMPLATE_VARIATIONS.includes( variation.name ) ) {
+				// Show title modal for template variations
+				setTitleModalState( {
+					isOpen: true,
+					variation,
+					isCreating: false,
+				} );
+			} else {
+				// Regular inline mode - existing behavior
+				if ( variation.attributes ) {
+					setAttributes( variation.attributes );
+				}
+				if ( variation.innerBlocks ) {
+					replaceInnerBlocks(
+						clientId,
+						createBlocksFromInnerBlocksTemplate( variation.innerBlocks )
+					);
+				}
+				selectBlock( clientId );
+			}
+		},
+		[
+			replaceInnerBlocks,
+			clientId,
+			setAttributes,
+			selectBlock,
+			createBlocksFromInnerBlocksTemplate,
+		]
+	);
+
+	// Handle modal title submit
+	const handleTitleSubmit = useCallback(
+		async title => {
+			const { variation } = titleModalState;
+
+			setTitleModalState( prev => ( { ...prev, isCreating: true } ) );
+
+			try {
+				const post = await createDraftFormPost( title, variation.innerBlocks );
+
+				setAttributes( {
+					ref: post.id,
+					...variation.attributes,
+				} );
+
+				selectBlock( clientId );
+
+				setTitleModalState( {
+					isOpen: false,
+					variation: null,
+					isCreating: false,
+				} );
+			} catch {
+				// Error creating form - reset modal state
+				setTitleModalState( prev => ( { ...prev, isCreating: false } ) );
+			}
+		},
+		[ titleModalState, createDraftFormPost, setAttributes, selectBlock, clientId ]
+	);
+
+	// Handle modal cancel
+	const handleTitleCancel = useCallback( () => {
+		setTitleModalState( {
+			isOpen: false,
+			variation: null,
+			isCreating: false,
+		} );
 	}, [] );
 
 	// Detect a conversion to a multistep form and structure inner blocks only once.
@@ -807,14 +1000,40 @@ function JetpackContactFormEdit( {
 				/>
 			);
 		}
-	} else if ( ! hasAnyInnerBlocks ) {
+	} else if ( ! hasAnyInnerBlocks && ! ref ) {
 		elt = (
-			<VariationPicker
-				blockName={ name }
-				setAttributes={ setAttributes }
-				clientId={ clientId }
-				classNames={ formClassnames }
-			/>
+			<>
+				<VariationPicker
+					blockName={ name }
+					setAttributes={ setAttributes }
+					clientId={ clientId }
+					classNames={ formClassnames }
+					onVariationSelect={ handleVariationSelect }
+				/>
+				{ titleModalState.isOpen && (
+					<FormTitleModal
+						onClose={ handleTitleCancel }
+						onSubmit={ handleTitleSubmit }
+						defaultTitle={ titleModalState.variation?.title || '' }
+						isCreating={ titleModalState.isCreating }
+					/>
+				) }
+			</>
+		);
+	} else if ( ref && isLoadingPost ) {
+		// Loading state for reusable forms
+		elt = <ContactFormSkeletonLoader />;
+	} else if ( ref && ! isLoadingPost && ! formPost ) {
+		// Error state - post not found (only show if done loading)
+		elt = (
+			<div className="jetpack-form-error">
+				<p>
+					{ __( 'Form not found. The referenced form may have been deleted.', 'jetpack-forms' ) }
+				</p>
+				<Button variant="secondary" onClick={ () => setAttributes( { ref: null } ) }>
+					{ __( 'Convert to inline form', 'jetpack-forms' ) }
+				</Button>
+			</div>
 		);
 	} else if ( onlySubmitBlock ) {
 		elt = (
@@ -822,7 +1041,15 @@ function JetpackContactFormEdit( {
 				<div className="is-form-empty">
 					<InnerBlocks.ButtonBlockAppender />
 				</div>
-				<div { ...innerBlocksProps } />
+				{ ref ? (
+					<ReusableFormInnerBlocks
+						innerBlocksConfig={ innerBlocksConfig }
+						innerRef={ innerRef }
+						formClassnames={ formClassnames }
+					/>
+				) : (
+					<div { ...innerBlocksProps } />
+				) }
 			</>
 		);
 	} else {
@@ -830,6 +1057,17 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					{ ref && (
+						<ToolbarGroup>
+							<ToolbarButton
+								icon="edit"
+								label={ __( 'Edit Form', 'jetpack-forms' ) }
+								onClick={ () => {
+									window.open( `/wp-admin/post.php?post=${ ref }&action=edit`, '_blank' );
+								} }
+							/>
+						</ToolbarGroup>
+					) }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
@@ -972,19 +1210,38 @@ function JetpackContactFormEdit( {
 						'jetpack/form-current-step': currentStepInfo,
 					} }
 				>
-					<div { ...innerBlocksProps } />
+					{ ref ? (
+						<ReusableFormInnerBlocks
+							innerBlocksConfig={ innerBlocksConfig }
+							innerRef={ innerRef }
+							formClassnames={ formClassnames }
+						/>
+					) : (
+						<div { ...innerBlocksProps } />
+					) }
 				</BlockContextProvider>
 			</>
 		);
 	}
 
-	return (
+	const content = (
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
 				<div { ...blockProps }>{ elt }</div>
 			</ThemeProvider>
 		</SyncedAttributeProvider>
 	);
+
+	// Wrap in EntityProvider if this is a reusable form
+	if ( ref ) {
+		return (
+			<EntityProvider kind="postType" type="jetpack-form" id={ ref }>
+				{ content }
+			</EntityProvider>
+		);
+	}
+
+	return content;
 }
 
 export default JetpackContactFormEdit;

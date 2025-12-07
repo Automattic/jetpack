@@ -19,7 +19,13 @@ const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
 	return blocks;
 };
 
-export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
+export default function VariationPicker( {
+	blockName,
+	setAttributes,
+	clientId,
+	classNames,
+	onVariationSelect,
+} ) {
 	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
@@ -57,20 +63,26 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				) }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ ( nextVariation = defaultVariation ) => {
-					registry.batch( () => {
-						if ( nextVariation.attributes ) {
-							setAttributes( nextVariation.attributes );
-						}
+					if ( onVariationSelect ) {
+						// Delegate to parent component
+						onVariationSelect( nextVariation );
+					} else {
+						// Default behavior
+						registry.batch( () => {
+							if ( nextVariation.attributes ) {
+								setAttributes( nextVariation.attributes );
+							}
 
-						if ( nextVariation.innerBlocks ) {
-							replaceInnerBlocks(
-								clientId,
-								createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
-							);
-						}
+							if ( nextVariation.innerBlocks ) {
+								replaceInnerBlocks(
+									clientId,
+									createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
+								);
+							}
 
-						selectBlock( clientId );
-					} );
+							selectBlock( clientId );
+						} );
+					}
 				} }
 			/>
 			<div className="form-placeholder__footer">
