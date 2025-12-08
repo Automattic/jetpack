@@ -1073,78 +1073,7 @@ class Jetpack_Subscriptions {
 			}
 		}
 
-		// Set a maximum to support here to limit number of requests and meta size.
-		if ( (int) $subscriber_data['email_subscribers'] <= 2000 ) {
-			// Fetch the actual subscriber list with emails.
-			$subscriber_emails                        = $this->fetch_email_subscribers( $site_id );
-			$subscriber_data['email_subscriber_list'] = $subscriber_emails;
-		}
-
 		return $subscriber_data;
-	}
-
-	/**
-	 * Fetch all email subscribers from WordPress.com API with pagination.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param int $site_id Site ID.
-	 * @return array Array of subscriber data, each containing 'email' and 'is_paid' keys.
-	 */
-	private function fetch_email_subscribers( $site_id ) {
-		$subscriber_emails = array();
-		$page              = 1;
-		$per_page          = 100; // Maximum per page to minimize requests.
-
-		while ( true ) {
-			$response_body = Jetpack_Subscriptions_Helper::fetch_subscribers(
-				$site_id,
-				array(
-					'page'     => $page,
-					'per_page' => $per_page,
-					'filter'   => 'email_subscriber',
-				)
-			);
-
-			if ( is_wp_error( $response_body ) ) {
-				break;
-			}
-
-			// Extract subscriber data from subscribers array.
-			if ( isset( $response_body['subscribers'] ) && is_array( $response_body['subscribers'] ) ) {
-				foreach ( $response_body['subscribers'] as $subscriber ) {
-					if ( isset( $subscriber['email_address'] ) && is_email( $subscriber['email_address'] ) ) {
-						// Determine if subscriber has an active paid plan.
-						$is_paid = false;
-						if ( isset( $subscriber['plans'] ) && is_array( $subscriber['plans'] ) ) {
-							foreach ( $subscriber['plans'] as $plan ) {
-								if ( isset( $plan['status'] ) && 'active' === $plan['status'] ) {
-									$is_paid = true;
-									break;
-								}
-							}
-						}
-
-						$subscriber_emails[] = array(
-							'email'   => $subscriber['email_address'],
-							'is_paid' => $is_paid,
-						);
-					}
-				}
-			}
-
-			// Check if there are more pages.
-			$total       = isset( $response_body['total'] ) ? (int) $response_body['total'] : 0;
-			$total_pages = isset( $response_body['total_pages'] ) ? (int) $response_body['total_pages'] : 1;
-
-			if ( $page >= $total_pages || count( $subscriber_emails ) >= $total ) {
-				break;
-			}
-
-			++$page;
-		}
-
-		return $subscriber_emails;
 	}
 
 	/**
