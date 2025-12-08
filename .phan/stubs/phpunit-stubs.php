@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.1
+ * Stubs automatically generated from PHPUnit 12.5.2
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -11364,6 +11364,15 @@ final readonly class AfterClass
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+#[\Attribute(\Attribute::TARGET_CLASS)]
+final readonly class AllowMockObjectsWithoutExpectations
+{
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD)]
 final readonly class BackupGlobals
 {
@@ -17274,6 +17283,17 @@ final readonly class AfterClass extends \PHPUnit\Metadata\Metadata
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
+final readonly class AllowMockObjectsWithoutExpectations extends \PHPUnit\Metadata\Metadata
+{
+    public function isAllowMockObjectsWithoutExpectations(): true
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
 final readonly class BackupGlobals extends \PHPUnit\Metadata\Metadata
 {
     public function isBackupGlobals(): true
@@ -17714,6 +17734,9 @@ abstract readonly class Metadata
     public static function afterClass(int $priority): \PHPUnit\Metadata\AfterClass
     {
     }
+    public static function allowMockObjectsWithoutExpectations(): \PHPUnit\Metadata\AllowMockObjectsWithoutExpectations
+    {
+    }
     public static function backupGlobalsOnClass(bool $enabled): \PHPUnit\Metadata\BackupGlobals
     {
     }
@@ -18110,6 +18133,12 @@ abstract readonly class Metadata
     {
     }
     /**
+     * @phpstan-assert-if-true AllowMockObjectsWithoutExpectations $this
+     */
+    public function isAllowMockObjectsWithoutExpectations(): bool
+    {
+    }
+    /**
      * @phpstan-assert-if-true BackupGlobals $this
      */
     public function isBackupGlobals(): bool
@@ -18478,6 +18507,9 @@ final readonly class MetadataCollection implements \Countable, \IteratorAggregat
     {
     }
     public function isAfterClass(): self
+    {
+    }
+    public function isAllowMockObjectsWithoutExpectations(): self
     {
     }
     public function isBackupGlobals(): self
@@ -19789,12 +19821,12 @@ final class TestSuiteLoader
  */
 final class TestSuiteSorter
 {
-    public const ORDER_DEFAULT = 0;
-    public const ORDER_RANDOMIZED = 1;
-    public const ORDER_REVERSED = 2;
-    public const ORDER_DEFECTS_FIRST = 3;
-    public const ORDER_DURATION = 4;
-    public const ORDER_SIZE = 5;
+    public const int ORDER_DEFAULT = 0;
+    public const int ORDER_RANDOMIZED = 1;
+    public const int ORDER_REVERSED = 2;
+    public const int ORDER_DEFECTS_FIRST = 3;
+    public const int ORDER_DURATION = 4;
+    public const int ORDER_SIZE = 5;
     public function __construct(?\PHPUnit\Runner\ResultCache\ResultCache $cache = null)
     {
     }
@@ -19844,7 +19876,7 @@ namespace PHPUnit\Runner\Baseline;
  */
 final class Baseline
 {
-    public const VERSION = 1;
+    public const int VERSION = 1;
     public function add(\PHPUnit\Runner\Baseline\Issue $issue): void
     {
     }
@@ -23737,10 +23769,10 @@ final readonly class WarmCodeCoverageCacheCommand implements \PHPUnit\TextUI\Com
  */
 final readonly class Result
 {
-    public const SUCCESS = 0;
-    public const FAILURE = 1;
-    public const EXCEPTION = 2;
-    public const CRASH = 255;
+    public const int SUCCESS = 0;
+    public const int FAILURE = 1;
+    public const int EXCEPTION = 2;
+    public const int CRASH = 255;
     public static function from(string $output = '', int $shellExitCode = self::SUCCESS): self
     {
     }
@@ -23823,10 +23855,10 @@ final class CodeCoverageFilterRegistry
  */
 final readonly class Configuration
 {
-    public const COLOR_NEVER = 'never';
-    public const COLOR_AUTO = 'auto';
-    public const COLOR_ALWAYS = 'always';
-    public const COLOR_DEFAULT = self::COLOR_NEVER;
+    public const string COLOR_NEVER = 'never';
+    public const string COLOR_AUTO = 'auto';
+    public const string COLOR_ALWAYS = 'always';
+    public const string COLOR_DEFAULT = self::COLOR_NEVER;
     /**
      * @param list<non-empty-string>                                                      $cliArguments
      * @param array<non-empty-string, non-empty-string>                                   $bootstrapForTestSuite
@@ -29007,23 +29039,23 @@ abstract class Driver
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_NOT_EXECUTABLE = -2;
+    public const int LINE_NOT_EXECUTABLE = -2;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_NOT_EXECUTED = -1;
+    public const int LINE_NOT_EXECUTED = -1;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const LINE_EXECUTED = 1;
+    public const int LINE_EXECUTED = 1;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const BRANCH_NOT_HIT = 0;
+    public const int BRANCH_NOT_HIT = 0;
     /**
      * @see http://xdebug.org/docs/code_coverage
      */
-    public const BRANCH_HIT = 1;
+    public const int BRANCH_HIT = 1;
     public function canCollectBranchAndPathCoverage(): bool
     {
     }
@@ -29768,7 +29800,7 @@ namespace SebastianBergmann\CodeCoverage\Report\Xml;
  */
 final readonly class BuildInformation
 {
-    public function __construct(\DOMElement $contextNode, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
+    public function __construct(\XMLWriter $xmlWriter, \SebastianBergmann\Environment\Runtime $runtime, \DateTimeImmutable $buildDate, string $phpUnitVersion, string $coverageVersion)
     {
     }
 }
@@ -29777,7 +29809,7 @@ final readonly class BuildInformation
  */
 final class Coverage
 {
-    public function __construct(\DOMElement $context, string $line)
+    public function __construct(\XMLWriter $xmlWriter, string $line)
     {
     }
     public function finalize(array $tests): void
@@ -29795,7 +29827,7 @@ final class Directory extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
  */
 final class Facade
 {
-    public const XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
+    public const string XML_NAMESPACE = 'https://schema.phpunit.de/coverage/1.0';
     public function __construct(string $version, bool $includeSource = true)
     {
     }
@@ -29811,8 +29843,11 @@ final class Facade
  */
 class File
 {
-    protected readonly \DOMDocument $dom;
-    public function __construct(\DOMElement $context)
+    protected \XMLWriter $xmlWriter;
+    public function __construct(\XMLWriter $xmlWriter)
+    {
+    }
+    public function getWriter(): \XMLWriter
     {
     }
     public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
@@ -29821,16 +29856,13 @@ class File
     public function lineCoverage(string $line): \SebastianBergmann\CodeCoverage\Report\Xml\Coverage
     {
     }
-    protected function contextNode(): \DOMElement
-    {
-    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Method
 {
-    public function __construct(\DOMElement $context, string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap)
     {
     }
 }
@@ -29839,20 +29871,20 @@ final readonly class Method
  */
 abstract class Node
 {
-    protected readonly \DOMDocument $dom;
-    public function __construct(\DOMElement $context)
+    protected readonly \XMLWriter $xmlWriter;
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function totals(): \SebastianBergmann\CodeCoverage\Report\Xml\Totals
     {
     }
-    public function addDirectory(string $name): \SebastianBergmann\CodeCoverage\Report\Xml\Directory
+    public function addDirectory(): \SebastianBergmann\CodeCoverage\Report\Xml\Directory
     {
     }
-    public function addFile(string $name, string $href, string $hash): \SebastianBergmann\CodeCoverage\Report\Xml\File
+    public function addFile(): \SebastianBergmann\CodeCoverage\Report\Xml\File
     {
     }
-    protected function contextNode(): \DOMElement
+    public function getWriter(): \XMLWriter
     {
     }
 }
@@ -29861,7 +29893,7 @@ abstract class Node
  */
 final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
 {
-    public function __construct(string $directory)
+    public function __construct(\XMLWriter $xmlWriter, string $directory)
     {
     }
     public function projectSourceDirectory(): string
@@ -29873,7 +29905,13 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
     public function tests(): \SebastianBergmann\CodeCoverage\Report\Xml\Tests
     {
     }
-    public function asDom(): \DOMDocument
+    public function getWriter(): \XMLWriter
+    {
+    }
+    public function startProject(): void
+    {
+    }
+    public function finalize(): void
     {
     }
 }
@@ -29882,10 +29920,10 @@ final class Project extends \SebastianBergmann\CodeCoverage\Report\Xml\Node
  */
 final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
 {
-    public function __construct(string $name, string $sha1)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $sha1)
     {
     }
-    public function asDom(): \DOMDocument
+    public function finalize(): void
     {
     }
     public function functionObject(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
@@ -29906,7 +29944,7 @@ final class Report extends \SebastianBergmann\CodeCoverage\Report\Xml\File
  */
 final readonly class Source
 {
-    public function __construct(\DOMElement $context)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function setSourceCode(string $source): void
@@ -29920,7 +29958,7 @@ final readonly class Source
  */
 final readonly class Tests
 {
-    public function __construct(\DOMElement $context)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     /**
@@ -29935,7 +29973,7 @@ final readonly class Tests
  */
 final readonly class Totals
 {
-    public function __construct(\DOMElement $container)
+    public function __construct(\XMLWriter $xmlWriter)
     {
     }
     public function setNumLines(int $loc, int $cloc, int $ncloc, int $executable, int $executed): void
@@ -29953,13 +29991,16 @@ final readonly class Totals
     public function setNumFunctions(int $count, int $tested): void
     {
     }
+    public function getWriter(): \XMLWriter
+    {
+    }
 }
 /**
  * @internal This class is not covered by the backward compatibility promise for phpunit/php-code-coverage
  */
 final readonly class Unit
 {
-    public function __construct(\DOMElement $context, string $name, string $namespace, int $start, int $executable, int $executed, float $crap)
+    public function __construct(\XMLWriter $xmlWriter, string $name, string $namespace, int $start, int $executable, int $executed, float $crap)
     {
     }
     public function addMethod(string $name, string $signature, string $start, ?string $end, string $executable, string $executed, string $coverage, string $crap): void
@@ -31925,11 +31966,11 @@ final class Diff implements \IteratorAggregate
 }
 final class Differ
 {
-    public const OLD = 0;
-    public const ADDED = 1;
-    public const REMOVED = 2;
-    public const DIFF_LINE_END_WARNING = 3;
-    public const NO_LINE_END_EOF_WARNING = 4;
+    public const int OLD = 0;
+    public const int ADDED = 1;
+    public const int REMOVED = 2;
+    public const int DIFF_LINE_END_WARNING = 3;
+    public const int NO_LINE_END_EOF_WARNING = 4;
     public function __construct(\SebastianBergmann\Diff\Output\DiffOutputBuilderInterface $outputBuilder)
     {
     }
@@ -31962,9 +32003,9 @@ class InvalidArgumentException extends \InvalidArgumentException implements \Seb
 }
 final class Line
 {
-    public const ADDED = 1;
-    public const REMOVED = 2;
-    public const UNCHANGED = 3;
+    public const int ADDED = 1;
+    public const int REMOVED = 2;
+    public const int UNCHANGED = 3;
     public function __construct(int $type = self::UNCHANGED, string $content = '')
     {
     }
@@ -32089,15 +32130,15 @@ final class Console
     /**
      * @var int
      */
-    public const STDIN = 0;
+    public const int STDIN = 0;
     /**
      * @var int
      */
-    public const STDOUT = 1;
+    public const int STDOUT = 1;
     /**
      * @var int
      */
-    public const STDERR = 2;
+    public const int STDERR = 2;
     /**
      * Returns true if STDOUT supports colorization.
      *
@@ -32361,8 +32402,8 @@ final class Factory
  */
 final class Iterator extends \FilterIterator
 {
-    public const PREFIX = 0;
-    public const SUFFIX = 1;
+    public const int PREFIX = 0;
+    public const int SUFFIX = 1;
     /**
      * @param list<string> $suffixes
      * @param list<string> $prefixes
