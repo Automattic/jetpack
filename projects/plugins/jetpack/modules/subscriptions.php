@@ -18,14 +18,21 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
+
+// Load required classes and constants.
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/constants.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -1006,20 +1013,15 @@ class Jetpack_Subscriptions {
 	 * @return void
 	 */
 	public function store_initial_debug_info( $post_ID, $flags, $post ) {
-		// Only store once - check if we've already stored debug info for this post.
-		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', true );
-		if ( ! empty( $existing_subscribers ) ) {
-			return;
-		}
-
 		// Only store for posts.
 		if ( 'post' !== $post->post_type ) {
 			return;
 		}
 
-		// Load the newsletter category helper class if not already loaded.
-		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+		// Only store once - check if we've already stored debug info for this post.
+		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', true );
+		if ( ! empty( $existing_subscribers ) ) {
+			return;
 		}
 
 		// Fetch subscriber data from WordPress.com API.
@@ -1031,6 +1033,18 @@ class Jetpack_Subscriptions {
 
 		// Also store the final determination from the flags (includes more checks than post_meta).
 		$will_send_to_subscribers = isset( $flags['send_subscription'] ) && $flags['send_subscription'];
+
+		// Get newsletter access level for this post.
+		// Use constant for meta key if available, fallback to string.
+		$access_level_meta_key = defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' )
+			? META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS
+			: '_jetpack_newsletter_access';
+
+		$newsletter_access_level = get_post_meta( $post_ID, $access_level_meta_key, true );
+		if ( empty( $newsletter_access_level ) ) {
+			// Use constant for default value.
+			$newsletter_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ?? 'everybody';
+		}
 
 		// Get newsletter categories information.
 		$newsletter_categories_enabled  = (bool) get_option( 'wpcom_newsletter_categories_enabled', false );
@@ -1060,6 +1074,7 @@ class Jetpack_Subscriptions {
 			'all_subscribers'               => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
 			'email_to_subs_disabled'        => $email_to_subs_disabled,
 			'will_send_to_subscribers'      => $will_send_to_subscribers,
+			'newsletter_access_level'       => $newsletter_access_level,
 			'newsletter_categories_enabled' => $newsletter_categories_enabled,
 			'newsletter_category_ids'       => $post_newsletter_categories,
 			'non_newsletter_category_ids'   => $post_non_newsletter_categories,
