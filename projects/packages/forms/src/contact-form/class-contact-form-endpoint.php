@@ -724,19 +724,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			if ( $previous_status === 'spam' && $updated_item->data['status'] === 'publish' ) {
 				// updated item is going from spam to inbox
 				$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
-
-				/**
-				 * Fires after a comment has been marked by Akismet.
-				 *
-				 * Typically this means the comment is spam.
-				 *
-				 * @module contact-form
-				 *
-				 * @since 2.2.0
-				 *
-				 * @param string $comment_status Usually is 'spam', otherwise 'ham'.
-				 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
-				 */
+				/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 				do_action( 'contact_form_akismet', 'ham', $akismet_values );
 				$this->resend_email( $post_id );
 			}
@@ -1110,6 +1098,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private function bulk_action_mark_as_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
+			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action(
 				'contact_form_akismet',
 				'spam',
@@ -1127,6 +1116,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 */
 	private function bulk_action_mark_as_not_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
+			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
 			do_action(
 				'contact_form_akismet',
 				'ham',
