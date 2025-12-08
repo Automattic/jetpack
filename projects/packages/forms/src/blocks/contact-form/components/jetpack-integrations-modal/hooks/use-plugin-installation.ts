@@ -2,62 +2,138 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../../../hooks/use-config-value.ts';
 import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management.js';
+
+type NoticeOptions = Record< string, unknown >;
+
+type NoticeConfig = {
+	message?: string;
+	options?: NoticeOptions;
+};
+
+type SuccessNotices = {
+	install?: NoticeConfig;
+	activate?: NoticeConfig;
+};
+
+type UsePluginInstallationArgs = {
+	slug: string;
+	pluginPath: string;
+	isInstalled: boolean;
+	trackEventName?: string;
+	trackEventProps?: Record< string, unknown >;
+	onSuccess?: () => void | Promise< void >;
+	successNotices?: SuccessNotices;
+	errorNotice?: NoticeConfig;
+};
 
 type PluginInstallation = {
 	isInstalling: boolean;
 	installPlugin: () => Promise< boolean >;
+	canInstallPlugins: boolean;
+	canActivatePlugins: boolean;
 };
 
 /**
  * Custom hook to handle plugin installation and activation flows.
  *
- * @param {string}  slug            - The plugin slug (e.g., 'akismet')
- * @param {string}  pluginPath      - The plugin path (e.g., 'akismet/akismet')
- * @param {boolean} isInstalled     - Whether the plugin is installed
- * @param {string}  tracksEventName - The name of the tracks event to record
- * @return {object} Plugin installation states and handlers
+ * @param {UsePluginInstallationArgs} args - Hook arguments.
+ * @return {PluginInstallation} Plugin installation states and handlers.
  */
-export const usePluginInstallation = (
-	slug: string,
-	pluginPath: string,
-	isInstalled: boolean,
-	tracksEventName: string
-): PluginInstallation => {
+export const usePluginInstallation = ( {
+	slug,
+	pluginPath,
+	isInstalled,
+	trackEventName,
+	trackEventProps = {},
+	onSuccess,
+	successNotices,
+	errorNotice,
+}: UsePluginInstallationArgs ): PluginInstallation => {
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const { tracks } = useAnalytics();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const canInstallPlugins = useConfigValue( 'canInstallPlugins' );
+	const canActivatePlugins = useConfigValue( 'canActivatePlugins' );
 
 	const installPlugin = useCallback( async () => {
 		setIsInstalling( true );
 
-		if ( tracksEventName ) {
-			tracks.recordEvent( tracksEventName, {
-				screen: 'block-editor',
+		if ( trackEventName ) {
+			tracks.recordEvent( trackEventName, {
 				intent: isInstalled ? 'activate-plugin' : 'install-plugin',
+				...( trackEventProps ?? {} ),
 			} );
 		}
 
 		try {
 			if ( isInstalled ) {
+				if ( ! canActivatePlugins ) {
+					return false;
+				}
+
 				await activatePlugin( pluginPath );
 			} else {
+				if ( ! canInstallPlugins ) {
+					return false;
+				}
+
 				await installAndActivatePlugin( slug );
 			}
+
+			const successNoticeConfig = isInstalled ? successNotices?.activate : successNotices?.install;
+
+			if ( successNoticeConfig?.message ) {
+				createSuccessNotice( successNoticeConfig.message, successNoticeConfig.options );
+			}
+
+			if ( onSuccess ) {
+				await onSuccess();
+			}
+
 			return true;
-		} catch {
-			// Let the component handle the error state
+		} catch ( error ) {
+			if ( errorNotice ) {
+				const noticeMessage =
+					errorNotice.message || ( error instanceof Error ? error.message : undefined );
+
+				if ( noticeMessage ) {
+					createErrorNotice( noticeMessage, errorNotice.options );
+				}
+			}
+
 			return false;
 		} finally {
 			setIsInstalling( false );
 		}
-	}, [ slug, pluginPath, isInstalled, tracks, tracksEventName ] );
+	}, [
+		trackEventName,
+		tracks,
+		isInstalled,
+		trackEventProps,
+		successNotices?.activate,
+		successNotices?.install,
+		onSuccess,
+		canActivatePlugins,
+		pluginPath,
+		canInstallPlugins,
+		slug,
+		createSuccessNotice,
+		errorNotice,
+		createErrorNotice,
+	] );
 
 	return {
 		isInstalling,
 		installPlugin,
+		canInstallPlugins,
+		canActivatePlugins,
 	};
 };

@@ -1,18 +1,151 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { usePluginInstallation } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-plugin-installation.ts';
 import useConfigValue from '../../../hooks/use-config-value.ts';
-import useInstallAkismet from '../../hooks/use-install-akismet.ts';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import CreateFormButton from '../create-form-button/index.tsx';
+/**
+ * Types
+ */
+import type {
+	IntegrationsDispatch,
+	SelectIntegrations,
+} from '../../../store/integrations/index.ts';
+import type { Integration } from '../../../types/index.ts';
+
+type UseInstallAkismetReturn = {
+	shouldShowAkismetCta: boolean;
+	isIntegrationsLoading: boolean;
+	wrapperBody: string;
+	isInstallingAkismet: boolean;
+	canPerformAkismetAction: boolean;
+	wrapperButtonText: string;
+	handleAkismetSetup: () => Promise< void >;
+};
+
+type EmptyResponsesProps = {
+	status: string;
+	isSearch: boolean;
+	readStatusFilter?: 'unread' | 'read';
+};
+
+/**
+ * Hook to handle Akismet installation and activation.
+ *
+ * @return {UseInstallAkismetReturn} An object containing the necessary data and functions to handle Akismet installation and activation.
+ */
+const useInstallAkismet = (): UseInstallAkismetReturn => {
+	const { akismetIntegration, isIntegrationsLoading } = useSelect(
+		( select: SelectIntegrations ) => {
+			const store = select( INTEGRATIONS_STORE );
+			const integrations = store.getIntegrations() || [];
+
+			return {
+				akismetIntegration: integrations.find(
+					( integration: Integration ) => integration.id === 'akismet'
+				),
+				isIntegrationsLoading: store.isIntegrationsLoading(),
+			};
+		},
+		[]
+	) as { akismetIntegration?: Integration; isIntegrationsLoading: boolean };
+
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
+
+	const akismetIntegrationReady = useMemo(
+		() => !! akismetIntegration && ! akismetIntegration.__isPartial,
+		[ akismetIntegration ]
+	);
+
+	const isInstalled = !! akismetIntegration?.isInstalled;
+
+	const isAkismetActive = akismetIntegrationReady && isInstalled && !! akismetIntegration?.isActive;
+
+	const shouldShowAkismetCta = akismetIntegrationReady && ! isAkismetActive && ! isSimpleSite();
+
+	const akismetPluginFile = useMemo(
+		() => akismetIntegration?.pluginFile ?? 'akismet/akismet',
+		[ akismetIntegration?.pluginFile ]
+	);
+
+	const installAndActivateBody = __(
+		'Install and activate Jetpack Akismet Anti-spam to automatically filter form spam.',
+		'jetpack-forms'
+	);
+
+	const activateBody = __(
+		'Activate Jetpack Akismet Anti-spam to automatically filter form spam.',
+		'jetpack-forms'
+	);
+
+	const wrapperBody = isInstalled ? activateBody : installAndActivateBody;
+
+	const activateButtonText = __( 'Activate Akismet Anti-spam', 'jetpack-forms' );
+	const installAndActivateButtonText = __( 'Install Akismet Anti-spam', 'jetpack-forms' );
+	const wrapperButtonText = isInstalled ? activateButtonText : installAndActivateButtonText;
+
+	const {
+		isInstalling: isInstallingAkismet,
+		installPlugin,
+		canInstallPlugins,
+		canActivatePlugins,
+	} = usePluginInstallation( {
+		slug: 'akismet',
+		pluginPath: akismetPluginFile,
+		isInstalled,
+		onSuccess: refreshIntegrations,
+		successNotices: {
+			install: {
+				message: __( 'Akismet installed and activated.', 'jetpack-forms' ),
+				options: { type: 'snackbar', id: 'akismet-install-success' },
+			},
+			activate: {
+				message: __( 'Akismet activated.', 'jetpack-forms' ),
+				options: { type: 'snackbar', id: 'akismet-install-success' },
+			},
+		},
+		errorNotice: {
+			message: __( 'Could not set up Akismet. Please try again.', 'jetpack-forms' ),
+			options: { type: 'snackbar', id: 'akismet-install-error' },
+		},
+	} );
+
+	const canPerformAkismetAction =
+		isInstalled && akismetIntegrationReady
+			? canActivatePlugins !== false
+			: canInstallPlugins !== false;
+
+	const handleAkismetSetup = useCallback( async () => {
+		if ( isInstallingAkismet || ! akismetIntegrationReady || ! canPerformAkismetAction ) {
+			return;
+		}
+
+		await installPlugin();
+	}, [ isInstallingAkismet, akismetIntegrationReady, canPerformAkismetAction, installPlugin ] );
+
+	return {
+		shouldShowAkismetCta,
+		isIntegrationsLoading,
+		wrapperBody,
+		isInstallingAkismet,
+		canPerformAkismetAction,
+		wrapperButtonText,
+		handleAkismetSetup,
+	};
+};
 
 const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
 	<VStack alignment="center" spacing="2">
@@ -26,21 +159,15 @@ const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
 	</VStack>
 );
 
-type EmptyResponsesProps = {
-	status: string;
-	isSearch: boolean;
-	readStatusFilter?: 'unread' | 'read';
-};
-
 const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
-
 	const {
 		shouldShowAkismetCta,
-		isInstallingAkismet,
 		isIntegrationsLoading,
+		wrapperBody,
+		isInstallingAkismet,
 		canPerformAkismetAction,
-		isInstalled,
+		wrapperButtonText,
 		handleAkismetSetup,
 	} = useInstallAkismet();
 
@@ -79,24 +206,11 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 	);
 
 	if ( status === 'spam' ) {
-		const installAndActivateMessage = __(
-			'Install and activate Jetpack Akismet Anti-spam to automatically filter form spam.',
-			'jetpack-forms'
-		);
-
-		const activateMessage = __(
-			'Activate Jetpack Akismet Anti-spam to automatically filter form spam.',
-			'jetpack-forms'
-		);
-
 		if ( shouldShowAkismetCta && ! isIntegrationsLoading ) {
-			const activateText = __( 'Activate Akismet Anti-spam', 'jetpack-forms' );
-			const installAndActivateText = __( 'Install Akismet Anti-spam', 'jetpack-forms' );
-
 			return (
 				<EmptyWrapper
 					heading={ noSpamHeading }
-					body={ isInstalled ? activateMessage : installAndActivateMessage }
+					body={ wrapperBody }
 					actions={
 						<Button
 							variant="primary"
@@ -105,7 +219,7 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 							onClick={ handleAkismetSetup }
 							__next40pxDefaultSize
 						>
-							{ isInstalled ? activateText : installAndActivateText }
+							{ wrapperButtonText }
 						</Button>
 					}
 				/>
