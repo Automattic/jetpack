@@ -23,7 +23,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > > & {
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
-	title: 'JS Packages/Charts/Types/Line Chart',
+	title: 'JS Packages/Charts/Primitives/Line Chart',
 	argTypes: {
 		...lineChartMetaArgs.argTypes,
 		seriesCount: {

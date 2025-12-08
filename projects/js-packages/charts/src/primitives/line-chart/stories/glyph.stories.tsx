@@ -50,7 +50,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
-	title: 'JS Packages/Charts/Types/Line Chart/Glyphs',
+	title: 'JS Packages/Charts/Primitives/Line Chart/Glyphs',
 	decorators: [ glyphChartDecorator ],
 	argTypes: {
 		...lineChartMetaArgs.argTypes,

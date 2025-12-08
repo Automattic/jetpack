@@ -17,7 +17,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarListChart > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Bar List Chart',
+	title: 'JS Packages/Charts/Primitives/Bar List Chart',
 	component: BarListChart,
 	parameters: {
 		layout: 'centered',

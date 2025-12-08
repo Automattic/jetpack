@@ -9,7 +9,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
-	title: 'JS Packages/Charts/Types/Line Chart/Annotations',
+	title: 'JS Packages/Charts/Primitives/Line Chart/Annotations',
 	args: {
 		...lineChartStoryArgs,
 	},

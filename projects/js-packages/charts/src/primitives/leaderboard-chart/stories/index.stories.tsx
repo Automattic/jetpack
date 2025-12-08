@@ -20,7 +20,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LeaderboardChart > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Leaderboard Chart',
+	title: 'JS Packages/Charts/Primitives/Leaderboard Chart',
 	component: LeaderboardChart,
 	parameters: {
 		layout: 'centered',

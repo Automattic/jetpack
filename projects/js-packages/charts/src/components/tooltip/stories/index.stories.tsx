@@ -9,7 +9,7 @@ const CustomTooltipContent = ( { data } ) => (
 );
 
 export default {
-	title: 'JS Packages/Charts/Composites/Tooltip',
+	title: 'JS Packages/Charts/Components/Tooltip',
 	component: BaseTooltip,
 	parameters: {
 		layout: 'centered',

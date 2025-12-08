@@ -38,7 +38,7 @@ const data = [
 ];
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Donut Chart',
+	title: 'JS Packages/Charts/Primitives/Donut Chart',
 	component: PieChart,
 	parameters: {
 		layout: 'centered',

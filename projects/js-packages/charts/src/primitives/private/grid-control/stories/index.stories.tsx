@@ -4,7 +4,7 @@ import GridControl from '../grid-control';
 
 // Define metadata for the story
 export default {
-	title: 'JS Packages/Charts/Composites/GridControl',
+	title: 'JS Packages/Charts/Components/GridControl',
 	component: GridControl,
 	argTypes: {
 		gridVisibility: {

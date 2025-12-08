@@ -48,7 +48,7 @@ export const glyphTheme = merge( defaultTheme, {
 } );
 
 export const lineChartMetaArgs: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Line Chart',
+	title: 'JS Packages/Charts/Primitives/Line Chart',
 	component: LineChart,
 	parameters: {
 		layout: 'centered',

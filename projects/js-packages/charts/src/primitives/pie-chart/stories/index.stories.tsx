@@ -17,7 +17,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > & {
 };
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Pie Chart',
+	title: 'JS Packages/Charts/Primitives/Pie Chart',
 	component: PieChart,
 	parameters: {
 		layout: 'centered',

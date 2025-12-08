@@ -14,7 +14,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof ConversionFunnelChart > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Conversion Funnel Chart',
+	title: 'JS Packages/Charts/Primitives/Conversion Funnel Chart',
 	component: ConversionFunnelChart,
 	parameters: {
 		layout: 'centered',

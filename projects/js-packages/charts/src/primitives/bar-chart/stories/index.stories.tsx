@@ -22,7 +22,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof BarChart > > & {
 };
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Bar Chart',
+	title: 'JS Packages/Charts/Primitives/Bar Chart',
 	component: BarChart,
 	parameters: {
 		layout: 'centered',

@@ -16,7 +16,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieSemiCircleChart > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Pie Semi Circle Chart',
+	title: 'JS Packages/Charts/Primitives/Pie Semi Circle Chart',
 	component: PieSemiCircleChart,
 	parameters: {
 		layout: 'centered',
