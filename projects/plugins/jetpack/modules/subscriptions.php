@@ -132,7 +132,7 @@ class Jetpack_Subscriptions {
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
-		add_action( 'jetpack_published_post', array( $this, 'store_subscribers_when_sent' ), 10, 3 );
+		add_action( 'jetpack_published_post', array( $this, 'store_initial_debug_info' ), 10, 3 );
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 
@@ -992,7 +992,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Store the list of subscribers when a post is first emailed.
+	 * Store the initial debug info when a post is first published.
 	 *
 	 * This method is called when a post is published and emails are sent to subscribers.
 	 * It stores the subscriber count and metadata in post meta for debugging purposes.
@@ -1005,14 +1005,14 @@ class Jetpack_Subscriptions {
 	 *
 	 * @return void
 	 */
-	public function store_subscribers_when_sent( $post_ID, $flags, $post ) {
+	public function store_initial_debug_info( $post_ID, $flags, $post ) {
 		// Only store if emails are being sent.
 		if ( ! isset( $flags['send_subscription'] ) || ! $flags['send_subscription'] ) {
 			return;
 		}
 
 		// Only store once - check if we've already stored subscribers for this post.
-		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', true );
+		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', true );
 		if ( ! empty( $existing_subscribers ) ) {
 			return;
 		}
@@ -1064,7 +1064,7 @@ class Jetpack_Subscriptions {
 			'non_newsletter_category_ids'   => $post_non_newsletter_categories,
 		);
 
-		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
+		update_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', $data_to_store );
 	}
 
 	/**
