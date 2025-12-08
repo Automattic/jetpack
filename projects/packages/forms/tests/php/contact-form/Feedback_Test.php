@@ -1867,6 +1867,11 @@ class Feedback_Test extends BaseTestCase {
 				),
 				'message'  => 'Compiled fields should return only labels as indexed array.',
 			),
+			'id-value_format'    => array(
+				'format'   => 'id-value',
+				'expected' => array(), // Rebuilt dynamically in the test with actual form_id
+				'message'  => 'Compiled fields should return field IDs mapped to values.',
+			),
 		);
 	}
 
@@ -1905,6 +1910,17 @@ class Feedback_Test extends BaseTestCase {
 
 		// Test the specified format
 		$compiled_fields = $response->get_compiled_fields( 'default', $format );
+
+		// For id-value format, rebuild expected with actual form_id, there
+		// was no way of passing the form_id to the data provider.
+		if ( 'id-value' === $format ) {
+			$expected = array(
+				'g' . $form_id . '-name'    => $test_name,
+				'g' . $form_id . '-email'   => $test_email,
+				'g' . $form_id . '-website' => $test_website,
+				'g' . $form_id . '-message' => $test_message,
+			);
+		}
 
 		$this->assertEquals( $expected, $compiled_fields, $message );
 	}
