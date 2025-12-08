@@ -28,7 +28,6 @@ import type { Integration } from '../../../types/index.ts';
 
 type UseInstallAkismetReturn = {
 	shouldShowAkismetCta: boolean;
-	isIntegrationsLoading: boolean;
 	wrapperBody: string;
 	isInstallingAkismet: boolean;
 	canPerformAkismetAction: boolean;
@@ -48,20 +47,16 @@ type EmptyResponsesProps = {
  * @return {UseInstallAkismetReturn} An object containing the necessary data and functions to handle Akismet installation and activation.
  */
 const useInstallAkismet = (): UseInstallAkismetReturn => {
-	const { akismetIntegration, isIntegrationsLoading } = useSelect(
-		( select: SelectIntegrations ) => {
-			const store = select( INTEGRATIONS_STORE );
-			const integrations = store.getIntegrations() || [];
+	const { akismetIntegration } = useSelect( ( select: SelectIntegrations ) => {
+		const store = select( INTEGRATIONS_STORE );
+		const integrations = store.getIntegrations() || [];
 
-			return {
-				akismetIntegration: integrations.find(
-					( integration: Integration ) => integration.id === 'akismet'
-				),
-				isIntegrationsLoading: store.isIntegrationsLoading(),
-			};
-		},
-		[]
-	) as { akismetIntegration?: Integration; isIntegrationsLoading: boolean };
+		return {
+			akismetIntegration: integrations.find(
+				( integration: Integration ) => integration.id === 'akismet'
+			),
+		};
+	}, [] ) as { akismetIntegration?: Integration };
 
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE ) as IntegrationsDispatch;
 
@@ -142,7 +137,6 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 
 	return {
 		shouldShowAkismetCta,
-		isIntegrationsLoading,
 		wrapperBody,
 		isInstallingAkismet,
 		canPerformAkismetAction,
@@ -167,7 +161,6 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const {
 		shouldShowAkismetCta,
-		isIntegrationsLoading,
 		wrapperBody,
 		isInstallingAkismet,
 		canPerformAkismetAction,
@@ -210,7 +203,7 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 	);
 
 	if ( status === 'spam' ) {
-		if ( shouldShowAkismetCta && ! isIntegrationsLoading ) {
+		if ( shouldShowAkismetCta ) {
 			return (
 				<EmptyWrapper
 					heading={ noSpamHeading }
