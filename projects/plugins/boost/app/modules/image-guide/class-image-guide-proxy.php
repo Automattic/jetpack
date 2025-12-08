@@ -22,30 +22,31 @@ class Image_Guide_Proxy {
 	public static function handle_proxy() {
 		// Verify valid nonce.
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
-			wp_send_json_error( 'bad nonce', 400 );
+			wp_send_json_error( 'bad nonce', 400, JSON_UNESCAPED_SLASHES );
 		}
 
 		// Make sure currently logged in as admin.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( 'not admin', 400 );
+			wp_send_json_error( 'not admin', 400, JSON_UNESCAPED_SLASHES );
 		}
 
 		// Validate URL and fetch.
 		$proxy_url = filter_var( wp_unslash( isset( $_POST['proxy_url'] ) ? $_POST['proxy_url'] : null ), FILTER_VALIDATE_URL );
 		if ( ! wp_http_validate_url( $proxy_url ) ) {
-			wp_send_json_error( 'Invalid URL', 400 );
+			wp_send_json_error( 'Invalid URL', 400, JSON_UNESCAPED_SLASHES );
 		}
 
 		$photon_url = Image_CDN_Core::cdn_url( $proxy_url );
 		if ( ! Image_CDN_Core::is_cdn_url( $proxy_url ) ) {
-			wp_send_json_error( 'Failed to proxy the image.', 400 );
+			wp_send_json_error( 'Failed to proxy the image.', 400, JSON_UNESCAPED_SLASHES );
 		}
 
 		$response = wp_safe_remote_get( $photon_url );
 		if ( is_wp_error( $response ) ) {
-			wp_send_json_error( 'error', 400 );
+			wp_send_json_error( 'error', 400, JSON_UNESCAPED_SLASHES );
 		}
 
-		wp_send_json_success( iterator_to_array( wp_remote_retrieve_headers( $response ) ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( iterator_to_array( wp_remote_retrieve_headers( $response ) ), null, JSON_UNESCAPED_SLASHES );
 	}
 }

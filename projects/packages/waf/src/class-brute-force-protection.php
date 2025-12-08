@@ -323,12 +323,14 @@ class Brute_Force_Protection {
 		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
 
 		if ( ! current_user_can( 'manage_network' ) ) {
-			wp_send_json_error( new WP_Error( 'insufficient_permissions' ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( new WP_Error( 'insufficient_permissions' ), null, JSON_UNESCAPED_SLASHES );
 		}
 
 		update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
 
-		wp_send_json_success();
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
