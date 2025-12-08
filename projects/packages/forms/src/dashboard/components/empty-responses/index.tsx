@@ -107,6 +107,10 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 		pluginPath: akismetPluginFile,
 		isInstalled,
 		onSuccess: refreshIntegrations,
+		trackEventName: 'jetpack_forms_upsell_akismet_click',
+		trackEventProps: {
+			screen: 'dashboard',
+		},
 		successNotices: {
 			install: {
 				message: __( 'Akismet installed and activated.', 'jetpack-forms' ),
