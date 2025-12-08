@@ -10,6 +10,27 @@ import useSigPreview from '../../../hooks/use-sig-preview';
 // Mock functions
 const mockUpdateJetpackSocialOptions = jest.fn();
 const mockRecordEvent = jest.fn();
+const mockOpenUnifiedModal = jest.fn();
+
+// Mock the social store to prevent importing @wordpress/editor
+jest.mock( '../../../social-store', () => ( {
+	store: 'jetpack-social',
+} ) );
+
+// Mock @wordpress/data using Proxy pattern
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useDispatch: () => ( {
+			openUnifiedModal: mockOpenUnifiedModal,
+		} ),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 
 jest.mock( '../../../hooks/use-featured-image', () => {
 	return jest.fn( () => 123 );
