@@ -5,6 +5,7 @@ import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
+import MediaSectionV2 from '../media-section-v2';
 import MessageBoxControl from '../message-box-control';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
@@ -40,13 +41,21 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 					analyticsData={ analyticsData }
 				/>
 			) }
-			{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
 				<div className={ styles[ 'share-post-form__media-section' ] }>
-					<MediaSection analyticsData={ analyticsData } />
+					<MediaSectionV2 analyticsData={ analyticsData } />
 				</div>
+			) : (
+				<>
+					{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+						<div className={ styles[ 'share-post-form__media-section' ] }>
+							<MediaSection analyticsData={ analyticsData } />
+						</div>
+					) }
+					{ /* Social Image Generator panel - only shown when not using unified UI */ }
+					{ postCanUseSig && <SocialImageGeneratorPanel /> }
+				</>
 			) }
-			{ /* Social Image Generator panel */ }
-			{ postCanUseSig && <SocialImageGeneratorPanel /> }
 		</>
 	);
 };

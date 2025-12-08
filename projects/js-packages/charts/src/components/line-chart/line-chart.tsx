@@ -147,14 +147,17 @@ const getFormatter = ( sortedData: ReturnType< typeof useChartDataTransform > ) 
 const guessOptimalNumTicks = (
 	data: ReturnType< typeof useChartDataTransform >,
 	chartWidth: number,
-	tickFormatter: ( timestamp: number ) => string
+	tickFormatter: ( timestamp: number, index?: number, values?: unknown ) => string
 ) => {
 	const minX = Math.min( ...data.map( datom => datom.data.at( 0 )?.date ) );
 	const maxX = Math.max( ...data.map( datom => datom.data.at( -1 )?.date ) );
 	const xScale = scaleTime( { domain: [ minX, maxX ] } );
 
 	// Calculate upper bound of tick numbers based on data points and chart width
-	const upperBound = Math.min( data[ 0 ]?.data.length, Math.ceil( chartWidth / X_TICK_WIDTH ) );
+	const upperBound = Math.min(
+		data[ 0 ]?.data.length || 3, // A sane fallback to avoid NaN when no data is present
+		Math.ceil( chartWidth / X_TICK_WIDTH )
+	);
 	let secondBestGuess = 1; // a tick number that's no greater than upperBound
 
 	for ( let numTicks = upperBound; numTicks > 1; --numTicks ) {
@@ -329,7 +332,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		} );
 
 		const chartOptions = useMemo( () => {
-			const formatter = getFormatter( dataSorted );
+			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
 
 			return {
 				axis: {

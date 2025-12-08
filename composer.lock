@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b04ff76322c12d38af630ee4b7633fe0",
+    "content-hash": "3b01a7896c43a503756c97f1b1809faf",
     "packages": [],
     "packages-dev": [
         {
@@ -198,12 +198,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "ec72456a83f9569f5d2867e4155accda4be95bb5"
+                "reference": "2ba3e32d86c44977977e422380bf0501c30c5427"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
                 "php": ">=7.2",
-                "squizlabs/php_codesniffer": "^3.6.1"
+                "squizlabs/php_codesniffer": "^3.6.1 || ^4.0.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",

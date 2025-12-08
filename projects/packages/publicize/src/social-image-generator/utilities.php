@@ -79,7 +79,7 @@ function fetch_token( $text, $image_url, $template, $font = '' ) {
 
 	$request = new WP_REST_Request( 'POST' );
 
-	$request->set_body( wp_json_encode( $args ) );
+	$request->set_body( wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) );
 
 	return $proxy->proxy_request_to_wpcom_as_blog( $request, 'generate-token' );
 }

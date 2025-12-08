@@ -53,7 +53,7 @@ class Threats {
 			"$api_base/$threat_id",
 			'2',
 			array( 'method' => 'POST' ),
-			wp_json_encode( $updates ),
+			wp_json_encode( $updates, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 
@@ -112,7 +112,8 @@ class Threats {
 			wp_json_encode(
 				array(
 					'threat_ids' => $threat_ids,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'wpcom'
 		);

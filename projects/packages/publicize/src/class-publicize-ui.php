@@ -189,7 +189,8 @@ class Publicize_UI {
 					'refreshConnections'          => '/wpcom/v2/publicize/connections?test_connections=1',
 					'isReshareSupported'          => Current_Plan::supports( 'republicize' ),
 					'siteType'                    => $site_type,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),
 			'before'
 		);

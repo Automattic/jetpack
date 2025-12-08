@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Check `error_get_last()` if the `WP_Filesystem` doesn't report any error on mu-plugin install failure.

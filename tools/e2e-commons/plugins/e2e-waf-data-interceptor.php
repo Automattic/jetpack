@@ -90,7 +90,8 @@ RULES;
 			'body'     => wp_json_encode(
 				array(
 					'data' => $rules,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 	}

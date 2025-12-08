@@ -14,9 +14,9 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  checks: read
-  pull-requests: write
-  statuses: write
+  # actions/checkout
+  contents: read
+  # Everything else uses an app token, so no need for permissions.
 
 jobs:
   code-coverage-label:
@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Less than 30 seconds.
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Get token
         id: get_token

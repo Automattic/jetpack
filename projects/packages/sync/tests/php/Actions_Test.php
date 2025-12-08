@@ -130,6 +130,7 @@ class Actions_Test extends BaseTestCase {
 		update_option( Actions::RETRY_AFTER_PREFIX . 'full_sync', 'dummy' );
 		// Dedicated sync lock.
 		\Jetpack_Options::update_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'dummy' );
+		\Jetpack_Options::update_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME . '_expires', 'dummy' );
 		// Queue locks.
 		$sync_queue = new Queue( 'sync' );
 		$this->assertTrue( $sync_queue->lock() );
@@ -145,6 +146,8 @@ class Actions_Test extends BaseTestCase {
 		$this->assertFalse( get_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' ) );
 		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'sync' ) );
 		$this->assertFalse( get_option( Actions::RETRY_AFTER_PREFIX . 'full_sync' ) );
+		$this->assertFalse( get_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME ) );
+		$this->assertFalse( get_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME . '_expires' ) );
 		$this->assertFalse( $sync_queue->is_locked() );
 		$this->assertFalse( $full_sync_queue->is_locked() );
 		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
@@ -191,7 +194,8 @@ class Actions_Test extends BaseTestCase {
 						'body'        => wp_json_encode(
 							array(
 								'processed_items' => array( 'dummy' ),
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 					);
 				},
@@ -236,7 +240,8 @@ class Actions_Test extends BaseTestCase {
 								'code'    => 'rest_invalid_param',
 								'message' => 'Invalid parameter(s): sync',
 								'data'    => array( 'status' => 400 ),
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 					);
 				},

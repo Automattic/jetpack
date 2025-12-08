@@ -1,5 +1,10 @@
 .wrapper {
 	display: grid;
+	width: 28px;
+	height: 28px;
+	justify-content: start;
+	align-items: center;
+	overflow: hidden;
 
 	&.disabled {
 		opacity: 0.4;
@@ -15,12 +20,11 @@
 		}
 
 		.social-icon {
-			width: 15px;
-			height: 15px;
+			width: 14px;
+			height: 14px;
 			grid-area: 1 / 1 / 2 / 2;
 			margin-top: 14px;
 			margin-inline-start: 14px;
-			margin-inline-end: 5px;
 			border-radius: 2px;
 			background-color: #fff;
 		}

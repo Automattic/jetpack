@@ -1,7 +1,7 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { Flex, FlexBlock, PanelRow, __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import illustration from '../../assets/illustration.png';
+import illustration from '../../assets/networks-illustration.png';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { SettingsButton } from './settings-button';
@@ -23,7 +23,7 @@ export function EmptyState() {
 
 	return (
 		<PanelRow className={ styles[ 'empty-state' ] }>
-			<Flex justify="center" direction="column" align="center" gap={ 6 }>
+			<Flex justify="center" direction="column" align="center" gap={ 4 }>
 				{
 					// Do not show illustration if there are connections
 					! hasConnections && <img className={ styles.illustration } src={ illustration } alt="" />

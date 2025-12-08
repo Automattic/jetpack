@@ -85,4 +85,8 @@ export default {
 		type: 'array',
 		default: [],
 	},
+	webhooks: {
+		type: 'array',
+		default: [],
+	},
 };

@@ -116,6 +116,14 @@
 					flex-basis: 100%;
 					max-width: none;
 				}
+
+				&.wp-block-jetpack-button {
+					flex-basis: 100%;
+
+					.wp-block-button__link {
+						width: 100%;
+					}
+				}
 			}
 
 			&[data-type="jetpack/field-checkbox"],
@@ -472,6 +480,8 @@
 			justify-content: center;
 			width: 1em;
 			transform: translateY(-0.35em);
+			background-color: var(--jetpack--contact-form--input-background, field);
+			pointer-events: none;
 		}
 
 		&[type="radio"]::before {
@@ -1080,6 +1090,8 @@
 
 	.notched-label__leading {
 		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-radius: var(--jetpack--contact-form--border-radius);
 		width: var(--jetpack--contact-form--notch-width);
 		border-right: none !important;
 		border-top-right-radius: unset !important;

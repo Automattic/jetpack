@@ -270,7 +270,7 @@ class Partner_Coupon_Test extends TestCase {
 		);
 
 		if ( isset( $mock_response['body'] ) ) {
-			$mock_response['body'] = wp_json_encode( $mock_response['body'] );
+			$mock_response['body'] = wp_json_encode( $mock_response['body'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 		}
 
 		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();

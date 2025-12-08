@@ -417,6 +417,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FIELD_FILE                        = 'field-file';
+	public const FORM_WEBHOOKS                     = 'form-webhooks';
 	public const FREE_BLOG                         = 'free-blog';
 	public const FULL_ACTIVITY_LOG                 = 'full-activity-log';
 	public const GITHUB_DEPLOYMENTS                = 'github-deployments';
@@ -480,6 +481,7 @@ class WPCOM_Features {
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_UNIFIED_UI_V1              = 'social-unified-ui-v1';
 	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
@@ -781,6 +783,10 @@ class WPCOM_Features {
 		self::FIELD_FILE                        => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
+		),
+		self::FORM_WEBHOOKS                     => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::FREE_BLOG                         => array(
 			self::WPCOM_ALL_SITES,
@@ -1232,6 +1238,14 @@ class WPCOM_Features {
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
 			self::JETPACK_ALL_SITES,
 			self::WPCOM_ALL_SITES,
+		),
+		self::SOCIAL_UNIFIED_UI_V1              => array(
+			array(
+				// The feature is not available yet.
+				'before' => '2004-01-00',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
 		),
 		self::SOCIAL_EDITOR_PREVIEW             => array(
 			self::WPCOM_ALL_SITES,

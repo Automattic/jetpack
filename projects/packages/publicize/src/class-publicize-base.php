@@ -1202,6 +1202,10 @@ abstract class Publicize_Base {
 								),
 							),
 						),
+						'media_source'             => array(
+							'type' => 'string',
+							'enum' => array( 'featured-image', 'sig', 'media-library', 'upload-video', 'none' ),
+						),
 					),
 				),
 			),

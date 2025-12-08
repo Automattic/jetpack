@@ -226,7 +226,7 @@ export function ConfirmationForm( {
 						{
 							//
 							/**
-							 * It is such a shame that we can't use any of the form components from @wordpress/components here.
+							 * It is such a shame that we can't use any of the form components from `@wordpress/components` here.
 							 * Because of the way the components are designed, we can't use them in an uncontrolled way.
 							 * Every component is forced be used only in controlled mode.
 							 *

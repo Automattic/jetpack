@@ -429,7 +429,9 @@ describe( 'LineChart', () => {
 			const ticks = screen.getAllByText( /^202\d$/ );
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
+	} );
 
+	describe( 'Guess optimal number of ticks', () => {
 		test( 'renders optimal number of ticks.', () => {
 			renderWithTheme( {
 				width: 400,
@@ -454,6 +456,25 @@ describe( 'LineChart', () => {
 
 			const ticks = screen.getAllByText( /(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct) \d+/ );
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
+		} );
+
+		test( 'renders only one tick when all ticks are the same', () => {
+			renderWithTheme( {
+				width: 800,
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01T01:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-01T01:00:00' ), value: 20 },
+							{ date: new Date( '2024-01-01T01:00:00' ), value: 30 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+ [AP]M/ );
+			expect( ticks ).toHaveLength( 1 );
 		} );
 	} );
 

@@ -120,7 +120,8 @@ class Logger {
 				'uri'  => $request_uri,
 				'msg'  => $message,
 				'uid'  => uniqid(), // Uniquely identify this log line.
-			)
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

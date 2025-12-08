@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "708db098186de11f46e06a9f1d11e58a",
+	"content-hash": "513d4f057e5ac1783b24badcd64f982b",
 	"packages": [
 		{
 			"name": "automattic/block-delimiter",
@@ -1490,7 +1490,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/forms",
-				"reference": "6c817ab08a94e1765cddf0eed57e93f2a2fd2a7a"
+				"reference": "c74516952383eed65e04e1a654c1ae370dd10508"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1511,6 +1511,7 @@
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-test-environment": "@dev",
 				"automattic/phpunit-select-config": "@dev",
+				"automattic/wp-feature-api": "@dev",
 				"yoast/phpunit-polyfills": "^4.0.0"
 			},
 			"suggest": {
@@ -1524,7 +1525,7 @@
 					"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "6.19.x-dev"
+					"dev-trunk": "6.21.x-dev"
 				},
 				"textdomain": "jetpack-forms",
 				"version-constants": {
@@ -2182,6 +2183,81 @@
 			}
 		},
 		{
+			"name": "automattic/jetpack-newsletter",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/newsletter",
+				"reference": "70c4fd8f9ebed459812e69b15a21152a4a8e9a0d"
+			},
+			"require": {
+				"automattic/jetpack-admin-ui": "@dev",
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.2"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/phpunit-select-config": "@dev",
+				"yoast/phpunit-polyfills": "^4.0.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autorelease": true,
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-newsletter",
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"textdomain": "jetpack-newsletter",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-settings.php"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-newsletter/compare/v${old}...v${new}"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				],
+				"phpunit": [
+					"phpunit-select-config phpunit.#.xml.dist --colors=always"
+				],
+				"test-coverage": [
+					"pnpm concurrently --names php,js 'php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"' 'pnpm:test-coverage'"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"typecheck": [
+					"pnpm run typecheck"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Jetpack Newsletter functionality",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "automattic/jetpack-password-checker",
 			"version": "dev-trunk",
 			"dist": {
@@ -2320,7 +2396,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plans",
-				"reference": "2781fe2e68b74e34348f529fd944ce9ac3f638ad"
+				"reference": "26f4ed44e15ea1e285b6b80870c7b8f3da56e9f8"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2344,7 +2420,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-plans/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.10.x-dev"
+					"dev-trunk": "0.11.x-dev"
 				}
 			},
 			"autoload": {
@@ -3422,7 +3498,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/woocommerce-analytics",
-				"reference": "b23b0251945e33c95918649859829d9e04e5b136"
+				"reference": "fb8bcf0334e3554fb4fadbfaf07cd818dc5140a7"
 			},
 			"require": {
 				"automattic/block-delimiter": "@dev",
@@ -3448,7 +3524,7 @@
 				},
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.12.x-dev"
+					"dev-trunk": "0.13.x-dev"
 				},
 				"textdomain": "woocommerce-analytics",
 				"version-constants": {
@@ -6358,6 +6434,7 @@
 		"automattic/jetpack-logo": 20,
 		"automattic/jetpack-masterbar": 20,
 		"automattic/jetpack-my-jetpack": 20,
+		"automattic/jetpack-newsletter": 20,
 		"automattic/jetpack-paypal-payments": 20,
 		"automattic/jetpack-plugins-installer": 20,
 		"automattic/jetpack-post-list": 20,

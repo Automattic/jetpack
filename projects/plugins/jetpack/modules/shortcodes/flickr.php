@@ -310,7 +310,7 @@ function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	 */
 	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches).
-		$cache_key   = md5( $url . wp_json_encode( $attr ) );
+		$cache_key   = md5( $url . wp_json_encode( $attr, JSON_UNESCAPED_SLASHES ) );
 		$cache_group = 'oembed_flickr';
 
 		$html = wp_cache_get( $cache_key, $cache_group );

@@ -1,5 +1,5 @@
 /**
- * Originally sourced from @automattic/components
+ * Originally sourced from `@automattic/components`
  * https://github.com/Automattic/wp-calypso/blob/df175811d96c9af3369a7f39978b74668d9f4896/packages/components/src/confetti/index.ts
  */
 

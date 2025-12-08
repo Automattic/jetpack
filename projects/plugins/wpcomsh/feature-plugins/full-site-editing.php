@@ -201,7 +201,8 @@ function logstash_log_global_styles( $message ) {
 				'trace'          => ( new Exception() )->getTraceAsString(),
 				'atomic_site_id' => wpcomsh_get_atomic_site_id(),
 			),
-		)
+		),
+		JSON_UNESCAPED_SLASHES
 	);
 
 	// We FAF the call to the logging endpoint.

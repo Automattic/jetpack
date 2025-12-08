@@ -34,7 +34,7 @@ class Class_Method extends Declaration {
 			$this->class_name,
 			$this->method_name,
 			$this->static,
-			json_encode( $this->params ),
+			json_encode( $this->params, JSON_UNESCAPED_SLASHES ),
 			$this->deprecated,
 		);
 	}

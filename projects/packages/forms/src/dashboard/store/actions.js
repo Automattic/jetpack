@@ -12,6 +12,8 @@ import {
 	INVALIDATE_COUNTS,
 	MARK_RECORDS_AS_INVALID,
 	CLEAR_INVALID_RECORDS,
+	ADD_PENDING_ACTION,
+	REMOVE_PENDING_ACTION,
 } from './action-types.js';
 
 /**
@@ -146,6 +148,32 @@ export function markRecordsAsInvalid( recordIds ) {
 export function clearInvalidRecords() {
 	return {
 		type: CLEAR_INVALID_RECORDS,
+	};
+}
+
+/**
+ * Add a pending action to track optimistic updates in progress.
+ *
+ * @param {string} actionId - Unique identifier for the action.
+ * @return {object} Action object.
+ */
+export function addPendingAction( actionId ) {
+	return {
+		type: ADD_PENDING_ACTION,
+		actionId,
+	};
+}
+
+/**
+ * Remove a pending action when it completes.
+ *
+ * @param {string} actionId - Unique identifier for the action.
+ * @return {object} Action object.
+ */
+export function removePendingAction( actionId ) {
+	return {
+		type: REMOVE_PENDING_ACTION,
+		actionId,
 	};
 }
 

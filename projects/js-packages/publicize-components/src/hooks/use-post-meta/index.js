@@ -30,6 +30,7 @@ export function usePostMeta() {
 			const attachedMedia = jetpackSocialOptions.attached_media || DEFAULT_ATTACHED_MEDIA;
 			const imageGeneratorSettings =
 				jetpackSocialOptions.image_generator_settings ?? DEFAULT_IMAGE_GENERATOR_SETTINGS;
+			const mediaSource = jetpackSocialOptions.media_source;
 			const isPostAlreadyShared = meta.jetpack_social_post_already_shared ?? false;
 
 			const shareMessage = `${ meta.jetpack_publicize_message || '' }`.substring(
@@ -42,6 +43,7 @@ export function usePostMeta() {
 				jetpackSocialOptions,
 				attachedMedia,
 				imageGeneratorSettings,
+				mediaSource,
 				isPostAlreadyShared,
 				shareMessage,
 			};
@@ -65,10 +67,13 @@ export function usePostMeta() {
 	}, [ metaValues.isPublicizeEnabled, updateMeta ] );
 
 	const updateJetpackSocialOptions = useCallback(
-		( key, value ) => {
+		( keyOrUpdates, value ) => {
+			// Support both single key-value and object of updates
+			const updates = typeof keyOrUpdates === 'string' ? { [ keyOrUpdates ]: value } : keyOrUpdates;
+
 			updateMeta( 'jetpack_social_options', {
 				...metaValues.jetpackSocialOptions,
-				[ key ]: value,
+				...updates,
 				version: 2,
 			} );
 		},

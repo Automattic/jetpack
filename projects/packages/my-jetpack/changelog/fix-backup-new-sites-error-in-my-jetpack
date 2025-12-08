@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix false error for new sites during backup provisioning
