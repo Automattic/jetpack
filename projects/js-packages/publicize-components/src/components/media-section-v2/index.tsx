@@ -201,6 +201,7 @@ export default function MediaSectionV2( {
 	const handleAiImageSelect = useCallback(
 		( { id, url }: { id: number; url: string } ) => {
 			// Use 'media-library' as the source since the AI image is uploaded to the media library
+			// AI-generated images are always PNG format (base64 encoded PNG from the AI service)
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
 				attached_media: [ { id, url, type: 'image/png' } ],
