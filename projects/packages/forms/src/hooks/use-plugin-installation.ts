@@ -8,8 +8,11 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../../../hooks/use-config-value.ts';
-import { installAndActivatePlugin, activatePlugin } from '../../../util/plugin-management.js';
+import {
+	installAndActivatePlugin,
+	activatePlugin,
+} from '../blocks/contact-form/util/plugin-management.js';
+import useConfigValue from './use-config-value.ts';
 
 type NoticeOptions = Record< string, unknown >;
 

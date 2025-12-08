@@ -13,8 +13,8 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { usePluginInstallation } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-plugin-installation.ts';
 import useConfigValue from '../../../hooks/use-config-value.ts';
+import { usePluginInstallation } from '../../../hooks/use-plugin-installation.ts';
 import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
 import CreateFormButton from '../create-form-button/index.tsx';
 /**

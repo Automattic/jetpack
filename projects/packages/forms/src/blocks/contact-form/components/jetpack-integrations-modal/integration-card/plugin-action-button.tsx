@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { usePluginInstallation } from '../hooks/use-plugin-installation.ts';
+import { usePluginInstallation } from '../../../../../hooks/use-plugin-installation.ts';
 
 type PluginActionButtonProps = {
 	slug: string;
