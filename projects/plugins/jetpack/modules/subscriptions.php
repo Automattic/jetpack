@@ -1047,7 +1047,7 @@ class Jetpack_Subscriptions {
 		$newsletter_access_level = get_post_meta( $post_ID, $access_level_meta_key, true );
 		if ( empty( $newsletter_access_level ) ) {
 			// Use constant for default value.
-			$newsletter_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ?? 'everybody';
+			$newsletter_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
 		// Get newsletter categories information.
