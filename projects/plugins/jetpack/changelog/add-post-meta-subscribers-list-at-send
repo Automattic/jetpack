@@ -1,4 +1,5 @@
 Significance: patch
 Type: other
 
-Adds newsletter debug info to post meta on initial publish
+Adds newsletter debug info to post meta on initial publish.
+Adds helper class for requesting stats, and updates the newsletter dashboard widgetp to use this as well.
