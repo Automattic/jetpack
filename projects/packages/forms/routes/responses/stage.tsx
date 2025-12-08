@@ -4,7 +4,11 @@
  */
 import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack,
+} from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
@@ -651,15 +655,6 @@ export function stage() {
 			actions={ headerActions }
 			hasPadding={ false }
 		>
-			<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
-				<Tabs.List density="compact">
-					{ statusTabs.map( tab => (
-						<Tabs.Tab value={ tab.slug } key={ tab.slug }>
-							{ tab.label }
-						</Tabs.Tab>
-					) ) }
-				</Tabs.List>
-			</Tabs.Root>
 			<DataViews
 				data={ records || EMPTY_ARRAY }
 				fields={ fields }
@@ -672,7 +667,34 @@ export function stage() {
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
 				actions={ actions }
-			/>
+			>
+				<HStack
+					className="dataviews__view-actions"
+					alignment="top"
+					justify="space-between"
+					spacing={ 1 }
+				>
+					<HStack justify="start" expanded={ false }>
+						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
+							<Tabs.List density="compact">
+								{ statusTabs.map( tab => (
+									<Tabs.Tab value={ tab.slug } key={ tab.slug }>
+										{ tab.label }
+									</Tabs.Tab>
+								) ) }
+							</Tabs.List>
+						</Tabs.Root>
+					</HStack>
+					<HStack spacing={ 1 } expanded={ false } style={ { flexShrink: 0 } }>
+						<DataViews.Search />
+						<DataViews.FiltersToggle />
+						<DataViews.ViewConfig />
+					</HStack>
+				</HStack>
+				<DataViews.Filters className="dataviews-filters__container" />
+				<DataViews.Layout />
+				<DataViews.Footer />
+			</DataViews>
 		</Page>
 	);
 }
