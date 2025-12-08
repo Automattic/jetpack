@@ -1006,12 +1006,7 @@ class Jetpack_Subscriptions {
 	 * @return void
 	 */
 	public function store_initial_debug_info( $post_ID, $flags, $post ) {
-		// Only store if emails are being sent.
-		if ( ! isset( $flags['send_subscription'] ) || ! $flags['send_subscription'] ) {
-			return;
-		}
-
-		// Only store once - check if we've already stored subscribers for this post.
+		// Only store once - check if we've already stored debug info for this post.
 		$existing_subscribers = get_post_meta( $post_ID, '_jetpack_newsletter_initial_debug_info', true );
 		if ( ! empty( $existing_subscribers ) ) {
 			return;
@@ -1022,14 +1017,20 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		// Load the newsletter category helper class if not already loaded.
+		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+		}
+
 		// Fetch subscriber data from WordPress.com API.
 		$subscriber_data = $this->get_subscriber_data();
 
 		// Get email subscription setting for this post.
-		// If _jetpack_dont_email_post_to_subs is 1, post is "post only" (not emailed).
-		// If 0 or not set, post is "email and post".
 		$dont_email             = get_post_meta( $post_ID, '_jetpack_dont_email_post_to_subs', true );
 		$email_to_subs_disabled = ! empty( $dont_email );
+
+		// Also store the final determination from the flags (includes more checks than post_meta).
+		$will_send_to_subscribers = isset( $flags['send_subscription'] ) && $flags['send_subscription'];
 
 		// Get newsletter categories information.
 		$newsletter_categories_enabled  = (bool) get_option( 'wpcom_newsletter_categories_enabled', false );
@@ -1057,8 +1058,8 @@ class Jetpack_Subscriptions {
 			'email_subscribers'             => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
 			'paid_subscribers'              => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
 			'all_subscribers'               => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
-			'email_subscriber_list'         => isset( $subscriber_data['email_subscriber_list'] ) && is_array( $subscriber_data['email_subscriber_list'] ) ? $subscriber_data['email_subscriber_list'] : array(),
 			'email_to_subs_disabled'        => $email_to_subs_disabled,
+			'will_send_to_subscribers'      => $will_send_to_subscribers,
 			'newsletter_categories_enabled' => $newsletter_categories_enabled,
 			'newsletter_category_ids'       => $post_newsletter_categories,
 			'non_newsletter_category_ids'   => $post_non_newsletter_categories,
