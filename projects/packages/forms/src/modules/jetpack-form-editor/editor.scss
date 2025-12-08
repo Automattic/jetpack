@@ -1,0 +1,84 @@
+/**
+ * Jetpack Form Editor Styles
+ *
+ * When editing jetpack-form posts, the visual wrapper needs the same CSS styling
+ * as the contact-form block when used in pages/posts.
+ */
+
+// Apply form layout styles to the jetpack-form editor
+body.post-type-jetpack-form .editor-styles-wrapper,
+.editor-styles-wrapper {
+	// Target our DOM wrapper structure
+	.jetpack-form-visual-wrapper {
+
+		.jetpack-contact-form {
+			// The block list inside needs flex layout
+			.block-editor-block-list__layout {
+				display: flex;
+				flex-wrap: wrap;
+				justify-content: flex-start;
+				flex-direction: row;
+				gap: var(--wp--style--block-gap, 1.5rem);
+			}
+
+			// Style the blocks inside
+			.wp-block {
+				flex: 1 1 100%;
+				margin-top: 0;
+				margin-bottom: 0;
+				max-width: 100%;
+
+				// Button styling
+				&.wp-block-jetpack-button {
+					flex: 0 0 auto;
+					min-height: var(--jetpack--contact-form--input-height, auto);
+					align-self: flex-end;
+					line-height: 1;
+
+					.wp-block-button__link {
+						min-height: var(--jetpack--contact-form--input-height, auto);
+					}
+				}
+
+				// Field width classes
+				&.jetpack-field__width-25 {
+					flex: 1 1 calc(25% - var(--wp--style--block-gap, 1.5rem));
+					max-width: 25%;
+				}
+
+				&.jetpack-field__width-33 {
+					flex: 1 1 calc(33.33% - var(--wp--style--block-gap, 1.5rem));
+					max-width: 33.33%;
+				}
+
+				&.jetpack-field__width-50 {
+					flex: 1 1 calc(50% - var(--wp--style--block-gap, 1.5rem));
+					max-width: 50%;
+				}
+
+				&.jetpack-field__width-75 {
+					flex: 1 1 calc(75% - var(--wp--style--block-gap, 1.5rem));
+					max-width: 75%;
+				}
+
+				&.jetpack-field__width-auto {
+					flex: 1 1 0;
+				}
+			}
+
+			// Radio and checkbox options need tighter gap
+			.wp-block-jetpack-field-option-radio,
+			.wp-block-jetpack-field-option-checkbox {
+				gap: 0;
+
+				> .wp-block {
+					flex: initial;
+				}
+			}
+
+			.wp-block-jetpack-field-option-checkbox {
+				align-items: center;
+			}
+		}
+	}
+}

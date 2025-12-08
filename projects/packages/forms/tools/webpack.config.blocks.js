@@ -20,6 +20,7 @@ const sharedWebpackConfig = {
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
 		view: './src/blocks/contact-form/view.ts',
+		'jetpack-form-editor': './src/modules/jetpack-form-editor/index.js',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
 		'field-rating/style': './src/blocks/field-rating/style.scss',

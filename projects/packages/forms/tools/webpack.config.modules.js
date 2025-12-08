@@ -26,6 +26,11 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 
 	// Create entry points
 	const entry = moduleFiles.reduce( ( acc, filepath ) => {
+		// Skip jetpack-form-editor - it's built by the blocks webpack config
+		if ( filepath.includes( 'jetpack-form-editor' ) ) {
+			return acc;
+		}
+
 		// Maintain the directory structure relative to src/modules
 		const relativePath = path.relative( moduleSrcDir, filepath );
 		const outputPath = path.join( path.dirname( relativePath ), path.parse( filepath ).name );
