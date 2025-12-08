@@ -1,13 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { BarChart } from '../../../primitives/bar-chart';
+import { LineChart } from '../../../primitives/line-chart';
+import { PieChart } from '../../../primitives/pie-chart';
 import {
 	simpleChartDecorator,
 	ChartStoryArgs,
 	themeArgTypes,
 	sharedThemeArgs,
 } from '../../../stories';
-import { BarChart } from '../../bar-chart';
-import { LineChart } from '../../line-chart';
-import { PieChart } from '../../pie-chart';
 import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
@@ -15,7 +15,7 @@ import type { SeriesData, DataPointPercentage } from '../../../types';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Composites/Legend',
+	title: 'JS Packages/Charts/Components/Legend',
 	component: Legend,
 	parameters: {
 		layout: 'centered',

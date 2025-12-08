@@ -3,8 +3,8 @@
  * Provides reusable, high-quality datasets across all chart components
  */
 
-import type { FunnelStep } from '../../components/conversion-funnel-chart';
-import type { LeaderboardEntry } from '../../components/leaderboard-chart';
+import type { FunnelStep } from '../../primitives/conversion-funnel-chart';
+import type { LeaderboardEntry } from '../../primitives/leaderboard-chart';
 import type { DataPointPercentage, SeriesData } from '../../types';
 
 /**

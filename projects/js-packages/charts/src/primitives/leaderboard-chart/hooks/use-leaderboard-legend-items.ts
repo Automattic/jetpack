@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useGlobalChartsTheme, useGlobalChartsContext } from '../../../providers';
+import type { BaseLegendItem } from '../../../components/legend';
 import type { LeaderboardEntry } from '../../../types';
-import type { BaseLegendItem } from '../../legend';
 
 /**
  * Hook to create legend items from leaderboard data
