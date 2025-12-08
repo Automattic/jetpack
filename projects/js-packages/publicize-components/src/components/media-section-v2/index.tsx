@@ -199,12 +199,11 @@ export default function MediaSectionV2( {
 
 	// Handle AI image selection
 	const handleAiImageSelect = useCallback(
-		( { id, url }: { id: number; url: string } ) => {
+		( { id, url, mime_type }: { id: number; url: string; mime_type?: string } ) => {
 			// Use 'media-library' as the source since the AI image is uploaded to the media library
-			// AI-generated images are always PNG format (base64 encoded PNG from the AI service)
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
-				attached_media: [ { id, url, type: 'image/png' } ],
+				attached_media: [ { id, url, type: mime_type || 'image/png' } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 
