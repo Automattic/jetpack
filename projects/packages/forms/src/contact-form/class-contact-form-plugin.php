@@ -1593,6 +1593,15 @@ class Contact_Form_Plugin {
 				);
 			}
 
+			// filter to add webhooks via code
+			$extra_webhooks = apply_filters( 'jetpack_forms_extra_webhooks', array(), $form );
+			if ( ! empty( $extra_webhooks ) ) {
+				$form->attributes['webhooks'] = array_merge(
+					$form->attributes['webhooks'] ?? array(),
+					$extra_webhooks
+				);
+			}
+
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
