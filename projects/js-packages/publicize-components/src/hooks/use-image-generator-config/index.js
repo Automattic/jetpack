@@ -26,6 +26,7 @@ const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
  * @property {number}   defaultImageId - Optional. ID of the default image.
  * @property {Function} setIsEnabled   - Callback to enable or disable the image generator for a post.
  * @property {Function} updateProperty - Callback to update various SIG settings.
+ * @property {Function} updateSettings - Callback to update multiple SIG settings at once.
  * @property {Function} setToken       - Callback to change the token.
  */
 

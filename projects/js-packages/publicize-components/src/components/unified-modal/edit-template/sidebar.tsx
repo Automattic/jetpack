@@ -1,52 +1,136 @@
-import { BaseControl, SelectControl } from '@wordpress/components';
+/**
+ * Sidebar component for Edit Template Modal
+ *
+ * Contains all control sections: Background Image, Template, Text, Font
+ */
+
+import { SelectControl, TextControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type ImageType } from '../../../hooks/use-sig-preview/utils';
 import { useSocialImageFontOptions } from '../../../hooks/use-social-image-font-options';
 import TemplatePicker from '../../social-image-generator/template-picker/picker';
+import { BackgroundImagePicker } from './background-image-picker';
 import styles from './styles.module.scss';
 import { LocalState } from './types';
 
 type SidebarProps = {
-	setLocalState: ( localState: LocalState ) => void;
 	localState: LocalState;
+	setLocalState: React.Dispatch< React.SetStateAction< LocalState > >;
+	defaultImageId: number | null;
+	featuredImageId: number | null;
 };
 
 /**
- * Sidebar component for the edit template modal.
+ * Sidebar component with all control sections
  *
- * @param {SidebarProps} props - The component props.
- * @return - Sidebar component.
+ * @param {SidebarProps} props - Component props
+ * @return Sidebar component
  */
-export function Sidebar( { localState, setLocalState }: SidebarProps ) {
-	const updateLocalField = useCallback(
-		( field: keyof LocalState ) => ( value: LocalState[ typeof field ] ) => {
-			const newLocalState = { ...localState, [ field ]: value };
-			setLocalState( newLocalState );
-		},
-		[ localState, setLocalState ]
-	);
+export function Sidebar( {
+	localState,
+	setLocalState,
+	defaultImageId,
+	featuredImageId,
+}: SidebarProps ) {
 	const { isLoading: isLoadingFontOptions, fontOptions } = useSocialImageFontOptions();
+
+	const handleImageTypeChange = useCallback(
+		( value: ImageType ) => {
+			setLocalState( prev => ( { ...prev, imageType: value } ) );
+		},
+		[ setLocalState ]
+	);
+
+	const handleImageIdChange = useCallback(
+		( id: number | null ) => {
+			setLocalState( prev => ( { ...prev, imageId: id } ) );
+		},
+		[ setLocalState ]
+	);
+
+	const handleCustomTextChange = useCallback(
+		( value: string ) => {
+			setLocalState( prev => ( { ...prev, customText: value } ) );
+		},
+		[ setLocalState ]
+	);
+
+	const handleTemplateChange = useCallback(
+		( value: string ) => {
+			setLocalState( prev => ( { ...prev, template: value } ) );
+		},
+		[ setLocalState ]
+	);
+
+	const handleFontChange = useCallback(
+		( value: string ) => {
+			setLocalState( prev => ( { ...prev, font: value } ) );
+		},
+		[ setLocalState ]
+	);
 
 	return (
 		<div className={ styles.sidebar }>
-			<BaseControl __nextHasNoMarginBottom={ true } className={ styles.templateControl }>
-				<BaseControl.VisualLabel>
-					{ __( 'Templates', 'jetpack-publicize-components' ) }
-				</BaseControl.VisualLabel>
+			{ /* Background Image Section */ }
+			<div className={ styles.section }>
+				<div className={ styles.sectionLabel }>
+					{ __( 'Background image', 'jetpack-publicize-components' ) }
+				</div>
+				<BackgroundImagePicker
+					imageType={ localState.imageType }
+					imageId={ localState.imageId }
+					defaultImageId={ defaultImageId }
+					featuredImageId={ featuredImageId }
+					onImageTypeChange={ handleImageTypeChange }
+					onImageIdChange={ handleImageIdChange }
+				/>
+			</div>
+
+			{ /* Template Section */ }
+			<div className={ styles.section }>
+				<div className={ styles.sectionLabel }>
+					{ __( 'Template', 'jetpack-publicize-components' ) }
+				</div>
 				<TemplatePicker
 					value={ localState.template }
-					onTemplateSelected={ updateLocalField( 'template' ) }
+					onTemplateSelected={ handleTemplateChange }
+					className={ styles.templateGrid }
 				/>
-			</BaseControl>
-			<SelectControl
-				__nextHasNoMarginBottom
-				__next40pxDefaultSize
-				label={ __( 'Font', 'jetpack-publicize-components' ) }
-				value={ localState.font ?? '' }
-				disabled={ isLoadingFontOptions }
-				options={ fontOptions }
-				onChange={ updateLocalField( 'font' ) }
-			/>
+			</div>
+
+			{ /* Text Section */ }
+			<div className={ styles.section }>
+				<div className={ styles.sectionLabel }>
+					{ __( 'Text', 'jetpack-publicize-components' ) }
+				</div>
+				<TextControl
+					value={ localState.customText }
+					onChange={ handleCustomTextChange }
+					placeholder={ __( 'Custom text', 'jetpack-publicize-components' ) }
+					help={ __(
+						'By default the post title is used for the image. You can use this field to set your own text.',
+						'jetpack-publicize-components'
+					) }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			</div>
+
+			{ /* Font Section */ }
+			<div className={ styles.section }>
+				<div className={ styles.sectionLabel }>
+					{ __( 'Font', 'jetpack-publicize-components' ) }
+				</div>
+				<SelectControl
+					value={ localState.font }
+					options={ fontOptions }
+					onChange={ handleFontChange }
+					disabled={ isLoadingFontOptions }
+					__nextHasNoMarginBottom
+					__next40pxDefaultSize
+				/>
+			</div>
 		</div>
 	);
 }

@@ -2,7 +2,7 @@ export type LocalState = {
 	/**
 	 * ID of the image in the generated image.
 	 */
-	imageId: number | undefined;
+	imageId: number | null;
 
 	/**
 	 * Type of the image in the generated image.
@@ -12,15 +12,15 @@ export type LocalState = {
 	/**
 	 * Custom text for the generated image.
 	 */
-	customText: string | undefined;
+	customText: string;
 
 	/**
 	 * Template for the generated image.
 	 */
-	template: string | undefined;
+	template: string | null;
 
 	/**
-	 * Font for the image text.
+	 * Font for the generated image.
 	 */
-	font: string | undefined;
+	font: string;
 };
