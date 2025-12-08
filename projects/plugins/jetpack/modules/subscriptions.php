@@ -1025,13 +1025,43 @@ class Jetpack_Subscriptions {
 		// Fetch subscriber data from WordPress.com API.
 		$subscriber_data = $this->get_subscriber_data();
 
+		// Get email subscription setting for this post.
+		// If _jetpack_dont_email_post_to_subs is 1, post is "post only" (not emailed).
+		// If 0 or not set, post is "email and post".
+		$dont_email             = get_post_meta( $post_ID, '_jetpack_dont_email_post_to_subs', true );
+		$email_to_subs_disabled = ! empty( $dont_email );
+
+		// Get newsletter categories information.
+		$newsletter_categories_enabled  = (bool) get_option( 'wpcom_newsletter_categories_enabled', false );
+		$post_categories                = wp_get_post_categories( $post_ID );
+		$newsletter_category_ids        = Jetpack_Newsletter_Category_Helper::get_category_ids();
+		$post_newsletter_categories     = array();
+		$post_non_newsletter_categories = array();
+
+		if ( $newsletter_categories_enabled && ! empty( $newsletter_category_ids ) && ! empty( $post_categories ) ) {
+			// Find which of the post's categories are newsletter categories.
+			$post_newsletter_categories = array_intersect( $post_categories, $newsletter_category_ids );
+			$post_newsletter_categories = array_values( array_map( 'intval', $post_newsletter_categories ) );
+
+			// Find which of the post's categories are NOT newsletter categories.
+			$post_non_newsletter_categories = array_diff( $post_categories, $newsletter_category_ids );
+			$post_non_newsletter_categories = array_values( array_map( 'intval', $post_non_newsletter_categories ) );
+		} elseif ( ! empty( $post_categories ) ) {
+			// If newsletter categories are not enabled, all post categories are non-newsletter categories.
+			$post_non_newsletter_categories = array_values( array_map( 'intval', $post_categories ) );
+		}
+
 		// Store subscriber data with timestamp.
 		$data_to_store = array(
-			'timestamp'             => current_time( 'mysql' ),
-			'email_subscribers'     => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
-			'paid_subscribers'      => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
-			'all_subscribers'       => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
-			'email_subscriber_list' => isset( $subscriber_data['email_subscriber_list'] ) && is_array( $subscriber_data['email_subscriber_list'] ) ? $subscriber_data['email_subscriber_list'] : array(),
+			'timestamp'                     => current_time( 'mysql' ),
+			'email_subscribers'             => isset( $subscriber_data['email_subscribers'] ) ? (int) $subscriber_data['email_subscribers'] : 0,
+			'paid_subscribers'              => isset( $subscriber_data['paid_subscribers'] ) ? (int) $subscriber_data['paid_subscribers'] : 0,
+			'all_subscribers'               => isset( $subscriber_data['all_subscribers'] ) ? (int) $subscriber_data['all_subscribers'] : 0,
+			'email_subscriber_list'         => isset( $subscriber_data['email_subscriber_list'] ) && is_array( $subscriber_data['email_subscriber_list'] ) ? $subscriber_data['email_subscriber_list'] : array(),
+			'email_to_subs_disabled'        => $email_to_subs_disabled,
+			'newsletter_categories_enabled' => $newsletter_categories_enabled,
+			'newsletter_category_ids'       => $post_newsletter_categories,
+			'non_newsletter_category_ids'   => $post_non_newsletter_categories,
 		);
 
 		update_post_meta( $post_ID, '_jetpack_newsletter_subscribers_when_sent', $data_to_store );
