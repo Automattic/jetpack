@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Decode HTML entities in exported form names to prevent codes like &#8211; appearing in CSV exports

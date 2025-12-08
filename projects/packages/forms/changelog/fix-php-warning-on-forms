@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
- Forms: fix PHP warning when global gets overwritten

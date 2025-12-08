@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.28.9] - 2025-12-08
+### Changed
+- Update package dependencies. [#45914]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [5.28.8] - 2025-12-01
 ### Changed
 - Update dependencies. [#46116] [#46143]
@@ -2443,6 +2450,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.28.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.8...5.28.9
 [5.28.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.7...5.28.8
 [5.28.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.6...5.28.7
 [5.28.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.5...5.28.6
