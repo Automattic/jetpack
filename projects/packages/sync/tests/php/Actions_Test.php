@@ -191,7 +191,8 @@ class Actions_Test extends BaseTestCase {
 						'body'        => wp_json_encode(
 							array(
 								'processed_items' => array( 'dummy' ),
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 					);
 				},
@@ -236,7 +237,8 @@ class Actions_Test extends BaseTestCase {
 								'code'    => 'rest_invalid_param',
 								'message' => 'Invalid parameter(s): sync',
 								'data'    => array( 'status' => 400 ),
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 					);
 				},

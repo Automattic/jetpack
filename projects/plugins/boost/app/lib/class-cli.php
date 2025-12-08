@@ -68,13 +68,13 @@ class CLI {
 
 		if ( $module_slug === null ) {
 			/* translators: Placeholder is list of available modules. */
-			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) ) );
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES, JSON_UNESCAPED_SLASHES ) ) );
 		}
 
 		if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
 			\WP_CLI::error(
 				/* translators: %1$s refers to the module slug like 'critical-css', %2$s is the list of available modules. */
-				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) )
+				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES, JSON_UNESCAPED_SLASHES ) )
 			);
 		}
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Use fallback page value on feedback source if variable is polluted

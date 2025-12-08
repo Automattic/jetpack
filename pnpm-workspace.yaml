@@ -25,8 +25,12 @@ ignoreWorkspaceCycles: true
 # Package compromise avoidance: let new releases age a day, and don't allow trust downgrades unless explicitly excepted.
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:
-  # Calypso packages and other Automattic-controlled things. We'll often want to immediately update these after releasing them.
+  # Packages we often want to immediately update after releasing them.
   - '@automattic/*'
+  - '@woocommerce/*'
+  - '@wordpress/*'
+  # CVE-2024-51999
+  - 'express@4.22.0'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

@@ -863,7 +863,7 @@ class Dashboard_REST_Controller {
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = 'BLAZE_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
+		$cache_key = 'BLAZE_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
 			$response_body_content = get_transient( $cache_key );

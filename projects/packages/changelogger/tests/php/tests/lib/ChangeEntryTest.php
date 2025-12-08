@@ -410,7 +410,7 @@ class ChangeEntryTest extends TestCase {
 			$this->expectExceptionMessage( $change );
 			ChangeEntry::jsonUnserialize( json_decode( $json ) );
 		} else {
-			$this->assertSame( $json, json_encode( $change ) );
+			$this->assertSame( $json, json_encode( $change, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			$this->assertEquals( $change, ChangeEntry::jsonUnserialize( json_decode( $json ) ) );
 		}
 	}

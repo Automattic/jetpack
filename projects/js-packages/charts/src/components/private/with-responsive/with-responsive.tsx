@@ -35,7 +35,7 @@ const useResponsiveDimensions = ( {
 
 /**
  * A higher-order component that provides responsive dimensions
- * to the wrapped chart component using useParentSize from @visx/responsive.
+ * to the wrapped chart component using useParentSize from `@visx/responsive`.
  *
  * @param WrappedComponent - The chart component to be wrapped.
  * @return A functional component that renders the wrapped component with responsive dimensions.

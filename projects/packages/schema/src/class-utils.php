@@ -66,7 +66,7 @@ class Utils {
 			return $description;
 		}
 		// Convert the processed schema to a JSON-like string
-		return wp_json_encode( $description, JSON_PRETTY_PRINT );
+		return wp_json_encode( $description, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 	}
 
 	/**

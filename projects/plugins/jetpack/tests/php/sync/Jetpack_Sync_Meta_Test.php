@@ -206,7 +206,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 			if ( $meta_key === 'footnotes' ) {
 				// WordPress would filter non-array into an empty string, and fail the test
 				// See sanitize_post_meta_footnotes filter
-				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array() ) );
+				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE ) );
 				continue;
 			}
 			add_post_meta( $this->post_id, $meta_key, 'foo' );

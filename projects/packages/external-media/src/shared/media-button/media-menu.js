@@ -88,6 +88,7 @@ function MediaButtonMenu( props ) {
 							</MenuItem>
 
 							<MediaSources
+								mediaProps={ mediaProps }
 								open={ open }
 								setSource={ setSelectedSource }
 								onClick={ onClose }

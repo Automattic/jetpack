@@ -179,7 +179,7 @@ class Scheduled_Actions_Controller_Test extends TestCase {
 
 		$callback = function () use ( $result ) {
 			return array(
-				'body' => wp_json_encode( $result ),
+				'body' => wp_json_encode( $result, JSON_UNESCAPED_SLASHES ),
 			);
 		};
 

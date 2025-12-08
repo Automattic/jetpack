@@ -186,7 +186,6 @@ export async function handler( argv ) {
 						prj = k;
 					}
 				}
-				argv.project.push( prj );
 				checkFilesByProject[ prj ] ??= [];
 				checkFilesByProject[ prj ].push( f );
 				continue;

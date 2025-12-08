@@ -191,7 +191,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function assertCallableIsSynced( $name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function test_white_listed_callables_doesnt_get_synced_twice() {

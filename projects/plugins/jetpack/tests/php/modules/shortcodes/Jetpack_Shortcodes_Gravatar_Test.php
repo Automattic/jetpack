@@ -72,7 +72,8 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 								'aboutMe'         => 'Gravatar is a free service for providing globally-unique avatars.',
 							),
 						),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		};
@@ -104,7 +105,8 @@ class Jetpack_Shortcodes_Gravatar_Test extends WP_UnitTestCase {
 				'body'     => wp_json_encode(
 					array(
 						'entry' => array( array( 'displayName' => 'Gravatar' ) ),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		};

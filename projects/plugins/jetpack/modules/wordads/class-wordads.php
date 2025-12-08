@@ -868,7 +868,7 @@ HTML;
 
 		$relocate_script = '';
 		if ( ! empty( $relocate ) ) {
-			$selector        = wp_json_encode( $relocate );
+			$selector        = wp_json_encode( $relocate, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$relocate_script = <<<JS
 			<script type="text/javascript">
 			var adNode       = document.getElementById( '{$div_id}' );

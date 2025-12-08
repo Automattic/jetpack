@@ -89,7 +89,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$products[] = $data;
 		}
 
-		return wp_json_encode( $products );
+		return wp_json_encode( $products, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -289,11 +289,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 	private function render_properties_as_js( $properties ) {
 		$js_args_string = '';
 		foreach ( $properties as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
-			} else {
-				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
-			}
+			$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ',';
 		}
 		return $js_args_string;
 	}

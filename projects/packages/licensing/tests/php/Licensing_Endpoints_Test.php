@@ -89,7 +89,7 @@ class Licensing_Endpoints_Test extends BaseTestCase {
 			$request->set_header( 'content-type', 'application/json' );
 		}
 		if ( ! empty( $json_params ) ) {
-			$request->set_body( wp_json_encode( $json_params ) );
+			$request->set_body( wp_json_encode( $json_params, JSON_UNESCAPED_SLASHES ) );
 		}
 		if ( ! empty( $params ) && is_array( $params ) ) {
 			foreach ( $params as $key => $value ) {

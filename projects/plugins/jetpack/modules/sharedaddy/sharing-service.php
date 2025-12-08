@@ -874,7 +874,7 @@ function sharing_add_footer() {
 				?>
 
 	<script type="text/javascript">
-		window.WPCOM_sharing_counts = <?php echo wp_json_encode( array_flip( $sharing_post_urls ) ); ?>;
+		window.WPCOM_sharing_counts = <?php echo wp_json_encode( array_flip( $sharing_post_urls ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 	</script>
 				<?php
 			endif;

@@ -1103,7 +1103,8 @@ class REST_Connector {
 				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
 				'timestamp'  => (int) $_GET['timestamp'],
 				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
-			)
+			),
+			0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 		);
 
 		if (
