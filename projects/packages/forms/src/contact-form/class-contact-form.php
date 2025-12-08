@@ -2101,7 +2101,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
 		// Is it spam?
-		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+		/**
+		 * Filter whether the submitted feedback is considered as spam.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param bool  $is_spam        Is the submitted feedback spam? Default to false.
+		 * @param array $akismet_values Feedback values returned by the Akismet plugin.
+		 */
 		$is_spam = apply_filters( 'jetpack_contact_form_is_spam', false, $akismet_values );
 		if ( is_wp_error( $is_spam ) ) { // WP_Error to abort
 			return $is_spam; // abort
@@ -2198,7 +2207,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		$entry_values = $response->get_entry_values();
 
-		/** This filter is already documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+		/**
+		 * Filters the subject of the email sent after a contact form submission.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param string $subject Feedback's subject line.
+		 * @param array $all_values Feedback's data from all fields.
+		 */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 
 		/*
