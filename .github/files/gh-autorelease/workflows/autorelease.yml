@@ -13,6 +13,11 @@ on:
       - 'trunk'
   workflow_dispatch:
 
+permissions:
+  # read: actions/checkout
+  # write: `gh release`
+  contents: write
+
 jobs:
   publish:
     name: Release

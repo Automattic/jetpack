@@ -8,6 +8,9 @@ on:
       - '*/branch-*'
   workflow_dispatch:
 
+# We use secrets.API_TOKEN_GITHUB for everything here, so no need for permissions.
+permissions: {}
+
 jobs:
   tag:
     name: Tag
