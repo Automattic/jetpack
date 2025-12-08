@@ -24,7 +24,19 @@ $stubs = strtr(
 	)
 );
 
+// PHPunit now has a TestDoubleBuilder, which is not itself generic but is extended by MockBuilder and falls to the same bug. Sigh.
+// Make it pretend to be generic, then the bit below will apply to it too.
+$stubs = preg_replace(
+	'#^\s*\*/\s+abstract class TestDoubleBuilder\s#ms',
+	" * @template MockedType\n$0",
+	$stubs
+);
+if ( $stubs === null ) {
+	throw new RuntimeException( preg_last_error_msg() );
+}
+
 // Phan doesn't track generics across `@return $this` properly. Rewrite them.
+// Possibly fixed in Phan v6? https://github.com/phan/phan/issues/4849
 $stubs = preg_replace_callback(
 	'#^\s*+(/\*(?>.*?\*/))\s+(?:final |abstract |readonly )*+class [A-Za-z_][A-Za-z0-9_]*+\s*+{(?:[^{}]*+{\s*+})*+[^{}]*+}#ms',
 	function ( $m ) {

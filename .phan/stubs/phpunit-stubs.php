@@ -14615,6 +14615,7 @@ final class ReturnValueGenerator
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ * @template MockedType
  */
 abstract class TestDoubleBuilder
 {
@@ -14649,6 +14650,7 @@ abstract class TestDoubleBuilder
      * @throws Generator\ReflectionException
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function onlyMethods(array $methods): self
     {
@@ -14659,6 +14661,7 @@ abstract class TestDoubleBuilder
      * @param array<mixed> $arguments
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function setConstructorArgs(array $arguments): self
     {
@@ -14667,6 +14670,7 @@ abstract class TestDoubleBuilder
      * Disables the invocation of the original constructor.
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function disableOriginalConstructor(): self
     {
@@ -14675,6 +14679,7 @@ abstract class TestDoubleBuilder
      * Enables the invocation of the original constructor.
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function enableOriginalConstructor(): self
     {
@@ -14683,6 +14688,7 @@ abstract class TestDoubleBuilder
      * Disables the invocation of the original clone constructor.
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function disableOriginalClone(): self
     {
@@ -14691,18 +14697,21 @@ abstract class TestDoubleBuilder
      * Enables the invocation of the original clone constructor.
      *
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function enableOriginalClone(): self
     {
     }
     /**
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function enableAutoReturnValueGeneration(): self
     {
     }
     /**
      * @return $this
+     * @phan-return $this<MockedType>
      */
     public function disableAutoReturnValueGeneration(): self
     {
