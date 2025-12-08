@@ -1,4 +1,4 @@
-import { Legend } from '../../legend';
+import { Legend } from '../../../components/legend';
 import type { ComponentType, FC, PropsWithChildren } from 'react';
 
 /**

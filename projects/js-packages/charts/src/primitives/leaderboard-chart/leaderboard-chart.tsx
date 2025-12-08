@@ -8,6 +8,7 @@ import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
+import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsContext,
@@ -18,7 +19,6 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
-import { Legend } from '../legend';
 import { useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';

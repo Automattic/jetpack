@@ -7,6 +7,8 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import { Legend, useChartLegendItems } from '../../components/legend';
+import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -23,11 +25,9 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { Legend, useChartLegendItems } from '../legend';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { CurveType, RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';

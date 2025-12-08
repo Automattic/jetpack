@@ -4,6 +4,8 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import { Legend, useChartLegendItems } from '../../components/legend';
+import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -21,10 +23,8 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { Legend, useChartLegendItems } from '../legend';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
-import { AccessibleTooltip, useKeyboardNavigation } from '../tooltip';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
