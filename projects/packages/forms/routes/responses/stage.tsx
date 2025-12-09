@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /**
+ * External dependencies
+ */
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
+/**
  * WordPress dependencies
  */
 import { Page } from '@wordpress/admin-ui';
@@ -12,14 +18,77 @@ import {
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
+import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { download, plus } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import * as Tabs from '../../src/dashboard/components/tabs';
+import useCreateForm from '../../src/dashboard/hooks/use-create-form';
+
+/**
+ * Hook to fetch response counts for each status.
+ *
+ * @return {object} Object containing inbox, spam, and trash counts.
+ */
+function useCounts() {
+	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
+
+	useEffect( () => {
+		apiFetch( { path: '/wp/v2/feedback/counts' } ).then( response => {
+			setCounts( {
+				inbox: response?.inbox || 0,
+				spam: response?.spam || 0,
+				trash: response?.trash || 0,
+			} );
+		} );
+	}, [] );
+
+	return counts;
+}
+
+/**
+ * Hook to fetch filter options for date and source fields.
+ *
+ * @return {object} Object containing date and source filter options.
+ */
+function useFilterOptions() {
+	const [ filterOptions, setFilterOptions ] = useState( { date: [], source: [] } );
+
+	useEffect( () => {
+		apiFetch( { path: '/wp/v2/feedback/filters' } ).then( response => {
+			setFilterOptions( {
+				date: response?.date || [],
+				source: response?.source || [],
+			} );
+		} );
+	}, [] );
+
+	return filterOptions;
+}
+
+/**
+ * Returns a formatted tab label with count badge.
+ *
+ * @param {string} label - The label for the tab.
+ * @param {number} count - The count to display.
+ * @return {JSX.Element} The formatted label with count badge.
+ */
+function getTabLabel( label, count ) {
+	return (
+		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
+			{ label }
+			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
+				{ count }
+			</Badge>
+		</span>
+	);
+}
 
 const EMPTY_ARRAY = [];
 
@@ -59,6 +128,8 @@ export function stage() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
+	const counts = useCounts();
+	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
 		status = 'spam';
@@ -131,6 +202,14 @@ export function stage() {
 			if ( filter.field === 'read_status' ) {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
+			if ( filter.field === 'source' ) {
+				queryArgs.parent = filter.value;
+			}
+			if ( filter.field === 'date' ) {
+				const [ year, month ] = filter.value.split( '/' ).map( Number );
+				queryArgs.after = new Date( Date.UTC( year, month - 1, 1 ) ).toISOString();
+				queryArgs.before = new Date( Date.UTC( year, month, 0, 23, 59, 59 ) ).toISOString();
+			}
 		} );
 
 		return queryArgs;
@@ -150,8 +229,9 @@ export function stage() {
 				render: ( { item } ) => {
 					const displayName =
 						item.author_name || item.author_email || item.author_url || item.ip || 'Anonymous';
+					const showEmail = item.author_email && item.author_name !== item.author_email;
 					return (
-						<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+						<span style={ { display: 'flex', alignItems: 'center', gap: '12px' } }>
 							{ item.is_unread && (
 								<span
 									style={ {
@@ -164,7 +244,27 @@ export function stage() {
 									aria-label={ __( 'Unread', 'jetpack-forms' ) }
 								/>
 							) }
-							<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
+							{ item.author_avatar && (
+								<img
+									src={ item.author_avatar }
+									alt={ displayName }
+									style={ {
+										width: 40,
+										height: 40,
+										borderRadius: '50%',
+										flexShrink: 0,
+										backgroundColor: '#f0f0f0',
+									} }
+								/>
+							) }
+							<span style={ { display: 'flex', flexDirection: 'column', gap: '2px' } }>
+								<span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ displayName }</span>
+								{ showEmail && (
+									<span style={ { fontSize: '12px', color: '#757575' } }>
+										{ item.author_email }
+									</span>
+								) }
+							</span>
 						</span>
 					);
 				},
@@ -177,18 +277,58 @@ export function stage() {
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const dateStr = new Date( item.date ).toLocaleDateString();
+					const dateStr = new Date( item.date ).toLocaleDateString( undefined, {
+						year: 'numeric',
+						month: 'long',
+						day: 'numeric',
+					} );
 					return <span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ dateStr }</span>;
 				},
+				elements: ( filterOptions?.date || [] ).map( filter => {
+					const date = new Date();
+					date.setDate( 1 );
+					date.setMonth( filter.month - 1 );
+					date.setFullYear( filter.year );
+					return {
+						label: dateI18n( __( 'F Y', 'jetpack-forms' ), date ),
+						value: `${ filter.year }/${ filter.month }`,
+					};
+				} ),
+				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
 			{
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					const source = item.entry_title || 'Unknown';
+					const source = item.entry_title || __( 'Unknown', 'jetpack-forms' );
+					if ( item.entry_permalink ) {
+						return (
+							<a
+								href={ item.entry_permalink }
+								target="_blank"
+								rel="noopener noreferrer"
+								style={ {
+									fontWeight: item.is_unread ? 600 : 400,
+									color: 'var(--wp-admin-theme-color, #3858e9)',
+									textDecoration: 'none',
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '4px',
+								} }
+							>
+								{ source }
+								<span aria-hidden="true">↗</span>
+							</a>
+						);
+					}
 					return <span style={ { fontWeight: item.is_unread ? 600 : 400 } }>{ source }</span>;
 				},
+				elements: ( filterOptions?.source || [] ).map( source => ( {
+					value: source.id.toString(),
+					label: decodeEntities( source.title ) || source.url,
+				} ) ),
+				filterBy: { operators: [ 'is' ] },
 				enableSorting: false,
 			},
 			{
@@ -206,11 +346,21 @@ export function stage() {
 			{
 				id: 'ip',
 				label: __( 'IP Address', 'jetpack-forms' ),
-				render: ( { item } ) => item.ip || '-',
+				render: ( { item } ) => {
+					if ( ! item.ip ) {
+						return '-';
+					}
+					return (
+						<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
+							<span aria-hidden="true">🌐</span>
+							{ item.ip }
+						</span>
+					);
+				},
 				enableSorting: false,
 			},
 		],
-		[]
+		[ filterOptions ]
 	);
 
 	const invalidateCache = useCallback( () => {
@@ -605,9 +755,9 @@ export function stage() {
 	);
 
 	const statusTabs = [
-		{ slug: 'inbox', label: __( 'Inbox', 'jetpack-forms' ) },
-		{ slug: 'spam', label: __( 'Spam', 'jetpack-forms' ) },
-		{ slug: 'trash', label: __( 'Trash', 'jetpack-forms' ) },
+		{ slug: 'inbox', label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), counts.inbox ) },
+		{ slug: 'spam', label: getTabLabel( __( 'Spam', 'jetpack-forms' ), counts.spam ) },
+		{ slug: 'trash', label: getTabLabel( __( 'Trash', 'jetpack-forms' ), counts.trash ) },
 	];
 
 	const handleTabChange = useCallback(
@@ -620,18 +770,48 @@ export function stage() {
 		[ navigate ]
 	);
 
+	const { openNewForm } = useCreateForm();
+
+	const handleCreateForm = useCallback( () => {
+		openNewForm( { showPatterns: false } );
+	}, [ openNewForm ] );
+
+	const handleIntegrations = useCallback( () => {
+		navigate( { to: '/integrations' } );
+	}, [ navigate ] );
+
 	const headerActions = useMemo( () => {
 		const actionsArray = [];
 
 		actionsArray.push(
-			<Button key="export" variant="secondary" size="compact">
+			<Button key="integrations" variant="secondary" size="compact" onClick={ handleIntegrations }>
+				{ __( 'Manage integrations', 'jetpack-forms' ) }
+			</Button>
+		);
+
+		if ( params.view === 'inbox' || ! params.view ) {
+			actionsArray.push(
+				<Button
+					key="create"
+					variant="secondary"
+					size="compact"
+					icon={ plus }
+					onClick={ handleCreateForm }
+				>
+					{ __( 'Create a form', 'jetpack-forms' ) }
+				</Button>
+			);
+		}
+
+		actionsArray.push(
+			<Button key="export" variant="primary" size="compact" icon={ download }>
 				{ __( 'Export', 'jetpack-forms' ) }
 			</Button>
 		);
 
 		if ( params.view === 'trash' ) {
 			actionsArray.push(
-				<Button key="empty-trash" variant="primary" isDestructive size="compact">
+				<Button key="empty-trash" variant="secondary" isDestructive size="compact">
 					{ __( 'Empty Trash', 'jetpack-forms' ) }
 				</Button>
 			);
@@ -639,18 +819,23 @@ export function stage() {
 
 		if ( params.view === 'spam' ) {
 			actionsArray.push(
-				<Button key="empty-spam" variant="primary" isDestructive size="compact">
+				<Button key="empty-spam" variant="secondary" isDestructive size="compact">
 					{ __( 'Empty Spam', 'jetpack-forms' ) }
 				</Button>
 			);
 		}
 
 		return actionsArray;
-	}, [ params.view ] );
+	}, [ params.view, handleIntegrations, handleCreateForm ] );
 
 	return (
 		<Page
-			title={ __( 'Forms', 'jetpack-forms' ) }
+			title={
+				<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
+					<JetpackLogo showText={ false } width={ 20 } />
+					{ __( 'Forms', 'jetpack-forms' ) }
+				</span>
+			}
 			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
 			actions={ headerActions }
 			hasPadding={ false }
