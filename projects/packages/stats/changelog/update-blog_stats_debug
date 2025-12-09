@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve Post Stats cache handling for invalid or error data
