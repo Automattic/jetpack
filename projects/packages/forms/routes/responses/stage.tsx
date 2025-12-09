@@ -8,7 +8,6 @@ import '@automattic/ui/style.css';
 /**
  * WordPress dependencies
  */
-import { Page } from '@wordpress/admin-ui';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
@@ -28,6 +27,7 @@ import { useParams, useSearch, useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import Page from '../../src/dashboard/components/page';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 
@@ -854,10 +854,10 @@ export function stage() {
 				actions={ actions }
 			>
 				<HStack
-					className="dataviews__view-actions"
 					alignment="top"
 					justify="space-between"
 					spacing={ 1 }
+					style={ { paddingInline: 20, boxSizing: 'border-box' } }
 				>
 					<HStack justify="start" expanded={ false }>
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
