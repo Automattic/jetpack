@@ -164,12 +164,12 @@ export default function MediaSectionV2( {
 	// Handle media selection from Media Library
 	const handleMediaLibrarySelect = useCallback(
 		( media: WPMediaObject ) => {
-			const { id, url, mime: type } = media;
+			const { id, url, mime } = media;
 
 			// Single batch update with explicit media_source
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
-				attached_media: [ { id, url, type } ],
+				attached_media: [ { id, url, type: mime } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 
@@ -199,11 +199,11 @@ export default function MediaSectionV2( {
 
 	// Handle AI image selection
 	const handleAiImageSelect = useCallback(
-		( { id, url, mime_type }: { id: number; url: string; mime_type?: string } ) => {
+		( { id, url, mime }: WPMediaObject ) => {
 			// Use 'media-library' as the source since the AI image is uploaded to the media library
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
-				attached_media: [ { id, url, type: mime_type || 'image/png' } ],
+				attached_media: [ { id, url, type: mime || 'image/png' } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 

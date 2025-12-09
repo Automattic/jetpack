@@ -15,7 +15,7 @@ const debug = debugFactory( 'jetpack-ai-client:save-to-media-library' );
 type SavedMediaItem = {
 	id: string;
 	url: string;
-	mime_type?: string;
+	mime?: string;
 };
 
 type UseSaveToMediaLibraryReturn = {
@@ -73,7 +73,7 @@ export default function useSaveToMediaLibrary() {
 										resolve( {
 											id: image.id,
 											url: image.url,
-											mime_type: image.mime,
+											mime: image.mime,
 										} );
 									}
 

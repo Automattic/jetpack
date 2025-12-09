@@ -27,7 +27,7 @@ import type { ReactElement } from 'react';
 type SetImageCallbackProps = {
 	id: number;
 	url: string;
-	mime_type?: string;
+	mime?: string;
 };
 
 type GeneralPurposeImageProps = {
@@ -215,8 +215,8 @@ export default function GeneralPurposeImage( {
 			site_type: siteType,
 		} );
 
-		const setImage = ( { id, url, mime_type } ) => {
-			onSetImage?.( { id, url, mime_type } );
+		const setImage = ( { id, url, mime } ) => {
+			onSetImage?.( { id, url, mime } );
 			handleModalClose();
 		};
 
@@ -227,14 +227,14 @@ export default function GeneralPurposeImage( {
 				id: currentImage?.libraryId,
 				url: currentImage?.libraryUrl,
 				// Default to image/png for cached images (AI generates PNG)
-				mime_type: 'image/png',
+				mime: 'image/png',
 			} );
 		} else {
 			saveToMediaLibrary( currentImage?.image ).then( image => {
 				setImage( {
 					id: image.id,
 					url: image.url,
-					mime_type: image.mime_type,
+					mime: image.mime,
 				} );
 			} );
 		}
