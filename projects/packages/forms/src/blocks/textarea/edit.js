@@ -1,6 +1,6 @@
-import { RichText, useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps } from '@wordpress/block-editor';
+import { ResizableBox } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { clsx } from 'clsx';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 
@@ -13,10 +13,18 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'textColor',
 ];
 
-const TextareaEdit = ( { attributes, clientId, isSelected, name, setAttributes, context } ) => {
+const TextareaEdit = ( {
+	attributes,
+	clientId,
+	context,
+	isSelected,
+	name,
+	setAttributes,
+	toggleSelection,
+} ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
-	const { placeholder } = attributes;
+	const { placeholder, height } = attributes;
 	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
@@ -35,12 +43,39 @@ const TextareaEdit = ( { attributes, clientId, isSelected, name, setAttributes, 
 	);
 
 	return (
-		<textarea
-			{ ...blockProps }
-			onChange={ onChange }
-			value={ isSelected ? placeholder : '' }
-			placeholder={ placeholder }
-		/>
+		<ResizableBox
+			size={ {
+				height,
+			} }
+			minHeight="200"
+			enable={ {
+				top: false,
+				right: false,
+				bottom: true,
+				left: false,
+				topRight: false,
+				bottomRight: false,
+				bottomLeft: false,
+				topLeft: false,
+			} }
+			onResizeStop={ ( event, direction, elt, delta ) => {
+				setAttributes( {
+					height: height + delta.height,
+				} );
+				toggleSelection( true );
+			} }
+			onResizeStart={ () => {
+				toggleSelection( false );
+			} }
+			isSelected={ isSelected }
+		>
+			<textarea
+				{ ...blockProps }
+				onChange={ onChange }
+				value={ isSelected ? placeholder : '' }
+				placeholder={ placeholder }
+			/>
+		</ResizableBox>
 	);
 };
 
