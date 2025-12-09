@@ -1,0 +1,418 @@
+# Jetpack Performance Testing Suite
+
+A performance baseline testing infrastructure for measuring Jetpack's impact on WordPress wp-admin dashboard load times using Largest Contentful Paint (LCP).
+
+## Overview
+
+This tool measures **Largest Contentful Paint (LCP)** for the WordPress wp-admin dashboard across four scenarios:
+
+1. **Baseline**: WordPress with no Jetpack installed
+2. **Jetpack Disconnected**: Jetpack installed but not connected to WordPress.com
+3. **Jetpack Offline Mode**: Jetpack with `JETPACK_DEV_DEBUG` enabled (bypasses connection checks)
+4. **Jetpack Connected (Simulated)**: Fake connection tokens + mocked WP.com API with configurable latency
+
+### Scenario Comparison
+
+| Mode | WP.com Connection | Code Paths Active | Latency Simulation | What It Measures |
+|------|-------------------|-------------------|-------------------|------------------|
+| **Disconnected** | None | Minimal | None | Base overhead of Jetpack plugin code |
+| **Offline Mode** | None (bypassed) | Most features | None | Overhead when Jetpack code executes locally |
+| **Connected (Sim)** | Mocked | Most features | Yes (200ms default) | Overhead including simulated API latency |
+
+- **Disconnected**: Jetpack is installed and activated but has never been connected. Most Jetpack features are disabled because `Jetpack::is_connection_ready()` returns false. This shows the "bare minimum" PHP overhead.
+
+- **Offline Mode**: Uses `JETPACK_DEV_DEBUG` constant to bypass connection checks, enabling more Jetpack code paths to execute locally. No network latency - only local PHP overhead.
+
+- **Connected (Simulated)**: Uses an mu-plugin that:
+  - Sets fake connection tokens so Jetpack thinks it's connected
+  - Intercepts all HTTP requests to `*.wordpress.com` via `pre_http_request` filter
+  - Returns mock API responses with configurable artificial latency (default: 200ms)
+  - Activates additional modules that work without real connection (see below)
+  - Provides the most realistic simulation of a connected site without actual OAuth
+
+### Modules Activated in Connected Scenario
+
+The simulated connection scenario activates these additional modules beyond the defaults:
+
+| Module | Description | Why Safe |
+|--------|-------------|----------|
+| `shortcodes` | Embed shortcodes (YouTube, Twitter, etc.) | Embeds render client-side |
+| `markdown` | Markdown support for posts | Fully local processing |
+| `sharedaddy` | Social sharing buttons | No backend validation |
+| `sitemaps` | XML sitemap generation | Fully local |
+| `seo-tools` | SEO meta tags and previews | Fully local |
+| `widget-visibility` | Widget display rules | Fully local |
+| `custom-content-types` | Portfolio/Testimonial CPTs | Fully local |
+
+**Not activated** (require real connection): `sso`, `publicize`, `subscriptions`, `related-posts`, `search`, `wordads`, `monitor`, `photon` (CDN images would fail)
+
+Results are automatically posted to [CodeVitals](https://www.codevitals.run) for tracking performance trends over time.
+
+## Architecture
+
+```
+tools/performance/
+├── scripts/
+│   ├── measure-lcp.js            # Playwright script to measure LCP
+│   ├── post-to-codevitals.js     # Posts metrics to CodeVitals API
+│   └── run-performance-tests.js  # Main orchestrator script
+├── docker/
+│   ├── docker-compose.yml        # 4 WordPress instances + MySQL
+│   ├── init-databases.sql        # Database initialization
+│   ├── setup-wordpress.sh        # WordPress setup via WP-CLI
+│   └── mu-plugins/               # Must-use plugins for testing
+│       └── simulate-wpcom-connection.php  # Fake WP.com connection with latency
+├── build/                        # Auto-generated, gitignored
+│   └── jetpack/                  # Rsync'd Jetpack plugin (symlinks resolved)
+├── results/
+│   └── lcp-results.json          # Performance measurement results
+├── package.json                  # Node.js dependencies
+├── README.md                     # This file
+└── TEAMCITY-SETUP.md            # TeamCity configuration guide
+```
+
+## Quick Start
+
+### Prerequisites
+
+- **Docker** (with Docker Compose)
+- **Node.js** 18+
+- **pnpm** (for monorepo tooling)
+- **GNU rsync** (macOS users: `brew install rsync`)
+
+### 1. Build Jetpack (if not already built)
+
+The test script automatically rsyncs Jetpack to resolve symlinks, but Jetpack must be built first:
+
+```bash
+# From monorepo root
+pnpm install
+pnpm jetpack build plugins/jetpack
+```
+
+### 2. Install Dependencies
+
+```bash
+cd tools/performance
+pnpm install
+pnpm run setup  # Installs Playwright browsers
+```
+
+### 3. Run Tests Locally
+
+```bash
+# Run full suite (rsyncs Jetpack, starts Docker, sets up WordPress, runs tests)
+pnpm test
+
+# Quick test with fewer iterations
+pnpm run test:quick
+
+# Or run individual steps:
+pnpm run docker:up      # Start Docker containers
+pnpm run docker:setup   # Set up WordPress instances
+pnpm run measure        # Run LCP measurements only
+```
+
+The test script automatically:
+1. Rsyncs Jetpack to `build/jetpack/` (resolves symlinks from `jetpack_vendor/`)
+2. Starts Docker containers
+3. Sets up WordPress instances
+4. Runs LCP measurements
+5. Posts results to CodeVitals (if token configured)
+
+### 4. View Results
+
+Results are saved to `results/lcp-results.json` and include:
+- Median, mean, min, max LCP for each scenario
+- Standard deviation
+- Raw measurement data for each iteration
+- Resource counts and performance metrics
+
+Example output:
+```
+Summary Comparison (LCP - Largest Contentful Paint):
+
+  Baseline WordPress:        1234ms
+  Jetpack (disconnected):    1456ms (+222ms, +18.0%)
+  Jetpack (offline mode):    1489ms (+255ms, +20.7%)
+  Jetpack (connected sim):   1623ms (+389ms, +31.5%)
+```
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CODEVITALS_URL` | `https://www.codevitals.run` | CodeVitals instance URL |
+| `CODEVITALS_TOKEN` | _(required for posting)_ | CodeVitals API token |
+| `ITERATIONS` | `5` | Number of measurement iterations per scenario |
+| `WP_ADMIN_USER` | `admin` | WordPress admin username |
+| `WP_ADMIN_PASS` | `password` | WordPress admin password |
+| `WP_BASELINE_URL` | `http://localhost:8080` | Baseline WordPress URL |
+| `WP_JETPACK_URL` | `http://localhost:8081` | Jetpack WordPress URL |
+| `WP_JETPACK_OFFLINE_URL` | `http://localhost:8082` | Jetpack Offline WordPress URL |
+| `WP_JETPACK_CONNECTED_URL` | `http://localhost:8083` | Jetpack Connected (Simulated) URL |
+| `WPCOM_SIMULATED_LATENCY_MS` | `200` | Simulated WP.com API latency in milliseconds |
+
+### Docker Configuration
+
+The test suite uses four separate WordPress instances running on different ports:
+
+| Scenario | Port | URL |
+|----------|------|-----|
+| Baseline | 8080 | http://localhost:8080 |
+| Jetpack Disconnected | 8081 | http://localhost:8081 |
+| Jetpack Offline Mode | 8082 | http://localhost:8082 |
+| Jetpack Connected (Sim) | 8083 | http://localhost:8083 |
+
+All instances share a single MySQL database server with separate databases:
+- `wp_baseline`
+- `wp_jetpack`
+- `wp_jetpack_offline`
+- `wp_jetpack_connected`
+
+### Configuring Simulated Latency
+
+The connected scenario uses a configurable simulated latency for mocked WP.com API calls:
+
+```bash
+# Default: 200ms latency
+pnpm test
+
+# Custom latency (e.g., 500ms to simulate slow connection)
+WPCOM_SIMULATED_LATENCY_MS=500 pnpm test
+
+# No latency (just mock responses)
+WPCOM_SIMULATED_LATENCY_MS=0 pnpm test
+```
+
+## TeamCity Integration
+
+See [TEAMCITY-SETUP.md](./TEAMCITY-SETUP.md) for detailed instructions on setting up this test suite in TeamCity.
+
+**Quick summary:**
+1. Create build configuration
+2. Add build steps for clone, build, test
+3. Configure `CODEVITALS_TOKEN` parameter
+4. Run build manually or on schedule
+
+## CodeVitals Metrics
+
+The following metrics are posted to CodeVitals:
+
+### Primary Metrics (Median LCP values):
+- `wp_admin_lcp_baseline_ms` - Baseline WordPress load time
+- `wp_admin_lcp_jetpack_disconnected_ms` - Jetpack disconnected load time
+- `wp_admin_lcp_jetpack_offline_ms` - Jetpack offline mode load time
+- `wp_admin_lcp_jetpack_connected_ms` - Jetpack connected (simulated) load time
+
+### Statistical Metrics:
+- `*_mean_ms` - Mean value
+- `*_min_ms` - Minimum value
+- `*_max_ms` - Maximum value
+- `*_stddev_ms` - Standard deviation
+
+### Overhead Metrics:
+- `wp_admin_lcp_jetpack_disconnected_overhead_ms` - Absolute overhead (ms)
+- `wp_admin_lcp_jetpack_disconnected_overhead_pct` - Relative overhead (%)
+- `wp_admin_lcp_jetpack_offline_overhead_ms` - Absolute overhead (ms)
+- `wp_admin_lcp_jetpack_offline_overhead_pct` - Relative overhead (%)
+- `wp_admin_lcp_jetpack_connected_overhead_ms` - Absolute overhead (ms)
+- `wp_admin_lcp_jetpack_connected_overhead_pct` - Relative overhead (%)
+
+## How It Works
+
+### 1. Jetpack Rsync
+
+Before starting Docker, the test script runs `pnpm jetpack rsync` to copy the Jetpack plugin to `build/jetpack/` with all symlinks resolved. This is necessary because:
+
+- The monorepo uses symlinks in `jetpack_vendor/` pointing to `packages/`
+- Docker volume mounts don't resolve symlinks from the host
+- The rsync step copies actual files instead of symlinks
+
+Use `--skip-rsync` flag if you've already synced and want faster iteration.
+
+### 2. Environment Setup
+
+The `docker-compose.yml` creates three isolated WordPress environments:
+- Separate databases per instance
+- Shared MySQL server
+- Volume mounts for rsync'd Jetpack plugin from `build/jetpack/`
+- WP-CLI container for setup automation
+- `WORDPRESS_CONFIG_EXTRA` for offline mode configuration
+
+### 3. WordPress Installation
+
+The `setup-wordpress.sh` script:
+- Waits for WordPress containers to be ready
+- Installs WordPress via WP-CLI
+- Activates Jetpack plugin (scenarios 2 & 3)
+- Offline mode uses `JETPACK_DEV_DEBUG` via `WORDPRESS_CONFIG_EXTRA`
+
+### 4. Performance Measurement
+
+The `measure-lcp.js` script uses Playwright to:
+- Launch headless Chromium browser
+- Navigate to wp-login.php
+- Log in with provided credentials
+- Wait for dashboard to fully load
+- Collect LCP via Performance Observer API
+- Capture additional metrics (FCP, DOM timing, resource counts)
+- Repeat for statistical accuracy (default: 5 iterations)
+- Calculate median, mean, std dev
+
+### 5. Results Processing
+
+The `post-to-codevitals.js` script:
+- Reads measurement results
+- Calculates overhead vs baseline
+- Formats metrics for CodeVitals API
+- Posts to CodeVitals with git commit info
+- Enables baseline normalization for trend tracking
+
+## Measurement Methodology
+
+### Why LCP?
+
+**Largest Contentful Paint (LCP)** is a Core Web Vital that measures when the largest content element becomes visible. It's ideal because:
+
+- Built into browser Performance API (reliable)
+- Industry-standard metric (comparable)
+- Correlates well with perceived load time
+- Captures actual rendering completion
+
+### Statistical Approach
+
+We use **median** as the primary metric because:
+- More robust against outliers
+- Better represents typical user experience
+- Less affected by background processes
+
+Multiple iterations (default: 5) ensure:
+- Statistical validity
+- Detection of variance
+- Outlier identification
+
+### System Warmup
+
+Each measurement:
+- Starts a fresh browser instance
+- Performs fresh login
+- Waits 2 seconds between iterations
+- Uses consistent viewport size (1920x1080)
+
+## Troubleshooting
+
+### Docker Issues
+
+**Problem**: Ports already in use
+```bash
+# Solution: Stop existing containers
+npm run docker:down
+```
+
+**Problem**: Containers won't start
+```bash
+# Solution: Check Docker is running
+docker info
+
+# View logs
+npm run docker:logs
+```
+
+### WordPress Setup Issues
+
+**Problem**: WordPress installation fails
+```bash
+# Solution: Reset everything and try again
+pnpm run docker:reset
+```
+
+**Problem**: Jetpack not found or symlink errors
+```bash
+# Solution: Ensure Jetpack is built and rsync'd
+cd ../..  # Back to monorepo root
+pnpm jetpack build plugins/jetpack
+cd tools/performance
+rm -rf build/  # Force fresh rsync
+pnpm test
+```
+
+**Problem**: Rsync fails on macOS
+```bash
+# Solution: Install GNU rsync (macOS's built-in rsync has symlink limitations)
+brew install rsync
+```
+
+**Problem**: Jetpack activation fails with "file not found" errors
+```bash
+# Solution: The jetpack_vendor symlinks weren't resolved. Force re-rsync:
+rm -rf build/
+pnpm test
+```
+
+### Measurement Issues
+
+**Problem**: Browser timeout
+- Increase timeout in `measure-lcp.js`
+- Check WordPress instances: `curl http://localhost:8080`
+
+**Problem**: Inconsistent measurements
+- Increase iterations: `ITERATIONS=10 pnpm test`
+- Check system load: Close other applications
+- Verify Docker has sufficient resources (4GB+ RAM recommended)
+
+### CodeVitals Issues
+
+**Problem**: Posting fails
+- Verify token: `echo $CODEVITALS_TOKEN`
+- Test connectivity: `curl https://www.codevitals.run`
+- Check project exists in CodeVitals
+
+## pnpm Scripts Reference
+
+| Script | Description |
+|--------|-------------|
+| `pnpm test` | Run full test suite |
+| `pnpm run test:quick` | Run with 2 iterations (faster) |
+| `pnpm run measure` | Run LCP measurements only |
+| `pnpm run report` | Post results to CodeVitals |
+| `pnpm run setup` | Install Playwright browsers |
+| `pnpm run docker:up` | Start Docker containers |
+| `pnpm run docker:down` | Stop and remove containers |
+| `pnpm run docker:setup` | Run WordPress setup |
+| `pnpm run docker:logs` | View container logs |
+| `pnpm run docker:reset` | Full reset and setup |
+
+## Future Enhancements
+
+### Phase 2: TTVC Support
+- Add @dropbox/ttvc measurement via browser injection
+- Compare TTVC vs LCP correlation
+
+### Phase 3: Sync Performance Testing
+- Instrument Jetpack Sync operations
+- Measure sync batch processing time
+- Track database query counts
+- Monitor API call latency
+
+### Phase 4: Expanded Coverage
+- Test additional WordPress pages (posts, media, plugins)
+- Measure JavaScript execution time
+- Track network payload sizes
+
+## Support
+
+For questions or issues:
+- Check this README and TEAMCITY-SETUP.md
+- Review build logs in TeamCity
+- Check CodeVitals dashboard
+
+## License
+
+This tool is part of the Jetpack monorepo and follows the same licensing.
+
+---
+
+**Built during HACK Week December 2025**

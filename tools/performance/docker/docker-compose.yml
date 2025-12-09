@@ -1,0 +1,170 @@
+# Jetpack Performance Testing Environment
+# Four isolated WordPress instances for performance comparison:
+# - Port 8080: Baseline WordPress (no Jetpack)
+# - Port 8081: WordPress with Jetpack (not connected)
+# - Port 8082: WordPress with Jetpack in offline mode
+# - Port 8083: WordPress with Jetpack simulated connection (fake tokens + mock API responses)
+
+services:
+  # Shared MySQL database
+  db:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    networks:
+      - jetpack-perf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  # Scenario 1: Baseline WordPress (no Jetpack)
+  wordpress-baseline:
+    image: wordpress:6.7-php8.2-apache
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: wp_baseline
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_DEBUG: "false"
+    volumes:
+      - wp_baseline:/var/www/html
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Scenario 2: WordPress with Jetpack (not connected)
+  wordpress-jetpack:
+    image: wordpress:6.7-php8.2-apache
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: wp_jetpack
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_DEBUG: "false"
+    volumes:
+      - wp_jetpack:/var/www/html
+      # Mount rsync'd Jetpack plugin (symlinks resolved)
+      - ../build/jetpack:/var/www/html/wp-content/plugins/jetpack:ro
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Scenario 3: WordPress with Jetpack in offline mode
+  wordpress-jetpack-offline:
+    image: wordpress:6.7-php8.2-apache
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: wp_jetpack_offline
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_DEBUG: "false"
+      # WORDPRESS_CONFIG_EXTRA adds to wp-config.php automatically
+      WORDPRESS_CONFIG_EXTRA: |
+        define( 'JETPACK_DEV_DEBUG', true );
+    volumes:
+      - wp_jetpack_offline:/var/www/html
+      - ../build/jetpack:/var/www/html/wp-content/plugins/jetpack:ro
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Scenario 4: WordPress with Jetpack simulated connection
+  # Uses mu-plugin to fake connection tokens and intercept WP.com API calls with artificial latency
+  wordpress-jetpack-connected:
+    image: wordpress:6.7-php8.2-apache
+    ports:
+      - "8083:80"
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WORDPRESS_DB_NAME: wp_jetpack_connected
+      WORDPRESS_TABLE_PREFIX: wp_
+      WORDPRESS_DEBUG: "false"
+      # Simulated latency in milliseconds (configurable)
+      WPCOM_SIMULATED_LATENCY_MS: ${WPCOM_SIMULATED_LATENCY_MS:-200}
+    volumes:
+      - wp_jetpack_connected:/var/www/html
+      - ../build/jetpack:/var/www/html/wp-content/plugins/jetpack:ro
+      # Mount the mu-plugin for connection simulation
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # WP-CLI for setup operations
+  wpcli:
+    image: wordpress:cli-2.10-php8.2
+    user: "33:33"  # Match www-data UID from WordPress Debian image
+    volumes:
+      - wp_baseline:/var/www/html/baseline
+      - wp_jetpack:/var/www/html/jetpack
+      - wp_jetpack_offline:/var/www/html/jetpack-offline
+      - wp_jetpack_connected:/var/www/html/jetpack-connected
+      - ./setup-wordpress.sh:/usr/local/bin/setup-wordpress.sh:ro
+      - ../build/jetpack:/var/www/html/jetpack/wp-content/plugins/jetpack:ro
+      - ../build/jetpack:/var/www/html/jetpack-offline/wp-content/plugins/jetpack:ro
+      - ../build/jetpack:/var/www/html/jetpack-connected/wp-content/plugins/jetpack:ro
+      - ./mu-plugins:/var/www/html/jetpack-connected/wp-content/mu-plugins:ro
+    networks:
+      - jetpack-perf
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress-baseline:
+        condition: service_started
+      wordpress-jetpack:
+        condition: service_started
+      wordpress-jetpack-offline:
+        condition: service_started
+      wordpress-jetpack-connected:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: rootpassword
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WP_ADMIN_PASS: ${WP_ADMIN_PASS:-password}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@example.com}
+    # Run setup and exit
+    command: ["sh", "/usr/local/bin/setup-wordpress.sh"]
+
+networks:
+  jetpack-perf:
+    driver: bridge
+
+volumes:
+  db_data:
+  wp_baseline:
+  wp_jetpack:
+  wp_jetpack_offline:
+  wp_jetpack_connected:

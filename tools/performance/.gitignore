@@ -1,0 +1,8 @@
+node_modules/
+results/*.json
+results/*.log
+.env
+.env.local
+playwright-report/
+test-results/
+build/
