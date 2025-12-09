@@ -868,39 +868,20 @@ export function inspector() {
 		[ navigate, searchParams ]
 	);
 
-	if ( ! responseIds.length ) {
+	if ( responseIds.length !== 1 ) {
 		return null;
 	}
 
-	const isBulkSelection = responseIds.length > 1;
 	const selectedResponseId = Number( responseIds[ 0 ] );
 
 	return (
 		<Page showSidebarToggle={ false } hasPadding={ false }>
-			{ isBulkSelection ? (
-				<div style={ { padding: '20px' } }>
-					<p>
-						{
-							/* Translators: %d is the number of selected responses. */
-							sprintf(
-								__(
-									'%d responses selected. Select a single response to view details.',
-									'jetpack-forms'
-								),
-								responseIds.length
-							)
-						}
-					</p>
-					<Button onClick={ handleClose }>{ __( 'Clear selection', 'jetpack-forms' ) }</Button>
-				</div>
-			) : (
-				<SingleResponseView
-					responseId={ selectedResponseId }
-					allResponseIds={ allRecordIds }
-					onNavigate={ handleNavigate }
-					onClose={ handleClose }
-				/>
-			) }
+			<SingleResponseView
+				responseId={ selectedResponseId }
+				allResponseIds={ allRecordIds }
+				onNavigate={ handleNavigate }
+				onClose={ handleClose }
+			/>
 		</Page>
 	);
 }

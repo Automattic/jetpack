@@ -7,20 +7,17 @@ import { resolveSelect } from '@wordpress/data';
 export const route = {
 	/**
 	 * Determines when to show the inspector panel.
-	 * Only show when items are selected.
+	 * Only show when a single response is selected.
 	 * @param root0
-	 * @param root0.params
-	 * @param root0.params.view
 	 * @param root0.search
 	 * @param root0.search.responseIds
 	 */
 	inspector: async ( {
 		search,
 	}: {
-		params: { view?: string };
 		search: { responseIds?: string[] };
 	} ) => {
-		return !! ( search?.responseIds && search.responseIds.length > 0 );
+		return !! ( search?.responseIds && search.responseIds.length === 1 );
 	},
 
 	/**
