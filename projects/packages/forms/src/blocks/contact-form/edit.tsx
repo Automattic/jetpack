@@ -34,7 +34,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, useMemo, lazy, Suspense } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { edit } from '@wordpress/icons';
+import { pencil } from '@wordpress/icons';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -987,7 +987,7 @@ function JetpackContactFormEdit( {
 					{ ref && reusableForm && (
 						<ToolbarGroup>
 							<ToolbarButton
-								icon={ edit }
+								icon={ pencil }
 								label={ sprintf(
 									/* translators: %s: Form title */
 									__( 'Edit "%s" in new tab', 'jetpack-forms' ),
