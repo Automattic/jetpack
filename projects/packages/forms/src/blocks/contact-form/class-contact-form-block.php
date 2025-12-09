@@ -716,6 +716,12 @@ class Contact_Form_Block {
 		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
 			return '';
 		}
+
+		// Handle ref attribute - load form from jetpack-form post
+		if ( isset( $atts['ref'] ) && is_numeric( $atts['ref'] ) ) {
+			return self::render_reusable_form( $atts['ref'] );
+		}
+
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
@@ -729,6 +735,53 @@ class Contact_Form_Block {
 		self::load_view_scripts();
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+
+	/**
+	 * Render a reusable form by reference ID.
+	 *
+	 * @param int $ref_id The jetpack-form post ID.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_reusable_form( $ref_id ) {
+		// Circular reference prevention.
+		static $seen_refs = array();
+
+		if ( isset( $seen_refs[ $ref_id ] ) ) {
+			return sprintf(
+				'<div class="wp-block-jetpack-contact-form">%s</div>',
+				esc_html__( 'Circular reference detected in form.', 'jetpack-forms' )
+			);
+		}
+
+		// Load the jetpack-form post.
+		$reusable_form = get_post( $ref_id );
+
+		// Validate post.
+		if ( ! $reusable_form || 'jetpack-form' !== $reusable_form->post_type ) {
+			return '';
+		}
+
+		// Only render published forms.
+		if ( 'publish' !== $reusable_form->post_status ) {
+			return '';
+		}
+
+		// Mark as seen for circular reference prevention.
+		$seen_refs[ $ref_id ] = true;
+
+		// Parse and render blocks from post_content.
+		$blocks = parse_blocks( $reusable_form->post_content );
+		$output = '';
+
+		foreach ( $blocks as $block ) {
+			$output .= render_block( $block );
+		}
+
+		// Clean up.
+		unset( $seen_refs[ $ref_id ] );
+
+		return $output;
 	}
 
 	/**

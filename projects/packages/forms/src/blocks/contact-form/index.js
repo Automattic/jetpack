@@ -63,8 +63,15 @@ export const settings = {
 		'jetpack/form-class-name': 'className',
 	},
 	edit,
-	save: () => {
+	save: ( { attributes } ) => {
 		const blockProps = useBlockProps.save();
+
+		// When ref is present, don't save inner blocks - they're stored in the referenced post
+		if ( attributes.ref ) {
+			return <div { ...blockProps } />;
+		}
+
+		// Normal save for non-reusable forms
 		return (
 			<div { ...blockProps }>
 				<InnerBlocks.Content />

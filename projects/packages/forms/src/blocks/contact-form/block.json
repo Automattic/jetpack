@@ -21,6 +21,10 @@
 		},
 		"align": [ "wide", "full" ]
 	},
-	"attributes": {},
+	"attributes": {
+		"ref": {
+			"type": "number"
+		}
+	},
 	"editorScript": "file:./editor.js"
 }

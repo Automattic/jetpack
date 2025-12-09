@@ -14,21 +14,27 @@ import {
 	BlockControls,
 	BlockContextProvider,
 } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, parse, serialize } from '@wordpress/blocks';
 import {
 	ExternalLink,
+	Notice,
 	PanelBody,
+	Placeholder,
+	Spinner,
 	TextareaControl,
 	TextControl,
 	ToggleControl,
 	RadioControl,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useRef, useEffect, useCallback, useMemo, lazy, Suspense } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { edit } from '@wordpress/icons';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -128,6 +134,7 @@ type Webhook = {
 };
 
 type JetpackContactFormAttributes = {
+	ref?: number;
 	to: string;
 	subject: string;
 	// Legacy support for the customThankyou attribute
@@ -164,6 +171,7 @@ function JetpackContactFormEdit( {
 	useFormBlockDefaults( { attributes, setAttributes } );
 
 	const {
+		ref,
 		to,
 		subject,
 		customThankyou,
@@ -183,6 +191,49 @@ function JetpackContactFormEdit( {
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
+
+	// Load reusable form content when ref is set
+	const { reusableForm, isResolvingReusableForm } = useSelect(
+		select => {
+			if ( ! ref ) {
+				return { reusableForm: null, isResolvingReusableForm: false };
+			}
+
+			const { getEntityRecord, isResolving } = select( coreStore );
+
+			return {
+				reusableForm: getEntityRecord( 'postType', 'jetpack-form', ref ),
+				isResolvingReusableForm: isResolving( 'getEntityRecord', [
+					'postType',
+					'jetpack-form',
+					ref,
+				] ),
+			};
+		},
+		[ ref ]
+	);
+
+	// Parse blocks from reusable form and extract form attributes and inner blocks
+	const { reusableFormBlocks, reusableFormAttributes } = useMemo( () => {
+		if ( ! reusableForm?.content?.raw ) {
+			return { reusableFormBlocks: null, reusableFormAttributes: null };
+		}
+
+		const parsedBlocks = parse( reusableForm.content.raw );
+
+		// The content should be a single jetpack/contact-form block
+		// Extract its inner blocks and attributes
+		if ( parsedBlocks.length > 0 && parsedBlocks[ 0 ].name === 'jetpack/contact-form' ) {
+			const formBlock = parsedBlocks[ 0 ];
+			return {
+				reusableFormBlocks: formBlock.innerBlocks || [],
+				reusableFormAttributes: formBlock.attributes || {},
+			};
+		}
+
+		// Fallback: if it's just inner blocks (backward compatibility)
+		return { reusableFormBlocks: parsedBlocks, reusableFormAttributes: null };
+	}, [ reusableForm ] );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
@@ -304,10 +355,93 @@ function JetpackContactFormEdit( {
 	const { replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent, updateBlockAttributes } =
 		useDispatch( blockEditorStore );
 
+	const { editEntityRecord } = useDispatch( coreStore );
+
 	const currentInnerBlocks = useSelect(
 		select => select( blockEditorStore ).getBlocks( clientId ),
 		[ clientId ]
 	);
+
+	// Track if we're currently syncing to prevent save-back loops
+	const isSyncingRef = useRef( false );
+	const lastLoadedRefId = useRef( null );
+
+	// Sync inner blocks and attributes when reusable form loads (ONLY ONCE per ref)
+	useEffect( () => {
+		if ( ! ref || ! reusableFormBlocks ) {
+			return;
+		}
+
+		// Only sync when ref changes or loads for the first time
+		// Don't re-sync when reusableFormBlocks changes due to our own edits
+		if ( lastLoadedRefId.current === ref ) {
+			return; // Already loaded this ref
+		}
+
+		// Mark this ref as loaded
+		lastLoadedRefId.current = ref;
+
+		// Sync on initial load
+		// Once loaded, the user can edit freely and changes will save back to the source
+		isSyncingRef.current = true;
+
+		// Apply form attributes from the reusable form (except ref and layout attrs)
+		// Mark as non-persistent so they're not saved locally - only ref is saved
+		if ( reusableFormAttributes ) {
+			const attrsToApply = { ...reusableFormAttributes };
+			// Don't override layout attributes or ref
+			delete attrsToApply.className;
+			delete attrsToApply.align;
+			delete attrsToApply.style;
+			delete attrsToApply.ref;
+
+			__unstableMarkNextChangeAsNotPersistent();
+			setAttributes( attrsToApply );
+		}
+
+		// Load inner blocks from source
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( clientId, reusableFormBlocks, false );
+
+		// Reset syncing flag after a short delay
+		setTimeout( () => {
+			isSyncingRef.current = false;
+		}, 100 );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ ref, reusableFormBlocks, reusableFormAttributes, clientId ] );
+
+	// Save changes back to reusable form post (inline editing)
+	useEffect( () => {
+		if ( ! ref || ! reusableForm || isSyncingRef.current ) {
+			return; // Not a reusable form or currently syncing
+		}
+
+		// Create the full jetpack/contact-form block with current attributes and inner blocks
+		// Exclude ref from saved attributes since it's not part of the form definition
+		const attributesToSave = { ...attributes };
+		delete attributesToSave.ref;
+
+		const formBlock = createBlock( 'jetpack/contact-form', attributesToSave, currentInnerBlocks );
+
+		// Serialize the entire form block
+		const serialized = serialize( formBlock );
+
+		// Only update if content has changed
+		if ( serialized !== reusableForm.content?.raw ) {
+			// Debounce to avoid excessive saves
+			const timeoutId = setTimeout( () => {
+				editEntityRecord( 'postType', 'jetpack-form', ref, {
+					content: serialized,
+				} );
+			}, 1000 ); // 1 second debounce
+
+			return () => clearTimeout( timeoutId );
+		}
+	}, [ currentInnerBlocks, ref, reusableForm, editEntityRecord, attributes ] );
+
+	// Note: We don't clear attributes in memory when ref is set, as they're needed
+	// for the form to work properly in the editor. The save() method ensures that
+	// only the ref attribute is persisted to the database.
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
@@ -795,7 +929,27 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	if ( ! isModuleActive ) {
+	// Show loading state when resolving reusable form
+	if ( ref && isResolvingReusableForm ) {
+		elt = (
+			<div { ...blockProps }>
+				<Placeholder>
+					<Spinner />
+					{ __( 'Loading form...', 'jetpack-forms' ) }
+				</Placeholder>
+			</div>
+		);
+	}
+	// Show error if referenced form not found
+	else if ( ref && ! reusableForm && ! isResolvingReusableForm ) {
+		elt = (
+			<div { ...blockProps }>
+				<Notice status="warning" isDismissible={ false }>
+					{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+				</Notice>
+			</div>
+		);
+	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
 			elt = <ContactFormSkeletonLoader />;
 		} else {
@@ -830,6 +984,24 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					{ ref && reusableForm && (
+						<ToolbarGroup>
+							<ToolbarButton
+								icon={ edit }
+								label={ sprintf(
+									/* translators: %s: Form title */
+									__( 'Edit "%s" in new tab', 'jetpack-forms' ),
+									reusableForm.title?.rendered || __( 'Reusable Form', 'jetpack-forms' )
+								) }
+								onClick={ () => {
+									// Construct the edit URL for the jetpack-form post
+									const adminUrl = window?.location?.origin || '';
+									const editUrl = `${ adminUrl }/wp-admin/post.php?post=${ ref }&action=edit`;
+									window.open( editUrl, '_blank', 'noopener,noreferrer' );
+								} }
+							/>
+						</ToolbarGroup>
+					) }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody
