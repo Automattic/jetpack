@@ -1,10 +1,11 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Flex, FormToggle } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
+import { getA11yLabelForConnectionToggle } from '../../../utils/misc';
 import { useConnectionState } from '../../form/use-connection-state';
 import styles from './styles.module.scss';
 
@@ -43,13 +44,6 @@ export function ConnectionToggles( { selectedConnection }: ConnectionTogglesProp
 				const isDisabled = shouldBeDisabled( connection );
 				const isSelected = selectedConnection?.connection_id === connection.connection_id;
 
-				const ariaLabel = sprintf(
-					/* translators: 1: Social account name, 2: Social network name like "Tumblr" */
-					__( 'Toggle connection: %1$s on %2$s', 'jetpack-publicize-components' ),
-					connection.display_name,
-					connection.service_label
-				);
-
 				return (
 					<Flex
 						key={ connection.connection_id }
@@ -60,7 +54,7 @@ export function ConnectionToggles( { selectedConnection }: ConnectionTogglesProp
 						<FormToggle
 							checked={ isEnabled }
 							disabled={ isDisabled }
-							aria-label={ ariaLabel }
+							aria-label={ getA11yLabelForConnectionToggle( connection ) }
 							onClick={ onClickConnectionToggle( connection ) }
 						/>
 					</Flex>

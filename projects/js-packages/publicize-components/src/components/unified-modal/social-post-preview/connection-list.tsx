@@ -1,13 +1,14 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Flex, Icon, NavigableMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { __, isRTL, sprintf } from '@wordpress/i18n';
+import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
+import { getA11yLabelForConnectionPreview } from '../../../utils/misc';
 import ConnectionIcon from '../../connection-icon';
 import { useConnectionState } from '../../form/use-connection-state';
 import styles from './styles.module.scss';
@@ -104,12 +105,7 @@ export function ConnectionList( {
 						disabled={ isDisabled }
 						aria-selected={ isSelected }
 						aria-controls={ `${ baseId }-preview-content-${ connection.connection_id }` }
-						aria-label={ sprintf(
-							/* translators: 1: Social account name, 2: Social network name like "Tumblr" */
-							__( 'Preview for %1$s on %2$s', 'jetpack-publicize-components' ),
-							connection.display_name,
-							connection.service_label
-						) }
+						aria-label={ getA11yLabelForConnectionPreview( connection ) }
 						// Disable navigation via tab key
 						tabIndex={ isSelected ? 0 : -1 }
 					>
