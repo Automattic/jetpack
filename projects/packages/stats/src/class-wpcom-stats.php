@@ -523,9 +523,12 @@ class WPCOM_Stats {
 					if ( ( time() - $time ) < $expiration ) {
 						$cached_value = $data[ $time ];
 
-						// If it's an array or WP_Error, add cached time and return to user.
-						if ( is_array( $cached_value ) || is_wp_error( $cached_value ) ) {
-							return array_merge( array( 'cached_at' => $time ), (array) $cached_value );
+						// If it's an array or WP_Error, handle appropriately.
+						if ( is_wp_error( $cached_value ) ) {
+							return $cached_value;
+						}
+						if ( is_array( $cached_value ) ) {
+							return array_merge( array( 'cached_at' => $time ), $cached_value );
 						}
 
 						// For any other unexpected type, treat as malformed cache.
