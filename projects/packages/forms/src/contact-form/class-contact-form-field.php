@@ -663,6 +663,13 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
+		if ( $field_type === 'textarea' ) {
+			if ( ! empty( $this->get_attribute( 'height' ) ) ) {
+				l( 'height:', $this->get_attribute( 'height' ) );
+				$extra_attrs['height'] = $this->get_attribute( 'height' );
+			}
+		}
+
 		if ( $field_type === 'number' || $field_type === 'slider' ) {
 			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
 				$extra_attrs['min'] = $this->get_attribute( 'min' );
@@ -1209,10 +1216,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field      = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
 		$aria_label = ! empty( $placeholder ) ? $placeholder : Contact_Form_Plugin::strip_tags( $this->get_attribute( 'label' ) );
 		$field     .= "<textarea
-		                style='" . $this->field_styles . "'
-		                name='" . esc_attr( $id ) . "'
-		                id='contact-form-comment-" . esc_attr( $id ) . "'
-		                rows='20'
+						style='" . $this->field_styles . "'
+						name='" . esc_attr( $id ) . "'
+						id='contact-form-comment-" . esc_attr( $id ) . "'
 						data-wp-text='state.getFieldValue'
 						data-wp-on--input='actions.onFieldChange'
 						data-wp-on--blur='actions.onFieldBlur'

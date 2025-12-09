@@ -69,6 +69,9 @@ const settings = {
 		type: { type: 'string' },
 		min: { type: 'number' },
 		max: { type: 'number' },
+		height: {
+			type: 'string',
+		},
 	},
 	edit,
 	save,

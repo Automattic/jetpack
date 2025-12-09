@@ -1,5 +1,15 @@
-import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	InspectorControls,
+	RichText,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import {
+	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	PanelBody,
+	ResizableBox,
+} from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
@@ -29,10 +39,18 @@ const getInputClass = type => {
 	return 'jetpack-field__input';
 };
 
-const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, context } ) => {
+const InputEdit = ( {
+	attributes,
+	clientId,
+	context,
+	isSelected,
+	name,
+	setAttributes,
+	toggleSelection,
+} ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
-	const { max, min, placeholder, type } = attributes;
+	const { max, min, height, placeholder, type } = attributes;
 	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
@@ -43,6 +61,17 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	} );
 	const blockProps = useBlockProps( { className, style: variationProps?.cssVars } );
 	const onKeyDown = useInsertAfterOnEnterKeyDown( clientId );
+
+	// Check if the parent block (e.g. textarea-field) is selected
+	const isParentSelected = useSelect(
+		select => {
+			const { getBlockRootClientId, getSelectedBlockClientId } = select( blockEditorStore );
+			const parentClientId = getBlockRootClientId( clientId );
+			const selectedBlockClientId = getSelectedBlockClientId();
+			return parentClientId && parentClientId === selectedBlockClientId;
+		},
+		[ clientId ]
+	);
 
 	const onChange = useCallback(
 		event => {
@@ -68,13 +97,37 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 	}
 
 	if ( type === 'textarea' ) {
+		const currentHeight = height || 200;
+
 		return (
-			<textarea
-				{ ...blockProps }
-				onChange={ onChange }
-				value={ isSelected ? placeholder : '' }
-				placeholder={ placeholder }
-			/>
+			<ResizableBox
+				size={ {
+					height: currentHeight,
+				} }
+				minHeight={ 42 }
+				enable={ {
+					bottom: true,
+				} }
+				onResizeStop={ ( event, direction, elt, delta ) => {
+					const newHeight = currentHeight + delta.height;
+					setAttributes( {
+						height: `${ newHeight }px`,
+					} );
+					toggleSelection( true );
+				} }
+				onResizeStart={ () => {
+					toggleSelection( false );
+				} }
+				showHandle={ isSelected || isParentSelected }
+			>
+				<textarea
+					{ ...blockProps }
+					onChange={ onChange }
+					value={ isSelected ? placeholder : '' }
+					placeholder={ placeholder }
+					style={ { height: '100%' } }
+				/>
+			</ResizableBox>
 		);
 	}
 
