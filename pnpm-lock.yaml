@@ -450,6 +450,10 @@ importers:
         version: 30.2.0
 
   projects/js-packages/analytics-ui:
+    dependencies:
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../charts
     devDependencies:
       esbuild:
         specifier: 0.25.9

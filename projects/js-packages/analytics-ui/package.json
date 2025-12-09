@@ -43,6 +43,9 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
 	},
+	"dependencies": {
+		"@automattic/charts": "workspace:*"
+	},
 	"devDependencies": {
 		"esbuild": "0.25.9",
 		"esbuild-sass-plugin": "^3.1.0",
