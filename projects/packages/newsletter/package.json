@@ -35,7 +35,7 @@
 		"@wordpress/dataviews": "11.0.0",
 		"@wordpress/element": "6.36.0",
 		"@wordpress/i18n": "6.9.0",
-		"debug": "4.4.1"
+		"debug": "4.4.3"
 	},
 	"devDependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",

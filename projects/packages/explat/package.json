@@ -36,7 +36,7 @@
 		"@wordpress/api-fetch": "7.36.0",
 		"@wordpress/url": "4.36.0",
 		"cookie": "1.0.2",
-		"debug": "4.4.1",
+		"debug": "4.4.3",
 		"qs": "6.12.1"
 	},
 	"devDependencies": {
