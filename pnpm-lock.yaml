@@ -2078,8 +2078,8 @@ importers:
         specifier: 2.9.4
         version: 2.9.4(webpack@5.101.3)
       terser-webpack-plugin:
-        specifier: 5.3.3
-        version: 5.3.3(webpack@5.101.3)
+        specifier: 5.3.15
+        version: 5.3.15(webpack@5.101.3)
       thread-loader:
         specifier: 3.0.4
         version: 3.0.4(webpack@5.101.3)
@@ -16512,22 +16512,6 @@ packages:
 
   terser-webpack-plugin@5.3.15:
     resolution: {integrity: sha512-PGkOdpRFK+rb1TzVz+msVhw4YMRT9txLF4kRqvJhGhCM324xuR3REBSHALN+l+sAhKUmz0aotnjp5D+P83mLhQ==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      '@swc/core': '*'
-      esbuild: '*'
-      uglify-js: '*'
-      webpack: ^5.1.0
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      esbuild:
-        optional: true
-      uglify-js:
-        optional: true
-
-  terser-webpack-plugin@5.3.3:
-    resolution: {integrity: sha512-Fx60G5HNYknNTNQnzQ1VePRuu89ZVYWfjRAeT5rITuCY/1b08s49e5kSQwHDirKZWuoKOBRFS98EUUoZ9kLEwQ==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
       '@swc/core': '*'
@@ -31840,15 +31824,6 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
-      serialize-javascript: 6.0.2
-      terser: 5.44.1
-      webpack: 5.101.3(webpack-cli@6.0.1)
-
-  terser-webpack-plugin@5.3.3(webpack@5.101.3):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.31
-      jest-worker: 27.5.1
-      schema-utils: 3.3.0
       serialize-javascript: 6.0.2
       terser: 5.44.1
       webpack: 5.101.3(webpack-cli@6.0.1)
