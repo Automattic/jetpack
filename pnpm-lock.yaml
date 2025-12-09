@@ -454,6 +454,9 @@ importers:
       jest:
         specifier: 30.2.0
         version: 30.2.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   projects/js-packages/api:
     dependencies:
