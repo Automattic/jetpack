@@ -280,24 +280,19 @@ const customTheme = {
 - Use `labelBackgroundColor` when segment colors are too varied or bright for consistent text visibility
 - Consider accessibility guidelines when choosing color combinations
 
-### Theme Integration
+## Theming Integration
 
-Pie Charts automatically integrate with the chart theme system, inheriting colors, typography, and styling from the active theme. Create a custom theme by defining the properties you want to override:
+Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
 
 <Source
-	language="jsx"
-	code={ `import { GlobalChartsProvider } from '@automattic/charts';
+	language="tsx"
+	code={ `import { GlobalChartsProvider, PieChart, type PartialChartTheme } from '@automattic/charts';
 
-    const customTheme = {
-    	colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-    };
+	const customTheme: PartialChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
 
-    <GlobalChartsProvider theme={ customTheme }>
-    	<PieChart data={ data } />
-    </GlobalChartsProvider>` }
-
+	<GlobalChartsProvider theme={customTheme}>
+		<PieChart data={data} />
+	</GlobalChartsProvider>` }
 />
-
-**Available themes:**
-- **Default**: Neutral colors and styling
-- **Custom**: Define your own theme object with properties to override

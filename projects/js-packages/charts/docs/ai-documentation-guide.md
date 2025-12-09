@@ -174,14 +174,13 @@ Controls [what this category affects]:
 - `property`: Description and possible values
 - `anotherProperty`: Description
 
-### Theme Integration
+## Theming Integration
 
-For the Theme Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should:
+For the Theming Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
 
-- Show how to create a custom theme by defining properties to override
-- Include a code example with `GlobalChartsProvider`
-- List available themes (Default and Custom)
-- Include a note explaining that the provider automatically merges properties
+- A description explaining that the chart integrates seamlessly with the theming system
+- An explanation that the default theme has neutral colors and styling
+- A code example showing how to wrap the chart in `GlobalChartsProvider` with a custom theme
 
 See the template for the complete section structure.
 ```
