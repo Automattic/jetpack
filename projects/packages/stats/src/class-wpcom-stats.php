@@ -490,9 +490,9 @@ class WPCOM_Stats {
 	 * it prevents wp_options from blowing up when retrieving views for large numbers
 	 * of posts at the same time.
 	 *
-	 * This function prioritizes cache time over data validity. If cached data exists
-	 * and is within the expiration period, it will be returned even if it's a WP_Error
-	 * or contains invalid data. This reduces API calls when remote fetch fails.
+	 * This function returns valid arrays and WP_Error objects from cache if within the expiration period.
+	 * If the cached entry is malformed or invalid, a refresh is triggered regardless of cache time.
+	 * This self-healing behavior reduces API calls when remote fetch fails, but ensures data validity.
 	 *
 	 * @param array $args Query parameters.
 	 * @param int   $post_id Post ID to acquire stats for.
