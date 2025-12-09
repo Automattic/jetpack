@@ -34,7 +34,11 @@ Classes that handle form rendering and processing:
 
 Classes for admin and user-facing interfaces:
 
+- **Admin** - Admin interface for viewing and managing form submissions. Provides list tables and detail views for feedback posts.
+
 - **Editor_View** - Handles form display in the block editor. Provides live previews and editing capabilities.
+
+- **Form_View** - Renders forms on the frontend. Handles HTML generation, validation display, and success messages.
 
 ### Utilities
 
