@@ -1,6 +1,6 @@
 ## [3.3.5] - 2025-12-08
 ### Fixed
-- Move `react` and `react-dom` to dependencies. [#46167]
+- Move `react` and `react-dom` to `devDependencies`. [#46167]
 
 ## [3.3.4] - 2025-11-18
 ### Changed
