@@ -842,6 +842,285 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that invalid/malformed cache entries trigger a refresh.
+	 */
+	public function test_fetch_post_stats_with_malformed_cache_triggers_refresh() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up malformed cache - a string instead of expected array structure.
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		update_post_meta( $post_id, $meta_name, 'malformed_string_data' );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data, not the malformed cache.
+		$this->assertSame( $expected_stats, $stats );
+	}
+
+	/**
+	 * Test that cache with invalid structure (no time key) triggers a refresh.
+	 */
+	public function test_fetch_post_stats_with_invalid_structure_triggers_refresh() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up invalid cache structure - array with non-numeric key.
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		update_post_meta( $post_id, $meta_name, array( 'invalid_key' => array( 'data' => 'value' ) ) );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data, not the invalid cache.
+		$this->assertSame( $expected_stats, $stats );
+	}
+
+	/**
+	 * Test that cache with unexpected value type triggers a refresh.
+	 */
+	public function test_fetch_post_stats_with_unexpected_value_type_triggers_refresh() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up cache with unexpected value type (string instead of array or WP_Error).
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$time      = time();
+		update_post_meta( $post_id, $meta_name, array( $time => 'unexpected_string' ) );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data, not the unexpected cached value.
+		$this->assertSame( $expected_stats, $stats );
+	}
+
+	/**
+	 * Test that WP_Error cached entries are returned correctly within expiration period.
+	 */
+	public function test_fetch_post_stats_returns_cached_wp_error_within_expiration() {
+		$post_id       = 1234;
+		$expected_error = new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
+
+		// Set up cache with WP_Error within expiration period.
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$time      = time() - 60; // 1 minute ago.
+		update_post_meta( $post_id, $meta_name, array( $time => $expected_error ) );
+
+		// Should not call fetch_remote_stats since cache is valid.
+		$this->wpcom_stats
+			->expects( $this->never() )
+			->method( 'fetch_remote_stats' );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the cached WP_Error with cached_at timestamp.
+		$this->assertTrue( is_array( $stats ) );
+		$this->assertArrayHasKey( 'cached_at', $stats );
+		$this->assertSame( $time, $stats['cached_at'] );
+	}
+
+	/**
+	 * Test that WP_Error cached entries are refreshed beyond expiration period.
+	 */
+	public function test_fetch_post_stats_refreshes_cached_wp_error_beyond_expiration() {
+		$post_id        = 1234;
+		$cached_error   = new WP_Error( 'old_error', 'Old error' );
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up cache with WP_Error beyond expiration period (6 minutes ago, expiration is 5 minutes).
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$time      = time() - ( 6 * MINUTE_IN_SECONDS );
+		update_post_meta( $post_id, $meta_name, array( $time => $cached_error ) );
+
+		// Should call fetch_remote_stats since cache is expired.
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data, not the expired cached error.
+		$this->assertSame( $expected_stats, $stats );
+	}
+
+	/**
+	 * Test that valid array cached entries are returned correctly within expiration period.
+	 */
+	public function test_fetch_post_stats_returns_cached_array_within_expiration() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up cache with array within expiration period.
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$time      = time() - 60; // 1 minute ago.
+		update_post_meta( $post_id, $meta_name, array( $time => $expected_stats ) );
+
+		// Should not call fetch_remote_stats since cache is valid.
+		$this->wpcom_stats
+			->expects( $this->never() )
+			->method( 'fetch_remote_stats' );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the cached array with cached_at timestamp.
+		$this->assertArrayHasKey( 'cached_at', $stats );
+		$this->assertSame( $time, $stats['cached_at'] );
+		$this->assertSame( $expected_stats['date'], $stats['date'] );
+		$this->assertSame( $expected_stats['views'], $stats['views'] );
+	}
+
+	/**
+	 * Test that refresh_post_stats_cache properly caches success responses.
+	 */
+	public function test_refresh_post_stats_cache_caches_success_response() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the stats.
+		$this->assertSame( $expected_stats, $stats );
+
+		// Verify the cache was updated.
+		$meta_name   = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$stats_cache = get_post_meta( $post_id, $meta_name, true );
+
+		$this->assertIsArray( $stats_cache );
+		$this->assertCount( 1, $stats_cache );
+
+		$time = key( $stats_cache );
+		$this->assertTrue( is_numeric( $time ) );
+		$this->assertSame( $expected_stats, $stats_cache[ $time ] );
+	}
+
+	/**
+	 * Test that refresh_post_stats_cache properly caches error responses.
+	 */
+	public function test_refresh_post_stats_cache_caches_error_response() {
+		$post_id        = 1234;
+		$expected_error = new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_error );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the error.
+		$this->assertTrue( is_wp_error( $stats ) );
+
+		// Verify the error was cached.
+		$meta_name   = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$stats_cache = get_post_meta( $post_id, $meta_name, true );
+
+		$this->assertIsArray( $stats_cache );
+		$this->assertCount( 1, $stats_cache );
+
+		$time = key( $stats_cache );
+		$this->assertTrue( is_numeric( $time ) );
+		$this->assertInstanceOf( WP_Error::class, $stats_cache[ $time ] );
+	}
+
+	/**
+	 * Test that cache expiration logic works correctly with the new validation.
+	 */
+	public function test_fetch_post_stats_respects_cache_expiration() {
+		$post_id        = 1234;
+		$cached_stats   = array(
+			'date'  => '2022-09-28',
+			'views' => 50,
+		);
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// Set up cache beyond expiration period (6 minutes ago, expiration is 5 minutes).
+		$meta_name = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
+		$time      = time() - ( 6 * MINUTE_IN_SECONDS );
+		update_post_meta( $post_id, $meta_name, array( $time => $cached_stats ) );
+
+		// Should call fetch_remote_stats since cache is expired.
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data, not the expired cache.
+		$this->assertSame( $expected_stats, $stats );
+
+		// Verify the cache was updated with new timestamp.
+		$stats_cache = get_post_meta( $post_id, $meta_name, true );
+		$new_time    = key( $stats_cache );
+		$this->assertGreaterThan( $time, $new_time );
+		$this->assertSame( $expected_stats, $stats_cache[ $new_time ] );
+	}
+
+	/**
+	 * Test that empty cache triggers a refresh.
+	 */
+	public function test_fetch_post_stats_with_no_cache_triggers_refresh() {
+		$post_id        = 1234;
+		$expected_stats = array(
+			'date'  => '2022-09-29',
+			'views' => 100,
+		);
+
+		// No cache set up.
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
+
+		// Should return the fresh data.
+		$this->assertSame( $expected_stats, $stats );
+	}
+
+	/**
 	 * Helper for fetching the stats transient.
 	 *
 	 * @param  string $endpoint The WPCOM REST API endpoint.
