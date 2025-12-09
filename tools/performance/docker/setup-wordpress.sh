@@ -92,6 +92,21 @@ setup_instance() {
         echo "  Including extra config in wp-config.php"
     fi
 
+    # Generate unique salts for this instance using /dev/urandom
+    # Using alphanumeric characters only to avoid any potential PHP string escaping issues
+    generate_salt() {
+        tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64 || echo "fallback-salt-$(date +%s)-$RANDOM"
+    }
+
+    local AUTH_KEY_SALT=$(generate_salt)
+    local SECURE_AUTH_KEY_SALT=$(generate_salt)
+    local LOGGED_IN_KEY_SALT=$(generate_salt)
+    local NONCE_KEY_SALT=$(generate_salt)
+    local AUTH_SALT_SALT=$(generate_salt)
+    local SECURE_AUTH_SALT_SALT=$(generate_salt)
+    local LOGGED_IN_SALT_SALT=$(generate_salt)
+    local NONCE_SALT_SALT=$(generate_salt)
+
     cat > "$wp_config" << WPCONFIG
 <?php
 define( 'DB_NAME', '$db_name' );
@@ -103,14 +118,14 @@ define( 'DB_COLLATE', '' );
 
 \$table_prefix = 'wp_';
 
-define( 'AUTH_KEY',         'put your unique phrase here' );
-define( 'SECURE_AUTH_KEY',  'put your unique phrase here' );
-define( 'LOGGED_IN_KEY',    'put your unique phrase here' );
-define( 'NONCE_KEY',        'put your unique phrase here' );
-define( 'AUTH_SALT',        'put your unique phrase here' );
-define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
-define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
-define( 'NONCE_SALT',       'put your unique phrase here' );
+define( 'AUTH_KEY',         '$AUTH_KEY_SALT' );
+define( 'SECURE_AUTH_KEY',  '$SECURE_AUTH_KEY_SALT' );
+define( 'LOGGED_IN_KEY',    '$LOGGED_IN_KEY_SALT' );
+define( 'NONCE_KEY',        '$NONCE_KEY_SALT' );
+define( 'AUTH_SALT',        '$AUTH_SALT_SALT' );
+define( 'SECURE_AUTH_SALT', '$SECURE_AUTH_SALT_SALT' );
+define( 'LOGGED_IN_SALT',   '$LOGGED_IN_SALT_SALT' );
+define( 'NONCE_SALT',       '$NONCE_SALT_SALT' );
 
 define( 'WP_DEBUG', false );
 
@@ -218,6 +233,9 @@ setup_instance \
 
 # Scenario 3: Jetpack Offline Mode
 # Pass JETPACK_DEV_DEBUG as 6th parameter to include in wp-config.php
+# Note: This is intentionally redundant with WORDPRESS_CONFIG_EXTRA in docker-compose.yml
+# Both set JETPACK_DEV_DEBUG=true as a belt-and-suspenders approach to ensure offline mode works
+# regardless of whether Docker's config injection or WP-CLI setup runs first
 setup_instance \
     "Jetpack Offline Mode" \
     "/var/www/html/jetpack-offline" \

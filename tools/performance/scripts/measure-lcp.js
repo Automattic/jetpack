@@ -67,9 +67,10 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			await page.fill( '#user_login', username );
 			await page.fill( '#user_pass', password );
 
-			// Submit and wait for dashboard
+			// Submit and wait for dashboard navigation to complete
+			// Using waitForURL avoids race condition where navigation completes before waitForNavigation is set up
 			await Promise.all( [
-				page.waitForNavigation( { waitUntil: 'networkidle', timeout: 60000 } ),
+				page.waitForURL( '**/wp-admin/**', { waitUntil: 'networkidle', timeout: 60000 } ),
 				page.click( '#wp-submit' ),
 			] );
 
@@ -103,9 +104,13 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			// Wait for dashboard content to be visible
 			await page.waitForSelector( '#dashboard-widgets, #wpbody-content', { timeout: 30000 } );
 
-			// Wait for LCP to finalize (LCP stops updating after user input or visibility change)
-			// We wait a bit for lazy content to load
-			await page.waitForTimeout( 2000 );
+			// Wait for network to settle and LCP to finalize
+			// LCP stops updating after user input or visibility change
+			// Using networkidle is more reliable than a fixed timeout on slow systems
+			await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
+
+			// Additional short wait for any final rendering after network settles
+			await page.waitForTimeout( 500 );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */

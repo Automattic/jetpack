@@ -93,6 +93,9 @@ function getGitInfo() {
 	try {
 		const hash = exec( 'git rev-parse HEAD', { silent: true } )?.trim() || 'unknown';
 		const branch = exec( 'git rev-parse --abbrev-ref HEAD', { silent: true } )?.trim() || 'unknown';
+		// Try to get merge-base with origin/trunk. If origin/trunk doesn't exist
+		// (e.g., fresh clone, different remote naming), falls back to string 'trunk'.
+		// Note: CodeVitals accepts 'trunk' as a symbolic base reference.
 		const baseHash =
 			exec( 'git merge-base HEAD origin/trunk', { silent: true, ignoreError: true } )?.trim() ||
 			'trunk';
@@ -158,15 +161,26 @@ function checkJetpackBuild() {
 		return { valid: false, reason: 'jetpack_vendor is empty' };
 	}
 
-	// Check a known package exists and is a directory (not a broken symlink)
-	const testPackage = path.join( jetpackVendorDir, 'automattic', 'jetpack-assets' );
+	// Check that automattic/ subdirectory exists and contains at least one valid package
+	// This validates that symlinks were resolved properly without depending on a specific package name
+	const automatticDir = path.join( jetpackVendorDir, 'automattic' );
 	try {
-		const stats = fs.statSync( testPackage );
+		const stats = fs.statSync( automatticDir );
 		if ( ! stats.isDirectory() ) {
-			return { valid: false, reason: 'jetpack-assets is not a directory' };
+			return { valid: false, reason: 'jetpack_vendor/automattic is not a directory' };
+		}
+		const packages = fs.readdirSync( automatticDir );
+		if ( packages.length === 0 ) {
+			return { valid: false, reason: 'jetpack_vendor/automattic is empty' };
+		}
+		// Verify at least one package is accessible (not a broken symlink)
+		const firstPackage = path.join( automatticDir, packages[ 0 ] );
+		const packageStats = fs.statSync( firstPackage );
+		if ( ! packageStats.isDirectory() ) {
+			return { valid: false, reason: `${ packages[ 0 ] } is not a directory` };
 		}
 	} catch {
-		return { valid: false, reason: 'jetpack-assets not accessible (broken symlink?)' };
+		return { valid: false, reason: 'jetpack_vendor/automattic not accessible (broken symlink?)' };
 	}
 
 	return { valid: true };
@@ -236,6 +250,7 @@ async function main() {
 		skipSetup: args.includes( '--skip-setup' ),
 		skipCodeVitals: args.includes( '--skip-codevitals' ),
 		skipRsync: args.includes( '--skip-rsync' ),
+		allowCodeVitalsFailure: args.includes( '--allow-codevitals-failure' ),
 		iterations: parseInt( process.env.ITERATIONS || '5', 10 ),
 	};
 
@@ -302,8 +317,10 @@ async function main() {
 			} );
 
 			// Poll for MySQL readiness (healthcheck) before running setup
+			// Timeout is configurable via MYSQL_READY_TIMEOUT_SECONDS env var (default: 120s)
 			console.log( 'Waiting for MySQL to be ready...' );
-			const maxDbAttempts = 60;
+			const mysqlTimeoutSeconds = parseInt( process.env.MYSQL_READY_TIMEOUT_SECONDS || '120', 10 );
+			const maxDbAttempts = Math.ceil( mysqlTimeoutSeconds / 2 ); // 2 second intervals
 			let dbReady = false;
 			for ( let i = 0; i < maxDbAttempts; i++ ) {
 				try {
@@ -334,8 +351,10 @@ async function main() {
 			} );
 
 			// Poll for WordPress instances to be ready
+			// Timeout is configurable via WP_READY_TIMEOUT_SECONDS env var (default: 60s)
 			console.log( 'Verifying WordPress instances are ready...' );
-			const maxWpAttempts = 30;
+			const wpTimeoutSeconds = parseInt( process.env.WP_READY_TIMEOUT_SECONDS || '60', 10 );
+			const maxWpAttempts = Math.ceil( wpTimeoutSeconds / 2 ); // 2 second intervals
 			let wpSetupReady = false;
 			for ( let i = 0; i < maxWpAttempts; i++ ) {
 				wpSetupReady = await checkWordPressInstances();
@@ -390,11 +409,16 @@ async function main() {
 			exec( `node ${ path.join( __dirname, 'post-to-codevitals.js' ) }` );
 		} catch {
 			// When CODEVITALS_TOKEN is explicitly set, posting failures should fail the build
-			// to ensure CI doesn't silently drop metrics
+			// to ensure CI doesn't silently drop metrics (unless --allow-codevitals-failure is set)
 			console.error( '\n✗ Failed to post to CodeVitals' );
-			console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
-			console.error( '  Use --skip-codevitals to run without posting metrics.' );
-			process.exit( 1 );
+			if ( options.allowCodeVitalsFailure ) {
+				console.warn( '  Continuing despite failure (--allow-codevitals-failure set)' );
+			} else {
+				console.error( '  Since CODEVITALS_TOKEN is set, this is treated as a build failure.' );
+				console.error( '  Use --skip-codevitals to run without posting metrics.' );
+				console.error( '  Use --allow-codevitals-failure to continue on posting failures.' );
+				process.exit( 1 );
+			}
 		}
 	} else if ( ! process.env.CODEVITALS_TOKEN ) {
 		console.log( '\nℹ Skipping CodeVitals integration (CODEVITALS_TOKEN not set)' );

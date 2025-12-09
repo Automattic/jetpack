@@ -58,9 +58,14 @@ export const SCENARIOS = [
 /**
  * Get the URL for a scenario from environment or default
  *
+ * Uses the environment variable if set and non-empty, otherwise falls back to default.
+ *
  * @param {object} scenario - Scenario object from SCENARIOS
  * @return {string} The URL for the scenario
  */
 export function getScenarioUrl( scenario ) {
-	return process.env[ scenario.envVar ] || scenario.defaultUrl;
+	const envValue = process.env[ scenario.envVar ];
+	// Only use env value if it's defined and non-empty (trim to handle whitespace-only values)
+	const trimmedValue = envValue?.trim();
+	return trimmedValue || scenario.defaultUrl;
 }

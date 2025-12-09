@@ -7,7 +7,7 @@
 	"scripts": {
 		"docker:down": "docker compose -f docker/docker-compose.yml down -v",
 		"docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
-		"docker:reset": "pnpm run docker:down && pnpm run docker:up && sleep 30 && pnpm run docker:setup",
+		"docker:reset": "pnpm run docker:down && pnpm test -- --skip-codevitals",
 		"docker:setup": "docker compose -f docker/docker-compose.yml run --rm wpcli",
 		"docker:up": "docker compose -f docker/docker-compose.yml up -d",
 		"measure": "node scripts/measure-lcp.js",

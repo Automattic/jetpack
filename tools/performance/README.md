@@ -111,6 +111,12 @@ pnpm run test:quick
 pnpm run docker:up      # Start Docker containers
 pnpm run docker:setup   # Set up WordPress instances
 pnpm run measure        # Run LCP measurements only
+
+# Command line options:
+pnpm test -- --skip-setup              # Skip WordPress setup (assumes already running)
+pnpm test -- --skip-rsync              # Skip Jetpack rsync (use existing build/)
+pnpm test -- --skip-codevitals         # Skip posting to CodeVitals
+pnpm test -- --allow-codevitals-failure # Continue if CodeVitals posting fails
 ```
 
 The test script automatically:
@@ -154,6 +160,8 @@ Summary Comparison (LCP - Largest Contentful Paint):
 | `WP_JETPACK_OFFLINE_URL` | `http://localhost:8082` | Jetpack Offline WordPress URL |
 | `WP_JETPACK_CONNECTED_URL` | `http://localhost:8083` | Jetpack Connected (Simulated) URL |
 | `WPCOM_SIMULATED_LATENCY_MS` | `200` | Simulated WP.com API latency in milliseconds |
+| `MYSQL_READY_TIMEOUT_SECONDS` | `120` | Timeout for MySQL readiness check during setup |
+| `WP_READY_TIMEOUT_SECONDS` | `60` | Timeout for WordPress readiness check during setup |
 
 ### Docker Configuration
 
@@ -186,6 +194,8 @@ WPCOM_SIMULATED_LATENCY_MS=500 pnpm test
 # No latency (just mock responses)
 WPCOM_SIMULATED_LATENCY_MS=0 pnpm test
 ```
+
+**Known limitation**: The simulated latency is applied serially (using `usleep()`) for each intercepted WordPress.com API request. In a real connected scenario, multiple API requests would happen in parallel over the network. This means the simulated latency may slightly overestimate the actual performance impact of network latency when multiple API calls occur during a single page load. For accurate latency simulation, consider using `WPCOM_SIMULATED_LATENCY_MS=0` to measure PHP overhead separately from network effects.
 
 ## TeamCity Integration
 
@@ -235,7 +245,7 @@ Use `--skip-rsync` flag if you've already synced and want faster iteration.
 
 ### 2. Environment Setup
 
-The `docker-compose.yml` creates three isolated WordPress environments:
+The `docker-compose.yml` creates four isolated WordPress environments:
 - Separate databases per instance
 - Shared MySQL server
 - Volume mounts for rsync'd Jetpack plugin from `build/jetpack/`
@@ -309,7 +319,7 @@ Each measurement:
 **Problem**: Ports already in use
 ```bash
 # Solution: Stop existing containers
-npm run docker:down
+pnpm run docker:down
 ```
 
 **Problem**: Containers won't start
@@ -318,7 +328,7 @@ npm run docker:down
 docker info
 
 # View logs
-npm run docker:logs
+pnpm run docker:logs
 ```
 
 ### WordPress Setup Issues
@@ -374,16 +384,18 @@ pnpm test
 
 | Script | Description |
 |--------|-------------|
-| `pnpm test` | Run full test suite |
+| `pnpm test` | Run full test suite (recommended - handles all setup automatically) |
 | `pnpm run test:quick` | Run with 2 iterations (faster) |
-| `pnpm run measure` | Run LCP measurements only |
+| `pnpm run measure` | Run LCP measurements only (requires WordPress to be running) |
 | `pnpm run report` | Post results to CodeVitals |
 | `pnpm run setup` | Install Playwright browsers |
-| `pnpm run docker:up` | Start Docker containers |
+| `pnpm run docker:up` | Start Docker containers (requires `build/jetpack/` to exist first) |
 | `pnpm run docker:down` | Stop and remove containers |
-| `pnpm run docker:setup` | Run WordPress setup |
+| `pnpm run docker:setup` | Run WordPress setup (requires containers to be running) |
 | `pnpm run docker:logs` | View container logs |
 | `pnpm run docker:reset` | Full reset and setup |
+
+**Note**: For most use cases, just run `pnpm test` - it handles rsync, Docker startup, and WordPress setup automatically. The individual `docker:*` scripts are for advanced use or debugging.
 
 ## Future Enhancements
 
@@ -414,5 +426,3 @@ For questions or issues:
 This tool is part of the Jetpack monorepo and follows the same licensing.
 
 ---
-
-**Built during HACK Week December 2025**

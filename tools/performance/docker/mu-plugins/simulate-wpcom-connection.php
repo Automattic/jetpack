@@ -83,9 +83,9 @@ class Jetpack_WPCom_Connection_Simulator {
 			return;
 		}
 
-		// Check if already set up.
+		// Check if already set up (cast to int for reliable comparison since options may be stored as strings).
 		$existing_id = Jetpack_Options::get_option( 'id' );
-		if ( $existing_id === $this->fake_site_id ) {
+		if ( (int) $existing_id === $this->fake_site_id ) {
 			return;
 		}
 
@@ -198,25 +198,28 @@ class Jetpack_WPCom_Connection_Simulator {
 	/**
 	 * Check if URL is a WordPress.com request.
 	 *
+	 * Uses pattern matching to catch all WordPress.com subdomains,
+	 * including any future API endpoints that Jetpack might add.
+	 *
 	 * @param string $url Request URL.
 	 * @return bool
 	 */
 	private function is_wpcom_request( $url ) {
-		$wpcom_hosts = array(
-			'wordpress.com',
-			'public-api.wordpress.com',
-			'jetpack.wordpress.com',
-		);
-
 		$parsed = wp_parse_url( $url );
 		if ( ! isset( $parsed['host'] ) ) {
 			return false;
 		}
 
-		foreach ( $wpcom_hosts as $host ) {
-			if ( $parsed['host'] === $host || str_ends_with( $parsed['host'], '.' . $host ) ) {
-				return true;
-			}
+		$host = $parsed['host'];
+
+		// Match wordpress.com and all subdomains (*.wordpress.com)
+		if ( $host === 'wordpress.com' || str_ends_with( $host, '.wordpress.com' ) ) {
+			return true;
+		}
+
+		// Match wp.com and all subdomains (used by some Jetpack services)
+		if ( $host === 'wp.com' || str_ends_with( $host, '.wp.com' ) ) {
+			return true;
 		}
 
 		return false;

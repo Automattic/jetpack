@@ -1,14 +1,24 @@
 #!/bin/bash
 set -e
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MONOREPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PERFORMANCE_DIR="$SCRIPT_DIR"
+
 echo "╔════════════════════════════════════════════════════════╗"
 echo "║   Jetpack Performance Testing - Quick Start           ║"
 echo "╚════════════════════════════════════════════════════════╝"
 echo ""
 
-# Check if we're in the right directory
-if [ ! -f "package.json" ]; then
-    echo "Error: Please run this script from tools/performance directory"
+# Validate we're in the expected monorepo structure
+if [ ! -f "$PERFORMANCE_DIR/package.json" ]; then
+    echo "Error: package.json not found in $PERFORMANCE_DIR"
+    exit 1
+fi
+
+if [ ! -f "$MONOREPO_ROOT/pnpm-workspace.yaml" ]; then
+    echo "Error: This script must be run from within the Jetpack monorepo"
     exit 1
 fi
 
@@ -28,14 +38,13 @@ else
     echo "✓ Docker is running"
 fi
 
-# Check Node.js
+# Check Node.js version using Node itself for reliability across version managers
 if ! command -v node &> /dev/null; then
     echo "✗ Node.js not found. Please install Node.js 18+ first."
     exit 1
 else
-    NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
-    if [ "$NODE_VERSION" -lt 18 ]; then
-        echo "✗ Node.js version $NODE_VERSION found. Please upgrade to Node.js 18+."
+    if ! node -e "process.exit(parseInt(process.versions.node.split('.')[0], 10) < 18 ? 1 : 0)"; then
+        echo "✗ Node.js version $(node -v) found. Please upgrade to Node.js 18+."
         exit 1
     fi
     echo "✓ Node.js $(node -v) found"
@@ -47,7 +56,7 @@ echo ""
 echo "Step 2: Building Jetpack plugin..."
 echo "-----------------------------------"
 
-cd ../..  # Go to monorepo root
+cd "$MONOREPO_ROOT"
 
 # Always ensure pnpm is installed (needed for later steps even if Jetpack is already built)
 if ! command -v pnpm &> /dev/null; then
@@ -58,7 +67,7 @@ else
     echo "✓ pnpm found"
 fi
 
-if [ ! -d "projects/plugins/jetpack/vendor" ]; then
+if [ ! -d "$MONOREPO_ROOT/projects/plugins/jetpack/vendor" ]; then
     echo "Building Jetpack for the first time (this may take a while)..."
 
     echo "Installing dependencies..."
@@ -81,7 +90,7 @@ echo ""
 echo "Step 3: Installing performance test dependencies..."
 echo "-----------------------------------------------------"
 
-cd tools/performance
+cd "$PERFORMANCE_DIR"
 
 if [ ! -d "node_modules" ]; then
     echo "Installing pnpm packages..."

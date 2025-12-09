@@ -37,7 +37,8 @@ function extractScenarioMetrics( summary, prefix, baselineMedian ) {
 	baseMetrics[ `${ prefix }_mean_ms` ] = summary.mean;
 
 	// Calculate overhead vs baseline (only for non-baseline scenarios)
-	if ( baselineMedian !== null ) {
+	// Guard against division by zero (theoretically impossible but defensive)
+	if ( baselineMedian !== null && baselineMedian > 0 ) {
 		const overhead = summary.median - baselineMedian;
 		const overheadPct = ( overhead / baselineMedian ) * 100;
 		metrics[ `${ prefix }_overhead_ms` ] = Math.round( overhead );
@@ -100,6 +101,10 @@ async function postToCodeVitals( resultsPath, config ) {
 	console.log( 'Metrics:', JSON.stringify( metrics, null, 2 ) );
 
 	// Post to CodeVitals API with timeout to prevent hanging builds
+	// Note: Token is passed as query parameter per CodeVitals API spec.
+	// The CodeVitals UI does not support Authorization header authentication,
+	// so we must use the query parameter approach. Be aware that query parameters
+	// may appear in server access logs. Avoid logging the full URL.
 	const url = `${ config.codeVitalsUrl }/api/log?token=${ config.codeVitalsToken }`;
 	const TIMEOUT_MS = 30000; // 30 second timeout
 
@@ -119,10 +124,16 @@ async function postToCodeVitals( resultsPath, config ) {
 
 		if ( ! response.ok ) {
 			const errorText = await response.text();
+			// Don't log the URL as it contains the token
 			throw new Error( `CodeVitals API error (${ response.status }): ${ errorText }` );
 		}
 
-		const data = await response.json();
+		let data;
+		try {
+			data = await response.json();
+		} catch ( jsonError ) {
+			throw new Error( `CodeVitals returned invalid JSON: ${ jsonError.message }` );
+		}
 		console.log( '✓ Metrics posted successfully to CodeVitals' );
 		return data;
 	} catch ( error ) {
