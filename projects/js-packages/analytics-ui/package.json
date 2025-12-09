@@ -15,9 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"exports": {
-		".": "./src/index.jsx",
-		"./action-types": "./src/state/action-types",
-		"./state": "./src/state"
+		".": "./src/index.jsx"
 	},
 	"scripts": {
 		"test": "jest --config=tests/jest.config.cjs",
