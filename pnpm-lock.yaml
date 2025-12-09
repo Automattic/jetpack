@@ -394,8 +394,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       markdown-it:
         specifier: 14.1.0
         version: 14.1.0
@@ -440,8 +440,8 @@ importers:
   projects/js-packages/analytics:
     devDependencies:
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -871,8 +871,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -1639,8 +1639,8 @@ importers:
         specifier: 4.36.0
         version: 4.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@storybook/addon-docs':
         specifier: 10.0.8
@@ -1748,8 +1748,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2438,8 +2438,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       qs:
         specifier: 6.12.1
         version: 6.12.1
@@ -2729,8 +2729,8 @@ importers:
         specifier: 13.0.1
         version: 13.0.1(webpack@5.101.3)
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -2886,7 +2886,7 @@ importers:
         version: link:../../js-packages/shared-extension-utils
       '@automattic/launchpad':
         specifier: 1.1.5
-        version: 1.1.5(@types/react@18.3.26)(@wordpress/data@10.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1))(@wordpress/element@6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b))(@wordpress/i18n@6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b))(debug@4.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.1.5(@types/react@18.3.26)(@wordpress/data@10.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1))(@wordpress/element@6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b))(@wordpress/i18n@6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b))(debug@4.4.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -3032,8 +3032,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       events:
         specifier: ^3.3.0
         version: 3.3.0
@@ -3286,8 +3286,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       gridicons:
         specifier: 3.4.2
         version: 3.4.2(react@18.3.1)
@@ -3383,8 +3383,8 @@ importers:
         specifier: 6.9.0
         version: 6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
@@ -4030,8 +4030,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       filesize:
         specifier: 10.1.6
         version: 10.1.6
@@ -5029,8 +5029,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
@@ -5978,8 +5978,8 @@ importers:
         specifier: 5.6.2
         version: 5.6.2
       debug:
-        specifier: 4.4.1
-        version: 4.4.1
+        specifier: 4.4.3
+        version: 4.4.3
       enquirer:
         specifier: 2.4.1
         version: 2.4.1
@@ -11629,15 +11629,6 @@ packages:
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
-  debug@4.4.1:
-    resolution: {integrity: sha512-KcKCqiftBJcZr++7ykoDIEwSa3XWowTfNPo92BYxjXiyYEVrUQh2aLyhxBCwww+heortUFxEJYcRzosstTEBYQ==}
-    engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
     peerDependenciesMeta:
@@ -17665,7 +17656,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@automattic/launchpad@1.1.5(@types/react@18.3.26)(@wordpress/data@10.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1))(@wordpress/element@6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b))(@wordpress/i18n@6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b))(debug@4.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/launchpad@1.1.5(@types/react@18.3.26)(@wordpress/data@10.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1))(@wordpress/element@6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b))(@wordpress/i18n@6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b))(debug@4.4.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.3
       '@automattic/calypso-config': 1.0.0-alpha.0
@@ -17683,7 +17674,7 @@ snapshots:
       '@wordpress/icons': 11.3.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(react@18.3.1)
       '@wordpress/url': 4.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
       clsx: 2.1.1
-      debug: 4.4.1
+      debug: 4.4.3
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       social-logos: 3.3.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -25970,10 +25961,6 @@ snapshots:
       ms: 2.0.0
 
   debug@3.2.7:
-    dependencies:
-      ms: 2.1.3
-
-  debug@4.4.1:
     dependencies:
       ms: 2.1.3
 
