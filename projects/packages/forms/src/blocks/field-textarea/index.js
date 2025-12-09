@@ -33,10 +33,7 @@ const settings = {
 				},
 			},
 			{
-				name: 'jetpack/input',
-				attributes: {
-					type: 'textarea',
-				},
+				name: 'jetpack/textarea',
 			},
 		],
 	},

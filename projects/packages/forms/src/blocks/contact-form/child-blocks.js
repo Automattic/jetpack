@@ -28,6 +28,7 @@ import JetpackStepContainer from '../form-step-container/index.js';
 import JetpackStepDivider from '../form-step-divider/index.js';
 import JetpackStepNavigation from '../form-step-navigation/index.js';
 import JetpackInput from '../input/index.js';
+import JetpackTextarea from '../textarea/index.js';
 import JetpackImageOptionInput from '../input-image-option/index.tsx';
 import JetpackPhoneInput from '../input-phone/index.js';
 import JetpackSliderInput from '../input-range/index.js';
@@ -40,6 +41,7 @@ export const childBlocks = [
 	JetpackLabel,
 	JetpackDropzone,
 	JetpackInput,
+	JetpackTextarea,
 	JetpackOption,
 	JetpackOptions,
 	JetpackCheckboxField,
