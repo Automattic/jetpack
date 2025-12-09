@@ -48,7 +48,7 @@ export async function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of test tasks to run at once. Ignored with `--verbose`.',
-			default: os.cpus().length,
+			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
 		.option( 'no-html', {
