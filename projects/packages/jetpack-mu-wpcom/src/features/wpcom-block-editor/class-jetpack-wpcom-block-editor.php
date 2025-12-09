@@ -197,7 +197,7 @@ class Jetpack_WPCOM_Block_Editor {
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
-				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack-mu-wpcom' ) ); ?>';
+				document.getElementById( 'wp-submit' ).value = <?php echo wp_json_encode( __( 'Logging In...', 'jetpack-mu-wpcom' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			} );
 		</script>
 		<?php
