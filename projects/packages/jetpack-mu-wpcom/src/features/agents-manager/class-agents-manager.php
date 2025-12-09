@@ -64,6 +64,7 @@ class Agents_Manager {
 	 * Update the calypso preferences.
 	 *
 	 * @param \stdClass $preferences The preferences.
+	 *
 	 * @return \stdClass The preferences.
 	 */
 	public function calypso_preferences_update( $preferences ) {
@@ -131,6 +132,7 @@ class Agents_Manager {
 	 * Determine if user should see unified experience.
 	 *
 	 * @param bool $default Default value (false).
+	 *
 	 * @return bool
 	 */
 	public function should_use_unified_experience( $default ) {
@@ -138,11 +140,6 @@ class Agents_Manager {
 
 		if ( ! $user_id ) {
 			return $default;
-		}
-
-		// Check hardcoded allowlist
-		if ( $this->is_user_in_unified_experience_allowlist( $user_id ) ) {
-			return true;
 		}
 
 		// Check Automattician opt-in setting (wpcom only)
@@ -160,6 +157,7 @@ class Agents_Manager {
 	 * Only available on wpcom where get_user_attribute() exists.
 	 *
 	 * @param int $user_id User ID.
+	 *
 	 * @return bool
 	 */
 	private function has_unified_chat_enabled( $user_id ) {
@@ -168,22 +166,6 @@ class Agents_Manager {
 		}
 
 		return (bool) get_user_attribute( $user_id, 'a11n_unified_chat' );
-	}
-
-	/**
-	 * Check if user is in the unified experience allowlist.
-	 *
-	 * Hardcoded list of user IDs for initial rollout.
-	 *
-	 * @param int $user_id User ID.
-	 * @return bool
-	 */
-	private function is_user_in_unified_experience_allowlist( $user_id ) {
-		$allowlist = array(
-			// Add user IDs here for rollout
-		);
-
-		return in_array( $user_id, $allowlist, true );
 	}
 }
 
