@@ -131,36 +131,35 @@ class Agents_Manager {
 	/**
 	 * Determine if user should see unified experience.
 	 *
-	 * @param bool $default Default value (false).
-	 *
 	 * @return bool
 	 */
-	public function should_use_unified_experience( $default ) {
+	public function should_use_unified_experience() {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
-			return $default;
+			return false;
 		}
 
-		// Check Automattician opt-in setting (wpcom only)
-		if ( $this->has_unified_chat_enabled( $user_id ) ) {
+		// Check Automattician and opt-in setting
+		if ( is_automattician( $user_id ) && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
 			return true;
 		}
 
-		return $default;
+		// False, for now.
+		// In the future: users with a big sky site (similar to https://github.a8c.com/Automattic/wpcom/pull/196449/files), a big-sky free trial or a paid plan.
+		return false;
 	}
 
 	/**
-	 * Check if user has enabled unified chat in their Automattician options.
+	 * Check if user has enabled unified chat opt-in in their Automattician options.
 	 *
 	 * This checks the a11n_unified_chat attribute set via the wpcom profile settings.
-	 * Only available on wpcom where get_user_attribute() exists.
 	 *
 	 * @param int $user_id User ID.
 	 *
 	 * @return bool
 	 */
-	private function has_unified_chat_enabled( $user_id ) {
+	private function has_unified_chat_opt_in_enabled( $user_id ) {
 		if ( ! function_exists( 'get_user_attribute' ) ) {
 			return false;
 		}
