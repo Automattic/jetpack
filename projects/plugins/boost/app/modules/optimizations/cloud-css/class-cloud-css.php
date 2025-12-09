@@ -175,7 +175,7 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 		$payload['requestId'] = md5(
 			wp_json_encode(
 				$payload,
-				0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 			) . time()
 		);
 		$payload['reason']    = $reason;
