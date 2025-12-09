@@ -1,2 +1,5 @@
 vendor/
 node_modules/
+dist/
+.claude/
+CLAUDE.local.md

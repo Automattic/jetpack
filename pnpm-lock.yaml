@@ -451,9 +451,27 @@ importers:
 
   projects/js-packages/analytics-ui:
     devDependencies:
+      esbuild:
+        specifier: 0.25.9
+        version: 0.25.9
+      esbuild-sass-plugin:
+        specifier: ^3.1.0
+        version: 3.3.1(esbuild@0.25.9)(sass-embedded@1.87.0)
       jest:
         specifier: 30.2.0
         version: 30.2.0
+      postcss:
+        specifier: 8.5.6
+        version: 8.5.6
+      postcss-modules:
+        specifier: 6.0.1
+        version: 6.0.1(postcss@8.5.6)
+      sass-embedded:
+        specifier: 1.87.0
+        version: 1.87.0
+      tsup:
+        specifier: 8.5.0
+        version: 8.5.0(postcss@8.5.6)(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3

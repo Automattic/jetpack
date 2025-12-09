@@ -14,17 +14,43 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"sideEffects": [
+		"*.css",
+		"*.scss"
+	],
+	"type": "module",
 	"exports": {
-		".": "./src/index.jsx"
+		".": {
+			"jetpack:src": "./src/index.tsx",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"typesVersions": {
+		"*": {
+			".": [
+				"./dist/index.d.ts"
+			]
+		}
 	},
 	"scripts": {
+		"build": "pnpm run build:prod",
+		"build:prod": "tsup",
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
+		"esbuild": "0.25.9",
+		"esbuild-sass-plugin": "^3.1.0",
 		"jest": "30.2.0",
+		"postcss": "8.5.6",
+		"postcss-modules": "6.0.1",
+		"sass-embedded": "1.87.0",
+		"tsup": "8.5.0",
 		"typescript": "5.9.3"
 	}
 }
