@@ -27,6 +27,7 @@ class Agents_Manager {
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'add_inline_script' ), 1001 );
+		add_filter( 'agents_manager_use_unified_experience', array( $this, 'should_use_unified_experience' ) );
 	}
 
 	/**
@@ -124,6 +125,65 @@ class Agents_Manager {
 		require_once __DIR__ . '/class-wp-rest-agents-manager-persisted-open-state.php';
 		$controller = new WP_REST_Agents_Manager_Persisted_Open_State();
 		$controller->register_rest_route();
+	}
+
+	/**
+	 * Determine if user should see unified experience.
+	 *
+	 * @param bool $default Default value (false).
+	 * @return bool
+	 */
+	public function should_use_unified_experience( $default ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id ) {
+			return $default;
+		}
+
+		// Check hardcoded allowlist
+		if ( $this->is_user_in_unified_experience_allowlist( $user_id ) ) {
+			return true;
+		}
+
+		// Check Automattician opt-in setting (wpcom only)
+		if ( $this->has_unified_chat_enabled( $user_id ) ) {
+			return true;
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Check if user has enabled unified chat in their Automattician options.
+	 *
+	 * This checks the a11n_unified_chat attribute set via the wpcom profile settings.
+	 * Only available on wpcom where get_user_attribute() exists.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	private function has_unified_chat_enabled( $user_id ) {
+		if ( ! function_exists( 'get_user_attribute' ) ) {
+			return false;
+		}
+
+		return (bool) get_user_attribute( $user_id, 'a11n_unified_chat' );
+	}
+
+	/**
+	 * Check if user is in the unified experience allowlist.
+	 *
+	 * Hardcoded list of user IDs for initial rollout.
+	 *
+	 * @param int $user_id User ID.
+	 * @return bool
+	 */
+	private function is_user_in_unified_experience_allowlist( $user_id ) {
+		$allowlist = array(
+			// Add user IDs here for rollout
+		);
+
+		return in_array( $user_id, $allowlist, true );
 	}
 }
 
