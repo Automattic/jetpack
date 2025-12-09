@@ -192,7 +192,8 @@ class WordAds_California_Privacy {
 		$optout = isset( $_POST['optout'] ) && 'true' === $_POST['optout'];
 		$optout ? self::set_optout_cookie() : self::set_optin_cookie();
 
-		wp_send_json_success( $optout );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( $optout, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

@@ -1823,7 +1823,8 @@ class Contact_Form_Plugin {
 					'error' => $error_message,
 					'code'  => $error_code,
 				),
-				500
+				500,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			// Non-JSON request, output the error message directly.
@@ -1840,7 +1841,8 @@ class Contact_Form_Plugin {
 				array(
 					'error' => $submission_result->get_error_message(),
 				),
-				400
+				400,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			// Non-JSON request, output the error message directly.
@@ -3012,14 +3014,16 @@ class Contact_Form_Plugin {
 		if ( ! isset( $_POST['newFormNonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['newFormNonce'] ) ), 'create_new_form' ) ) {
 			wp_send_json_error(
 				__( 'Invalid nonce', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
 		if ( ! current_user_can( 'edit_pages' ) ) {
 			wp_send_json_error(
 				__( 'You do not have permission to create pages', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
@@ -3048,13 +3052,16 @@ class Contact_Form_Plugin {
 		if ( is_wp_error( $post_id ) ) {
 			wp_send_json_error(
 				$post_id->get_error_message(),
-				500
+				500,
+				JSON_UNESCAPED_SLASHES
 			);
 		} else {
 			wp_send_json(
 				array(
 					'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 	}

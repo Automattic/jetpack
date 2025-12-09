@@ -1573,7 +1573,9 @@ class The_Neverending_Home_Page {
 			 * @param array $query_args Array of main query arguments.
 			 * @param WP_Query $wp_query WP Query.
 			 */
-			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
+			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

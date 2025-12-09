@@ -1,4 +1,4 @@
-import { FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
+import { Flex, FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
 import { _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -62,9 +62,24 @@ export function ConnectionsToggleList( {
 				return (
 					<MenuItem
 						key={ connection.connection_id }
-						role="menuitemcheckbox"
+						role="switch"
 						disabled={ isDisabled }
 						icon={
+							<ConnectionIcon
+								serviceName={ connection.service_name }
+								label={ connection.display_name }
+								profilePicture={ connection.profile_picture }
+								disabled={ isDisabled }
+							/>
+						}
+						iconPosition="right"
+						isSelected={ isSelected }
+						onClick={ onClickConnection( connection ) }
+						aria-label={ ariaLabel }
+						aria-checked={ isSelected }
+						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
+					>
+						<Flex justify="start">
 							<FormToggle
 								tabIndex={ ! onClickToggle ? -1 : 0 }
 								checked={ isSelected }
@@ -72,23 +87,10 @@ export function ConnectionsToggleList( {
 								onClick={ onClickToggle ? onClickToggleConnection( connection ) : undefined }
 								aria-label={ ariaLabel }
 							/>
-						}
-						isSelected={ isSelected }
-						onClick={ onClickConnection( connection ) }
-						aria-label={ ariaLabel }
-						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
-					>
-						<div className={ styles[ 'item-content' ] }>
-							<ConnectionIcon
-								serviceName={ connection.service_name }
-								label={ connection.display_name }
-								profilePicture={ connection.profile_picture }
-								disabled={ isDisabled }
-							/>
 							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
 								{ connection.display_name }
 							</div>
-						</div>
+						</Flex>
 					</MenuItem>
 				);
 			} ) }

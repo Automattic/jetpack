@@ -116,6 +116,14 @@
 					flex-basis: 100%;
 					max-width: none;
 				}
+
+				&.wp-block-jetpack-button {
+					flex-basis: 100%;
+
+					.wp-block-button__link {
+						width: 100%;
+					}
+				}
 			}
 
 			&[data-type="jetpack/field-checkbox"],

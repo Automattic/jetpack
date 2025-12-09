@@ -129,7 +129,6 @@ class WooCommerce extends Module {
 		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
@@ -170,7 +169,6 @@ class WooCommerce extends Module {
 
 		// Order items.
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
-		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
 		add_action( 'woocommerce_remove_order_item_ids', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );

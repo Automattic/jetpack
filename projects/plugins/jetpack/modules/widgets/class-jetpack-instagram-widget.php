@@ -125,11 +125,11 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	 */
 	public function ajax_update_widget_token_id() {
 		if ( ! check_ajax_referer( 'instagram-widget-save-token', 'savetoken', false ) ) {
-			wp_send_json_error( array( 'message' => 'bad_nonce' ), 403 );
+			wp_send_json_error( array( 'message' => 'bad_nonce' ), 403, JSON_UNESCAPED_SLASHES );
 		}
 
 		if ( ! current_user_can( 'customize' ) ) {
-			wp_send_json_error( array( 'message' => 'not_authorized' ), 403 );
+			wp_send_json_error( array( 'message' => 'not_authorized' ), 403, JSON_UNESCAPED_SLASHES );
 		}
 
 		$token_id  = ! empty( $_POST['keyring_id'] ) ? (int) $_POST['keyring_id'] : null;
@@ -145,14 +145,14 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				)
 			);
 			if ( get_current_user_id() !== (int) $token->meta['user_id'] ) {
-				return wp_send_json_error( array( 'message' => 'not_authorized' ), 403 );
+				return wp_send_json_error( array( 'message' => 'not_authorized' ), 403, JSON_UNESCAPED_SLASHES );
 			}
 		}
 
 		$this->update_widget_token_id( $token_id, $widget_id );
 		$this->update_widget_token_legacy_status( false );
 
-		return wp_send_json_success( null, 200 );
+		return wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

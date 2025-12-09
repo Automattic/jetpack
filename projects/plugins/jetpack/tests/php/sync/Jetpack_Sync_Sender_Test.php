@@ -649,6 +649,83 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
+
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$this->assertNotFalse( \Jetpack_Options::get_raw_option( $lock_option_name ) );
+
+		$lock_expires_name  = $lock_option_name . '_expires';
+		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+	}
+
+	/**
+	 * Test do_sync will NOT spawn a dedicated Sync request with dedicated sync lock.
+	 */
+	public function test_do_sync_will_not_spawn_with_dedicated_sync_lock_set() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+		$lock_expires_name = $lock_option_name . '_expires';
+		$expires_at        = microtime( true ) + 10;
+		\Jetpack_Options::update_raw_option( $lock_expires_name, $expires_at );
+		self::factory()->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertFalse( $this->dedicated_sync_request_spawned );
+		$this->assertSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
+
+		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
+		$this->assertEqualsWithDelta( round( $expires_at, 4 ), $lock_expires_value, 0.001 );
+	}
+
+	/**
+	 * Test do_sync will spawn a dedicated Sync request with dedicated sync lock set but expired.
+	 */
+	public function test_do_sync_will_spawn_with_dedicated_sync_lock_expired() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+		$lock_expires_name = $lock_option_name . '_expires';
+		$expires_at        = microtime( true ) - Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT;
+		\Jetpack_Options::update_raw_option( $lock_expires_name, $expires_at );
+		self::factory()->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertNotSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
+		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
+
+		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+	}
+
+	/**
+	 * Test do_sync will spawn a dedicated Sync request with dedicated sync lock set but no expiry at all.
+	 * Edge case for preventing permanent starvation.
+	 */
+	public function test_do_sync_will_spawn_with_dedicated_sync_lock_set_without_expiry() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+		$lock_expires_name = $lock_option_name . '_expires';
+		self::factory()->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
+
+		$this->assertTrue( $this->dedicated_sync_request_spawned );
+		$this->assertNotSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
+		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
+
+		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
 	}
 
 	/**

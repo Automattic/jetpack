@@ -506,7 +506,7 @@ class Publicize_Test extends WP_UnitTestCase {
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 
-		$this->assertSame( $before, json_encode( $normal_connection | JSON_UNESCAPED_UNICODE ), 'Normal connection should be unaffected by filter to uncheck global connection' );
+		$this->assertSame( $before, json_encode( $normal_connection, JSON_UNESCAPED_UNICODE ), 'Normal connection should be unaffected by filter to uncheck global connection' );
 	}
 
 	/**

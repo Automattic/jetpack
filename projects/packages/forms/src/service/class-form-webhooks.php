@@ -135,7 +135,7 @@ class Form_Webhooks {
 			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
 		);
 
-		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data ) ) );
+		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data, JSON_UNESCAPED_SLASHES ) ) );
 	}
 
 	/**
@@ -229,7 +229,7 @@ class Form_Webhooks {
 		$format     = self::VALID_FORMATS_MAP[ $webhook['format'] ];
 		$method     = $webhook['method'];
 		// Encode body based on format
-		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data ) : $data;
+		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) : $data;
 		$args = array(
 			'method'    => $method,
 			'body'      => $body,
