@@ -25,7 +25,13 @@ const TextareaEdit = ( {
 } ) => {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
-	const { placeholder, height } = attributes;
+	const { placeholder, style } = attributes;
+
+	// Get height from style.dimensions.minHeight (global styles) or fallback to height attribute
+	const minHeightFromStyle = style?.dimensions?.minHeight;
+	const currentHeight = minHeightFromStyle
+		? parseInt( minHeightFromStyle.replace( 'px', '' ), 10 ) || 200
+		: attributes.height || 200;
 
 	// Check if the parent block (e.g. textarea-field) is selected
 	const isParentSelected = useSelect(
@@ -58,9 +64,9 @@ const TextareaEdit = ( {
 	return (
 		<ResizableBox
 			size={ {
-				height,
+				height: currentHeight,
 			} }
-			minHeight="200"
+			minHeight={ '42' }
 			enable={ {
 				top: false,
 				right: false,
@@ -72,8 +78,15 @@ const TextareaEdit = ( {
 				topLeft: false,
 			} }
 			onResizeStop={ ( event, direction, elt, delta ) => {
+				const newHeight = currentHeight + delta.height;
 				setAttributes( {
-					height: height + delta.height,
+					style: {
+						...style,
+						dimensions: {
+							...style?.dimensions,
+							minHeight: `${ newHeight }px`,
+						},
+					},
 				} );
 				toggleSelection( true );
 			} }
@@ -87,6 +100,7 @@ const TextareaEdit = ( {
 				onChange={ onChange }
 				value={ isSelected ? placeholder : '' }
 				placeholder={ placeholder }
+				style={ { height: '100%' } }
 			/>
 		</ResizableBox>
 	);
