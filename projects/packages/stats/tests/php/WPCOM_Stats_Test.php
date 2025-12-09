@@ -936,10 +936,13 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
 
-		// Should return the cached WP_Error with cached_at timestamp.
+		// Should return the cached WP_Error as an array with cached_at timestamp.
+		// When a WP_Error is cached, it's converted to array and merged with cached_at.
 		$this->assertTrue( is_array( $stats ) );
 		$this->assertArrayHasKey( 'cached_at', $stats );
 		$this->assertSame( $time, $stats['cached_at'] );
+		// WP_Error properties are converted to array keys.
+		$this->assertArrayHasKey( 'errors', $stats );
 	}
 
 	/**
@@ -1045,8 +1048,9 @@ class WPCOM_Stats_Test extends StatsBaseTestCase {
 
 		$stats = $this->wpcom_stats->get_post_views( $post_id, array(), true );
 
-		// Should return the error.
+		// Should return the fresh WP_Error directly (not wrapped in array).
 		$this->assertTrue( is_wp_error( $stats ) );
+		$this->assertSame( 'stats_error', $stats->get_error_code() );
 
 		// Verify the error was cached.
 		$meta_name   = '_' . WPCOM_Stats::STATS_CACHE_TRANSIENT_PREFIX;
