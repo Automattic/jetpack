@@ -139,9 +139,9 @@ Controls [what this affects]:
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, [Component], type PartialChartTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, [Component], type ChartTheme } from '@automattic/charts';
 
-	const customTheme: PartialChartTheme = {
+	const customTheme: ChartTheme = {
 		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
 		[otherThemeProperties]: [values],
 	};
