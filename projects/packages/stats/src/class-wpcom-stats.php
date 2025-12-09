@@ -503,33 +503,40 @@ class WPCOM_Stats {
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if (
-				! is_array( $data )
-				|| empty( $data )
-				|| is_wp_error( $data )
-			) {
-				return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
-			}
+			// Check if we have a valid cache structure with a time key.
+			if ( is_array( $data ) && ! empty( $data ) ) {
+				$time = key( $data );
 
-			$time  = key( $data );
-			$views = $data[ $time ] ?? null;
+				// If we have a numeric time, check if cache is still valid.
+				if ( is_numeric( $time ) ) {
+					/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
+					$expiration = apply_filters(
+						'jetpack_fetch_stats_cache_expiration',
+						self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+					);
 
-			// Bail if data is malformed.
-			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
-				return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
-			}
+					// If within cache period, return cached data regardless of validity.
+					if ( ( time() - $time ) < $expiration ) {
+						$cached_value = $data[ $time ];
 
-			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
-			$expiration = apply_filters(
-				'jetpack_fetch_stats_cache_expiration',
-				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-			);
+						// If it's a WP_Error, return it directly.
+						if ( is_wp_error( $cached_value ) ) {
+							return $cached_value;
+						}
 
-			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $views );
+						// If it's an array, merge with cached_at timestamp.
+						if ( is_array( $cached_value ) ) {
+							return array_merge( array( 'cached_at' => $time ), $cached_value );
+						}
+
+						// For any other type, return as-is.
+						return $cached_value;
+					}
+				}
 			}
 		}
 
+		// Cache doesn't exist, is expired, or is malformed - refresh it.
 		return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
 	}
 
@@ -546,10 +553,8 @@ class WPCOM_Stats {
 	protected function refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name ) {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
-		// Don't write error or empty results to cache.
-		if ( ! is_wp_error( $wpcom_stats ) && ! empty( $wpcom_stats ) ) {
-			update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
-		}
+		// Always cache the result, even if it's an error or empty.
+		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
 
 		return $wpcom_stats;
 	}
