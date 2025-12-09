@@ -515,22 +515,17 @@ class WPCOM_Stats {
 						self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
 					);
 
-					// If within cache period, return cached data regardless of validity.
+					// If within cache period, return cached data after type validation.
 					if ( ( time() - $time ) < $expiration ) {
 						$cached_value = $data[ $time ];
 
-						// If it's a WP_Error, return it directly.
-						if ( is_wp_error( $cached_value ) ) {
-							return $cached_value;
+						// If it's an array or WP_Error, add cached time and return to user.
+						if ( is_array( $cached_value ) || is_wp_error( $cached_value ) ) {
+							return array_merge( array( 'cached_at' => $time ), (array) $cached_value );
 						}
 
-						// If it's an array, merge with cached_at timestamp.
-						if ( is_array( $cached_value ) ) {
-							return array_merge( array( 'cached_at' => $time ), $cached_value );
-						}
-
-						// For any other type, return as-is.
-						return $cached_value;
+						// For any other unexpected type, treat as malformed cache.
+						// Fall through to refresh.
 					}
 				}
 			}
