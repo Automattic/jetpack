@@ -2,7 +2,7 @@
 	"name": "@automattic/analytics-ui",
 	"version": "0.1.0-alpha",
 	"private": true,
-	"description": "Analytics related UX to be shared across Automattic products.",
+	"description": "Analytics related UI to be shared across Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics-ui/#readme",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Analytics Ui"
