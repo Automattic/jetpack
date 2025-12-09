@@ -2,29 +2,38 @@
 
 .sidebar {
 
-	:global(.components-panel) {
-		padding: 0;
-		border: none;
+	.grid {
+		// To ensure that the outline/box-shadow of the buttons is always visible
+		padding: 1.5px;
 	}
 
-	:global(.components-panel__body) {
-		padding-bottom: 0;
-	}
-
-	:global(.components-panel__row) {
-		margin-inline: -16px; // Counter panel body padding
-	}
-
-	:global(.components-menu-group) {
-		border-top: 1px solid gb.$gray-200;
-	}
-
-	:global(.components-menu-item__button.components-button) {
-		padding: 0.75rem 1.5rem;
+	.toggle-wrap {
+		padding-block: 0.75rem;
+		padding-inline-start: 1rem;
+		padding-inline-end: 0.5rem;
+		height: 40px;
 	}
 
 	.selected-connection {
-		background-color: gb.$gray-100;
+		background-color: rgba(56, 88, 233, 0.04);
+	}
+
+	.connection-button {
+		gap: 1rem;
+	}
+
+	:global(.components-button) {
+		width: 100%;
+	}
+
+	.display-name {
+		max-width: 8rem;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.active-chevron {
+		color: var(--jp-highlight);
 	}
 }
 

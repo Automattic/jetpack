@@ -1,6 +1,7 @@
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+import { Connection } from '../../../social-store/types';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
 import { Sidebar } from './sidebar';
@@ -13,20 +14,25 @@ import { Sidebar } from './sidebar';
 export function useModalScreen(): ScreenDetails {
 	const { connections, enabledConnections } = useSocialMediaConnections();
 
-	const [ selectedConnection, setSelectedConnection ] = useState( connections[ 0 ] );
+	const [ selectedConnection, setSelectedConnection ] = useState< Connection | null >(
+		connections[ 0 ]
+	);
+
+	const baseId = useId();
 
 	return useMemo(
 		() => ( {
 			path: '/',
-			title: __( 'Customize and preview social posts', 'jetpack-publicize-components' ),
+			title: __( 'Preview and customize', 'jetpack-publicize-components' ),
 			isScreenLocked: true,
 			sidebar: (
 				<Sidebar
-					onClickConnection={ setSelectedConnection }
+					baseId={ baseId }
+					onSelectConnection={ setSelectedConnection }
 					selectedConnection={ selectedConnection }
 				/>
 			),
-			content: <Content selectedConnection={ selectedConnection } />,
+			content: <Content baseId={ baseId } selectedConnection={ selectedConnection } />,
 			footerContent: enabledConnections.length ? (
 				<span>
 					{ sprintf(
@@ -49,6 +55,6 @@ export function useModalScreen(): ScreenDetails {
 				},
 			],
 		} ),
-		[ selectedConnection, setSelectedConnection, enabledConnections ]
+		[ baseId, selectedConnection, enabledConnections.length ]
 	);
 }

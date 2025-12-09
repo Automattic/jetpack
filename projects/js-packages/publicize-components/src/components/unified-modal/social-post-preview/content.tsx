@@ -4,6 +4,7 @@ import { PostPreview } from '../../social-post-modal/post-preview';
 import styles from './styles.module.scss';
 
 type ContentProps = {
+	baseId: string;
 	selectedConnection: Connection;
 };
 
@@ -13,9 +14,15 @@ type ContentProps = {
  * @param {ContentProps} props - The component props.
  * @return - Content component.
  */
-export function Content( { selectedConnection }: ContentProps ) {
+export function Content( { baseId, selectedConnection }: ContentProps ) {
 	return (
-		<div className={ styles.content }>
+		<div
+			className={ styles.content }
+			role="tabpanel"
+			tabIndex={ 0 }
+			id={ `${ baseId }-preview-content-${ selectedConnection.connection_id }` }
+			aria-labelledby={ `${ baseId }-preview-tab-${ selectedConnection.connection_id }` }
+		>
 			<Flex className={ styles.preview } align="center" justify="center">
 				<PostPreview connection={ selectedConnection } />
 			</Flex>
