@@ -62,7 +62,7 @@ const variations = [
 				{},
 				[
 					[ 'jetpack/label', { label: __( 'Message', 'jetpack-forms' ) } ],
-					[ 'jetpack/input', { type: 'textarea' } ],
+					[ 'jetpack/textarea' ],
 				],
 			],
 			[
@@ -141,7 +141,7 @@ const variations = [
 				{},
 				[
 					[ 'jetpack/label', { label: __( 'Other details', 'jetpack-forms' ) } ],
-					[ 'jetpack/input', { type: 'textarea' } ],
+					[ 'jetpack/textarea' ],
 				],
 			],
 			[
@@ -208,7 +208,7 @@ const variations = [
 							name: 'jetpack/label',
 							attributes: { label: __( 'Other details', 'jetpack-forms' ) },
 						},
-						{ name: 'jetpack/input', attributes: { type: 'textarea' } },
+						{ name: 'jetpack/textarea' },
 					],
 				},
 				{
@@ -294,7 +294,7 @@ const variations = [
 							label: __( 'Other details', 'jetpack-forms' ),
 						},
 					],
-					[ 'jetpack/input', { type: 'textarea' } ],
+					[ 'jetpack/textarea' ],
 				],
 			],
 			[
@@ -481,10 +481,7 @@ const variations = [
 			[
 				'jetpack/field-textarea',
 				{},
-				[
-					[ 'jetpack/label', { label: __( 'Notes', 'jetpack-forms' ) } ],
-					[ 'jetpack/input', { type: 'textarea' } ],
-				],
+				[ [ 'jetpack/label', { label: __( 'Notes', 'jetpack-forms' ) } ], [ 'jetpack/textarea' ] ],
 			],
 			[
 				'jetpack/button',
@@ -629,7 +626,7 @@ const variations = [
 				{},
 				[
 					[ 'jetpack/label', { label: __( 'How could we improve?', 'jetpack-forms' ) } ],
-					[ 'jetpack/input', { type: 'textarea' } ],
+					[ 'jetpack/textarea' ],
 				],
 			],
 			[
@@ -803,7 +800,7 @@ const variations = [
 										'jetpack/label',
 										{ label: __( 'What do you need help with?', 'jetpack-forms' ) },
 									],
-									[ 'jetpack/input', { type: 'textarea' } ],
+									[ 'jetpack/textarea' ],
 								],
 							],
 							[
