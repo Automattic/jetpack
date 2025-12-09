@@ -14,7 +14,6 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-// eslint-disable-next-line import/no-unresolved -- dotenv is installed locally in tools/performance
 import { config as dotenvConfig } from 'dotenv';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
@@ -127,6 +126,13 @@ function rsyncJetpack() {
 		exec( `pnpm jetpack rsync jetpack ${ JETPACK_BUILD_DIR }`, {
 			cwd: MONOREPO_ROOT,
 		} );
+
+		// On macOS, remove extended attributes that can cause "Operation not permitted"
+		// errors when Docker tries to read the files.
+		if ( process.platform === 'darwin' ) {
+			exec( `xattr -cr ${ JETPACK_BUILD_DIR }`, { silent: true, ignoreError: true } );
+		}
+
 		console.log( '✓ Jetpack synced to build/jetpack\n' );
 		return true;
 	} catch ( err ) {

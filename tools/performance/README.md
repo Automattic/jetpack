@@ -55,7 +55,8 @@ tools/performance/
 ├── scripts/
 │   ├── measure-lcp.js            # Playwright script to measure LCP
 │   ├── post-to-codevitals.js     # Posts metrics to CodeVitals API
-│   └── run-performance-tests.js  # Main orchestrator script
+│   ├── run-performance-tests.js  # Main orchestrator script
+│   └── scenarios.js              # Scenario definitions (single source of truth)
 ├── docker/
 │   ├── docker-compose.yml        # 4 WordPress instances + MySQL
 │   ├── init-databases.sql        # Database initialization
@@ -67,6 +68,8 @@ tools/performance/
 ├── results/
 │   └── lcp-results.json          # Performance measurement results
 ├── package.json                  # Node.js dependencies
+├── eslint.config.mjs             # ESLint configuration for CLI scripts
+├── quickstart.sh                 # One-shot setup and test script
 ├── README.md                     # This file
 └── TEAMCITY-SETUP.md            # TeamCity configuration guide
 ```
@@ -95,7 +98,7 @@ pnpm jetpack build plugins/jetpack
 ```bash
 cd tools/performance
 pnpm install
-pnpm run setup  # Installs Playwright browsers
+pnpm run setup:browsers  # Installs Playwright browsers
 ```
 
 ### 3. Run Tests Locally
@@ -257,7 +260,7 @@ The `docker-compose.yml` creates four isolated WordPress environments:
 The `setup-wordpress.sh` script:
 - Waits for WordPress containers to be ready
 - Installs WordPress via WP-CLI
-- Activates Jetpack plugin (scenarios 2 & 3)
+- Activates Jetpack plugin (scenarios 2, 3 & 4)
 - Offline mode uses `JETPACK_DEV_DEBUG` via `WORDPRESS_CONFIG_EXTRA`
 
 ### 4. Performance Measurement
@@ -388,7 +391,7 @@ pnpm test
 | `pnpm run test:quick` | Run with 2 iterations (faster) |
 | `pnpm run measure` | Run LCP measurements only (requires WordPress to be running) |
 | `pnpm run report` | Post results to CodeVitals |
-| `pnpm run setup` | Install Playwright browsers |
+| `pnpm run setup:browsers` | Install Playwright browsers |
 | `pnpm run docker:up` | Start Docker containers (requires `build/jetpack/` to exist first) |
 | `pnpm run docker:down` | Stop and remove containers |
 | `pnpm run docker:setup` | Run WordPress setup (requires containers to be running) |

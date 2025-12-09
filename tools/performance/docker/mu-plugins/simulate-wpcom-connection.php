@@ -144,6 +144,11 @@ class Jetpack_WPCom_Connection_Simulator {
 	/**
 	 * Activate additional Jetpack modules that work without real connection.
 	 * These modules add more code paths to exercise during performance testing.
+	 *
+	 * Note: This is called during 'jetpack_modules_loaded' hook. We wrap in try-catch
+	 * because module activation can trigger autoloading that may fail in some Docker
+	 * configurations. If activation fails, we skip silently since the core connection
+	 * simulation still works.
 	 */
 	public function activate_safe_modules() {
 		if ( ! class_exists( 'Jetpack' ) ) {
@@ -165,7 +170,17 @@ class Jetpack_WPCom_Connection_Simulator {
 			}
 
 			// Activate the module silently (don't trigger external connections).
-			Jetpack::activate_module( $module, false, false );
+			// Wrap in try-catch as module activation can trigger autoloading that
+			// may fail in Docker environments with read-only mounts.
+			try {
+				Jetpack::activate_module( $module, false, false );
+			} catch ( \Throwable $e ) {
+				// Module activation failed - skip silently.
+				// The core connection simulation still works without these extra modules.
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( "[WPCom Simulator] Failed to activate module '$module': " . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
 		}
 	}
 
