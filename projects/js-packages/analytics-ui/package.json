@@ -1,0 +1,29 @@
+{
+	"name": "@automattic/analytics-ui",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Analytics related UX to be shared across Automattic products.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/analytics-ui/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Analytics Ui"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/analytics-ui"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"exports": {
+		".": "./src/index.jsx",
+		"./action-types": "./src/state/action-types",
+		"./state": "./src/state"
+	},
+	"scripts": {
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
+	},
+	"devDependencies": {
+		"jest": "30.2.0"
+	}
+}

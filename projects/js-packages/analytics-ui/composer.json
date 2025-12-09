@@ -1,0 +1,42 @@
+{
+	"name": "automattic/analytics-ui",
+	"description": "Analytics related UX to be shared across Automattic products.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"test-coverage": [
+			"pnpm run test-coverage"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-analytics-ui/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/analytics-ui"
+	}
+}

@@ -449,6 +449,12 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
 
+  projects/js-packages/analytics-ui:
+    devDependencies:
+      jest:
+        specifier: 30.2.0
+        version: 30.2.0
+
   projects/js-packages/api:
     dependencies:
       '@automattic/jetpack-config':
