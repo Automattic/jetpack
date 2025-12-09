@@ -1,6 +1,6 @@
 {
 	"name": "automattic/analytics-ui",
-	"description": "Analytics related UX to be shared across Automattic products.",
+	"description": "Analytics related UI to be shared across Automattic products.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
