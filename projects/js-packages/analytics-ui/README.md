@@ -1,6 +1,6 @@
 # analytics-ui
 
-Analytics related UX to be shared across Automattic products.
+Analytics related UI to be shared across Automattic products.
 
 ## How to install analytics-ui
 
