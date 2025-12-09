@@ -488,7 +488,11 @@ class WPCOM_Stats {
 	 *
 	 * Unlike the above function, this caches data in the post meta table. As such,
 	 * it prevents wp_options from blowing up when retrieving views for large numbers
-	 * of posts at the same time. However, the final response is the same as above.
+	 * of posts at the same time.
+	 *
+	 * This function prioritizes cache time over data validity. If cached data exists
+	 * and is within the expiration period, it will be returned even if it's a WP_Error
+	 * or contains invalid data. This reduces API calls when remote fetch fails.
 	 *
 	 * @param array $args Query parameters.
 	 * @param int   $post_id Post ID to acquire stats for.
@@ -536,7 +540,11 @@ class WPCOM_Stats {
 	}
 
 	/**
-	 * Force fetch stats from WPCOM, and update cache if needed.
+	 * Force fetch stats from WPCOM, and always update cache.
+	 *
+	 * This function will cache the result regardless of whether the fetch succeeds
+	 * or fails. This ensures that failed requests are also cached, reducing the
+	 * frequency of API calls when the remote service is experiencing issues.
 	 *
 	 * @param string $endpoint The stats endpoint.
 	 * @param array  $args The query arguments.
