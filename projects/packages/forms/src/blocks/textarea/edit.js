@@ -1,5 +1,6 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { ResizableBox } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
@@ -25,6 +26,18 @@ const TextareaEdit = ( {
 	const { 'jetpack/field-share-attributes': isSynced } = context;
 	useSyncedAttributes( name, isSynced, SYNCED_ATTRIBUTE_KEYS, attributes, setAttributes );
 	const { placeholder, height } = attributes;
+
+	// Check if the parent block (e.g. textarea-field) is selected
+	const isParentSelected = useSelect(
+		select => {
+			const { getBlockRootClientId, getSelectedBlockClientId } = select( blockEditorStore );
+			const parentClientId = getBlockRootClientId( clientId );
+			const selectedBlockClientId = getSelectedBlockClientId();
+			return parentClientId && parentClientId === selectedBlockClientId;
+		},
+		[ clientId ]
+	);
+
 	const variationProps = useVariationStyleProperties( {
 		clientId,
 		inputBlockName: name,
@@ -67,7 +80,7 @@ const TextareaEdit = ( {
 			onResizeStart={ () => {
 				toggleSelection( false );
 			} }
-			isSelected={ isSelected }
+			showHandle={ isSelected || isParentSelected }
 		>
 			<textarea
 				{ ...blockProps }
