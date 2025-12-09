@@ -485,7 +485,7 @@ function JetpackContactFormEdit( {
 
 	// Helper to create draft form post
 	const createDraftFormPost = useCallback(
-		async ( title, innerBlocks ) => {
+		async ( title, innerBlocks, blockAttributes = {} ) => {
 			// Create blocks from template
 			const blocks = createBlocksFromInnerBlocksTemplate( innerBlocks );
 			const content = serialize( blocks );
@@ -497,6 +497,9 @@ function JetpackContactFormEdit( {
 					title,
 					content,
 					status: 'draft',
+					meta: {
+						'block-attributes': JSON.stringify( blockAttributes ),
+					},
 				},
 			} );
 
@@ -559,7 +562,11 @@ function JetpackContactFormEdit( {
 			setTitleModalState( prev => ( { ...prev, isCreating: true } ) );
 
 			try {
-				const post = await createDraftFormPost( title, variation.innerBlocks );
+				const post = await createDraftFormPost(
+					title,
+					variation.innerBlocks,
+					variation.attributes
+				);
 
 				setAttributes( {
 					ref: post.id,

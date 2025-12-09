@@ -17,6 +17,7 @@ class Reusable_Forms {
 	 */
 	public static function init() {
 		self::register_post_type();
+		self::register_post_meta();
 		add_filter( 'allowed_block_types_all', array( __CLASS__, 'allowed_blocks_for_jetpack_form' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( __CLASS__, 'unwrap_contact_form_blocks' ), 10, 2 );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_editor_assets' ) );
@@ -81,6 +82,27 @@ class Reusable_Forms {
 					'revisions',
 					'custom-fields',
 				),
+			)
+		);
+	}
+
+	/**
+	 * Register post meta field for storing block attributes.
+	 */
+	private static function register_post_meta() {
+		register_post_meta(
+			'jetpack-form',
+			'block-attributes',
+			array(
+				'type'              => 'string',
+				'description'       => 'JSON-encoded attributes from the jetpack/contact-form block',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => '',
+				'sanitize_callback' => 'sanitize_text_field',
+				'auth_callback'     => function () {
+					return current_user_can( 'edit_posts' );
+				},
 			)
 		);
 	}

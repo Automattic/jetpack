@@ -190,6 +190,10 @@ class Reusable_Forms_Test extends TestCase {
 		$title = isset( $data['title']['raw'] ) ? $data['title']['raw'] : $data['title']['rendered'];
 		$this->assertEquals( 'Test Reusable Form', $title, 'Title should match' );
 		$this->assertEquals( 'publish', $data['status'], 'Status should be publish' );
+
+		// Verify block attributes are stored in meta
+		$this->assertArrayHasKey( 'meta', $data, 'Response should have meta field' );
+		$this->assertArrayHasKey( 'block-attributes', $data['meta'], 'Meta should contain block-attributes' );
 	}
 
 	/**
@@ -219,6 +223,10 @@ class Reusable_Forms_Test extends TestCase {
 		$title = isset( $data['title']['raw'] ) ? $data['title']['raw'] : $data['title']['rendered'];
 		$this->assertEquals( 'Single Test Form', $title, 'Title should match' );
 		$this->assertEquals( $post_id, $data['id'], 'ID should match' );
+
+		// Verify meta field is included in response
+		$this->assertArrayHasKey( 'meta', $data, 'Response should have meta field' );
+		$this->assertArrayHasKey( 'block-attributes', $data['meta'], 'Meta should contain block-attributes' );
 	}
 
 	/**
