@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix slider field text labels showing borders in editor when using certain themes like Assembler

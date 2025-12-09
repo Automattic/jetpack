@@ -73,7 +73,7 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 			md5(
 				'googleanalytics' . wp_json_encode(
 					$config_data,
-					0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
 				)
 			),
 			0,

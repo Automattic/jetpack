@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace use of confusing `esc_js` with `wp_json_encode`, or `intval` where appropriate.

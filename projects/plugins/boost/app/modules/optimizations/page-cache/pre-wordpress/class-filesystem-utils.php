@@ -127,7 +127,7 @@ class Filesystem_Utils {
 		return md5(
 			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				$key_components,
-				0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 			)
 		) . '.html';
 	}
