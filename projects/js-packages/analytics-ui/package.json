@@ -18,8 +18,10 @@
 		".": "./src/index.jsx"
 	},
 	"scripts": {
+		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
 		"jest": "30.2.0",

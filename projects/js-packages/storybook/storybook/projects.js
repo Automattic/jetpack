@@ -7,6 +7,7 @@ const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 
 export const projects = [
 	'../../ai-client/src',
+	'../../analytics-ui/src',
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
