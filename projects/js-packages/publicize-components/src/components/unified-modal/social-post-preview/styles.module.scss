@@ -41,11 +41,27 @@
 	background-color: gb.$gray-100;
 	width: 100%;
 	min-height: 100%;
-	padding: 1.5rem;
+
+	&[role="tabpanel"] {
+		padding: 1.5rem;
+	}
 
 	.preview {
 		height: 100%;
 		max-width: max-content;
 		margin: 0 auto;
+	}
+
+	.toggle-wrapper {
+		// Match the panel height with 2px for the border
+		padding-block: calc(1.425rem - 2px);
+		padding-inline-start: 1rem;
+		padding-inline-end: 0.25rem;
+		border-bottom: 1px solid gb.$gray-200;
+		border-top: 1px solid gb.$gray-200;
+	}
+
+	:global(.components-panel__body-toggle) {
+		padding-inline-start: 0.25rem;
 	}
 }

@@ -1,11 +1,13 @@
 import { Flex } from '@wordpress/components';
 import { Connection } from '../../../social-store/types';
 import { PostPreview } from '../../social-post-modal/post-preview';
+import { ConnectionPanels } from './connection-panels';
 import styles from './styles.module.scss';
 
 type ContentProps = {
 	baseId: string;
 	selectedConnection: Connection;
+	forSmallScreen?: boolean;
 };
 
 /**
@@ -14,7 +16,15 @@ type ContentProps = {
  * @param {ContentProps} props - The component props.
  * @return - Content component.
  */
-export function Content( { baseId, selectedConnection }: ContentProps ) {
+export function Content( { baseId, selectedConnection, forSmallScreen }: ContentProps ) {
+	if ( forSmallScreen ) {
+		return (
+			<div className={ styles.content }>
+				<ConnectionPanels />
+			</div>
+		);
+	}
+
 	return (
 		<div
 			className={ styles.content }

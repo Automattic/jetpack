@@ -1,3 +1,4 @@
+import { useBreakpoint } from '@automattic/viewport-react';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
@@ -19,20 +20,27 @@ export function useModalScreen(): ScreenDetails {
 	);
 
 	const baseId = useId();
+	const isSmallScreen = useBreakpoint( '<660px' );
 
 	return useMemo(
 		() => ( {
 			path: '/',
 			title: __( 'Preview and customize', 'jetpack-publicize-components' ),
 			isScreenLocked: true,
-			sidebar: (
+			sidebar: isSmallScreen ? null : (
 				<Sidebar
 					baseId={ baseId }
 					onSelectConnection={ setSelectedConnection }
 					selectedConnection={ selectedConnection }
 				/>
 			),
-			content: <Content baseId={ baseId } selectedConnection={ selectedConnection } />,
+			content: (
+				<Content
+					baseId={ baseId }
+					selectedConnection={ selectedConnection }
+					forSmallScreen={ isSmallScreen }
+				/>
+			),
 			footerContent: enabledConnections.length ? (
 				<span>
 					{ sprintf(
@@ -55,6 +63,6 @@ export function useModalScreen(): ScreenDetails {
 				},
 			],
 		} ),
-		[ baseId, selectedConnection, enabledConnections.length ]
+		[ isSmallScreen, baseId, selectedConnection, enabledConnections.length ]
 	);
 }
