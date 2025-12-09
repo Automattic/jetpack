@@ -43,7 +43,7 @@ const defaultTheme: CompleteChartTheme = {
 		rowGap: 12,
 		columnGap: 4,
 		labelSpacing: 1.5,
-		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [ positive, negative, neutral ]
+		deltaColors: [ '#FF8C8F', '#757575', '#1F9828' ], // [negative, neutral, positive]
 	},
 	conversionFunnelChart: {
 		backgroundColor: '#F3F4F6',
