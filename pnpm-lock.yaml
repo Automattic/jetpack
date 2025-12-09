@@ -1380,13 +1380,16 @@ importers:
         version: 30.2.0
       jest-extended:
         specifier: 7.0.0
-        version: 7.0.0(jest@30.2.0)
+        version: 7.0.0(jest@30.2.0)(typescript@5.9.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   projects/js-packages/publicize-components:
     dependencies:
@@ -5868,7 +5871,10 @@ importers:
         version: 30.2.0
       jest-extended:
         specifier: 7.0.0
-        version: 7.0.0(jest@30.2.0)
+        version: 7.0.0(jest@30.2.0)(typescript@5.9.3)
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   tools/e2e-commons:
     devDependencies:
@@ -28131,12 +28137,6 @@ snapshots:
       jest-mock: 30.2.0
       jest-util: 30.2.0
       jest-validate: 30.2.0
-
-  jest-extended@7.0.0(jest@30.2.0):
-    dependencies:
-      jest-diff: 30.2.0
-    optionalDependencies:
-      jest: 30.2.0
 
   jest-extended@7.0.0(jest@30.2.0)(typescript@5.9.3):
     dependencies:
