@@ -4,11 +4,12 @@
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	Button,
+	ExternalLink,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -25,10 +26,11 @@ import type {
 	SelectIntegrations,
 } from '../../../store/integrations/index.ts';
 import type { Integration } from '../../../types/index.ts';
+import type { ReactNode } from 'react';
 
 type UseInstallAkismetReturn = {
 	shouldShowAkismetCta: boolean;
-	wrapperBody: string;
+	wrapperBody: ReactNode;
 	isInstallingAkismet: boolean;
 	canPerformAkismetAction: boolean;
 	wrapperButtonText: string;
@@ -39,6 +41,12 @@ type EmptyResponsesProps = {
 	status: string;
 	isSearch: boolean;
 	readStatusFilter?: 'unread' | 'read';
+};
+
+type EmptyWrapperProps = {
+	heading?: string;
+	body?: string | ReactNode;
+	actions?: ReactNode;
 };
 
 /**
@@ -76,17 +84,15 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 		[ akismetIntegration?.pluginFile ]
 	);
 
-	const installAndActivateBody = __(
-		'Install and activate Jetpack Akismet Anti-spam to automatically filter form spam.',
-		'jetpack-forms'
+	const wrapperBody: ReactNode = createInterpolateElement(
+		__(
+			'Want automatic spam filtering? Akismet Anti-spam protects millions of sites. <moreInfoLink>Learn more.</moreInfoLink>',
+			'jetpack-forms'
+		),
+		{
+			moreInfoLink: <ExternalLink href="https://akismet.com/" />,
+		}
 	);
-
-	const activateBody = __(
-		'Activate Jetpack Akismet Anti-spam to automatically filter form spam.',
-		'jetpack-forms'
-	);
-
-	const wrapperBody = isInstalled ? activateBody : installAndActivateBody;
 
 	const activateButtonText = __( 'Activate Akismet Anti-spam', 'jetpack-forms' );
 	const installAndActivateButtonText = __( 'Install Akismet Anti-spam', 'jetpack-forms' );
@@ -145,7 +151,7 @@ const useInstallAkismet = (): UseInstallAkismetReturn => {
 	};
 };
 
-const EmptyWrapper = ( { heading = '', body = '', actions = null } ) => (
+const EmptyWrapper = ( { heading = '', body = '', actions = null }: EmptyWrapperProps ) => (
 	<VStack alignment="center" spacing="2">
 		{ heading && (
 			<Text as="h3" weight="500" size="15">
