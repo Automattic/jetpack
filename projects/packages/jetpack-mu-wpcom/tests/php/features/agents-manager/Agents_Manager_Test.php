@@ -8,7 +8,10 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/agents-manager/class-agents-manager.php';
 
@@ -45,10 +48,14 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
 		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
 		remove_action( 'next_admin_init', array( $this->agents_manager, 'add_inline_script' ), 1001 );
+		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
 
 		// Reset the REST server to clear any registered routes.
 		global $wp_rest_server;
 		$wp_rest_server = null;
+
+		// Log out any logged-in user.
+		wp_set_current_user( 0 );
 
 		parent::tear_down();
 	}
@@ -321,5 +328,125 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );
+	}
+
+	/**
+	 * Tests that the agents_manager_use_unified_experience filter is registered.
+	 */
+	public function test_unified_experience_filter_is_registered() {
+		$this->assertNotFalse(
+			has_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) )
+		);
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false when no user is logged in.
+	 */
+	public function test_should_use_unified_experience_returns_false_when_no_user() {
+		wp_set_current_user( 0 );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false for non-Automattician users.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_returns_false_for_non_automattician() {
+		Functions\stubs(
+			array(
+				'is_automattician' => false,
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_non_automattician',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns true for Automattician with opt-in enabled.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_returns_true_for_automattician_with_opt_in() {
+		Functions\stubs(
+			array(
+				'is_automattician'   => true,
+				'get_user_attribute' => true,
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_automattician_with_opt_in',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false for Automattician without opt-in.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_returns_false_for_automattician_without_opt_in() {
+		Functions\stubs(
+			array(
+				'is_automattician'   => true,
+				'get_user_attribute' => false,
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_automattician_no_opt_in',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$result = $this->agents_manager->should_use_unified_experience();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that the filter can be used to get the unified experience value.
+	 */
+	public function test_unified_experience_filter_returns_expected_value() {
+		wp_set_current_user( 0 );
+
+		$result = apply_filters( 'agents_manager_use_unified_experience', null );
+
+		$this->assertFalse( $result );
 	}
 }
