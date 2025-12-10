@@ -1,30 +1,36 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { siteHasFeature } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { features } from '../../utils/constants';
-import Notice from '../notice';
-import type { FC } from 'react';
 
-export const InstagramNoMediaNotice: FC = () => {
-	return siteHasFeature( features.ENHANCED_PUBLISHING ) ? (
-		<Notice type={ 'warning' }>
-			{ __(
-				'To share to Instagram, add an image/video, or enable Social Image Generator.',
-				'jetpack-publicize-components'
-			) }
-			<br />
-			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
-				{ __( 'Learn more', 'jetpack-publicize-components' ) }
-			</ExternalLink>
-		</Notice>
-	) : (
-		<Notice type={ 'warning' }>
-			{ __( 'You need a featured image to share to Instagram.', 'jetpack-publicize-components' ) }
-			<br />
-			<ExternalLink href={ getRedirectUrl( 'jetpack-social-share-to-instagram' ) }>
-				{ __( 'Learn more', 'jetpack-publicize-components' ) }
-			</ExternalLink>
+/**
+ * Notice displayed when trying to share to Instagram without media.
+ *
+ * @return - React element
+ */
+export function InstagramNoMediaNotice() {
+	return (
+		<Notice
+			isDismissible={ false }
+			status="warning"
+			actions={ [
+				{
+					label: __( 'Learn more', 'jetpack-publicize-components' ),
+					url: getRedirectUrl( 'jetpack-social-share-to-instagram' ),
+				},
+			] }
+		>
+			{ siteHasFeature( features.ENHANCED_PUBLISHING )
+				? __(
+						'To share to Instagram, add an image/video, or enable Social Image Generator.',
+						'jetpack-publicize-components'
+				  )
+				: _x(
+						'You need a featured image to share to Instagram.',
+						'Notice shown when there is no featured image set for the post.',
+						'jetpack-publicize-components'
+				  ) }
 		</Notice>
 	);
-};
+}

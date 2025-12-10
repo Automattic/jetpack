@@ -52,6 +52,13 @@
 	padding: 1rem;
 }
 
+// Style notice wrapper when there is a notice inside
+// To avoid empty space when there is no notice
+.notice-wrapper:has(:global(.components-notice)) {
+	margin-top: 1rem;
+	margin-inline: 1rem;
+}
+
 .content {
 	width: 100%;
 	min-height: 100%;
