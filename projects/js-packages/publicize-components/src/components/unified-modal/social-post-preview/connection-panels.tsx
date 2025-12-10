@@ -28,8 +28,7 @@ import styles from './styles.module.scss';
  */
 export function ConnectionPanels() {
 	const { recordEvent } = useAnalytics();
-	const { toggleById } = useSocialMediaConnections();
-	const { connections } = useSocialMediaConnections();
+    const { toggleById, connections } = useSocialMediaConnections();
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	const onClickConnectionToggle = useCallback(
