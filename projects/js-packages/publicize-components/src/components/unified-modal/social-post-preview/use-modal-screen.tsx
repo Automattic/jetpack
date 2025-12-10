@@ -15,9 +15,7 @@ import { Sidebar } from './sidebar';
 export function useModalScreen(): ScreenDetails {
 	const { connections, enabledConnections } = useSocialMediaConnections();
 
-	const [ selectedConnection, setSelectedConnection ] = useState< Connection | null >(
-		connections[ 0 ]
-	);
+	const [ selectedConnection, setSelectedConnection ] = useState< Connection >( connections[ 0 ] );
 
 	const baseId = useId();
 	const isSmallScreen = useBreakpoint( '<660px' );
