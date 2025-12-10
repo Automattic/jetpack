@@ -93,7 +93,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	}, [ hideTooltip ] );
 
 	return (
-		<div className={ clsx( styles.container, className ) }>
+		<div className={ clsx( 'geo-chart', styles.container, className ) }>
 			<svg width={ width } height={ height }>
 				<rect
 					x={ 0 }
