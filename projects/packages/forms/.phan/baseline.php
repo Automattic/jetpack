@@ -11,9 +11,10 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 50+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
-    // PhanDeprecatedFunction : 8 occurrences
+    // PhanDeprecatedFunction : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
@@ -34,8 +35,8 @@ return [
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanDeprecatedFunction', 'PhanUnreferencedUseNormal'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'tests/php/contact-form/Contact_Form_Plugin_Test.php' => ['PhanPluginMixedKeyNoKey'],
-        'tests/php/dashboard/Dashboard_View_Switch_Test.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction'],
         'tests/php/contact-form/Util_Test.php' => ['PhanDeprecatedFunction'],
+        'tests/php/dashboard/Dashboard_View_Switch_Test.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
