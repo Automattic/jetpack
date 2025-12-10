@@ -1,4 +1,4 @@
-import { Button, Flex, FormToggle } from '@wordpress/components';
+import { Button, FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -66,7 +66,7 @@ export function ConnectionsToggleList( {
 						aria-checked={ isSelected }
 						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
 					>
-						<Flex justify="start">
+						<div className={ styles[ 'connection-info' ] }>
 							<FormToggle
 								tabIndex={ -1 }
 								checked={ isSelected }
@@ -76,7 +76,7 @@ export function ConnectionsToggleList( {
 							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
 								{ connection.display_name }
 							</div>
-						</Flex>
+						</div>
 					</Button>
 				);
 			} ) }
