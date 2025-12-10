@@ -890,7 +890,9 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$fields = array_keys( $result );
 
 		foreach ( $fields as $field ) {
-			$this->assertNotNull( $result[ $field ][0], "Field {$field} should not be null." );
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
 		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
