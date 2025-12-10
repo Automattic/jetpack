@@ -1,7 +1,7 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as [FeatureName]Stories from './[feature-name].stories';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
 
 # [Component] [Feature Name]
 
@@ -30,7 +30,7 @@ The [Component] component supports [feature description], providing [benefits an
 
 ## API Reference
 
-For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
+For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
 
 ## Basic Usage
 
@@ -59,7 +59,7 @@ For detailed information about component props, types, and method signatures, se
 
 ### Optional Props
 
-For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-[feature]-api-reference--docs).
+For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
 
 ## [Feature] Types
 

@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { BarChart } from '../../../primitives/bar-chart';
-import { LineChart } from '../../../primitives/line-chart';
-import { PieChart } from '../../../primitives/pie-chart';
+import { BarChart } from '../../../charts/bar-chart';
+import { LineChart } from '../../../charts/line-chart';
+import { PieChart } from '../../../charts/pie-chart';
 import {
 	simpleChartDecorator,
 	ChartStoryArgs,
@@ -15,7 +15,7 @@ import type { SeriesData, DataPointPercentage } from '../../../types';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Components/Legend',
+	title: 'JS Packages/Charts Library/Components/Legend',
 	component: Legend,
 	parameters: {
 		layout: 'centered',

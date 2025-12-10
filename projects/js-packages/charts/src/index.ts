@@ -1,14 +1,11 @@
-// Charts (Primitives)
-export { BarChart, BarChartUnresponsive } from './primitives/bar-chart';
-export { LineChart, LineChartUnresponsive } from './primitives/line-chart';
-export { PieChart, PieChartUnresponsive } from './primitives/pie-chart';
-export {
-	PieSemiCircleChart,
-	PieSemiCircleChartUnresponsive,
-} from './primitives/pie-semi-circle-chart';
-export { BarListChart, BarListChartUnresponsive } from './primitives/bar-list-chart';
-export { LeaderboardChart, LeaderboardChartUnresponsive } from './primitives/leaderboard-chart';
-export { ConversionFunnelChart } from './primitives/conversion-funnel-chart';
+// Charts
+export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
+export { LineChart, LineChartUnresponsive } from './charts/line-chart';
+export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
+export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie-semi-circle-chart';
+export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
+export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 
 // Components
 export { BaseTooltip } from './components/tooltip';
@@ -32,6 +29,6 @@ export {
 // Types
 export type * from './types';
 export type * from './visx/types';
-export type { PieChartProps } from './primitives/pie-chart';
+export type { PieChartProps } from './charts/pie-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';

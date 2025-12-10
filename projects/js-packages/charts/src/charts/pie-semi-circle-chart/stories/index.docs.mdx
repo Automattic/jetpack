@@ -1,0 +1,401 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as PieSemiCircleChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Pie Semi Circle Chart" of={ PieSemiCircleChartStories } />
+
+# Pie Semi Circle Chart
+
+The Pie Semi Circle Chart displays proportional data in a semi-circular format, providing an elegant alternative to full pie charts with better space utilization for dashboards and compact layouts.
+
+<Canvas of={ PieSemiCircleChartStories.Default } />
+
+## Overview
+
+The PieSemiCircleChart component renders data as segments in a semi-circular arc (180 degrees), making it ideal for displaying percentages, categories, or proportional breakdowns in a visually compact format. This chart type is particularly effective in dashboards where vertical space is limited.
+
+<Source
+	language="jsx"
+	code={ `import { PieSemiCircleChart } from '@automattic/charts';
+
+const data = [
+	{
+		label: 'MacOS',
+		value: 30000,
+		valueDisplay: '30K',
+		percentage: 30,
+	},
+	{
+		label: 'Linux',
+		value: 22000,
+		valueDisplay: '22K',
+		percentage: 22,
+	},
+	{
+		label: 'Windows',
+		value: 48000,
+		valueDisplay: '48K',
+		percentage: 48,
+	},
+];
+
+<PieSemiCircleChart
+	data={ data }
+	width={ 600 }
+	thickness={ 0.4 }
+	label="Operating Systems"
+	note="Windows +10%"
+	withTooltips={ true }
+	showLegend={ true }
+/>` }
+/>
+
+The chart automatically validates data to ensure positive values and meaningful percentages, displaying error states for invalid data configurations.
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Pie Semi Circle Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-semi-circle-chart-api-reference--docs).
+
+## Basic Usage
+
+### Basic Semi-Circle Chart
+
+The simplest implementation requires only data with proper percentage values. Unlike full pie charts, semi-circle charts are ideal when you want to emphasize the relationship between parts while conserving vertical space:
+
+<Canvas of={ PieSemiCircleChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `const basicData = [
+	{
+		label: 'Category A',
+		value: 60,
+		percentage: 60,
+	},
+	{
+		label: 'Category B',
+		value: 40,
+		percentage: 40,
+	},
+];
+
+<PieSemiCircleChart
+	data={ basicData }
+	width={ 400 }
+/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of `DataPointPercentage` objects containing label, value, and percentage
+
+### Optional Props
+
+For detailed information about all optional props, see the [Pie Semi Circle Chart API Reference](./?path=/docs/js-packages-charts-library-charts-pie-semi-circle-chart-api-reference--docs).
+
+## Chart Variations
+
+### With Interactive Tooltips
+
+Add `withTooltips` to enable hover interactions that display detailed information about each segment:
+
+<Canvas of={ PieSemiCircleChartStories.WithTooltips } />
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	width={ 600 }
+	withTooltips={ true }
+	label="OS Distribution"
+	note="Hover segments for details"
+/>` }
+/>
+
+### Counter-Clockwise Direction
+
+Use the `clockwise` prop to control the rendering direction of segments:
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	width={ 600 }
+	clockwise={ false }
+	label="Counter-clockwise Rendering"
+/>` }
+/>
+
+### Different Thickness Values
+
+Adjust the visual weight of the chart using the `thickness` prop:
+
+<Source
+	language="jsx"
+	code={ `// Thin ring (thickness: 0.2)
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+	thickness={ 0.2 }
+	label="Thin Ring"
+/>
+
+// Thick ring (thickness: 0.8)
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+	thickness={ 0.8 }
+	label="Thick Ring"
+/>` }
+/>
+
+## Responsive Behavior
+
+### Responsive Width
+
+The chart can be made responsive by omitting the `width` prop, allowing it to adapt to its container:
+
+<Canvas of={ PieSemiCircleChartStories.Responsiveness } />
+
+<Source
+	language="jsx"
+	code={ `// Responsive chart adapts to container width
+<PieSemiCircleChart
+	data={ data }
+	thickness={ 0.4 }
+	label="Responsive Chart"
+	withTooltips={ true }
+/>` }
+/>
+
+The responsive behavior maintains the 2:1 aspect ratio (width:height) and scales proportionally.
+
+## Styling and Customization
+
+### Custom Colors
+
+Segments automatically use theme colors, but you can override individual segment colors using the `color` property in your data:
+
+<Source
+	language="jsx"
+	code={ `const customColorData = [
+	{
+		label: 'Primary',
+		value: 60,
+		percentage: 60,
+		color: '#3366CC', // Custom blue
+	},
+	{
+		label: 'Secondary',
+		value: 40,
+		percentage: 40,
+		color: '#DC3912', // Custom red
+	},
+];
+
+<PieSemiCircleChart
+	data={ customColorData }
+	width={ 400 }
+	label="Custom Colors"
+/>` }
+/>
+
+### Label and Note Styling
+
+The chart includes built-in styling for labels and notes with appropriate typography hierarchy:
+
+- **Label**: 16px, font-weight 600, positioned above the chart
+- **Note**: 14px, positioned below the label
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	width={ 600 }
+	label="Primary Heading"
+	note="Secondary information or context"
+/>` }
+/>
+
+## Theming Integration
+
+Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, PieSemiCircleChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<PieSemiCircleChart data={data} />
+	</GlobalChartsProvider>` }
+/>
+
+## Legend Integration
+
+### Legend Positioning
+
+Control legend placement using alignment properties:
+
+<Source
+	language="jsx"
+	code={ `// Legend at top-right
+<PieSemiCircleChart
+	data={ data }
+	showLegend={ true }
+	legendAlignment="end"
+	legendPosition="top"
+/>
+
+// Vertical legend on the right
+<PieSemiCircleChart
+	data={ data }
+	showLegend={ true }
+	legendOrientation="vertical"
+	legendAlignment="end"
+/>` }
+/>
+
+### Legend Shape Options
+
+Customize legend indicators with different shapes:
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	showLegend={ true }
+	legendShape="rect" // Options: 'rect', 'circle', 'line'
+/>` }
+/>
+
+## Error Handling
+
+### Data Validation
+
+The chart includes comprehensive data validation with user-friendly error messages:
+
+<Canvas of={ PieSemiCircleChartStories.ErrorStates } />
+
+**Validation Rules:**
+- Data array cannot be empty
+- Values and percentages must be non-negative
+- Total percentage must be greater than 0 (unlike full pie charts, doesn't need to equal 100)
+
+**Error States Handled:**
+- **Empty Data**: Displays "No data available"
+- **Negative Values**: Shows "Invalid data: Negative values are not allowed"
+- **Zero Total**: Displays "Invalid percentage total: Must be greater than 0"
+
+### Single Data Point
+
+The chart gracefully handles single data points, rendering a complete semi-circle:
+
+<Source
+	language="jsx"
+	code={ `const singlePointData = [
+	{
+		label: 'Complete',
+		value: 100,
+		percentage: 100,
+	},
+];
+
+<PieSemiCircleChart
+	data={ singlePointData }
+	width={ 400 }
+	label="Single Category"
+/>` }
+/>
+
+## Advanced Features
+
+### Value Display Formatting
+
+Use the `valueDisplay` property to show formatted values in tooltips and legends:
+
+<Source
+	language="jsx"
+	code={ `const formattedData = [
+	{
+		label: 'Users',
+		value: 15000,
+		valueDisplay: '15K users', // Custom formatted display
+		percentage: 60,
+	},
+	{
+		label: 'Revenue',
+		value: 10000,
+		valueDisplay: '$10K', // Currency formatting
+		percentage: 40,
+	},
+];
+
+<PieSemiCircleChart
+	data={ formattedData }
+	withTooltips={ true }
+	showLegend={ true }
+/>` }
+/>
+
+### Chart Integration
+
+The chart integrates with the chart context system for consistent behavior across chart types:
+
+- Automatic chart ID generation for accessibility
+- Theme consistency across multiple charts
+- Legend item registration for cross-chart interactions
+
+## Migration
+
+### From Full Pie Charts
+
+Semi-circle charts use the same data format as full pie charts, making migration straightforward:
+
+<Source
+	language="jsx"
+	code={ `// Full pie chart
+<PieChart
+	data={ data }
+	size={ 400 }
+/>
+
+// Semi-circle chart (uses width instead of size)
+<PieSemiCircleChart
+	data={ data }
+	width={ 400 }
+/>` }
+/>
+
+### Key Differences from Full Pie Charts
+
+- **Aspect Ratio**: Semi-circle charts have a 2:1 width-to-height ratio
+- **Space Efficiency**: Takes up approximately 50% less vertical space
+- **Data Validation**: Percentages don't need to sum to 100 (allows for partial data representation)
+- **Positioning**: Different internal positioning calculations for labels and legends
+
+### Data Validation Differences
+
+Unlike full pie charts that require percentages to sum to exactly 100:
+
+<Source
+	language="jsx"
+	code={ `// Full pie chart - must sum to 100
+const fullPieData = [
+	{ label: 'A', value: 60, percentage: 60 },
+	{ label: 'B', value: 40, percentage: 40 }, // Total: 100%
+];
+
+// Semi-circle chart - flexible totals
+const semiCircleData = [
+	{ label: 'Completed', value: 75, percentage: 75 },
+	{ label: 'Remaining', value: 25, percentage: 25 }, // Total: 100%
+];
+
+// Or partial completion
+const partialData = [
+	{ label: 'Progress', value: 60, percentage: 60 }, // Shows 60% of semi-circle
+];` }
+/>
