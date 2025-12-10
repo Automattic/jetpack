@@ -22,7 +22,7 @@ export function Content( { baseId, selectedConnection, forSmallScreen }: Content
 	if ( forSmallScreen ) {
 		return (
 			<div className={ styles.content }>
-				<Flex direction="column" gap={ 4 }>
+				<Flex direction="column" gap={ 0 }>
 					<ConnectionPanels />
 					<div className={ styles[ 'notice-wrapper' ] }>
 						<MediaValidationNotices />
