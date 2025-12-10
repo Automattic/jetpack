@@ -1,4 +1,5 @@
 import { ThemeProvider, useGlobalNotices } from '@automattic/jetpack-components';
+import { siteHasFeature } from '@automattic/jetpack-script-data';
 import {
 	ToggleControl,
 	Button,
@@ -9,7 +10,9 @@ import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import { useSaveImageToLibrary } from '../../../hooks/use-save-image-to-library';
+import { features } from '../../../utils';
 import GeneratedImagePreview from '../../generated-image-preview';
+import { EditTemplate } from './edit-template';
 import SocialImageGeneratorSettingsModal from './modal';
 
 const SocialImageGeneratorPanel = () => {
@@ -92,6 +95,7 @@ const SocialImageGeneratorPanel = () => {
 										  )
 										: __( 'Save to media library', 'jetpack-publicize-components' ) }
 								</Button>
+								{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <EditTemplate /> : null }
 							</HStack>
 						</>
 					) }
