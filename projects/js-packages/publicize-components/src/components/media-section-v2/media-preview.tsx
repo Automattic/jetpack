@@ -47,7 +47,7 @@ export default function MediaPreview( {
 					) ) }
 				{ isLoading && <Spinner /> }
 			</div>
-			{ media && ! isLoading && (
+			{ ( media || isLoading ) && (
 				<HStack className={ styles.actions }>
 					<Button
 						__next40pxDefaultSize
