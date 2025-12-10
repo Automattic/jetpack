@@ -71,7 +71,7 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			// Using waitForURL avoids race condition where navigation completes before waitForNavigation is set up
 			await Promise.all( [
 				page.waitForURL( '**/wp-admin/**', { waitUntil: 'networkidle', timeout: 60000 } ),
-				page.click( '#wp-submit' ),
+				page.click( '#wp-submit', { timeout: 60000 } ),
 			] );
 
 			// Verify we're on the dashboard
