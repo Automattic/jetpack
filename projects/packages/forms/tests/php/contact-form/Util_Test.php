@@ -51,7 +51,6 @@ class Util_Test extends BaseTestCase {
 	 * @dataProvider provider_apply_block_attribute_scenarios
 	 */
 	#[DataProvider( 'provider_apply_block_attribute_scenarios' )]
-	#[DataProvider( 'provider_apply_block_attribute_scenarios' )]
 	public function test_apply_block_attribute( $content, $new_attr, $expected_attrs ) {
 		$result = Util::grunion_contact_form_apply_block_attribute( $content, $new_attr );
 
