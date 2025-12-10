@@ -13,7 +13,6 @@ import {
 } from '../../../stories';
 import { legendArgTypes } from '../../../stories/legend-config';
 import { formatMetricValue } from '../../../utils';
-import { hexToRgba } from '../../../utils/color-utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -335,7 +334,8 @@ const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
 		overrideColor: args.primaryColor,
 	} );
 
-	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+	// Use color-mix to add alpha, which works with any CSS color format (hex, HSL, RGB, etc.)
+	const primaryColorWithAlpha = `color-mix(in srgb, ${ primaryColor } 8%, transparent)`;
 
 	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
 };
