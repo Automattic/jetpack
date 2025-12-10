@@ -19,6 +19,14 @@ type ConnectionListProps = {
 	selectedConnection: Connection | null;
 };
 
+const preventModalScrollOnNavigate = ( event: React.KeyboardEvent ) => {
+	// Prevent scrolling the modal sidebar when navigating connections with arrow keys
+	const arrowKeys = [ 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight' ];
+	if ( arrowKeys.includes( event.key ) ) {
+		event.preventDefault();
+	}
+};
+
 /**
  * Connection List component for the social preview modal sidebar.
  *
@@ -73,6 +81,7 @@ export function ConnectionList( {
 			orientation="vertical"
 			aria-label={ __( 'Preview social posts', 'jetpack-publicize-components' ) }
 			onNavigate={ onNavigate }
+			onKeyDown={ preventModalScrollOnNavigate }
 		>
 			{ connections.map( connection => {
 				const isConnectionEnabled = canBeTurnedOn( connection ) && connection.enabled;
