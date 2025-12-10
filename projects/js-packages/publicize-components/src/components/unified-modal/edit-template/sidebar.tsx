@@ -73,10 +73,10 @@ export function Sidebar( {
 	return (
 		<div className={ styles.sidebar }>
 			{ /* Background Image Section */ }
-			<div className={ styles.section }>
-				<div className={ styles.sectionLabel }>
+			<fieldset className={ styles.section }>
+				<legend className={ styles.sectionLabel }>
 					{ __( 'Background image', 'jetpack-publicize-components' ) }
-				</div>
+				</legend>
 				<BackgroundImagePicker
 					imageType={ localState.imageType }
 					imageId={ localState.imageId }
@@ -85,25 +85,25 @@ export function Sidebar( {
 					onImageTypeChange={ handleImageTypeChange }
 					onImageIdChange={ handleImageIdChange }
 				/>
-			</div>
+			</fieldset>
 
 			{ /* Template Section */ }
-			<div className={ styles.section }>
-				<div className={ styles.sectionLabel }>
+			<fieldset className={ styles.section }>
+				<legend className={ styles.sectionLabel }>
 					{ __( 'Template', 'jetpack-publicize-components' ) }
-				</div>
+				</legend>
 				<TemplatePicker
 					value={ localState.template }
 					onTemplateSelected={ handleTemplateChange }
 					className={ styles.templateGrid }
 				/>
-			</div>
+			</fieldset>
 
 			{ /* Text Section */ }
-			<div className={ styles.section }>
-				<div className={ styles.sectionLabel }>
+			<fieldset className={ styles.section }>
+				<legend className={ styles.sectionLabel }>
 					{ __( 'Text', 'jetpack-publicize-components' ) }
-				</div>
+				</legend>
 				<TextControl
 					value={ localState.customText }
 					onChange={ handleCustomTextChange }
@@ -115,13 +115,13 @@ export function Sidebar( {
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
-			</div>
+			</fieldset>
 
 			{ /* Font Section */ }
-			<div className={ styles.section }>
-				<div className={ styles.sectionLabel }>
+			<fieldset className={ styles.section }>
+				<legend className={ styles.sectionLabel }>
 					{ __( 'Font', 'jetpack-publicize-components' ) }
-				</div>
+				</legend>
 				<SelectControl
 					value={ localState.font }
 					options={ fontOptions }
@@ -130,7 +130,7 @@ export function Sidebar( {
 					__nextHasNoMarginBottom
 					__next40pxDefaultSize
 				/>
-			</div>
+			</fieldset>
 		</div>
 	);
 }
