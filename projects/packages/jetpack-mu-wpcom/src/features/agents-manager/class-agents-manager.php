@@ -174,7 +174,7 @@ class Agents_Manager {
 	/**
 	 * Check if user has enabled unified chat opt-in in their Automattician options.
 	 *
-	 * This checks the a11n_unified_chat attribute set via the wpcom profile settings.
+	 * This checks the unified_ai_chat calypso preference set via the wpcom profile settings.
 	 * Only used on Simple sites where get_user_attribute is available.
 	 *
 	 * @param int $user_id User ID.
@@ -186,7 +186,8 @@ class Agents_Manager {
 			return false;
 		}
 
-		return (bool) \get_user_attribute( $user_id, 'a11n_unified_chat' );
+		$calypso_prefs = \get_user_attribute( $user_id, 'calypso_preferences' );
+		return ! empty( $calypso_prefs['unified_ai_chat'] );
 	}
 
 	/**
@@ -194,6 +195,8 @@ class Agents_Manager {
 	 *
 	 * Used on Atomic sites to delegate the decision to wpcom, which has
 	 * access to user attributes and can evaluate the rollout logic.
+	 *
+	 * Calls /me/preferences endpoint which is accessible via Jetpack user tokens.
 	 *
 	 * @return bool Whether user should see unified experience.
 	 */
@@ -205,9 +208,10 @@ class Agents_Manager {
 			return $cached_value;
 		}
 
+		// Call /me/preferences via wpcom/v2 namespace (works with Jetpack user tokens).
 		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			'/me?fields=unified_ai_chat',
-			'1.1',
+			'/me/preferences?preference_key=unified_ai_chat',
+			'2',
 			array( 'method' => 'GET' )
 		);
 
@@ -223,9 +227,10 @@ class Agents_Manager {
 		}
 
 		$body         = wp_remote_retrieve_body( $wpcom_request );
-		$decoded_body = json_decode( $body );
+		$decoded_body = json_decode( $body, true );
 
-		$cached_value = ! empty( $decoded_body->unified_ai_chat );
+		// The response is the value of the preference directly when using preference_key.
+		$cached_value = ! empty( $decoded_body );
 		return $cached_value;
 	}
 }
