@@ -8,6 +8,7 @@ import {
 	PanelBody,
 	PanelRow,
 } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
@@ -80,9 +81,12 @@ export function ConnectionPanels() {
 							initialOpen={ false }
 						>
 							<PanelRow>
-								<Flex className={ styles.preview } align="center" justify="center">
-									<PostPreview connection={ connection } />
-								</Flex>
+								<fieldset>
+									<Flex className={ styles.preview } align="start" direction="column">
+										<legend>{ __( 'Preview', 'jetpack-publicize-components' ) }</legend>
+										<PostPreview connection={ connection } />
+									</Flex>
+								</fieldset>
 							</PanelRow>
 						</PanelBody>
 					</Grid>

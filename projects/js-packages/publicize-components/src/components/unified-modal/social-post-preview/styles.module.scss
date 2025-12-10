@@ -38,11 +38,11 @@
 }
 
 .content {
-	background-color: gb.$gray-100;
 	width: 100%;
 	min-height: 100%;
 
 	&[role="tabpanel"] {
+		background-color: gb.$gray-100;
 		padding: 1.5rem;
 	}
 
@@ -58,10 +58,27 @@
 		padding-inline-start: 1rem;
 		padding-inline-end: 0.25rem;
 		border-bottom: 1px solid gb.$gray-200;
-		border-top: 1px solid gb.$gray-200;
+	}
+
+	:global(.components-panel) {
+		border: none;
+	}
+
+	:global(.components-panel__body) {
+		border-top: none;
 	}
 
 	:global(.components-panel__body-toggle) {
 		padding-inline-start: 0.25rem;
+	}
+
+	:global(.components-panel__row) {
+		// Compensate for the toggle space
+		margin-inline-start: -3.25rem;
+
+		legend {
+			text-transform: uppercase;
+			padding-inline: 0;
+		}
 	}
 }
