@@ -1,16 +1,11 @@
-import { BaseChartProps } from '../../types';
-
-/**
- * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-2) to numeric values
- */
-export type GeoChartData = Record< string, number >;
+import { BaseChartProps, GeoData } from '../../types';
 
 export interface GeoChartProps
 	extends Pick< BaseChartProps, 'className' | 'chartId' | 'width' | 'height' > {
 	/**
 	 * Record mapping country IDs (ISO 3166-1 alpha-2 codes) to numeric values
 	 */
-	data: GeoChartData;
+	data: GeoData;
 	scale?: number;
 	center?: [ number, number ]; // [longitude, latitude] for geographic center point
 }

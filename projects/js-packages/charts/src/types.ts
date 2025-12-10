@@ -30,6 +30,11 @@ export type DataPoint = {
 	value: number;
 };
 
+/**
+ * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-2) to numeric values
+ */
+export type GeoData = Record< string, number >;
+
 export type DataPointDate = {
 	date?: Date;
 	/**

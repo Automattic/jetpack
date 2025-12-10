@@ -11,6 +11,7 @@ export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 // Components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
+export { GeoChart, GeoChartUnresponsive } from './components/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
@@ -33,5 +34,6 @@ export {
 export type * from './types';
 export type * from './visx/types';
 export type { PieChartProps } from './charts/pie-chart';
+export type { GeoChartProps } from './components/geo-chart';
 
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
