@@ -17,11 +17,16 @@ Main component for rendering geographical data on an interactive world map.
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
+| `scale` | `number` | `width / (2 * Math.PI)` | Scale factor for the map projection. Controls how large the map appears within the chart bounds |
+| `center` | `[number, number]` | - | Geographic center point as `[longitude, latitude]` for zooming into specific regions |
 
 ## GeoChartProps Type
 
 ```typescript
-interface GeoChartProps extends Pick<BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height'> {}
+interface GeoChartProps extends Pick<BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height'> {
+	scale?: number;
+	center?: [number, number]; // [longitude, latitude]
+}
 ```
 
 ## FeatureShape Type
@@ -95,8 +100,9 @@ For a complete list, refer to the ISO 3166-1 alpha-3 standard.
 
 The chart uses **Mercator projection** from `@visx/geo` with the following parameters:
 
-- **Scale**: Calculated as `width * 0.16`
-- **Translation**: `[centerX, centerY + 50]` (slightly offset vertically)
+- **Scale**: Defaults to `width / (2 * Math.PI)` to fit the full 360° longitude span exactly within the chart bounds. Can be customized via the `scale` prop.
+- **Center**: Geographic center point as `[longitude, latitude]`. Use with `scale` to zoom into specific regions (e.g., `center={[-95, 40]}` for USA, `center={[10, 50]}` for Europe).
+- **Translation**: `[width/2, height/2 + 50]` (centered with slight vertical offset)
 - **Topology**: World country boundaries from Natural Earth data
 
 ## Color Scaling

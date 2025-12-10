@@ -30,9 +30,11 @@ const world = topojson.feature( topology, topology.objects.units ) as {
  * @param props.width     - Width of the chart in pixels
  * @param props.height    - Height of the chart in pixels
  * @param props.className - Additional CSS class name for the chart container
+ * @param props.scale     - Scale factor for the map projection (defaults to fit within bounds)
+ * @param props.center    - Geographic center point as [longitude, latitude] for zooming into regions
  * @return A React component displaying an interactive world map with data visualization
  */
-export default function ( { className, data, width, height }: GeoChartProps ) {
+export default function ( { className, data, width, height, scale, center }: GeoChartProps ) {
 	const {
 		getElementStyles,
 		theme: { geoChart, backgroundColor },
@@ -40,9 +42,13 @@ export default function ( { className, data, width, height }: GeoChartProps ) {
 	const { showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop, tooltipOpen } =
 		useTooltip< TooltipData >();
 
-	const centerX = width / 2;
-	const centerY = height / 2;
-	const scale = width * 0.16;
+	// Default scale to fit the world map within the chart bounds
+	// Scale is calculated to fit the full 360° longitude span exactly
+	const mapScale = scale ?? width / ( 2 * Math.PI );
+	// Translation to center the map in the chart
+	// Apply vertical offset only when no custom center is defined (for better default world map display)
+	const translateX = width / 2;
+	const translateY = height / 2 + ( center ? 0 : 50 );
 
 	// Get the max order count to scale the colors
 	const maxOrderCount = Math.max( ...Object.values( data ), 1 );
@@ -91,8 +97,9 @@ export default function ( { className, data, width, height }: GeoChartProps ) {
 				/>
 				<Mercator< FeatureShape >
 					data={ world.features }
-					scale={ scale }
-					translate={ [ centerX, centerY + 50 ] }
+					scale={ mapScale }
+					translate={ [ translateX, translateY ] }
+					center={ center }
 				>
 					{ mercator => (
 						<g>

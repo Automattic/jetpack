@@ -65,6 +65,8 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 ### Optional Props
 
 - **`className`**: Additional CSS class name for custom styling
+- **`scale`**: Scale factor for the map projection. Defaults to `width / (2 * Math.PI)` to fit the map exactly within the chart bounds
+- **`center`**: Geographic center point as `[longitude, latitude]` for zooming into specific regions (e.g., `[-95, 40]` for USA, `[10, 50]` for Europe)
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-types-geo-chart-api-reference--docs).
 
@@ -160,11 +162,36 @@ Add custom styles using the `className` prop:
 The Geo Chart uses Mercator projection with the following characteristics:
 
 - **Projection**: Standard Mercator (equirectangular-like distortion)
-- **Center**: Slightly offset vertically (50px down) for better visual balance
-- **Scale**: Automatically calculated as `width * 0.16` for optimal sizing
+- **Center**: Can be customized via the `center` prop using `[longitude, latitude]` coordinates to zoom into specific regions
+- **Scale**: Automatically calculated as `width / (2 * Math.PI)` to fit the full 360° longitude span exactly within the chart bounds. Can be customized via the `scale` prop.
 - **Graticule**: Hidden by default (grid lines set to transparent)
 
 This projection provides a familiar world map layout suitable for most geographical data visualization needs.
+
+### Zooming Into Regions
+
+Use `scale` and `center` together to focus on specific geographic areas:
+
+<Source
+	language="tsx"
+	code={ `// Zoom into Europe
+<GeoChart
+	data={ ordersByCountry }
+	width={ 800 }
+	height={ 500 }
+	scale={ 600 }
+	center={ [ 10, 50 ] } // [longitude, latitude]
+/>
+
+// Zoom into USA
+<GeoChart
+	data={ ordersByCountry }
+	width={ 800 }
+	height={ 500 }
+	scale={ 800 }
+	center={ [ -95, 40 ] }
+/>` }
+/>
 
 ## Best Practices
 

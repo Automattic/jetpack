@@ -1,7 +1,10 @@
 import { BaseChartProps } from '../../types';
 
 export interface GeoChartProps
-	extends Pick< BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height' > {}
+	extends Pick< BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height' > {
+	scale?: number;
+	center?: [ number, number ]; // [longitude, latitude] for geographic center point
+}
 
 export interface FeatureShape {
 	type: 'Feature';
