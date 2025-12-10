@@ -9,7 +9,7 @@ A comprehensive charting library for displaying interactive data visualizations 
 ## Features
 
 - ✨ **Rich Chart Types** - Bar charts, bar list charts, conversion funnel charts, donut charts, leaderboard visualizations, line charts, and pie charts
-- 🎨 **Themeable** - Built-in themes for Jetpack and WooCommerce with custom theme support
+- 🎨 **Themeable** - Built-in default theme with custom theme support
 - 📱 **Responsive** - Automatically adapts to container size and viewport changes
 - ♿ **Accessible** - Full keyboard navigation, screen reader support, and ARIA compliance
 - 🔧 **Compound Components** - Flexible API using compound component patterns for advanced features
@@ -32,7 +32,7 @@ yarn add @automattic/charts
 
 <Source
 	language="jsx"
-	code={`import { LineChart, GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	code={`import { LineChart, GlobalChartsProvider } from '@automattic/charts';
 
 	const data = [
 		{
@@ -48,7 +48,7 @@ yarn add @automattic/charts
 
 	function MyChart() {
 		return (
-			<GlobalChartsProvider theme={jetpackTheme}>
+			<GlobalChartsProvider>
 				<LineChart data={data} />
 			</GlobalChartsProvider>
 		);
@@ -84,7 +84,7 @@ Great for showing parts of a whole, with customizable thickness and gap spacing.
 Charts expect data in a standardized format with `date` (for time-series) or category values and numeric `value` properties.
 
 ### Theme System
-Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Supports Jetpack and WooCommerce themes out of the box.
+Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as colors, grid styling, and typography.
 
 ### Responsive Design
 All charts automatically adapt to their container size using the `withResponsive` higher-order component.
