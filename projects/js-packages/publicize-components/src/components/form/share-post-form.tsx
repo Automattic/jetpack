@@ -21,9 +21,9 @@ type SharePostFormProps = {
 
 /**
  * The SharePostForm component.
- * @param {object} props                 - The component props.
- * @param {object} [props.analyticsData] - Data for tracking analytics.
- * @return {object} The SharePostForm component.
+ * @param {SharePostFormProps} props - The component props.
+ *
+ * @return The SharePostForm component.
  */
 export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null } ) => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
