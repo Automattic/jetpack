@@ -174,6 +174,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'showotheroption'              => null,
 				// derived from block metadata for blockVisibility support
 				'labelhiddenbyblockvisibility' => null,
+				// support resizeable textarea
+				'height'                       => null,
 			),
 			$attributes,
 			'contact-field'
