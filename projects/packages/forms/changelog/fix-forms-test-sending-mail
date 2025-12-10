@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix `Contact_Form_Endpoint_Test::test_resend_email` attempting to actually send email.

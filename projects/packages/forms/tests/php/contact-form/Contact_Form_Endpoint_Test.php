@@ -39,6 +39,13 @@ class Contact_Form_Endpoint_Test extends TestCase {
 	 */
 	private $plugin;
 
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+
+		// Avoid actually trying to send any mail.
+		add_filter( 'pre_wp_mail', '__return_true', PHP_INT_MAX );
+	}
+
 	/**
 	 * Setting up the test.
 	 */
