@@ -1,4 +1,5 @@
-import { Flex, FormToggle, MenuGroup, MenuItem } from '@wordpress/components';
+import { Button, Flex, FormToggle } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
@@ -34,7 +35,11 @@ export function ConnectionsToggleList( {
 	);
 
 	return (
-		<MenuGroup className={ styles.wrapper }>
+		<div
+			role="group"
+			className={ styles.wrapper }
+			aria-label={ __( 'Connection toggles', 'jetpack-publicize-components' ) }
+		>
 			{ connections.map( connection => {
 				const isSelected = canBeTurnedOn( connection ) && connection.enabled;
 				const isDisabled = shouldBeDisabled( connection );
@@ -42,7 +47,7 @@ export function ConnectionsToggleList( {
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
 
 				return (
-					<MenuItem
+					<Button
 						key={ connection.connection_id }
 						role="switch"
 						disabled={ isDisabled }
@@ -72,9 +77,9 @@ export function ConnectionsToggleList( {
 								{ connection.display_name }
 							</div>
 						</Flex>
-					</MenuItem>
+					</Button>
 				);
 			} ) }
-		</MenuGroup>
+		</div>
 	);
 }
