@@ -25,8 +25,8 @@ interface MenuOption {
 interface ImageSourceMenuItemProps {
 	option: MenuOption;
 	isSelected: boolean;
-	onSelect: ( optionId: string, onClose: () => void ) => void;
-	onClose: () => void;
+	onSelect: ( optionId: string, onClose: VoidFunction ) => void;
+	onClose: VoidFunction;
 }
 
 /**
@@ -208,14 +208,14 @@ export function BackgroundImagePicker( {
 		}, 0 );
 	}, [] );
 
-	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
+	const renderMediaUpload = useCallback( ( { open }: { open: VoidFunction } ) => {
 		openMediaLibraryRef.current = open;
 		return null;
 	}, [] );
 
 	// Handle menu item selection
 	const handleOptionSelect = useCallback(
-		( optionId: string, onClose: () => void ) => {
+		( optionId: string, onClose: VoidFunction ) => {
 			if ( optionId === 'custom' ) {
 				handleMediaLibraryClick();
 			} else {
@@ -233,7 +233,7 @@ export function BackgroundImagePicker( {
 	}, [ onImageTypeChange, onImageIdChange ] );
 
 	const renderDropdownContent = useCallback(
-		( { onClose }: { onClose: () => void } ) => (
+		( { onClose }: { onClose: VoidFunction } ) => (
 			<MenuGroup>
 				{ menuOptions.map( option => (
 					<ImageSourceMenuItem
