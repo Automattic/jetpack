@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MediaSourceMenu, { getMediaSourceDescription } from '../media-source-menu';
+import MediaSourceMenu from '../media-source-menu';
+import { getMediaSourceDescription } from '../utils/media-source-options';
 
 describe( 'getMediaSourceDescription', () => {
 	it( 'should return default message when sourceType is null', () => {
