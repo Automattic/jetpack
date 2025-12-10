@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Restricts inline file preview to only image formats and PDFs, forces download for other file types for security.
-
-

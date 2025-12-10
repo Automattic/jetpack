@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Suppress `Jetpack.Functions.JsonEncodeFlags.ZeroFound` in places we're intentionally passing 0.
+
+

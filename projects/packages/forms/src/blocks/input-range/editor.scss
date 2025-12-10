@@ -1,42 +1,63 @@
-.jetpack-field-slider__min-input[type="number"],
-.jetpack-field-slider__max-input[type="number"] {
-	field-sizing: content;
-	min-width: 1ch;
-	max-width: 10ch;
-	text-align: center;
-	border: none;
-	background: transparent;
-	font: inherit;
-	font-size: 0.9em;
-	color: inherit;
-	padding: 0 0.2em;
-	margin: 0;
-	appearance: textfield;
-	text-transform: inherit;
+div.jetpack-input-range {
 
-	&.has-error {
-		outline-color: var(--color-error, #d63638);
-		box-shadow: none;
+	.jetpack-field-slider__input-row {
+
+		input.jetpack-field-slider__min-input[type="number"],
+		input.jetpack-field-slider__max-input[type="number"] {
+			field-sizing: content;
+			min-width: 1ch;
+			max-width: 10ch;
+			text-align: center;
+			border: none;
+			outline: none;
+			box-shadow: none;
+			background: transparent;
+			font: inherit;
+			font-size: 0.9em;
+			line-height: 1.5;
+			color: inherit;
+			padding: 0 0.2em;
+			margin: 0;
+			width: auto;
+			height: auto;
+			appearance: textfield;
+			text-transform: inherit;
+			vertical-align: baseline;
+
+			&.has-error {
+				outline-color: var(--color-error, #d63638);
+				box-shadow: none;
+			}
+
+			&::-webkit-outer-spin-button,
+			&::-webkit-inner-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+		}
 	}
 
-	&::-webkit-outer-spin-button,
-	&::-webkit-inner-spin-button {
-		-webkit-appearance: none;
-		margin: 0;
-	}
-}
+	.jetpack-field-slider__text-labels {
 
-input[type="text"].jetpack-field-slider__min-text-label,
-input[type="text"].jetpack-field-slider__max-text-label {
-	border: none;
-	background: transparent;
-	font: inherit;
-	color: inherit;
-	padding: 0 0.2em;
-	margin: 0;
-	width: auto;
-	field-sizing: content;
-	min-width: 3ch;
-	max-width: 24ch;
-	text-transform: inherit;
+		input[type="text"].jetpack-field-slider__min-text-label,
+		input[type="text"].jetpack-field-slider__max-text-label {
+			border: none;
+			outline: none;
+			box-shadow: none;
+			background: transparent;
+			font: inherit;
+			font-size: 0.9em;
+			line-height: 1.5;
+			color: inherit;
+			padding: 0 0.2em;
+			margin: 0;
+			width: auto;
+			height: auto;
+			field-sizing: content;
+			min-width: 3ch;
+			max-width: 24ch;
+			text-transform: inherit;
+			vertical-align: baseline;
+		}
+	}
 }

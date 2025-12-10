@@ -180,6 +180,10 @@ class Feedback_Field {
 			);
 		}
 
+		if ( $this->value === null ) {
+			return '';
+		}
+
 		return $this->get_render_default_value();
 	}
 

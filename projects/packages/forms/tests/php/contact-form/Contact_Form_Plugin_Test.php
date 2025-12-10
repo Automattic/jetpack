@@ -885,7 +885,16 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Country code' ] ) );
 
+		// check that none of the fields are null
+		$fields = array_keys( $result );
+
+		foreach ( $fields as $field ) {
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
+		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
 			'Text'    => array( 'test@example.com' ),

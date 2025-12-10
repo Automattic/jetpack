@@ -355,11 +355,11 @@ class Colors_Manager_Common {
 			'themeSupport'      => array( 'customBackground' => current_theme_supports( 'custom-background' ) ),
 			'defaultImage'      => get_theme_support( 'custom-background', 'default-image' ),
 			'topPatterns'       => self::get_patterns( array( 'limit' => 30 ) ),
-			'genPalette'        => esc_js( __( 'Generating...', 'wpcomsh' ) ),
-			'backgroundTitle'   => esc_js( __( 'Background', 'wpcomsh' ) ),
-			'colorsTitle'       => esc_js( __( 'Colors', 'wpcomsh' ) ),
-			'mediaTitle'        => esc_js( __( 'Select background image', 'wpcomsh' ) ),
-			'mediaSelectButton' => esc_js( __( 'Select', 'wpcomsh' ) ),
+			'genPalette'        => __( 'Generating...', 'wpcomsh' ),
+			'backgroundTitle'   => __( 'Background', 'wpcomsh' ),
+			'colorsTitle'       => __( 'Colors', 'wpcomsh' ),
+			'mediaTitle'        => __( 'Select background image', 'wpcomsh' ),
+			'mediaSelectButton' => __( 'Select', 'wpcomsh' ),
 		);
 
 		wp_localize_script( 'colors-tool', 'ColorsTool', $settings );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace use of confusing `esc_js` on an integer value with `intval`.
