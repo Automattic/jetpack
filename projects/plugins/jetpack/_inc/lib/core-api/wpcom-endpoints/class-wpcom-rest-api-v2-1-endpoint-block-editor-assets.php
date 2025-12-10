@@ -45,12 +45,89 @@ class WPCOM_REST_API_V2_1_Endpoint_Block_Editor_Assets extends WP_REST_Controlle
 	);
 
 	/**
+	 * List of allowed plugin blocks for the mobile editor (GutenbergKit).
+	 *
+	 * Only these non-core blocks will be available in the mobile editor.
+	 *
+	 * @var array
+	 */
+	const ALLOWED_PLUGIN_BLOCKS = array(
+		'a8c/blog-posts',
+		'a8c/posts-carousel',
+		'jetpack/address',
+		'jetpack/ai-assistant',
+		'jetpack/blog-stats',
+		'jetpack/blogging-prompt',
+		'jetpack/blogroll',
+		'jetpack/blogroll-item',
+		'jetpack/business-hours',
+		'jetpack/button',
+		'jetpack/calendly',
+		'jetpack/contact-info',
+		'jetpack/email',
+		'jetpack/event-countdown',
+		'jetpack/eventbrite',
+		'jetpack/gif',
+		'jetpack/goodreads',
+		'jetpack/google-calendar',
+		'jetpack/image-compare',
+		'jetpack/instagram-gallery',
+		'jetpack/like',
+		'jetpack/mailchimp',
+		'jetpack/map',
+		'jetpack/markdown',
+		'jetpack/nextdoor',
+		'jetpack/opentable',
+		'jetpack/payment-buttons',
+		'jetpack/payments-intro',
+		'jetpack/paypal-payment-buttons',
+		'jetpack/phone',
+		'jetpack/pinterest',
+		'jetpack/podcast-player',
+		'jetpack/rating-star',
+		'jetpack/recurring-payments',
+		'jetpack/related-posts',
+		'jetpack/repeat-visitor',
+		'jetpack/send-a-message',
+		'jetpack/sharing-button',
+		'jetpack/sharing-buttons',
+		'jetpack/simple-payments',
+		'jetpack/subscriber-login',
+		'jetpack/subscriptions',
+		'jetpack/tiled-gallery',
+		'jetpack/timeline',
+		'jetpack/timeline-item',
+		'jetpack/top-posts',
+		'jetpack/whatsapp-button',
+		'premium-content/buttons',
+		'premium-content/container',
+		'premium-content/logged-out-view',
+		'premium-content/login-button',
+		'premium-content/subscriber-view',
+	);
+
+	/**
+	 * List of disallowed core blocks for the mobile editor (GutenbergKit).
+	 *
+	 * These core blocks are not available in the mobile editor due to
+	 * technical limitations (e.g., TinyMCE unavailability).
+	 *
+	 * @var array
+	 */
+	const DISALLOWED_CORE_BLOCKS = array(
+		'core/freeform', // Classic editor - TinyMCE is unavailable in the mobile editor.
+	);
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2.1';
 		$this->rest_base = 'editor-assets';
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+
+		// Filter allowed block types for GutenbergKit (mobile editor) context.
+		add_filter( 'allowed_block_types_all', array( $this, 'filter_allowed_block_types' ), 10, 2 );
 	}
 
 	/**
@@ -317,6 +394,56 @@ class WPCOM_REST_API_V2_1_Endpoint_Block_Editor_Assets extends WP_REST_Controlle
 			__( 'Sorry, you are not allowed to read the block editor assets.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
+	}
+
+	/**
+	 * Filter allowed block types for the mobile editor (GutenbergKit).
+	 *
+	 * This filter restricts the available blocks when the settings endpoint
+	 * is called with `?context=gutenberg_kit`. It allows all core blocks
+	 * except those in DISALLOWED_CORE_BLOCKS, and only allows plugin blocks
+	 * that are in ALLOWED_PLUGIN_BLOCKS.
+	 *
+	 * @param bool|string[]           $allowed_block_types  Array of allowed block type names, or true for all.
+	 * @param WP_Block_Editor_Context $block_editor_context The current block editor context.
+	 * @return bool|string[] Filtered array of allowed block types, or original value if not GutenbergKit context.
+	 */
+	public function filter_allowed_block_types( $allowed_block_types, $block_editor_context ) {
+		// Only filter for GutenbergKit context.
+		if ( ! $block_editor_context || $block_editor_context->name !== 'core/mobile' ) {
+			return $allowed_block_types;
+		}
+
+		// Get all registered blocks if true was passed (meaning all blocks allowed).
+		if ( $allowed_block_types === true ) {
+			$allowed_block_types = array_keys(
+				WP_Block_Type_Registry::get_instance()->get_all_registered()
+			);
+		}
+
+		// If it's not an array at this point, return as-is.
+		if ( ! is_array( $allowed_block_types ) ) {
+			return $allowed_block_types;
+		}
+
+		// Filter to allowed blocks only.
+		$allowed = array();
+		foreach ( $allowed_block_types as $block_name ) {
+			// Allow core blocks except disallowed ones.
+			if ( str_starts_with( $block_name, 'core/' ) ) {
+				if ( ! in_array( $block_name, self::DISALLOWED_CORE_BLOCKS, true ) ) {
+					$allowed[] = $block_name;
+				}
+				continue;
+			}
+
+			// Only allow specific plugin blocks.
+			if ( in_array( $block_name, self::ALLOWED_PLUGIN_BLOCKS, true ) ) {
+				$allowed[] = $block_name;
+			}
+		}
+
+		return $allowed;
 	}
 
 	/**

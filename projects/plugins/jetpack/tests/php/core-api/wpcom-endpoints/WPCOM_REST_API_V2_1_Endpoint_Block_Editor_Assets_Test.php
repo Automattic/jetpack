@@ -527,4 +527,148 @@ class WPCOM_REST_API_V2_1_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST
 			$this->assertArrayHasKey( 'after', $data['inline_styles'] );
 		}
 	}
+
+	/**
+	 * Test that filter_allowed_block_types only applies for gutenberg_kit context.
+	 */
+	public function test_filter_allowed_block_types_only_applies_for_gutenberg_kit_context() {
+		// Create a non-gutenberg_kit context
+		$context = new WP_Block_Editor_Context( array( 'name' => 'core/edit-post' ) );
+
+		// Pass true (all blocks allowed) - should return unchanged for non-gutenberg_kit context
+		$result = $this->instance->filter_allowed_block_types( true, $context );
+		$this->assertTrue( $result, 'Filter should return true unchanged for non-gutenberg_kit context' );
+
+		// Pass an array - should return unchanged for non-gutenberg_kit context
+		$blocks = array( 'core/paragraph', 'core/freeform', 'random-plugin/block' );
+		$result = $this->instance->filter_allowed_block_types( $blocks, $context );
+		$this->assertSame( $blocks, $result, 'Filter should return blocks unchanged for non-gutenberg_kit context' );
+	}
+
+	/**
+	 * Test that filter_allowed_block_types returns unchanged for null context.
+	 */
+	public function test_filter_allowed_block_types_returns_unchanged_for_null_context() {
+		$blocks = array( 'core/paragraph', 'core/freeform' );
+		$result = $this->instance->filter_allowed_block_types( $blocks, null );
+		$this->assertSame( $blocks, $result, 'Filter should return blocks unchanged for null context' );
+	}
+
+	/**
+	 * Test that core/freeform is excluded in gutenberg_kit context.
+	 */
+	public function test_filter_allowed_block_types_excludes_freeform() {
+		$context = new WP_Block_Editor_Context( array( 'name' => 'gutenberg_kit' ) );
+		$blocks  = array( 'core/paragraph', 'core/freeform', 'core/heading' );
+
+		$result = $this->instance->filter_allowed_block_types( $blocks, $context );
+
+		$this->assertContains( 'core/paragraph', $result, 'core/paragraph should be allowed' );
+		$this->assertContains( 'core/heading', $result, 'core/heading should be allowed' );
+		$this->assertNotContains( 'core/freeform', $result, 'core/freeform should be excluded' );
+	}
+
+	/**
+	 * Test that only ALLOWED_PLUGIN_BLOCKS are included in gutenberg_kit context.
+	 */
+	public function test_filter_allowed_block_types_only_allows_specified_plugin_blocks() {
+		$context = new WP_Block_Editor_Context( array( 'name' => 'gutenberg_kit' ) );
+		$blocks  = array(
+			'core/paragraph',
+			'jetpack/tiled-gallery',       // In ALLOWED_PLUGIN_BLOCKS
+			'jetpack/subscriptions',       // In ALLOWED_PLUGIN_BLOCKS
+			'random-plugin/some-block',    // NOT in ALLOWED_PLUGIN_BLOCKS
+			'woocommerce/product-grid',    // NOT in ALLOWED_PLUGIN_BLOCKS
+		);
+
+		$result = $this->instance->filter_allowed_block_types( $blocks, $context );
+
+		$this->assertContains( 'core/paragraph', $result, 'core/paragraph should be allowed' );
+		$this->assertContains( 'jetpack/tiled-gallery', $result, 'jetpack/tiled-gallery should be allowed' );
+		$this->assertContains( 'jetpack/subscriptions', $result, 'jetpack/subscriptions should be allowed' );
+		$this->assertNotContains( 'random-plugin/some-block', $result, 'random-plugin/some-block should be excluded' );
+		$this->assertNotContains( 'woocommerce/product-grid', $result, 'woocommerce/product-grid should be excluded' );
+	}
+
+	/**
+	 * Test that filter converts true to filtered array in gutenberg_kit context.
+	 */
+	public function test_filter_allowed_block_types_converts_true_to_filtered_array() {
+		$context = new WP_Block_Editor_Context( array( 'name' => 'gutenberg_kit' ) );
+
+		// Register some test blocks
+		$registry = WP_Block_Type_Registry::get_instance();
+
+		// Check if blocks are already registered, if not register them
+		if ( ! $registry->is_registered( 'test/allowed-block' ) ) {
+			register_block_type( 'test/allowed-block', array() );
+		}
+		if ( ! $registry->is_registered( 'jetpack/tiled-gallery' ) ) {
+			register_block_type( 'jetpack/tiled-gallery', array() );
+		}
+
+		// Pass true (all blocks allowed) - should return filtered array
+		$result = $this->instance->filter_allowed_block_types( true, $context );
+
+		$this->assertIsArray( $result, 'Filter should convert true to array for gutenberg_kit context' );
+		$this->assertNotContains( 'core/freeform', $result, 'core/freeform should be excluded' );
+		$this->assertNotContains( 'test/allowed-block', $result, 'Non-allowed plugin blocks should be excluded' );
+
+		// If jetpack/tiled-gallery was registered, it should be in the result
+		if ( $registry->is_registered( 'jetpack/tiled-gallery' ) ) {
+			$this->assertContains( 'jetpack/tiled-gallery', $result, 'jetpack/tiled-gallery should be allowed' );
+		}
+
+		// Clean up
+		if ( $registry->is_registered( 'test/allowed-block' ) ) {
+			unregister_block_type( 'test/allowed-block' );
+		}
+	}
+
+	/**
+	 * Test that all core blocks except disallowed ones are allowed.
+	 */
+	public function test_filter_allowed_block_types_allows_most_core_blocks() {
+		$context = new WP_Block_Editor_Context( array( 'name' => 'gutenberg_kit' ) );
+		$blocks  = array(
+			'core/paragraph',
+			'core/heading',
+			'core/image',
+			'core/list',
+			'core/quote',
+			'core/code',
+			'core/freeform', // This one should be excluded
+		);
+
+		$result = $this->instance->filter_allowed_block_types( $blocks, $context );
+
+		// All core blocks except freeform should be allowed
+		$this->assertContains( 'core/paragraph', $result );
+		$this->assertContains( 'core/heading', $result );
+		$this->assertContains( 'core/image', $result );
+		$this->assertContains( 'core/list', $result );
+		$this->assertContains( 'core/quote', $result );
+		$this->assertContains( 'core/code', $result );
+		$this->assertNotContains( 'core/freeform', $result );
+	}
+
+	/**
+	 * Test that a8c and premium-content blocks are allowed.
+	 */
+	public function test_filter_allowed_block_types_allows_a8c_and_premium_content_blocks() {
+		$context = new WP_Block_Editor_Context( array( 'name' => 'gutenberg_kit' ) );
+		$blocks  = array(
+			'a8c/blog-posts',
+			'a8c/posts-carousel',
+			'premium-content/container',
+			'premium-content/subscriber-view',
+		);
+
+		$result = $this->instance->filter_allowed_block_types( $blocks, $context );
+
+		$this->assertContains( 'a8c/blog-posts', $result );
+		$this->assertContains( 'a8c/posts-carousel', $result );
+		$this->assertContains( 'premium-content/container', $result );
+		$this->assertContains( 'premium-content/subscriber-view', $result );
+	}
 }
