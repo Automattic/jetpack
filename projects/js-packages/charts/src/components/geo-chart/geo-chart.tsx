@@ -6,12 +6,12 @@ import { Mercator, Graticule } from '@visx/geo';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, TooltipWithBounds, defaultStyles } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback } from 'react';
+import { FC, useCallback, useContext } from 'react';
 import * as topojson from 'topojson-client';
 /**
  * Internal dependencies
  */
-import { useGlobalChartsContext } from '../../providers';
+import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import styles from './geo-chart.module.scss';
 import topology from './private/world-topo.json';
 import { GeoChartProps, FeatureShape, TooltipData } from './types';
@@ -34,7 +34,14 @@ const world = topojson.feature( topology, topology.objects.units ) as {
  * @param props.center    - Geographic center point as [longitude, latitude] for zooming into regions
  * @return A React component displaying an interactive world map with data visualization
  */
-export default function ( { className, data, width, height, scale, center }: GeoChartProps ) {
+const GeoChartInternal: FC< GeoChartProps > = ( {
+	className,
+	data,
+	width,
+	height,
+	scale,
+	center,
+} ) => {
 	const {
 		getElementStyles,
 		theme: { geoChart, backgroundColor },
@@ -142,4 +149,24 @@ export default function ( { className, data, width, height, scale, center }: Geo
 			) }
 		</div>
 	);
-}
+};
+
+const GeoChartWithProvider: FC< GeoChartProps > = props => {
+	const existingContext = useContext( GlobalChartsContext );
+
+	// If we're already in a GlobalChartsProvider context, don't create a new one
+	if ( existingContext ) {
+		return <GeoChartInternal { ...props } />;
+	}
+
+	// Otherwise, create our own GlobalChartsProvider
+	return (
+		<GlobalChartsProvider>
+			<GeoChartInternal { ...props } />
+		</GlobalChartsProvider>
+	);
+};
+
+GeoChartWithProvider.displayName = 'GeoChart';
+
+export { GeoChartWithProvider as default };
