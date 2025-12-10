@@ -3664,19 +3664,39 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Validates the export to Google Drive request.
+	 *
+	 * @param array $post_data The POST data to validate.
+	 * @return bool True if the request is valid, false otherwise.
+	 */
+	public function validate_export_to_gdrive_request( $post_data ) {
+		if ( ! current_user_can( 'export' ) ) {
+			return false;
+		}
+
+		if ( empty( $post_data[ $this->export_nonce_field_gdrive ] ) ) {
+			return false;
+		}
+
+		$nonce = sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] );
+		if ( ! wp_verify_nonce( $nonce, 'feedback_export' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
 		$post_data = wp_unslash( $_POST );
 
-		if (
-			! current_user_can( 'export' )
-			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) )
-			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
-		) {
+		if ( ! $this->validate_export_to_gdrive_request( $post_data ) ) {
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
 				403,

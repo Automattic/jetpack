@@ -763,37 +763,60 @@ EOT
 	}
 
 	/**
-	 * Test export_to_gdrive method security and validation.
+	 * Test export_to_gdrive validation method with various security scenarios.
 	 *
-	 * This test verifies that the export_to_gdrive method properly validates
-	 * permissions and nonces before processing the export request.
+	 * This test verifies that the validate_export_to_gdrive_request method properly
+	 * validates permissions and nonces.
 	 */
 	public function test_export_to_gdrive_security_validation() {
-		// Create a Contact_Form_Plugin instance
-		$plugin = Contact_Form_Plugin::init();
-
-		// Test without proper capabilities
+		$plugin        = Contact_Form_Plugin::init();
 		$original_user = wp_get_current_user();
-		wp_set_current_user( 0 ); // Set to no user
 
-		// Mock $_POST data without proper nonce
-		$_POST = array(
-			'feedback_export_nonce_gdrive' => 'invalid_nonce',
+		// Test 1: User without 'export' capability should fail
+		wp_set_current_user( 0 );
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => wp_create_nonce( 'feedback_export' ),
+		);
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail for user without export capability'
 		);
 
-		// Capture output to check for JSON error response
-		ob_start();
-		$plugin->export_to_gdrive();
-		$output = ob_get_clean();
+		// Test 2: Missing nonce field should fail
+		$admin_user = wp_insert_user(
+			array(
+				'user_login' => 'testadmin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_user );
+		$post_data = array(); // No nonce field
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail when nonce field is missing'
+		);
 
-		// Verify that an error response was sent
-		$this->assertStringContainsString( 'You aren\'t authorized to do that.', $output );
+		// Test 3: Invalid nonce should fail
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => 'invalid_nonce',
+		);
+		$this->assertFalse(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should fail with invalid nonce'
+		);
 
-		// Restore original user
+		// Test 4: Valid user with valid nonce should pass
+		$post_data = array(
+			'feedback_export_nonce_gdrive' => wp_create_nonce( 'feedback_export' ),
+		);
+		$this->assertTrue(
+			$plugin->validate_export_to_gdrive_request( $post_data ),
+			'Validation should pass with valid user and nonce'
+		);
+
+		// Cleanup
 		wp_set_current_user( $original_user->ID );
-
-		// Clean up $_POST
-		unset( $_POST['feedback_export_nonce_gdrive'] );
 	}
 
 	/**
