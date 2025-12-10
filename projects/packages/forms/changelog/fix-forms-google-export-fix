@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix export functionality to handle null values properly for IP Address, Country code, and Browser fields
