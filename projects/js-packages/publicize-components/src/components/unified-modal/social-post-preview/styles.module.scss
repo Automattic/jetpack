@@ -11,6 +11,7 @@
 		padding-block: 0.75rem;
 		padding-inline-start: 1rem;
 		padding-inline-end: 0.5rem;
+		border-bottom: 1px solid gb.$gray-100;
 		height: 40px;
 	}
 
@@ -20,6 +21,7 @@
 
 	.connection-button {
 		gap: 1rem;
+		border-bottom: 1px solid gb.$gray-100;
 	}
 
 	:global(.components-button) {
