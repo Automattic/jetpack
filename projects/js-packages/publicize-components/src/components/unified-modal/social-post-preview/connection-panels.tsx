@@ -63,8 +63,10 @@ export function ConnectionPanels() {
 						</div>
 						<PanelBody
 							title={
-								<Flex>
-									<div title={ connection.display_name }>{ connection.display_name }</div>
+								<div className={ styles[ 'connection-info' ] }>
+									<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+										{ connection.display_name }
+									</div>
 									<ConnectionIcon
 										serviceName={ connection.service_name }
 										// Avoid screen reader reading the label twice when the item is focused
@@ -72,7 +74,7 @@ export function ConnectionPanels() {
 										profilePicture={ connection.profile_picture }
 										disabled={ isDisabled }
 									/>
-								</Flex>
+								</div>
 							}
 							buttonProps={ {
 								'aria-label': getA11yLabelForConnectionPreview( connection ),

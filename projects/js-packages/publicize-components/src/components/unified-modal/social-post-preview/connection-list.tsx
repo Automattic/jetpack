@@ -1,5 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Flex, Icon, NavigableMenu } from '@wordpress/components';
+import { Button, Icon, NavigableMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
@@ -109,7 +109,7 @@ export function ConnectionList( {
 						// Disable navigation via tab key
 						tabIndex={ isSelected ? 0 : -1 }
 					>
-						<Flex gap={ 1 }>
+						<div className={ styles[ 'connection-info' ] }>
 							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
 								{ connection.display_name }
 							</div>
@@ -120,7 +120,7 @@ export function ConnectionList( {
 								profilePicture={ connection.profile_picture }
 								disabled={ isDisabled }
 							/>
-						</Flex>
+						</div>
 					</Button>
 				);
 			} ) }

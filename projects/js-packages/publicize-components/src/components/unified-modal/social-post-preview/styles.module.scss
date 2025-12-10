@@ -28,16 +28,24 @@
 		width: 100%;
 	}
 
-	.display-name {
-		max-width: 8rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
 	.active-chevron {
 		color: var(--jp-highlight);
 	}
+}
+
+.connection-info {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 0.25rem;
+	align-items: center;
+	width: 100%;
+}
+
+.display-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: start;
 }
 
 .content {
