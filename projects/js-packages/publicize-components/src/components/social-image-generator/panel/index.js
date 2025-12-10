@@ -95,10 +95,7 @@ const SocialImageGeneratorPanel = () => {
 										  )
 										: __( 'Save to media library', 'jetpack-publicize-components' ) }
 								</Button>
-								{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
-									// TODO: Replace EditTemplate button with full image UI controls integrated with the sidebar
-									<EditTemplate />
-								) : null }
+								{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <EditTemplate /> : null }
 							</HStack>
 						</>
 					) }
