@@ -175,7 +175,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$this->hash = sha1(
 			wp_json_encode(
 				$attributes,
-				0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
 			)
 		);
 
@@ -2549,7 +2549,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'success'     => true,
 					'data'        => $data,
 					'refreshArgs' => $refresh_args,
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 

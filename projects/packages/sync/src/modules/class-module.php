@@ -249,7 +249,7 @@ abstract class Module {
 		return crc32(
 			wp_json_encode(
 				Functions::json_wrap( $values ),
-				0 // No `json_encode()` flags because we don't want disrupt the checksum algorithm.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want disrupt the checksum algorithm.
 			)
 		);
 	}

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Service;
 
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use WP_Error;
 
 /**
@@ -75,13 +76,25 @@ class Form_Webhooks {
 	 *
 	 * @param int   $post_id - the post_id for the CPT that is created.
 	 * @param array $fields - a collection of Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field instances.
-	 * @param bool  $is_spam - marked as spam by Akismet(?).
+	 * @param bool  $is_spam - marked as spam by Akismet.
 	 * @param array $entry_values - extra fields added to from the contact form.
 	 *
 	 * @return null|void
 	 */
 	public function send_webhooks( $post_id, $fields, $is_spam, $entry_values ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Try and get the form from any of the fields
+		// Get the Feedback object from the post_id
+		$feedback = Feedback::get( $post_id );
+
+		if ( ! $feedback ) {
+			return;
+		}
+
+		// if spam (hinted by akismet), don't process
+		if ( $is_spam ) {
+			return;
+		}
+
+		// Get the form from any of the fields to access form attributes (webhooks configuration)
 		$form = null;
 		foreach ( $fields as $field ) {
 			if ( ! empty( $field->form ) ) {
@@ -93,18 +106,13 @@ class Form_Webhooks {
 			return;
 		}
 
-		// if spam (hinted by akismet?), don't process
-		if ( $is_spam ) {
-			return;
-		}
-
 		$webhooks = $this->get_enabled_webhooks( $form->attributes );
 
 		if ( empty( $webhooks ) ) {
 			return;
 		}
 
-		$form_data = $this->get_form_data( $form );
+		$form_data = $feedback->get_compiled_fields( 'webhook', 'id-value' );
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
@@ -135,7 +143,7 @@ class Form_Webhooks {
 			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
 		);
 
-		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data ) ) );
+		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data, JSON_UNESCAPED_SLASHES ) ) );
 	}
 
 	/**
@@ -229,7 +237,7 @@ class Form_Webhooks {
 		$format     = self::VALID_FORMATS_MAP[ $webhook['format'] ];
 		$method     = $webhook['method'];
 		// Encode body based on format
-		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data ) : $data;
+		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) : $data;
 		$args = array(
 			'method'    => $method,
 			'body'      => $body,
@@ -241,26 +249,5 @@ class Form_Webhooks {
 		);
 
 		return wp_remote_request( $url, $args );
-	}
-
-	/**
-	 * Gather fields key/value pairs from the form
-	 * Sanitizes the hidden fields values
-	 *
-	 * @param \Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
-	 */
-	private function get_form_data( $form ) {
-		$fields = array();
-		foreach ( $form->fields as $field ) {
-			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
-		}
-
-		if ( ! empty( $form->attributes['hiddenFields'] ) ) {
-			foreach ( $form->attributes['hiddenFields'] as $hidden_field ) {
-				$fields[ $hidden_field['name'] ] = sanitize_text_field( $hidden_field['value'] );
-			}
-		}
-
-		return $fields;
 	}
 }

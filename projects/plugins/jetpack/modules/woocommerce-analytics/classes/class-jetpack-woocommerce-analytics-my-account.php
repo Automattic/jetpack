@@ -223,8 +223,15 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 	 * @deprecated 13.3
 	 */
 	public function track_logouts() {
-		$common_props = $this->render_properties_as_js(
-			$this->get_common_properties()
+		$common_props = wp_json_encode(
+			array_merge(
+				array(
+					'_en' => 'woocommerceanalytics_my_account_tab_click',
+					'tab' => 'logout',
+				),
+				$this->get_common_properties()
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wc_enqueue_js(
@@ -232,14 +239,10 @@ class Jetpack_WooCommerce_Analytics_My_Account {
 			jQuery(document).ready(function($) {
 					// Attach event listener to the logout link
 				jQuery('.woocommerce-MyAccount-navigation-link--customer-logout').on('click', function() {
-					_wca.push({
-							'_en': 'woocommerceanalytics_my_account_tab_click',
-							'tab': 'logout'," .
-							$common_props . '
-					});
+					_wca.push($common_props);
 				});
 			});
-			'
+			"
 		);
 	}
 

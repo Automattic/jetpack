@@ -259,7 +259,7 @@ class Editor_View {
 				<?php esc_html_e( 'Field Type', 'jetpack-forms' ); ?>
 				<select name="type">
 					<?php foreach ( $grunion_field_types as $type => $label ) : ?>
-					<option <# if ( '<?php echo esc_js( $type ); ?>' === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
+					<option <# if ( <?php echo wp_json_encode( $type, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
 						<?php echo esc_html( $label ); ?>
 					</option>
 					<?php endforeach; ?>

@@ -495,7 +495,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					$apikey                     = wp_kses( wp_unslash( $_POST['apikey'] ), array() );
 					$default_instance           = $this->defaults();
 					$default_instance['apikey'] = $apikey;
-					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );
+					// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ), null, JSON_UNESCAPED_SLASHES );
 				}
 			} else {
 				wp_die();

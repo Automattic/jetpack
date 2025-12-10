@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.7';
+	const PACKAGE_VERSION = '0.1.8';
 	const BASE_FILE       = __FILE__;
 
 	/**
@@ -285,14 +285,16 @@ class External_Connections {
 	 */
 	public static function ajax_delete_connection() {
 		if ( ! isset( $_REQUEST['service'] ) ) {
-			wp_send_json( array( 'deleted' => 'false' ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json( array( 'deleted' => 'false' ), null, JSON_UNESCAPED_SLASHES );
 		}
 
 		$service = sanitize_text_field( wp_unslash( $_REQUEST['service'] ) );
 		check_ajax_referer( 'jetpack_delete_external_connection_' . $service );
 
 		$is_deleted = self::delete_connection( $service );
-		wp_send_json( array( 'deleted' => $is_deleted ) );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( array( 'deleted' => $is_deleted ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -300,7 +302,8 @@ class External_Connections {
 	 */
 	public static function ajax_get_connection() {
 		if ( ! isset( $_REQUEST['service'] ) ) {
-			wp_send_json( array( 'isConnected' => 'false' ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json( array( 'isConnected' => 'false' ), null, JSON_UNESCAPED_SLASHES );
 		}
 
 		$service = sanitize_text_field( wp_unslash( $_REQUEST['service'] ) );
@@ -312,7 +315,9 @@ class External_Connections {
 				'accountName'  => $connection_data['account_name'],
 				'isConnected'  => $connection_data['is_connected'],
 				'profileImage' => $connection_data['profile_image'],
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

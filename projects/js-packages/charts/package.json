@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.50.1",
+	"version": "0.50.2",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -219,7 +219,7 @@
 		"esbuild-sass-plugin": "^3.1.0",
 		"jest": "30.2.0",
 		"jest-environment-jsdom": "30.2.0",
-		"jest-extended": "5.0.3",
+		"jest-extended": "7.0.0",
 		"postcss": "8.5.6",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",

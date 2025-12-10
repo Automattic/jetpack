@@ -25,7 +25,7 @@ function maybe_show_wpcom_toolbar_proxy_notice() {
 					// Create a new paragraph for the notice.
 					var notice = document.createElement('p');
 					notice.className = 'description';
-					notice.textContent = '<?php echo esc_js( __( 'The Toolbar is always visible on Atomic sites while connected to the Automattic proxy.', 'jetpack-mu-wpcom' ) ); ?>'
+					notice.textContent = <?php echo wp_json_encode( __( 'The Toolbar is always visible on Atomic sites while connected to the Automattic proxy.', 'jetpack-mu-wpcom' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 					// Insert the new div after the checkbox and label.
 					toolbarCell.appendChild(notice);

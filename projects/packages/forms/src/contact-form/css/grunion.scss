@@ -460,6 +460,14 @@ that needs to mimic the input element styles */
 		flex-basis: 100%;
 		max-width: none;
 	}
+
+	.wp-block-jetpack-contact-form .wp-block-jetpack-button {
+		flex-basis: 100%;
+
+		.wp-block-button__link {
+			width: 100%;
+		}
+	}
 }
 
 .grunion-field-consent-wrap {
