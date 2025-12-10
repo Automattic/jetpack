@@ -29,16 +29,6 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		data: ordersByCountry,
-		width: 760,
-		height: 500,
-	},
-};
-
-export const SmallSize: Story = {
-	args: {
-		...Default.args,
-		width: 400,
-		height: 250,
 	},
 };
 

@@ -12,6 +12,7 @@ import * as topojson from 'topojson-client';
  * Internal dependencies
  */
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
+import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import topology from './private/world-topo.json';
 import { GeoChartProps, FeatureShape, TooltipData } from './types';
@@ -134,6 +135,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 					) }
 				</Mercator>
 			</svg>
+
 			{ tooltipOpen && tooltipData && (
 				<TooltipWithBounds
 					left={ tooltipLeft }
@@ -169,4 +171,6 @@ const GeoChartWithProvider: FC< GeoChartProps > = props => {
 
 GeoChartWithProvider.displayName = 'GeoChart';
 
-export { GeoChartWithProvider as default };
+const GeoChartResponsive = withResponsive< GeoChartProps >( GeoChartWithProvider );
+
+export { GeoChartResponsive as default, GeoChartWithProvider as GeoChartUnresponsive };
