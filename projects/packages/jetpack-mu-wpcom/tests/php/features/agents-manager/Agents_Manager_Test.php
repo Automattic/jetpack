@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -56,6 +57,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Log out any logged-in user.
 		wp_set_current_user( 0 );
+
+		// Clear the status cache.
+		Cache::clear();
 
 		parent::tear_down();
 	}
@@ -446,6 +450,43 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_set_current_user( 0 );
 
 		$result = apply_filters( 'agents_manager_use_unified_experience', null );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that should_use_unified_experience returns false on Atomic site when API call fails.
+	 *
+	 * On Atomic sites, the get_user_attribute function is not available, so the code
+	 * falls back to the Jetpack Connection API. If that fails, it should return false.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_should_use_unified_experience_returns_false_on_atomic_when_api_fails() {
+		// Simulate being on an Atomic (WoA) site.
+		Cache::set( 'is_woa_site', true );
+
+		Functions\stubs(
+			array(
+				'is_automattician' => true,
+			)
+		);
+
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_atomic_user',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Since we can't mock the API call, it will fail and return null,
+		// which means has_unified_chat_opt_in_enabled returns false.
+		$result = $this->agents_manager->should_use_unified_experience();
 
 		$this->assertFalse( $result );
 	}
