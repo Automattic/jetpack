@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Edior assets endpoint: introduce v2.1 that relies upon Gutenberg's experimental editor assets endpoint
