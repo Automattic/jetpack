@@ -886,7 +886,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
 
-		// check that non of the fields are null
+		// check that none of the fields are null
 		$fields = array_keys( $result );
 
 		foreach ( $fields as $field ) {
