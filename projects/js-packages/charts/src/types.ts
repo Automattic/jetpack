@@ -193,8 +193,8 @@ export type ChartTheme = {
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {
-		/** Default fill color for a country (with no data) */
-		countryFillColor?: string;
+		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		featureFillColor?: string;
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {

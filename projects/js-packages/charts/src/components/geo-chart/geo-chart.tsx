@@ -116,7 +116,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 							{ mercator.features.map( ( { feature, path }, i ) => {
 								const orderCount = data[ feature.id ] || 0;
 								const fillColor =
-									orderCount > 0 ? colorScale( orderCount ) : geoChart.countryFillColor;
+									orderCount > 0 ? colorScale( orderCount ) : geoChart.featureFillColor;
 
 								return (
 									<path

@@ -40,7 +40,7 @@ const defaultTheme: CompleteChartTheme = {
 		},
 	},
 	geoChart: {
-		countryFillColor: 'var(--jp-gray-10, #c3c4c7)',
+		featureFillColor: 'var(--jp-gray-10, #c3c4c7)',
 	},
 	leaderboardChart: {
 		rowGap: 12,
