@@ -113,7 +113,7 @@ const SINGLE_COLOR_HUE_RANGE_FACTOR = 0.33;
  * @param colorCache - pre-computed color data for performance
  * @return a color from the colors array or a new color using the golden ratio
  */
-export const getChartColor = ( index: number, colorCache: ColorCache ) => {
+export const getChartColor = ( index: number, colorCache: ColorCache ): string => {
 	const {
 		colors,
 		hues,

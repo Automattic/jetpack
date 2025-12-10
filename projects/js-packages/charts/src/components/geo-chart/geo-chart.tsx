@@ -11,7 +11,7 @@ import * as topojson from 'topojson-client';
 /**
  * Internal dependencies
  */
-import { useGlobalChartsTheme } from '../../providers';
+import { useGlobalChartsContext } from '../../providers';
 import styles from './geo-chart.module.scss';
 import topology from './private/world-topo.json';
 import { GeoChartProps, FeatureShape, TooltipData } from './types';
@@ -33,7 +33,10 @@ const world = topojson.feature( topology, topology.objects.units ) as {
  * @return A React component displaying an interactive world map with data visualization
  */
 export default function ( { className, data, width, height }: GeoChartProps ) {
-	const { colors, geoChart, backgroundColor } = useGlobalChartsTheme();
+	const {
+		getElementStyles,
+		theme: { geoChart, backgroundColor },
+	} = useGlobalChartsContext();
 	const { showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop, tooltipOpen } =
 		useTooltip< TooltipData >();
 
@@ -45,7 +48,7 @@ export default function ( { className, data, width, height }: GeoChartProps ) {
 	const maxOrderCount = Math.max( ...Object.values( data ), 1 );
 
 	// Create a color scale using alpha transparency
-	const fullColor = colors[ 0 ];
+	const fullColor = getElementStyles( { index: 0 } ).color;
 	// Verify it's a hex color before appending alpha
 	const isHexColor = /^#[0-9A-F]{6}$/i.test( fullColor );
 	const lightColor = isHexColor ? fullColor + '20' : fullColor; // 20% opacity (hex: 33/255)

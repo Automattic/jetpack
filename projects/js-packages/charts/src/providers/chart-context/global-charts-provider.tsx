@@ -169,7 +169,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				return color;
 			}
 
-			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
+			return getChartColor( index, colorCache );
 		},
 		[ colorCache, groupToColorMap ]
 	);
