@@ -151,11 +151,18 @@ class Agents_Manager {
 			return false;
 		}
 
-		// Check Automattician and opt-in setting
-		$is_proxied              = defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
-		$is_automattician        = function_exists( '\is_automattician' ) && \is_automattician( $user_id );
-		$is_likely_automattician = $is_automattician || $is_proxied;
-		if ( $is_likely_automattician && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
+		// On Atomic sites, delegate to wpcom via the /me endpoint.
+		// This avoids duplicating rollout logic and handles cases where
+		// wpcom-specific functions (like get_user_attribute) aren't available.
+		$is_atomic_site = ( new \Automattic\Jetpack\Status\Host() )->is_woa_site();
+		if ( $is_atomic_site ) {
+			return $this->get_unified_experience_from_wpcom();
+		}
+
+		// On Simple sites, evaluate locally.
+		// Check Automattician and opt-in setting.
+		$is_automattician = function_exists( '\is_automattician' ) && \is_automattician( $user_id );
+		if ( $is_automattician && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
 			return true;
 		}
 
@@ -168,91 +175,58 @@ class Agents_Manager {
 	 * Check if user has enabled unified chat opt-in in their Automattician options.
 	 *
 	 * This checks the a11n_unified_chat attribute set via the wpcom profile settings.
+	 * Only used on Simple sites where get_user_attribute is available.
 	 *
 	 * @param int $user_id User ID.
 	 *
 	 * @return bool
 	 */
 	private function has_unified_chat_opt_in_enabled( $user_id ) {
-		return (bool) $this->get_user_attribute( $user_id, 'a11n_unified_chat' );
+		if ( ! function_exists( '\get_user_attribute' ) ) {
+			return false;
+		}
+
+		return (bool) \get_user_attribute( $user_id, 'a11n_unified_chat' );
 	}
 
 	/**
-	 * Get a user attribute, handling both Simple and Atomic (WoA) sites.
+	 * Get unified experience flag from wpcom via Jetpack Connection.
 	 *
-	 * On Simple sites, uses the native get_user_attribute function.
-	 * On Atomic sites, requests the attribute via Jetpack Connection API.
+	 * Used on Atomic sites to delegate the decision to wpcom, which has
+	 * access to user attributes and can evaluate the rollout logic.
 	 *
-	 * @param int    $user_id   User ID.
-	 * @param string $attribute The attribute name to retrieve.
-	 *
-	 * @return mixed The attribute value, or null if not found.
+	 * @return bool Whether user should see unified experience.
 	 */
-	private function get_user_attribute( $user_id, $attribute ) {
-		$is_atomic_site = ( new \Automattic\Jetpack\Status\Host() )->is_woa_site();
-
-		if ( $is_atomic_site ) {
-			return $this->get_user_attribute_via_api( $attribute );
-		}
-
-		// Simple site - use native function
-		if ( function_exists( '\get_user_attribute' ) ) {
-			return \get_user_attribute( $user_id, $attribute );
-		}
-
-		return null;
-	}
-
-	/**
-	 * Request user attributes via Jetpack Connection API.
-	 *
-	 * Used on Atomic sites where get_user_attribute is not available.
-	 * Pattern based on wpcom_launchpad_request_user_attributes.
-	 *
-	 * @param string      $attribute      The attribute name to retrieve.
-	 * @param object|null $client_wrapper Optional client wrapper for testing.
-	 *
-	 * @return mixed The attribute value, or null if not found or on error.
-	 */
-	private function get_user_attribute_via_api( $attribute, $client_wrapper = null ) {
+	private function get_unified_experience_from_wpcom() {
 		// Use static cache to avoid multiple HTTP requests in same request.
-		static $cached_attributes = array();
+		static $cached_value = null;
 
-		if ( isset( $cached_attributes[ $attribute ] ) ) {
-			return $cached_attributes[ $attribute ];
+		if ( $cached_value !== null ) {
+			return $cached_value;
 		}
 
-		$query_params  = build_query( array( 'attributes' => array( $attribute ) ) );
-		$client        = $client_wrapper ? $client_wrapper : new \Automattic\Jetpack\Connection\Client();
-		$wpcom_request = $client->wpcom_json_api_request_as_user(
-			'/jetpack-user-attributes?' . $query_params,
-			'v2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
-				),
-			)
+		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/me?fields=unified_ai_chat',
+			'1.1',
+			array( 'method' => 'GET' )
 		);
+
+		if ( is_wp_error( $wpcom_request ) ) {
+			$cached_value = false;
+			return false;
+		}
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
-			return null;
+			$cached_value = false;
+			return false;
 		}
 
 		$body         = wp_remote_retrieve_body( $wpcom_request );
 		$decoded_body = json_decode( $body );
 
-		if ( ! isset( $decoded_body->user_attributes ) ) {
-			return null;
-		}
-
-		$user_attributes = get_object_vars( $decoded_body->user_attributes );
-
-		// Cache all returned attributes
-		$cached_attributes = array_merge( $cached_attributes, $user_attributes );
-
-		return $cached_attributes[ $attribute ] ?? null;
+		$cached_value = ! empty( $decoded_body->unified_ai_chat );
+		return $cached_value;
 	}
 }
 

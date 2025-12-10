@@ -457,23 +457,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that should_use_unified_experience returns false on Atomic site when API call fails.
 	 *
-	 * On Atomic sites, the get_user_attribute function is not available, so the code
-	 * falls back to the Jetpack Connection API. If that fails, it should return false.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * On Atomic sites, the decision is delegated to wpcom via the /me endpoint.
+	 * If the API call fails, it should return false.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_on_atomic_when_api_fails() {
 		// Simulate being on an Atomic (WoA) site.
 		Cache::set( 'is_woa_site', true );
-
-		Functions\stubs(
-			array(
-				'is_automattician' => true,
-			)
-		);
 
 		$user_id = wp_insert_user(
 			array(
@@ -484,8 +473,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		// Since we can't mock the API call, it will fail and return null,
-		// which means has_unified_chat_opt_in_enabled returns false.
+		// Since we can't mock the API call in this test environment,
+		// the call to /me?fields=unified_ai_chat will fail and return false.
 		$result = $this->agents_manager->should_use_unified_experience();
 
 		$this->assertFalse( $result );
