@@ -2808,7 +2808,8 @@ class Contact_Form_Plugin {
 				$results[ $trimmed_field_name ][] = isset( $compiled_fields[ $trimmed_field_name ] ) ? $compiled_fields[ $trimmed_field_name ] : '';
 			}
 
-			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][]      = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+			$results[ $prefix_meta_fields . __( 'Consent', 'jetpack-forms' ) ][] = $feedback->has_consent() ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
 			// Convert null values to empty strings for proper CSV/export formatting.
 			$results[ $prefix_meta_fields . __( 'IP Address', 'jetpack-forms' ) ][]   = $feedback->get_ip_address() ?? '';
 			$results[ $prefix_meta_fields . __( 'Country code', 'jetpack-forms' ) ][] = $feedback->get_country_code() ?? '';
