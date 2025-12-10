@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -14,6 +15,7 @@ use WP_REST_Server;
  *
  * @package automattic/jetpack-publicize
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class Connections_Post_Field_Test extends TestCase {
 
 	/**

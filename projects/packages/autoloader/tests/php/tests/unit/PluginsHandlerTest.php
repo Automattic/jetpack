@@ -8,6 +8,7 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
@@ -18,6 +19,7 @@ use PHPUnit\Framework\TestCase;
  * @runTestsInSeparateProcesses Ensure that each test has no previously autoloaded files.
  * @preserveGlobalState disabled
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class PluginsHandlerTest extends TestCase {
@@ -48,12 +50,8 @@ class PluginsHandlerTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->plugin_locator  = $this->getMockBuilder( Plugin_Locator::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$this->path_processor  = $this->getMockBuilder( Path_Processor::class )
-			->disableOriginalConstructor()
-			->getMock();
+		$this->plugin_locator  = $this->createMock( Plugin_Locator::class );
+		$this->path_processor  = $this->createMock( Path_Processor::class );
 		$this->plugins_handler = new Plugins_Handler( $this->plugin_locator, $this->path_processor );
 	}
 

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings as SocialSettings;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -17,6 +18,7 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Testing the Settings class.
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class Jetpack_Social_Settings_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.

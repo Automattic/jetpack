@@ -3,6 +3,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 
 use Automattic\Jetpack\Publicize\Publicize;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Group;
 
 if ( ! function_exists( 'publicize_init' ) ) {
@@ -23,6 +24,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
 /**
  * @group publicize
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[Group( 'publicize' )]
 class Publicize_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

@@ -31,29 +31,11 @@ class TokensTest extends TestCase {
 	private $site_url;
 
 	/**
-	 * Tokens mock object.
-	 *
-	 * @var Tokens
-	 */
-	private $tokens;
-
-	/**
-	 * Initialize the object before running the test method.
-	 */
-	public function setUp(): void {
-		parent::setUp();
-		$this->tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->onlyMethods( array( 'get_access_token' ) )
-			->getMock();
-	}
-
-	/**
 	 * Clean up the testing environment.
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
 		remove_all_filters( 'jetpack_options' );
-		unset( $this->tokens );
 		Constants::clear_constants();
 	}
 
@@ -62,7 +44,7 @@ class TokensTest extends TestCase {
 	 */
 	public function test_validate_when_site_is_not_registered() {
 		$expected = new WP_Error( 'site_not_registered', 'Site not registered.' );
-		$this->assertEquals( $expected, $this->tokens->validate() );
+		$this->assertEquals( $expected, ( new Tokens() )->validate() );
 	}
 
 	/**
@@ -84,10 +66,13 @@ class TokensTest extends TestCase {
 
 		$user_token = false;
 
-		$this->tokens->expects( $this->exactly( 2 ) )
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
 			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
-		$this->assertFalse( $this->tokens->validate() );
+		$this->assertFalse( $tokens->validate() );
 	}
 
 	/**
@@ -113,11 +98,14 @@ class TokensTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$this->tokens->expects( $this->exactly( 2 ) )
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
 			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
 
-		$this->assertFalse( $this->tokens->validate() );
+		$this->assertFalse( $tokens->validate() );
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_jetpack_token_health_request_failed' ), 10 );
 	}
@@ -145,7 +133,10 @@ class TokensTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$this->tokens->expects( $this->exactly( 2 ) )
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get_access_token' ) )
+			->getMock();
+		$tokens->expects( $this->exactly( 2 ) )
 			->method( 'get_access_token' )
 			->willReturnOnConsecutiveCalls( $blog_token, $user_token );
 
@@ -158,7 +149,7 @@ class TokensTest extends TestCase {
 				'is_master_user' => true,
 			),
 		);
-		$this->assertSame( $expected, $this->tokens->validate() );
+		$this->assertSame( $expected, $tokens->validate() );
 
 		remove_filter( 'pre_http_request', array( $this, 'intercept_jetpack_token_health_request_success' ), 10 );
 	}

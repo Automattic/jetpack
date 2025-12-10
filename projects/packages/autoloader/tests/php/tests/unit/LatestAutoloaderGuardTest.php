@@ -51,17 +51,10 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->plugins_handler    = $this->getMockBuilder( Plugins_Handler::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$this->autoloader_handler = $this->getMockBuilder( Autoloader_Handler::class )
-			->disableOriginalConstructor()
-			->getMock();
-		$this->autoloader_locator = $this->getMockBuilder( Autoloader_Locator::class )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$this->guard = new Latest_Autoloader_Guard(
+		$this->plugins_handler    = $this->createStub( Plugins_Handler::class );
+		$this->autoloader_handler = $this->createMock( Autoloader_Handler::class );
+		$this->autoloader_locator = $this->createStub( Autoloader_Locator::class );
+		$this->guard              = new Latest_Autoloader_Guard(
 			$this->plugins_handler,
 			$this->autoloader_handler,
 			$this->autoloader_locator
@@ -79,6 +72,8 @@ class LatestAutoloaderGuardTest extends TestCase {
 	public function test_should_stop_init_when_autoloader_already_initialized() {
 		global $jetpack_autoloader_latest_version;
 		$jetpack_autoloader_latest_version = Test_Plugin_Factory::VERSION_CURRENT;
+
+		$this->autoloader_handler->expects( $this->never() )->method( 'reset_autoloader' );
 
 		$this->assertTrue(
 			$this->guard->should_stop_init(
@@ -100,6 +95,8 @@ class LatestAutoloaderGuardTest extends TestCase {
 		global $jetpack_autoloader_latest_version;
 		$jetpack_autoloader_latest_version = Test_Plugin_Factory::VERSION_CURRENT;
 
+		$this->autoloader_handler->expects( $this->never() )->method( 'reset_autoloader' );
+
 		$this->assertFalse(
 			$this->guard->should_stop_init(
 				TEST_PLUGIN_DIR,
@@ -119,6 +116,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 		$this->plugins_handler->method( 'have_plugins_changed' )
 			->with( array() )
 			->willReturn( true );
+		$this->autoloader_handler->expects( $this->once() )->method( 'reset_autoloader' );
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( 'new-latest' );
 		$this->autoloader_locator->method( 'get_autoloader_path' )
@@ -145,6 +143,7 @@ class LatestAutoloaderGuardTest extends TestCase {
 		$this->plugins_handler->method( 'have_plugins_changed' )
 			->with( array() )
 			->willReturn( true );
+		$this->autoloader_handler->expects( $this->once() )->method( 'reset_autoloader' );
 		$this->autoloader_locator->method( 'find_latest_autoloader' )
 			->willReturn( null );
 

@@ -199,10 +199,13 @@ class Host_Test extends TestCase {
 	 */
 	public function test_is_p2_site_true_if_wpforteams_function_exists_and_true() {
 		// Mock get_wpcom_site_id to ensure we are testing all existing functions within is_p2_site().
-		$host = $this->getMockBuilder( Host::class )
-		->onlyMethods( array( 'get_wpcom_site_id' ) )
-		->getMock();
-		$host->method( 'get_wpcom_site_id' )->willReturn( 123 );
+		// Anonymous class to replace method.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() (for partial mocks) doesn't exist until 12.5.
+		$host = new class() extends Host {
+			public function get_wpcom_site_id() {
+				return 123;
+			}
+		};
 
 		Functions\when( 'get_stylesheet' )->justReturn( 'not-p2-theme' );
 		Functions\when( 'function_exists' )->alias(

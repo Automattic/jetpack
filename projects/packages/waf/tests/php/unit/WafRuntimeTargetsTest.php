@@ -9,11 +9,13 @@ use Automattic\Jetpack\Waf\Waf_Operators;
 use Automattic\Jetpack\Waf\Waf_Request;
 use Automattic\Jetpack\Waf\Waf_Runtime;
 use Automattic\Jetpack\Waf\Waf_Transforms;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Runtime test suite.
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 
 	/**

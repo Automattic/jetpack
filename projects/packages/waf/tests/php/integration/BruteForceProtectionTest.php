@@ -6,12 +6,14 @@
  */
 
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\BackupGlobals;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Brute Force Protection test case.
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 
 	/**

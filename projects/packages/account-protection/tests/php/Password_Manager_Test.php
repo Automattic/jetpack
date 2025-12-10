@@ -39,7 +39,7 @@ class Password_Manager_Test extends BaseTestCase {
 		$errors = new \WP_Error();
 		$user   = new \WP_Error( 'invalid_user', 'Invalid user.' );
 
-		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$validation_service_mock = $this->createStub( Validation_Service::class );
 		$password_manager_mock   = new Password_Manager( $validation_service_mock );
 
 		$password_manager_mock->validate_password_reset( $errors, $user );
@@ -66,7 +66,7 @@ class Password_Manager_Test extends BaseTestCase {
 	}
 
 	private function create_password_manager_mocks() {
-		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$validation_service_mock = $this->createStub( Validation_Service::class );
 		$password_manager_mock   = $this->getMockBuilder( Password_Manager::class )
 			->setConstructorArgs( array( $validation_service_mock ) )
 			->onlyMethods( array( 'save_recent_password_hash' ) )
@@ -230,7 +230,7 @@ class Password_Manager_Test extends BaseTestCase {
 
 		update_user_meta( $user_id, Config::RECENT_PASSWORD_HASHES_USER_META_KEY, $password_hashes );
 
-		$validation_service_mock = $this->createMock( Validation_Service::class );
+		$validation_service_mock = $this->createStub( Validation_Service::class );
 		$password_manager_mock   = new Password_Manager( $validation_service_mock );
 		$password_manager_mock->save_recent_password_hash( $user_id, 'new_hash' );
 

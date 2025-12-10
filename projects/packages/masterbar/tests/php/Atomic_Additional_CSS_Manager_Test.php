@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -19,6 +20,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 /**
  * @covers Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[CoversClass( Atomic_Additional_CSS_Manager::class )]
 class Atomic_Additional_CSS_Manager_Test extends TestCase {
 	/**
