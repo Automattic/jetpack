@@ -33,6 +33,7 @@
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "2.1.0-beta.13",
 		"@automattic/ui": "1.0.2",
+		"@automattic/viewport-react": "1.0.1",
 		"@wordpress/annotations": "3.36.0",
 		"@wordpress/api-fetch": "7.36.0",
 		"@wordpress/block-editor": "15.9.0",

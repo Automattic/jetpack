@@ -2,41 +2,94 @@
 
 .sidebar {
 
-	:global(.components-panel) {
-		padding: 0;
-		border: none;
+	.grid {
+		// To ensure that the outline/box-shadow of the buttons is always visible
+		padding: 1.5px;
 	}
 
-	:global(.components-panel__body) {
-		padding-bottom: 0;
-	}
-
-	:global(.components-panel__row) {
-		margin-inline: -16px; // Counter panel body padding
-	}
-
-	:global(.components-menu-group) {
-		border-top: 1px solid gb.$gray-200;
-	}
-
-	:global(.components-menu-item__button.components-button) {
-		padding: 0.75rem 1.5rem;
+	.toggle-wrap {
+		padding-block: 0.75rem;
+		padding-inline-start: 1rem;
+		padding-inline-end: 0.5rem;
+		border-bottom: 1px solid gb.$gray-100;
+		height: 40px;
 	}
 
 	.selected-connection {
-		background-color: gb.$gray-100;
+		background-color: rgba(56, 88, 233, 0.04);
+	}
+
+	.connection-button {
+		gap: 1rem;
+		border-bottom: 1px solid gb.$gray-100;
+	}
+
+	:global(.components-button) {
+		width: 100%;
+	}
+
+	.active-chevron {
+		color: var(--jp-highlight);
 	}
 }
 
+.connection-info {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 0.25rem;
+	align-items: center;
+	width: 100%;
+}
+
+.display-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: start;
+}
+
 .content {
-	background-color: gb.$gray-100;
 	width: 100%;
 	min-height: 100%;
-	padding: 1.5rem;
+
+	&[role="tabpanel"] {
+		background-color: gb.$gray-100;
+		padding: 1.5rem;
+	}
 
 	.preview {
 		height: 100%;
 		max-width: max-content;
 		margin: 0 auto;
+	}
+
+	.toggle-wrapper {
+		// Match the panel height with 2px for the border
+		padding-block: calc(1.425rem - 2px);
+		padding-inline-start: 1rem;
+		padding-inline-end: 0.25rem;
+		border-bottom: 1px solid gb.$gray-200;
+	}
+
+	:global(.components-panel) {
+		border: none;
+	}
+
+	:global(.components-panel__body) {
+		border-top: none;
+	}
+
+	:global(.components-panel__body-toggle) {
+		padding-inline-start: 0.25rem;
+	}
+
+	:global(.components-panel__row) {
+		// Compensate for the toggle space
+		margin-inline-start: -3.25rem;
+
+		legend {
+			text-transform: uppercase;
+			padding-inline: 0;
+		}
 	}
 }
