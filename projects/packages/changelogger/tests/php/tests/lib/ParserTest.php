@@ -25,7 +25,7 @@ class ParserTest extends TestCase {
 	/**
 	 * Get a mock Parser.
 	 *
-	 * @return Parser&\PHPUnit\Framework\StubObject\StubObject
+	 * @return Parser&\PHPUnit\Framework\MockObject\Stub
 	 */
 	private function getStubParser() {
 		if ( is_callable( array( $this, 'getStubBuilder' ) ) ) {

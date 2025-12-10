@@ -35,6 +35,12 @@ if ( $stubs === null ) {
 	throw new RuntimeException( preg_last_error_msg() );
 }
 
+// Also it seems to get confused by TestStubBuilder using "StubbedType" rather than "MockedType". `@inherits` doesn't seem to help.
+$stubs = preg_replace( '/\bStubbedType\b/', 'MockedType', $stubs );
+if ( $stubs === null ) {
+	throw new RuntimeException( preg_last_error_msg() );
+}
+
 // Phan doesn't track generics across `@return $this` properly. Rewrite them.
 // Possibly fixed in Phan v6? https://github.com/phan/phan/issues/4849
 $stubs = preg_replace_callback(
