@@ -3679,7 +3679,8 @@ class Contact_Form_Plugin {
 		) {
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 			return;
 		}
@@ -3701,7 +3702,7 @@ class Contact_Form_Plugin {
 			 */
 			foreach ( $fields as $single_field_name ) {
 				if ( isset( $export_data[ $single_field_name ][ $i ] ) ) {
-					$current_row[] = $export_data[ $single_field_name ][ $i ];
+					$current_row[] = $this->esc_csv( $export_data[ $single_field_name ][ $i ] );
 				} else {
 					$current_row[] = '';
 				}
@@ -3730,7 +3731,9 @@ class Contact_Form_Plugin {
 			array(
 				'success' => ! is_wp_error( $sheet ),
 				'data'    => $sheet,
-			)
+			),
+			is_wp_error( $sheet ) ? 500 : 200,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 }
