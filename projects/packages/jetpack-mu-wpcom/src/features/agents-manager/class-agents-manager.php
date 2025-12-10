@@ -45,6 +45,16 @@ class Agents_Manager {
 		 */
 		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
 
+		/**
+		 * Filter to determine if user should see the unified chat experience.
+		 *
+		 * When true, Help Center will render UnifiedAIAgent instead of traditional UI.
+		 * The filter is hooked by should_use_unified_experience() in this class.
+		 *
+		 * @param bool $use_unified_experience Whether to use unified experience. Default false.
+		 */
+		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
+
 		// For now, we want this added wherever the help-center script is enqueued.
 		// This allows us to be quite blunt here because the logic for whether to inject this is currently
 		// in the help-center script.
@@ -52,7 +62,8 @@ class Agents_Manager {
 			'help-center',
 			'const agentsManagerData = ' . wp_json_encode(
 				array(
-					'agentProviders' => $agent_providers,
+					'agentProviders'       => $agent_providers,
+					'useUnifiedExperience' => $use_unified_experience,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
