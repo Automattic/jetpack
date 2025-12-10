@@ -397,6 +397,10 @@ const buildExecCmd = argv => {
 				unitTestArgs.plugin = 'jetpack';
 				unitTestArgs.envVars = [ 'JETPACK_TEST_WPCOMSH=1' ];
 				break;
+			case 'jp-gutenberg':
+				unitTestArgs.plugin = 'jetpack';
+				unitTestArgs.envVars = [ 'JETPACK_TEST_GUTENBERG=1' ];
+				break;
 			case 'crm':
 				unitTestArgs.plugin = 'zero-bs-crm';
 				break;

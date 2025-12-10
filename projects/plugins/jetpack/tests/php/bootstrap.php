@@ -115,6 +115,17 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', __DIR__ . '/../../../woocommerce' );
 }
 
+if ( '1' !== getenv( 'JETPACK_TEST_GUTENBERG' ) ) {
+	echo 'To run Jetpack gutenberg tests, prefix phpunit with JETPACK_TEST_GUTENBERG=1' . PHP_EOL;
+} elseif ( getenv( 'WORDPRESS_DIR' ) !== false ) {
+	define( 'JETPACK_GUTENBERG_INSTALL_DIR', getenv( 'WORDPRESS_DIR' ) . '/wp-content/plugins/gutenberg' );
+} elseif ( file_exists( '/var/www/html/wp-content/plugins/gutenberg/gutenberg.php' ) ) {
+	// Jetpack Docker environment.
+	define( 'JETPACK_GUTENBERG_INSTALL_DIR', '/var/www/html/wp-content/plugins/gutenberg' );
+} else {
+	define( 'JETPACK_GUTENBERG_INSTALL_DIR', __DIR__ . '/../../../gutenberg' );
+}
+
 require __DIR__ . '/lib/mock-functions.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
@@ -134,6 +145,11 @@ if ( ! function_exists( '_manually_load_plugin' ) ) {
 	function _manually_load_plugin() {
 		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
+		}
+
+		// Load Gutenberg plugin if requested (provides WP_REST_Block_Editor_Settings_Controller).
+		if ( '1' === getenv( 'JETPACK_TEST_GUTENBERG' ) && defined( 'JETPACK_GUTENBERG_INSTALL_DIR' ) ) {
+			require JETPACK_GUTENBERG_INSTALL_DIR . '/gutenberg.php';
 		}
 
 		require __DIR__ . '/../../jetpack.php';
