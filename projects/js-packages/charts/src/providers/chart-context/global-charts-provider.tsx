@@ -161,9 +161,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					return existing;
 				}
 
+				// Use map size as index to assign colors sequentially (0, 1, 2...)
+				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color =
-					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
+				const color = getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
 
 				return color;
