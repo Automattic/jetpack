@@ -539,6 +539,7 @@ class Contact_Form_Plugin {
 					$atts['placeholder']   = $inner_block['attrs']['placeholder'] ?? '';
 					$atts['min']           = $inner_block['attrs']['min'] ?? '';
 					$atts['max']           = $inner_block['attrs']['max'] ?? '';
+					$atts['height']        = $inner_block['attrs']['height'] ?? '';
 					$input_attrs           = self::get_block_support_classes_and_styles( $block_name, $inner_block['attrs'] );
 					$atts['inputclasses']  = 'wp-block-jetpack-input';
 					$atts['inputclasses'] .= isset( $input_attrs['class'] ) ? ' ' . $input_attrs['class'] : '';

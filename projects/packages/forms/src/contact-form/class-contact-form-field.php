@@ -663,11 +663,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
-		if ( $field_type === 'textarea' ) {
-			if ( ! empty( $this->get_attribute( 'height' ) ) ) {
-				l( 'height:', $this->get_attribute( 'height' ) );
-				$extra_attrs['height'] = $this->get_attribute( 'height' );
-			}
+		if ( $field_type === 'textarea' && ! empty( $this->get_attribute( 'height' ) ) ) {
+			$extra_attrs['height'] = $this->get_attribute( 'height' );
 		}
 
 		if ( $field_type === 'number' || $field_type === 'slider' ) {
@@ -1204,13 +1201,18 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
 	 * @param string $placeholder - the field placeholder content.
+	 * @param array  $extra_attrs Extra attributes (e.g., height).
 	 * @param bool   $required_indicator Whether to display the required indicator.
 	 *
 	 * @return string HTML
 	 */
-	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $required_indicator = true ) {
+	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array(), $required_indicator = true ) {
 		if ( ! is_string( $value ) ) {
 			$value = '';
+		}
+
+		if ( isset( $extra_attrs['height'] ) ) {
+			$this->field_styles .= 'height: ' . esc_attr( $extra_attrs['height'] ) . ';';
 		}
 
 		$field      = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text, array(), false, $required_indicator );
@@ -2580,7 +2582,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= $this->render_url_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
 				break;
 			case 'textarea':
-				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $required_indicator );
+				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs, $required_indicator );
 				break;
 			case 'radio':
 				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $required_indicator );
