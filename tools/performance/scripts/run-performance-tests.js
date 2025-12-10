@@ -318,7 +318,7 @@ async function main() {
 
 			// Start Docker containers
 			console.log( 'Starting Docker containers...' );
-			exec( 'docker compose -f docker/docker-compose.yml up -d', {
+			exec( 'docker compose -p jetpack-perf -f docker/docker-compose.yml up -d', {
 				cwd: PERFORMANCE_DIR,
 			} );
 
@@ -331,7 +331,7 @@ async function main() {
 			for ( let i = 0; i < maxDbAttempts; i++ ) {
 				try {
 					exec(
-						'docker compose -f docker/docker-compose.yml exec -T db mysqladmin ping -h localhost -u root -prootpassword',
+						'docker compose -p jetpack-perf -f docker/docker-compose.yml exec -T db mysqladmin ping -h localhost -u root -prootpassword',
 						{
 							cwd: PERFORMANCE_DIR,
 							silent: true,
@@ -352,7 +352,7 @@ async function main() {
 
 			// Run setup script (the wpcli container runs setup automatically)
 			console.log( 'Running WordPress setup...' );
-			exec( 'docker compose -f docker/docker-compose.yml run --rm wpcli', {
+			exec( 'docker compose -p jetpack-perf -f docker/docker-compose.yml run --rm wpcli', {
 				cwd: PERFORMANCE_DIR,
 			} );
 
