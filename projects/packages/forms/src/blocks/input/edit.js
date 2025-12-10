@@ -97,7 +97,9 @@ const InputEdit = ( {
 	}
 
 	if ( type === 'textarea' ) {
-		const currentHeight = height || 200;
+		const currentHeight = height
+			? parseInt( typeof height === 'string' ? height.replace( 'px', '' ) : height, 10 ) || 200
+			: 200;
 
 		return (
 			<ResizableBox
