@@ -5,8 +5,9 @@ import { store as preferencesStore } from '@wordpress/preferences';
 const NAMESPACE = 'jetpack/social';
 
 export type JetpackSocialPreferencesHook = {
-	showPrePublishConfirmation: boolean;
+	showPrePublishConfirmation: boolean | undefined;
 	togglePrePublishConfirmation: VoidFunction;
+	setShowPrePublishConfirmation: ( value: boolean ) => void;
 };
 
 /**
@@ -15,22 +16,30 @@ export type JetpackSocialPreferencesHook = {
  * @return JetpackSocialPreferencesHook hook.
  */
 export function useJetpackSocialPreferences(): JetpackSocialPreferencesHook {
-	const { toggle } = useDispatch( preferencesStore );
+	const { toggle, set } = useDispatch( preferencesStore );
 
 	const showPrePublishConfirmation = useSelect(
-		select => ! select( preferencesStore ).get( NAMESPACE, 'hide_pre_publish_confirmation' ),
+		select => select( preferencesStore ).get( NAMESPACE, 'show_pre_publish_confirmation' ),
 		[]
 	);
 
 	const togglePrePublishConfirmation = useCallback( () => {
-		toggle( NAMESPACE, 'hide_pre_publish_confirmation' );
+		toggle( NAMESPACE, 'show_pre_publish_confirmation' );
 	}, [ toggle ] );
+
+	const setShowPrePublishConfirmation = useCallback(
+		( value: boolean ) => {
+			set( NAMESPACE, 'show_pre_publish_confirmation', value );
+		},
+		[ set ]
+	);
 
 	return useMemo(
 		() => ( {
 			showPrePublishConfirmation,
+			setShowPrePublishConfirmation,
 			togglePrePublishConfirmation,
 		} ),
-		[ showPrePublishConfirmation, togglePrePublishConfirmation ]
+		[ showPrePublishConfirmation, togglePrePublishConfirmation, setShowPrePublishConfirmation ]
 	);
 }

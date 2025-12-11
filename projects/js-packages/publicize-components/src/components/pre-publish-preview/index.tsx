@@ -14,10 +14,20 @@ export function PrePublishPreview() {
 	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { openUnifiedModal } = useDispatch( socialStore );
 	const { hasConnections } = useSocialMediaConnections();
-	const { showPrePublishConfirmation } = useJetpackSocialPreferences();
-	const socialPreviewRenderCount = useSelect( select =>
-		select( socialStore ).getRenderCountFor( 'social-preview' )
+	const { showPrePublishConfirmation, setShowPrePublishConfirmation } =
+		useJetpackSocialPreferences();
+	const socialPreviewRenderCount = useSelect(
+		select => select( socialStore ).getRenderCountFor( 'social-preview' ),
+		[]
 	);
+
+	useEffect( () => {
+		// If the user has never seen the pre-publish confirmation, set the default to false, because we want it to be opt-in.
+		if ( showPrePublishConfirmation === undefined ) {
+			setShowPrePublishConfirmation( false );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- We want to run this only once on mount.
+	}, [] );
 
 	// We want to show the preview only
 	const showPreview =
@@ -27,8 +37,8 @@ export function PrePublishPreview() {
 		isPublicizeEnabled &&
 		// there are connections,
 		hasConnections &&
-		// and the user hasn't opted out of the pre-publish confirmation.
-		showPrePublishConfirmation;
+		// and the user has opted-in to pre-publish confirmation.
+		showPrePublishConfirmation !== false;
 
 	useEffect( () => {
 		if ( showPreview ) {
