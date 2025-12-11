@@ -92,7 +92,6 @@ async function postToCodeVitals( resultsPath, config ) {
 		metrics,
 		baseMetrics,
 		hash: results.git?.hash || config.gitHash || 'unknown',
-		baseHash: config.baseHash || 'trunk',
 		timestamp: Date.now(),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
 	};
@@ -160,7 +159,6 @@ async function main() {
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
-		baseHash: process.env.GIT_BASE_HASH || 'trunk',
 		resultsPath: process.env.RESULTS_PATH || path.join( __dirname, '../results/lcp-results.json' ),
 	};
 
@@ -175,7 +173,6 @@ async function main() {
 	console.log( `  Results Path: ${ config.resultsPath }` );
 	console.log( `  Git Hash: ${ config.gitHash || 'unknown' }` );
 	console.log( `  Git Branch: ${ config.gitBranch }` );
-	console.log( `  Base Hash: ${ config.baseHash }` );
 	console.log( '' );
 
 	try {

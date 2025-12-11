@@ -169,23 +169,19 @@ function checkDocker() {
 /**
  * Get git information
  *
- * @return {object} Object with hash, branch, and baseHash properties
+ * @return {object} Object with hash, branch properties
  */
 function getGitInfo() {
 	try {
 		const hash = exec( 'git rev-parse HEAD', { silent: true } )?.trim() || 'unknown';
-		const branch = exec( 'git rev-parse --abbrev-ref HEAD', { silent: true } )?.trim() || 'unknown';
-		// Try to get merge-base with origin/trunk. If origin/trunk doesn't exist
-		// (e.g., fresh clone, different remote naming), falls back to string 'trunk'.
-		// Note: CodeVitals accepts 'trunk' as a symbolic base reference.
-		const baseHash =
-			exec( 'git merge-base HEAD origin/trunk', { silent: true, ignoreError: true } )?.trim() ||
-			'trunk';
+		// Always use 'trunk' as the branch - we're tracking performance on the main branch,
+		// and backfill commits (detached HEAD) also come from trunk history.
+		const branch = 'trunk';
 
-		return { hash, branch, baseHash };
+		return { hash, branch };
 	} catch {
 		console.warn( 'Warning: Could not get git information' );
-		return { hash: 'unknown', branch: 'unknown', baseHash: 'trunk' };
+		return { hash: 'unknown', branch: 'trunk' };
 	}
 }
 
@@ -351,7 +347,6 @@ async function main() {
 	console.log( 'Git Information:' );
 	console.log( `  Hash: ${ gitInfo.hash.substring( 0, 8 ) }` );
 	console.log( `  Branch: ${ gitInfo.branch }` );
-	console.log( `  Base: ${ gitInfo.baseHash.substring( 0, 8 ) }` );
 	console.log( '' );
 
 	// Check Docker
@@ -498,7 +493,6 @@ async function main() {
 		console.log( '═══════════════════════════════════════════════════════' );
 		console.log( '' );
 
-		process.env.GIT_BASE_HASH = gitInfo.baseHash;
 		process.env.RESULTS_PATH = process.env.OUTPUT_PATH;
 
 		try {
