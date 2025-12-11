@@ -168,7 +168,10 @@ class Jetpack_Signature {
 		if ( is_array( $body ) ) {
 			if ( $body !== array() ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-				$body = json_encode( $body );
+				$body = json_encode(
+					$body,
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+				);
 
 			} else {
 				$body = '';

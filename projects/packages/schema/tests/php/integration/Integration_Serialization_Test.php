@@ -93,7 +93,7 @@ class Integration_Serialization_Test extends TestCase {
 		);
 
 		$this->assertSame( $expect_with_fallback, $with_fallback->schema() );
-		$this->assertSame( wp_json_encode( $expect_with_fallback ), wp_json_encode( $with_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_with_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), wp_json_encode( $with_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 	}
 
 	public function test_serialization_assoc_value() {
@@ -186,7 +186,7 @@ class Integration_Serialization_Test extends TestCase {
 
 		// Test in both directions
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
-		$this->assertSame( $expect_schema_to_be, json_decode( wp_json_encode( $schema ), true ) );
+		$this->assertSame( $expect_schema_to_be, json_decode( wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true ) );
 	}
 
 	public function test_serialization_assoc_nested() {
@@ -224,7 +224,7 @@ class Integration_Serialization_Test extends TestCase {
 		);
 
 		$this->assertSame( $expect_schema_to_be, $schema->schema() );
-		$this->assertSame( wp_json_encode( $expect_schema_to_be ), wp_json_encode( $schema ) );
+		$this->assertSame( wp_json_encode( $expect_schema_to_be, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 	}
 
 	public function test_serialization_array_fallbacks() {
@@ -249,7 +249,7 @@ class Integration_Serialization_Test extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_value_fallback, $array_value_fallback->schema() );
-		$this->assertSame( wp_json_encode( $expect_array_value_fallback ), wp_json_encode( $array_value_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_value_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), wp_json_encode( $array_value_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Fallback on Array
 		$array_group_fallback = Schema::as_array(
@@ -272,7 +272,7 @@ class Integration_Serialization_Test extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
-		$this->assertSame( wp_json_encode( $expect_array_group_fallback ), wp_json_encode( $array_group_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_group_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), wp_json_encode( $array_group_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		// Fallback on Array of Arrays
 		$array_group_fallback = Schema::as_array(
@@ -300,6 +300,6 @@ class Integration_Serialization_Test extends TestCase {
 		);
 
 		$this->assertSame( $expect_array_group_fallback, $array_group_fallback->schema() );
-		$this->assertSame( wp_json_encode( $expect_array_group_fallback ), wp_json_encode( $array_group_fallback ) );
+		$this->assertSame( wp_json_encode( $expect_array_group_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), wp_json_encode( $array_group_fallback, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 	}
 }

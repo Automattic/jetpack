@@ -264,7 +264,8 @@ class Help_Center {
 				'const helpCenterFeatureFlags = ' . wp_json_encode(
 					array(
 						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				),
 				'before'
 			);
@@ -297,7 +298,8 @@ class Help_Center {
 						),
 						'site'             => $this->get_current_site(),
 						'locale'           => self::determine_iso_639_locale(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				),
 				'before'
 			);

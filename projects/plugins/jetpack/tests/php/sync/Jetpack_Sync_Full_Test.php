@@ -1042,7 +1042,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 								),
 							),
 							'translations' => array(),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				);
 			},

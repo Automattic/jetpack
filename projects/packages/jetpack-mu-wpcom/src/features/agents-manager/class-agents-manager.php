@@ -24,6 +24,39 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_inline_script' ), 101 );
+		add_action( 'next_admin_init', array( $this, 'add_inline_script' ), 1001 );
+	}
+
+	/**
+	 * Add inline script data for the Agents Manager.
+	 */
+	public function add_inline_script() {
+		/**
+		 * Filter to register agent provider modules for the Agents Manager.
+		 *
+		 * Plugins can hook into this filter to register script module IDs that export
+		 * toolProvider and/or contextProvider. The Agents Manager JS will dynamically
+		 * import these modules and merge their providers.
+		 *
+		 * @param array $providers Array of provider script module IDs.
+		 */
+		$agent_providers = apply_filters( 'agents_manager_agent_providers', array() );
+
+		// For now, we want this added wherever the help-center script is enqueued.
+		// This allows us to be quite blunt here because the logic for whether to inject this is currently
+		// in the help-center script.
+		wp_add_inline_script(
+			'help-center',
+			'const agentsManagerData = ' . wp_json_encode(
+				array(
+					'agentProviders' => $agent_providers,
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			) . ';',
+			'before'
+		);
 	}
 
 	/**

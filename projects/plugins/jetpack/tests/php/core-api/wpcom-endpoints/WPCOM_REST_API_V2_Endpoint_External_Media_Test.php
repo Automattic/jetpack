@@ -128,7 +128,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 							array(
 								'url'  => static::$image_path,
 								'name' => $this->image_name,
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 					),
 				),
@@ -174,7 +175,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 							array(
 								'url'  => static::$image_path,
 								'name' => $this->image_name,
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 						'meta' => array(
 							'vertical_id'   => 'v1234',
@@ -237,7 +239,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media_Test extends Jetpack_REST_TestCa
 							array(
 								'url'  => static::$image_path,
 								'name' => $this->image_name,
-							)
+							),
+							JSON_UNESCAPED_SLASHES
 						),
 						'meta' => array(
 							'vertical_id'   => 'v1234',

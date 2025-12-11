@@ -56,7 +56,7 @@ const meta: Meta< StoryArgs > = {
 		...lineChartMetaArgs.argTypes,
 		themeName: {
 			...themeArgTypes.themeName,
-			options: [ 'default', 'jetpack', 'woo', 'custom', 'glyph' ],
+			options: [ 'default', 'custom', 'glyph' ],
 		},
 		withStartGlyphs: {
 			control: 'boolean',

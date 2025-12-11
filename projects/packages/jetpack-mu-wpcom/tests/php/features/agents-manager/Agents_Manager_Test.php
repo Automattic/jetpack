@@ -42,6 +42,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Remove hooks added by the Agents_Manager constructor.
 		remove_action( 'rest_api_init', array( $this->agents_manager, 'register_rest_api' ) );
 		remove_filter( 'calypso_preferences_update', array( $this->agents_manager, 'calypso_preferences_update' ) );
+		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
+		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'add_inline_script' ), 101 );
+		remove_action( 'next_admin_init', array( $this->agents_manager, 'add_inline_script' ), 1001 );
 
 		// Reset the REST server to clear any registered routes.
 		global $wp_rest_server;
@@ -264,5 +267,59 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Reset back to null for other tests
 		$property->setValue( $dummy, null );
+	}
+
+	/**
+	 * Tests that add_inline_script adds script with empty providers by default.
+	 */
+	public function test_add_inline_script_with_empty_providers() {
+		// Register the help-center script so we can attach inline script to it.
+		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+
+		$this->agents_manager->add_inline_script();
+
+		global $wp_scripts;
+		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array();
+
+		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
+		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
+		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
+	}
+
+	/**
+	 * Tests that add_inline_script includes providers added via the filter.
+	 */
+	public function test_add_inline_script_includes_filtered_providers() {
+		// Reset the script registry to ensure test isolation.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Register the help-center script so we can attach inline script to it.
+		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+
+		// Add a filter to provide agent providers.
+		add_filter(
+			'agents_manager_agent_providers',
+			function () {
+				return array( 'my-plugin/tool-provider.js', 'another-plugin/context-provider.js' );
+			}
+		);
+
+		$this->agents_manager->add_inline_script();
+
+		// Re-fetch global after wp_register_script initializes it.
+		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+
+		// Find the inline script containing agentsManagerData (wp_add_inline_script may add at different indices).
+		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
+		$this->assertStringContainsString( 'my-plugin/tool-provider.js', $inline_script );
+		$this->assertStringContainsString( 'another-plugin/context-provider.js', $inline_script );
+
+		// Clean up the filter.
+		remove_all_filters( 'agents_manager_agent_providers' );
 	}
 }

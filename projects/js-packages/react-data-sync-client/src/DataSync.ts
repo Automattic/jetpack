@@ -175,14 +175,14 @@ export class DataSync< Schema extends z.ZodSchema, Value extends z.infer< Schema
 
 	/**
 	 * Method to make a request to the endpoint.
-	 * @param method          - The request method.
-	 * @param partialPathname - The request path.
-	 * @param value           - Data to send when using POST.
-	 * @param params          - Append query params to the URL. Takes in an object of key/value pairs.
-	 * @param abortSignal     - The abort signal.
+	 * @param  method          - The request method.
+	 * @param  partialPathname - The request path.
+	 * @param  value           - Data to send when using POST.
+	 * @param  params          - Append query params to the URL. Takes in an object of key/value pairs.
+	 * @param  abortSignal     - The abort signal.
 	 * @returns The parsed value.
-	 * @throws ApiError
-	 * @throws Error
+	 * @throws {ApiError}
+	 * @throws {Error}
 	 */
 	private async request(
 		method: RequestMethods,

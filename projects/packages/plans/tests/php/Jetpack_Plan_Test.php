@@ -130,7 +130,8 @@ class Jetpack_Plan_Test extends TestCase {
 		$body = wp_json_encode(
 			array(
 				'plan' => $plan_response,
-			)
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 		return static::get_mocked_response( 200, $body );
 	}

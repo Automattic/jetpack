@@ -538,7 +538,7 @@ class Test_Plugin_Factory {
 		// Prepare a checksum object for comparison and store it in the composer config so we can retrieve it later.
 		$factory_checksum = array(
 			'plugin'   => hash( 'crc32', $plugin_file ),
-			'composer' => hash( 'crc32', json_encode( $composer_config ) ),
+			'composer' => hash( 'crc32', json_encode( $composer_config, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ),
 			'files'    => array(),
 		);
 		foreach ( $this->files as $path => $content ) {

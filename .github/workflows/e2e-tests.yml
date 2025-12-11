@@ -31,7 +31,7 @@ jobs:
       matrix: ${{ steps.evaluate.outputs.matrix }}
       build-matrix: ${{ steps.evaluate.outputs.build-matrix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # For pull requests, list-changed-projects.sh needs the merge base.
       - name: Deepen to merge base
@@ -93,7 +93,7 @@ jobs:
 
       - name: Checkout code
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup tools
         if: steps.jetpack-build-cache.outputs.cache-hit != 'true'
@@ -158,7 +158,7 @@ jobs:
       matrix:
         include: ${{ fromJson( needs.create-test-matrix.outputs.matrix ) }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Restore ${{ matrix.buildGroup }} build cache
         id: jetpack-build-cache
@@ -187,14 +187,14 @@ jobs:
 
       - name: Checkout jetpack-production
         if: github.event_name == 'repository_dispatch' && github.event.client_payload.repository != 'Automattic/jetpack-production'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: Automattic/jetpack-production
           path: build-output/build/Automattic/jetpack-production
 
       - name: Checkout mirror repo
         if: github.event_name == 'repository_dispatch'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: ${{ github.event.client_payload.repository }}
           ref: ${{ github.event.client_payload.ref_name }}
@@ -383,7 +383,7 @@ jobs:
     needs: [e2e-tests]
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up tools
         uses: ./.github/actions/tool-setup

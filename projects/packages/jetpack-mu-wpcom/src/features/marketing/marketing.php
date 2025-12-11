@@ -41,7 +41,7 @@ function enqueue_marketing_tools_assets() {
 	jetpack_mu_wpcom_enqueue_assets( 'marketing', array( 'js', 'css' ) );
 	wp_add_inline_script(
 		'jetpack-mu-wpcom-marketing',
-		'const wpcomMarketing = ' . wp_json_encode( array( 'siteId' => get_wpcom_blog_id() ) ) . ';',
+		'const wpcomMarketing = ' . wp_json_encode( array( 'siteId' => get_wpcom_blog_id() ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 }

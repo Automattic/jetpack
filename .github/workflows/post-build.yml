@@ -45,7 +45,7 @@ jobs:
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -85,7 +85,7 @@ jobs:
     if: github.event.workflow_run.conclusion != 'success'
     timeout-minutes: 2  # 2025-11-20: Seems like it should be fast.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -128,7 +128,7 @@ jobs:
       zip_url: ${{ steps.run.outputs.zip_url }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Find artifact
         id: run
@@ -201,7 +201,7 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'false'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -244,7 +244,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -336,10 +336,10 @@ jobs:
         - 80:80
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: trunk
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
@@ -383,7 +383,7 @@ jobs:
     timeout-minutes: 5  # 2025-11-20: Takes a few seconds.
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Get token
         id: get_token
@@ -414,10 +414,10 @@ jobs:
     if: needs.find_artifact.outputs.any_plugins == 'true'
     timeout-minutes: 15  # 2025-11-20: Less than a minute, but leave time for the downloads.
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           path: trunk
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit

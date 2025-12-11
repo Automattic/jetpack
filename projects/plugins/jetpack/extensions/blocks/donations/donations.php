@@ -270,7 +270,7 @@ function load_editor_scripts() {
 
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
-		'var Jetpack_DonationsBlock = ' . wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'var Jetpack_DonationsBlock = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 }

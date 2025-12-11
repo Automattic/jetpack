@@ -172,7 +172,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$page_number      = is_numeric( $page ) ? intval( $page ) : 1;
 			$attributes['id'] = self::compute_id( $attributes, $this->current_post, $page_number );
 		}
-		$this->hash = sha1( wp_json_encode( $attributes ) );
+		$this->hash = sha1(
+			wp_json_encode(
+				$attributes,
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
+			)
+		);
 
 		if ( $set_id ) {
 			self::$forms[ $this->hash ] = $this; // This increments the form count.
@@ -319,7 +324,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine which cipher was used (stored in JWT or default to GCM)
-			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'AES-256-GCM';
+			$cipher = isset( $data['cipher'] ) ? $data['cipher'] : 'aes-256-gcm';
 
 			// Check if the cipher is available on this server
 			$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
@@ -328,7 +333,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 
 			// Determine IV and tag sizes based on cipher
-			$is_gcm = strpos( $cipher, 'GCM' ) !== false;
+			$is_gcm = stripos( $cipher, 'gcm' ) !== false;
 			if ( $is_gcm ) {
 				// GCM: 12-byte IV + 16-byte tag + ciphertext
 				if ( strlen( $encrypted_blob ) < 29 ) { // 12 + 16 + at least 1 byte
@@ -383,7 +388,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				// create a fallback source
 				$source = array(
 					'source_id'   => $post->ID,
-					'entry_title' => $post->post_title,
+					'entry_title' => html_entity_decode( $post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ),
 					'entry_page'  => 1,
 					'source_type' => 'single',
 					'request_url' => get_permalink( $post ),
@@ -549,28 +554,50 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// Content, hash, and source are not sensitive and can remain unencrypted
 
 		// Check cipher availability with fallback support
-		$cipher                   = 'AES-256-GCM';
-		$available_cipher_methods = array_map( 'strtolower', openssl_get_cipher_methods() );
+		$available_cipher_methods = openssl_get_cipher_methods();
+		$cipher                   = null;
+		$cipher_fallback          = null;
 		$use_encryption           = false;
 		$iv_length                = 12; // Default for GCM
 
-		if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
-			$use_encryption = true;
-			// IV length already set to 12 (NIST recommended for AES-GCM)
-		} else {
-			// Try fallback to AES-256-CBC
-			$cipher = 'AES-256-CBC';
-			if ( in_array( strtolower( $cipher ), $available_cipher_methods, true ) ) {
+		// Try to find AES-256-GCM first (case-insensitive search)
+		foreach ( $available_cipher_methods as $method ) {
+			if ( strtolower( $method ) === 'aes-256-gcm' ) {
+				$cipher         = $method; // Use the actual name with original casing
 				$use_encryption = true;
-				$iv_length      = 16; // 16-byte (128-bit) IV for AES-CBC
+				// IV length already set to 12 (NIST recommended for AES-GCM)
+				break;
+			}
+			// If AES-256-GCM not found, try fallback to AES-256-CBC
+			if ( strtolower( $method ) === 'aes-256-cbc' ) {
+				$cipher_fallback = $method; // Use the actual name with original casing
+				$use_encryption  = true;
 			}
 		}
+
+		// Use the fallback cipher if the primary cipher is not available.
+		if ( $cipher === null && $cipher_fallback !== null ) {
+			$cipher    = $cipher_fallback;
+			$iv_length = 16; // 16-byte (128-bit) IV for AES-CBC
+		}
+
+		// Lazy fallback payload in case encryption fails or is unavailable.
+		$unencrypted_payload = array(
+			'attributes' => $attributes,
+			'content'    => $this->content,
+			'hash'       => $this->hash,
+			'source'     => $this->source->serialize(),
+			// No version field = version 1 (unencrypted)
+		);
 
 		if ( $use_encryption ) {
 			$iv        = random_bytes( $iv_length );
 			$tag       = ''; // Will be populated by openssl_encrypt for GCM
 			$encrypted = openssl_encrypt(
-				wp_json_encode( $attributes ),
+				wp_json_encode(
+					$attributes,
+					JSON_UNESCAPED_SLASHES
+				),
 				$cipher,
 				$encryption_key,
 				OPENSSL_RAW_DATA, // Return raw binary data, not base64
@@ -579,11 +606,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			);
 
 			if ( $encrypted === false ) {
-				throw new \Exception( 'Failed to encrypt JWT payload' );
+				do_action( 'jetpack_forms_log', 'jwt_encryption_failed', openssl_error_string() );
+				return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 			}
-
 			// For GCM, include the authentication tag; for CBC, tag will be empty
-			$encrypted_blob = strpos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
+			$encrypted_blob = stripos( $cipher, 'GCM' ) !== false ? $iv . $tag . $encrypted : $iv . $encrypted;
 
 			return JWT::encode(
 				array(
@@ -596,19 +623,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				),
 				$jwt_signing_key
 			);
-		} else {
-			// No encryption available - fall back to version 1 format (unencrypted)
-			return JWT::encode(
-				array(
-					'attributes' => $attributes,
-					'content'    => $this->content,
-					'hash'       => $this->hash,
-					'source'     => $this->source->serialize(),
-					// No version field = version 1 (unencrypted)
-				),
-				$jwt_signing_key
-			);
 		}
+
+		// No encryption available - fall back to version 1 format (unencrypted)
+		return JWT::encode( $unencrypted_payload, $jwt_signing_key );
 	}
 
 	/**
@@ -2531,7 +2549,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'success'     => true,
 					'data'        => $data,
 					'refreshArgs' => $refresh_args,
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 

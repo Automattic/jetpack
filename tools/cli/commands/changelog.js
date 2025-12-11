@@ -756,7 +756,7 @@ async function checkChangelogFiles( baseRef ) {
  *
  * @param {string} fileName      - what we want to name the file.
  * @param {Array}  needChangelog - projects that need changelog.
- * @return {argv}.
+ * @return {boolean} If any projects already have a changelog file by that name.
  */
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;

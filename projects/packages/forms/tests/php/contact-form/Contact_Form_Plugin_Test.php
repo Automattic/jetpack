@@ -885,7 +885,16 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Consent' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'IP Address' ] ) );
 		$this->assertTrue( isset( $result[ $prefix_meta . 'Browser' ] ) );
+		$this->assertTrue( isset( $result[ $prefix_meta . 'Country code' ] ) );
 
+		// check that none of the fields are null
+		$fields = array_keys( $result );
+
+		foreach ( $fields as $field ) {
+			foreach ( $result[ $field ] as $index => $value ) {
+				$this->assertNotNull( $value, "Field {$field}[{$index}] should not be null." );
+			}
+		}
 		$equals = array(
 			'Name'    => array( 'Test "Quotes" User' ),
 			'Text'    => array( 'test@example.com' ),
@@ -1029,7 +1038,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'post_title'     => addslashes( wp_kses( $feedback_title_1, array() ) ),
 				'post_date'      => $feedback_time_1,
 				'post_name'      => $feedback_id_1,
-				'post_content'   => wp_json_encode( $content_1 ),
+				'post_content'   => wp_json_encode( $content_1, JSON_UNESCAPED_SLASHES ),
 				'post_mime_type' => 'v2',
 				'post_parent'    => $post ? $post->ID : 0,
 			)
@@ -1061,7 +1070,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 				'post_title'     => addslashes( wp_kses( $feedback_title_2, array() ) ),
 				'post_date'      => $feedback_time_2,
 				'post_name'      => $feedback_id_2,
-				'post_content'   => wp_json_encode( $content_2 ),
+				'post_content'   => wp_json_encode( $content_2, JSON_UNESCAPED_SLASHES ),
 				'post_mime_type' => 'v2',
 				'post_parent'    => $post ? $post->ID : 0,
 			)

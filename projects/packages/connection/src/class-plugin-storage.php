@@ -243,7 +243,8 @@ class Plugin_Storage {
 		$body = wp_json_encode(
 			array(
 				'active_connected_plugins' => self::$plugins,
-			)
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 
 		Client::wpcom_json_api_request_as_blog(

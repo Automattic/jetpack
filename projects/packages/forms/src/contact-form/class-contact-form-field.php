@@ -2097,7 +2097,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 						'id'  => $image_block['attrs']['id'] ?? null,
 						'src' => $image_src ?? null,
 					),
-				)
+				),
+				JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 			);
 			$option_id                   = $id . '-' . $option_letter;
 			$used_html_ids[ $option_id ] = true;
@@ -2920,12 +2921,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		<div class="jetpack-field-slider__input-row <?php echo esc_attr( $this->field_classes ); ?>"
 			data-wp-context='
 			<?php
-			echo wp_json_encode(
-				array(
-					'min'     => $min,
-					'max'     => $max,
-					'default' => $starting_value,
-					'step'    => $step,
+			echo esc_attr(
+				wp_json_encode(
+					array(
+						'min'     => $min,
+						'max'     => $max,
+						'default' => $starting_value,
+						'step'    => $step,
+					),
+					JSON_HEX_AMP | JSON_UNESCAPED_SLASHES
 				)
 			);
 			?>

@@ -456,7 +456,7 @@ class Util {
 				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
 				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
 				sanitize_file_name( get_bloginfo( 'name' ) ),
-				sanitize_file_name( $source )
+				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
 			);
 	}
 }

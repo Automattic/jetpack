@@ -318,7 +318,8 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 						'str' => 'value',
 						'arr' => array( 'a', 'b', 'c' ),
 						'obj' => (object) array( 'foo' => 'bar' ),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			)
 		);
@@ -376,7 +377,8 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 						'str' => 'value',
 						'arr' => array( 'a', 'b', 'c' ),
 						'obj' => (object) array( 'foo' => 'bar' ),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			)
 		);

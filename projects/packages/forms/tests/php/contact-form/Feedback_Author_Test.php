@@ -139,7 +139,7 @@ class Feedback_Author_Test extends BaseTestCase {
 	 * Test from_submission method.
 	 */
 	public function test_from_submission() {
-		$form = $this->createMock( Contact_Form::class );
+		$form = $this->createStub( Contact_Form::class );
 		$form->method( 'get_field_ids' )
 			->willReturn(
 				array(
@@ -191,7 +191,7 @@ class Feedback_Author_Test extends BaseTestCase {
 	 * Test from_submission with missing fields.
 	 */
 	public function test_from_submission_missing_fields() {
-		$form = $this->createMock( Contact_Form::class );
+		$form = $this->createStub( Contact_Form::class );
 		$form->method( 'get_field_ids' )
 			->willReturn(
 				array(

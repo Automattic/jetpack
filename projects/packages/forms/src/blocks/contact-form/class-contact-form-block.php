@@ -794,7 +794,7 @@ class Contact_Form_Block {
 			),
 		);
 
-		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
+		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 	}
 
 	/**

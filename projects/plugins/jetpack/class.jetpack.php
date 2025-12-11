@@ -1501,9 +1501,6 @@ class Jetpack {
 			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack' );
 		} elseif ( $status->is_local_site() ) {
 			$notice = __( 'The site URL is a known local development environment URL (e.g. http://localhost).', 'jetpack' );
-			/** This filter is documented in packages/status/src/class-status.php */
-		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
-			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
 		} elseif ( get_option( 'jetpack_offline_mode' ) ) {
 			$notice = __( 'The jetpack_offline_mode option is set to true.', 'jetpack' );
 		} else {
@@ -3037,7 +3034,7 @@ p {
 		}
 
 		if ( $encode ) {
-			return wp_json_encode( $data );
+			return wp_json_encode( $data, JSON_UNESCAPED_SLASHES );
 		}
 
 		return $data;
@@ -3318,16 +3315,15 @@ p {
 				$status_code = 400;
 			}
 
-			status_header( $status_code );
-			die( wp_json_encode( (object) compact( 'error', 'error_description' ) ) );
+			wp_send_json( (object) compact( 'error', 'error_description' ), $status_code, JSON_UNESCAPED_SLASHES );
 		}
 
-		status_header( 200 );
 		if ( true === $response ) {
+			status_header( 200 );
 			exit( 0 );
 		}
 
-		die( wp_json_encode( (object) $response ) );
+		wp_send_json( (object) $response, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -3535,7 +3531,7 @@ p {
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}
@@ -4454,7 +4450,9 @@ endif;
 			array(
 				'enabled' => $result,
 				'message' => get_transient( 'jetpack_https_test_message' ),
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -4658,16 +4656,16 @@ endif;
 			jQuery( document ).ready( function( $ ) {
 				$( '#jetpack-recheck-ssl-button' ).click( function( e ) {
 					var $this = $( this );
-					$this.html( <?php echo wp_json_encode( __( 'Checking', 'jetpack' ) ); ?> );
+					$this.html( <?php echo wp_json_encode( esc_html__( 'Checking', 'jetpack' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 					$( '#jetpack-recheck-ssl-output' ).html( '' );
 					e.preventDefault();
-					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': <?php echo wp_json_encode( $ajax_nonce ); ?> };
+					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': <?php echo wp_json_encode( $ajax_nonce, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> };
 					$.post( ajaxurl, data )
 					.done( function( response ) {
 						if ( response.enabled ) {
 							$( '#jetpack-ssl-warning' ).hide();
 						} else {
-							this.html( <?php echo wp_json_encode( __( 'Try again', 'jetpack' ) ); ?> );
+							this.html( <?php echo wp_json_encode( esc_html__( 'Try again', 'jetpack' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 							$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
 						}
 					}.bind( $this ) );

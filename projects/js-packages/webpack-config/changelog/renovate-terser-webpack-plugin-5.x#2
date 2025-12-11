@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass correct targets to `@babel/helper-compilation-targets`.

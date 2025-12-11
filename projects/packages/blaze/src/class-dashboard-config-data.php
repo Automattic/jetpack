@@ -50,7 +50,8 @@ class Dashboard_Config_Data {
 	 */
 	public function get_js_config_data( $config_data = null ) {
 		return 'window.configData = ' . wp_json_encode(
-			$config_data === null ? $this->get_data() : $config_data
+			$config_data === null ? $this->get_data() : $config_data,
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';';
 	}
 

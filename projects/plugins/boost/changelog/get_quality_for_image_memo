@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Image CDN: cache image quality settings per format to reduce repeated processing.

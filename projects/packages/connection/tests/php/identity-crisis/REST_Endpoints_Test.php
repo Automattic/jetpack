@@ -253,7 +253,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'secret' => $secret_data['secret'] ) ) );
+		$request->set_body( wp_json_encode( array( 'secret' => $secret_data['secret'] ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -274,7 +274,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ) ) );
+		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -292,7 +292,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/identity-crisis/compare-url-secret' );
 		$request->set_header( 'Content-Type', 'application/json' );
-		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ) ) );
+		$request->set_body( wp_json_encode( array( 'secret' => '54321fdsa' ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

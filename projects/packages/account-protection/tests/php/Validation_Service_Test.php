@@ -237,7 +237,8 @@ class Validation_Service_Test extends BaseTestCase {
 					'body'     => json_encode(
 						array(
 							'compromised' => array( 'c90fcfd699f0ddbdcb30c2c9183d2d933ea' ),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);
@@ -261,7 +262,8 @@ class Validation_Service_Test extends BaseTestCase {
 					'body'     => json_encode(
 						array(
 							'common' => array( 'c90fcfd699f0ddbdcb30c2c9183d2d933ea' ),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);
@@ -286,7 +288,8 @@ class Validation_Service_Test extends BaseTestCase {
 						array(
 							'compromised' => array( '1234' ),
 							'common'      => array(),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);

@@ -138,7 +138,8 @@ class Odyssey_Assets {
 			array(
 				'cache_buster' => (string) $cache_buster,
 				'cached_at'    => floor( microtime( true ) * 1000 ), // milliseconds.
-			)
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 }

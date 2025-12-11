@@ -140,7 +140,8 @@ class Jetpack_Mu_Wpcom {
 					array(
 						'locales' => $locales,
 						'plugins' => $plugins_request_data,
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'timeout' => 10,
@@ -537,7 +538,8 @@ class Jetpack_Mu_Wpcom {
 		$data = wp_json_encode(
 			array(
 				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(

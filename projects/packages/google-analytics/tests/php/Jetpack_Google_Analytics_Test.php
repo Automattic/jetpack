@@ -56,26 +56,33 @@ class Jetpack_Google_Analytics_Test extends TestCase {
 	protected function get_sample() {
 		$entries = array();
 
-		$config_data = wp_json_encode(
-			array(
-				'vars'     => array(
-					'account' => self::UA_ID,
+		$config_data = array(
+			'vars'     => array(
+				'account' => self::UA_ID,
+			),
+			'triggers' => array(
+				'trackPageview' => array(
+					'on'      => 'visible',
+					'request' => 'pageview',
 				),
-				'triggers' => array(
-					'trackPageview' => array(
-						'on'      => 'visible',
-						'request' => 'pageview',
-					),
-				),
-			)
+			),
 		);
 
 		// Generate a hash string to uniquely identify this entry.
-		$entry_id = substr( md5( 'googleanalytics' . $config_data ), 0, 12 );
+		$entry_id = substr(
+			md5(
+				'googleanalytics' . wp_json_encode(
+					$config_data,
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
+				)
+			),
+			0,
+			12
+		);
 
 		$entries[ $entry_id ] = array(
 			'type'   => 'googleanalytics',
-			'config' => $config_data,
+			'config' => wp_json_encode( $config_data, JSON_UNESCAPED_SLASHES ),
 		);
 
 		return $entries;

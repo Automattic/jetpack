@@ -16,8 +16,9 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
+import { chevronDown, chevronUp, plugins } from '@wordpress/icons';
 import clsx from 'clsx';
+import useConfigValue from '../../../../../hooks/use-config-value.ts';
 import PluginActionButton from './plugin-action-button.tsx';
 /**
  * Types
@@ -30,7 +31,6 @@ const noop = () => {};
 const IntegrationCardHeader = ( {
 	title,
 	description,
-	icon,
 	isExpanded,
 	onToggle,
 	cardData = {},
@@ -97,6 +97,7 @@ const IntegrationCardHeader = ( {
 
 	const isHeaderToggleEnabledFinal = isHeaderToggleEnabled && ! __isPartial; // wait for the full data to load before allwing things to be exanded;
 	const showHeaderToggleFinal = showHeaderToggle && ! __isPartial;
+	const showIntegrationIcons = useConfigValue( 'showIntegrationIcons' );
 
 	return (
 		<CardHeader
@@ -105,15 +106,33 @@ const IntegrationCardHeader = ( {
 		>
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
-					<div className="integration-card__service-icon-container">
-						<Icon
-							icon={ icon }
-							className={ `integration-card__service-icon ${
-								cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
-							}` }
-							size={ 30 }
-						/>
-					</div>
+					{ showIntegrationIcons !== false && (
+						<div className="integration-card__service-icon-container">
+							{ cardData?.iconUrl ? (
+								<img
+									src={ cardData.iconUrl as string }
+									alt=""
+									aria-hidden={ true }
+									width={ 30 }
+									height={ 30 }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
+								/>
+							) : (
+								<Icon
+									icon={ plugins }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
+									size={ 30 }
+									aria-hidden={ true }
+								/>
+							) }
+						</div>
+					) }
 					<div className="integration-card__title-section">
 						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (

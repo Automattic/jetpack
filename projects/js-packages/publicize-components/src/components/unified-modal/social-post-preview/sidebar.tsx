@@ -1,14 +1,13 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
-import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Connection } from '../../../social-store/types';
-import { ConnectionsToggleList } from '../../connections-toggle-list';
+import { ConnectionList } from './connection-list';
+import { ConnectionToggles } from './connection-toggles';
 import styles from './styles.module.scss';
 
 type SidebarProps = {
-	onClickConnection: ( connection: Connection ) => void;
+	baseId: string;
+	onSelectConnection: ( connection: Connection ) => void;
 	selectedConnection: Connection | null;
 };
 
@@ -18,52 +17,17 @@ type SidebarProps = {
  * @param {SidebarProps} props - The component props.
  * @return - Sidebar component.
  */
-export function Sidebar( { onClickConnection, selectedConnection }: SidebarProps ) {
-	const { recordEvent } = useAnalytics();
-	const { toggleById } = useSocialMediaConnections();
-
-	const onClickConnectionToggle = useCallback(
-		( connection: Connection ) => {
-			toggleById( connection.connection_id );
-			recordEvent( 'jetpack_social_connection_toggled', {
-				location: 'preview_modal',
-				enabled: ! connection.enabled,
-				service_name: connection.service_name,
-			} );
-		},
-		[ recordEvent, toggleById ]
-	);
-
-	const getItemClassName = useCallback(
-		( connection: Connection ) => {
-			return selectedConnection?.connection_id === connection.connection_id
-				? styles[ 'selected-connection' ]
-				: undefined;
-		},
-		[ selectedConnection ]
-	);
-
+export function Sidebar( { onSelectConnection, baseId, selectedConnection }: SidebarProps ) {
 	return (
 		<div className={ styles.sidebar }>
-			<Panel className={ styles.panel }>
-				<PanelBody title={ __( 'Account previews', 'jetpack-publicize-components' ) } initialOpen>
-					<PanelRow>
-						<ConnectionsToggleList
-							onClickItem={ onClickConnection }
-							onClickToggle={ onClickConnectionToggle }
-							getItemClassName={ getItemClassName }
-						/>
-					</PanelRow>
-				</PanelBody>
-				<PanelBody
-					title={ __( 'Customize', 'jetpack-publicize-components' ) }
-					initialOpen={ false }
-				>
-					<PanelRow>
-						{ /* TODO: Replace Edit template button with full image editor UI when SIG integration is complete. */ }
-					</PanelRow>
-				</PanelBody>
-			</Panel>
+			<Grid columns={ 2 } templateColumns="auto 1fr" gap={ 0 } className={ styles.grid }>
+				<ConnectionToggles selectedConnection={ selectedConnection } />
+				<ConnectionList
+					baseId={ baseId }
+					onSelectConnection={ onSelectConnection }
+					selectedConnection={ selectedConnection }
+				/>
+			</Grid>
 		</div>
 	);
 }

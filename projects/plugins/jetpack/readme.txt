@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.3-beta
+Stable tag: 15.4-a.1
 Requires at least: 6.7
 Requires PHP: 7.2
 Tested up to: 6.9
@@ -326,43 +326,10 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.3-beta - 2025-12-01
+### 15.4-a.1 - 2025-12-08
 #### Enhancements
-- Forms: Add browser info to the form response email notification.
-- Forms: Add form response webhook support.
-- Forms: Add integrations to dashboard mobile menu.
-- Forms: Add keyboard navigation to go through reponses quickly.
-- Forms: Add WordPress Abilities API integration for form submissions management and integrations access.
-- Forms: Change integrations modal width.
-- Forms: Improve MailPoet subscriber handling.
-- Forms: Improve name variation handling.
-- Forms: Remove related-posts from API calls.
-- Forms: Update dashboard header buttons.
-- Forms: Use core WP colors for basic primitive components such as buttons at Forms dashboard.
-- Forms: Use first/last name for author.
-- Premium Content Block: Added email rendering callback.
-- Social: Improve auto-share UI in the editor by streamlining the notices and descriptions.
-- Social: Improve the sidebar by making titles more descriptive and combining sections.
-- Social: Update the connections list in the editor to a vertical toggle list with labels and icons.
-
-#### Improved compatibility
-- Replace icons removed from @wordpress/icons with alternatives.
-
-#### Bug fixes
-- Cookies & Consents Banner Widget: ensure form headings are properly displayed.
-- Fix a compatibility bug with the Gutenberg plugin.
-- Forms: Do not link to empty source link.
-- Forms: Ensure we show duplicate form field values on export.
-- Forms: Fix integrations modal flash.
-- Forms: Fix name variation isActive setting.
-- Forms: Reject form submissions when the parent post/page with the form has been deleted or is no longer published.
-- Forms: Remove clashing between meta dn field names on export.
-- GifBlock: Ensure url is not reset when publishing post.
-- Google Docs: Ensure that slides/sheets embeds render on the front-end.
-- GSheets embed: Give time for the iframe to finish before showing an error.
-- My Jetpack: Fix expiring renewal prompt to show all products.
-- Remove `getIconColor` functions for block icons.
-- Social: Fix connection icon not reflecting the change when profile picture is updated.
+- Forms: Add filter to hide integration icons.
+- Forms: Add integrations display filters.
 
 --------
 

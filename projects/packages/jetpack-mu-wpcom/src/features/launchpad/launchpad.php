@@ -759,7 +759,7 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 		array(
 			'feature' => 'launchpad',
 			'message' => 'Launchpad enabled for e2e test site.',
-			'extra'   => wp_json_encode( $extra ),
+			'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
 		)
 	);
 }

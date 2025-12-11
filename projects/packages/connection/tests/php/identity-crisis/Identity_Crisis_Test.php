@@ -656,7 +656,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 			array(
 				'test1' => 'test 1',
 				'test2' => 'test 2',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		return array(
@@ -705,7 +706,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_home'      => 'example.com/',
 				),
 				'test'         => 'test value',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		$matching_error_code_body = wp_json_encode(
@@ -718,7 +720,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 					'wpcom_home'      => 'example.com/',
 				),
 				'test'         => 'test value',
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 		);
 
 		return array(
@@ -745,7 +748,8 @@ class Identity_Crisis_Test extends BaseTestCase {
 			'body' => wp_json_encode(
 				array(
 					'migrated_for_idc' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
 		);
 

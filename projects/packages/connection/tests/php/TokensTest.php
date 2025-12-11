@@ -207,7 +207,7 @@ class TokensTest extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( array( 'dummy_error' => true ) ),
+			'body'     => wp_json_encode( array( 'dummy_error' => true ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'response' => array(
 				'code'    => 500,
 				'message' => 'failed',
@@ -241,7 +241,7 @@ class TokensTest extends TestCase {
 
 		return array(
 			'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
-			'body'     => wp_json_encode( $body ),
+			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
