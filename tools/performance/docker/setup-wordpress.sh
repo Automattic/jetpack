@@ -152,15 +152,37 @@ WPCONFIG
     else
         echo "  Installing WordPress..."
 
-        # Install WordPress core
-        wp core install \
+        # Try to install WordPress core
+        # If it fails due to corrupted tables, drop the database and retry
+        if ! wp core install \
             --path="$wp_path" \
             --url="$site_url" \
             --title="$WP_SITE_TITLE - $name" \
             --admin_user="$WP_ADMIN_USER" \
             --admin_password="$WP_ADMIN_PASS" \
             --admin_email="$WP_ADMIN_EMAIL" \
-            --skip-email
+            --skip-email 2>&1; then
+
+            echo "  ⚠ Installation failed, attempting database repair..."
+
+            # Drop and recreate the database
+            echo "  Dropping and recreating database: $db_name"
+            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`$db_name\`; CREATE DATABASE \`$db_name\`;" 2>/dev/null || {
+                echo "  ✗ ERROR: Failed to recreate database"
+                return 1
+            }
+
+            # Retry installation
+            echo "  Retrying WordPress installation..."
+            wp core install \
+                --path="$wp_path" \
+                --url="$site_url" \
+                --title="$WP_SITE_TITLE - $name" \
+                --admin_user="$WP_ADMIN_USER" \
+                --admin_password="$WP_ADMIN_PASS" \
+                --admin_email="$WP_ADMIN_EMAIL" \
+                --skip-email
+        fi
 
         echo "  ✓ WordPress installed"
     fi
