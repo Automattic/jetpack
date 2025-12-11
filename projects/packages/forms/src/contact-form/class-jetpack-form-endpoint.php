@@ -8,14 +8,14 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 /**
- * REST endpoint for the jetpack-form custom post type.
+ * REST endpoint for the jetpack_form custom post type.
  */
 class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( Jetpack_Form::POST_TYPE );
+		parent::__construct( Contact_Form::POST_TYPE );
 	}
 
 	/**

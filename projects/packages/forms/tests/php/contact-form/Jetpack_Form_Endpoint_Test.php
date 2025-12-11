@@ -13,13 +13,13 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 /**
- * Unit tests for the Reusable Forms feature.
+ * Unit tests for the the Jetpack_Form REST endpoint.
  *
  * To run this test, you can use the following command: (from the projects/packages/forms directory)
  *
- * composer test-php tests/php/contact-form/Jetpack_Form_Tregisterphp
+ * composer test-php tests/php/contact-form/Jetpack_Form_Endpoint_Test.php
  */
-class Jetpack_Form_Test extends TestCase {
+class Jetpack_Form_Endpoint_Test extends TestCase {
 
 	/**
 	 * REST Server object.
@@ -69,28 +69,28 @@ class Jetpack_Form_Test extends TestCase {
 		$_GET = array();
 
 		// Unregister the post type if it was registered
-		unregister_post_type( 'jetpack-form' );
+		unregister_post_type( 'jetpack_form' );
 	}
 
 	/**
 	 * Test that the post type is registered when init is called.
 	 */
 	public function test_init_registers_post_type() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
-		$this->assertTrue( post_type_exists( 'jetpack-form' ), 'jetpack-form post type should be registered' );
+		$this->assertTrue( post_type_exists( 'jetpack_form' ), 'jetpack_form post type should be registered' );
 	}
 
 	/**
 	 * Test that the post type has the correct configuration.
 	 */
 	public function test_post_type_configuration() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
-		$post_type_object = get_post_type_object( 'jetpack-form' );
+		$post_type_object = get_post_type_object( 'jetpack_form' );
 
 		$this->assertNotNull( $post_type_object, 'Post type object should exist' );
-		$this->assertEquals( 'jetpack-form', $post_type_object->name );
+		$this->assertEquals( 'jetpack_form', $post_type_object->name );
 		$this->assertFalse( $post_type_object->public, 'Post type should not be public' );
 		$this->assertTrue( $post_type_object->show_ui, 'Post type should show UI' );
 		$this->assertFalse( $post_type_object->show_in_menu, 'Post type should not show in menu' );
@@ -102,20 +102,20 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test that the post type supports the correct features.
 	 */
 	public function test_post_type_supports() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
-		$this->assertTrue( post_type_supports( 'jetpack-form', 'title' ), 'Should support title' );
-		$this->assertTrue( post_type_supports( 'jetpack-form', 'excerpt' ), 'Should support excerpt' );
-		$this->assertTrue( post_type_supports( 'jetpack-form', 'editor' ), 'Should support editor' );
-		$this->assertTrue( post_type_supports( 'jetpack-form', 'revisions' ), 'Should support revisions' );
-		$this->assertTrue( post_type_supports( 'jetpack-form', 'custom-fields' ), 'Should support custom-fields' );
+		$this->assertTrue( post_type_supports( 'jetpack_form', 'title' ), 'Should support title' );
+		$this->assertTrue( post_type_supports( 'jetpack_form', 'excerpt' ), 'Should support excerpt' );
+		$this->assertTrue( post_type_supports( 'jetpack_form', 'editor' ), 'Should support editor' );
+		$this->assertTrue( post_type_supports( 'jetpack_form', 'revisions' ), 'Should support revisions' );
+		$this->assertTrue( post_type_supports( 'jetpack_form', 'author' ), 'Should support author' );
 	}
 
 	/**
 	 * Test that the REST endpoints are registered.
 	 */
 	public function test_rest_endpoints_are_registered() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
 		// Re-initialize REST server to pick up new routes
 		do_action( 'rest_api_init' );
@@ -130,7 +130,7 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test that GET request to jetpack-forms endpoint works.
 	 */
 	public function test_get_jetpack_forms_returns_200() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/jetpack-forms' );
@@ -144,7 +144,7 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test that users without edit_posts capability cannot access jetpack-forms endpoint.
 	 */
 	public function test_get_jetpack_forms_unauthorized_returns_401() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		// Create a subscriber user (no edit_posts capability)
@@ -167,7 +167,7 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test creating a jetpack-form via REST API.
 	 */
 	public function test_create_jetpack_form_via_rest() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		// Ensure user has proper capabilities
@@ -194,13 +194,13 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test retrieving a specific jetpack-form via REST API.
 	 */
 	public function test_get_single_jetpack_form_via_rest() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		// Create a form first
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'jetpack-form',
+				'post_type'    => 'jetpack_form',
 				'post_title'   => 'Single Test Form',
 				'post_content' => 'Form content',
 				'post_status'  => 'publish',
@@ -223,7 +223,7 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test updating a jetpack-form via REST API.
 	 */
 	public function test_update_jetpack_form_via_rest() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		// Ensure user has proper capabilities
@@ -234,7 +234,7 @@ class Jetpack_Form_Test extends TestCase {
 		// Create a form first
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'jetpack-form',
+				'post_type'    => 'jetpack_form',
 				'post_title'   => 'Original Title',
 				'post_content' => 'Original content',
 				'post_status'  => 'publish',
@@ -257,7 +257,7 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test deleting a jetpack-form via REST API.
 	 */
 	public function test_delete_jetpack_form_via_rest() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 		do_action( 'rest_api_init' );
 
 		// Ensure user has proper capabilities
@@ -268,7 +268,7 @@ class Jetpack_Form_Test extends TestCase {
 		// Create a form first
 		$post_id = wp_insert_post(
 			array(
-				'post_type'    => 'jetpack-form',
+				'post_type'    => 'jetpack_form',
 				'post_title'   => 'Form to Delete',
 				'post_content' => 'Form content',
 				'post_status'  => 'publish',
@@ -289,9 +289,9 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test that the REST controller class is correctly assigned.
 	 */
 	public function test_rest_controller_class() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
-		$post_type_object = get_post_type_object( 'jetpack-form' );
+		$post_type_object = get_post_type_object( 'jetpack_form' );
 
 		$this->assertEquals(
 			'Automattic\Jetpack\Forms\ContactForm\Jetpack_Form_Endpoint',
@@ -304,9 +304,9 @@ class Jetpack_Form_Test extends TestCase {
 	 * Test that the post type has correct capability mappings.
 	 */
 	public function test_post_type_capabilities() {
-		Jetpack_Form::register();
+		Contact_Form::register_post_type();
 
-		$post_type_object = get_post_type_object( 'jetpack-form' );
+		$post_type_object = get_post_type_object( 'jetpack_form' );
 
 		$this->assertEquals( 'edit_posts', $post_type_object->cap->read, 'Read capability should be edit_posts' );
 		$this->assertEquals( 'publish_posts', $post_type_object->cap->create_posts, 'Create capability should be publish_posts' );

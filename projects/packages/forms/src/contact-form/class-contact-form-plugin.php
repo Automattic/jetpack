@@ -359,7 +359,7 @@ class Contact_Form_Plugin {
 		}
 
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
-			Jetpack_Form::register();
+			Contact_Form::register_post_type();
 		}
 	}
 
