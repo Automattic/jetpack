@@ -252,27 +252,11 @@ Each build runs fresh calibration (~30-60s) since different agents may have diff
 
 ## CodeVitals Metrics
 
-The following metrics are posted to CodeVitals:
+The following metric is posted to CodeVitals:
 
-### Primary Metrics (Median LCP values):
-- `wp_admin_lcp_baseline_ms` - Baseline WordPress load time
-- `wp_admin_lcp_jetpack_disconnected_ms` - Jetpack disconnected load time
-- `wp_admin_lcp_jetpack_offline_ms` - Jetpack offline mode load time
-- `wp_admin_lcp_jetpack_connected_ms` - Jetpack connected (simulated) load time
+- `wp-admin-dashboard-connection-sim-largestContentfulPaint` - Jetpack connected (simulated) LCP
 
-### Statistical Metrics:
-- `*_mean_ms` - Mean value
-- `*_min_ms` - Minimum value
-- `*_max_ms` - Maximum value
-- `*_stddev_ms` - Standard deviation
-
-### Overhead Metrics:
-- `wp_admin_lcp_jetpack_disconnected_overhead_ms` - Absolute overhead (ms)
-- `wp_admin_lcp_jetpack_disconnected_overhead_pct` - Relative overhead (%)
-- `wp_admin_lcp_jetpack_offline_overhead_ms` - Absolute overhead (ms)
-- `wp_admin_lcp_jetpack_offline_overhead_pct` - Relative overhead (%)
-- `wp_admin_lcp_jetpack_connected_overhead_ms` - Absolute overhead (ms)
-- `wp_admin_lcp_jetpack_connected_overhead_pct` - Relative overhead (%)
+**Note**: Currently only the "Jetpack Connected (Simulated)" scenario posts to CodeVitals. This metric represents the wp-admin dashboard load time with Jetpack in a simulated connected state (fake tokens + mocked API with 200ms latency). All four scenarios are measured locally and saved to `results/lcp-results.json`, but only the connected scenario is tracked in CodeVitals for trend analysis.
 
 ## How It Works
 

@@ -106,6 +106,50 @@ function discoverDynamicPorts() {
 }
 
 /**
+ * Update WordPress database options with discovered dynamic URLs
+ *
+ * After setup, the database contains hardcoded localhost:808x URLs.
+ * This function updates siteurl and home options to match the actual
+ * dynamic ports, preventing redirect/cookie issues.
+ */
+function updateWordPressUrls() {
+	console.log( 'Updating WordPress URLs with dynamic ports...' );
+
+	for ( const scenario of SCENARIOS ) {
+		if ( ! scenario.dockerService || ! scenario.wpPath ) {
+			continue;
+		}
+
+		const url = getScenarioUrl( scenario );
+
+		try {
+			// Update siteurl and home options via wp-cli
+			exec(
+				`${ DOCKER_COMPOSE_CMD } run --rm wpcli wp option update siteurl "${ url }" --path="${ scenario.wpPath }"`,
+				{
+					cwd: PERFORMANCE_DIR,
+					silent: true,
+				}
+			);
+			exec(
+				`${ DOCKER_COMPOSE_CMD } run --rm wpcli wp option update home "${ url }" --path="${ scenario.wpPath }"`,
+				{
+					cwd: PERFORMANCE_DIR,
+					silent: true,
+				}
+			);
+			console.log( `  ✓ ${ scenario.name }: ${ url }` );
+		} catch ( err ) {
+			console.warn(
+				`  ⚠ Warning: Could not update URLs for ${ scenario.name }: ${ err.message }`
+			);
+		}
+	}
+
+	console.log( '' );
+}
+
+/**
  * Check if Docker is running
  *
  * @return {boolean} True if Docker is running
@@ -348,6 +392,8 @@ async function main() {
 	if ( wpReady ) {
 		// Containers already running - discover their dynamic ports
 		discoverDynamicPorts();
+		// Update database URLs to match dynamic ports (may have changed since last run)
+		updateWordPressUrls();
 	} else if ( options.skipSetup ) {
 		console.error( 'WordPress instances are not ready. Please run setup first:' );
 		console.error( '  pnpm run docker:up' );
@@ -399,6 +445,9 @@ async function main() {
 		exec( `${ DOCKER_COMPOSE_CMD } run --rm wpcli`, {
 			cwd: PERFORMANCE_DIR,
 		} );
+
+		// Update database URLs to match discovered dynamic ports
+		updateWordPressUrls();
 
 		// Poll for WordPress instances to be ready
 		// Timeout is configurable via WP_READY_TIMEOUT_SECONDS env var (default: 60s)

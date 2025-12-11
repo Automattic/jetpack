@@ -58,11 +58,12 @@ echo "-----------------------------------"
 
 cd "$MONOREPO_ROOT"
 
-# Always ensure pnpm is installed (needed for later steps even if Jetpack is already built)
+# Ensure pnpm is available via corepack (needed for later steps even if Jetpack is already built)
 if ! command -v pnpm &> /dev/null; then
-    echo "Installing pnpm..."
-    npm install -g pnpm
-    echo "✓ pnpm installed"
+    echo "Enabling pnpm via corepack..."
+    corepack enable
+    corepack prepare pnpm@latest --activate
+    echo "✓ pnpm enabled via corepack"
 else
     echo "✓ pnpm found"
 fi
@@ -140,11 +141,10 @@ echo ""
 echo "  2. Run full test suite:"
 echo "     pnpm test"
 echo ""
-echo "  3. View WordPress instances:"
-echo "     - Baseline:                http://localhost:8080/wp-admin"
-echo "     - Jetpack Disconnected:    http://localhost:8081/wp-admin"
-echo "     - Jetpack Offline Mode:    http://localhost:8082/wp-admin"
-echo "     - Jetpack Connected (Sim): http://localhost:8083/wp-admin"
+echo "  3. View WordPress instances (ports are dynamic):"
+echo "     docker compose -f docker/docker-compose.yml port wordpress-baseline 80"
+echo "     docker compose -f docker/docker-compose.yml port wordpress-jetpack 80"
+echo "     # etc. - or just run 'pnpm test' which discovers ports automatically"
 echo ""
 echo "     Login: admin / password"
 echo ""

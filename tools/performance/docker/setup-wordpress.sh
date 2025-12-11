@@ -129,13 +129,6 @@ define( 'NONCE_SALT',       '$NONCE_SALT_SALT' );
 
 define( 'WP_DEBUG', false );
 
-// Auto-detect site URL from request (supports dynamic ports)
-if ( isset( \$_SERVER['HTTP_HOST'] ) ) {
-    \$protocol = ( ! empty( \$_SERVER['HTTPS'] ) && \$_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http';
-    define( 'WP_HOME', \$protocol . '://' . \$_SERVER['HTTP_HOST'] );
-    define( 'WP_SITEURL', \$protocol . '://' . \$_SERVER['HTTP_HOST'] );
-}
-
 $config_extra
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -203,10 +196,6 @@ WPCONFIG
             echo "    Make sure Jetpack is built: pnpm jetpack build plugins/jetpack"
         fi
     fi
-
-    # Update site URL
-    wp option update siteurl "$site_url" --path="$wp_path" 2>/dev/null || true
-    wp option update home "$site_url" --path="$wp_path" 2>/dev/null || true
 
     # Flush rewrite rules
     wp rewrite flush --path="$wp_path" 2>/dev/null || true
@@ -287,11 +276,8 @@ echo "========================================"
 echo "✓ Setup Complete!"
 echo "========================================"
 echo ""
-echo "WordPress instances are ready at:"
-echo "  Baseline:                  http://localhost:8080/wp-admin/"
-echo "  Jetpack Disconnected:      http://localhost:8081/wp-admin/"
-echo "  Jetpack Offline Mode:      http://localhost:8082/wp-admin/"
-echo "  Jetpack Connected (Sim):   http://localhost:8083/wp-admin/"
+echo "WordPress instances are ready."
+echo "Ports are assigned dynamically - the test runner will discover them."
 echo ""
 echo "Admin credentials:"
 echo "  Username: $WP_ADMIN_USER"

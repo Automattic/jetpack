@@ -244,10 +244,9 @@ class Jetpack_WPCom_Connection_Simulator {
 	 * Get mock response for a WordPress.com API request.
 	 *
 	 * @param string $url          Request URL.
-	 * @param array  $request_args Request arguments.
 	 * @return array Mock HTTP response.
 	 */
-	private function get_mock_response( $url, $request_args ) {
+	private function get_mock_response( $url ) {
 		$parsed = wp_parse_url( $url );
 		$path   = $parsed['path'] ?? '';
 
@@ -401,7 +400,7 @@ class Jetpack_WPCom_Connection_Simulator {
 			);
 		} elseif ( strpos( $url, 'xmlrpc.php' ) !== false ) {
 			// XML-RPC response.
-			return $this->get_xmlrpc_mock_response( $request_args );
+			return $this->get_xmlrpc_mock_response();
 		}
 
 		return array(

@@ -1,9 +1,11 @@
 # Jetpack Performance Testing Environment
 # Four isolated WordPress instances for performance comparison:
-# - Port 8080: Baseline WordPress (no Jetpack)
-# - Port 8081: WordPress with Jetpack (not connected)
-# - Port 8082: WordPress with Jetpack in offline mode
-# - Port 8083: WordPress with Jetpack simulated connection (fake tokens + mock API responses)
+# - wordpress-baseline: Baseline WordPress (no Jetpack)
+# - wordpress-jetpack: WordPress with Jetpack (not connected)
+# - wordpress-jetpack-offline: WordPress with Jetpack in offline mode
+# - wordpress-jetpack-connected: WordPress with Jetpack simulated connection (fake tokens + mock API responses)
+#
+# Ports are assigned dynamically by Docker. Use 'docker compose port <service> 80' to discover.
 
 services:
   # Shared MySQL database
