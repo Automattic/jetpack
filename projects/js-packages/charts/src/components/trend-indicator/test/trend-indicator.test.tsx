@@ -68,4 +68,27 @@ describe( 'TrendIndicator', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveStyle( { fontSize: '2rem' } );
 	} );
+
+	describe( 'accessibility', () => {
+		it( 'provides aria-label for up trend', () => {
+			const { container } = render( <TrendIndicator direction="up" value="+14%" /> );
+
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveAttribute( 'aria-label', 'Increase: +14%' );
+		} );
+
+		it( 'provides aria-label for down trend', () => {
+			const { container } = render( <TrendIndicator direction="down" value="-5%" /> );
+
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveAttribute( 'aria-label', 'Decrease: -5%' );
+		} );
+
+		it( 'provides aria-label for neutral trend', () => {
+			const { container } = render( <TrendIndicator direction="neutral" value="0%" /> );
+
+			// eslint-disable-next-line testing-library/no-node-access
+			expect( container.firstChild ).toHaveAttribute( 'aria-label', 'No change: 0%' );
+		} );
+	} );
 } );
