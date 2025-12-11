@@ -29,7 +29,7 @@ services:
   wordpress-baseline:
     image: wordpress:6.7-php8.2-apache
     ports:
-      - "8080:80"
+      - "80"  # Dynamic port - use 'docker compose port wordpress-baseline 80' to discover
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db
@@ -50,7 +50,7 @@ services:
   wordpress-jetpack:
     image: wordpress:6.7-php8.2-apache
     ports:
-      - "8081:80"
+      - "80"  # Dynamic port
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db
@@ -73,7 +73,7 @@ services:
   wordpress-jetpack-offline:
     image: wordpress:6.7-php8.2-apache
     ports:
-      - "8082:80"
+      - "80"  # Dynamic port
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db
@@ -99,7 +99,7 @@ services:
   wordpress-jetpack-connected:
     image: wordpress:6.7-php8.2-apache
     ports:
-      - "8083:80"
+      - "80"  # Dynamic port
     restart: unless-stopped
     environment:
       WORDPRESS_DB_HOST: db

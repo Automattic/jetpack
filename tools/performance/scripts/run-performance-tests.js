@@ -44,6 +44,10 @@ const MONOREPO_ROOT = path.join( PERFORMANCE_DIR, '..', '..' );
 const BUILD_DIR = path.join( PERFORMANCE_DIR, 'build' );
 const JETPACK_BUILD_DIR = path.join( BUILD_DIR, 'jetpack' );
 
+// Docker Compose project name - use env var if set, otherwise default
+const COMPOSE_PROJECT_NAME = process.env.COMPOSE_PROJECT_NAME || 'jetpack-perf';
+const DOCKER_COMPOSE_CMD = `docker compose -p ${ COMPOSE_PROJECT_NAME } -f docker/docker-compose.yml`;
+
 /**
  * Execute a shell command and return the output
  *
@@ -64,6 +68,41 @@ function exec( command, options = {} ) {
 		}
 		return null;
 	}
+}
+
+/**
+ * Discover dynamic ports for WordPress containers and set environment variables
+ *
+ * Queries Docker for the dynamically assigned host ports and sets the
+ * corresponding environment variables so scenarios.js can use them.
+ */
+function discoverDynamicPorts() {
+	console.log( 'Discovering dynamic ports...' );
+
+	for ( const scenario of SCENARIOS ) {
+		if ( ! scenario.dockerService ) {
+			continue;
+		}
+
+		try {
+			const portOutput = exec( `${ DOCKER_COMPOSE_CMD } port ${ scenario.dockerService } 80`, {
+				cwd: PERFORMANCE_DIR,
+				silent: true,
+			} );
+
+			if ( portOutput ) {
+				// Output is like "0.0.0.0:32789" - extract the port
+				const port = portOutput.trim().split( ':' ).pop();
+				const url = `http://localhost:${ port }`;
+				process.env[ scenario.envVar ] = url;
+				console.log( `  ${ scenario.name }: ${ url }` );
+			}
+		} catch {
+			console.warn( `  Warning: Could not get port for ${ scenario.dockerService }` );
+		}
+	}
+
+	console.log( '' );
 }
 
 /**
@@ -303,82 +342,84 @@ async function main() {
 		process.exit( 1 );
 	}
 
-	// Check if WordPress instances are ready
+	// Check if WordPress instances are ready (using default URLs initially)
 	const wpReady = await checkWordPressInstances();
 
-	if ( ! wpReady ) {
-		if ( options.skipSetup ) {
-			console.error( 'WordPress instances are not ready. Please run setup first:' );
-			console.error( '  pnpm run docker:up' );
-			console.error( '  pnpm run docker:setup' );
-			process.exit( 1 );
-		} else {
-			console.log( 'WordPress instances not ready. Starting setup...\n' );
-			console.log( 'This may take a few minutes on first run...\n' );
+	if ( wpReady ) {
+		// Containers already running - discover their dynamic ports
+		discoverDynamicPorts();
+	} else if ( options.skipSetup ) {
+		console.error( 'WordPress instances are not ready. Please run setup first:' );
+		console.error( '  pnpm run docker:up' );
+		console.error( '  pnpm run docker:setup' );
+		process.exit( 1 );
+	} else {
+		console.log( 'WordPress instances not ready. Starting setup...\n' );
+		console.log( 'This may take a few minutes on first run...\n' );
 
-			// Start Docker containers
-			console.log( 'Starting Docker containers...' );
-			exec( 'docker compose -p jetpack-perf -f docker/docker-compose.yml up -d', {
-				cwd: PERFORMANCE_DIR,
-			} );
+		// Start Docker containers
+		console.log( 'Starting Docker containers...' );
+		exec( `${ DOCKER_COMPOSE_CMD } up -d`, {
+			cwd: PERFORMANCE_DIR,
+		} );
 
-			// Poll for MySQL readiness (healthcheck) before running setup
-			// Timeout is configurable via MYSQL_READY_TIMEOUT_SECONDS env var (default: 120s)
-			console.log( 'Waiting for MySQL to be ready...' );
-			const mysqlTimeoutSeconds = parseInt( process.env.MYSQL_READY_TIMEOUT_SECONDS || '120', 10 );
-			const maxDbAttempts = Math.ceil( mysqlTimeoutSeconds / 2 ); // 2 second intervals
-			let dbReady = false;
-			for ( let i = 0; i < maxDbAttempts; i++ ) {
-				try {
-					exec(
-						'docker compose -p jetpack-perf -f docker/docker-compose.yml exec -T db mysqladmin ping -h localhost -u root -prootpassword',
-						{
-							cwd: PERFORMANCE_DIR,
-							silent: true,
-						}
-					);
-					dbReady = true;
-					break;
-				} catch {
-					process.stdout.write( `  Attempt ${ i + 1 }/${ maxDbAttempts }...\r` );
-					await new Promise( resolve => setTimeout( resolve, 2000 ) );
-				}
-			}
-			if ( ! dbReady ) {
-				console.error( '\n✗ MySQL did not become ready in time' );
-				process.exit( 1 );
-			}
-			console.log( '✓ MySQL is ready                    ' );
+		// Discover dynamically assigned ports and set environment variables
+		discoverDynamicPorts();
 
-			// Run setup script (the wpcli container runs setup automatically)
-			console.log( 'Running WordPress setup...' );
-			exec( 'docker compose -p jetpack-perf -f docker/docker-compose.yml run --rm wpcli', {
-				cwd: PERFORMANCE_DIR,
-			} );
-
-			// Poll for WordPress instances to be ready
-			// Timeout is configurable via WP_READY_TIMEOUT_SECONDS env var (default: 60s)
-			console.log( 'Verifying WordPress instances are ready...' );
-			const wpTimeoutSeconds = parseInt( process.env.WP_READY_TIMEOUT_SECONDS || '60', 10 );
-			const maxWpAttempts = Math.ceil( wpTimeoutSeconds / 2 ); // 2 second intervals
-			let wpSetupReady = false;
-			for ( let i = 0; i < maxWpAttempts; i++ ) {
-				wpSetupReady = await checkWordPressInstances();
-				if ( wpSetupReady ) {
-					break;
-				}
-				process.stdout.write(
-					`  Waiting for WordPress... attempt ${ i + 1 }/${ maxWpAttempts }\r`
+		// Poll for MySQL readiness (healthcheck) before running setup
+		// Timeout is configurable via MYSQL_READY_TIMEOUT_SECONDS env var (default: 120s)
+		console.log( 'Waiting for MySQL to be ready...' );
+		const mysqlTimeoutSeconds = parseInt( process.env.MYSQL_READY_TIMEOUT_SECONDS || '120', 10 );
+		const maxDbAttempts = Math.ceil( mysqlTimeoutSeconds / 2 ); // 2 second intervals
+		let dbReady = false;
+		for ( let i = 0; i < maxDbAttempts; i++ ) {
+			try {
+				exec(
+					`${ DOCKER_COMPOSE_CMD } exec -T db mysqladmin ping -h localhost -u root -prootpassword`,
+					{
+						cwd: PERFORMANCE_DIR,
+						silent: true,
+					}
 				);
+				dbReady = true;
+				break;
+			} catch {
+				process.stdout.write( `  Attempt ${ i + 1 }/${ maxDbAttempts }...\r` );
 				await new Promise( resolve => setTimeout( resolve, 2000 ) );
 			}
-			if ( ! wpSetupReady ) {
-				console.error( '\n✗ WordPress instances did not become ready in time' );
-				process.exit( 1 );
-			}
-
-			console.log( '✓ Setup complete\n' );
 		}
+		if ( ! dbReady ) {
+			console.error( '\n✗ MySQL did not become ready in time' );
+			process.exit( 1 );
+		}
+		console.log( '✓ MySQL is ready                    ' );
+
+		// Run setup script (the wpcli container runs setup automatically)
+		console.log( 'Running WordPress setup...' );
+		exec( `${ DOCKER_COMPOSE_CMD } run --rm wpcli`, {
+			cwd: PERFORMANCE_DIR,
+		} );
+
+		// Poll for WordPress instances to be ready
+		// Timeout is configurable via WP_READY_TIMEOUT_SECONDS env var (default: 60s)
+		console.log( 'Verifying WordPress instances are ready...' );
+		const wpTimeoutSeconds = parseInt( process.env.WP_READY_TIMEOUT_SECONDS || '60', 10 );
+		const maxWpAttempts = Math.ceil( wpTimeoutSeconds / 2 ); // 2 second intervals
+		let wpSetupReady = false;
+		for ( let i = 0; i < maxWpAttempts; i++ ) {
+			wpSetupReady = await checkWordPressInstances();
+			if ( wpSetupReady ) {
+				break;
+			}
+			process.stdout.write( `  Waiting for WordPress... attempt ${ i + 1 }/${ maxWpAttempts }\r` );
+			await new Promise( resolve => setTimeout( resolve, 2000 ) );
+		}
+		if ( ! wpSetupReady ) {
+			console.error( '\n✗ WordPress instances did not become ready in time' );
+			process.exit( 1 );
+		}
+
+		console.log( '✓ Setup complete\n' );
 	}
 
 	// Set environment variables for the measurement script
