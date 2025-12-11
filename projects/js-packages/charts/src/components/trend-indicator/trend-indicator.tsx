@@ -2,6 +2,12 @@ import clsx from 'clsx';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
 
+const DIRECTION_LABELS: Record< TrendDirection, string > = {
+	up: 'Increase',
+	down: 'Decrease',
+	neutral: 'No change',
+};
+
 const Icon = ( { direction }: { direction: TrendDirection } ) => {
 	if ( direction === 'neutral' ) {
 		return null;
@@ -34,6 +40,8 @@ const Icon = ( { direction }: { direction: TrendDirection } ) => {
  * @return {JSX.Element} The rendered trend indicator
  */
 export function TrendIndicator( { direction, value, className, style }: TrendIndicatorProps ) {
+	const ariaLabel = `${ DIRECTION_LABELS[ direction ] }: ${ value }`;
+
 	return (
 		<span
 			className={ clsx(
@@ -42,6 +50,7 @@ export function TrendIndicator( { direction, value, className, style }: TrendInd
 				className
 			) }
 			style={ style }
+			aria-label={ ariaLabel }
 		>
 			<Icon direction={ direction } />
 			<span className={ styles[ 'trend-indicator__value' ] }>{ value }</span>
