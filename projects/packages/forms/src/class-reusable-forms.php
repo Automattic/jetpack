@@ -18,6 +18,8 @@ class Reusable_Forms {
 	public static function init() {
 		self::register_post_type();
 		add_filter( 'allowed_block_types_all', array( __CLASS__, 'allowed_blocks_for_jetpack_form' ), 10, 2 );
+		add_filter( 'block_editor_settings_all', array( __CLASS__, 'block_editor_settings_all' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -146,6 +148,47 @@ class Reusable_Forms {
 			'core/group',
 			'core/image',
 			'core/html',
+		);
+	}
+
+	/**
+	 * Modify block editor settings for jetpack-form posts.
+	 *
+	 * Disables the inserter in the top toolbar.
+	 *
+	 * @param array  $settings       Block editor settings.
+	 * @param object $editor_context The current editor context.
+	 * @return array Modified block editor settings for jetpack-form posts.
+	 */
+	public static function block_editor_settings_all( $settings, $editor_context ) {
+		// Only apply to jetpack-form post type.
+		if ( ! isset( $editor_context->post ) || 'jetpack-form' !== $editor_context->post->post_type ) {
+			return $settings;
+		}
+
+		// Disable the inserter in the top toolbar.
+		$settings['canLockBlocks'] = false;
+
+		return $settings;
+	}
+
+	/**
+	 * Enqueue admin scripts for jetpack-form post type.
+	 */
+	public static function enqueue_admin_scripts() {
+		$current_screen = get_current_screen();
+
+		// Only enqueue on the jetpack-form post type edit screen
+		if ( empty( $current_screen ) || 'jetpack-form' !== $current_screen->post_type ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'jetpack-form-admin',
+			plugin_dir_url( __FILE__ ) . '../dist/blocks/form/admin.js',
+			array(),
+			\JETPACK__VERSION,
+			true
 		);
 	}
 }
