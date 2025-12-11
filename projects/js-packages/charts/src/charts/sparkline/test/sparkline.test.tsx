@@ -6,18 +6,18 @@
 
 import { render, screen } from '@testing-library/react';
 import { Sparkline, SparklineUnresponsive } from '../';
-import { GlobalChartsProvider, jetpackTheme, wooTheme } from '../../../providers';
+import { GlobalChartsProvider, defaultTheme } from '../../../providers';
+import { customTheme } from '../../../stories/theme-config';
 
 const THEME_MAP = {
-	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
+	default: defaultTheme,
+	custom: customTheme,
 };
 
 describe( 'Sparkline', () => {
 	const defaultData = [ 10, 25, 15, 30, 22, 35 ];
 
-	const renderWithTheme = ( props = {}, themeName = 'jetpack' ) => {
+	const renderWithTheme = ( props = {}, themeName = 'default' ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -27,7 +27,7 @@ describe( 'Sparkline', () => {
 		);
 	};
 
-	const renderUnwrappedWithTheme = ( props = {}, themeName = 'jetpack' ) => {
+	const renderUnwrappedWithTheme = ( props = {}, themeName = 'default' ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -154,23 +154,23 @@ describe( 'Sparkline', () => {
 	} );
 
 	describe( 'Theme Integration', () => {
-		test( 'uses jetpack theme colors', () => {
-			const { container } = renderUnwrappedWithTheme( {}, 'jetpack' );
+		test( 'uses default theme colors', () => {
+			const { container } = renderUnwrappedWithTheme( {}, 'default' );
 			expect( screen.getByTestId( 'sparkline' ) ).toBeInTheDocument();
 			// Should render with theme color if no color prop provided
 			const path = container.querySelector( 'path[stroke]' );
 			expect( path ).toBeInTheDocument();
 		} );
 
-		test( 'uses woo theme colors', () => {
-			const { container } = renderUnwrappedWithTheme( {}, 'woo' );
+		test( 'uses custom theme colors', () => {
+			const { container } = renderUnwrappedWithTheme( {}, 'custom' );
 			expect( screen.getByTestId( 'sparkline' ) ).toBeInTheDocument();
 			const path = container.querySelector( 'path[stroke]' );
 			expect( path ).toBeInTheDocument();
 		} );
 
 		test( 'color prop overrides theme color', () => {
-			const { container } = renderUnwrappedWithTheme( { color: '#custom' }, 'jetpack' );
+			const { container } = renderUnwrappedWithTheme( { color: '#custom' }, 'default' );
 			const path = container.querySelector( 'path[stroke="#custom"]' );
 			expect( path ).toBeInTheDocument();
 		} );

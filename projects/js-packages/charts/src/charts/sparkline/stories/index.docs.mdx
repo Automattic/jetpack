@@ -202,9 +202,9 @@ Sparklines integrate with the global charts theme. When no color is specified, t
 
 <Source
 	language="jsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts/providers';
+	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-<GlobalChartsProvider theme={jetpackTheme}>
+<GlobalChartsProvider theme={customTheme}>
 	<Sparkline data={[10, 15, 12, 18]} />
 </GlobalChartsProvider>` }
 />

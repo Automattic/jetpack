@@ -173,9 +173,9 @@ The default `Sparkline` export includes responsive sizing:
 Sparklines use the global charts theme when available:
 
 ```typescript
-import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts/providers';
+import { GlobalChartsProvider } from '@automattic/charts';
 
-<GlobalChartsProvider theme={jetpackTheme}>
+<GlobalChartsProvider theme={customTheme}>
 	<Sparkline data={data} />
 </GlobalChartsProvider>
 ```
