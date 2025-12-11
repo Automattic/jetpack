@@ -25,34 +25,34 @@
 			"require": "./dist/index.cjs"
 		},
 		"./bar-chart": {
-			"jetpack:src": "./src/components/bar-chart/index.ts",
-			"import": "./dist/components/bar-chart/index.js",
-			"require": "./dist/components/bar-chart/index.cjs"
+			"jetpack:src": "./src/charts/bar-chart/index.ts",
+			"import": "./dist/charts/bar-chart/index.js",
+			"require": "./dist/charts/bar-chart/index.cjs"
 		},
-		"./bar-chart/style.css": "./dist/components/bar-chart/index.css",
+		"./bar-chart/style.css": "./dist/charts/bar-chart/index.css",
 		"./bar-list-chart": {
-			"jetpack:src": "./src/components/bar-list-chart/index.ts",
-			"import": "./dist/components/bar-list-chart/index.js",
-			"require": "./dist/components/bar-list-chart/index.cjs"
+			"jetpack:src": "./src/charts/bar-list-chart/index.ts",
+			"import": "./dist/charts/bar-list-chart/index.js",
+			"require": "./dist/charts/bar-list-chart/index.cjs"
 		},
-		"./bar-list-chart/style.css": "./dist/components/bar-list-chart/index.css",
+		"./bar-list-chart/style.css": "./dist/charts/bar-list-chart/index.css",
 		"./conversion-funnel-chart": {
-			"jetpack:src": "./src/components/conversion-funnel-chart/index.ts",
-			"import": "./dist/components/conversion-funnel-chart/index.js",
-			"require": "./dist/components/conversion-funnel-chart/index.cjs"
+			"jetpack:src": "./src/charts/conversion-funnel-chart/index.ts",
+			"import": "./dist/charts/conversion-funnel-chart/index.js",
+			"require": "./dist/charts/conversion-funnel-chart/index.cjs"
 		},
-		"./conversion-funnel-chart/style.css": "./dist/components/conversion-funnel-chart/index.css",
+		"./conversion-funnel-chart/style.css": "./dist/charts/conversion-funnel-chart/index.css",
 		"./hooks": {
 			"jetpack:src": "./src/hooks/index.ts",
 			"import": "./dist/hooks/index.js",
 			"require": "./dist/hooks/index.cjs"
 		},
 		"./leaderboard-chart": {
-			"jetpack:src": "./src/components/leaderboard-chart/index.ts",
-			"import": "./dist/components/leaderboard-chart/index.js",
-			"require": "./dist/components/leaderboard-chart/index.cjs"
+			"jetpack:src": "./src/charts/leaderboard-chart/index.ts",
+			"import": "./dist/charts/leaderboard-chart/index.js",
+			"require": "./dist/charts/leaderboard-chart/index.cjs"
 		},
-		"./leaderboard-chart/style.css": "./dist/components/leaderboard-chart/index.css",
+		"./leaderboard-chart/style.css": "./dist/charts/leaderboard-chart/index.css",
 		"./legend": {
 			"jetpack:src": "./src/components/legend/index.ts",
 			"import": "./dist/components/legend/index.js",
@@ -60,23 +60,23 @@
 		},
 		"./legend/style.css": "./dist/components/legend/index.css",
 		"./line-chart": {
-			"jetpack:src": "./src/components/line-chart/index.ts",
-			"import": "./dist/components/line-chart/index.js",
-			"require": "./dist/components/line-chart/index.cjs"
+			"jetpack:src": "./src/charts/line-chart/index.ts",
+			"import": "./dist/charts/line-chart/index.js",
+			"require": "./dist/charts/line-chart/index.cjs"
 		},
-		"./line-chart/style.css": "./dist/components/line-chart/index.css",
+		"./line-chart/style.css": "./dist/charts/line-chart/index.css",
 		"./pie-chart": {
-			"jetpack:src": "./src/components/pie-chart/index.ts",
-			"import": "./dist/components/pie-chart/index.js",
-			"require": "./dist/components/pie-chart/index.cjs"
+			"jetpack:src": "./src/charts/pie-chart/index.ts",
+			"import": "./dist/charts/pie-chart/index.js",
+			"require": "./dist/charts/pie-chart/index.cjs"
 		},
-		"./pie-chart/style.css": "./dist/components/pie-chart/index.css",
+		"./pie-chart/style.css": "./dist/charts/pie-chart/index.css",
 		"./pie-semi-circle-chart": {
-			"jetpack:src": "./src/components/pie-semi-circle-chart/index.ts",
-			"import": "./dist/components/pie-semi-circle-chart/index.js",
-			"require": "./dist/components/pie-semi-circle-chart/index.cjs"
+			"jetpack:src": "./src/charts/pie-semi-circle-chart/index.ts",
+			"import": "./dist/charts/pie-semi-circle-chart/index.js",
+			"require": "./dist/charts/pie-semi-circle-chart/index.cjs"
 		},
-		"./pie-semi-circle-chart/style.css": "./dist/components/pie-semi-circle-chart/index.css",
+		"./pie-semi-circle-chart/style.css": "./dist/charts/pie-semi-circle-chart/index.css",
 		"./providers": {
 			"jetpack:src": "./src/providers/index.ts",
 			"import": "./dist/providers/index.js",
@@ -118,25 +118,25 @@
 				"./dist/index.d.ts"
 			],
 			"line-chart": [
-				"./dist/components/line-chart/index.d.ts"
+				"./dist/charts/line-chart/index.d.ts"
 			],
 			"bar-chart": [
-				"./dist/components/bar-chart/index.d.ts"
+				"./dist/charts/bar-chart/index.d.ts"
 			],
 			"pie-chart": [
-				"./dist/components/pie-chart/index.d.ts"
+				"./dist/charts/pie-chart/index.d.ts"
 			],
 			"pie-semi-circle-chart": [
-				"./dist/components/pie-semi-circle-chart/index.d.ts"
+				"./dist/charts/pie-semi-circle-chart/index.d.ts"
 			],
 			"bar-list-chart": [
-				"./dist/components/bar-list-chart/index.d.ts"
+				"./dist/charts/bar-list-chart/index.d.ts"
 			],
 			"leaderboard-chart": [
-				"./dist/components/leaderboard-chart/index.d.ts"
+				"./dist/charts/leaderboard-chart/index.d.ts"
 			],
 			"conversion-funnel-chart": [
-				"./dist/components/conversion-funnel-chart/index.d.ts"
+				"./dist/charts/conversion-funnel-chart/index.d.ts"
 			],
 			"tooltip": [
 				"./dist/components/tooltip/index.d.ts"

@@ -12,7 +12,7 @@ All chart documentation should follow this standardized structure:
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
 import * as [FeatureName]Stories from './[feature-name].stories';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
 ```
 
 ### 2. Title & Introduction
@@ -61,7 +61,7 @@ Immediately after the overview, include a link to the separate API reference doc
 ```mdx
 ## API Reference
 
-For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
+For detailed information about component props, types, and method signatures, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
 ```
 
 #### Creating the Separate API Reference Document
@@ -71,7 +71,7 @@ The API reference should be created as a separate MDX document using the `featur
 ```mdx
 import { Meta } from '@storybook/addon-docs/blocks';
 
-<Meta title="JS Packages/Charts/[Category]/[Component]/[Feature]/API Reference" />
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]/API Reference" />
 
 # [Feature Name] API Reference
 
@@ -120,7 +120,7 @@ Description of simplest implementation:
 
 ### Optional Props
 
-For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-[category]-[component]-api-reference--docs).
+For detailed information about all optional props, see the [[Component] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-api-reference--docs).
 ```
 
 ### 6. Feature Variations
