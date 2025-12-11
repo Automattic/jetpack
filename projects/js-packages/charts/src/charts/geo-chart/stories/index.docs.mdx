@@ -5,13 +5,13 @@ import * as GeoChartStories from './index.stories';
 
 # Geo Chart
 
-Geo Charts visualize geographical data on an interactive world map using Mercator projection, making it easy to understand the distribution of values across countries.
+Geo Charts visualize geographical data on an interactive world map using Natural Earth projection, making it easy to understand the distribution of values across countries.
 
 <Canvas of={ GeoChartStories.Default } />
 
 ## Overview
 
-The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on `@visx/geo` with Mercator projection, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
+The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on `@visx/geo` with Natural Earth projection, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
 
 <Source
 	language="tsx"
@@ -65,8 +65,7 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 ### Optional Props
 
 - **`className`**: Additional CSS class name for custom styling
-- **`scale`**: Scale factor for the map projection. Defaults to `width / (2 * Math.PI)` to fit the map exactly within the chart bounds
-- **`center`**: Geographic center point as `[longitude, latitude]` for zooming into specific regions (e.g., `[-95, 40]` for USA, `[15, 50]` for Central Europe)
+- **`scale`**: Scale factor for the map projection. Defaults to `width / 5.5` to fit the map within the chart bounds
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 
@@ -159,39 +158,13 @@ Add custom styles using the `className` prop:
 
 ## Map Projection Details
 
-The Geo Chart uses Mercator projection with the following characteristics:
+The Geo Chart uses Natural Earth projection with the following characteristics:
 
-- **Projection**: Standard Mercator (equirectangular-like distortion)
-- **Center**: Can be customized via the `center` prop using `[longitude, latitude]` coordinates to zoom into specific regions
-- **Scale**: Automatically calculated as `width / (2 * Math.PI)` to fit the full 360° longitude span exactly within the chart bounds. Can be customized via the `scale` prop.
+- **Projection**: Natural Earth (pseudocylindrical projection with visually balanced proportions)
+- **Scale**: Automatically calculated as `width / 5.5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
 - **Graticule**: Hidden by default (grid lines set to transparent)
 
-This projection provides a familiar world map layout suitable for most geographical data visualization needs.
-
-### Zooming Into Regions
-
-Use `scale` and `center` together to focus on specific geographic areas:
-
-<Source
-	language="tsx"
-	code={ `// Zoom into Europe
-<GeoChart
-	data={ ordersByCountry }
-	width={ 800 }
-	height={ 500 }
-	scale={ 600 }
-	center={ [ 10, 50 ] } // [longitude, latitude]
-/>
-
-// Zoom into USA
-<GeoChart
-	data={ ordersByCountry }
-	width={ 800 }
-	height={ 500 }
-	scale={ 800 }
-	center={ [ -95, 40 ] }
-/>` }
-/>
+This projection provides a visually balanced world map layout suitable for most geographical data visualization needs, with less distortion at the poles compared to Mercator projection.
 
 ## Best Practices
 

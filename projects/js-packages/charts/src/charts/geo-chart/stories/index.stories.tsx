@@ -33,22 +33,6 @@ export const Default: Story = {
 	},
 };
 
-export const ZoomEurope: Story = {
-	args: {
-		...Default.args,
-		scale: 550,
-		center: [ 15, 50 ], // [longitude, latitude] - Central Europe
-	},
-};
-
-export const ZoomUSA: Story = {
-	args: {
-		...Default.args,
-		scale: 600,
-		center: [ -95, 40 ], // [longitude, latitude] - Central USA
-	},
-};
-
 export const SingleCountry: Story = {
 	args: {
 		...Default.args,

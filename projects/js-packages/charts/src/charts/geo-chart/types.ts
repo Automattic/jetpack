@@ -7,7 +7,6 @@ export interface GeoChartProps
 	 */
 	data: GeoData;
 	scale?: number;
-	center?: [ number, number ]; // [longitude, latitude] for geographic center point
 }
 
 export interface FeatureShape {

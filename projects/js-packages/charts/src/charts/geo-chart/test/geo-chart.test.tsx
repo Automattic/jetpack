@@ -107,13 +107,6 @@ describe( 'GeoChart', () => {
 			expect( svg ).toBeInTheDocument();
 		} );
 
-		test( 'applies custom center prop', () => {
-			renderWithTheme( { center: [ -95.7, 37.1 ] } );
-
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
-		} );
-
 		test( 'renders with different dimensions', () => {
 			renderWithTheme( { width: 1200, height: 600 } );
 

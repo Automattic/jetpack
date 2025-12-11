@@ -2,10 +2,11 @@
  * External dependencies
  */
 import { localPoint } from '@visx/event';
-import { Mercator, Graticule } from '@visx/geo';
+import { CustomProjection, Graticule } from '@visx/geo';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, TooltipWithBounds, defaultStyles } from '@visx/tooltip';
 import clsx from 'clsx';
+import { geoNaturalEarth1 } from 'd3-geo';
 import { FC, useCallback, useContext } from 'react';
 import * as topojson from 'topojson-client';
 /**
@@ -24,7 +25,7 @@ const world = topojson.feature( topology, topology.objects.units ) as {
 };
 
 /**
- * Renders a geographical chart using Mercator projection to visualize data by country.
+ * Renders a geographical chart using Natural Earth projection to visualize data by country.
  *
  * @param props           - The props for the GeoChart component
  * @param props.data      - Record mapping country IDs to numeric values
@@ -32,17 +33,9 @@ const world = topojson.feature( topology, topology.objects.units ) as {
  * @param props.height    - Height of the chart in pixels
  * @param props.className - Additional CSS class name for the chart container
  * @param props.scale     - Scale factor for the map projection (defaults to fit within bounds)
- * @param props.center    - Geographic center point as [longitude, latitude] for zooming into regions
  * @return A React component displaying an interactive world map with data visualization
  */
-const GeoChartInternal: FC< GeoChartProps > = ( {
-	className,
-	data,
-	width,
-	height,
-	scale,
-	center,
-} ) => {
+const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height, scale } ) => {
 	const {
 		getElementStyles,
 		theme: { geoChart, backgroundColor },
@@ -51,12 +44,11 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		useTooltip< TooltipData >();
 
 	// Default scale to fit the world map within the chart bounds
-	// Scale is calculated to fit the full 360° longitude span exactly
-	const mapScale = scale ?? width / ( 2 * Math.PI );
+	// Natural Earth projection uses a scale factor approximately 180/π for width
+	const mapScale = scale ?? width / 5.5;
 	// Translation to center the map in the chart
-	// Apply vertical offset only when no custom center is defined (for better default world map display)
 	const translateX = width / 2;
-	const translateY = height / 2 + ( center ? 0 : 50 );
+	const translateY = height / 2;
 
 	// Get the max order count to scale the colors
 	const maxOrderCount = Math.max( ...Object.values( data ), 1 );
@@ -96,17 +88,17 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		<div className={ clsx( 'geo-chart', styles.container, className ) }>
 			<svg width={ width } height={ height }>
 				<rect x={ 0 } y={ 0 } width={ width } height={ height } fill={ backgroundColor } />
-				<Mercator< FeatureShape >
+				<CustomProjection< FeatureShape >
 					data={ world.features }
+					projection={ geoNaturalEarth1 }
 					scale={ mapScale }
 					translate={ [ translateX, translateY ] }
-					center={ center }
 				>
-					{ mercator => (
+					{ projection => (
 						<g>
 							{ /* eslint-disable-next-line react/jsx-no-bind */ }
-							<Graticule graticule={ g => mercator.path( g ) || '' } stroke="transparent" />
-							{ mercator.features.map( ( { feature, path }, i ) => {
+							<Graticule graticule={ g => projection.path( g ) || '' } stroke="transparent" />
+							{ projection.features.map( ( { feature, path }, i ) => {
 								const orderCount = data[ feature.id ] || 0;
 								const fillColor =
 									orderCount > 0 ? colorScale( orderCount ) : geoChart.featureFillColor;
@@ -126,7 +118,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 							} ) }
 						</g>
 					) }
-				</Mercator>
+				</CustomProjection>
 			</svg>
 
 			{ tooltipOpen && tooltipData && (
