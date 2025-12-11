@@ -70,11 +70,14 @@ export type UnifiedModalState = {
 	isScreenLocked?: boolean;
 };
 
+export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
+
 export type SocialStoreState = {
 	connectionData: ConnectionData;
 	shareStatus?: ShareStatus;
 	sharePost?: SharePost;
 	unifiedModal?: UnifiedModalState;
+	renderCount?: RenderCount;
 };
 
 export interface KeyringAdditionalUser {

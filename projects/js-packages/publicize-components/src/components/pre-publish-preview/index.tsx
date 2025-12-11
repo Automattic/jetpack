@@ -1,4 +1,4 @@
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from 'react';
 import { useJetpackSocialPreferences } from '../../hooks/use-jetpack-social-preferences';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
@@ -15,9 +15,14 @@ export function PrePublishPreview() {
 	const { openUnifiedModal } = useDispatch( socialStore );
 	const { hasConnections } = useSocialMediaConnections();
 	const { showPrePublishConfirmation } = useJetpackSocialPreferences();
+	const socialPreviewRenderCount = useSelect( select =>
+		select( socialStore ).getRenderCountFor( 'social-preview' )
+	);
 
 	// We want to show the preview only
 	const showPreview =
+		// if social preview hasn't been shown yet,
+		socialPreviewRenderCount === 0 &&
 		// if auto-share is enabled for the post,
 		isPublicizeEnabled &&
 		// there are connections,
