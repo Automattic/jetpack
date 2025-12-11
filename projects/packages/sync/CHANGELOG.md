@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.24.0] - 2025-12-11
+### Deprecated
+- Jetpack Sync: Deprecate WooCommerce_Products module [#46222]
+
 ## [4.23.0] - 2025-12-08
 ### Changed
 - Jetpack Sync: Update Dedicated Sync locking logic for spawning requests. [#45813]
@@ -1600,6 +1604,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.24.0]: https://github.com/Automattic/jetpack-sync/compare/v4.23.0...v4.24.0
 [4.23.0]: https://github.com/Automattic/jetpack-sync/compare/v4.22.6...v4.23.0
 [4.22.6]: https://github.com/Automattic/jetpack-sync/compare/v4.22.5...v4.22.6
 [4.22.5]: https://github.com/Automattic/jetpack-sync/compare/v4.22.4...v4.22.5
