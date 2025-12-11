@@ -464,8 +464,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 	/**
 	 * Register the jetpack_form custom post type.
-	 *
-	 * @return array
 	 */
 	public static function register_post_type() {
 
@@ -522,14 +520,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'hierarchical'          => false,
 			'supports'              => array(
 				'title',
-				'excerpt',
 				'editor',
 				'revisions',
 				'author',
 			),
 		);
 
-		return \register_post_type( self::POST_TYPE, $args );
+		register_post_type( self::POST_TYPE, $args );
 	}
 
 	/**
