@@ -129,6 +129,13 @@ define( 'NONCE_SALT',       '$NONCE_SALT_SALT' );
 
 define( 'WP_DEBUG', false );
 
+// Auto-detect site URL from request (supports dynamic ports)
+if ( isset( \$_SERVER['HTTP_HOST'] ) ) {
+    \$protocol = ( ! empty( \$_SERVER['HTTPS'] ) && \$_SERVER['HTTPS'] !== 'off' ) ? 'https' : 'http';
+    define( 'WP_HOME', \$protocol . '://' . \$_SERVER['HTTP_HOST'] );
+    define( 'WP_SITEURL', \$protocol . '://' . \$_SERVER['HTTP_HOST'] );
+}
+
 $config_extra
 
 if ( ! defined( 'ABSPATH' ) ) {
