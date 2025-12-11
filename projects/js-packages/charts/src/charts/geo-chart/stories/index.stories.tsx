@@ -11,7 +11,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof GeoChart > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Types/Geo Chart',
+	title: 'JS Packages/Charts Library/Charts/Geo Chart',
 	component: GeoChart,
 	parameters: {
 		layout: 'centered',

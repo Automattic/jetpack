@@ -1,20 +1,18 @@
 // Charts
 export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
+export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
+export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
+export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
 export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
 export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie-semi-circle-chart';
-export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
-export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
-export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
-export { GeoChart, GeoChartUnresponsive } from './components/geo-chart';
-export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
-export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 
 // Compositions
 
@@ -34,6 +32,7 @@ export {
 export type * from './types';
 export type * from './visx/types';
 export type { PieChartProps } from './charts/pie-chart';
-export type { GeoChartProps } from './components/geo-chart';
-
+export type { GeoChartProps } from './charts/geo-chart';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
