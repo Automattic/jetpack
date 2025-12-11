@@ -1,4 +1,4 @@
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo, useState } from 'react';
 import useFeaturedImage from '../../../hooks/use-featured-image';
@@ -19,7 +19,6 @@ export function useModalScreen(): ScreenDetails {
 		select => select( socialStore ).isUnifiedModalScreenLocked(),
 		[]
 	);
-	const { closeUnifiedModal } = useDispatch( socialStore );
 
 	const featuredImageId = useFeaturedImage();
 	const { customText, imageType, imageId, template, font, defaultImageId, updateSettings } =
@@ -36,13 +35,12 @@ export function useModalScreen(): ScreenDetails {
 	const handleSave = useCallback( () => {
 		updateSettings( {
 			image_type: localState.imageType,
-			image_id: localState.imageId,
+			image_id: localState.imageId ?? undefined,
 			custom_text: localState.customText,
 			template: localState.template,
 			font: localState.font,
 		} );
-		closeUnifiedModal();
-	}, [ localState, updateSettings, closeUnifiedModal ] );
+	}, [ localState, updateSettings ] );
 
 	return useMemo(
 		() => ( {

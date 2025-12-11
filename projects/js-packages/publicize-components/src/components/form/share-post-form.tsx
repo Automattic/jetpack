@@ -1,7 +1,11 @@
 import { siteHasFeature } from '@automattic/jetpack-script-data';
+import { useNavigator } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useCallback, type FC } from 'react';
 import { usePostCanUseSig } from '../../hooks/use-post-can-use-sig';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { store as socialStore } from '../../social-store';
 import { features } from '../../utils/constants';
 import { useIsSocialNote } from '../../utils/use-is-social-note';
 import MediaSection from '../media-section';
@@ -9,7 +13,6 @@ import MediaSectionV2 from '../media-section-v2';
 import MessageBoxControl from '../message-box-control';
 import SocialImageGeneratorPanel from '../social-image-generator/panel';
 import styles from './styles.module.scss';
-import type { FC } from 'react';
 
 type SharePostFormProps = {
 	/** Data for tracking analytics */
@@ -17,18 +20,40 @@ type SharePostFormProps = {
 		/** The location of the analytics event */
 		location: string;
 	};
+	/**
+	 * Whether the form is rendered inside a NavigatorModal.
+	 * This enables navigation for certain components within the form.
+	 */
+	isInsideNavigatorModal?: boolean;
 };
 
 /**
  * The SharePostForm component.
- * @param {object} props                 - The component props.
- * @param {object} [props.analyticsData] - Data for tracking analytics.
- * @return {object} The SharePostForm component.
+ * @param {SharePostFormProps} props - The component props.
+ *
+ * @return The SharePostForm component.
  */
-export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null } ) => {
+export const SharePostForm: FC< SharePostFormProps > = ( {
+	analyticsData = null,
+	isInsideNavigatorModal,
+} ) => {
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const isSocialNote = useIsSocialNote();
 	const postCanUseSig = usePostCanUseSig();
+
+	const { openUnifiedModal } = useDispatch( socialStore );
+
+	const navigator = useNavigator();
+
+	const onEditTemplate = useCallback( () => {
+		// If inside NavigatorModal, navigate to edit-template route
+		if ( isInsideNavigatorModal ) {
+			navigator.goTo( '/edit-template' );
+		} else {
+			// Otherwise, open the unified modal for editing template
+			openUnifiedModal( { initialPath: '/edit-template', isScreenLocked: true } );
+		}
+	}, [ openUnifiedModal, isInsideNavigatorModal, navigator ] );
 
 	return (
 		<>
@@ -43,7 +68,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( { analyticsData = null 
 			) }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? (
 				<div className={ styles[ 'share-post-form__media-section' ] }>
-					<MediaSectionV2 analyticsData={ analyticsData } />
+					<MediaSectionV2 analyticsData={ analyticsData } onEditTemplate={ onEditTemplate } />
 				</div>
 			) : (
 				<>

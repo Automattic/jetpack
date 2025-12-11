@@ -7,7 +7,6 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -16,12 +15,11 @@ import useMediaDetails from '../../hooks/use-media-details';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import { usePostMeta } from '../../hooks/use-post-meta';
 import useSigPreview from '../../hooks/use-sig-preview';
-import { store as socialStore } from '../../social-store';
 import CustomMediaToggle from './custom-media-toggle';
 import MediaPreview from './media-preview';
 import MediaSourceMenu from './media-source-menu';
 import styles from './styles.module.scss';
-import { MediaSourceType, MediaSectionV2Props, MediaPreviewData, WPMediaObject } from './types';
+import { MediaPreviewData, MediaSectionV2Props, MediaSourceType, WPMediaObject } from './types';
 import { detectMediaSource } from './utils/detect-media-source';
 import { getMediaSourceDescription } from './utils/media-source-options';
 
@@ -34,24 +32,19 @@ import { getMediaSourceDescription } from './utils/media-source-options';
 export default function MediaSectionV2( {
 	analyticsData = {},
 	disabled = false,
+	onEditTemplate,
 }: MediaSectionV2Props ) {
 	const { recordEvent } = useAnalytics();
 	const featuredImageId = useFeaturedImage();
 	const { isEnabled: sigEnabled } = useImageGeneratorConfig();
 	const { attachedMedia, imageGeneratorSettings, mediaSource, updateJetpackSocialOptions } =
 		usePostMeta();
-	const { openUnifiedModal } = useDispatch( socialStore );
 
 	// Get SIG preview URL when SIG is enabled
 	const { url: sigPreviewUrl, isLoading: sigIsLoading } = useSigPreview( sigEnabled );
 
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
-
-	// Open edit template modal
-	const handleEditTemplateClick = useCallback( () => {
-		openUnifiedModal( { initialPath: '/edit-template', isScreenLocked: true } );
-	}, [ openUnifiedModal ] );
 
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
@@ -259,7 +252,7 @@ export default function MediaSectionV2( {
 								<Button
 									className={ styles.selectButton }
 									variant="secondary"
-									onClick={ handleEditTemplateClick }
+									onClick={ onEditTemplate }
 									disabled={ disabled }
 								>
 									{ __( 'Edit template', 'jetpack-publicize-components' ) }
