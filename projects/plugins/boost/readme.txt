@@ -183,16 +183,13 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.3 - 2025-11-27
-#### Added
-- Compatibility: Add compatibility with divi builder and Deferred JS.
-- General: Add a daily cleanup of expired transients.
-
+### 4.5.4-beta - 2025-12-11
 #### Changed
+- Image CDN: cache image quality settings per format to reduce repeated processing.
 - Update package dependencies.
 
 #### Fixed
-- My Jetpack: Fix expiring renewal prompt to show all products
+- Ensure proper flags are used with `json_encode()`.
 
 --------
 

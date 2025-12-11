@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-licensing",
-	"version": "1.2.18",
+	"version": "1.2.19",
 	"private": true,
 	"description": "Jetpack licensing flow",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/licensing/#readme",
