@@ -357,6 +357,22 @@ class Contact_Form_Plugin {
 				4
 			);
 		}
+
+		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
+			Jetpack_Form::register();
+		}
+	}
+
+	/**
+	 * Check if a feature flag is enabled.
+	 *
+	 * @param string $flag The feature flag to check.
+	 * @return bool
+	 */
+	public static function has_editor_feature_flag( $flag ) {
+		/** This filter is documented in jetpack/class.jetpack-gutenberg.php. */
+		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
+		return ! empty( $feature_flags[ $flag ] );
 	}
 
 	/**
