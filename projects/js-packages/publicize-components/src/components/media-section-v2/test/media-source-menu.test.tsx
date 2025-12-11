@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import MediaSourceMenu, { getMediaSourceDescription } from '../media-source-menu';
+import MediaSourceMenu from '../media-source-menu';
+import { getMediaSourceDescription } from '../utils/media-source-options';
 
 describe( 'getMediaSourceDescription', () => {
 	it( 'should return default message when sourceType is null', () => {
@@ -9,12 +10,12 @@ describe( 'getMediaSourceDescription', () => {
 
 	it( 'should return featured image description', () => {
 		expect( getMediaSourceDescription( 'featured-image' ) ).toBe(
-			'You are using your post featured image'
+			'You are using your post featured image.'
 		);
 	} );
 
 	it( 'should return SIG description', () => {
-		expect( getMediaSourceDescription( 'sig' ) ).toBe( 'You are using the template' );
+		expect( getMediaSourceDescription( 'sig' ) ).toBe( 'You are using the template.' );
 	} );
 
 	it( 'should return media library description', () => {
@@ -22,7 +23,7 @@ describe( 'getMediaSourceDescription', () => {
 	} );
 
 	it( 'should return upload video description', () => {
-		expect( getMediaSourceDescription( 'upload-video' ) ).toBe( 'Upload a video file' );
+		expect( getMediaSourceDescription( 'upload-video' ) ).toBe( 'Upload a video file.' );
 	} );
 } );
 
