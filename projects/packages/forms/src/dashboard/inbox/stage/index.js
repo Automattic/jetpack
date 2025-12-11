@@ -101,6 +101,8 @@ export default function InboxView() {
 	const isMobileViewport = useViewportMatch( 'medium', '<' );
 	const [ isResponseModalOpen, setIsResponseModalOpen ] = useState( false );
 	const [ responseModal, setResponseModal ] = useState( null );
+	const [ sidePanelItem, setSidePanelItem ] = useState();
+	const [ response, setResponse ] = useState();
 
 	const closeResponseModal = useCallback( () => {
 		setIsResponseModalOpen( false );
@@ -140,6 +142,7 @@ export default function InboxView() {
 		totalItems,
 		totalPages,
 	} = useInboxData();
+
 	const isAkismetStatusPending = useSelect(
 		select => {
 			const store = select( INTEGRATIONS_STORE );
@@ -203,10 +206,9 @@ export default function InboxView() {
 		setSelectedResponses( validSelectedIds );
 	}, [ records, selection, setSelectedResponses ] );
 
-	const onChangeSelection = useCallback(
+	// Update URL param `r` with items
+	const updateSearchParam = useCallback(
 		items => {
-			// Update URL params with selected items
-			// The useEffect above will handle updating the sidebar
 			setSearchParams( previousSearchParams => {
 				const _searchParams = new URLSearchParams( previousSearchParams );
 				if ( items.length ) {
@@ -220,10 +222,44 @@ export default function InboxView() {
 		[ setSearchParams ]
 	);
 
-	const [ sidePanelItem, setSidePanelItem ] = useState();
+	// Selecting multiple responses
+	const onChangeSelection = useCallback(
+		items => {
+			// Update `r` URL param with selected items
+			updateSearchParam( items );
+		},
+		[ updateSearchParam ]
+	);
+
+	// Opening individual responses
+	const onSelectItem = useCallback(
+		( { id } ) => {
+			// eslint-disable-next-line no-console
+			console.log( '🍅 onSelectItem', id );
+
+			// Update `r` URL param with opened response
+			updateSearchParam( [ id ] );
+
+			// Single item selected - find it in records
+			const recordToShow = records.find( record => getItemId( record ) === id );
+
+			if ( ! recordToShow ) {
+				// Selected item not in current records - clear sidebar
+				setResponse( null );
+				return;
+			}
+
+			// Update selected response if item changed or needs refresh
+			if ( ! response || getItemId( response ) !== getItemId( recordToShow ) ) {
+				setResponse( recordToShow );
+			}
+		},
+		[ updateSearchParam, records, response, setResponse ]
+	);
 
 	// Manage sidebar visibility based on selection
 	// Only show sidebar when exactly one item is selected on desktop
+	/*
 	useEffect( () => {
 		if ( isMobileViewport ) {
 			// Don't manage sidebar on mobile
@@ -251,6 +287,7 @@ export default function InboxView() {
 			setSidePanelItem( recordToShow );
 		}
 	}, [ isMobileViewport, records, selection, sidePanelItem ] );
+	*/
 
 	const paginationInfo = useMemo(
 		() => ( { totalItems, totalPages } ),
@@ -419,6 +456,7 @@ export default function InboxView() {
 	);
 
 	const actions = useMemo( () => {
+		/*
 		const mobileViewAction = {
 			...viewAction,
 			RenderModal: ( { items, closeModal } ) => {
@@ -433,6 +471,7 @@ export default function InboxView() {
 			},
 			hideModalHeader: true,
 		};
+		*/
 
 		const desktopViewAction = {
 			...viewAction,
@@ -445,14 +484,14 @@ export default function InboxView() {
 				const [ item ] = items;
 				const selectedId = item.id.toString();
 
-				// Select only this item to show it in the sidebar
-				onChangeSelection( [ selectedId ] );
+				// Set item as selected response
+				onSelectItem( selectedId );
 			},
 		};
 
-		const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
+		// const viewResponseAction = isMobileViewport ? mobileViewAction : desktopViewAction;
 
-		const primaryActions = [ viewResponseAction ];
+		const primaryActions = [ desktopViewAction ];
 		const secondaryActions = [ markAsUnreadAction, editFormAction ];
 
 		switch ( statusFilter ) {
@@ -508,7 +547,12 @@ export default function InboxView() {
 					{ __( 'Forms', 'jetpack-forms' ) }
 				</div>
 			}
-			subTitle={ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }
+			subTitle={
+				<>
+					{ __( 'View and manage all your form submissions in one place.', 'jetpack-forms' ) }{ ' ' }
+					{ response?.id || 'no response selected' }
+				</>
+			}
 			actions={ headerActions }
 			hasPadding={ false }
 		>
@@ -522,6 +566,7 @@ export default function InboxView() {
 				onChangeView={ setView }
 				selection={ selection }
 				onChangeSelection={ onChangeSelection }
+				onClickItem={ onSelectItem }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				empty={
@@ -562,7 +607,7 @@ export default function InboxView() {
 			<div ref={ containerRef } className="jp-forms-layout__surface is-stage">
 				{ pageContent }
 			</div>
-			{ isResponseModalOpen && (
+			{ response && isMobileViewport && (
 				<Modal
 					title={ __( 'Response', 'jetpack-forms' ) }
 					__experimentalHideHeader={ true }
@@ -571,7 +616,7 @@ export default function InboxView() {
 					{ responseModal }
 				</Modal>
 			) }
-			{ selection.length === 1 && sidePanelItem && ! isMobileViewport && (
+			{ response && ! isMobileViewport && (
 				<div className="jp-forms-layout__surface is-inspector">
 					<SingleResponseView
 						sidePanelItem={ sidePanelItem }
