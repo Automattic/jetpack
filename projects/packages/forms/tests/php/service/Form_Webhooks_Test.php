@@ -708,51 +708,70 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Helper method to create a mock form.
+	 * Helper method to create a test form object.
 	 *
 	 * @param array $attributes Form attributes.
-	 * @return Contact_Form Mock form instance.
+	 * @return Contact_Form Test form instance with required properties.
 	 */
 	private function create_mock_form( $attributes ) {
-		$form = $this->getMockBuilder( Contact_Form::class )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$form->attributes = $attributes;
-		$form->fields     = array();
-
-		return $form;
+		return new class( $attributes ) extends Contact_Form {
+			/**
+			 * Constructor.
+			 *
+			 * @param array $attributes Form attributes.
+			 */
+			public function __construct( $attributes ) {
+				// Don't call parent constructor - just set properties directly
+				$this->attributes = $attributes;
+				$this->fields     = array();
+			}
+		};
 	}
 
 	/**
-	 * Helper method to create a mock field.
+	 * Helper method to create a test field object.
 	 *
 	 * @param Contact_Form $form Parent form.
 	 * @param string       $id Field ID.
 	 * @param mixed        $value Field value.
-	 * @return Contact_Form_Field Mock field instance.
+	 * @return Contact_Form_Field Test field instance with required properties and methods.
 	 */
 	private function create_mock_field( $form, $id, $value ) {
-		$field = $this->getMockBuilder( Contact_Form_Field::class )
-			->disableOriginalConstructor()
-			->onlyMethods( array( 'get_attribute' ) )
-			->getMock();
+		return new class( $form, $id, $value ) extends Contact_Form_Field {
+			/**
+			 * Field ID.
+			 *
+			 * @var string
+			 */
+			private $id;
 
-		$field->form  = $form;
-		$field->value = $value;
+			/**
+			 * Constructor.
+			 *
+			 * @param Contact_Form $form Parent form.
+			 * @param string       $id Field ID.
+			 * @param mixed        $value Field value.
+			 */
+			public function __construct( $form, $id, $value ) {
+				// Don't call parent constructor - just set properties directly
+				$this->form  = $form;
+				$this->id    = $id;
+				$this->value = $value;
+			}
 
-		$field->expects( $this->any() )
-			->method( 'get_attribute' )
-			->willReturnCallback(
-				function ( $attr ) use ( $id ) {
-					if ( $attr === 'id' ) {
-						return $id;
-					}
-					return null;
+			/**
+			 * Get field attribute.
+			 *
+			 * @param string $attr Attribute name.
+			 * @return mixed Attribute value or null.
+			 */
+			public function get_attribute( $attr ) {
+				if ( $attr === 'id' ) {
+					return $this->id;
 				}
-			);
-
-		return $field;
+				return null;
+			}
+		};
 	}
 
 	/**

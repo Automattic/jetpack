@@ -1,7 +1,7 @@
 import { GlyphDiamond, GlyphStar } from '@visx/glyph';
 import merge from 'deepmerge';
 import { createElement } from 'react';
-import { jetpackTheme } from '../../../providers';
+import { defaultTheme } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -20,7 +20,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 /**
  * Custom storybook theme with glyphs
  */
-export const glyphTheme = merge( jetpackTheme, {
+export const glyphTheme = merge( defaultTheme, {
 	glyphs: [
 		props => createElement( DefaultGlyph, { ...props, key: props.key } ),
 		props =>

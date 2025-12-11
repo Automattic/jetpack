@@ -134,6 +134,11 @@ if ( ! function_exists( '_manually_load_plugin' ) ) {
 	function _manually_load_plugin() {
 		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
+
+			// Action Scheduler is needed early on since 10.4.0.
+			$as_file = JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/action-scheduler.php';
+			require_once JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+			ActionScheduler::init( $as_file );
 		}
 
 		require __DIR__ . '/../../jetpack.php';
