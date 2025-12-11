@@ -1,8 +1,8 @@
 import { useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
+import { useJetpackSocialPreferences } from '../../hooks/use-jetpack-social-preferences';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { useJetpackSocialSettings } from '../../hooks/use-user-jetpack-social-settings';
 import { store as socialStore } from '../../social-store';
 
 /**
@@ -11,10 +11,10 @@ import { store as socialStore } from '../../social-store';
  * @return null
  */
 export function PrePublishPreview() {
-	const { settings } = useJetpackSocialSettings();
 	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { openUnifiedModal } = useDispatch( socialStore );
 	const { hasConnections } = useSocialMediaConnections();
+	const { showPrePublishConfirmation } = useJetpackSocialPreferences();
 
 	// We want to show the preview only
 	const showPreview =
@@ -23,7 +23,7 @@ export function PrePublishPreview() {
 		// there are connections,
 		hasConnections &&
 		// and the user hasn't opted out of the pre-publish confirmation.
-		settings.pre_publish_confirmation === 'show';
+		showPrePublishConfirmation;
 
 	useEffect( () => {
 		if ( showPreview ) {

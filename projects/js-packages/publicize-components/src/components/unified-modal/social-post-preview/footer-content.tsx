@@ -12,13 +12,13 @@ import { ConfirmationConfig } from './confirmation-config';
 export function FooterContent() {
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const isPublishSidebarOpened = useSelect(
-		select => select( editorStore ).isPublishSidebarOpened(),
-		[]
-	);
+	const isPrePublishSidebarOpen = useSelect( select => {
+		const store = select( editorStore );
+		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
+	}, [] );
 
-	// If the publish sidebar is opened, show the confirmation config.
-	if ( isPublishSidebarOpened ) {
+	// If the pre-publish sidebar is opened, show the confirmation config.
+	if ( isPrePublishSidebarOpen ) {
 		return <ConfirmationConfig />;
 	}
 
