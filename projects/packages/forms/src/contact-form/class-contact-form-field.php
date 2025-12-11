@@ -1753,7 +1753,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<label {$option_styles} class='{$option_classes}' for='" . esc_attr( $checkbox_id ) . "'>";
+					$field .= "<label {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								type='checkbox'
@@ -1785,7 +1785,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					}
 					$used_html_ids[ $checkbox_id ] = true;
 
-					$field .= "<label class='contact-form-field' for='" . esc_attr( $checkbox_id ) . "'>";
+					$field .= "<label class='contact-form-field'>";
 					$field .= "<input
 								id='" . esc_attr( $checkbox_id ) . "'
 								data-wp-on--change='actions.onMultipleFieldChange'
