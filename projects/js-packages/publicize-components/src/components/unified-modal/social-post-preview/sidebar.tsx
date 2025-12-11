@@ -42,7 +42,7 @@ export function Sidebar( {
 						<MediaValidationNotices />
 					</div>
 					<div className={ styles[ 'customization-form' ] }>
-						<SharePostForm analyticsData={ { location: 'preview-modal' } } />
+						<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
 					</div>
 				</>
 			) }
