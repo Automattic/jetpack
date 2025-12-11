@@ -1,12 +1,24 @@
 import { TextControl, ToggleControl, ExternalLink } from '@wordpress/components';
-import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
+import { useState, useEffect, useCallback, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-const WebhooksSettings = ( { setAttributes, webhooks } ) => {
+const WebhooksSettings = ( { setAttributes, webhooks, clientId } ) => {
 	// For now, we only support one webhook, but the data structure supports multiple
 	const firstWebhook = webhooks?.[ 0 ] || null;
 
-	const [ localWebhookId, setLocalWebhookId ] = useState( firstWebhook?.webhook_id || '' );
+	// Generate a unique webhook ID based on clientId
+	const generateWebhookId = useCallback(
+		( index = 1 ) => {
+			// Use a shortened version of clientId (first 8 chars) for readability
+			const shortId = clientId?.substring( 0, 8 ) || 'unknown';
+			return `webhook-${ shortId }-${ index }`;
+		},
+		[ clientId ]
+	);
+
+	const [ localWebhookId, setLocalWebhookId ] = useState(
+		firstWebhook?.webhook_id || generateWebhookId( 1 )
+	);
 	const [ localWebhookUrl, setLocalWebhookUrl ] = useState( firstWebhook?.url || '' );
 	const [ localWebhookEnabled, setLocalWebhookEnabled ] = useState(
 		firstWebhook?.enabled || false
@@ -15,11 +27,11 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 	// Sync local state with attributes when webhook changes
 	useEffect( () => {
 		if ( firstWebhook ) {
-			setLocalWebhookId( firstWebhook.webhook_id || '' );
+			setLocalWebhookId( firstWebhook.webhook_id || generateWebhookId( 1 ) );
 			setLocalWebhookUrl( firstWebhook.url || '' );
 			setLocalWebhookEnabled( firstWebhook.enabled || false );
 		}
-	}, [ firstWebhook ] );
+	}, [ firstWebhook, generateWebhookId ] );
 
 	const updateWebhook = ( id, url, enabled ) => {
 		if ( ! url && ! enabled ) {
@@ -57,24 +69,15 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 				checked={ localWebhookEnabled }
 				onChange={ value => {
 					setLocalWebhookEnabled( value );
-					updateWebhook( localWebhookId, localWebhookUrl, value );
+					// Auto-generate webhook ID when enabling if it doesn't exist
+					const webhookId = localWebhookId || generateWebhookId( webhooks?.length + 1 || 1 );
+					setLocalWebhookId( webhookId );
+					updateWebhook( webhookId, localWebhookUrl, value );
 				} }
 				__nextHasNoMarginBottom={ true }
 			/>
 			{ localWebhookEnabled && (
 				<>
-					<TextControl
-						label={ __( 'Webhook ID', 'jetpack-forms' ) }
-						value={ localWebhookId }
-						onChange={ value => {
-							setLocalWebhookId( value );
-							updateWebhook( value, localWebhookUrl, localWebhookEnabled );
-						} }
-						placeholder="webhook-1"
-						help={ __( 'A unique identifier for this webhook.', 'jetpack-forms' ) }
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-					/>
 					<TextControl
 						label={ __( 'Webhook URL', 'jetpack-forms' ) }
 						value={ localWebhookUrl }
@@ -88,6 +91,20 @@ const WebhooksSettings = ( { setAttributes, webhooks } ) => {
 							'jetpack-forms'
 						) }
 						type="url"
+						__nextHasNoMarginBottom={ true }
+						__next40pxDefaultSize={ true }
+					/>
+					<TextControl
+						label={ __( 'Webhook ID', 'jetpack-forms' ) }
+						value={ localWebhookId }
+						onChange={ value => {
+							setLocalWebhookId( value );
+							updateWebhook( value, localWebhookUrl, localWebhookEnabled );
+						} }
+						help={ __(
+							'Auto-generated unique identifier. You can customize it if needed.',
+							'jetpack-forms'
+						) }
 						__nextHasNoMarginBottom={ true }
 						__next40pxDefaultSize={ true }
 					/>
