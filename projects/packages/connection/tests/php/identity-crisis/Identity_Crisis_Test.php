@@ -1279,16 +1279,14 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
 		// Mock a network error response.
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_failed', 'Network error' );
-			}
-		);
+		$mock_callback = function () {
+			return new \WP_Error( 'http_request_failed', 'Network error' );
+		};
+		add_filter( 'pre_http_request', $mock_callback );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
-		remove_filter( 'pre_http_request', '__return_true' );
+		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		Jetpack_Options::delete_option( 'id' );
@@ -1308,19 +1306,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
 		// Mock a 500 error response.
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Internal server error',
-				);
-			}
-		);
+		$mock_callback = function () {
+			return array(
+				'response' => array( 'code' => 500 ),
+				'body'     => 'Internal server error',
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
-		remove_filter( 'pre_http_request', '__return_true' );
+		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		Jetpack_Options::delete_option( 'id' );
@@ -1340,19 +1336,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
 		// Mock a successful response with no IDC detected.
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode( array( 'ID' => 12345 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-				);
-			}
-		);
+		$mock_callback = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'ID' => 12345 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
-		remove_filter( 'pre_http_request', '__return_true' );
+		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		Jetpack_Options::delete_option( 'id' );
@@ -1373,28 +1367,26 @@ class Identity_Crisis_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
 
 		// Mock a response with IDC still detected.
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode(
-						array(
-							'idc_detected' => array(
-								'error_code'    => 'jetpack_url_mismatch',
-								'wpcom_home'    => 'example.com/',
-								'wpcom_siteurl' => 'example.com/',
-							),
+		$mock_callback = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'idc_detected' => array(
+							'error_code'    => 'jetpack_url_mismatch',
+							'wpcom_home'    => 'example.com/',
+							'wpcom_siteurl' => 'example.com/',
 						),
-						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					),
-				);
-			}
-		);
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+				),
+			);
+		};
+		add_filter( 'pre_http_request', $mock_callback );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
-		remove_filter( 'pre_http_request', '__return_true' );
+		remove_filter( 'pre_http_request', $mock_callback );
 		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
 
 		Jetpack_Options::delete_option( 'id' );
