@@ -248,6 +248,7 @@ abstract class Publicize_Base {
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+		add_action( 'init', array( $this, 'register_user_meta' ), 20 );
 
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
@@ -1094,6 +1095,40 @@ abstract class Publicize_Base {
 	 */
 	public function message_meta_auth_callback( $object_id ) {
 		return $this->current_user_can_access_publicize_data( $object_id );
+	}
+
+	/**
+	 * Registers the user meta for use in the REST API.
+	 */
+	public function register_user_meta() {
+		register_meta(
+			'user',
+			'jetpack_social',
+			array(
+				'type'          => 'object',
+				'description'   => __( 'User configuration for Jetpack Social.', 'jetpack-publicize-pkg' ),
+				'single'        => true,
+				'default'       => array(
+					'pre_publish_confirmation' => 'show',
+				),
+				'show_in_rest'  => array(
+					'schema' => array(
+						'type'                 => 'object',
+						'properties'           => array(
+							'pre_publish_confirmation' => array(
+								'type'    => 'string',
+								'enum'    => array( 'show', 'hide' ),
+								'default' => 'show',
+							),
+						),
+						'additionalProperties' => false,
+					),
+				),
+				'auth_callback' => function ( $allowed, $meta_key, $object_id ) {
+					return current_user_can( 'edit_user', $object_id );
+				},
+			)
+		);
 	}
 
 	/**
