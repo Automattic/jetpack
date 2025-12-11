@@ -320,9 +320,9 @@ class Holiday_Snow {
 	 */
 	public static function register_settings() {
 		foreach ( self::$holiday_snow_config as $option_name => $option_config ) {
-			if ( $option_config['type'] === 'boolean' ) {
+			if ( 'boolean' === $option_config['type'] ) {
 				$sanitize_callback = 'boolval';
-			} elseif ( $option_config['type'] === 'integer' ) {
+			} elseif ( 'integer' === $option_config['type'] ) {
 				$sanitize_callback = function ( $value ) use ( $option_config ) {
 					return self::sanitize_option_within_int_range( $value, $option_config );
 				};
@@ -352,14 +352,14 @@ class Holiday_Snow {
 				esc_attr( $option_config['label'] ),
 				function () use ( $option_name, $option_config ) {
 					$value = get_option( $option_name, $option_config['default'] );
-					if ( $option_config['type'] === 'boolean' ) {
+					if ( 'boolean' === $option_config['type'] ) {
 						printf(
 							'<input type="checkbox" name="%1$s" id="%1$s" value="1" %2$s /><label for="%1$s">%3$s</label>',
 							esc_attr( $option_name ),
 							checked( $value, true, false ),
 							esc_html( $option_config['description'] )
 						);
-					} elseif ( $option_config['type'] === 'integer' ) {
+					} elseif ( 'integer' === $option_config['type'] ) {
 						printf(
 							'<input type="number" name="%1$s" id="%1$s" value="%2$d" min="%3$d" max="%4$d" step="%5$d" />',
 							esc_attr( $option_name ),
@@ -407,9 +407,9 @@ class Holiday_Snow {
 	 * @return bool|int|null Sanitized value, or null if an unknown type.
 	 */
 	public static function sanitize_option( $value, $config ) {
-		if ( $config['type'] === 'boolean' ) {
+		if ( 'boolean' === $config['type'] ) {
 			return (bool) $value;
-		} elseif ( $config['type'] === 'integer' ) {
+		} elseif ( 'integer' === $config['type'] ) {
 			return self::sanitize_option_within_int_range( $value, $config );
 		}
 		// this shouldn't ever happen, but just in case...
