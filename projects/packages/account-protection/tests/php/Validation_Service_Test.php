@@ -23,16 +23,12 @@ class Validation_Service_Test extends BaseTestCase {
 	}
 
 	private function get_connection_manager() {
-		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->disableOriginalConstructor()
-			->getMock();
-
+		$connection = $this->createStub( 'Automattic\Jetpack\Connection\Manager' );
 		return $connection;
 	}
 
 	private function get_connected_connection_manager() {
-		$connection = $this->get_connection_manager();
-
+		$connection = $this->createMock( 'Automattic\Jetpack\Connection\Manager' );
 		$connection->expects( $this->once() )
 			->method( 'is_connected' )
 			->willReturn( true );

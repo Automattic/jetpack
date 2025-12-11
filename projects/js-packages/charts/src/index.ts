@@ -25,8 +25,6 @@ export {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 	defaultTheme,
-	jetpackTheme,
-	wooTheme,
 } from './providers';
 
 // Types

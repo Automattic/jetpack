@@ -5,9 +5,9 @@
 
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getAttachmentDescription } from './media-source-menu';
 import styles from './styles.module.scss';
 import { MediaSourceType } from './types';
+import { getAttachmentDescription } from './utils/media-source-options';
 
 interface CustomMediaToggleProps {
 	/**

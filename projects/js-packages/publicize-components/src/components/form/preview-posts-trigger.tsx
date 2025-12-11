@@ -49,7 +49,7 @@ export function PreviewPostsTrigger() {
 						'The button label for the modal trigger',
 						'jetpack-publicize-components'
 				  )
-				: __( 'Preview posts', 'jetpack-publicize-components' ) }
+				: __( 'Preview and customize', 'jetpack-publicize-components' ) }
 		</Button>
 	);
 }

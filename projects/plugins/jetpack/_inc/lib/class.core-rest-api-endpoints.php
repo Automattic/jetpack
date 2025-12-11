@@ -1532,7 +1532,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'timestamp'  => (int) $_GET['timestamp'],
 				'url'        => esc_url_raw( wp_unslash( $_GET['url'] ) ),
 			),
-			0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+			0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 		);
 
 		if (

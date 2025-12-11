@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -15,6 +16,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Sync\Modules\Module
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[CoversClass( Modules\Module::class )]
 class Module_Test extends BaseTestCase {
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+General: Replace uses of confusing `esc_js()` function with clearer code.

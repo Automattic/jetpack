@@ -1,0 +1,4 @@
+Significance: major
+Type: bugfix
+
+Forms: Removes the classic Admin initialization call

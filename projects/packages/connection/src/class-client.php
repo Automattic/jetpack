@@ -166,7 +166,7 @@ class Client {
 				if ( array() !== $body_to_hash ) {
 					$body_to_hash = wp_json_encode(
 						self::_stringify_data( $body_to_hash ),
-						0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+						0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 					);
 				} else {
 					$body_to_hash = '';

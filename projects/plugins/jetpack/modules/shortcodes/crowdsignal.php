@@ -285,8 +285,6 @@ if (
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				);
 
-				$item_id = esc_js( $item_id );
-
 				if (
 					class_exists( 'Jetpack_AMP_Support' )
 					&& Jetpack_AMP_Support::is_amp_request()

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\Service;
 
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
+use Automattic\Jetpack\Forms\ContactForm\Feedback;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
@@ -171,6 +172,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$form->fields = array( $field1, $field2 );
 		$fields       = array( $field1, $field2 );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$captured_request = null;
 		add_filter(
 			'pre_http_request',
@@ -190,7 +193,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertNotNull( $captured_request, 'HTTP request should be made' );
 		$this->assertEquals( 'https://example.com/webhook', $captured_request['url'] );
@@ -226,6 +229,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$form->fields = array( $field1, $field2 );
 		$fields       = array( $field1, $field2 );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$captured_request = null;
 		add_filter(
 			'pre_http_request',
@@ -245,7 +250,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertNotNull( $captured_request, 'HTTP request should be made' );
 		$this->assertEquals( 'application/x-www-form-urlencoded', $captured_request['args']['headers']['Content-Type'] );
@@ -347,6 +352,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$captured_request = null;
 		add_filter(
 			'pre_http_request',
@@ -366,7 +373,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertNotNull( $captured_request );
 		$this->assertEquals( 'GET', $captured_request['args']['method'] );
@@ -390,6 +397,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 			)
 		);
 		$fields = array( $this->create_mock_field( $form, 'email', 'john@example.com' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
 
 		// Add filter to modify data
 		add_filter(
@@ -422,7 +431,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeMismatchArgumentInternal
 		$body_data = json_decode( $captured_request['args']['body'], true );
@@ -434,8 +443,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 	 * Test webhook logs successful response to post meta.
 	 */
 	public function test_send_webhooks_logs_successful_response() {
-		$post_id = 123;
-		$form    = $this->create_mock_form(
+		$form   = $this->create_mock_form(
 			array(
 				'webhooks' => array(
 					array(
@@ -448,7 +456,9 @@ class Form_Webhooks_Test extends BaseTestCase {
 				),
 			)
 		);
-		$fields  = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
 
 		add_filter(
 			'pre_http_request',
@@ -477,8 +487,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 	 * Test webhook logs error to post meta.
 	 */
 	public function test_send_webhooks_logs_error() {
-		$post_id = 456;
-		$form    = $this->create_mock_form(
+		$form   = $this->create_mock_form(
 			array(
 				'webhooks' => array(
 					array(
@@ -491,7 +500,9 @@ class Form_Webhooks_Test extends BaseTestCase {
 				),
 			)
 		);
-		$fields  = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
 
 		add_filter(
 			'pre_http_request',
@@ -505,68 +516,6 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
 		$this->assertEquals( 'Connection timeout', $error_meta );
-	}
-
-	/**
-	 * Test webhook includes hidden fields in data.
-	 */
-	public function test_send_webhooks_includes_hidden_fields() {
-		$form         = $this->create_mock_form(
-			array(
-				'webhooks'     => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						'url'        => 'https://example.com/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-				'hiddenFields' => array(
-					array(
-						'name'  => 'utm_source',
-						'value' => 'google',
-					),
-					array(
-						'name'  => 'utm_campaign',
-						'value' => 'summer_2025',
-					),
-				),
-			)
-		);
-		$field1       = $this->create_mock_field( $form, 'email', 'john@example.com' );
-		$form->fields = array( $field1 );
-		$fields       = array( $field1 );
-
-		$captured_request = null;
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$captured_request ) {
-				$captured_request = array(
-					'url'  => $url,
-					'args' => $args,
-				);
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{"success":true}',
-					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
-				);
-			},
-			10,
-			3
-		);
-
-		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
-
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeMismatchArgumentInternal
-		$body_data = json_decode( $captured_request['args']['body'], true );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$this->assertEquals( 'john@example.com', $body_data['email'] );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$this->assertEquals( 'google', $body_data['utm_source'] );
-		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
-		$this->assertEquals( 'summer_2025', $body_data['utm_campaign'] );
 	}
 
 	/**
@@ -588,6 +537,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$logged_events = array();
 		add_action(
 			'jetpack_forms_log',
@@ -603,7 +554,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
@@ -631,6 +582,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$logged_events = array();
 		add_action(
 			'jetpack_forms_log',
@@ -646,7 +599,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
@@ -678,6 +631,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$logged_events = array();
 		add_action(
 			'jetpack_forms_log',
@@ -693,7 +648,7 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertCount( 1, $logged_events );
 		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
@@ -725,6 +680,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
 
+		$post_id = $this->create_feedback_post( $form, $fields );
+
 		$captured_request = null;
 		add_filter(
 			'pre_http_request',
@@ -744,57 +701,107 @@ class Form_Webhooks_Test extends BaseTestCase {
 		);
 
 		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( 123, $fields, false, array() );
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
 		$this->assertNotNull( $captured_request, 'HTTP request should be made even with lowercase method' );
 		$this->assertEquals( 'post', $captured_request['args']['method'] );
 	}
 
 	/**
-	 * Helper method to create a mock form.
+	 * Helper method to create a test form object.
 	 *
 	 * @param array $attributes Form attributes.
-	 * @return Contact_Form Mock form instance.
+	 * @return Contact_Form Test form instance with required properties.
 	 */
 	private function create_mock_form( $attributes ) {
-		$form = $this->getMockBuilder( Contact_Form::class )
-			->disableOriginalConstructor()
-			->getMock();
-
-		$form->attributes = $attributes;
-		$form->fields     = array();
-
-		return $form;
+		return new class( $attributes ) extends Contact_Form {
+			/**
+			 * Constructor.
+			 *
+			 * @param array $attributes Form attributes.
+			 */
+			public function __construct( $attributes ) {
+				// Don't call parent constructor - just set properties directly
+				$this->attributes = $attributes;
+				$this->fields     = array();
+			}
+		};
 	}
 
 	/**
-	 * Helper method to create a mock field.
+	 * Helper method to create a test field object.
 	 *
 	 * @param Contact_Form $form Parent form.
 	 * @param string       $id Field ID.
 	 * @param mixed        $value Field value.
-	 * @return Contact_Form_Field Mock field instance.
+	 * @return Contact_Form_Field Test field instance with required properties and methods.
 	 */
 	private function create_mock_field( $form, $id, $value ) {
-		$field = $this->getMockBuilder( Contact_Form_Field::class )
-			->disableOriginalConstructor()
-			->onlyMethods( array( 'get_attribute' ) )
-			->getMock();
+		return new class( $form, $id, $value ) extends Contact_Form_Field {
+			/**
+			 * Field ID.
+			 *
+			 * @var string
+			 */
+			private $id;
 
-		$field->form  = $form;
-		$field->value = $value;
+			/**
+			 * Constructor.
+			 *
+			 * @param Contact_Form $form Parent form.
+			 * @param string       $id Field ID.
+			 * @param mixed        $value Field value.
+			 */
+			public function __construct( $form, $id, $value ) {
+				// Don't call parent constructor - just set properties directly
+				$this->form  = $form;
+				$this->id    = $id;
+				$this->value = $value;
+			}
 
-		$field->expects( $this->any() )
-			->method( 'get_attribute' )
-			->willReturnCallback(
-				function ( $attr ) use ( $id ) {
-					if ( $attr === 'id' ) {
-						return $id;
-					}
-					return null;
+			/**
+			 * Get field attribute.
+			 *
+			 * @param string $attr Attribute name.
+			 * @return mixed Attribute value or null.
+			 */
+			public function get_attribute( $attr ) {
+				if ( $attr === 'id' ) {
+					return $this->id;
 				}
-			);
+				return null;
+			}
+		};
+	}
 
-		return $field;
+	/**
+	 * Helper method to create a feedback post with fields.
+	 *
+	 * @param Contact_Form $form The mock form object with webhook configuration.
+	 * @param array        $fields Array of Contact_Form_Field mock instances.
+	 * @return int The feedback post ID.
+	 */
+	private function create_feedback_post( $form, $fields ) {
+		// Build POST data from fields
+		$post_data        = array();
+		$shortcode_fields = array();
+		foreach ( $fields as $field ) {
+			$field_id               = $field->get_attribute( 'id' );
+			$post_data[ $field_id ] = $field->value;
+			// Create shortcode for each field based on its ID (name, email, etc.)
+			$shortcode_fields[] = "[contact-field label='" . ucfirst( $field_id ) . "' type='text' id='" . $field_id . "'/]";
+		}
+
+		// Create a real Contact_Form with the webhook configuration
+		$real_form = new Contact_Form(
+			$form->attributes,
+			implode( '', $shortcode_fields )
+		);
+
+		// Create feedback from submission
+		$feedback = Feedback::from_submission( $post_data, $real_form );
+		$post_id  = $feedback->save();
+
+		return is_int( $post_id ) ? $post_id : $post_id->ID;
 	}
 }

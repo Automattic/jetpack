@@ -133,9 +133,23 @@ Controls [what this affects]:
 
 - `[property]`: [Description]
 
-### Theme Integration
+## Theming Integration
 
-[Explanation of how feature integrates with chart themes and any theme-specific styling].
+[Component]s integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, [Component], type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		[otherThemeProperties]: [values],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<[Component] data={data} />
+	</GlobalChartsProvider>` }
+/>
 
 ## Custom [Feature Name]
 

@@ -100,7 +100,7 @@ class LCP_Analyzer {
 			'requestId' => md5(
 				wp_json_encode(
 					$pages,
-					0 // No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 				)
 			),
 		);

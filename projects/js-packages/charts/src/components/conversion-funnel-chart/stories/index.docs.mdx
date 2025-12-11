@@ -227,9 +227,22 @@ Return `null` from render props to disable specific parts:
 
 ## Styling and Theming
 
-### Theme Integration
+## Theming Integration
 
-The component automatically integrates with the global charts theme system, inheriting colors and styling from your chart theme configuration.
+Conversion Funnel Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, ConversionFunnelChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<ConversionFunnelChart mainRate={10.3} steps={funnelData} />
+	</GlobalChartsProvider>` }
+/>
 
 ### Custom Styling
 

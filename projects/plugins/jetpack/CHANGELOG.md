@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.4-a.1 - 2025-12-08
+### Enhancements
+- Forms: Add filter to hide integration icons. [#46188]
+- Forms: Add integrations display filters. [#46156]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add the new media selection UI for Social. [#46085]
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Janitorial: emptied out to-test.md. [#46221]
+- OG tags: use media-only Jetpack_Media_Summary::get [#46094]
+- Tests: Check the publish post action exists, but is not necessarily the last action. [#46105]
+
 ## 15.3.1 - 2025-12-04
 - Forms: Use the correct case on cipher names. [#46189]
 

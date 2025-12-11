@@ -360,7 +360,7 @@ function stats_js_remove_stnojs_cookie() {
 	?>
 <script type="text/javascript">
 /* <![CDATA[ */
-document.cookie = 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=<?php echo esc_js( $parsed['path'] ); ?>';
+document.cookie = <?php echo wp_json_encode( 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=' . $parsed['path'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ); ?>;
 /* ]]> */
 </script>
 	<?php
