@@ -13,7 +13,6 @@ const Icon = ( { direction }: { direction: TrendDirection } ) => {
 			className={ styles[ 'trend-indicator__icon' ] }
 			viewBox="0 0 16 16"
 			fill="none"
-			role="img"
 			aria-hidden="true"
 		>
 			<path
