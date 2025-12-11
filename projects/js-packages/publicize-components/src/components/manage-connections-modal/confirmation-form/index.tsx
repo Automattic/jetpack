@@ -4,11 +4,11 @@ import {
 	FlexBlock,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	ExternalLink,
+	Notice,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import Notice from '../../../components/notice';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
 import { useSupportedServices } from '../../services/use-supported-services';
@@ -206,7 +206,7 @@ export function ConfirmationForm( {
 						) }
 					</p>
 					{ keyringResult?.show_linkedin_warning && (
-						<Notice type={ 'warning' }>
+						<Notice status="warning" isDismissible={ false }>
 							<p>
 								{ __(
 									'We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.',

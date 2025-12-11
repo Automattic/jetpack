@@ -1,8 +1,7 @@
-import { Spinner } from '@wordpress/components';
+import { Notice, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
-import Notice from '../notice';
 import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
@@ -38,7 +37,7 @@ export function ShareStatus( { reShareTimestamp }: ShareStatusProps ) {
 
 	if ( numberOfFailedShares > 0 ) {
 		return (
-			<Notice type="warning">
+			<Notice status="warning" isDismissible={ false }>
 				<p>
 					{ sprintf(
 						/* translators: %d: number of failed shares */
