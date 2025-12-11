@@ -104,7 +104,7 @@ class Contact_Form_Block {
 	}
 
 	/**
-	 * Add Jetpack Forms interactivity attributes to core/buttons blocks that live inside a contact form.
+	 * Add Jetpack Forms interactivity attributes to core/button blocks that live inside a contact form.
 	 *
 	 * @param string $content Rendered HTML of the core/button block.
 	 * @param array  $parsed_block Parsed block array.
