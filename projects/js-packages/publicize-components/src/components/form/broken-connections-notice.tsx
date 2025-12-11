@@ -41,20 +41,18 @@ export const BrokenConnectionsNotice: FC = () => {
 	}
 
 	return (
-		problemConnections.length > 0 && (
-			<Notice status="error" isDismissible={ false }>
-				{ createInterpolateElement(
-					_n(
-						'A social connection needs attention. <fixLink>Manage connections</fixLink> to fix it.',
-						'Some social connections need attention. <fixLink>Manage connections</fixLink> to fix them.',
-						problemConnections.length,
-						'jetpack-publicize-components'
-					),
-					{
-						fixLink,
-					}
-				) }
-			</Notice>
-		)
+		<Notice status="error" isDismissible={ false }>
+			{ createInterpolateElement(
+				_n(
+					'A social connection needs attention. <fixLink>Manage connections</fixLink> to fix it.',
+					'Some social connections need attention. <fixLink>Manage connections</fixLink> to fix them.',
+					problemConnections.length,
+					'jetpack-publicize-components'
+				),
+				{
+					fixLink,
+				}
+			) }
+		</Notice>
 	);
 };
