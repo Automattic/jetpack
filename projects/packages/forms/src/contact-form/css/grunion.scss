@@ -1167,6 +1167,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	outline-width: 0; /* focus style defined on parent */
 }
 
+.contact-form .grunion-field-wrap.is-style-button-wrap input.checkbox-multiple::before {
+	border-color: var(--jetpack--contact-form--button-outline--background-color, fieldText);
+}
+
 /* TODO - is this style used anywhere? if not, remove it */
 .contact-form :where(.is-style-button-wrap input.grunion-field + .grunion-field-text::before) {
 	background: var(--jetpack--contact-form--button-outline--background-color);

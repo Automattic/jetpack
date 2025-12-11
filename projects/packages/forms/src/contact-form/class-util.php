@@ -17,9 +17,6 @@ class Util {
 	 * Registers all relevant actions and filters for this class.
 	 */
 	public static function init() {
-		if ( is_admin() ) {
-			Admin::init();
-		}
 
 		add_filter( 'template_include', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute' );
 

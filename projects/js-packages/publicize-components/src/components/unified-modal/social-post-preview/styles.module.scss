@@ -48,6 +48,24 @@
 	text-align: start;
 }
 
+.customization-form {
+	padding: 1rem;
+}
+
+// Style notice wrapper when there is a notice inside
+// To avoid empty space when there is no notice
+.notice-wrapper {
+
+	// Don't display the wrapper if there is no notice
+	display: none;
+
+	&:has(:global(.components-notice)) {
+		display: block;
+		margin-top: 1rem;
+		margin-inline: 1rem;
+	}
+}
+
 .content {
 	width: 100%;
 	min-height: 100%;

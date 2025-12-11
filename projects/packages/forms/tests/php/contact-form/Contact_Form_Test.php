@@ -1988,12 +1988,28 @@ class Contact_Form_Test extends BaseTestCase {
 			$this->assertCount( $n, $attributes['options'], 'Number of inputs doesn\'t match number of options' );
 			$this->assertCount( $n, $attributes['values'], 'Number of inputs doesn\'t match number of values' );
 			for ( $i = 0; $i < $n; $i++ ) {
-				$item_label = $labels->item( $i );
+				$real_label = $labels->item( $i );
+				// Labels can be wrappers (new markup): <label><input><span><span>OPTION VALUE</span></span></label>
+				// Or siblings (old markup): <p><input /><label><span>OPTION VALUE</span></label></p>
+				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
+				$item_label = $real_label->getElementsByTagName( 'span' )->item( 0 );
+
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $item_label->nodeValue, $attributes['options'][ $i ] );
 
-				// @phan-suppress-next-line PhanUndeclaredMethod -- parentElement was only added in PHP 8.3, and Phan can't know that parentNode will be an element.
-				$input = $item_label->parentNode->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				// Try to get input from inside label (new markup)
+				// @phan-suppress-next-line PhanUndeclaredMethod -- getElementsByTagName is available on DOMElement, which label elements are.
+				$input = $real_label->getElementsByTagName( 'input' )->item( 0 ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				// If input is not inside label, get it from parent (old markup)
+				// In old markup, each <p> has one input and one label, so always use item(0)
+				if ( ! $input ) {
+					// @phan-suppress-next-line PhanUndeclaredMethod -- parentElement was only added in PHP 8.3, and Phan can't know that parentNode will be an element.
+					$parent_inputs = $real_label->parentNode->getElementsByTagName( 'input' ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$input         = $parent_inputs->item( 0 );
+				}
+
+				$this->assertInstanceOf( DOMElement::class, $input, 'Input element not found' );
 				$this->assertEquals( $input->getAttribute( 'type' ), $attributes['input_type'], 'Type doesn\'t match' );
 				if ( 'radio' === $attributes['input_type'] ) {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
@@ -2021,14 +2037,10 @@ class Contact_Form_Test extends BaseTestCase {
 					$option = $item_label->parentNode;  //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 					$option_data = array_values( $filtered )[0] ?? null;
-					// @phan-suppress-next-line PhanUndeclaredMethod - Phan doesn't know that getAttribute is available. But it is.
 					if ( ! empty( $item_label->getAttribute( 'style' ) ) ) {
-						// @phan-suppress-next-line PhanUndeclaredMethod
 						$this->assertEquals( $option->getAttribute( 'style' ), $option_data->style, 'Style doesn\'t match' );
 					}
-					// @phan-suppress-next-line PhanUndeclaredMethod
 					if ( ! empty( $item_label->getAttribute( 'class' ) ) ) {
-						// @phan-suppress-next-line PhanUndeclaredMethod
 						$this->assertContains( $option_data->class, explode( ' ', $option->getAttribute( 'class' ) ), 'Class doesn\'t match' );
 					}
 				}
