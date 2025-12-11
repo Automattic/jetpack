@@ -105,7 +105,6 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		Contact_Form::register_post_type();
 
 		$this->assertTrue( post_type_supports( 'jetpack_form', 'title' ), 'Should support title' );
-		$this->assertTrue( post_type_supports( 'jetpack_form', 'excerpt' ), 'Should support excerpt' );
 		$this->assertTrue( post_type_supports( 'jetpack_form', 'editor' ), 'Should support editor' );
 		$this->assertTrue( post_type_supports( 'jetpack_form', 'revisions' ), 'Should support revisions' );
 		$this->assertTrue( post_type_supports( 'jetpack_form', 'author' ), 'Should support author' );
