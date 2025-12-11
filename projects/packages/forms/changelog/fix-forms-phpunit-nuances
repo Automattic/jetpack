@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Replace PHPUnit mocks with anonymous classes to eliminate PHPUnit 12 strictness warnings

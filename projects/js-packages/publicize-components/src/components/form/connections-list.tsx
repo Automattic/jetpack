@@ -1,5 +1,6 @@
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Disabled } from '@wordpress/components';
+import { Disabled, __experimentalSpacer as Spacer } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from 'react';
@@ -46,6 +47,7 @@ export const ConnectionsList: React.FC = () => {
 			</Disabled>
 			{ isPublicizeEnabled ? (
 				<>
+					<Spacer marginTop="1rem" />
 					<MediaValidationNotices />
 					<BrokenConnectionsNotice />
 				</>

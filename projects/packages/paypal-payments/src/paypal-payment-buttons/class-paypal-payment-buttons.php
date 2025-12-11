@@ -152,7 +152,7 @@ class PayPal_Payment_Buttons {
 					hostedButtonId: %s,
 				}).render(%s);',
 				wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
-				wp_json_encode( $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+				wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			);
 
 			wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );

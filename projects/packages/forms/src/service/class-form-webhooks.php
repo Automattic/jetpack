@@ -116,7 +116,7 @@ class Form_Webhooks {
 
 		// Iterate through each webhook and send the request
 		foreach ( $webhooks as $webhook ) {
-			$response = $this->send_webhook( $form_data, $webhook );
+			$response = $this->send_webhook( $form_data, $webhook, $post_id );
 			$this->log_response_to_post_meta( $post_id, $response );
 		}
 	}
@@ -211,10 +211,11 @@ class Form_Webhooks {
 	 *
 	 * @param array $data The data key/value pairs to send.
 	 * @param array $webhook Webhook configuration.
+	 * @param int   $feedback_id The unique identifier for the feedback post.
 	 *
 	 * @return array|WP_Error The result value from wp_remote_request
 	 */
-	private function send_webhook( $data, $webhook ) {
+	private function send_webhook( $data, $webhook, $feedback_id ) {
 		global $wp_version;
 
 		/**
@@ -227,10 +228,11 @@ class Form_Webhooks {
 		 *
 		 * @param array  $form_data  The form data to be sent (field IDs as keys, values as values).
 		 * @param string $webhook_id The unique identifier for this webhook.
+		 * @param int    $feedback_id The unique identifier for the feedback post.
 		 *
 		 * @return array The form data to be sent (field IDs as keys, values as values).
 		 */
-		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'] );
+		$data = apply_filters( 'jetpack_forms_before_webhook_request', $data, $webhook['webhook_id'], $feedback_id );
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
 		$url        = $webhook['url'];

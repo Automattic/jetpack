@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -13,6 +14,7 @@ use WorDBless\Options as WorDBless_Options;
  *
  * @package automattic/jetpack-sync
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[CoversClass( Dedicated_Sender::class )]
 class Dedicated_Sender_Test extends BaseTestCase {
 	/**

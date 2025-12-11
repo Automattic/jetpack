@@ -81,7 +81,7 @@
 		"@wordpress/url": "4.36.0",
 		"canvas-confetti": "^1.9.4",
 		"clsx": "2.1.1",
-		"debug": "4.4.1",
+		"debug": "4.4.3",
 		"events": "^3.3.0",
 		"lodash": "4.17.21",
 		"moment": "2.30.1",

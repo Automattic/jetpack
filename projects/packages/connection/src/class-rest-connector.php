@@ -476,7 +476,7 @@ class REST_Connector {
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
 				/** This filter is documented in packages/status/src/class-status.php */
-				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'filter'          => apply_filters( 'jetpack_offline_mode', false ),
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),

@@ -68,10 +68,5 @@ trait WooCommerceTestTrait {
 		// Traits.
 		require_once $woo_tests_dir . '/legacy/framework/traits/trait-wc-rest-api-complex-meta.php';
 		require_once $woo_tests_dir . '/php/helpers/HPOSToggleTrait.php';
-
-		// Action Scheduler.
-		$as_file = dirname( $woo_tests_dir ) . '/packages/action-scheduler/action-scheduler.php';
-		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
-		ActionScheduler::init( $as_file );
 	}
 }

@@ -1,4 +1,4 @@
-import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
+import { defaultTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**
@@ -28,8 +28,6 @@ export const customTheme: ChartTheme = {
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
 	custom: customTheme,
 };
 
@@ -39,7 +37,7 @@ export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 export const themeArgTypes = {
 	themeName: {
 		control: { type: 'select' as const },
-		options: [ 'default', 'jetpack', 'woo', 'custom' ],
+		options: Object.keys( CHART_THEME_MAP ),
 		defaultValue: 'default',
 		description: 'Select a theme to apply to the chart',
 		table: { category: 'Theme' },

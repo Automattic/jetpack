@@ -1781,7 +1781,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ( new Status() )->is_offline_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
-				! has_filter( 'jetpack_development_mode' ) &&
 				! has_filter( 'jetpack_offline_mode' ) &&
 				! str_contains( site_url(), '.' )
 			) {

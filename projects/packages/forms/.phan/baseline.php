@@ -11,9 +11,10 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 50+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
-    // PhanDeprecatedFunction : 8 occurrences
+    // PhanDeprecatedFunction : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
     // PhanTypeMismatchReturn : 2 occurrences
@@ -26,6 +27,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/abilities/class-forms-abilities.php' => ['PhanUndeclaredFunction'],
+        'src/contact-form/class-admin.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
         'src/contact-form/class-contact-form-field.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPossiblyNullTypeMismatchProperty', 'PhanTypeConversionFromArray', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-plugin.php' => ['PhanPluginDuplicateAdjacentStatement', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnProbablyReal'],
         'src/contact-form/class-contact-form-shortcode.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
@@ -33,6 +35,7 @@ return [
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanDeprecatedFunction', 'PhanUnreferencedUseNormal'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'tests/php/contact-form/Contact_Form_Plugin_Test.php' => ['PhanPluginMixedKeyNoKey'],
+        'tests/php/contact-form/Util_Test.php' => ['PhanDeprecatedFunction'],
         'tests/php/dashboard/Dashboard_View_Switch_Test.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

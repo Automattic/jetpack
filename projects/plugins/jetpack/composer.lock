@@ -3270,7 +3270,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "12b95305c1e32627f4e42a21a0955cf9cf91d7f5"
+				"reference": "bc86475df0704106b3ac500e1a70207c57b46908"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -3304,7 +3304,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.23.x-dev"
+					"dev-trunk": "4.24.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -3930,16 +3930,16 @@
 		},
 		{
 			"name": "nikic/php-parser",
-			"version": "v5.6.2",
+			"version": "v5.7.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/nikic/PHP-Parser.git",
-				"reference": "3a454ca033b9e06b63282ce19562e892747449bb"
+				"reference": "dca41cd15c2ac9d055ad70dbfd011130757d1f82"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/3a454ca033b9e06b63282ce19562e892747449bb",
-				"reference": "3a454ca033b9e06b63282ce19562e892747449bb",
+				"url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/dca41cd15c2ac9d055ad70dbfd011130757d1f82",
+				"reference": "dca41cd15c2ac9d055ad70dbfd011130757d1f82",
 				"shasum": ""
 			},
 			"require": {
@@ -3982,9 +3982,9 @@
 			],
 			"support": {
 				"issues": "https://github.com/nikic/PHP-Parser/issues",
-				"source": "https://github.com/nikic/PHP-Parser/tree/v5.6.2"
+				"source": "https://github.com/nikic/PHP-Parser/tree/v5.7.0"
 			},
-			"time": "2025-10-21T19:32:17+00:00"
+			"time": "2025-12-06T11:56:16+00:00"
 		},
 		{
 			"name": "phar-io/manifest",
@@ -4106,23 +4106,23 @@
 		},
 		{
 			"name": "phpunit/php-code-coverage",
-			"version": "12.4.0",
+			"version": "12.5.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-				"reference": "67e8aed88f93d0e6e1cb7effe1a2dfc2fee6022c"
+				"reference": "c467c59a4f6e04b942be422844e7a6352fa01b57"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/67e8aed88f93d0e6e1cb7effe1a2dfc2fee6022c",
-				"reference": "67e8aed88f93d0e6e1cb7effe1a2dfc2fee6022c",
+				"url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c467c59a4f6e04b942be422844e7a6352fa01b57",
+				"reference": "c467c59a4f6e04b942be422844e7a6352fa01b57",
 				"shasum": ""
 			},
 			"require": {
 				"ext-dom": "*",
 				"ext-libxml": "*",
 				"ext-xmlwriter": "*",
-				"nikic/php-parser": "^5.6.1",
+				"nikic/php-parser": "^5.7.0",
 				"php": ">=8.3",
 				"phpunit/php-file-iterator": "^6.0",
 				"phpunit/php-text-template": "^5.0",
@@ -4130,10 +4130,10 @@
 				"sebastian/environment": "^8.0.3",
 				"sebastian/lines-of-code": "^4.0",
 				"sebastian/version": "^6.0",
-				"theseer/tokenizer": "^1.2.3"
+				"theseer/tokenizer": "^2.0"
 			},
 			"require-dev": {
-				"phpunit/phpunit": "^12.3.7"
+				"phpunit/phpunit": "^12.5.1"
 			},
 			"suggest": {
 				"ext-pcov": "PHP extension that provides line coverage",
@@ -4142,7 +4142,7 @@
 			"type": "library",
 			"extra": {
 				"branch-alias": {
-					"dev-main": "12.4.x-dev"
+					"dev-main": "12.5.x-dev"
 				}
 			},
 			"autoload": {
@@ -4171,7 +4171,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
 				"security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
-				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.4.0"
+				"source": "https://github.com/sebastianbergmann/php-code-coverage/tree/12.5.1"
 			},
 			"funding": [
 				{
@@ -4191,7 +4191,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-09-24T13:44:41+00:00"
+			"time": "2025-12-08T07:17:58+00:00"
 		},
 		{
 			"name": "phpunit/php-file-iterator",
@@ -4440,16 +4440,16 @@
 		},
 		{
 			"name": "phpunit/phpunit",
-			"version": "12.4.2",
+			"version": "12.5.2",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/sebastianbergmann/phpunit.git",
-				"reference": "a94ea4d26d865875803b23aaf78c3c2c670ea2ea"
+				"reference": "06713c2633d6d832f2fe98a70511ecaa7cb92c1a"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a94ea4d26d865875803b23aaf78c3c2c670ea2ea",
-				"reference": "a94ea4d26d865875803b23aaf78c3c2c670ea2ea",
+				"url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/06713c2633d6d832f2fe98a70511ecaa7cb92c1a",
+				"reference": "06713c2633d6d832f2fe98a70511ecaa7cb92c1a",
 				"shasum": ""
 			},
 			"require": {
@@ -4463,7 +4463,7 @@
 				"phar-io/manifest": "^2.0.4",
 				"phar-io/version": "^3.2.1",
 				"php": ">=8.3",
-				"phpunit/php-code-coverage": "^12.4.0",
+				"phpunit/php-code-coverage": "^12.5.1",
 				"phpunit/php-file-iterator": "^6.0.0",
 				"phpunit/php-invoker": "^6.0.0",
 				"phpunit/php-text-template": "^5.0.0",
@@ -4485,7 +4485,7 @@
 			"type": "library",
 			"extra": {
 				"branch-alias": {
-					"dev-main": "12.4-dev"
+					"dev-main": "12.5-dev"
 				}
 			},
 			"autoload": {
@@ -4517,7 +4517,7 @@
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-				"source": "https://github.com/sebastianbergmann/phpunit/tree/12.4.2"
+				"source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.2"
 			},
 			"funding": [
 				{
@@ -4541,7 +4541,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2025-10-30T08:41:39+00:00"
+			"time": "2025-12-08T07:22:32+00:00"
 		},
 		{
 			"name": "psr/container",
@@ -6289,23 +6289,23 @@
 		},
 		{
 			"name": "theseer/tokenizer",
-			"version": "1.2.3",
+			"version": "2.0.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/theseer/tokenizer.git",
-				"reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2"
+				"reference": "7989e43bf381af0eac72e4f0ca5bcbfa81658be4"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/theseer/tokenizer/zipball/737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
-				"reference": "737eda637ed5e28c3413cb1ebe8bb52cbf1ca7a2",
+				"url": "https://api.github.com/repos/theseer/tokenizer/zipball/7989e43bf381af0eac72e4f0ca5bcbfa81658be4",
+				"reference": "7989e43bf381af0eac72e4f0ca5bcbfa81658be4",
 				"shasum": ""
 			},
 			"require": {
 				"ext-dom": "*",
 				"ext-tokenizer": "*",
 				"ext-xmlwriter": "*",
-				"php": "^7.2 || ^8.0"
+				"php": "^8.1"
 			},
 			"type": "library",
 			"autoload": {
@@ -6327,7 +6327,7 @@
 			"description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
 			"support": {
 				"issues": "https://github.com/theseer/tokenizer/issues",
-				"source": "https://github.com/theseer/tokenizer/tree/1.2.3"
+				"source": "https://github.com/theseer/tokenizer/tree/2.0.1"
 			},
 			"funding": [
 				{
@@ -6335,7 +6335,7 @@
 					"type": "github"
 				}
 			],
-			"time": "2024-03-03T12:36:25+00:00"
+			"time": "2025-12-08T11:19:18+00:00"
 		},
 		{
 			"name": "yoast/phpunit-polyfills",
