@@ -392,7 +392,7 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-const WooPieLegend = ( {
+const CustomPieLegend = ( {
 	chartItems,
 	items,
 	withComparison,
@@ -443,7 +443,7 @@ export const CustomLegend: Story = {
 			<PieChartUnresponsive.Legend
 				// eslint-disable-next-line react/jsx-no-bind
 				render={ items => (
-					<WooPieLegend
+					<CustomPieLegend
 						chartItems={ items }
 						items={ customerRevenueLegendData }
 						withComparison={ args.withComparison }

@@ -316,9 +316,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
-		// JSON encodes forward slashes as \/.
-		$this->assertStringContainsString( 'my-plugin\\/tool-provider.js', $inline_script );
-		$this->assertStringContainsString( 'another-plugin\\/context-provider.js', $inline_script );
+		$this->assertStringContainsString( 'my-plugin/tool-provider.js', $inline_script );
+		$this->assertStringContainsString( 'another-plugin/context-provider.js', $inline_script );
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );

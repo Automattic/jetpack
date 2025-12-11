@@ -11,12 +11,13 @@ import TEMPLATES_DATA from './templates.js';
  * The pure template picker component. Does not save the template changes, just sends it back to the parent component,
  * with the onTemplateSelected callback.
  *
- * @param {{value: string|null, onTemplateSelected: Function}} props - The component props:
- *                                                                   Value is the name of the currently selected template, onTemplateSelected is a function that
- *                                                                   will be called when a template is selected. Receives the name of the selected template as an argument.
+ * @param {{value: string|null, onTemplateSelected: Function, className: string}} props - The component props:
+ *                                                                                      Value is the name of the currently selected template, onTemplateSelected is a function that
+ *                                                                                      will be called when a template is selected. Receives the name of the selected template as an argument.
+ *                                                                                      className is an optional additional class name to apply to the container.
  * @return {ReactNode} - The component's rendered output.
  */
-const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
+const TemplatePicker = ( { value = null, onTemplateSelected = null, className = null } ) => {
 	const onTemplateClicked = useCallback(
 		event => {
 			const templateName = event.target.id;
@@ -26,7 +27,7 @@ const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
 	);
 
 	return (
-		<div className={ styles.templates }>
+		<div className={ clsx( styles.templates, className ) }>
 			{ TEMPLATES_DATA.map( template => (
 				<button
 					onClick={ onTemplateClicked }

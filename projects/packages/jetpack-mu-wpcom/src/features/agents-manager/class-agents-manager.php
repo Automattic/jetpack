@@ -52,7 +52,8 @@ class Agents_Manager {
 			'const agentsManagerData = ' . wp_json_encode(
 				array(
 					'agentProviders' => $agent_providers,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);

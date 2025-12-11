@@ -162,7 +162,8 @@ class Admin {
 		) {
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -210,7 +211,9 @@ class Admin {
 			array(
 				'success' => ! is_wp_error( $sheet ),
 				'data'    => $sheet,
-			)
+			),
+			200,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -319,7 +322,8 @@ class Admin {
 		) {
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -335,7 +339,9 @@ class Admin {
 			array(
 				'connection' => $has_valid_connection,
 				'html'       => $replacement_html,
-			)
+			),
+			200,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -1438,7 +1444,8 @@ class Admin {
 		) {
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -1447,7 +1454,8 @@ class Admin {
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
 				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -1500,7 +1508,9 @@ class Admin {
 		wp_send_json(
 			array(
 				'processed' => count( $approved_feedbacks ),
-			)
+			),
+			200,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -1511,7 +1521,8 @@ class Admin {
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either.
 			wp_send_json_error(
 				__( 'You aren\'t authorized to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -1520,7 +1531,8 @@ class Admin {
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
 				__( 'You don\'t have permission to do that.', 'jetpack-forms' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 
 			return;
@@ -1566,7 +1578,9 @@ class Admin {
 						'limit'   => $delete_limit,
 					),
 				),
-			)
+			),
+			200,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 

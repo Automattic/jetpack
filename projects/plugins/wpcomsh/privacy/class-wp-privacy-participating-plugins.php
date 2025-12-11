@@ -84,8 +84,8 @@ time:',
 			?>
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
-						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
-						var erasers = <?php echo wp_json_encode( $erasers ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+						var erasers = <?php echo wp_json_encode( $erasers, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						var isRemovePage = $( 'body' ).hasClass( 'tools_page_remove_personal_data' );
 
 						if ( isRemovePage ) {
@@ -135,8 +135,8 @@ includes only the following items at this time:',
 			?>
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
-						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
-						var exporters = <?php echo wp_json_encode( $exporters ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+						var exporters = <?php echo wp_json_encode( $exporters, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						var isExportPage = $( 'body' ).hasClass( 'tools_page_export_personal_data' );
 
 						if ( isExportPage ) {
@@ -188,7 +188,7 @@ obtain privacy policy information for non-participating plugins separately.',
 				<script type="text/javascript">
 					jQuery( document ).ready( function( $ ) {
 						var hasPrivacyDiv = 0 < $( 'div.wp-privacy-policy-guide' ).length;
-						var prompt = <?php echo wp_json_encode( $prompt ); ?>;
+						var prompt = <?php echo wp_json_encode( $prompt, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						if ( hasPrivacyDiv ) {
 							$( 'h1' ).after(
 								"<div class='notice notice-info wp-privacy-policy-notice'></div>"

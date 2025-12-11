@@ -29,7 +29,7 @@ class WpcomFeaturesTest extends WP_UnitTestCase {
 	 */
 	public function test_works_with_persistent_data() {
 		$purchase = array( 'product_slug' => 'business-bundle' );
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $purchase ), JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertTrue( wpcom_site_has_feature( WPCOM_Features::CONCIERGE_BUSINESS ) );
 		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::ECOMMERCE_MANAGED_PLUGINS ) );

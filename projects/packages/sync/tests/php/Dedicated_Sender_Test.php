@@ -179,6 +179,24 @@ class Dedicated_Sender_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header.
+	 */
+	public function test_maybe_change_dedicated_sync_status_from_wpcom_header() {
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'on' );
+
+		$this->assertTrue( $result );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertTrue( (bool) $dedicated_sync_status );
+
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'off' );
+		$this->assertFalse( $result );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertFalse( (bool) $dedicated_sync_status );
+	}
+
+	/**
 	 * Tests Dedicated_Sender::maybe_enable_dedicated_sync when Sync has not been sending for a while.
 	 */
 	public function test_enable_dedicated_sync_when_temporary_disabled() {
@@ -315,6 +333,50 @@ class Dedicated_Sender_Test extends BaseTestCase {
 		$this->assertFalse( $this->dedicated_sync_request_spawned );
 		$this->assertSame( '', get_transient( Dedicated_Sender::DEDICATED_SYNC_CHECK_TRANSIENT ) );
 		$this->assertFalse( $can_spawn );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::test_try_lock_spawn_request without existing locks.
+	 *
+	 * @see Jetpack_Sync_Sender_Test for full coverage - Direct DB query in test_try_lock_spawn_request doesn't play well with WordDBLess
+	 */
+	public function test_try_lock_spawn_request_without_existing_locks() {
+		$result = Dedicated_Sender::try_lock_spawn_request();
+
+		$this->assertNotFalse( $result );
+
+		$lock_option_name  = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$lock_expires_name = $lock_option_name . '_expires';
+
+		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
+
+		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.01 );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::test_try_release_lock_spawn_request.
+	 */
+	public function test_try_release_lock_spawn_request() {
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+
+		$result = Dedicated_Sender::try_release_lock_spawn_request( 'dummy' );
+
+		$this->assertTrue( $result );
+		$this->assertEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::test_try_release_lock_spawn_request with invalid lock.
+	 */
+	public function test_try_release_lock_spawn_request_invalid_lock() {
+		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
+
+		$result = Dedicated_Sender::try_release_lock_spawn_request( 'invalid_lock' );
+
+		$this->assertFalse( $result );
+		$this->assertSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
 	}
 
 	/**

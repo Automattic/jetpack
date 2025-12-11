@@ -1,4 +1,4 @@
-import { CheckboxControl, PanelRow } from '@wordpress/components';
+import { PanelRow, ToggleControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -20,7 +20,7 @@ export function AutoShareToggle() {
 
 	return (
 		<PanelRow>
-			<CheckboxControl
+			<ToggleControl
 				label={ __( 'Auto-share post', 'jetpack-publicize-components' ) }
 				onChange={ togglePublicizeFeature }
 				checked={ isPublicizeEnabled }

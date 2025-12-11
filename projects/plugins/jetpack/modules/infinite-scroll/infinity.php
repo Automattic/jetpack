@@ -934,7 +934,7 @@ class The_Neverending_Home_Page {
 			'footer'           => is_string( $settings->footer ) ? esc_js( $settings->footer ) : $settings->footer,
 			'click_handle'     => esc_js( $settings->click_handle ),
 			'text'             => esc_js( $click_handle_text ),
-			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
+			'totop'            => __( 'Scroll back to top', 'jetpack' ),
 			'currentday'       => $currentday,
 			'order'            => 'DESC',
 			'scripts'          => array(),
@@ -951,7 +951,7 @@ class The_Neverending_Home_Page {
 			'query_before'     => current_time( 'mysql' ),
 			'last_post_date'   => self::get_last_post_date(),
 			'body_class'       => self::body_class(),
-			'loading_text'     => esc_js( __( 'Loading new page', 'jetpack' ) ),
+			'loading_text'     => __( 'Loading new page', 'jetpack' ),
 		);
 
 		// Optional order param
@@ -985,7 +985,7 @@ class The_Neverending_Home_Page {
 
 		?>
 		<script type="text/javascript">
-		var infiniteScroll = <?php echo wp_json_encode( array( 'settings' => $js_settings ), JSON_HEX_TAG ); ?>;
+		var infiniteScroll = <?php echo wp_json_encode( array( 'settings' => $js_settings ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		</script>
 		<?php
 	}
@@ -1104,8 +1104,8 @@ class The_Neverending_Home_Page {
 
 					return out;
 				};
-				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts ); ?> );
-				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
+				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			})();
 		</script>
 		<?php
@@ -1573,7 +1573,9 @@ class The_Neverending_Home_Page {
 			 * @param array $query_args Array of main query arguments.
 			 * @param WP_Query $wp_query WP Query.
 			 */
-			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() )
+			apply_filters( 'infinite_scroll_results', $results, $query_args, self::wp_query() ),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -1831,7 +1833,7 @@ class The_Neverending_Home_Page {
 				$scripts_data[ $key ]['extra_data'] = sprintf(
 					'window.%s = %s',
 					'_wpmejsSettings',
-					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ) )
+					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 				);
 			}
 		}
@@ -1992,7 +1994,7 @@ class The_Neverending_Home_Page {
 <amp-next-page max-pages="<?php echo esc_attr( static::amp_get_max_pages() ); ?>">
 	<script type="application/json">
 		[
-			<?php echo wp_json_encode( $this->amp_next_page() ); ?>
+			<?php echo wp_json_encode( $this->amp_next_page(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 		]
 	</script>
 	<div separator>

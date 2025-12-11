@@ -678,19 +678,18 @@ Full functionality in all modern browsers supporting:
 
 ## Theming Integration
 
-Line Charts integrate seamlessly with the chart theming system:
+Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
 
 <Source
-	language="jsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
 
-	<GlobalChartsProvider theme={jetpackTheme}>
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		gridColor: '#E0E0E0',
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
 		<LineChart data={data} />
 	</GlobalChartsProvider>` }
 />
-
-**Available themes:**
-- **Default**: Neutral colors and styling
-- **Jetpack**: Jetpack brand colors and styling
-- **Woo**: WooCommerce brand colors and styling
-- **Custom**: Define your own theme object

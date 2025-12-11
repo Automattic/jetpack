@@ -144,15 +144,15 @@ class PayPal_Payment_Buttons {
 			);
 
 			// Generate the button HTML and inline script
-			$container_id = 'paypal-container-' . esc_attr( $hosted_button_id );
-			$button_html  = '<div id="' . $container_id . '"></div>';
+			$container_id = 'paypal-container-' . $hosted_button_id;
+			$button_html  = '<div id="' . esc_attr( $container_id ) . '"></div>';
 
 			$inline_script = sprintf(
 				'(window.paypal_payment_buttons || window.paypal).HostedButtons({
-					hostedButtonId: "%s",
-				}).render("#%s");',
-				esc_js( $hosted_button_id ),
-				esc_js( $container_id )
+					hostedButtonId: %s,
+				}).render(%s);',
+				wp_json_encode( $hosted_button_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( '#' . $container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
 			);
 
 			wp_add_inline_script( 'paypal-payment-buttons-block-head', $inline_script );

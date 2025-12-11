@@ -62,6 +62,11 @@ export interface MediaSectionV2Props {
 	 * Whether the section is disabled
 	 */
 	disabled?: boolean;
+
+	/**
+	 * Callback when the edit template action is triggered
+	 */
+	onEditTemplate?: VoidFunction;
 }
 
 /**

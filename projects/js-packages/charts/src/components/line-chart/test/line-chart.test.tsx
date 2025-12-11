@@ -7,12 +7,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
 import { createElement, createRef } from 'react';
-import { GlobalChartsProvider, jetpackTheme, wooTheme } from '../../../providers';
+import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { SingleChartRef } from '../../private/single-chart-context';
 
 const customTheme = {
-	...jetpackTheme,
+	...defaultTheme,
 	glyphs: [
 		props =>
 			createElement(
@@ -31,8 +31,6 @@ const customTheme = {
 
 const THEME_MAP = {
 	default: undefined,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
 	custom: customTheme,
 };
 
@@ -52,7 +50,7 @@ describe( 'LineChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {}, themeName = 'jetpack' ) => {
+	const renderWithTheme = ( props = {}, themeName = 'default' ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -63,7 +61,7 @@ describe( 'LineChart', () => {
 		);
 	};
 
-	const renderUnwrappedWithTheme = ( props = {}, themeName = 'jetpack', ref = undefined ) => {
+	const renderUnwrappedWithTheme = ( props = {}, themeName = 'default', ref = undefined ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
@@ -815,7 +813,7 @@ describe( 'LineChart', () => {
 	describe( 'Chart Ref Interface', () => {
 		test( 'exposes getScales method via ref', () => {
 			const ref = createRef< SingleChartRef >();
-			renderUnwrappedWithTheme( {}, 'jetpack', ref );
+			renderUnwrappedWithTheme( {}, 'default', ref );
 
 			expect( ref.current?.getScales() ).toBeDefined();
 			expect( ref.current?.getScales()?.xScale ).toBeDefined();
@@ -824,7 +822,7 @@ describe( 'LineChart', () => {
 
 		test( 'exposes getChartDimensions method via ref', () => {
 			const ref = createRef< SingleChartRef >();
-			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'jetpack', ref );
+			renderUnwrappedWithTheme( { width: 800, height: 400 }, 'default', ref );
 
 			const dimensions = ref.current?.getChartDimensions();
 			expect( dimensions?.width ).toBe( 800 );
@@ -836,7 +834,7 @@ describe( 'LineChart', () => {
 		const renderWithAnnotations = (
 			children: React.ReactNode,
 			props = {},
-			themeName = 'jetpack'
+			themeName = 'default'
 		) => {
 			const theme = THEME_MAP[ themeName ];
 

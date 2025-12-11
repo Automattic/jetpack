@@ -13,10 +13,12 @@
 function jetpack_debugger_ajax_local_testing_suite() {
 	check_ajax_referer( 'health-check-site-status' );
 	if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-		wp_send_json_error();
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
 	}
 	$tests = new Jetpack_Cxn_Tests();
-	wp_send_json_success( $tests->output_results_for_core_async_site_health() );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+	wp_send_json_success( $tests->output_results_for_core_async_site_health(), null, JSON_UNESCAPED_SLASHES );
 }
 /**
  * Adds the Jetpack Local Testing Suite to the Core Site Health system.

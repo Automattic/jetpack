@@ -122,16 +122,16 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['phone'] ) . "' type='text'/]";
 		}
 		if ( in_array( 'adults', $instance['show'], true ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['adults'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['adults'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "'/]";
 		}
 		if ( in_array( 'children', $instance['show'], true ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['children'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['children'] ) . "' type='text' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "'/]";
 		}
 		if ( in_array( 'arrival', $instance['show'], true ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['arrival'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "'/]";
 		}
 		if ( in_array( 'departure', $instance['show'], true ) ) {
-			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ) ) ) . "'/]";
+			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['departure'] ) . "' type='date' data='" . esc_attr( wp_json_encode( array( 'field-size' => 'small' ), JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "'/]";
 		}
 		if ( in_array( 'message', $instance['show'], true ) ) {
 			$contact_form_shortcode .= "[contact-field label='" . esc_attr( $this->fields['message'] ) . "' type='textarea' /]";

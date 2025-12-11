@@ -124,7 +124,12 @@ class Filesystem_Utils {
 		 */
 		$key_components = apply_filters_deprecated( 'boost_cache_key_components', array( $parameters ), '3.8.0', 'jetpack_boost_cache_parameters' );
 
-		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		return md5(
+			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+				$key_components,
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+			)
+		) . '.html';
 	}
 
 	/**
