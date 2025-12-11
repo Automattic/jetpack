@@ -151,18 +151,20 @@ class Agents_Manager {
 			return false;
 		}
 
-		// On Atomic sites, delegate to wpcom via the /me endpoint.
-		// This avoids duplicating rollout logic and handles cases where
-		// wpcom-specific functions (like get_user_attribute) aren't available.
-		$is_atomic_site = ( new \Automattic\Jetpack\Status\Host() )->is_woa_site();
-		if ( $is_atomic_site ) {
-			return $this->get_unified_experience_from_wpcom();
+		$is_simple_site = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple();
+		if ( $is_simple_site ) {
+			// On Simple sites, evaluate locally.
+			// Check Automattician and opt-in setting.
+			$is_automattician = function_exists( '\is_automattician' ) && \is_automattician( $user_id );
+			if ( $is_automattician && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
+				return true;
+			}
 		}
 
-		// On Simple sites, evaluate locally.
-		// Check Automattician and opt-in setting.
-		$is_automattician = function_exists( '\is_automattician' ) && \is_automattician( $user_id );
-		if ( $is_automattician && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
+		// On WoA and Garden sites, delegate to wpcom via the /me/preferences endpoint.
+		// This avoids duplicating rollout logic and handles cases where
+		// wpcom-specific functions (like get_user_attribute) aren't available.
+		if ( $this->get_unified_experience_from_wpcom() ) {
 			return true;
 		}
 
