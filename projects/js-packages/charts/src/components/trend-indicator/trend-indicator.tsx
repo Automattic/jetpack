@@ -2,12 +2,6 @@ import clsx from 'clsx';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
 
-const COLORS: Record< TrendDirection, string > = {
-	up: '#1a8917',
-	down: '#d63638',
-	neutral: '#646970',
-};
-
 const Icon = ( { direction }: { direction: TrendDirection } ) => {
 	if ( direction === 'neutral' ) {
 		return null;
@@ -43,8 +37,12 @@ const Icon = ( { direction }: { direction: TrendDirection } ) => {
 export function TrendIndicator( { direction, value, className, style }: TrendIndicatorProps ) {
 	return (
 		<span
-			className={ clsx( styles[ 'trend-indicator' ], className ) }
-			style={ { ...style, color: COLORS[ direction ] } }
+			className={ clsx(
+				styles[ 'trend-indicator' ],
+				styles[ `trend-indicator--${ direction }` ],
+				className
+			) }
+			style={ style }
 		>
 			<Icon direction={ direction } />
 			<span className={ styles[ 'trend-indicator__value' ] }>{ value }</span>
