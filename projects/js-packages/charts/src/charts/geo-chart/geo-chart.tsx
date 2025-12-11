@@ -95,14 +95,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	return (
 		<div className={ clsx( 'geo-chart', styles.container, className ) }>
 			<svg width={ width } height={ height }>
-				<rect
-					x={ 0 }
-					y={ 0 }
-					width={ width }
-					height={ height }
-					fill={ backgroundColor }
-					rx={ 14 }
-				/>
+				<rect x={ 0 } y={ 0 } width={ width } height={ height } fill={ backgroundColor } />
 				<Mercator< FeatureShape >
 					data={ world.features }
 					scale={ mapScale }

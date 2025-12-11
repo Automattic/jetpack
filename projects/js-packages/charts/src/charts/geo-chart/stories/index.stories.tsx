@@ -29,6 +29,7 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		data: ordersByCountry,
+		withPadding: false,
 	},
 };
 
