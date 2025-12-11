@@ -16,42 +16,102 @@ use PHP_CodeSniffer\Files\File;
 trait PHPUnitTestTrait {
 
 	/**
+	 * Static cache for test file determination.
+	 *
+	 * @var array
+	 */
+	private static $testFileCache = array();
+
+	/**
 	 * Test if a file is a PHPUnit test file.
 	 *
-	 * @param File $phpcsFile PHPCS File object.
+	 * @param File      $phpcsFile PHPCS File object.
 	 * @param int|false $stackPtr PHPCS stack token pointer.
 	 * @return bool
 	 */
 	private function isTestFile( File $phpcsFile, $stackPtr = false ): bool {
-		/* If `$stackPtr` points to a T_CLASS token, use it.
-		 * Otherwise, if `$stackPtr` has a T_CLASS condition, use that pointer. PHP_CodeSniffer\Files\File has a utility method suited for this.
-		 * Otherwise, find the index of the first T_CLASS token in the file.
-		 *
-		 * Call `$this->isTestClass()` to determine the result.
-		 *
-		 * Cache the result in a static property by `$phpcsFile->getFilename()`.
-		 */
+		$filename = $phpcsFile->getFilename();
+
+		// Check cache first
+		if ( isset( self::$testFileCache[ $filename ] ) ) {
+			return self::$testFileCache[ $filename ];
+		}
+
+		$classToken = false;
+
+		// If $stackPtr points to a T_CLASS token, use it
+		if ( $stackPtr !== false ) {
+			$tokens = $phpcsFile->getTokens();
+			if ( isset( $tokens[ $stackPtr ] ) && $tokens[ $stackPtr ]['code'] === T_CLASS ) {
+				$classToken = $stackPtr;
+			} else {
+				// If $stackPtr has a T_CLASS condition, use that pointer
+				$classToken = $phpcsFile->getCondition( $stackPtr, T_CLASS );
+			}
+		}
+
+		// If no class token found, find the first T_CLASS token in the file
+		if ( $classToken === false ) {
+			$classToken = $phpcsFile->findNext( T_CLASS, 0 );
+		}
+
+		// Determine result
+		$result = $classToken !== false && $this->isTestClass( $phpcsFile, $classToken );
+
+		// Cache the result
+		self::$testFileCache[ $filename ] = $result;
+
+		return $result;
 	}
 
 	/**
 	 * Test if a T_CLASS token is a PHPUnit test class.
 	 *
-	 * @param File $phpcsFile PHPCS File object.
-	 * @param int|false $stackPtr PHPCS stack token pointer. Should point at a T_CLASS token.
+	 * @param File      $phpcsFile PHPCS File object.
+	 * @param int|false $classToken PHPCS stack token pointer. Should point at a T_CLASS token.
 	 * @return bool
 	 */
 	private function isTestClass( File $phpcsFile, $classToken ): bool {
-		/* If the token pointed to by `$classToken` is not a T_CLASS, return false.
-		 *
-		 * Get the name of the class, and the name of the class it extends (if any).
-		 * PHP_CodeSniffer\Files\File has methods that are useful for this task.
-		 *
-		 * Return true if the class's name ends in `Test`, `TestCase`, `TestBase`, `TestCaseBase`, or `Suite`.
-		 * Return true if the extended class's name ends in `Test`, `TestCase`, `TestBase`, `TestCaseBase`, or `Suite`. The `Case` and/or `Base` may be lowercase here.
-		 * Return true if the extended class's name is `WP_UnitTestCase_Base`.
-		 * Return true if the extended class is named like `WP_Test_*_Case`, `WP_Test_*_Base`, or `WP_Test_*_Suite`.
-		 * Return false otherwise.
-		 */
-	}
+		$tokens = $phpcsFile->getTokens();
 
+		// Verify the token is a T_CLASS
+		if ( ! isset( $tokens[ $classToken ] ) || $tokens[ $classToken ]['code'] !== T_CLASS ) {
+			return false;
+		}
+
+		// Get the class name
+		$className = $phpcsFile->getDeclarationName( $classToken );
+		if ( ! $className ) {
+			return false;
+		}
+
+		// Check if class name matches test class suffixes
+		if ( preg_match( '/Test$|TestCase$|TestBase$|TestCaseBase$|Suite$/', $className ) ) {
+			return true;
+		}
+
+		// Get the parent class name
+		$parentClass = $phpcsFile->findExtendedClassName( $classToken );
+		if ( ! empty( $parentClass ) ) {
+			// Remove leading backslash from namespaced class names
+			$parentClass = ltrim( $parentClass, '\\' );
+
+			// Check if parent class name matches test class suffixes (with lowercase variants of Case and Base)
+			if ( preg_match( '/Test$|Test[Cc]ase([Bb]ase)?$|Test[Bb]ase$|Suite$/', $parentClass ) ) {
+				return true;
+			}
+
+			// Check for WP_UnitTestCase_Base
+			if ( $parentClass === 'WP_UnitTestCase_Base' ) {
+				return true;
+			}
+
+			// Check for WP_Test_*_Case, WP_Test_*_Base, or WP_Test_*_Suite patterns
+			if ( preg_match( '/^WP_Test_.*_(Case|Base|Suite)$/i', $parentClass ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
