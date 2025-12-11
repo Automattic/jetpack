@@ -1159,4 +1159,255 @@ class Identity_Crisis_Test extends BaseTestCase {
 			$this->assertNotContains( $expected_ip3, $ip );
 		}
 	}
+
+	/**
+	 * Test that get_sync_error_idc_option() adds timing fields for new IDC options.
+	 */
+	public function test_get_sync_error_idc_option_adds_timing_fields() {
+		$option = Identity_Crisis::get_sync_error_idc_option();
+
+		$this->assertArrayHasKey( 'last_checked', $option );
+		$this->assertArrayHasKey( 'next_check_delay', $option );
+		$this->assertSame( 0, $option['last_checked'] );
+		$this->assertEquals( Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY, $option['next_check_delay'] );
+	}
+
+	/**
+	 * Test backward compatibility: validate_sync_error_idc_option() adds timing fields to existing IDC options.
+	 */
+	public function test_validate_sync_error_idc_option_adds_timing_fields_for_backward_compatibility() {
+		add_filter( 'jetpack_should_handle_idc', '__return_true' );
+
+		// Create an IDC option without timing fields (simulating an old option).
+		$option = Identity_Crisis::get_sync_error_idc_option();
+		unset( $option['last_checked'] );
+		unset( $option['next_check_delay'] );
+		Jetpack_Options::update_option( 'sync_error_idc', $option );
+
+		// Validate it - this should add timing fields in memory.
+		$result = Identity_Crisis::validate_sync_error_idc_option();
+
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		remove_filter( 'jetpack_should_handle_idc', '__return_true' );
+
+		// Should still be valid.
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that constants are defined with expected values.
+	 */
+	public function test_idc_validation_constants() {
+		$this->assertEquals( 3600, Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY );
+		$this->assertEquals( 2592000, Identity_Crisis::IDC_VALIDATION_MAX_DELAY );
+	}
+
+	/**
+	 * Test should_validate_idc() returns false when max delay reached.
+	 */
+	public function test_should_validate_idc_returns_false_when_max_delay_reached() {
+		$sync_error = array(
+			'last_checked'     => time() - 3600,
+			'next_check_delay' => Identity_Crisis::IDC_VALIDATION_MAX_DELAY,
+		);
+
+		$result = Identity_Crisis::should_validate_idc( $sync_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test should_validate_idc() returns false when not enough time has passed.
+	 */
+	public function test_should_validate_idc_returns_false_when_not_enough_time_passed() {
+		$sync_error = array(
+			'last_checked'     => time() - 1800, // 30 minutes ago.
+			'next_check_delay' => 3600, // 1 hour delay.
+		);
+
+		$result = Identity_Crisis::should_validate_idc( $sync_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test should_validate_idc() returns true when enough time has passed.
+	 */
+	public function test_should_validate_idc_returns_true_when_enough_time_passed() {
+		$sync_error = array(
+			'last_checked'     => time() - 7200, // 2 hours ago.
+			'next_check_delay' => 3600, // 1 hour delay.
+		);
+
+		$result = Identity_Crisis::should_validate_idc( $sync_error );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test should_validate_idc() returns true when last_checked is 0 (never checked).
+	 */
+	public function test_should_validate_idc_returns_true_when_never_checked() {
+		$sync_error = array(
+			'last_checked'     => 0,
+			'next_check_delay' => 3600,
+		);
+
+		$result = Identity_Crisis::should_validate_idc( $sync_error );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() returns false when site is not registered.
+	 */
+	public function test_validate_idc_from_remote_returns_false_when_not_registered() {
+		Jetpack_Options::delete_option( 'id' );
+
+		$sync_error = Identity_Crisis::get_sync_error_idc_option();
+		$result     = Identity_Crisis::validate_idc_from_remote( $sync_error );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() returns false and doesn't change option on network error.
+	 */
+	public function test_validate_idc_from_remote_handles_network_error_gracefully() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a network error response.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'Network error' );
+			}
+		);
+
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', '__return_true' );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		$this->assertFalse( $result );
+		// Option should be unchanged.
+		$this->assertEquals( $initial_sync_error, $stored_option );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() returns false and doesn't change option on non-200 response.
+	 */
+	public function test_validate_idc_from_remote_handles_non_200_response() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a 500 error response.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 500 ),
+					'body'     => 'Internal server error',
+				);
+			}
+		);
+
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', '__return_true' );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		$this->assertFalse( $result );
+		// Option should be unchanged.
+		$this->assertEquals( $initial_sync_error, $stored_option );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() clears IDC when no idc_detected in response.
+	 */
+	public function test_validate_idc_from_remote_clears_idc_when_resolved() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a successful response with no IDC detected.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'ID' => 12345 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				);
+			}
+		);
+
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', '__return_true' );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		Jetpack_Options::delete_option( 'id' );
+
+		$this->assertTrue( $result );
+		// Option should be deleted.
+		$this->assertFalse( $stored_option );
+	}
+
+	/**
+	 * Test validate_idc_from_remote() updates option when IDC still detected.
+	 */
+	public function test_validate_idc_from_remote_updates_option_when_idc_still_exists() {
+		Jetpack_Options::update_option( 'id', 12345 );
+		$initial_sync_error                     = Identity_Crisis::get_sync_error_idc_option();
+		$initial_sync_error['last_checked']     = time() - 7200; // 2 hours ago.
+		$initial_sync_error['next_check_delay'] = 3600; // 1 hour.
+		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
+
+		// Mock a response with IDC still detected.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'idc_detected' => array(
+								'error_code'    => 'jetpack_url_mismatch',
+								'wpcom_home'    => 'example.com/',
+								'wpcom_siteurl' => 'example.com/',
+							),
+						),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+					),
+				);
+			}
+		);
+
+		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
+
+		remove_filter( 'pre_http_request', '__return_true' );
+		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
+
+		Jetpack_Options::delete_option( 'id' );
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+
+		$this->assertFalse( $result );
+		// Option should be updated with new timing.
+		$this->assertIsArray( $stored_option );
+		$this->assertArrayHasKey( 'last_checked', $stored_option );
+		$this->assertArrayHasKey( 'next_check_delay', $stored_option );
+		// Delay should be doubled (3600 * 2 = 7200).
+		$this->assertEquals( 7200, $stored_option['next_check_delay'] );
+		// last_checked should be updated to recent time.
+		$this->assertGreaterThan( time() - 10, $stored_option['last_checked'] );
+	}
 }

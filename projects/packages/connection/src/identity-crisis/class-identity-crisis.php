@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\IdentityCrisis\Exception;
@@ -27,6 +28,16 @@ class Identity_Crisis {
 	 * Persistent WPCOM blog ID that stays in the options after disconnect.
 	 */
 	const PERSISTENT_BLOG_ID_OPTION_NAME = 'jetpack_persistent_blog_id';
+
+	/**
+	 * Initial delay for IDC validation in seconds (1 hour).
+	 */
+	const IDC_VALIDATION_INITIAL_DELAY = 3600;
+
+	/**
+	 * Maximum delay for IDC validation in seconds (30 days).
+	 */
+	const IDC_VALIDATION_MAX_DELAY = 2592000;
 
 	/**
 	 * Instance of the object.
@@ -374,6 +385,14 @@ class Identity_Crisis {
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
+			// Ensure backward compatibility: add validation timing fields if missing.
+			if ( ! isset( $sync_error['last_checked'] ) ) {
+				$sync_error['last_checked'] = 0;
+			}
+			if ( ! isset( $sync_error['next_check_delay'] ) ) {
+				$sync_error['next_check_delay'] = self::IDC_VALIDATION_INITIAL_DELAY;
+			}
+
 			$local_options = self::get_sync_error_idc_option();
 
 			// Ensure all values are set.
@@ -389,6 +408,15 @@ class Identity_Crisis {
 					Jetpack_Options::update_option( 'migrate_for_idc', true );
 				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
+
+					// Check if it's time to validate the IDC with a remote call to WordPress.com.
+					if ( self::should_validate_idc( $sync_error ) ) {
+						// Perform remote validation.
+						if ( self::validate_idc_from_remote( $sync_error ) ) {
+							// IDC was cleared remotely, mark as invalid so we return false.
+							$is_valid = false;
+						}
+					}
 				}
 			}
 		}
@@ -427,6 +455,87 @@ class Identity_Crisis {
 			}
 		}
 		return $sync_error;
+	}
+
+	/**
+	 * Checks if enough time has passed to validate the IDC with a remote call.
+	 *
+	 * Uses progressive delay: starts at 1 hour, doubles each time (1h, 2h, 4h, 8h, 16h...),
+	 * and stops checking once the maximum delay of 30 days is reached.
+	 *
+	 * @param array $sync_error The stored sync_error_idc option.
+	 * @return bool True if validation should be performed, false otherwise.
+	 */
+	public static function should_validate_idc( $sync_error ) {
+		// If delay has reached or exceeded the maximum, stop validating.
+		if ( $sync_error['next_check_delay'] >= self::IDC_VALIDATION_MAX_DELAY ) {
+			return false;
+		}
+
+		// Check if enough time has passed since the last check.
+		$time_since_last_check = time() - $sync_error['last_checked'];
+		return $time_since_last_check >= $sync_error['next_check_delay'];
+	}
+
+	/**
+	 * Validates the stored IDC by making a remote call to WordPress.com.
+	 *
+	 * Makes a lightweight API call to check if WordPress.com still detects an IDC.
+	 * If no IDC is detected in the response, the local IDC option is cleared.
+	 * If an IDC is still detected, the option is refreshed with the latest URL data from
+	 * WordPress.com and the validation timestamps are updated with progressive backoff.
+	 * If the request fails (network error, timeout, etc.), no changes are made.
+	 *
+	 * @param array $sync_error The stored sync_error_idc option with timing fields.
+	 * @return bool True if IDC was cleared, false otherwise.
+	 */
+	public static function validate_idc_from_remote( $sync_error ) {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		if ( ! $blog_id ) {
+			// Site not registered, can't make API call.
+			return false;
+		}
+
+		// Make a lightweight API call to WordPress.com.
+		// The response will automatically include 'idc_detected' if URLs still mismatch.
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( 'sites/%d', $blog_id ),
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		// Handle network/API errors - do nothing, will retry at next scheduled interval.
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			// Malformed response - do nothing.
+			return false;
+		}
+
+		// Check if WordPress.com still detects an IDC.
+		if ( isset( $body['idc_detected'] ) && is_array( $body['idc_detected'] ) ) {
+			// IDC still exists - refresh with latest data from WordPress.com and update timing.
+			$fresh_idc_data = self::get_sync_error_idc_option( $body['idc_detected'] );
+
+			// Preserve and update timing fields with exponential backoff.
+			$fresh_idc_data['last_checked']     = time();
+			$fresh_idc_data['next_check_delay'] = min(
+				$sync_error['next_check_delay'] * 2,
+				self::IDC_VALIDATION_MAX_DELAY
+			);
+
+			Jetpack_Options::update_option( 'sync_error_idc', $fresh_idc_data );
+			return false;
+		}
+
+		// No IDC detected in response - WordPress.com URLs now match, clear the local IDC.
+		Jetpack_Options::delete_option( 'sync_error_idc' );
+		return true;
 	}
 
 	/**
@@ -503,6 +612,14 @@ class Identity_Crisis {
 		if ( array_key_exists( 'wpcom_home', $returned_values ) && array_key_exists( 'wpcom_siteurl', $returned_values ) ) {
 			$returned_values['reversed_url'] = true;
 			$returned_values                 = self::reverse_wpcom_urls_for_idc( $returned_values );
+		}
+
+		// Add validation timing fields for backward compatibility with existing IDC options.
+		if ( ! isset( $returned_values['last_checked'] ) ) {
+			$returned_values['last_checked'] = 0;
+		}
+		if ( ! isset( $returned_values['next_check_delay'] ) ) {
+			$returned_values['next_check_delay'] = self::IDC_VALIDATION_INITIAL_DELAY;
 		}
 
 		return $returned_values;
