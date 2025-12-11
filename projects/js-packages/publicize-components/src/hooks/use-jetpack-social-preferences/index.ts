@@ -4,6 +4,10 @@ import { store as preferencesStore } from '@wordpress/preferences';
 
 const NAMESPACE = 'jetpack/social';
 
+const PREFERENCES = {
+	PRE_PUBLISH_CONFIRMATION: 'pre_publish_confirmation__2',
+};
+
 export type JetpackSocialPreferencesHook = {
 	showPrePublishConfirmation: boolean | undefined;
 	togglePrePublishConfirmation: VoidFunction;
@@ -19,17 +23,17 @@ export function useJetpackSocialPreferences(): JetpackSocialPreferencesHook {
 	const { toggle, set } = useDispatch( preferencesStore );
 
 	const showPrePublishConfirmation = useSelect(
-		select => select( preferencesStore ).get( NAMESPACE, 'show_pre_publish_confirmation' ),
+		select => select( preferencesStore ).get( NAMESPACE, PREFERENCES.PRE_PUBLISH_CONFIRMATION ),
 		[]
 	);
 
 	const togglePrePublishConfirmation = useCallback( () => {
-		toggle( NAMESPACE, 'show_pre_publish_confirmation' );
+		toggle( NAMESPACE, PREFERENCES.PRE_PUBLISH_CONFIRMATION );
 	}, [ toggle ] );
 
 	const setShowPrePublishConfirmation = useCallback(
 		( value: boolean ) => {
-			set( NAMESPACE, 'show_pre_publish_confirmation', value );
+			set( NAMESPACE, PREFERENCES.PRE_PUBLISH_CONFIRMATION, value );
 		},
 		[ set ]
 	);

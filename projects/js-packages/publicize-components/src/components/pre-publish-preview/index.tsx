@@ -26,8 +26,7 @@ export function PrePublishPreview() {
 		if ( showPrePublishConfirmation === undefined ) {
 			setShowPrePublishConfirmation( false );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- We want to run this only once on mount.
-	}, [] );
+	}, [ showPrePublishConfirmation, setShowPrePublishConfirmation ] );
 
 	// We want to show the preview only
 	const showPreview =
@@ -44,9 +43,7 @@ export function PrePublishPreview() {
 		if ( showPreview ) {
 			openUnifiedModal();
 		}
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- We want to run this only once on mount.
-	}, [] );
+	}, [ showPreview, openUnifiedModal ] );
 
 	return null;
 }
