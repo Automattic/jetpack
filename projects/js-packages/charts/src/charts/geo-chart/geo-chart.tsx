@@ -24,6 +24,9 @@ const world = topojson.feature( topology, topology.objects.units ) as {
 	features: FeatureShape[];
 };
 
+// Filter out Antarctica as it won't have any data
+const worldFeatures = world.features.filter( feature => feature.id !== 'ATA' );
+
 /**
  * Renders a geographical chart using Natural Earth projection to visualize data by country.
  *
@@ -45,10 +48,12 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 
 	// Default scale to fit the world map within the chart bounds
 	// Natural Earth projection uses a scale factor approximately 180/π for width
-	const mapScale = scale ?? width / 5.5;
+	// Scale increased slightly since Antarctica is excluded
+	const mapScale = scale ?? width / 5;
 	// Translation to center the map in the chart
-	const translateX = width / 2;
-	const translateY = height / 2;
+	// X and Y offset adjusted to account for excluded Antarctica, shifting the map down and left
+	const translateX = width * 0.46;
+	const translateY = height * 0.58;
 
 	// Get the max order count to scale the colors
 	const maxOrderCount = Math.max( ...Object.values( data ), 1 );
@@ -89,7 +94,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 			<svg width={ width } height={ height }>
 				<rect x={ 0 } y={ 0 } width={ width } height={ height } fill={ backgroundColor } />
 				<CustomProjection< FeatureShape >
-					data={ world.features }
+					data={ worldFeatures }
 					projection={ geoNaturalEarth1 }
 					scale={ mapScale }
 					translate={ [ translateX, translateY ] }
