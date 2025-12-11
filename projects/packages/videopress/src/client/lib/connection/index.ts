@@ -39,6 +39,33 @@ export function isUserConnected(): boolean {
 }
 
 /**
+ * Return whether the site is connected to Jetpack.
+ *
+ * This checks WPCOM simple/atomic shortcuts first, then falls back to the
+ * Jetpack connection status exposed in the initial state.
+ *
+ * @return {boolean} True if the site is connected, false otherwise.
+ */
+export function isSiteConnected(): boolean {
+	if ( isSimpleSite() || isWoASite() ) {
+		debug( 'Simple/Atomic site connected ✅' );
+		return true;
+	}
+
+	if (
+		initialState?.connectionStatus?.isRegistered ||
+		initialState?.connectionStatus?.isActive ||
+		initialState?.connectionStatus?.isConnected
+	) {
+		debug( 'Jetpack site is connected ✅' );
+		return true;
+	}
+
+	debug( 'Site is not connected ❌' );
+	return false;
+}
+
+/**
  * Check whether the Jetpack VideoPress module is active.
  *
  * @return {boolean} True if the module is active, false otherwise.
@@ -58,7 +85,7 @@ export function isVideoPressModuleActive(): boolean {
  * @return {boolean} True if the feature is active, false otherwise.
  */
 export function isVideoPressActive(): boolean {
-	if ( ! isUserConnected() ) {
+	if ( ! isSiteConnected() ) {
 		return false;
 	}
 
