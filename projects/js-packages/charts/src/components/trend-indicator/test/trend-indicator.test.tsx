@@ -21,21 +21,28 @@ describe( 'TrendIndicator', () => {
 	} );
 
 	it( 'renders icon for up direction', () => {
-		render( <TrendIndicator direction="up" value="+10%" /> );
+		const { container } = render( <TrendIndicator direction="up" value="+10%" /> );
 
-		expect( screen.getByRole( 'img', { hidden: true } ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const svg = container.querySelector( 'svg' );
+		expect( svg ).toBeInTheDocument();
+		expect( svg ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'renders icon for down direction', () => {
-		render( <TrendIndicator direction="down" value="-10%" /> );
+		const { container } = render( <TrendIndicator direction="down" value="-10%" /> );
 
-		expect( screen.getByRole( 'img', { hidden: true } ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		const svg = container.querySelector( 'svg' );
+		expect( svg ).toBeInTheDocument();
+		expect( svg ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'does not render icon for neutral direction', () => {
-		render( <TrendIndicator direction="neutral" value="0%" /> );
+		const { container } = render( <TrendIndicator direction="neutral" value="0%" /> );
 
-		expect( screen.queryByRole( 'img', { hidden: true } ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelector( 'svg' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'applies custom className', () => {
