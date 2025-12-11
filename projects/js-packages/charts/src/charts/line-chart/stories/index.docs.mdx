@@ -378,6 +378,28 @@ Add visual markers at data points using the glyph system:
 	/>` }
 />
 
+### Hiding Axes and Grid
+
+For minimal chart displays like sparklines or inline visualizations, you can hide the axes and grid using the `options` prop and `gridVisibility`:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+	data={data}
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+/>` }
+/>
+
 ## Interactive Features
 
 ### Tooltips and Crosshairs
@@ -700,40 +722,3 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 - **Jetpack**: Jetpack brand colors and styling
 - **Woo**: WooCommerce brand colors and styling
 - **Custom**: Define your own theme object
-
-## Sparkline Variant
-
-For compact, inline visualizations without axes or interactivity, use the [Sparkline](?path=/docs/js-packages-charts-library-charts-sparkline--docs) component. It provides a simplified API built on LineChart:
-
-<Source
-	language="jsx"
-	code={ `import { Sparkline } from '@automattic/charts';
-
-// Simple number array - no dates needed
-<Sparkline
-	data={[10, 15, 12, 18, 22, 25, 23, 28]}
-	width={120}
-	height={48}
-	color="#4CAF50"
-/>` }
-/>
-
-Alternatively, create a minimal LineChart directly using the `options` prop to hide axes and `gridVisibility` to hide the grid:
-
-<Source
-	language="jsx"
-	code={ `<LineChart
-	data={data}
-	gridVisibility="none"
-	options={{
-		axis: {
-			x: { display: false },
-			y: { display: false }
-		}
-	}}
-	showLegend={false}
-	withTooltips={false}
-	withGradientFill={true}
-	curveType="monotone"
-/>` }
-/>

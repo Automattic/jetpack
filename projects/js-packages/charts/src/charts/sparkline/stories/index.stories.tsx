@@ -1,4 +1,5 @@
 import { Sparkline } from '../';
+import { simpleChartDecorator } from '../../../stories/chart-decorator';
 import type { SparklineProps } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -6,8 +7,9 @@ const meta: Meta< SparklineProps > = {
 	title: 'JS Packages/Charts Library/Charts/Sparkline',
 	component: Sparkline,
 	parameters: {
-		layout: 'padded',
+		layout: 'centered',
 	},
+	decorators: [ simpleChartDecorator ],
 	argTypes: {
 		data: {
 			control: 'object',
@@ -114,10 +116,21 @@ export const TwoPoints: Story = {
 
 /**
  * Responsive sparkline that adjusts to container width using aspectRatio.
+ * Drag the corner of the container to resize and see the sparkline adapt.
  */
 export const Responsive: Story = {
 	render: () => (
-		<div style={ { width: '100%', maxWidth: '200px' } }>
+		<div
+			style={ {
+				width: '200px',
+				resize: 'horizontal',
+				overflow: 'auto',
+				padding: '8px',
+				border: '1px dashed #ccc',
+				minWidth: '80px',
+				maxWidth: '400px',
+			} }
+		>
 			<Sparkline data={ [ 10, 15, 12, 18, 22, 25 ] } color="#9C27B0" aspectRatio={ 0.3 } />
 		</div>
 	),
