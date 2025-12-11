@@ -53,4 +53,19 @@ describe( 'TrendIndicator', () => {
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( container.firstChild ).toHaveClass( 'custom-class' );
 	} );
+
+	it( 'renders numeric value', () => {
+		render( <TrendIndicator direction="up" value={ 42 } /> );
+
+		expect( screen.getByText( '42' ) ).toBeInTheDocument();
+	} );
+
+	it( 'applies custom style', () => {
+		const { container } = render(
+			<TrendIndicator direction="up" value="+10%" style={ { fontSize: '2rem' } } />
+		);
+
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( container.firstChild ).toHaveStyle( { fontSize: '2rem' } );
+	} );
 } );
