@@ -1,12 +1,14 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _x } from '@wordpress/i18n';
 
 /**
  * Benefit-driven success messages for module activation.
  *
- * Format: "[Feature Name] activated! [Present-tense benefit describing what the user NOW has]"
- *
  * These messages are shown when a module is successfully activated,
  * emphasizing the immediate value to the user.
+ *
+ * The benefit messages use present-tense descriptions of what the user NOW has.
+ * Messages are interpolated as: "%1$s activated! %2$s" where %1$s is the module
+ * name and %2$s is the benefit message.
  *
  * @return {Record<string, string>} Module benefit messages.
  */
@@ -184,10 +186,22 @@ export function getModuleActivationMessage( moduleSlug: string, moduleName: stri
 	const benefit = benefits[ moduleSlug ];
 
 	if ( benefit ) {
-		// The benefit string is already translated
-		return `${ moduleName } ${ __( 'activated!', 'jetpack-my-jetpack' ) } ${ benefit }`;
+		return sprintf(
+			/* translators: 1: Module name, 2: The benefit of the module */
+			_x(
+				'%1$s activated! %2$s',
+				'Message shown when a module is activated. 1: Module name, 2: The benefit of the module',
+				'jetpack-my-jetpack'
+			),
+			moduleName,
+			benefit
+		);
 	}
 
 	// Fallback to generic message if no benefit message is defined
-	return `${ moduleName } ${ __( 'has been activated.', 'jetpack-my-jetpack' ) }`;
+	return sprintf(
+		/* translators: %s: Jetpack module name */
+		_x( '%s has been activated.', '1: Jetpack module name', 'jetpack-my-jetpack' ),
+		moduleName
+	);
 }
