@@ -17,7 +17,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		{
 			id: 'featured-image',
 			label: __( 'Featured Image', 'jetpack-publicize-components' ),
-			description: __( 'You are using your post featured image', 'jetpack-publicize-components' ),
+			description: __( 'You are using your post featured image.', 'jetpack-publicize-components' ),
 			icon: image,
 			group: 'link-preview',
 			attachmentDescription: __(
@@ -28,7 +28,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		{
 			id: 'sig',
 			label: __( 'Social Image Template', 'jetpack-publicize-components' ),
-			description: __( 'You are using the template', 'jetpack-publicize-components' ),
+			description: __( 'You are using the template.', 'jetpack-publicize-components' ),
 			icon: starEmpty,
 			group: 'link-preview',
 			attachmentDescription: __(
@@ -46,7 +46,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 		{
 			id: 'upload-video',
 			label: __( 'Upload video', 'jetpack-publicize-components' ),
-			description: __( 'Upload a video file', 'jetpack-publicize-components' ),
+			description: __( 'Upload a video file.', 'jetpack-publicize-components' ),
 			icon: video,
 			group: 'attachment',
 		},
