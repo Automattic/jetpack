@@ -5,6 +5,7 @@
 	"description": "Performance baseline testing for Jetpack using Playwright LCP measurements and CodeVitals",
 	"type": "module",
 	"scripts": {
+		"calibrate": "node scripts/calibrate-throttling.js",
 		"docker:down": "docker compose -f docker/docker-compose.yml down -v",
 		"docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
 		"docker:reset": "pnpm run docker:down && pnpm test -- --skip-codevitals",

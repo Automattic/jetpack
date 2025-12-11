@@ -53,10 +53,12 @@ Results are automatically posted to [CodeVitals](https://www.codevitals.run) for
 ```
 tools/performance/
 ├── scripts/
+│   ├── calibrate-throttling.js   # CPU throttling calibration script
 │   ├── measure-lcp.js            # Playwright script to measure LCP
 │   ├── post-to-codevitals.js     # Posts metrics to CodeVitals API
 │   ├── run-performance-tests.js  # Main orchestrator script
-│   └── scenarios.js              # Scenario definitions (single source of truth)
+│   ├── scenarios.js              # Scenario definitions (single source of truth)
+│   └── stats.js                  # Shared statistics utilities (median, mean, stdDev)
 ├── docker/
 │   ├── docker-compose.yml        # 4 WordPress instances + MySQL
 │   ├── init-databases.sql        # Database initialization
@@ -67,6 +69,7 @@ tools/performance/
 │   └── jetpack/                  # Rsync'd Jetpack plugin (symlinks resolved)
 ├── results/
 │   └── lcp-results.json          # Performance measurement results
+├── calibration.json              # CPU throttling calibration (gitignored, per-machine)
 ├── package.json                  # Node.js dependencies
 ├── eslint.config.mjs             # ESLint configuration for CLI scripts
 ├── quickstart.sh                 # One-shot setup and test script
@@ -129,7 +132,32 @@ The test script automatically:
 4. Runs LCP measurements
 5. Posts results to CodeVitals (if token configured)
 
-### 4. View Results
+### 4. CPU Throttling Calibration (Recommended)
+
+For consistent results across different machines, run the calibration script:
+
+```bash
+# Run calibration (creates calibration.json)
+pnpm calibrate
+
+# Faster calibration with fewer passes
+CALIBRATION_PASSES=3 pnpm calibrate
+```
+
+**What it does:**
+- Runs a synthetic benchmark to measure your machine's CPU speed
+- Finds a CPU throttle rate that normalizes performance to a target score (1000)
+- Saves the result to `calibration.json` (gitignored, per-machine)
+- Future tests automatically apply this throttle rate via Chrome DevTools Protocol
+
+**Why it matters:**
+- Without calibration, a fast machine might report 80ms LCP while a slow machine reports 200ms
+- With calibration, both machines report similar results (e.g., ~120ms)
+- This enables meaningful comparisons across different CI agents and developer machines
+
+If no `calibration.json` exists, tests will run without throttling and display a warning.
+
+### 5. View Results
 
 Results are saved to `results/lcp-results.json` and include:
 - Median, mean, min, max LCP for each scenario
@@ -156,26 +184,28 @@ Summary Comparison (LCP - Largest Contentful Paint):
 | `CODEVITALS_URL` | `https://www.codevitals.run` | CodeVitals instance URL |
 | `CODEVITALS_TOKEN` | _(required for posting)_ | CodeVitals API token |
 | `ITERATIONS` | `5` | Number of measurement iterations per scenario |
+| `CALIBRATION_PASSES` | `9` | Number of calibration passes (more = more accurate) |
+| `COMPOSE_PROJECT_NAME` | `jetpack-perf` | Docker Compose project name (for parallel builds) |
 | `WP_ADMIN_USER` | `admin` | WordPress admin username |
 | `WP_ADMIN_PASS` | `password` | WordPress admin password |
-| `WP_BASELINE_URL` | `http://localhost:8080` | Baseline WordPress URL |
-| `WP_JETPACK_URL` | `http://localhost:8081` | Jetpack WordPress URL |
-| `WP_JETPACK_OFFLINE_URL` | `http://localhost:8082` | Jetpack Offline WordPress URL |
-| `WP_JETPACK_CONNECTED_URL` | `http://localhost:8083` | Jetpack Connected (Simulated) URL |
+| `WP_BASELINE_URL` | _(auto-discovered)_ | Baseline WordPress URL (dynamic port) |
+| `WP_JETPACK_URL` | _(auto-discovered)_ | Jetpack WordPress URL (dynamic port) |
+| `WP_JETPACK_OFFLINE_URL` | _(auto-discovered)_ | Jetpack Offline WordPress URL (dynamic port) |
+| `WP_JETPACK_CONNECTED_URL` | _(auto-discovered)_ | Jetpack Connected (Simulated) URL (dynamic port) |
 | `WPCOM_SIMULATED_LATENCY_MS` | `200` | Simulated WP.com API latency in milliseconds |
 | `MYSQL_READY_TIMEOUT_SECONDS` | `120` | Timeout for MySQL readiness check during setup |
 | `WP_READY_TIMEOUT_SECONDS` | `60` | Timeout for WordPress readiness check during setup |
 
 ### Docker Configuration
 
-The test suite uses four separate WordPress instances running on different ports:
+The test suite uses four separate WordPress instances. **Ports are assigned dynamically** by Docker to support parallel builds on shared CI agents. The test script automatically discovers the assigned ports at runtime.
 
-| Scenario | Port | URL |
-|----------|------|-----|
-| Baseline | 8080 | http://localhost:8080 |
-| Jetpack Disconnected | 8081 | http://localhost:8081 |
-| Jetpack Offline Mode | 8082 | http://localhost:8082 |
-| Jetpack Connected (Sim) | 8083 | http://localhost:8083 |
+| Scenario | Docker Service | Database |
+|----------|----------------|----------|
+| Baseline | `wordpress-baseline` | `wp_baseline` |
+| Jetpack Disconnected | `wordpress-jetpack` | `wp_jetpack` |
+| Jetpack Offline Mode | `wordpress-jetpack-offline` | `wp_jetpack_offline` |
+| Jetpack Connected (Sim) | `wordpress-jetpack-connected` | `wp_jetpack_connected` |
 
 All instances share a single MySQL database server with separate databases:
 - `wp_baseline`
@@ -206,9 +236,19 @@ See [TEAMCITY-SETUP.md](./TEAMCITY-SETUP.md) for detailed instructions on settin
 
 **Quick summary:**
 1. Create build configuration
-2. Add build steps for clone, build, test
+2. Add build steps for clone, build, calibrate, test
 3. Configure `CODEVITALS_TOKEN` parameter
 4. Run build manually or on schedule
+
+**Calibration in CI:**
+Run calibration as the first step before tests to ensure consistent results across different agents:
+
+```bash
+cd tools/performance
+pnpm calibrate
+```
+
+Each build runs fresh calibration (~30-60s) since different agents may have different CPU speeds.
 
 ## CodeVitals Metrics
 
@@ -307,13 +347,19 @@ Multiple iterations (default: 5) ensure:
 - Detection of variance
 - Outlier identification
 
-### System Warmup
+### System Warmup & Normalization
 
 Each measurement:
 - Starts a fresh browser instance
+- Applies CPU throttling if calibration exists (via Chrome DevTools Protocol)
 - Performs fresh login
 - Waits 2 seconds between iterations
 - Uses consistent viewport size (1920x1080)
+
+**CPU Throttling Calibration** ensures consistent results across machines by:
+- Running a synthetic benchmark (string building + array copying)
+- Finding a throttle rate that normalizes to a target score (1000)
+- Applying this rate during measurements via `Emulation.setCPUThrottlingRate`
 
 ## Troubleshooting
 
@@ -376,6 +422,26 @@ pnpm test
 - Check system load: Close other applications
 - Verify Docker has sufficient resources (4GB+ RAM recommended)
 
+### Calibration Issues
+
+**Problem**: "Machine is too slow for calibration"
+- Your machine's unthrottled benchmark score is below the target (1000)
+- This machine cannot be normalized to the baseline
+- Consider using a faster machine or skipping calibration (results will vary)
+
+**Problem**: Calibration takes too long
+```bash
+# Use fewer passes (default is 9)
+CALIBRATION_PASSES=3 pnpm calibrate
+```
+
+**Problem**: Want to re-run calibration
+```bash
+# Delete existing calibration and re-run
+rm calibration.json
+pnpm calibrate
+```
+
 ### CodeVitals Issues
 
 **Problem**: Posting fails
@@ -389,6 +455,7 @@ pnpm test
 |--------|-------------|
 | `pnpm test` | Run full test suite (recommended - handles all setup automatically) |
 | `pnpm run test:quick` | Run with 2 iterations (faster) |
+| `pnpm calibrate` | Run CPU throttling calibration (creates `calibration.json`) |
 | `pnpm run measure` | Run LCP measurements only (requires WordPress to be running) |
 | `pnpm run report` | Post results to CodeVitals |
 | `pnpm run setup:browsers` | Install Playwright browsers |
@@ -398,7 +465,7 @@ pnpm test
 | `pnpm run docker:logs` | View container logs |
 | `pnpm run docker:reset` | Full reset and setup |
 
-**Note**: For most use cases, just run `pnpm test` - it handles rsync, Docker startup, and WordPress setup automatically. The individual `docker:*` scripts are for advanced use or debugging.
+**Note**: For most use cases, just run `pnpm test` - it handles rsync, Docker startup, and WordPress setup automatically. Run `pnpm calibrate` once per machine for consistent results. The individual `docker:*` scripts are for advanced use or debugging.
 
 ## Future Enhancements
 

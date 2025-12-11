@@ -22,9 +22,35 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
+import { median as calcMedian, mean as calcMean, stdDev as calcStdDev } from './stats.js';
 
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = path.dirname( __filename );
+
+// Calibration file path
+const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );
+
+/**
+ * Load calibration data if available
+ *
+ * @return {object|null} Calibration data or null if not available
+ */
+function loadCalibration() {
+	try {
+		if ( fs.existsSync( CALIBRATION_FILE ) ) {
+			const data = JSON.parse( fs.readFileSync( CALIBRATION_FILE, 'utf8' ) );
+			if ( data.cpuRate && typeof data.cpuRate === 'number' ) {
+				return data;
+			}
+		}
+	} catch ( err ) {
+		console.warn( 'Warning: Failed to load calibration file:', err.message );
+	}
+	return null;
+}
+
+// Load calibration at module init
+const calibration = loadCalibration();
 
 /**
  * Measure LCP for the wp-admin dashboard
@@ -53,6 +79,15 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 		} );
 
 		const page = await context.newPage();
+
+		// Create CDP session for CPU throttling
+		let cdpSession = null;
+		if ( calibration?.cpuRate ) {
+			cdpSession = await context.newCDPSession( page );
+			await cdpSession.send( 'Emulation.setCPUThrottlingRate', {
+				rate: calibration.cpuRate,
+			} );
+		}
 
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
@@ -241,19 +276,13 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 	}
 
 	const lcpValues = validResults.map( r => r.lcp );
-	const sorted = [ ...lcpValues ].sort( ( a, b ) => a - b );
 
-	// Calculate median - average middle two values for even-length arrays
-	const mid = Math.floor( sorted.length / 2 );
-	const median =
-		sorted.length % 2 !== 0 ? sorted[ mid ] : ( sorted[ mid - 1 ] + sorted[ mid ] ) / 2;
-	const mean = lcpValues.reduce( ( a, b ) => a + b, 0 ) / lcpValues.length;
+	// Calculate statistics using shared utilities
+	const median = calcMedian( lcpValues );
+	const mean = calcMean( lcpValues );
+	const stdDev = calcStdDev( lcpValues );
 	const min = Math.min( ...lcpValues );
 	const max = Math.max( ...lcpValues );
-
-	const variance =
-		lcpValues.reduce( ( sum, val ) => sum + Math.pow( val - mean, 2 ), 0 ) / lcpValues.length;
-	const stdDev = Math.sqrt( variance );
 
 	return {
 		summary: {
@@ -282,6 +311,18 @@ async function main() {
 	console.log( 'WordPress Performance Testing - LCP Measurement' );
 	console.log( '================================================' );
 	console.log( '' );
+
+	// Log calibration status
+	if ( calibration ) {
+		console.log( `CPU Throttling: Enabled (rate: ${ calibration.cpuRate })` );
+		console.log( `  Calibrated: ${ calibration.calibratedAt }` );
+	} else {
+		console.log( 'CPU Throttling: Disabled (no calibration.json found)' );
+		console.log( '  Warning: Results may vary between machines.' );
+		console.log( '  Run "pnpm calibrate" to enable consistent throttling.' );
+	}
+	console.log( '' );
+
 	console.log( 'Methodology:' );
 	console.log( '  1. Log in to WordPress' );
 	console.log( '  2. Refresh dashboard (clean page load)' );
@@ -363,6 +404,13 @@ async function main() {
 		config: {
 			iterations,
 			scenario: scenarioFilter,
+			cpuThrottling: calibration
+				? {
+						enabled: true,
+						rate: calibration.cpuRate,
+						calibratedAt: calibration.calibratedAt,
+				  }
+				: { enabled: false },
 		},
 		measurements,
 		git: {
