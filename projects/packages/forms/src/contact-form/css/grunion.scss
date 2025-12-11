@@ -1336,10 +1336,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	border: 2px solid currentColor;
 	border-right-color: transparent;
 	border-radius: 50%;
-	animation: jp-spinner 0.75s linear infinite;
+	animation: jp-forms-submit-spinner 0.75s linear infinite;
 }
 
-@keyframes jp-spinner {
+@keyframes jp-forms-submit-spinner {
 
 	to {
 		transform: rotate(360deg);
