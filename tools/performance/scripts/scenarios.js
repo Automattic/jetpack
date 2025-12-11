@@ -51,6 +51,8 @@ export const SCENARIOS = [
 		defaultUrl: 'http://localhost:8083',
 		header: 'Scenario 4: Jetpack Connected (Simulated + 200ms Latency)',
 		metricPrefix: 'wp_admin_lcp_jetpack_connected',
+		metricKey: 'wp-admin-dashboard-connection-sim-largestContentfulPaint',
+		postToCodeVitals: true,
 		isBaseline: false,
 	},
 ];

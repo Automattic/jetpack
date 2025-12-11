@@ -16,33 +16,29 @@ const __dirname = path.dirname( __filename );
 /**
  * Extract metrics for a single scenario
  *
- * @param {object}      summary        - The scenario's summary object (median, mean, min, max, stdDev)
- * @param {string}      prefix         - Metric name prefix (e.g., 'wp_admin_lcp_baseline')
- * @param {number|null} baselineMedian - Baseline median for overhead calculation (null for baseline itself)
+ * @param {object} scenario - The scenario definition from scenarios.js
+ * @param {object} summary  - The scenario's summary object (median, mean, min, max, stdDev)
  * @return {object} Object with metrics and baseMetrics properties
  */
-function extractScenarioMetrics( summary, prefix, baselineMedian ) {
+function extractScenarioMetrics( scenario, summary ) {
 	const metrics = {};
 	const baseMetrics = {};
 
-	// Core metrics
-	metrics[ `${ prefix }_ms` ] = summary.median;
-	metrics[ `${ prefix }_mean_ms` ] = summary.mean;
-	metrics[ `${ prefix }_min_ms` ] = summary.min;
-	metrics[ `${ prefix }_max_ms` ] = summary.max;
-	metrics[ `${ prefix }_stddev_ms` ] = summary.stdDev;
-
-	// Base metrics for CodeVitals normalization
-	baseMetrics[ `${ prefix }_ms` ] = summary.median;
-	baseMetrics[ `${ prefix }_mean_ms` ] = summary.mean;
-
-	// Calculate overhead vs baseline (only for non-baseline scenarios)
-	// Guard against division by zero (theoretically impossible but defensive)
-	if ( baselineMedian !== null && baselineMedian > 0 ) {
-		const overhead = summary.median - baselineMedian;
-		const overheadPct = ( overhead / baselineMedian ) * 100;
-		metrics[ `${ prefix }_overhead_ms` ] = Math.round( overhead );
-		metrics[ `${ prefix }_overhead_pct` ] = Math.round( overheadPct * 10 ) / 10;
+	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
+	if ( scenario.metricKey ) {
+		// Single metric with exact key
+		metrics[ scenario.metricKey ] = summary.median;
+		baseMetrics[ scenario.metricKey ] = summary.median;
+	} else {
+		// Legacy: prefix-based keys with suffixes
+		const prefix = scenario.metricPrefix;
+		metrics[ `${ prefix }_ms` ] = summary.median;
+		metrics[ `${ prefix }_mean_ms` ] = summary.mean;
+		metrics[ `${ prefix }_min_ms` ] = summary.min;
+		metrics[ `${ prefix }_max_ms` ] = summary.max;
+		metrics[ `${ prefix }_stddev_ms` ] = summary.stdDev;
+		baseMetrics[ `${ prefix }_ms` ] = summary.median;
+		baseMetrics[ `${ prefix }_mean_ms` ] = summary.mean;
 	}
 
 	return { metrics, baseMetrics };
@@ -67,24 +63,28 @@ async function postToCodeVitals( resultsPath, config ) {
 	const metrics = {};
 	const baseMetrics = {};
 
-	// Get baseline value for normalization
-	const baselineMedian = results.measurements.baseline?.summary?.median ?? null;
-
-	// Process each scenario
+	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
-		const measurement = results.measurements[ scenario.key ];
-		if ( ! measurement || measurement.error ) {
+		// Skip scenarios not marked for CodeVitals
+		if ( ! scenario.postToCodeVitals ) {
 			continue;
 		}
 
-		const scenarioMetrics = extractScenarioMetrics(
-			measurement.summary,
-			scenario.metricPrefix,
-			scenario.isBaseline ? null : baselineMedian
-		);
+		const measurement = results.measurements[ scenario.key ];
+		if ( ! measurement || measurement.error ) {
+			console.warn( `Warning: No measurement data for ${ scenario.name }` );
+			continue;
+		}
+
+		const scenarioMetrics = extractScenarioMetrics( scenario, measurement.summary );
 
 		Object.assign( metrics, scenarioMetrics.metrics );
 		Object.assign( baseMetrics, scenarioMetrics.baseMetrics );
+	}
+
+	// Validate we have metrics to post
+	if ( Object.keys( metrics ).length === 0 ) {
+		throw new Error( 'No metrics to post - check scenario configuration and measurement results' );
 	}
 
 	// Prepare CodeVitals payload
