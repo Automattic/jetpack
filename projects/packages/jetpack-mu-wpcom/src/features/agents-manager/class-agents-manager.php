@@ -148,15 +148,21 @@ class Agents_Manager {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
+			error_log( '[Agents Manager Debug] should_use_unified_experience: no user_id, returning false' );
 			return false;
 		}
 
 		$is_simple_site = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple();
+		error_log( '[Agents Manager Debug] should_use_unified_experience: is_simple_site = ' . ( $is_simple_site ? 'true' : 'false' ) );
+
 		if ( $is_simple_site ) {
 			// On Simple sites, evaluate locally.
 			// Check Automattician and opt-in setting.
 			$is_automattician = function_exists( '\is_automattician' ) && \is_automattician( $user_id );
-			if ( $is_automattician && $this->has_unified_chat_opt_in_enabled( $user_id ) ) {
+			$has_opt_in       = $this->has_unified_chat_opt_in_enabled( $user_id );
+			error_log( '[Agents Manager Debug] Simple site: is_automattician = ' . ( $is_automattician ? 'true' : 'false' ) . ', has_opt_in = ' . ( $has_opt_in ? 'true' : 'false' ) );
+			if ( $is_automattician && $has_opt_in ) {
+				error_log( '[Agents Manager Debug] should_use_unified_experience: returning true (Simple + automattician + opt-in)' );
 				return true;
 			}
 		}
@@ -164,12 +170,15 @@ class Agents_Manager {
 		// On WoA and Garden sites, delegate to wpcom via the /me/preferences endpoint.
 		// This avoids duplicating rollout logic and handles cases where
 		// wpcom-specific functions (like get_user_attribute) aren't available.
-		if ( $this->get_unified_experience_from_wpcom() ) {
+		$wpcom_result = $this->get_unified_experience_from_wpcom();
+		error_log( '[Agents Manager Debug] should_use_unified_experience: get_unified_experience_from_wpcom() = ' . ( $wpcom_result ? 'true' : 'false' ) );
+		if ( $wpcom_result ) {
 			return true;
 		}
 
 		// False, for now.
 		// In the future: users with a big sky site (similar to https://github.a8c.com/Automattic/wpcom/pull/196449/files), a big-sky free trial or a paid plan.
+		error_log( '[Agents Manager Debug] should_use_unified_experience: returning false (no conditions met)' );
 		return false;
 	}
 
@@ -207,6 +216,7 @@ class Agents_Manager {
 		static $cached_value = null;
 
 		if ( $cached_value !== null ) {
+			error_log( '[Agents Manager Debug] get_unified_experience_from_wpcom: returning cached value = ' . ( $cached_value ? 'true' : 'false' ) );
 			return $cached_value;
 		}
 
@@ -218,12 +228,14 @@ class Agents_Manager {
 		);
 
 		if ( is_wp_error( $wpcom_request ) ) {
+			error_log( '[Agents Manager Debug] get_unified_experience_from_wpcom: WP_Error = ' . $wpcom_request->get_error_message() );
 			$cached_value = false;
 			return false;
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
+			error_log( '[Agents Manager Debug] get_unified_experience_from_wpcom: HTTP ' . $response_code );
 			$cached_value = false;
 			return false;
 		}
@@ -231,8 +243,11 @@ class Agents_Manager {
 		$body         = wp_remote_retrieve_body( $wpcom_request );
 		$decoded_body = json_decode( $body, true );
 
+		error_log( '[Agents Manager Debug] get_unified_experience_from_wpcom: response body = ' . $body );
+
 		// The response is the value of the preference directly when using preference_key.
 		$cached_value = ! empty( $decoded_body );
+		error_log( '[Agents Manager Debug] get_unified_experience_from_wpcom: final value = ' . ( $cached_value ? 'true' : 'false' ) );
 		return $cached_value;
 	}
 }
