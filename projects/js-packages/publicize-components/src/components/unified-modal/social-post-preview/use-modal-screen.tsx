@@ -1,4 +1,7 @@
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useBreakpoint } from '@automattic/viewport-react';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
@@ -21,11 +24,17 @@ export function useModalScreen(): ScreenDetails {
 	const baseId = useId();
 	const isSmallScreen = useBreakpoint( '<660px' );
 
+	const isPrePublishScreen = useSelect( select => {
+		const store = select( editorStore );
+		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
+	}, [] );
+
 	return useMemo(
 		() => ( {
 			path: '/',
 			title: __( 'Preview and customize', 'jetpack-publicize-components' ),
 			isScreenLocked: true,
+			headerIcon: isPrePublishScreen ? <JetpackLogo /> : null,
 			sidebar: isSmallScreen ? null : (
 				<Sidebar
 					baseId={ baseId }
@@ -49,6 +58,6 @@ export function useModalScreen(): ScreenDetails {
 				},
 			],
 		} ),
-		[ isSmallScreen, baseId, selectedConnection ]
+		[ isPrePublishScreen, isSmallScreen, baseId, selectedConnection ]
 	);
 }
