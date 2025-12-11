@@ -98,8 +98,8 @@ class Admin {
 		}
 		add_thickbox();
 		$localized_strings = array(
-			'exportError'       => esc_js( __( 'There was an error exporting your results', 'jetpack-forms' ) ),
-			'waitingConnection' => esc_js( __( 'Waiting for connection...', 'jetpack-forms' ) ),
+			'exportError'       => __( 'There was an error exporting your results', 'jetpack-forms' ),
+			'waitingConnection' => __( 'Waiting for connection...', 'jetpack-forms' ),
 		);
 		wp_localize_script( 'grunion-admin', 'exportParameters', $localized_strings );
 	}
