@@ -214,6 +214,7 @@ that needs to mimic the input element styles */
 }
 
 .contact-form-submission {
+	box-sizing: border-box;
 	margin-bottom: 4em;
 	padding: 1.5em 1em;
 	width: 100%;
