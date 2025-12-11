@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix PHPUnit 12.5 whining about mocks versus stubs.
+
+
