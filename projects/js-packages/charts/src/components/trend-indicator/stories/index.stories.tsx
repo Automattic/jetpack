@@ -3,10 +3,19 @@ import { TrendIndicator } from '../trend-indicator';
 import type { TrendIndicatorProps } from '../types';
 
 const meta: Meta< TrendIndicatorProps > = {
-	title: 'JS Packages/Charts/Components/Trend Indicator',
+	title: 'JS Packages/Charts Library/Components/Trend Indicator',
 	component: TrendIndicator,
 	parameters: {
 		layout: 'centered',
+	},
+	argTypes: {
+		direction: {
+			control: { type: 'radio' },
+			options: [ 'up', 'down', 'neutral' ],
+		},
+		value: {
+			control: 'text',
+		},
 	},
 };
 
