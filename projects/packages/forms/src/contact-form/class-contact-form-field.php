@@ -1312,7 +1312,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$option_styles   = empty( $option['style'] ) ? '' : "style='" . esc_attr( $option['style'] ) . "'";
 					$option_classes  = empty( $option['class'] ) ? $default_classes : $default_classes . ' ' . esc_attr( $option['class'] );
 
-					$field .= "<p {$option_styles} class='{$option_classes}'>";
+					$field .= "<label for='" . esc_attr( $radio_id ) . "' {$option_styles} class='{$option_classes}'>";
 					$field .= "<input
 									id='" . esc_attr( $radio_id ) . "'
 									type='radio'
@@ -1323,10 +1323,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option_label, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-					$field .= "<label for='" . esc_attr( $radio_id ) . "' class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+					$field .= "<span class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 					$field .= "<span class='grunion-field-text'>" . esc_html( $option_label ) . '</span>';
+					$field .= '</span>';
 					$field .= '</label>';
-					$field .= '</p>';
 				}
 			}
 		} else {
