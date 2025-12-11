@@ -35,7 +35,7 @@ export function useModalScreen(): ScreenDetails {
 	const handleSave = useCallback( () => {
 		updateSettings( {
 			image_type: localState.imageType,
-			image_id: localState.imageId,
+			image_id: localState.imageId ?? undefined,
 			custom_text: localState.customText,
 			template: localState.template,
 			font: localState.font,
