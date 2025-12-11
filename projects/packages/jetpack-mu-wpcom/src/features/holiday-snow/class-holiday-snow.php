@@ -15,20 +15,12 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
  */
 class Holiday_Snow {
 	/**
-	 * Slug where one can find the Holiday Snow settings.
-	 *
-	 * @var string
-	 */
-	private const SETTINGS_PAGE_SLUG = 'jetpack-holiday-snow';
-
-	/**
 	 * Option names.
 	 */
 	private const OPTION_ENABLED    = 'jetpack_holiday_snow_enabled';
 	private const OPTION_GRID_WIDTH = 'jetpack_holiday_snow_grid_width';
 	private const OPTION_DENSITY    = 'jetpack_holiday_snow_density';
 	private const OPTION_SPEED      = 'jetpack_holiday_snow_speed';
-	private const OPTION_SOUTH      = 'jetpack_holiday_snow_south';
 
 	/**
 	 * Settings config; defined in init().
@@ -45,24 +37,81 @@ class Holiday_Snow {
 	private static $is_snow_enabled_cache = null;
 
 	/**
-	 * Whether to show the holiday snow settings.
-	 * Shows from 1 December through 6 January and from 1 June through 6 July.
+	 * Get a config array safely, ensuring config is initialized.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $option_name The option name.
+	 * @return array|null The config array or null if not initialized.
 	 */
-	public static function show_settings() {
-		$today = time();
-		return (
-			// southern hemisphere
-			$today >= mktime( 0, 0, 0, 6, 1 ) && $today < mktime( 0, 0, 0, 7, 7 )
-			||
-			// northern hemisphere
-			$today >= mktime( 0, 0, 0, 12, 1 ) || $today < mktime( 0, 0, 0, 1, 7 )
-		);
+	private static function get_config( $option_name ) {
+		// Ensure config is initialized.
+		if ( empty( self::$holiday_snow_config ) ) {
+			return null;
+		}
+
+		if ( ! isset( self::$holiday_snow_config[ $option_name ] ) ) {
+			return null;
+		}
+
+		return self::$holiday_snow_config[ $option_name ];
 	}
 
 	/**
-	 * Check if it is the holiday snow season.
-	 * If set to northern hemisphere (default), it shows from 1 December through 6 January.
-	 * Otherwise it shows from 1 June through 6 July.
+	 * Get the hemisphere setting, automatically detected from timezone.
+	 * Attempts to detect hemisphere from the site's timezone location data.
+	 * Falls back to Northern hemisphere if detection is not possible
+	 * e.g., UTC or offset-based timezones).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string 'south' or 'north'.
+	 */
+	private static function get_hemisphere_setting() {
+		$hemisphere = 'north';
+		$timezone   = wp_timezone();
+
+		/*
+		 * Get location data from the timezone object.
+		 * This only works for named timezones (e.g., "Europe/Budapest"), not offsets.
+		 */
+		$location = $timezone->getLocation();
+
+		if ( $location && isset( $location['latitude'] ) ) {
+			$latitude = (float) $location['latitude'];
+
+			/*
+			 * Latitude > 0 = Northern hemisphere, < 0 = Southern hemisphere.
+			 */
+			if ( $latitude < 0 ) {
+				$hemisphere = 'south';
+			}
+		}
+
+		/**
+		 * Filter the detected hemisphere setting.
+		 * Allows overriding the automatic hemisphere detection from timezone.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $hemisphere The detected hemisphere. Either 'north' or 'south'.
+		 */
+		$hemisphere = apply_filters( 'jetpack_holiday_snow_hemisphere', $hemisphere );
+
+		if ( ! in_array( $hemisphere, array( 'north', 'south' ), true ) ) {
+			$hemisphere = 'north';
+		}
+
+		return $hemisphere;
+	}
+
+	/**
+	 * Check if it is the holiday snow season, based on hemisphere and date.
+	 *
+	 * The hemisphere is automatically detected from the site's timezone.
+	 * If detection is not possible, fallback to Northern hemisphere.
+	 * Northern hemisphere: shows from 1 December through 6 January.
+	 * Southern hemisphere: shows from 1 June through 6 July.
 	 *
 	 * @return bool
 	 */
@@ -70,17 +119,21 @@ class Holiday_Snow {
 		$is_snow_season = false;
 		$today          = time();
 
-		$do_southern_hemisphere = get_option( self::OPTION_SOUTH, self::$holiday_snow_config[ self::OPTION_SOUTH ]['default'] );
-		if ( $do_southern_hemisphere ) {
+		$hemisphere = self::get_hemisphere_setting();
+		if ( 'south' === $hemisphere ) {
 			$first_snow_day = mktime( 0, 0, 0, 6, 1 );
 			$last_snow_day  = mktime( 0, 0, 0, 7, 7 );
+			// Southern hemisphere: June 1 - July 7 (doesn't span year boundary, use AND)
+			if ( $today >= $first_snow_day && $today < $last_snow_day ) {
+				$is_snow_season = true;
+			}
 		} else {
 			$first_snow_day = mktime( 0, 0, 0, 12, 1 );
 			$last_snow_day  = mktime( 0, 0, 0, 1, 7 );
-		}
-
-		if ( $today >= $first_snow_day || $today < $last_snow_day ) {
-			$is_snow_season = true;
+			// Northern hemisphere: Dec 1 - Jan 7 (spans year boundary, use OR)
+			if ( $today >= $first_snow_day || $today < $last_snow_day ) {
+				$is_snow_season = true;
+			}
 		}
 
 		/**
@@ -93,20 +146,6 @@ class Holiday_Snow {
 		 * @param bool $is_holiday_snow_season Is it the snow season?
 		 */
 		return apply_filters( 'jetpack_is_holiday_snow_season', $is_snow_season );
-	}
-
-	/**
-	 * Check if the site uses p2.
-	 * p2 is currently not compatible with Holiday Snow.
-	 * This covers both P2 and P2020 themes.
-	 *
-	 * @deprecated 6.1.0
-	 *
-	 * @return bool
-	 */
-	private static function is_p2() {
-		return str_contains( get_stylesheet(), 'pub/p2' )
-			|| function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
 	}
 
 	/**
@@ -163,20 +202,10 @@ class Holiday_Snow {
 				'description' => __( 'How long it takes for a snowflake to get to the bottom of the screen. The lower the number, the faster it goes.', 'jetpack-mu-wpcom' ),
 				'label'       => __( 'Snow Speed', 'jetpack-mu-wpcom' ),
 			),
-			self::OPTION_SOUTH      => array(
-				'default'     => false,
-				'type'        => 'boolean',
-				'description' => __( 'If snow is enabled and this is ticked, it will show from 1 June through 6 July. Otherwise it will fall from 1 December through 6 January.', 'jetpack-mu-wpcom' ),
-				'label'       => __( 'Southern Hemisphere', 'jetpack-mu-wpcom' ),
-			),
 		);
 
-		/**
-		 * We should show settings if:
-		 * 1. It's in one of the seasons.
-		 * 2. It's snow season, which can be configured with a filter.
-		 */
-		if ( ! self::show_settings() && ! self::is_snow_season() ) {
+		// Only show settings if it's snow season.
+		if ( ! self::is_snow_season() ) {
 			return;
 		}
 
@@ -184,12 +213,6 @@ class Holiday_Snow {
 		add_filter( 'rest_api_update_site_settings', array( __CLASS__, 'update_option_api' ), 10, 2 );
 		add_action( 'update_option_' . self::OPTION_ENABLED, array( __CLASS__, 'holiday_snow_option_updated' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
-		add_action( 'admin_menu', array( __CLASS__, 'add_settings_page' ) );
-
-		// If we're in the wrong hemisphere, we'll see the settings but not the snow.
-		if ( ! self::is_snow_season() ) {
-			return;
-		}
 
 		if ( self::is_snow_enabled() ) {
 			add_action( 'wp_footer', array( __CLASS__, 'holiday_snow_markup' ) );
@@ -205,8 +228,22 @@ class Holiday_Snow {
 	 */
 	public static function holiday_snow_markup() {
 		// Get the snow speed option, fallback to default if not set.
-		$snow_speed = get_option( self::OPTION_SPEED, self::$holiday_snow_config[ self::OPTION_SPEED ]['default'] );
-		$snow_speed = self::sanitize_option( $snow_speed, self::$holiday_snow_config[ self::OPTION_SPEED ] );
+		// Use hardcoded default (9) if config is not initialized yet.
+		$speed_config  = self::get_config( self::OPTION_SPEED );
+		$default_speed = $speed_config ? $speed_config['default'] : 9;
+		$snow_speed    = get_option( self::OPTION_SPEED, $default_speed );
+
+		// Sanitize the value, using config if available, otherwise use hardcoded defaults.
+		if ( $speed_config ) {
+			$snow_speed = self::sanitize_option( $snow_speed, $speed_config );
+		} else {
+			// Fallback sanitization if config not initialized: ensure it's between 1-20, default to 9.
+			$snow_speed = (int) $snow_speed;
+			if ( $snow_speed < 1 || $snow_speed > 20 ) {
+				$snow_speed = 9;
+			}
+		}
+
 		echo '<div id="jetpack-holiday-snow" style="--jetpack-holiday-snow-speed: ' . (int) $snow_speed . 's;" ></div>';
 	}
 
@@ -294,7 +331,7 @@ class Holiday_Snow {
 				continue;
 			}
 			register_setting(
-				self::SETTINGS_PAGE_SLUG,
+				'general',
 				$option_name,
 				array(
 					'type'              => $option_config['type'],
@@ -342,46 +379,13 @@ class Holiday_Snow {
 						);
 					}
 				},
-				self::SETTINGS_PAGE_SLUG,
-				self::SETTINGS_PAGE_SLUG,
+				'general',
+				'default',
 				array(
 					'label_for' => $option_name,
 				)
 			);
 		}
-	}
-
-	/**
-	 * Add a new settings page for Holiday Snow.
-	 */
-	public static function add_settings_page() {
-		add_options_page(
-			esc_attr__( 'Holiday Snow Settings', 'jetpack-mu-wpcom' ),
-			esc_attr__( 'Holiday Snow', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			self::SETTINGS_PAGE_SLUG,
-			array( __CLASS__, 'render_settings_page' )
-		);
-	}
-
-	/**
-	 * Render the Holiday Snow settings page.
-	 */
-	public static function render_settings_page() {
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Holiday Snow Settings', 'jetpack-mu-wpcom' ); ?></h1>
-			<form method="post" action="options.php">
-				<?php settings_fields( self::SETTINGS_PAGE_SLUG ); ?>
-				<table class="form-table">
-					<tbody>
-						<?php do_settings_fields( self::SETTINGS_PAGE_SLUG, self::SETTINGS_PAGE_SLUG ); ?>
-					</tbody>
-				</table>
-				<?php submit_button(); ?>
-			</form>
-		</div>
-		<?php
 	}
 
 	/**
