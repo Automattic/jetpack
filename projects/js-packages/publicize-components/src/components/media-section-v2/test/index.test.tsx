@@ -112,7 +112,7 @@ describe( 'MediaSectionV2', () => {
 		it( 'should show featured image description when featured image is detected', () => {
 			render( <MediaSectionV2 /> );
 
-			expect( screen.getByText( 'You are using your post featured image' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'You are using your post featured image.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show featured image preview', () => {
@@ -203,7 +203,7 @@ describe( 'MediaSectionV2', () => {
 		it( 'should show SIG description when SIG is enabled', () => {
 			render( <MediaSectionV2 /> );
 
-			expect( screen.getByText( 'You are using the template' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'You are using the template.' ) ).toBeInTheDocument();
 		} );
 
 		it( 'should show SIG preview image', () => {

@@ -1,10 +1,15 @@
 import { isUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
+import { useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import {
 	addPexelsToMediaInserter,
 	addGooglePhotosToMediaInserter,
+	ALLOWED_BLOCKS,
+	externalMediaSources,
+	getExternalLibrary,
 	MediaButton,
+	MediaSources,
 	mediaSources,
 } from '../../shared';
 import './editor.scss';
@@ -35,19 +40,9 @@ if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 		( props.modalClass && props.modalClass.indexOf( 'featured-image' ) > -1 );
 
 	const isAllowedBlock = ( name, render ) => {
-		const allowedBlocks = [
-			'core/cover',
-			'core/image',
-			'core/gallery',
-			'core/media-text',
-			'jetpack/image-compare',
-			'jetpack/slideshow',
-			'jetpack/story',
-			'jetpack/tiled-gallery',
-			'videopress/video',
-		];
-
-		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;
+		const isInAllowedList = ALLOWED_BLOCKS.indexOf( name ) > -1;
+		const isNotCoBlocks = render ? render.toString().indexOf( 'coblocks' ) === -1 : true;
+		return isInAllowedList && isNotCoBlocks;
 	};
 
 	// Register the new 'browse media' button.
@@ -80,5 +75,49 @@ if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 		'blocks.registerBlockType',
 		'external-media/individual-blocks',
 		insertExternalMediaBlocks
+	);
+
+	// Add external media sources to MediaReplaceFlow dropdown.
+	addFilter(
+		'editor.MediaReplaceFlow',
+		'external-media/add-external-sources',
+		OriginalComponent => {
+			return props => {
+				const { name } = useBlockEditContext();
+				const [ selectedSource, setSelectedSource ] = useState( null );
+
+				// Only add external media sources for allowed blocks
+				if ( ! isAllowedBlock( name ) ) {
+					return <OriginalComponent { ...props } />;
+				}
+
+				const ExternalLibrary = selectedSource ? getExternalLibrary( selectedSource ) : null;
+				const externalSource = selectedSource
+					? externalMediaSources.find( s => s.id === selectedSource )
+					: null;
+
+				return (
+					<>
+						<OriginalComponent { ...props }>
+							{ ( { onClose } ) => (
+								<MediaSources onClick={ onClose } setSource={ setSelectedSource } />
+							) }
+						</OriginalComponent>
+
+						{ ExternalLibrary && (
+							<ExternalLibrary
+								onSelect={ props.onSelect }
+								onClose={ () => setSelectedSource( null ) }
+								allowedTypes={ props.allowedTypes }
+								multiple={ props.multiple }
+								addToGallery={ props.addToGallery }
+								value={ props.mediaIds }
+								externalSource={ externalSource }
+							/>
+						) }
+					</>
+				);
+			};
+		}
 	);
 }

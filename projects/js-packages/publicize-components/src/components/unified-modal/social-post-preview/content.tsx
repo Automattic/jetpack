@@ -1,5 +1,7 @@
 import { Flex } from '@wordpress/components';
 import { Connection } from '../../../social-store/types';
+import { MediaValidationNotices } from '../../form/media-validation-notices';
+import { SharePostForm } from '../../form/share-post-form';
 import { PostPreview } from '../../social-post-modal/post-preview';
 import { ConnectionPanels } from './connection-panels';
 import styles from './styles.module.scss';
@@ -20,7 +22,15 @@ export function Content( { baseId, selectedConnection, forSmallScreen }: Content
 	if ( forSmallScreen ) {
 		return (
 			<div className={ styles.content }>
-				<ConnectionPanels />
+				<Flex direction="column" gap={ 0 }>
+					<ConnectionPanels />
+					<div className={ styles[ 'notice-wrapper' ] }>
+						<MediaValidationNotices />
+					</div>
+					<div className={ styles[ 'customization-form' ] }>
+						<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
+					</div>
+				</Flex>
 			</div>
 		);
 	}
