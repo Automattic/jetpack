@@ -8,7 +8,7 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -48,7 +48,7 @@ export default function MediaSectionV2( {
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
 
 	// State for AI image generation modal
-	const [ showAiImageModal, setShowAiImageModal ] = useState( false );
+	const [ showAiImageModal, toggleShowAiImageModal ] = useReducer( state => ! state, false );
 
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
@@ -148,16 +148,6 @@ export default function MediaSectionV2( {
 		}, 0 );
 	}, [] );
 
-	// Handle AI image generation click
-	const handleAiImageClick = useCallback( () => {
-		setShowAiImageModal( true );
-	}, [] );
-
-	// Handle AI image modal close
-	const handleAiImageModalClose = useCallback( () => {
-		setShowAiImageModal( false );
-	}, [] );
-
 	// Handle AI image selection
 	const handleAiImageSelect = useCallback(
 		( { id, url, mime }: WPMediaObject ) => {
@@ -174,7 +164,7 @@ export default function MediaSectionV2( {
 				source: 'ai-image',
 			} );
 
-			setShowAiImageModal( false );
+			toggleShowAiImageModal();
 		},
 		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
 	);
@@ -271,7 +261,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
-								onAiImageClick={ handleAiImageClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							>
 								{ ( { open } ) => (
@@ -310,7 +300,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
-								onAiImageClick={ handleAiImageClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							/>
 							{ currentSource === 'featured-image' && ! featuredImageId && (
@@ -328,7 +318,7 @@ export default function MediaSectionV2( {
 			{ showAiImageModal && (
 				<GeneralPurposeImage
 					placement="social-media-dropdown"
-					onClose={ handleAiImageModalClose }
+					onClose={ toggleShowAiImageModal }
 					onSetImage={ handleAiImageSelect }
 				/>
 			) }

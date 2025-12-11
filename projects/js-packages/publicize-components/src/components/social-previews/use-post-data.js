@@ -59,8 +59,8 @@ export function usePostData() {
 				};
 			};
 
-			for ( const attachedItem of attachedMedia ) {
-				const mediaDetails = getMediaDetails( attachedItem.id );
+			for ( const { id } of attachedMedia ) {
+				const mediaDetails = getMediaDetails( id );
 				if ( mediaDetails ) {
 					media.push( mediaDetails );
 				}
