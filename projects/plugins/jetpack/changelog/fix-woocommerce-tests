@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix WooCommerce tests by loading Action Schedule earlier.
+
+

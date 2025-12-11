@@ -459,24 +459,22 @@ The component supports CSS custom properties for advanced styling:
 	}` }
 />
 
-### Theme Integration
+## Theming Integration
 
-The chart integrates with the global charts theming system:
+Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, LeaderboardChart, type ChartTheme } from '@automattic/charts';
 
-	<GlobalChartsProvider theme={jetpackTheme}>
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
 		<LeaderboardChart data={data} />
 	</GlobalChartsProvider>` }
 />
-
-**Available themes:**
-- **Default**: Neutral colors and styling
-- **Jetpack**: Jetpack brand colors and styling
-- **Woo**: WooCommerce brand colors and styling
-- **Custom**: Define your own theme object
 
 ## Accessibility
 

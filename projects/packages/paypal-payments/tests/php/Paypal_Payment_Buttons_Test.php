@@ -21,6 +21,16 @@ use PHPUnit\Framework\TestCase;
 class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
+	 * Clean up after each test.
+	 */
+	protected function tearDown(): void {
+		parent::tearDown();
+		// Clean up any registered scripts.
+		global $wp_scripts;
+		$wp_scripts = null;
+	}
+
+	/**
 	 * Test that valid PayPal URLs pass through unchanged.
 	 *
 	 * @dataProvider valid_paypal_urls_provider
@@ -186,5 +196,54 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$result_parsed = wp_parse_url( $result );
 		$this->assertEquals( 'sandbox.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped from sandbox' );
+	}
+
+	/**
+	 * Test that render_block uses CSS selector with # prefix for stacked buttons.
+	 *
+	 * This test ensures that the render() call uses a proper CSS ID selector (with #)
+	 * rather than just the container ID. The PayPal SDK expects a CSS selector.
+	 *
+	 * @see https://github.com/Automattic/jetpack/pull/46259
+	 */
+	public function test_render_block_uses_css_selector_with_hash_prefix() {
+		$attributes = array(
+			'buttonType'     => 'stacked',
+			'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=test',
+			'hostedButtonId' => 'TESTBUTTONID123',
+		);
+
+		// Call render_block
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Verify the container div is created
+		$this->assertStringContainsString(
+			'id="paypal-container-TESTBUTTONID123"',
+			$result,
+			'Container div should have the correct ID'
+		);
+
+		// Get the inline script that was added
+		global $wp_scripts;
+		$inline_script = $wp_scripts->get_data( 'paypal-payment-buttons-block-head', 'after' );
+
+		$this->assertNotEmpty( $inline_script, 'Inline script should be registered' );
+
+		// The inline script is an array, join it to search
+		$script_content = implode( '', $inline_script );
+
+		// Verify the render call uses CSS selector with # prefix
+		$this->assertStringContainsString(
+			'.render("#paypal-container-TESTBUTTONID123")',
+			$script_content,
+			'The render() call must use a CSS ID selector with # prefix'
+		);
+
+		// Verify it does NOT use the container ID without #
+		$this->assertStringNotContainsString(
+			'.render("paypal-container-TESTBUTTONID123")',
+			$script_content,
+			'The render() call must NOT use container ID without # prefix'
+		);
 	}
 }

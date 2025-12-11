@@ -15,7 +15,7 @@ The Line Chart component supports a compound component pattern for annotations, 
 
 <Source
 	language="jsx"
-	code={ `import { LineChart } from '@automattic/jetpack-charts';
+	code={ `import { LineChart } from '@automattic/charts';
 
 	<LineChart data={ data }>
 		<LineChart.AnnotationsOverlay>
@@ -198,16 +198,11 @@ Controls the text label appearance:
 
 ### Theme Integration
 
-Annotations inherit styling from your chart theme. Default themes provide consistent styling:
-
-- **Jetpack Theme**: Gray colors with subtle styling
-- **Woo Theme**: Black accents for higher contrast
-- **Custom Themes**: Define `annotationStyles` in your theme object
+Annotations inherit styling from your chart theme. You can customize annotation styles by defining `annotationStyles` in your theme object:
 
 <Source
 	language="jsx"
 	code={ `const customTheme = {
-		...jetpackTheme,
 		annotationStyles: {
 			label: {
 				backgroundFill: '#f0f8ff',

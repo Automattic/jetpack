@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { GlobalChartsProvider } from '../global-charts-provider';
 import { useGlobalChartsTheme } from '../hooks/use-global-charts-theme';
-import { defaultTheme, jetpackTheme, wooTheme } from '../themes';
+import { defaultTheme } from '../themes';
 import type { ChartTheme } from '../../../types';
 import type { ReactNode } from 'react';
 
@@ -31,28 +31,6 @@ describe( 'useGlobalChartsTheme', () => {
 			// Other properties should still come from default theme
 			expect( result.current.backgroundColor ).toBe( defaultTheme.backgroundColor );
 			expect( result.current.gridStyles ).toEqual( defaultTheme.gridStyles );
-		} );
-
-		it( 'should work with predefined jetpackTheme', () => {
-			const wrapper = createWrapper( jetpackTheme );
-
-			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
-
-			expect( result.current.colors ).toEqual( jetpackTheme.colors );
-			expect( result.current.leaderboardChart?.primaryColor ).toBe(
-				jetpackTheme.leaderboardChart?.primaryColor
-			);
-		} );
-
-		it( 'should work with predefined wooTheme', () => {
-			const wrapper = createWrapper( wooTheme );
-
-			const { result } = renderHook( () => useGlobalChartsTheme(), { wrapper } );
-
-			expect( result.current.colors ).toEqual( wooTheme.colors );
-			expect( result.current.leaderboardChart?.primaryColor ).toBe(
-				wooTheme.leaderboardChart?.primaryColor
-			);
 		} );
 
 		it( 'should handle empty theme object', () => {

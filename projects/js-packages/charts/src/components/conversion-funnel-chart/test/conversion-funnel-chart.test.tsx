@@ -310,7 +310,6 @@ describe( 'ConversionFunnelChart', () => {
 			renderWithoutTheme( <ConversionFunnelChart { ...defaultProps } changeIndicator="+5.2%" /> );
 
 			const changeElement = screen.getByText( '+5.2%' );
-			// Note: The exact color value depends on the theme (Woo theme colors)
 			// Color is applied via CSS variable, so check that element exists
 			expect( changeElement ).toBeInTheDocument();
 		} );

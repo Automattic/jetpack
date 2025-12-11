@@ -216,9 +216,22 @@ The chart includes built-in styling for labels and notes with appropriate typogr
 />` }
 />
 
-### Theme Integration
+## Theming Integration
 
-The chart automatically integrates with the charts theme system, using predefined colors, spacing, and typography. Theme colors are applied in sequence to chart segments based on their index in the data array.
+Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, PieSemiCircleChart, type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<PieSemiCircleChart data={data} />
+	</GlobalChartsProvider>` }
+/>
 
 ## Legend Integration
 

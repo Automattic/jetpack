@@ -2,6 +2,7 @@ import { NavigatorModal, ThemeProvider } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
+import { useModalScreen as useEditTemplateModalScreen } from './edit-template/use-modal-screen';
 import { useModalScreen as useSocialPostPreviewModalScreen } from './social-post-preview/use-modal-screen';
 
 /**
@@ -13,6 +14,7 @@ function ThemedUnifiedModal() {
 	const initialPath = useSelect( select => select( socialStore ).getUnifiedModalInitialPath(), [] );
 
 	const socialPostPreviewModalScreen = useSocialPostPreviewModalScreen();
+	const editTemplateModalScreen = useEditTemplateModalScreen();
 
 	const { closeUnifiedModal } = useDispatch( socialStore );
 
@@ -24,6 +26,7 @@ function ThemedUnifiedModal() {
 		<ThemeProvider targetDom={ document.body }>
 			<NavigatorModal initialPath={ initialPath || '/' } onClose={ onClose }>
 				<NavigatorModal.Screen { ...socialPostPreviewModalScreen } />
+				<NavigatorModal.Screen { ...editTemplateModalScreen } />
 				{ /* Generate with AI screen goes here */ }
 			</NavigatorModal>
 		</ThemeProvider>
