@@ -142,6 +142,10 @@ WPCONFIG
     # Check if WordPress is already installed
     if wp core is-installed --path="$wp_path" 2>/dev/null; then
         echo "  ✓ WordPress already installed"
+        # Diagnostic: verify existing installation state
+        echo "  Diagnostic: verifying existing installation..."
+        echo "  Users:"
+        wp user list --path="$wp_path" --fields=ID,user_login,roles 2>&1 | head -3 || echo "    (could not list users)"
     else
         echo "  Installing WordPress..."
 
@@ -160,10 +164,18 @@ WPCONFIG
 
             # Drop and recreate the database
             echo "  Dropping and recreating database: $db_name"
-            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`$db_name\`; CREATE DATABASE \`$db_name\`;" 2>/dev/null || {
+            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`$db_name\`; CREATE DATABASE \`$db_name\`;" || {
                 echo "  ✗ ERROR: Failed to recreate database"
                 return 1
             }
+
+            # Small delay to ensure database is ready
+            sleep 1
+
+            # Diagnostic: verify database is empty after recreation
+            echo "  Diagnostic: checking database state after recreation..."
+            local table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
+            echo "  Tables in $db_name: $table_count"
 
             # Retry installation
             echo "  Retrying WordPress installation..."
@@ -178,6 +190,24 @@ WPCONFIG
         fi
 
         echo "  ✓ WordPress installed"
+
+        # Diagnostic: verify installation state
+        echo "  Diagnostic: verifying installation state..."
+        echo "  Tables:"
+        wp db tables --path="$wp_path" 2>&1 | head -5 || echo "    (could not list tables)"
+        echo "  Users:"
+        wp user list --path="$wp_path" --fields=ID,user_login,roles 2>&1 | head -5 || echo "    (could not list users)"
+
+        # Ensure admin user exists (may be missing after database repair)
+        if ! wp user get "$WP_ADMIN_USER" --path="$wp_path" > /dev/null 2>&1; then
+            echo "  ⚠ Admin user missing, creating..."
+            wp user create "$WP_ADMIN_USER" "$WP_ADMIN_EMAIL" \
+                --role=administrator \
+                --user_pass="$WP_ADMIN_PASS" \
+                --path="$wp_path" || true
+        else
+            echo "  ✓ Admin user exists"
+        fi
     fi
 
     # Activate Jetpack if requested and it exists
