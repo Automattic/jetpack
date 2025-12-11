@@ -28,6 +28,7 @@ import { useParams, useSearch, useNavigate } from '@wordpress/route';
  * Internal dependencies
  */
 import Page from '../../src/dashboard/components/page';
+import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 
