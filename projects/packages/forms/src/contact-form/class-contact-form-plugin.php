@@ -1602,6 +1602,52 @@ class Contact_Form_Plugin {
 				);
 			}
 
+			/**
+			 * Filters the list of extra webhooks to be called when a form is submitted.
+			 *
+			 * This filter allows developers to programmatically add webhook configurations that will
+			 * receive form submission data. The webhooks added through this filter are merged
+			 * with any webhooks already configured in the form's attributes.
+			 *
+			 * Each webhook configuration array supports the following keys:
+			 * - `webhook_id` (string, required): Unique identifier for the webhook.
+			 * - `url` (string, required): The webhook URL to POST data to.
+			 * - `method` (string, optional): HTTP method. Default 'POST'.
+			 * - `verified` (bool, optional): Whether the webhook is verified. Default false.
+			 * - `format` (string, optional): Data format ('json'). Default 'json'.
+			 * - `enabled` (bool, optional): Whether the webhook is enabled. Default false.
+			 *
+			 * Example usage:
+			 * ```
+			 * add_filter( 'jetpack_forms_extra_webhooks', function( $webhooks, $form ) {
+			 *     if ( $form->get_attribute( 'id' ) === '123' ) {
+			 *         $webhooks[] = array(
+			 *            'webhook_id' => 'test-webhook-1',
+			 *            'url'        => '[your webhook URL]',
+			 *            'method'     => 'POST',
+			 *            'verified'   => false,
+			 *            'format'     => 'json',
+			 *            'enabled'    => true,
+			 *         );
+			 *     }
+			 *     return $webhooks;
+			 * }, 10, 2 );
+			 * ```
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param array        $extra_webhooks Array of webhook configuration arrays. Default empty array.
+			 * @param Contact_Form $form           The form instance being processed.
+			 * @return array                       The modified array of webhook configurations.
+			 */
+			$extra_webhooks = apply_filters( 'jetpack_forms_extra_webhooks', array(), $form );
+			if ( ! empty( $extra_webhooks ) ) {
+				$form->attributes['webhooks'] = array_merge(
+					$form->attributes['webhooks'] ?? array(),
+					$extra_webhooks
+				);
+			}
+
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
