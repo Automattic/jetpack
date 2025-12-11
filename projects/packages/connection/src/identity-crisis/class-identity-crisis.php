@@ -386,6 +386,10 @@ class Identity_Crisis {
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		if ( $sync_error && self::should_handle_idc() ) {
 			// Ensure backward compatibility: add validation timing fields if missing.
+			// Also ensure $sync_error is an array (could be a scalar from older code).
+			if ( ! is_array( $sync_error ) ) {
+				$sync_error = array();
+			}
 			if ( ! isset( $sync_error['last_checked'] ) ) {
 				$sync_error['last_checked'] = 0;
 			}

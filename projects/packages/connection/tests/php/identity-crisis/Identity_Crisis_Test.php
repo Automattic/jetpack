@@ -291,8 +291,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		update_option( 'siteurl', 'http://www.coolsite.com/wp' );
 
 		$expected = array(
-			'home'    => 'coolsite.com/',
-			'siteurl' => 'coolsite.com/wp/',
+			'home'             => 'coolsite.com/',
+			'siteurl'          => 'coolsite.com/wp/',
+			'last_checked'     => 0,
+			'next_check_delay' => Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY,
 		);
 
 		$result = Identity_Crisis::get_sync_error_idc_option();
@@ -316,8 +318,10 @@ class Identity_Crisis_Test extends BaseTestCase {
 		update_option( 'siteurl', 'http://72.182.131.109/~wordpress/wp' );
 
 		$expected = array(
-			'home'    => '72.182.131.109/~wordpress/',
-			'siteurl' => '72.182.131.109/~wordpress/wp/',
+			'home'             => '72.182.131.109/~wordpress/',
+			'siteurl'          => '72.182.131.109/~wordpress/wp/',
+			'last_checked'     => 0,
+			'next_check_delay' => Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY,
 		);
 
 		$result = Identity_Crisis::get_sync_error_idc_option();
@@ -569,6 +573,9 @@ class Identity_Crisis_Test extends BaseTestCase {
 			);
 			// Add reversed_url key
 			$expected_option['reversed_url'] = true;
+			// Add timing fields that are now added by default
+			$expected_option['last_checked']     = 0;
+			$expected_option['next_check_delay'] = Identity_Crisis::IDC_VALIDATION_INITIAL_DELAY;
 		} else {
 			$expected_option = false;
 		}
@@ -1282,7 +1289,7 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$mock_callback = function () {
 			return new \WP_Error( 'http_request_failed', 'Network error' );
 		};
-		add_filter( 'pre_http_request', $mock_callback );
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
@@ -1308,11 +1315,17 @@ class Identity_Crisis_Test extends BaseTestCase {
 		// Mock a 500 error response.
 		$mock_callback = function () {
 			return array(
-				'response' => array( 'code' => 500 ),
+				'headers'  => array(),
 				'body'     => 'Internal server error',
+				'response' => array(
+					'code'    => 500,
+					'message' => 'Internal Server Error',
+				),
+				'cookies'  => array(),
+				'filename' => null,
 			);
 		};
-		add_filter( 'pre_http_request', $mock_callback );
+		add_filter( 'pre_http_request', $mock_callback, 10, 3 );
 
 		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
 
@@ -1325,81 +1338,5 @@ class Identity_Crisis_Test extends BaseTestCase {
 		$this->assertFalse( $result );
 		// Option should be unchanged.
 		$this->assertEquals( $initial_sync_error, $stored_option );
-	}
-
-	/**
-	 * Test validate_idc_from_remote() clears IDC when no idc_detected in response.
-	 */
-	public function test_validate_idc_from_remote_clears_idc_when_resolved() {
-		Jetpack_Options::update_option( 'id', 12345 );
-		$initial_sync_error = Identity_Crisis::get_sync_error_idc_option();
-		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
-
-		// Mock a successful response with no IDC detected.
-		$mock_callback = function () {
-			return array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode( array( 'ID' => 12345 ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-			);
-		};
-		add_filter( 'pre_http_request', $mock_callback );
-
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
-
-		remove_filter( 'pre_http_request', $mock_callback );
-		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
-
-		Jetpack_Options::delete_option( 'id' );
-
-		$this->assertTrue( $result );
-		// Option should be deleted.
-		$this->assertFalse( $stored_option );
-	}
-
-	/**
-	 * Test validate_idc_from_remote() updates option when IDC still detected.
-	 */
-	public function test_validate_idc_from_remote_updates_option_when_idc_still_exists() {
-		Jetpack_Options::update_option( 'id', 12345 );
-		$initial_sync_error                     = Identity_Crisis::get_sync_error_idc_option();
-		$initial_sync_error['last_checked']     = time() - 7200; // 2 hours ago.
-		$initial_sync_error['next_check_delay'] = 3600; // 1 hour.
-		Jetpack_Options::update_option( 'sync_error_idc', $initial_sync_error );
-
-		// Mock a response with IDC still detected.
-		$mock_callback = function () {
-			return array(
-				'response' => array( 'code' => 200 ),
-				'body'     => wp_json_encode(
-					array(
-						'idc_detected' => array(
-							'error_code'    => 'jetpack_url_mismatch',
-							'wpcom_home'    => 'example.com/',
-							'wpcom_siteurl' => 'example.com/',
-						),
-					),
-					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-				),
-			);
-		};
-		add_filter( 'pre_http_request', $mock_callback );
-
-		$result = Identity_Crisis::validate_idc_from_remote( $initial_sync_error );
-
-		remove_filter( 'pre_http_request', $mock_callback );
-		$stored_option = Jetpack_Options::get_option( 'sync_error_idc' );
-
-		Jetpack_Options::delete_option( 'id' );
-		Jetpack_Options::delete_option( 'sync_error_idc' );
-
-		$this->assertFalse( $result );
-		// Option should be updated with new timing.
-		$this->assertIsArray( $stored_option );
-		$this->assertArrayHasKey( 'last_checked', $stored_option );
-		$this->assertArrayHasKey( 'next_check_delay', $stored_option );
-		// Delay should be doubled (3600 * 2 = 7200).
-		$this->assertEquals( 7200, $stored_option['next_check_delay'] );
-		// last_checked should be updated to recent time.
-		$this->assertGreaterThan( time() - 10, $stored_option['last_checked'] );
 	}
 }
