@@ -1,13 +1,18 @@
 import { Dropdown, Button, DateTimePicker } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { getDate, date, isInTheFuture } from '@wordpress/date';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { calendar } from '@wordpress/icons';
+import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
+import { useSchedulePost } from '../../hooks/use-schedule-post';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../social-store';
 import styles from './styles.module.scss';
 
 interface ScheduleButtonBaseProps {
 	scheduleTimestamp?: number;
-	onChange?: ( unixTimestamp: number ) => void;
 	onConfirm?: ( unixTimestamp: number ) => void;
 }
 
@@ -15,11 +20,6 @@ interface ScheduleButtonContentProps extends ScheduleButtonBaseProps {
 	onClose: () => void;
 	currentTimestamp: number;
 	onTimestampChange: ( timestamp: number ) => void;
-}
-
-interface ScheduleButtonProps extends ScheduleButtonBaseProps {
-	isBusy?: boolean; // Defaults to false
-	isDisabled?: boolean;
 }
 
 const isInvalidDate = ( checkDate: Date ) => {
@@ -32,7 +32,6 @@ const ScheduleButtonContent = ( {
 	onClose,
 	currentTimestamp,
 	onTimestampChange,
-	onChange,
 	onConfirm,
 }: ScheduleButtonContentProps ) => {
 	const confirmCallback = useCallback( () => {
@@ -44,9 +43,8 @@ const ScheduleButtonContent = ( {
 		( newDate: string ) => {
 			const unixTime = Math.floor( getDate( newDate ).getTime() / 1000 );
 			onTimestampChange( unixTime );
-			onChange?.( unixTime );
 		},
-		[ onChange, onTimestampChange ]
+		[ onTimestampChange ]
 	);
 
 	const scheduleDate = date( 'Y-m-d\\TH:i:s', new Date( currentTimestamp * 1000 ), undefined );
@@ -74,15 +72,29 @@ const ScheduleButtonContent = ( {
 	);
 };
 
-const ScheduleButton = ( {
-	scheduleTimestamp,
-	onChange,
-	onConfirm,
-	isBusy,
-	isDisabled,
-}: ScheduleButtonProps ) => {
-	const defaultTimestamp = scheduleTimestamp || Math.floor( Date.now() / 1000 );
+const ScheduleButton = () => {
+	const defaultTimestamp = Math.floor( Date.now() / 1000 );
 	const [ currentTimestamp, setCurrentTimestamp ] = useState( defaultTimestamp );
+	const isReSharingPossible = useIsReSharingPossible();
+	const { enabledConnections } = useSocialMediaConnections();
+	const { schedulePost } = useSchedulePost();
+	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+
+	const isSavingScheduledShare = useSelect(
+		select => select( socialStore ).isSavingScheduledShare(),
+		[]
+	);
+	const isBusy = isSavingScheduledShare || isSavingPost;
+
+	const onConfirm = useCallback(
+		async ( scheduleTimestamp: number ) => {
+			await schedulePost( {
+				connectionIds: enabledConnections.map( connection => Number( connection.connection_id ) ),
+				timestamp: scheduleTimestamp,
+			} );
+		},
+		[ schedulePost, enabledConnections ]
+	);
 
 	const toggle = useCallback(
 		( { onToggle, isOpen } ) => (
@@ -93,12 +105,12 @@ const ScheduleButton = ( {
 				icon={ calendar }
 				isSecondary
 				isBusy={ isBusy }
-				disabled={ isDisabled }
+				disabled={ ! isReSharingPossible }
 			>
 				{ __( 'Schedule', 'jetpack-publicize-components' ) }
 			</Button>
 		),
-		[ isBusy, isDisabled ]
+		[ isBusy, isReSharingPossible ]
 	);
 
 	const content = useCallback(
@@ -107,11 +119,10 @@ const ScheduleButton = ( {
 				onClose={ onClose }
 				currentTimestamp={ currentTimestamp }
 				onTimestampChange={ setCurrentTimestamp }
-				onChange={ onChange }
 				onConfirm={ onConfirm }
 			/>
 		),
-		[ currentTimestamp, onChange, onConfirm ]
+		[ currentTimestamp, onConfirm ]
 	);
 
 	return (

@@ -63,12 +63,11 @@ function getSiteType() {
 /**
  * Component to trigger the resharing of the post.
  *
- * @param {object}   props                    - The component props.
- * @param {Function} props.onShareCompleted   - The callback to be called when the share is completed.
- * @param {boolean}  [props.isDisabled=false] - Whether the button is disabled or not.
+ * @param {object}   props                  - The component props.
+ * @param {Function} props.onShareCompleted - The callback to be called when the share is completed.
  * @return {object} A button component that will share the current post when clicked.
  */
-export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
+export function SharePostButton( { onShareCompleted } ) {
 	const hasMediaFeatures =
 		siteHasFeature( features.IMAGE_GENERATOR ) || siteHasFeature( features.ENHANCED_PUBLISHING );
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
@@ -85,6 +84,10 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 	const { pollForPostShareStatus } = useDispatch( socialStore );
 	const { recordEvent } = useAnalytics();
 	const savePost = dispatch( editorStore ).savePost;
+	const isSavingScheduledShare = useSelect(
+		select => select( socialStore ).isSavingScheduledShare(),
+		[]
+	);
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -148,7 +151,7 @@ export function SharePostButton( { onShareCompleted, isDisabled = false } ) {
 		<Button
 			variant="primary"
 			onClick={ sharePost }
-			disabled={ ! isReSharingPossible || isDisabled }
+			disabled={ ! isReSharingPossible || isSavingScheduledShare }
 			isBusy={ isFetching || isSavingPost }
 		>
 			{ __( 'Share', 'jetpack-publicize-components' ) }
