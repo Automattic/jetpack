@@ -949,7 +949,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					</svg>
 					<span class="visually-hidden">' . __( 'Warning', 'jetpack-forms' ) . '</span>
 				</span>
-				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message"></span>
+				<span data-wp-text="state.errorMessage" id="' . esc_attr( $id ) . '-' . esc_attr( $type ) . '-error-message" role="alert" aria-live="assertive"></span>
 			</div>';
 	}
 
