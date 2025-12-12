@@ -147,6 +147,27 @@ WPCONFIG
         return 1
     }
 
+    # Verify the database is accessible before proceeding
+    # This prevents race conditions where CREATE DATABASE succeeds but the DB isn't immediately usable
+    local db_verify_attempts=0
+    local db_max_verify=10
+    while [ $db_verify_attempts -lt $db_max_verify ]; do
+        if mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "USE \`$db_name\`; SELECT 1;" >/dev/null 2>&1; then
+            echo "  ✓ Database $db_name is accessible"
+            break
+        fi
+        db_verify_attempts=$((db_verify_attempts + 1))
+        if [ $db_verify_attempts -lt $db_max_verify ]; then
+            echo "  Waiting for database $db_name to be accessible (attempt $db_verify_attempts/$db_max_verify)..."
+            sleep 1
+        fi
+    done
+
+    if [ $db_verify_attempts -ge $db_max_verify ]; then
+        echo "  ✗ ERROR: Database $db_name not accessible after $db_max_verify attempts"
+        return 1
+    fi
+
     # DIAGNOSTIC: Check database state BEFORE installation
     echo "  [DIAG] Pre-install database state for $db_name:"
     local pre_table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
