@@ -11,12 +11,8 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { store as socialStore } from '../../social-store';
 import styles from './styles.module.scss';
 
-interface ScheduleButtonBaseProps {
-	scheduleTimestamp?: number;
+interface ScheduleButtonContentProps {
 	onConfirm?: ( unixTimestamp: number ) => void;
-}
-
-interface ScheduleButtonContentProps extends ScheduleButtonBaseProps {
 	onClose: () => void;
 	currentTimestamp: number;
 	onTimestampChange: ( timestamp: number ) => void;
