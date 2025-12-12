@@ -2,28 +2,9 @@
  * @jest-environment jsdom
  */
 
-/*
- * Disabling no-node-access because SVG path elements don't have accessible roles
- * and must be queried via DOM selectors.
- * Disabling prefer-user-event because userEvent.hover doesn't work reliably
- * with raw SVG path elements obtained via document.querySelector.
- */
-/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event */
-
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
-
-/**
- * Helper to get country path elements from the rendered chart.
- * Country paths are identified by their stroke-width attribute (0.5).
- *
- * @return Array of country path elements
- */
-const getCountryPaths = () => {
-	const allPaths = document.querySelectorAll( 'path' );
-	return Array.from( allPaths ).filter( path => path.getAttribute( 'stroke-width' ) === '0.5' );
-};
 
 describe( 'GeoChart', () => {
 	const defaultProps = {
@@ -48,7 +29,7 @@ describe( 'GeoChart', () => {
 		test( 'renders an SVG element with correct dimensions', () => {
 			renderWithTheme();
 
-			const svg = document.querySelector( 'svg' );
+			const svg = screen.getByTestId( 'geo-chart-svg' );
 			expect( svg ).toBeInTheDocument();
 			expect( svg ).toHaveAttribute( 'width', '800' );
 			expect( svg ).toHaveAttribute( 'height', '400' );
@@ -57,15 +38,14 @@ describe( 'GeoChart', () => {
 		test( 'renders a container with the correct class', () => {
 			renderWithTheme( { className: 'custom-class' } );
 
-			const container = document.querySelector( '.custom-class' );
-			expect( container ).toBeInTheDocument();
+			const container = screen.getByTestId( 'geo-chart' );
+			expect( container ).toHaveClass( 'custom-class' );
 		} );
 
 		test( 'renders without GlobalChartsProvider by creating its own', () => {
 			render( <GeoChartUnresponsive { ...defaultProps } /> );
 
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-svg' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -73,29 +53,29 @@ describe( 'GeoChart', () => {
 		test( 'handles empty data object', () => {
 			renderWithTheme( { data: {} } );
 
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-svg' ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles single country data', () => {
 			renderWithTheme( { data: { USA: 100 } } );
 
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
 		} );
 
 		test( 'handles zero values in data', () => {
 			renderWithTheme( { data: { USA: 0, CAN: 100 } } );
 
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-country-CAN' ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders country paths for world map', () => {
 			renderWithTheme();
 
-			const paths = document.querySelectorAll( 'path' );
-			expect( paths.length ).toBeGreaterThan( 0 );
+			// Check that multiple countries are rendered
+			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-country-CAN' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-country-GBR' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -103,105 +83,99 @@ describe( 'GeoChart', () => {
 		test( 'applies custom scale prop', () => {
 			renderWithTheme( { scale: 200 } );
 
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
+			expect( screen.getByTestId( 'geo-chart-svg' ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders with different dimensions', () => {
 			renderWithTheme( { width: 1200, height: 600 } );
 
-			const svg = document.querySelector( 'svg' );
+			const svg = screen.getByTestId( 'geo-chart-svg' );
 			expect( svg ).toHaveAttribute( 'width', '1200' );
 			expect( svg ).toHaveAttribute( 'height', '600' );
 		} );
 	} );
 
+	/* eslint-disable testing-library/prefer-user-event -- fireEvent needed for SVG path mouse events */
 	describe( 'Tooltip Functionality', () => {
-		test( 'shows tooltip content on mouse move over country', async () => {
-			renderWithTheme();
+		test( 'tooltip displays country name and value', async () => {
+			renderWithTheme( { data: { USA: 42 } } );
 
-			const countryPaths = getCountryPaths();
-			expect( countryPaths.length ).toBeGreaterThan( 0 );
+			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
 
-			// Trigger mouse move on first country path
-			fireEvent.mouseMove( countryPaths[ 0 ], { clientX: 100, clientY: 100 } );
+			// Trigger tooltip on USA
+			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
 
-			// Tooltip content should appear with "Orders:" text
+			// Should show country name and numeric value in tooltip
 			await waitFor( () => {
-				expect( screen.getByText( /Orders:/i ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toBeInTheDocument();
 			} );
+			const tooltip = screen.getByTestId( 'geo-chart-tooltip' );
+			expect( tooltip ).toHaveTextContent( 'United States' );
+			expect( tooltip ).toHaveTextContent( '42' );
 		} );
 
 		test( 'hides tooltip on mouse leave', async () => {
 			renderWithTheme();
 
-			const countryPaths = getCountryPaths();
-			expect( countryPaths.length ).toBeGreaterThan( 0 );
+			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
 
 			// Show tooltip
-			fireEvent.mouseMove( countryPaths[ 0 ], { clientX: 100, clientY: 100 } );
+			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
 
 			await waitFor( () => {
-				expect( screen.getByText( /Orders:/i ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toBeInTheDocument();
 			} );
 
 			// Hide tooltip
-			fireEvent.mouseLeave( countryPaths[ 0 ] );
+			fireEvent.mouseLeave( usaPath );
 
 			await waitFor( () => {
-				expect( screen.queryByText( /Orders:/i ) ).not.toBeInTheDocument();
+				expect( screen.queryByTestId( 'geo-chart-tooltip' ) ).not.toBeInTheDocument();
 			} );
 		} );
 
-		test( 'tooltip displays country name and order value', async () => {
-			renderWithTheme( { data: { USA: 42 } } );
+		test( 'tooltip updates when switching between countries', async () => {
+			renderWithTheme();
 
-			const countryPaths = getCountryPaths();
-			expect( countryPaths.length ).toBeGreaterThan( 0 );
+			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
+			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
 
-			// Trigger tooltip on first country
-			fireEvent.mouseMove( countryPaths[ 0 ], { clientX: 100, clientY: 100 } );
+			// Hover on USA
+			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
 
-			// Should show "Orders:" in tooltip (value varies based on country)
 			await waitFor( () => {
-				expect( screen.getByText( /Orders:/i ) ).toBeInTheDocument();
+				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toHaveTextContent( 'United States' );
+			} );
+
+			// Move to Canada
+			fireEvent.mouseMove( canPath, { clientX: 200, clientY: 200 } );
+
+			await waitFor( () => {
+				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toHaveTextContent( 'Canada' );
 			} );
 		} );
 	} );
+	/* eslint-enable testing-library/prefer-user-event */
 
 	describe( 'Color Scaling', () => {
 		test( 'countries with data have different fill than countries without', () => {
 			renderWithTheme( { data: { USA: 100 } } );
 
-			const paths = document.querySelectorAll( 'path' );
-			const fills = new Set< string >();
+			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
+			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
 
-			paths.forEach( path => {
-				const fill = path.getAttribute( 'fill' );
-				if ( fill ) {
-					fills.add( fill );
-				}
-			} );
-
-			// At least 2 different fills: countries with data vs without
-			expect( fills.size ).toBeGreaterThanOrEqual( 2 );
+			// USA has data, CAN doesn't - they should have different fills
+			expect( usaPath.getAttribute( 'fill' ) ).not.toBe( canPath.getAttribute( 'fill' ) );
 		} );
 
-		test( 'countries with varying data values create color variation', () => {
-			renderWithTheme( { data: { USA: 100, CAN: 50, MEX: 10 } } );
+		test( 'countries with varying data values have different fill intensities', () => {
+			renderWithTheme( { data: { USA: 100, CAN: 50 } } );
 
-			const paths = document.querySelectorAll( 'path' );
-			const fills = new Set< string >();
+			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
+			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
 
-			paths.forEach( path => {
-				const fill = path.getAttribute( 'fill' );
-				if ( fill ) {
-					fills.add( fill );
-				}
-			} );
-
-			// Multiple fill values expected with varying data
-			expect( fills.size ).toBeGreaterThanOrEqual( 2 );
+			// Both have data but different values - should have different fills
+			expect( usaPath.getAttribute( 'fill' ) ).not.toBe( canPath.getAttribute( 'fill' ) );
 		} );
 	} );
 
@@ -214,36 +188,6 @@ describe( 'GeoChart', () => {
 		test( 'GeoChartUnresponsive export is available for fixed dimensions', () => {
 			expect( GeoChartUnresponsive ).toBeDefined();
 			expect( GeoChartUnresponsive.displayName ).toBe( 'GeoChart' );
-		} );
-	} );
-
-	describe( 'User Interaction', () => {
-		test( 'renders many country paths for world map', () => {
-			renderWithTheme();
-
-			const countryPaths = getCountryPaths();
-			// World map should have many countries (~200)
-			expect( countryPaths.length ).toBeGreaterThan( 50 );
-		} );
-
-		test( 'handles sequential mouse events on different countries', () => {
-			renderWithTheme();
-
-			const countryPaths = getCountryPaths();
-			expect( countryPaths.length ).toBeGreaterThanOrEqual( 2 );
-
-			// Mouse move on first country
-			fireEvent.mouseMove( countryPaths[ 0 ], { clientX: 100, clientY: 100 } );
-
-			// Mouse move on second country
-			fireEvent.mouseMove( countryPaths[ 1 ], { clientX: 200, clientY: 200 } );
-
-			// Mouse leave
-			fireEvent.mouseLeave( countryPaths[ 1 ] );
-
-			// Chart should still render correctly
-			const svg = document.querySelector( 'svg' );
-			expect( svg ).toBeInTheDocument();
 		} );
 	} );
 } );

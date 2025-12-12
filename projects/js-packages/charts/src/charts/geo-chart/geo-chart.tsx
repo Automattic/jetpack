@@ -90,8 +90,8 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 	}, [ hideTooltip ] );
 
 	return (
-		<div className={ clsx( 'geo-chart', styles.container, className ) }>
-			<svg width={ width } height={ height }>
+		<div className={ clsx( 'geo-chart', styles.container, className ) } data-testid="geo-chart">
+			<svg width={ width } height={ height } data-testid="geo-chart-svg">
 				<rect x={ 0 } y={ 0 } width={ width } height={ height } fill={ backgroundColor } />
 				<CustomProjection< FeatureShape >
 					data={ worldFeatures }
@@ -110,12 +110,13 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 
 								return (
 									<path
-										key={ `map-feature-${ i }` }
+										key={ `geo-chart-feature-${ i }` }
 										d={ path || '' }
 										fill={ fillColor }
 										stroke={ backgroundColor }
 										strokeWidth={ 0.5 }
 										className={ styles.country }
+										data-testid={ `geo-chart-country-${ feature.id }` }
 										onMouseMove={ handleMouseMove( feature, orderCount ) }
 										onMouseLeave={ handleMouseLeave }
 									/>
@@ -133,9 +134,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 					style={ defaultStyles }
 					className={ styles.tooltip }
 				>
-					<div className={ styles.tooltip__content }>
+					<div className={ styles.tooltip__content } data-testid="geo-chart-tooltip">
 						<strong>{ tooltipData.countryName }</strong>
-						<div>Orders: { tooltipData.value }</div>
+						<div>{ tooltipData.value }</div>
 					</div>
 				</TooltipWithBounds>
 			) }
