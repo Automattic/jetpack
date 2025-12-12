@@ -22,8 +22,10 @@ Main component for rendering geographical data on an interactive world map.
 ## GeoChartProps Type
 
 ```typescript
-interface GeoChartProps extends Pick<BaseChartProps, 'className' | 'data' | 'chartId' | 'width' | 'height'> {
-	scale?: number;
+interface GeoChartProps
+  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
+  data: Record<string, number>;
+  scale?: number;
 }
 ```
 
