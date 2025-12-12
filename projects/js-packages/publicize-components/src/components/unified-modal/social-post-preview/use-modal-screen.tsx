@@ -1,5 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useBreakpoint } from '@automattic/viewport-react';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -52,10 +53,11 @@ export function useModalScreen(): ScreenDetails {
 			footerContent: <FooterContent />,
 			footerActions: [
 				// TODO: Add resharing buttons here conditionally
-				{
-					text: __( 'Save Changes', 'jetpack-publicize-components' ),
-					variant: 'primary',
-				},
+				( { navigate } ) => (
+					<Button key="save" variant="primary" onClick={ navigate }>
+						{ __( 'Save Changes', 'jetpack-publicize-components' ) }
+					</Button>
+				),
 			],
 		} ),
 		[ isPrePublishScreen, isSmallScreen, baseId, selectedConnection ]
