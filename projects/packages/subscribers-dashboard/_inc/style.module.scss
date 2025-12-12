@@ -3,27 +3,4 @@
 	#jetpack-subscribers {
 		display: block;
 	}
-
-	.jetpack-subscribers-dashboard-page {
-		padding: 20px;
-
-		&__header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 24px;
-			padding-bottom: 16px;
-			border-bottom: 1px solid #ddd;
-
-			h1 {
-				margin: 0;
-				font-size: 24px;
-				font-weight: 600;
-			}
-		}
-
-		&__content {
-			margin-top: 24px;
-		}
-	}
 }
