@@ -27,6 +27,7 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
+import useConfigValue from '../../src/hooks/use-config-value';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { store as dashboardStore } from '../../src/dashboard/store';
 import { INTEGRATIONS_STORE } from '../../src/store/integrations';
@@ -128,6 +129,8 @@ export function stage() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
+	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
 	const [ view, setView ] = useState( () => ( {
 		...DEFAULT_VIEW,
@@ -902,11 +905,23 @@ export function stage() {
 	const headerActions = useMemo( () => {
 		const actionsArray = [];
 
-		actionsArray.push(
-			<Button key="integrations" variant="secondary" size="compact" onClick={ handleIntegrations }>
-				{ __( 'Manage integrations', 'jetpack-forms' ) }
-			</Button>
-		);
+		// Show integrations button on inbox when feature flags are enabled
+		if (
+			( params.view === 'inbox' || ! params.view ) &&
+			isIntegrationsEnabled &&
+			showDashboardIntegrations
+		) {
+			actionsArray.push(
+				<Button
+					key="integrations"
+					variant="secondary"
+					size="compact"
+					onClick={ handleIntegrations }
+				>
+					{ __( 'Manage integrations', 'jetpack-forms' ) }
+				</Button>
+			);
+		}
 
 		if ( params.view === 'inbox' || ! params.view ) {
 			actionsArray.push(
@@ -945,7 +960,13 @@ export function stage() {
 		}
 
 		return actionsArray;
-	}, [ params.view, handleIntegrations, handleCreateForm ] );
+	}, [
+		params.view,
+		handleIntegrations,
+		handleCreateForm,
+		isIntegrationsEnabled,
+		showDashboardIntegrations,
+	] );
 
 	return (
 		<Page
