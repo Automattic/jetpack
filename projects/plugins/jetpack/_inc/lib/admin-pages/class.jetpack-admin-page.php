@@ -90,7 +90,7 @@ abstract class Jetpack_Admin_Page {
 		$this->add_page_actions( $hook );
 
 		// Override the page title for the module list page and the debugger page.
-		add_action( 'current_screen', array( $this, 'override_page_title' ) );
+		add_action( 'current_screen', array( __CLASS__, 'override_page_title' ) );
 	}
 
 	/**
