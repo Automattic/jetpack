@@ -11,8 +11,8 @@ import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../../../types/index.ts';
 import type { IntegrationComponents } from './helpers/types.ts';
+import type { Integration } from '../../../../types/index.ts';
 
 type BlockAttributes = Record< string, unknown >;
 

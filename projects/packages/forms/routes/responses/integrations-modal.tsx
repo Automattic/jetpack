@@ -19,12 +19,13 @@ import {
 import { useState, useCallback, useMemo, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronUp, chevronDown } from '@wordpress/icons';
+import * as React from 'react';
 /**
  * Internal dependencies
  */
-import AkismetIcon from '../../src/icons/akismet';
-import MailPoetIcon from '../../src/icons/mailpoet';
-import type { Integration } from '../../src/types';
+import AkismetIcon from '../../src/icons/akismet.tsx';
+import MailPoetIcon from '../../src/icons/mailpoet.tsx';
+import type { Integration } from '../../src/types/index.ts';
 
 const COLOR_JETPACK = colorStudio.colors[ 'Jetpack Green 40' ];
 
@@ -56,7 +57,7 @@ const IntegrationCardComponent = ( {
 		title,
 		subtitle,
 		isInstalled,
-		isActivated,
+		isActive,
 		isConnected,
 		settingsUrl = '',
 		marketingUrl = '',
@@ -88,7 +89,7 @@ const IntegrationCardComponent = ( {
 				</span>
 			);
 		}
-		if ( ! isActivated ) {
+		if ( ! isActive ) {
 			return (
 				<span style={ { color: '#757575', fontSize: '13px' } }>
 					{ __( 'Not activated', 'jetpack-forms' ) }
@@ -115,21 +116,24 @@ const IntegrationCardComponent = ( {
 		}
 
 		if ( ! isInstalled ) {
-			const message =
-				id === 'akismet'
-					? __(
-							"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
-							'jetpack-forms'
-					  )
-					: id === 'zero-bs-crm'
-					? __(
-							'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
-							'jetpack-forms'
-					  )
-					: __(
-							'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
-							'jetpack-forms'
-					  );
+			let message: string;
+
+			if ( id === 'akismet' ) {
+				message = __(
+					"Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.",
+					'jetpack-forms'
+				);
+			} else if ( id === 'zero-bs-crm' ) {
+				message = __(
+					'You can save your form contacts in <a>Jetpack CRM</a>. To get started, please install the plugin.',
+					'jetpack-forms'
+				);
+			} else {
+				message = __(
+					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
+					'jetpack-forms'
+				);
+			}
 
 			return (
 				<p style={ { color: '#50575e', margin: 0 } }>
@@ -140,22 +144,25 @@ const IntegrationCardComponent = ( {
 			);
 		}
 
-		if ( ! isActivated ) {
-			const message =
-				id === 'akismet'
-					? __(
-							'Akismet is installed. Just activate the plugin to start blocking spam.',
-							'jetpack-forms'
-					  )
-					: id === 'zero-bs-crm'
-					? __(
-							'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',
-							'jetpack-forms'
-					  )
-					: __(
-							'MailPoet is installed. Just activate the plugin to start sending emails.',
-							'jetpack-forms'
-					  );
+		if ( ! isActive ) {
+			let message: string;
+
+			if ( id === 'akismet' ) {
+				message = __(
+					'Akismet is installed. Just activate the plugin to start blocking spam.',
+					'jetpack-forms'
+				);
+			} else if ( id === 'zero-bs-crm' ) {
+				message = __(
+					'Jetpack CRM is installed. To start saving contacts, simply activate the plugin.',
+					'jetpack-forms'
+				);
+			} else {
+				message = __(
+					'MailPoet is installed. Just activate the plugin to start sending emails.',
+					'jetpack-forms'
+				);
+			}
 
 			return <p style={ { color: '#50575e', margin: 0 } }>{ message }</p>;
 		}
@@ -192,16 +199,20 @@ const IntegrationCardComponent = ( {
 			);
 		}
 
+		let message: string;
+
+		if ( id === 'akismet' ) {
+			message = __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' );
+		} else if ( id === 'zero-bs-crm' ) {
+			message = __( 'Jetpack CRM is connected.', 'jetpack-forms' );
+		} else {
+			message = __( 'MailPoet is connected.', 'jetpack-forms' );
+		}
+
 		// Connected state
 		return (
 			<VStack spacing="3">
-				<p style={ { color: '#50575e', margin: 0 } }>
-					{ id === 'akismet'
-						? __( 'Your forms are automatically protected with Akismet.', 'jetpack-forms' )
-						: id === 'zero-bs-crm'
-						? __( 'Jetpack CRM is connected.', 'jetpack-forms' )
-						: __( 'MailPoet is connected.', 'jetpack-forms' ) }
-				</p>
+				<p style={ { color: '#50575e', margin: 0 } }>{ message }</p>
 				<HStack spacing="2" justify="start">
 					<Button variant="link" href={ settingsUrl } target="_blank" rel="noopener noreferrer">
 						{ __( 'View settings', 'jetpack-forms' ) }
@@ -297,7 +308,7 @@ const IntegrationsModal = ( {
 						integration={ integration }
 						refreshIntegrations={ refreshIntegrations }
 						isExpanded={ !! expandedCards[ integration.id ] }
-						onToggle={ () => toggleCard( integration.id ) }
+						onToggle={ toggleCard.bind( null, integration.id ) as () => void }
 					/>
 				) ) }
 			</VStack>
