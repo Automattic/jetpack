@@ -1,11 +1,9 @@
 import { Button } from '@automattic/jetpack-components';
-import { ExternalLink, Notice } from '@wordpress/components';
+import { Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { _n } from '@wordpress/i18n';
-import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store as socialStore } from '../../social-store';
-import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
 
@@ -18,20 +16,14 @@ export const BrokenConnectionsNotice: FC = () => {
 		};
 	}, [] );
 
-	const { connectionsPageUrl } = usePublicizeConfig();
-
-	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
-
 	const { openConnectionsModal } = useDispatch( socialStore );
 
-	const fixLink = useAdminUiV1 ? (
+	const fixLink = (
 		<Button
 			variant="link"
 			onClick={ openConnectionsModal }
 			className={ styles[ 'broken-connection-btn' ] }
 		/>
-	) : (
-		<ExternalLink href={ connectionsPageUrl } />
 	);
 
 	const problemConnections = [ ...brokenConnections, ...reauthConnections ];
