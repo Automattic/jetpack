@@ -17,6 +17,9 @@ export default defineConfig( makeBaseConfig( import.meta.url, { envs: [ 'node' ]
 			'jsdoc/require-returns': 'off',
 			'jsdoc/require-param-description': 'off',
 			'jsdoc/require-param-type': 'off',
+			// Dependencies are in tools/performance/package.json, not monorepo root
+			// so the import resolver can't find them. Disable this rule.
+			'import/no-unresolved': 'off',
 		},
 	},
 ] );
