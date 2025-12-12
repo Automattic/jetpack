@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add ConvertFormToolbar component for managing synced form conversions in the block editor
