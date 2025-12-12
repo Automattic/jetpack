@@ -1,20 +1,6 @@
 /**
- * Measure Largest Contentful Paint (LCP) for WordPress wp-admin dashboard
- *
- * This script uses Playwright to measure LCP and other performance metrics
- * for four scenarios:
- * 1. Baseline WordPress (no Jetpack)
- * 2. Jetpack installed but not connected
- * 3. Jetpack in offline mode (simulated connection via JETPACK_DEV_DEBUG)
- * 4. Jetpack connected (simulated with fake tokens + mocked API with latency)
- *
- * Measurement approach:
- * 1. Log in to WordPress (this is not measured)
- * 2. Navigate to dashboard
- * 3. REFRESH the dashboard to get a clean LCP measurement
- * 4. Collect LCP from the fresh page load via PerformanceObserver
- *
- * This ensures login overhead doesn't impact the measurement.
+ * Measure Largest Contentful Paint (LCP) for WordPress wp-admin dashboard.
+ * Logs in, refreshes dashboard, and captures LCP via PerformanceObserver.
  */
 
 import fs from 'fs';
@@ -30,11 +16,7 @@ const __dirname = path.dirname( __filename );
 // Calibration file path
 const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );
 
-/**
- * Load calibration data if available
- *
- * @return {object|null} Calibration data or null if not available
- */
+/** Load calibration data if available. */
 function loadCalibration() {
 	try {
 		if ( fs.existsSync( CALIBRATION_FILE ) ) {
@@ -52,15 +34,7 @@ function loadCalibration() {
 // Load calibration at module init
 const calibration = loadCalibration();
 
-/**
- * Measure LCP for the wp-admin dashboard
- *
- * @param {string} url        - The WordPress base URL
- * @param {string} username   - WordPress admin username
- * @param {string} password   - WordPress admin password
- * @param {number} iterations - Number of iterations to run
- * @return {Promise<Object>} Measurement results
- */
+/** Measure LCP for the wp-admin dashboard. */
 async function measureLCP( url, username, password, iterations = 5 ) {
 	const results = [];
 
@@ -299,9 +273,6 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 	};
 }
 
-/**
- * Main execution
- */
 async function main() {
 	const username = process.env.WP_ADMIN_USER || 'admin';
 	const password = process.env.WP_ADMIN_PASS || 'password';
@@ -363,25 +334,15 @@ async function main() {
 	}
 
 	// Print summary
-	console.log( 'Summary Comparison' );
-	console.log( '==================' );
-
-	const baselineMedian = measurements.baseline?.summary?.median;
-
+	console.log( 'Summary' );
+	console.log( '=======' );
 	for ( const scenario of SCENARIOS ) {
 		const measurement = measurements[ scenario.key ];
 		if ( ! measurement ) {
-			continue; // Scenario was filtered out
+			continue;
 		}
 		if ( measurement && ! measurement.error ) {
-			const median = measurement.summary.median;
-			let deltaStr = '';
-			if ( baselineMedian && scenario.key !== 'baseline' ) {
-				const delta = median - baselineMedian;
-				const pct = ( ( delta / baselineMedian ) * 100 ).toFixed( 1 );
-				deltaStr = ` (${ delta > 0 ? '+' : '' }${ delta }ms, ${ delta > 0 ? '+' : '' }${ pct }%)`;
-			}
-			console.log( `  ${ scenario.name }: ${ median }ms${ deltaStr }` );
+			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
 		} else {
 			console.log( `  ${ scenario.name }: FAILED - ${ measurement?.error || 'unknown error' }` );
 		}

@@ -11,7 +11,9 @@ export default defineConfig( makeBaseConfig( import.meta.url, { envs: [ 'node' ]
 			'no-console': 'off',
 			// CLI scripts need process.exit for proper exit codes
 			'n/no-process-exit': 'off',
-			// JSDoc is nice but not required for these utility scripts
+			// Minimal JSDoc for utility scripts - descriptions only
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/require-param': 'off',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/require-param-description': 'off',
 			'jsdoc/require-param-type': 'off',

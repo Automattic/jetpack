@@ -1,22 +1,7 @@
 #!/usr/bin/env node
 /**
- * CPU Throttling Calibration Script
- *
- * This script calibrates a CPU throttling multiplier so that performance tests
- * produce consistent results across different machines. It uses Chrome DevTools
- * Protocol to throttle CPU speed to a normalized baseline.
- *
- * How it works:
- * 1. Run a synthetic benchmark to measure machine speed (unthrottled)
- * 2. Binary search to find a throttle rate that produces a target score (~1000)
- * 3. Run multiple calibration passes and take the median
- * 4. Save the result to calibration.json
- *
- * Usage:
- * node scripts/calibrate-throttling.js
- * CALIBRATION_PASSES=5 node scripts/calibrate-throttling.js
- *
- * Based on the Gutenberg performance testing calibration approach.
+ * CPU throttling calibration for consistent performance results.
+ * Uses CDP to normalize CPU speed across machines.
  */
 
 import fs from 'fs';
@@ -41,23 +26,9 @@ const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );
 // Cache for benchmark scores within a single pass (keyed by throttle rate)
 const scoreCache = new Map();
 
-/**
- * Benchmark function that runs in the browser context
- *
- * Combines two sub-benchmarks:
- * - benchmarkIndexGC: String building (GC-heavy workload)
- * - benchmarkIndexNoGC: Array copying (pure CPU workload)
- *
- * @param {number} duration - Duration in milliseconds for each sub-benchmark
- * @return {number} Average benchmark score
- */
+/** Benchmark function combining GC-heavy and pure CPU workloads. */
 function computeBenchmarkIndex( duration = 500 ) {
-	/**
-	 * GC-heavy benchmark: Build 10k-char strings repeatedly
-	 *
-	 * @param {number} dur - Duration in milliseconds
-	 * @return {number} Iterations per second / 10
-	 */
+	// GC-heavy benchmark: string building
 	function benchmarkIndexGC( dur ) {
 		const start = Date.now();
 		let iterations = 0;
@@ -78,15 +49,7 @@ function computeBenchmarkIndex( duration = 500 ) {
 		return iterations / elapsed / 10;
 	}
 
-	/**
-	 * Pure CPU benchmark: Copy between two 100k-length arrays
-	 *
-	 * Uses reduced Date.now() checks (every 10th iteration) to avoid
-	 * JIT compiler issues with frequent date checks.
-	 *
-	 * @param {number} dur - Duration in milliseconds
-	 * @return {number} Iterations per second / 10
-	 */
+	// Pure CPU benchmark: array copying
 	function benchmarkIndexNoGC( dur ) {
 		const arr1 = new Array( 100000 ).fill( 0 ).map( ( _, i ) => i );
 		const arr2 = new Array( 100000 ).fill( 0 );
@@ -118,26 +81,12 @@ function computeBenchmarkIndex( duration = 500 ) {
 	return ( gcScore + noGcScore ) / 2;
 }
 
-/**
- * Apply CPU throttling via Chrome DevTools Protocol
- *
- * @param {object} cdpSession - Playwright CDP session
- * @param {number} rate       - Throttle rate (1 = no throttle, 2 = 2x slower, etc.)
- */
+/** Apply CPU throttling via CDP. */
 async function throttle( cdpSession, rate ) {
 	await cdpSession.send( 'Emulation.setCPUThrottlingRate', { rate } );
 }
 
-/**
- * Run the benchmark at a given throttle rate
- *
- * Uses caching to avoid re-running benchmarks for the same rate within a pass.
- *
- * @param {object} page       - Playwright page
- * @param {object} cdpSession - Playwright CDP session
- * @param {number} rate       - Throttle rate to apply
- * @return {Promise<number>} Benchmark score
- */
+/** Run benchmark at a given throttle rate (cached). */
 async function runBenchmark( page, cdpSession, rate ) {
 	// Check cache first
 	const cacheKey = truncate( rate, 2 );
@@ -157,16 +106,7 @@ async function runBenchmark( page, cdpSession, rate ) {
 	return score;
 }
 
-/**
- * Binary search to find the throttle rate that produces the target score
- *
- * @param {object} page       - Playwright page
- * @param {object} cdpSession - Playwright CDP session
- * @param {number} target     - Target benchmark score
- * @param {number} lowerRate  - Lower bound for throttle rate
- * @param {number} upperRate  - Upper bound for throttle rate
- * @return {Promise<number>} Throttle rate that produces score within tolerance of target
- */
+/** Binary search for throttle rate that produces target score. */
 async function findRateForTargetScore( page, cdpSession, target, lowerRate, upperRate ) {
 	let iterations = 0;
 
@@ -195,9 +135,6 @@ async function findRateForTargetScore( page, cdpSession, target, lowerRate, uppe
 	return truncate( ( lowerRate + upperRate ) / 2, 2 );
 }
 
-/**
- * Main calibration function
- */
 async function main() {
 	console.log( '╔════════════════════════════════════════════════════════╗' );
 	console.log( '║   CPU Throttling Calibration                           ║' );

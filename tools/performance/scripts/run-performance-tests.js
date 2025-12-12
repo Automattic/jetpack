@@ -1,13 +1,7 @@
 #!/usr/bin/env node
 /**
- * Main orchestrator script for Jetpack performance testing
- *
- * This script coordinates the entire performance testing pipeline:
- * 1. Rsyncs Jetpack plugin (resolves symlinks)
- * 2. Validates environment setup
- * 3. Runs LCP measurements for all scenarios
- * 4. Posts results to CodeVitals (if configured)
- * 5. Generates summary report
+ * Main orchestrator for Jetpack performance testing.
+ * Rsyncs plugin, runs LCP measurements, posts to CodeVitals.
  */
 
 import { execFileSync } from 'child_process';
@@ -47,17 +41,7 @@ const JETPACK_BUILD_DIR = path.join( BUILD_DIR, 'jetpack' );
 // Docker Compose project name - use env var if set, otherwise default
 const COMPOSE_PROJECT_NAME = process.env.COMPOSE_PROJECT_NAME || 'jetpack-perf';
 
-/**
- * Execute a command with arguments safely (no shell interpolation)
- *
- * Uses execFileSync to avoid shell injection vulnerabilities when command
- * arguments come from environment variables or other dynamic sources.
- *
- * @param {string}   cmd     - The command to execute
- * @param {string[]} args    - Array of arguments (each passed as separate arg, no shell escaping needed)
- * @param {object}   options - execFileSync options plus { silent, ignoreError }
- * @return {string|null} Command output or null if ignoreError is true and command fails
- */
+/** Execute a command safely (no shell interpolation). */
 function execFile( cmd, args = [], options = {} ) {
 	try {
 		return execFileSync( cmd, args, {
@@ -73,15 +57,7 @@ function execFile( cmd, args = [], options = {} ) {
 	}
 }
 
-/**
- * Execute a docker compose command safely
- *
- * Wraps execFile with the common docker compose arguments for this project.
- *
- * @param {string[]} args    - Arguments to pass after 'docker compose -p <project> -f <file>'
- * @param {object}   options - Options to pass to execFile
- * @return {string|null} Command output or null if ignoreError is true and command fails
- */
+/** Execute a docker compose command. */
 function dockerCompose( args, options = {} ) {
 	const baseArgs = [
 		'compose',
@@ -94,12 +70,7 @@ function dockerCompose( args, options = {} ) {
 	return execFile( 'docker', baseArgs, { cwd: PERFORMANCE_DIR, ...options } );
 }
 
-/**
- * Discover dynamic ports for WordPress containers and set environment variables
- *
- * Queries Docker for the dynamically assigned host ports and sets the
- * corresponding environment variables so scenarios.js can use them.
- */
+/** Discover dynamic ports for WordPress containers. */
 function discoverDynamicPorts() {
 	console.log( 'Discovering dynamic ports...' );
 
@@ -128,13 +99,7 @@ function discoverDynamicPorts() {
 	console.log( '' );
 }
 
-/**
- * Update WordPress database options with discovered dynamic URLs
- *
- * After setup, the database contains hardcoded localhost:808x URLs.
- * This function updates siteurl and home options to match the actual
- * dynamic ports, preventing redirect/cookie issues.
- */
+/** Update WordPress siteurl/home options with dynamic ports. */
 function updateWordPressUrls() {
 	console.log( 'Updating WordPress URLs with dynamic ports...' );
 
@@ -186,11 +151,7 @@ function updateWordPressUrls() {
 	console.log( '' );
 }
 
-/**
- * Check if Docker is running
- *
- * @return {boolean} True if Docker is running
- */
+/** Check if Docker is running. */
 function checkDocker() {
 	console.log( 'Checking Docker...' );
 	try {
@@ -203,11 +164,7 @@ function checkDocker() {
 	}
 }
 
-/**
- * Get git information
- *
- * @return {object} Object with hash, branch properties
- */
+/** Get git hash and branch. */
 function getGitInfo() {
 	try {
 		const hash = execFile( 'git', [ 'rev-parse', 'HEAD' ], { silent: true } )?.trim() || 'unknown';
@@ -222,11 +179,7 @@ function getGitInfo() {
 	}
 }
 
-/**
- * Rsync Jetpack plugin to build directory (resolves symlinks)
- *
- * @return {boolean} True if rsync succeeded
- */
+/** Rsync Jetpack plugin to build directory (resolves symlinks). */
 function rsyncJetpack() {
 	console.log( 'Syncing Jetpack plugin (resolving symlinks)...' );
 
@@ -258,11 +211,7 @@ function rsyncJetpack() {
 	}
 }
 
-/**
- * Check if Jetpack build exists and is valid
- *
- * @return {object} Object with valid boolean and optional reason string
- */
+/** Check if Jetpack build exists and is valid. */
 function checkJetpackBuild() {
 	if ( ! fs.existsSync( path.join( JETPACK_BUILD_DIR, 'jetpack.php' ) ) ) {
 		return { valid: false, reason: 'jetpack.php not found' };
@@ -308,11 +257,7 @@ function checkJetpackBuild() {
 	return { valid: true };
 }
 
-/**
- * Check if WordPress instances are ready and installed (not just responding)
- *
- * @return {Promise<boolean>} True if all WordPress instances are ready
- */
+/** Check if WordPress instances are ready and installed. */
 async function checkWordPressInstances() {
 	console.log( 'Checking WordPress instances...' );
 
@@ -355,11 +300,6 @@ async function checkWordPressInstances() {
 	return allReady;
 }
 
-/**
- * Main execution
- *
- * @return {Promise<void>}
- */
 async function main() {
 	console.log( '╔════════════════════════════════════════════════════════╗' );
 	console.log( '║   Jetpack Performance Testing Suite (LCP)              ║' );

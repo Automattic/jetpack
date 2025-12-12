@@ -1,9 +1,4 @@
-/**
- * Post performance metrics to CodeVitals
- *
- * Reads the results from measure-lcp.js and posts them to CodeVitals API
- * for tracking and visualization over time.
- */
+/** Post performance metrics to CodeVitals. */
 
 import fs from 'fs';
 import path from 'path';
@@ -13,13 +8,7 @@ import { SCENARIOS } from './scenarios.js';
 const __filename = fileURLToPath( import.meta.url );
 const __dirname = path.dirname( __filename );
 
-/**
- * Extract metrics for a single scenario
- *
- * @param {object} scenario - The scenario definition from scenarios.js
- * @param {object} summary  - The scenario's summary object (median, mean, min, max, stdDev)
- * @return {object} Object with metrics and baseMetrics properties
- */
+/** Extract metrics for a single scenario. */
 function extractScenarioMetrics( scenario, summary ) {
 	const metrics = {};
 	const baseMetrics = {};
@@ -44,13 +33,7 @@ function extractScenarioMetrics( scenario, summary ) {
 	return { metrics, baseMetrics };
 }
 
-/**
- * Post metrics to CodeVitals
- *
- * @param {string} resultsPath - Path to the results JSON file
- * @param {object} config      - Configuration object
- * @return {Promise<Object>} Response from CodeVitals API
- */
+/** Post metrics to CodeVitals. */
 async function postToCodeVitals( resultsPath, config ) {
 	// Read results file
 	if ( ! fs.existsSync( resultsPath ) ) {
@@ -99,11 +82,7 @@ async function postToCodeVitals( resultsPath, config ) {
 	console.log( 'Posting metrics to CodeVitals...' );
 	console.log( 'Metrics:', JSON.stringify( metrics, null, 2 ) );
 
-	// Post to CodeVitals API with timeout to prevent hanging builds
-	// Note: Token is passed as query parameter per CodeVitals API spec.
-	// The CodeVitals UI does not support Authorization header authentication,
-	// so we must use the query parameter approach. Be aware that query parameters
-	// may appear in server access logs. Avoid logging the full URL.
+	// Token passed as query param per CodeVitals API spec (don't log URL)
 	const url = `${ config.codeVitalsUrl }/api/log?token=${ config.codeVitalsToken }`;
 	const TIMEOUT_MS = 30000; // 30 second timeout
 
@@ -146,9 +125,6 @@ async function postToCodeVitals( resultsPath, config ) {
 	}
 }
 
-/**
- * Main execution
- */
 async function main() {
 	console.log( 'CodeVitals Integration' );
 	console.log( '=====================\n' );

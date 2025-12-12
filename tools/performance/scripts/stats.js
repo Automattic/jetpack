@@ -1,16 +1,6 @@
-/**
- * Shared statistics utilities for performance testing
- *
- * These functions are used by both measure-lcp.js and calibrate-throttling.js
- * to calculate summary statistics from measurement data.
- */
+/** Shared statistics utilities. */
 
-/**
- * Calculate the median of an array of numbers
- *
- * @param {number[]} values - Array of numeric values
- * @return {number} The median value
- */
+/** Calculate median. */
 export function median( values ) {
 	if ( values.length === 0 ) {
 		return 0;
@@ -26,12 +16,7 @@ export function median( values ) {
 	return ( sorted[ mid - 1 ] + sorted[ mid ] ) / 2;
 }
 
-/**
- * Calculate the mean (average) of an array of numbers
- *
- * @param {number[]} values - Array of numeric values
- * @return {number} The mean value
- */
+/** Calculate mean. */
 export function mean( values ) {
 	if ( values.length === 0 ) {
 		return 0;
@@ -40,12 +25,7 @@ export function mean( values ) {
 	return values.reduce( ( a, b ) => a + b, 0 ) / values.length;
 }
 
-/**
- * Calculate the standard deviation of an array of numbers
- *
- * @param {number[]} values - Array of numeric values
- * @return {number} The standard deviation
- */
+/** Calculate standard deviation. */
 export function stdDev( values ) {
 	if ( values.length === 0 ) {
 		return 0;
@@ -58,13 +38,7 @@ export function stdDev( values ) {
 	return Math.sqrt( variance );
 }
 
-/**
- * Truncate a number to a specified number of decimal places
- *
- * @param {number} n        - The number to truncate
- * @param {number} decimals - Number of decimal places (default: 2)
- * @return {number} The truncated number
- */
+/** Truncate to decimal places. */
 export function truncate( n, decimals = 2 ) {
 	return Number( n.toFixed( decimals ) );
 }
