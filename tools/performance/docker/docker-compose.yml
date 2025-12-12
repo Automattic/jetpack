@@ -64,8 +64,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      wordpress-jetpack-connected:
-        condition: service_started
+      # NOTE: We intentionally do NOT depend on wordpress-jetpack-connected here.
+      # The run-performance-tests.js script starts containers sequentially:
+      # 1. Start db only
+      # 2. Run wpcli setup (WordPress container NOT running)
+      # 3. Start wordpress-jetpack-connected
+      # This prevents race conditions where WordPress interferes with WP-CLI's database operations.
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: root
