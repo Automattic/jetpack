@@ -435,16 +435,16 @@ async function main() {
 		console.log( 'WordPress instances not ready. Starting setup...\n' );
 		console.log( 'This may take a few minutes on first run...\n' );
 
-		// Start Docker containers
-		console.log( 'Starting Docker containers...' );
-		dockerCompose( [ 'up', '-d' ] );
+		// SStart only the database first, run WP-CLI setup,
+		// then start WordPress containers. This prevents race conditions where
+		// WordPress containers interfere with WP-CLI's database operations.
 
-		// Discover dynamically assigned ports and set environment variables
-		discoverDynamicPorts();
+		// Step 1: Start only the database container
+		console.log( 'Step 1/4: Starting database container...' );
+		dockerCompose( [ 'up', '-d', 'db' ] );
 
-		// Poll for MySQL readiness (healthcheck) before running setup
-		// Timeout is configurable via MYSQL_READY_TIMEOUT_SECONDS env var (default: 120s)
-		console.log( 'Waiting for MySQL to be ready...' );
+		// Step 2: Wait for MySQL to be ready
+		console.log( 'Step 2/4: Waiting for MySQL to be ready...' );
 		const mysqlTimeoutSeconds = parseInt( process.env.MYSQL_READY_TIMEOUT_SECONDS || '120', 10 );
 		const maxDbAttempts = Math.ceil( mysqlTimeoutSeconds / 2 ); // 2 second intervals
 		let dbReady = false;
@@ -478,15 +478,24 @@ async function main() {
 		}
 		console.log( '✓ MySQL is ready                    ' );
 
-		// Run setup script (the wpcli container runs setup automatically)
-		console.log( 'Running WordPress setup...' );
+		// Step 3: Run WP-CLI setup BEFORE starting WordPress containers
+		// This ensures WP-CLI has exclusive access to the database during setup
+		console.log( 'Step 3/4: Running WordPress setup via WP-CLI...' );
+		console.log( '  (WordPress containers are NOT running yet - no race conditions possible)' );
 		dockerCompose( [ 'run', '--rm', 'wpcli' ] );
+		console.log( '✓ WP-CLI setup complete' );
+
+		// Step 4: Now start the WordPress containers
+		console.log( 'Step 4/4: Starting WordPress containers...' );
+		dockerCompose( [ 'up', '-d' ] );
+
+		// Discover dynamically assigned ports
+		discoverDynamicPorts();
 
 		// Update database URLs to match discovered dynamic ports
 		updateWordPressUrls();
 
 		// Poll for WordPress instances to be ready
-		// Timeout is configurable via WP_READY_TIMEOUT_SECONDS env var (default: 60s)
 		console.log( 'Verifying WordPress instances are ready...' );
 		const wpTimeoutSeconds = parseInt( process.env.WP_READY_TIMEOUT_SECONDS || '60', 10 );
 		const maxWpAttempts = Math.ceil( wpTimeoutSeconds / 2 ); // 2 second intervals
