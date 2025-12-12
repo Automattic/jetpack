@@ -22,7 +22,7 @@ class Form_Editor {
 	 *
 	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'jetpack-form-editor';
+	const SCRIPT_HANDLE = 'jetpack-forms-editor';
 
 	/**
 	 * Initialize the form editor.
@@ -52,6 +52,7 @@ class Form_Editor {
 		// Allow only field blocks, button, and core blocks.
 		// Visual wrapping is handled by JavaScript DOM manipulation.
 		return array(
+			// 'jetpack/contact-form',
 			// Field blocks.
 			'jetpack/field-name',
 			'jetpack/field-email',
@@ -85,27 +86,24 @@ class Form_Editor {
 			'jetpack/form-progress-indicator',
 
 			// Core blocks for rich content.
-			'core/audio',
+			'core/paragraph',
+			'core/heading',
+			'core/list',
+			'core/list-item',
+			'core/separator',
+			'core/spacer',
 			'core/columns',
 			'core/column',
 			'core/group',
-			'core/heading',
-			'core/html',
 			'core/image',
-			'core/list',
-			'core/list-item',
-			'core/paragraph',
-			'core/row',
-			'core/separator',
-			'core/spacer',
-			'core/stack',
-			'core/subhead',
-			'core/video',
+			'core/html',
 		);
 	}
 
 	/**
 	 * Modify block editor settings for jetpack-form posts.
+	 *
+	 * Disables the inserter in the top toolbar.
 	 *
 	 * @param array  $settings       Block editor settings.
 	 * @param object $editor_context The current editor context.
@@ -117,41 +115,25 @@ class Form_Editor {
 			return $settings;
 		}
 
-		// Disable block locking capability.
+		// Enable block locking capability (was previously disabled)
 		$settings['canLockBlocks'] = false;
 
 		return $settings;
 	}
 
 	/**
-	 * Enqueue admin scripts for block editor.
-	 * Loads in all post block editor contexts (excluding the site editor) so that the
-	 * rename command is available and can be used when a form block is selected.
+	 * Enqueue admin scripts for jetpack-form post type.
 	 */
 	public static function enqueue_admin_scripts() {
-		$screen = get_current_screen();
-
-		// Only load in block editor contexts, not site editor
-		if ( ! $screen || $screen->id === 'site-editor' || ! $screen->is_block_editor ) {
-			return;
-		}
-		$asset_file = __DIR__ . '/../../dist/form-editor/jetpack-form-editor.asset.php';
-		if ( ! file_exists( $asset_file ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( 'Form Editor asset file not found: ' . $asset_file );
-			return;
-		}
-		$asset = require $asset_file;
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
-			'../../dist/form-editor/jetpack-form-editor.js',
+			'../../dist/form-editor/jetpack-forms-editor.js',
 			__FILE__,
 			array(
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => $asset['dependencies'],
-				'version'      => $asset['version'],
+				'dependencies' => array( 'wp-data', 'wp-hooks', 'wp-polyfill' ),
 			)
 		);
 	}
