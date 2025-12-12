@@ -2,6 +2,7 @@
  * Media source options and helper functions
  */
 
+import { AiSVG } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
 import { image, video, starEmpty, media as mediaIcon } from '@wordpress/icons';
 import { MediaSourceOption, MediaSourceType } from '../types';
@@ -49,6 +50,17 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 			description: __( 'Upload a video file.', 'jetpack-publicize-components' ),
 			icon: video,
 			group: 'attachment',
+		},
+		{
+			id: 'ai-image',
+			label: __( 'Generate image', 'jetpack-publicize-components' ),
+			description: __( 'You are using an AI-generated image.', 'jetpack-publicize-components' ),
+			icon: AiSVG,
+			group: 'attachment',
+			attachmentDescription: __(
+				'Shares your AI-generated image as an attachment for higher engagement.',
+				'jetpack-publicize-components'
+			),
 		},
 	];
 }

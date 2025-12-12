@@ -21,6 +21,7 @@ export default function MediaSourceMenu( {
 	currentSource,
 	onSelect,
 	onMediaLibraryClick,
+	onAiImageClick,
 	disabled = false,
 	children,
 }: MediaSourceMenuProps ) {
@@ -80,12 +81,20 @@ export default function MediaSourceMenu( {
 							onSelect={ onSelect }
 							onClose={ onClose }
 							onMediaLibraryClick={ onMediaLibraryClick }
+							onAiImageClick={ onAiImageClick }
 						/>
 					) ) }
 				</MenuGroup>
 			</>
 		),
-		[ linkPreviewOptions, attachmentOptions, currentSource, onSelect, onMediaLibraryClick ]
+		[
+			linkPreviewOptions,
+			attachmentOptions,
+			currentSource,
+			onSelect,
+			onMediaLibraryClick,
+			onAiImageClick,
+		]
 	);
 
 	return (
