@@ -7,6 +7,7 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Status\Cache;
 use Brain\Monkey\Functions;
@@ -58,8 +59,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Log out any logged-in user.
 		wp_set_current_user( 0 );
 
-		// Clear the status cache.
+		// Clear the status cache and constants.
 		Cache::clear();
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -281,7 +283,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that add_inline_script adds script with empty providers by default.
+	 * Tests that add_inline_script adds script with empty providers and useUnifiedExperience false by default.
 	 */
 	public function test_add_inline_script_with_empty_providers() {
 		// Register the help-center script so we can attach inline script to it.
@@ -297,6 +299,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
+		$this->assertStringContainsString( '"useUnifiedExperience":false', $inline_script );
 	}
 
 	/**
@@ -335,6 +338,40 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that add_inline_script includes useUnifiedExperience true when filter returns true.
+	 */
+	public function test_add_inline_script_includes_use_unified_experience_when_enabled() {
+		// Reset the script registry to ensure test isolation.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		// Register the help-center script so we can attach inline script to it.
+		wp_register_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
+
+		// Add a filter to enable unified experience.
+		add_filter(
+			'agents_manager_use_unified_experience',
+			'__return_true',
+			// Use a higher priority to ensure it runs after the class's own filter.
+			20
+		);
+
+		$this->agents_manager->add_inline_script();
+
+		// Re-fetch global after wp_register_script initializes it.
+		$inline_scripts = $wp_scripts->registered['help-center']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
+
+		// Find the inline script containing agentsManagerData.
+		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
+		$this->assertStringContainsString( '"useUnifiedExperience":true', $inline_script );
+
+		// Clean up the filter.
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
 	 * Tests that the agents_manager_use_unified_experience filter is registered.
 	 */
 	public function test_unified_experience_filter_is_registered() {
@@ -355,7 +392,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_use_unified_experience returns false for non-Automattician users.
+	 * Tests that should_use_unified_experience returns false for non-Automattician users on Simple sites.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -363,6 +400,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_for_non_automattician() {
+		// Simulate being on a Simple site.
+		Constants::set_constant( 'IS_WPCOM', true );
+
 		Functions\stubs(
 			array(
 				'is_automattician' => false,
@@ -384,7 +424,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_use_unified_experience returns true for Automattician with opt-in enabled.
+	 * Tests that should_use_unified_experience returns true for Automattician with opt-in enabled on Simple sites.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -392,10 +432,14 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_true_for_automattician_with_opt_in() {
+		// Simulate being on a Simple site.
+		Constants::set_constant( 'IS_WPCOM', true );
+
 		Functions\stubs(
 			array(
 				'is_automattician'   => true,
-				'get_user_attribute' => true,
+				// Return calypso_preferences with unified_ai_chat enabled.
+				'get_user_attribute' => array( 'unified_ai_chat' => true ),
 			)
 		);
 
@@ -414,7 +458,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_use_unified_experience returns false for Automattician without opt-in.
+	 * Tests that should_use_unified_experience returns false for Automattician without opt-in on Simple sites.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -422,10 +466,14 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_should_use_unified_experience_returns_false_for_automattician_without_opt_in() {
+		// Simulate being on a Simple site.
+		Constants::set_constant( 'IS_WPCOM', true );
+
 		Functions\stubs(
 			array(
 				'is_automattician'   => true,
-				'get_user_attribute' => false,
+				// Return calypso_preferences without unified_ai_chat (or with it set to false).
+				'get_user_attribute' => array( 'unified_ai_chat' => false ),
 			)
 		);
 
