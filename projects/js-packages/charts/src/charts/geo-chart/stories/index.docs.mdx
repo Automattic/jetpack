@@ -65,7 +65,7 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 ### Optional Props
 
 - **`className`**: Additional CSS class name for custom styling
-- **`scale`**: Scale factor for the map projection. Defaults to `width / 5.5` to fit the map within the chart bounds
+- **`scale`**: Scale factor for the map projection. Defaults to `width / 5` to fit the map within the chart bounds
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 
@@ -161,7 +161,7 @@ Add custom styles using the `className` prop:
 The Geo Chart uses Natural Earth projection with the following characteristics:
 
 - **Projection**: Natural Earth (pseudocylindrical projection with visually balanced proportions)
-- **Scale**: Automatically calculated as `width / 5.5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
+- **Scale**: Automatically calculated as `width / 5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
 - **Graticule**: Hidden by default (grid lines set to transparent)
 
 This projection provides a visually balanced world map layout suitable for most geographical data visualization needs, with less distortion at the poles compared to Mercator projection.

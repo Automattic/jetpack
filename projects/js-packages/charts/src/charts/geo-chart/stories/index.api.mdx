@@ -17,7 +17,7 @@ Main component for rendering geographical data on an interactive world map.
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
-| `scale` | `number` | `width / 5.5` | Scale factor for the map projection. Controls how large the map appears within the chart bounds |
+| `scale` | `number` | `width / 5` | Scale factor for the map projection. Controls how large the map appears within the chart bounds |
 
 ## GeoChartProps Type
 
@@ -100,8 +100,8 @@ For a complete list, refer to the ISO 3166-1 alpha-3 standard.
 
 The chart uses **Natural Earth projection** from `d3-geo` via `@visx/geo` with the following parameters:
 
-- **Scale**: Defaults to `width / 5.5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
-- **Translation**: `[width/2, height/2]` (centered)
+- **Scale**: Defaults to `width / 5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
+- **Translation**: `[width * 0.46, height * 0.58]` (offset to account for excluded Antarctica)
 - **Topology**: World country boundaries from Natural Earth data
 
 ## Color Scaling
