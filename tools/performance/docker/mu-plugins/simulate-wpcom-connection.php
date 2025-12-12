@@ -14,6 +14,10 @@
  * - WPCOM_SIMULATED_LATENCY_MS: Latency to add to each WP.com request (default: 200)
  *
  * @package Jetpack_Performance_Testing
+ *
+ * @phan-file-suppress PhanUndeclaredClassMethod, PhanUndeclaredConstant
+ * These classes (Jetpack, Jetpack_Options) and constants (JETPACK__VERSION) are provided
+ * Jetpack which is guaranteed to be active when this mu-plugin runs.
  */
 
 defined( 'ABSPATH' ) || exit;
