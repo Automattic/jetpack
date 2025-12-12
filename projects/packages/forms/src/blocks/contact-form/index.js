@@ -64,7 +64,14 @@ export const settings = {
 		'jetpack/form-class-name': 'className',
 	},
 	edit,
-	save: () => {
+	save: ( { attributes } ) => {
+		// For synced forms (with ref attribute), don't save innerBlocks
+		// The actual form content is stored in the jetpack_form post
+		if ( attributes.ref ) {
+			return null;
+		}
+
+		// For inline forms, save the full block with innerBlocks
 		const blockProps = useBlockProps.save();
 		return (
 			<div { ...blockProps }>
