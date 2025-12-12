@@ -1,12 +1,11 @@
 import { Button } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { _n } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
-import Notice from '../notice';
 import styles from './styles.module.scss';
 import type { FC } from 'react';
 
@@ -42,20 +41,18 @@ export const BrokenConnectionsNotice: FC = () => {
 	}
 
 	return (
-		problemConnections.length > 0 && (
-			<Notice type={ 'error' }>
-				{ createInterpolateElement(
-					_n(
-						'A social connection needs attention. <fixLink>Manage connections</fixLink> to fix it.',
-						'Some social connections need attention. <fixLink>Manage connections</fixLink> to fix them.',
-						problemConnections.length,
-						'jetpack-publicize-components'
-					),
-					{
-						fixLink,
-					}
-				) }
-			</Notice>
-		)
+		<Notice status="error" isDismissible={ false }>
+			{ createInterpolateElement(
+				_n(
+					'A social connection needs attention. <fixLink>Manage connections</fixLink> to fix it.',
+					'Some social connections need attention. <fixLink>Manage connections</fixLink> to fix them.',
+					problemConnections.length,
+					'jetpack-publicize-components'
+				),
+				{
+					fixLink,
+				}
+			) }
+		</Notice>
 	);
 };
