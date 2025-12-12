@@ -7,10 +7,13 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 
+// Infer the block type from the parse function's return type
+type ParsedBlock = ReturnType< typeof parse >[ number ];
+
 interface UseSyncedFormResult {
 	isLoading: boolean;
 	syncedAttributes: Record< string, unknown > | null;
-	syncedInnerBlocks: unknown[] | null;
+	syncedInnerBlocks: ParsedBlock[] | null;
 	reusableForm: { content?: { raw?: string } } | null;
 }
 
