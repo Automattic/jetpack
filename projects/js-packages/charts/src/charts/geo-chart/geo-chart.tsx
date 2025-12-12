@@ -18,8 +18,9 @@ import styles from './geo-chart.module.scss';
 import topology from './private/world-topo.json';
 import { GeoChartProps, FeatureShape, TooltipData } from './types';
 
-// @ts-expect-error - topojson-client types don't match topology structure
-const world = topojson.feature( topology, topology.objects.units ) as {
+// Cast through unknown to satisfy topojson-client's strict typing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const world = topojson.feature( topology as any, topology.objects.units as any ) as unknown as {
 	type: 'FeatureCollection';
 	features: FeatureShape[];
 };
