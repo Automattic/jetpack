@@ -62,7 +62,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 	const fullColor = getElementStyles( { index: 0 } ).color;
 	// Verify it's a hex color before appending alpha
 	const isHexColor = /^#[0-9A-F]{6}$/i.test( fullColor );
-	const lightColor = isHexColor ? fullColor + '20' : fullColor; // 20% opacity (hex: 33/255)
+	const lightColor = isHexColor ? fullColor + '20' : fullColor; // ~12.5% opacity (hex: 32/255)
 	const colorScale = scaleLinear( {
 		domain: [ 0, maxOrderCount ],
 		range: [ lightColor, fullColor ], // Transparent to full opacity
