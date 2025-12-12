@@ -1,22 +1,17 @@
+import { useDispatch } from '@wordpress/data';
 import { useMemo, useCallback } from '@wordpress/element';
 import { FormResponse } from '../../types/index.ts';
 import { getItemId } from '../inbox/utils.js';
+import { store as dashboardStore } from '../store/index.js';
 import useInboxData from './use-inbox-data.ts';
 
 interface UseResponseNavigationProps {
-	onChangeSelection: ( responses: string[] ) => void | null;
 	record: FormResponse;
-	setRecord: ( response: FormResponse ) => void;
-	isMobile?: boolean;
 }
 
-const useResponseNavigation = ( {
-	onChangeSelection,
-	record,
-	setRecord,
-	isMobile = false,
-}: UseResponseNavigationProps ) => {
+const useResponseNavigation = ( { record }: UseResponseNavigationProps ) => {
 	const { records } = useInboxData();
+	const { openResponse } = useDispatch( dashboardStore );
 	const currentIndex = useMemo(
 		() =>
 			record && records
@@ -35,29 +30,19 @@ const useResponseNavigation = ( {
 		if ( hasNext && records && currentIndex >= 0 ) {
 			const nextItem = records[ currentIndex + 1 ];
 			if ( nextItem ) {
-				// Only call setRecord on mobile (where parent's useEffect doesn't run)
-				// On desktop, parent's useEffect handles it via onChangeSelection
-				if ( isMobile ) {
-					setRecord( nextItem );
-				}
-				onChangeSelection?.( [ getItemId( nextItem ) ] );
+				openResponse( nextItem );
 			}
 		}
-	}, [ hasNext, records, currentIndex, isMobile, setRecord, onChangeSelection ] );
+	}, [ hasNext, records, currentIndex, openResponse ] );
 
 	const handlePrevious = useCallback( () => {
 		if ( hasPrevious && records && currentIndex >= 0 ) {
 			const prevItem = records[ currentIndex - 1 ];
 			if ( prevItem ) {
-				// Only call setRecord on mobile (where parent's useEffect doesn't run)
-				// On desktop, parent's useEffect handles it via onChangeSelection
-				if ( isMobile ) {
-					setRecord( prevItem );
-				}
-				onChangeSelection?.( [ getItemId( prevItem ) ] );
+				openResponse( prevItem );
 			}
 		}
-	}, [ hasPrevious, records, currentIndex, isMobile, setRecord, onChangeSelection ] );
+	}, [ hasPrevious, records, currentIndex, openResponse ] );
 
 	return {
 		currentIndex,

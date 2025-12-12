@@ -4,6 +4,8 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import {
 	SET_SELECTED_RESPONSES,
+	SET_OPEN_RESPONSE,
+	CLOSE_RESPONSE,
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
@@ -53,6 +55,26 @@ export const invalidateCounts = () => {
 export const setSelectedResponses = selectedResponses => ( {
 	type: SET_SELECTED_RESPONSES,
 	selectedResponses,
+} );
+
+/**
+ * Set the opened response item.
+ *
+ * @param {object|null} response - The opened response item, or null to clear.
+ * @return {object}               Action object.
+ */
+export const openResponse = response => ( {
+	type: SET_OPEN_RESPONSE,
+	response,
+} );
+
+/**
+ * Close the opened response item.
+ *
+ * @return {object} Action object.
+ */
+export const closeResponse = () => ( {
+	type: CLOSE_RESPONSE,
 } );
 
 /**

@@ -7,6 +7,8 @@ import { combineReducers } from '@wordpress/data';
  */
 import {
 	SET_SELECTED_RESPONSES,
+	SET_OPEN_RESPONSE,
+	CLOSE_RESPONSE,
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	SET_COUNTS,
@@ -43,6 +45,16 @@ const currentQuery = (
 const selectedResponsesFromCurrentDataset = ( state = [], action ) => {
 	if ( action.type === SET_SELECTED_RESPONSES ) {
 		return action.selectedResponses;
+	}
+	return state;
+};
+
+const openResponse = ( state = null, action ) => {
+	if ( action.type === SET_OPEN_RESPONSE ) {
+		return action.response;
+	}
+	if ( action.type === CLOSE_RESPONSE ) {
+		return null;
 	}
 	return state;
 };
@@ -138,6 +150,7 @@ const pendingActions = ( state = new Set(), action ) => {
 
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
+	openResponse,
 	filters,
 	currentQuery,
 	counts,

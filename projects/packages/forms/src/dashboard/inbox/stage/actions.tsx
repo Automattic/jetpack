@@ -15,6 +15,7 @@ import { notSpam, spam } from '../../icons/index.ts';
 import { store as dashboardStore } from '../../store/index.js';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../utils.js';
 import { defaultView } from './views.js';
+import { onSelectItem } from './index.js';
 /**
  * Types
  */
@@ -282,6 +283,16 @@ export const viewAction: Action = {
 	icon: <Icon icon={ commentContent } />,
 	label: __( 'View', 'jetpack-forms' ),
 	modalHeader: __( 'Response', 'jetpack-forms' ),
+	callback( items, { registry } ) {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_inbox_action_click', {
+			action: 'view-response',
+			multiple: items.length > 1,
+		} );
+
+		const [ item ] = items;
+		const { openResponse } = registry.dispatch( dashboardStore );
+		openResponse( item );
+	},
 };
 
 export const editFormAction: Action = {

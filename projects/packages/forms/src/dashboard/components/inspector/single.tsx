@@ -2,8 +2,11 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useSearchParams } from 'react-router';
 import useResponseNavigation from '../../hooks/use-response-navigation.ts';
+import { store as dashboardStore } from '../../store/index.js';
 import Page from '../page/index.tsx';
 import ResponseActions from '../response-actions/index.tsx';
 import ResponseNavigation from '../response-navigation/index.tsx';
@@ -12,30 +15,41 @@ import { ResponseViewBody } from './index.tsx';
 /**
  * Single response component for dataviews.
  * It might return a modal when viewport is resized to mobile.
- * @param {object}       props                   - The props object.
- * @param {FormResponse} props.sidePanelItem     - The side panel item.
- * @param {Function}     props.setSidePanelItem  - The function to set the side panel item.
- * @param {boolean}      props.isLoadingData     - Whether the data is loading.
- * @param {boolean}      props.isMobile          - Whether the view is mobile.
- * @param {Function}     props.onChangeSelection - The function to change the selection.
- * @param {string[]}     props.selection         - The selection.
+ *
+ * @param {object}       props               - The props object.
+ * @param {boolean}      props.isLoadingData - Whether the data is loading.
+ * @param {boolean}      props.isMobile      - Whether the view is mobile.
+ * @param {FormResponse} props.response      - The response to display.
  * @return {import('react').JSX.Element} The single response component.
  */
-const SingleResponseView = ( {
-	sidePanelItem,
-	setSidePanelItem,
-	isLoadingData,
-	isMobile,
-	onChangeSelection,
-	selection,
-} ) => {
+const SingleResponseView = ( { isLoadingData, isMobile, response } ) => {
+	const [ , setSearchParams ] = useSearchParams();
 	const [ isChildModalOpen, setIsChildModalOpen ] = useState( false );
+	const { closeResponse } = useDispatch( dashboardStore );
+
+	// Update URL param `r` with items
+	const updateSearchParam = useCallback(
+		items => {
+			setSearchParams( previousSearchParams => {
+				const _searchParams = new URLSearchParams( previousSearchParams );
+				if ( items.length ) {
+					_searchParams.set( 'r', items.join( ',' ) );
+				} else {
+					_searchParams.delete( 'r' );
+				}
+				return _searchParams;
+			} );
+		},
+		[ setSearchParams ]
+	);
 
 	const onRequestClose = useCallback( () => {
 		if ( ! isChildModalOpen ) {
-			onChangeSelection?.( [] );
+			closeResponse();
+			// Remove `r` URL param
+			updateSearchParam( [] );
 		}
-	}, [ onChangeSelection, isChildModalOpen ] );
+	}, [ closeResponse, isChildModalOpen ] );
 
 	const handleModalStateChange = useCallback(
 		isOpen => {
@@ -47,25 +61,22 @@ const SingleResponseView = ( {
 	const handleActionComplete = useCallback(
 		actionedItem => {
 			// if the action is on current response and hasn't changed status,
-			// don't close the modal but update the side panel item
-			if ( actionedItem?.id === sidePanelItem.id && actionedItem.status === sidePanelItem.status ) {
-				setSidePanelItem( actionedItem );
-			} else if ( actionedItem?.id && selection ) {
-				// Remove only the actioned item from selection, keep the rest
-				const actionedItemId = String( actionedItem.id );
-				const newSelection = selection.filter( id => id !== actionedItemId );
-				onChangeSelection?.( newSelection );
+			// don't close the modal
+			if ( actionedItem?.id === response?.id && actionedItem.status === response?.status ) {
+				// Response status hasn't changed, keep it open
+				return;
+			}
+			// If actioned item is the current response, close it
+			if ( actionedItem?.id === response?.id ) {
+				closeResponse();
 			}
 		},
-		[ onChangeSelection, selection, sidePanelItem, setSidePanelItem ]
+		[ closeResponse, response ]
 	);
 
 	// Use the navigation hook
 	const navigation = useResponseNavigation( {
-		onChangeSelection,
-		record: sidePanelItem,
-		setRecord: setSidePanelItem,
-		isMobile,
+		record: response,
 	} );
 
 	// Add keyboard navigation using refs to avoid re-registering listeners
@@ -108,7 +119,7 @@ const SingleResponseView = ( {
 		};
 	}, [] ); // Empty dependencies - listener registered only once
 
-	if ( ! sidePanelItem ) {
+	if ( ! response ) {
 		return null;
 	}
 
@@ -122,7 +133,7 @@ const SingleResponseView = ( {
 
 	const contents = (
 		<ResponseViewBody
-			response={ sidePanelItem }
+			response={ response }
 			isLoading={ isLoadingData }
 			onModalStateChange={ handleModalStateChange }
 		/>
@@ -139,7 +150,7 @@ const SingleResponseView = ( {
 				>
 					<ResponseActions
 						onActionComplete={ handleActionComplete }
-						response={ sidePanelItem }
+						response={ response }
 						variant="text"
 					/>
 					<ResponseNavigation { ...navigationProps } onClose={ onRequestClose } />
