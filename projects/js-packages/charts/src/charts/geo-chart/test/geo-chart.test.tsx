@@ -30,9 +30,9 @@ describe( 'GeoChart', () => {
 		width: 800,
 		height: 400,
 		data: {
-			US: 100,
-			CA: 50,
-			GB: 25,
+			USA: 100,
+			CAN: 50,
+			GBR: 25,
 		},
 	};
 
@@ -78,14 +78,14 @@ describe( 'GeoChart', () => {
 		} );
 
 		test( 'handles single country data', () => {
-			renderWithTheme( { data: { US: 100 } } );
+			renderWithTheme( { data: { USA: 100 } } );
 
 			const svg = document.querySelector( 'svg' );
 			expect( svg ).toBeInTheDocument();
 		} );
 
 		test( 'handles zero values in data', () => {
-			renderWithTheme( { data: { US: 0, CA: 100 } } );
+			renderWithTheme( { data: { USA: 0, CAN: 100 } } );
 
 			const svg = document.querySelector( 'svg' );
 			expect( svg ).toBeInTheDocument();
@@ -154,7 +154,7 @@ describe( 'GeoChart', () => {
 		} );
 
 		test( 'tooltip displays country name and order value', async () => {
-			renderWithTheme( { data: { US: 42 } } );
+			renderWithTheme( { data: { USA: 42 } } );
 
 			const countryPaths = getCountryPaths();
 			expect( countryPaths.length ).toBeGreaterThan( 0 );
@@ -171,7 +171,7 @@ describe( 'GeoChart', () => {
 
 	describe( 'Color Scaling', () => {
 		test( 'countries with data have different fill than countries without', () => {
-			renderWithTheme( { data: { US: 100 } } );
+			renderWithTheme( { data: { USA: 100 } } );
 
 			const paths = document.querySelectorAll( 'path' );
 			const fills = new Set< string >();
@@ -188,7 +188,7 @@ describe( 'GeoChart', () => {
 		} );
 
 		test( 'countries with varying data values create color variation', () => {
-			renderWithTheme( { data: { US: 100, CA: 50, MX: 10 } } );
+			renderWithTheme( { data: { USA: 100, CAN: 50, MEX: 10 } } );
 
 			const paths = document.querySelectorAll( 'path' );
 			const fills = new Set< string >();
