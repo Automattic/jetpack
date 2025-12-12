@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 6.7
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.3
+Stable tag: 4.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.4-beta - 2025-12-11
+### 4.5.4 - 2025-12-12
 #### Changed
 - Image CDN: cache image quality settings per format to reduce repeated processing.
 - Update package dependencies.
