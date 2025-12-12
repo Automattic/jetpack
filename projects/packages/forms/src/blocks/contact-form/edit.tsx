@@ -47,7 +47,7 @@ import JetpackManageResponsesSettings from '../shared/components/jetpack-manage-
 import { useFindBlockRecursively } from '../shared/hooks/use-find-block-recursively.js';
 import useFormSteps from '../shared/hooks/use-form-steps.js';
 import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.js';
-import { CORE_BLOCKS } from '../shared/util/constants.js';
+import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
@@ -252,45 +252,52 @@ function JetpackContactFormEdit( {
 	);
 	const submitButton = useFindBlockRecursively( clientId, findButtonsBlock );
 
-	const { postTitle, hasAnyInnerBlocks, postAuthorEmail, selectedBlockClientId, onlySubmitBlock } =
-		useSelect(
-			select => {
-				const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-					select( blockEditorStore );
-				const { getEditedPostAttribute } = select( editorStore );
-				const selectedBlockId = getSelectedBlockClientId();
-				const selectedBlock = getBlock( selectedBlockId );
-				let selectedStepBlockId = selectedBlockId;
+	const {
+		postTitle,
+		hasAnyInnerBlocks,
+		postAuthorEmail,
+		selectedBlockClientId,
+		onlySubmitBlock,
+		isJetpackFormEditor,
+	} = useSelect(
+		select => {
+			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
+				select( blockEditorStore );
+			const { getEditedPostAttribute, getCurrentPostType } = select( editorStore );
+			const selectedBlockId = getSelectedBlockClientId();
+			const selectedBlock = getBlock( selectedBlockId );
+			let selectedStepBlockId = selectedBlockId;
 
-				if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
-					selectedStepBlockId = getBlockParentsByBlockName(
-						selectedBlockId,
-						'jetpack/form-step'
-					)[ 0 ];
-				}
+			if ( selectedBlock && selectedBlock.name !== 'jetpack/form-step' ) {
+				selectedStepBlockId = getBlockParentsByBlockName(
+					selectedBlockId,
+					'jetpack/form-step'
+				)[ 0 ];
+			}
 
-				const { getUser } = select( coreStore );
-				const innerBlocksData = getBlocks( clientId );
+			const { getUser } = select( coreStore );
+			const innerBlocksData = getBlocks( clientId );
 
-				const isSingleButtonBlock =
-					innerBlocksData.length === 1 &&
-					( innerBlocksData[ 0 ].name === 'core/button' ||
-						innerBlocksData[ 0 ].name === 'jetpack/button' );
+			const isSingleButtonBlock =
+				innerBlocksData.length === 1 &&
+				( innerBlocksData[ 0 ].name === 'core/button' ||
+					innerBlocksData[ 0 ].name === 'jetpack/button' );
 
-				const title = getEditedPostAttribute( 'title' );
-				const authorId = getEditedPostAttribute( 'author' );
-				const authorEmail = authorId && getUser( authorId )?.email;
+			const title = getEditedPostAttribute( 'title' );
+			const authorId = getEditedPostAttribute( 'author' );
+			const authorEmail = authorId && getUser( authorId )?.email;
 
-				return {
-					postTitle: title,
-					hasAnyInnerBlocks: innerBlocksData.length > 0,
-					postAuthorEmail: authorEmail,
-					selectedBlockClientId: selectedStepBlockId,
-					onlySubmitBlock: isSingleButtonBlock,
-				};
-			},
-			[ clientId ]
-		);
+			return {
+				postTitle: title,
+				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				postAuthorEmail: authorEmail,
+				selectedBlockClientId: selectedStepBlockId,
+				onlySubmitBlock: isSingleButtonBlock,
+				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
+			};
+		},
+		[ clientId ]
+	);
 
 	// For synced forms, consider having content if we have ref or synced data
 	const hasContent =
@@ -939,7 +946,7 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
-					{ isCentralFormManagementEnabled && (
+					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
 						<ConvertFormToolbar
 							clientId={ clientId }
 							attributes={ attributes }
