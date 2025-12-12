@@ -754,7 +754,11 @@ function wp_cache_debug( $message, $level = 1 ) {
 	}
 
 	// Log message: Date URI Message
-	$log_message = date( 'H:i:s' ) . ' ' . getmypid() . " {$_SERVER['REQUEST_URI']} {$message}" . PHP_EOL;
+	if ( function_exists( 'getmypid' ) ) {
+		$log_message = date( 'H:i:s' ) . ' ' . getmypid() . " {$_SERVER['REQUEST_URI']} {$message}" . PHP_EOL;
+	} else {
+		$log_message = date( 'H:i:s' ) . " {$_SERVER['REQUEST_URI']} {$message}" . PHP_EOL;
+	}
 	// path to the log file in the cache folder
 	$log_file = $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) );
 

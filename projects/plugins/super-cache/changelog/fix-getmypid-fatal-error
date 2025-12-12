@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: Fix fatal error when getmypid() is unavailable in debug logging
