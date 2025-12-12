@@ -6,6 +6,7 @@ import { parse } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
+import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 
 // Infer the block type from the parse function's return type
 type ParsedBlock = ReturnType< typeof parse >[ number ];
@@ -35,8 +36,8 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 
 			const { getEntityRecord, isResolving } = select( coreStore );
 
-			const form = getEntityRecord( 'postType', 'jetpack_form', ref );
-			const resolving = isResolving( 'getEntityRecord', [ 'postType', 'jetpack_form', ref ] );
+			const form = getEntityRecord( 'postType', FORM_POST_TYPE, ref );
+			const resolving = isResolving( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, ref ] );
 
 			return {
 				reusableForm: form,

@@ -55,6 +55,12 @@ export const DATE_FORMAT_OPTIONS = DATE_FORMATS.map(
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
+/**
+ * The custom post type for jetpack forms.
+ * Matches Contact_Form::POST_TYPE in PHP.
+ */
+export const FORM_POST_TYPE = 'jetpack_form';
+
 export const FORM_STYLE = {
 	ANIMATED: 'animated',
 	BELOW: 'below',
