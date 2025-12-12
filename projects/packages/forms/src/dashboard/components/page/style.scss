@@ -64,7 +64,9 @@
 
 	&.has-padding {
 		padding: variables.$grid-unit-40 variables.$grid-unit * 2.5;
+
 		@container (max-width: 430px) {
+
 			padding: variables.$grid-unit-15 variables.$grid-unit-30;
 		}
 	}

@@ -1,6 +1,8 @@
 // Fix for sticky header on mobile in wp-admin
-// The header needs to account for the wp-admin bar (46px on mobile, 32px on tablet+)
+// The header needs to account for the wp-admin bar
+// (46px on mobile, 32px on tablet+)
 .admin-ui-page__header {
+
 	@media (max-width: 782px) {
 		// On mobile, the admin bar is fixed, so sticky header needs to be below it
 		top: 46px;
