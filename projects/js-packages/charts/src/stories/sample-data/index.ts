@@ -935,7 +935,7 @@ export const customerRevenueLegendData = [
  *
  * Orders by country data for geo chart visualization
  * - Category: categorical
- * - Data points: 12
+ * - Data points: 13
  * - Suitable for: GeoChart
  */
 export const ordersByCountry: Record< string, number > = {
