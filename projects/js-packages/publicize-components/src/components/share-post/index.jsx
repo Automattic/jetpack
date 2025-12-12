@@ -5,6 +5,7 @@ import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { send } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useIsReSharingPossible } from '../../hooks/use-is-resharing-possible';
 import useSharePost from '../../hooks/use-share-post';
@@ -153,6 +154,7 @@ export function SharePostButton( { onShareCompleted } ) {
 			onClick={ sharePost }
 			disabled={ ! isReSharingPossible || isSavingScheduledShare }
 			isBusy={ isFetching || isSavingPost }
+			icon={ send }
 		>
 			{ __( 'Share', 'jetpack-publicize-components' ) }
 		</Button>
