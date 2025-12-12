@@ -202,7 +202,7 @@ export function getModuleActivationMessage( moduleSlug: string, moduleName: stri
 	// Fallback to generic message if no benefit message is defined
 	return sprintf(
 		/* translators: %s: Jetpack module name */
-		_x( '%s has been activated.', '1: Jetpack module name', 'jetpack-my-jetpack' ),
+		_x( '%s has been activated.', '%s: Jetpack module name', 'jetpack-my-jetpack' ),
 		moduleName
 	);
 }
