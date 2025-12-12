@@ -25,8 +25,15 @@ const isFreePlan = (): boolean => {
 	const siteData = getSiteData();
 	const productSlug = siteData?.plan?.product_slug || '';
 	
-	// Free plans typically have 'free' in their product slug
-	return productSlug.includes( 'free' ) || productSlug === 'jetpack_free' || productSlug === '';
+	// List of known free plan product slugs
+	const freePlanSlugs = [ 'jetpack_free', 'free_plan', 'free' ];
+	
+	// Check if product slug matches known free plans or contains 'free'
+	return (
+		! productSlug ||
+		freePlanSlugs.includes( productSlug ) ||
+		productSlug.toLowerCase().includes( 'free' )
+	);
 };
 
 /**
@@ -59,8 +66,8 @@ const ImportSubscribersModal = ( { isOpen, onRequestClose }: ImportSubscribersMo
 
 	const handleImport = () => {
 		// TODO: Implement actual import logic
-		// This is a placeholder for the import functionality
-		console.log( 'Import:', { file: selectedFile, categories } );
+		// This will be implemented in a future update to handle the actual CSV processing
+		// and API calls to import subscribers
 		onRequestClose();
 	};
 

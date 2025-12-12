@@ -8,7 +8,7 @@ import { Button } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import ImportSubscribersModal from './components/import-subscribers-modal.tsx';
+import ImportSubscribersModal from './components/import-subscribers-modal';
 import './style.module.scss';
 
 export const JetpackSubscribers = () => {
