@@ -1,6 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useBreakpoint } from '@automattic/viewport-react';
-import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -11,6 +10,7 @@ import { ScreenDetails } from '../types';
 import { Content } from './content';
 import { FooterContent } from './footer-content';
 import { Sidebar } from './sidebar';
+import { useFooterActions } from './use-footer-actions';
 
 /**
  * Hook to get modal screen details for social post preview.
@@ -24,6 +24,8 @@ export function useModalScreen(): ScreenDetails {
 
 	const baseId = useId();
 	const isSmallScreen = useBreakpoint( '<660px' );
+
+	const footerActions = useFooterActions();
 
 	const isPrePublishScreen = useSelect( select => {
 		const store = select( editorStore );
@@ -51,15 +53,8 @@ export function useModalScreen(): ScreenDetails {
 				/>
 			),
 			footerContent: <FooterContent />,
-			footerActions: [
-				// TODO: Add resharing buttons here conditionally
-				( { navigate } ) => (
-					<Button key="save" variant="primary" onClick={ navigate }>
-						{ __( 'Save Changes', 'jetpack-publicize-components' ) }
-					</Button>
-				),
-			],
+			footerActions,
 		} ),
-		[ isPrePublishScreen, isSmallScreen, baseId, selectedConnection ]
+		[ isPrePublishScreen, isSmallScreen, baseId, selectedConnection, footerActions ]
 	);
 }
