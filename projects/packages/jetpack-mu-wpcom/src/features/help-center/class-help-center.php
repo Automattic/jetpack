@@ -40,24 +40,27 @@ class Help_Center {
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
-		global $wp_customize;
-
-		if ( isset( $wp_customize ) ) {
-			return;
-		}
-
 		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
+		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+
+		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
+		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+
+		// Handle customizer separately.
+		if ( is_customize_preview() ) {
+			add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_customizer_scripts' ) );
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'add_help_center_container' ) );
+			return;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1000 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
 	}
 
 	/**
@@ -305,9 +308,12 @@ class Help_Center {
 			);
 		}
 
-		if ( ! is_admin() ) {
+		$should_enqueue_wp_components = ! is_admin() || ( is_customize_preview() && ( new Host() )->is_wpcom_simple() );
+
+		if ( $should_enqueue_wp_components ) {
 			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
+
 			if ( function_exists( 'gutenberg_url' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction
 				$stylesheet_url = gutenberg_url( $stylesheet );
@@ -567,6 +573,42 @@ class Help_Center {
 			return null;
 		}
 		return json_decode( wp_remote_retrieve_body( $request ), true );
+	}
+
+	/**
+	 * Enqueue Help Center assets for the customizer.
+	 */
+	public function enqueue_customizer_scripts() {
+		if ( $this->is_jetpack_disconnected() ) {
+			$variant = 'wp-admin-disconnected';
+		} else {
+			$variant = 'customizer';
+		}
+
+		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
+		$asset_file = get_transient( $cache_key );
+
+		if ( ! $asset_file ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+			if ( ! $asset_file ) {
+				return;
+			}
+			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+		}
+
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+
+		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
+	}
+
+	/**
+	 * Add Help Center container div in customizer.
+	 */
+	public function add_help_center_container() {
+		?>
+		<div id="help-center-customizer"></div>
+		<?php
 	}
 
 	/**
