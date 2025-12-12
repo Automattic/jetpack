@@ -6,6 +6,8 @@
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
 		"@wordpress/admin-ui": "next",
 		"@wordpress/api-fetch": "next",
+		"@wordpress/block-editor": "next",
+		"@wordpress/blocks": "next",
 		"@wordpress/components": "next",
 		"@wordpress/core-data": "next",
 		"@wordpress/data": "next",

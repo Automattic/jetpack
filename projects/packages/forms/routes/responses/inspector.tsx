@@ -34,6 +34,7 @@ import { useParams, useSearch, useNavigate } from '@wordpress/route';
 import CopyClipboardButton from '../../src/dashboard/components/copy-clipboard-button';
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
+import { store as dashboardStore } from '../../src/dashboard/store';
 
 const getDisplayName = ( response: any ) => {
 	const { author_name, author_email, author_url, ip } = response;
@@ -221,81 +222,159 @@ function ResponseActions( {
 	response: any;
 	onActionComplete: ( item: any ) => void;
 } ) {
-	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreStore );
+	const { saveEntityRecord, deleteEntityRecord, editEntityRecord } = useDispatch( coreStore );
+	const { updateCountsOptimistically, invalidateCounts } = useDispatch( dashboardStore );
 	const [ isLoading, setIsLoading ] = useState( false );
 
 	const handleMarkAsSpam = useCallback( async () => {
-		setIsLoading( true );
+		const originalStatus = response.status;
+
+		// Optimistic update
+		editEntityRecord( 'postType', 'feedback', response.id, { status: 'spam' } );
+		updateCountsOptimistically( originalStatus, 'spam', 1 );
+		onActionComplete( { ...response, status: 'spam' } );
+
 		try {
 			await saveEntityRecord( 'postType', 'feedback', {
 				id: response.id,
 				status: 'spam',
 			} );
-			onActionComplete( { ...response, status: 'spam' } );
-		} finally {
-			setIsLoading( false );
+			invalidateCounts();
+		} catch {
+			// Revert on error
+			editEntityRecord( 'postType', 'feedback', response.id, { status: originalStatus } );
+			updateCountsOptimistically( 'spam', originalStatus, 1 );
 		}
-	}, [ response, saveEntityRecord, onActionComplete ] );
+	}, [
+		response,
+		saveEntityRecord,
+		editEntityRecord,
+		onActionComplete,
+		updateCountsOptimistically,
+		invalidateCounts,
+	] );
 
 	const handleMarkAsNotSpam = useCallback( async () => {
-		setIsLoading( true );
+		const originalStatus = response.status;
+
+		// Optimistic update
+		editEntityRecord( 'postType', 'feedback', response.id, { status: 'publish' } );
+		updateCountsOptimistically( originalStatus, 'publish', 1 );
+		onActionComplete( { ...response, status: 'publish' } );
+
 		try {
 			await saveEntityRecord( 'postType', 'feedback', {
 				id: response.id,
 				status: 'publish',
 			} );
-			onActionComplete( { ...response, status: 'publish' } );
-		} finally {
-			setIsLoading( false );
+			invalidateCounts();
+		} catch {
+			// Revert on error
+			editEntityRecord( 'postType', 'feedback', response.id, { status: originalStatus } );
+			updateCountsOptimistically( 'publish', originalStatus, 1 );
 		}
-	}, [ response, saveEntityRecord, onActionComplete ] );
+	}, [
+		response,
+		saveEntityRecord,
+		editEntityRecord,
+		onActionComplete,
+		updateCountsOptimistically,
+		invalidateCounts,
+	] );
 
 	const handleMoveToTrash = useCallback( async () => {
-		setIsLoading( true );
+		const originalStatus = response.status;
+
+		// Optimistic update
+		editEntityRecord( 'postType', 'feedback', response.id, { status: 'trash' } );
+		updateCountsOptimistically( originalStatus, 'trash', 1 );
+		onActionComplete( { ...response, status: 'trash' } );
+
 		try {
 			await deleteEntityRecord( 'postType', 'feedback', response.id );
-			onActionComplete( { ...response, status: 'trash' } );
-		} finally {
-			setIsLoading( false );
+			invalidateCounts();
+		} catch {
+			// Revert on error
+			editEntityRecord( 'postType', 'feedback', response.id, { status: originalStatus } );
+			updateCountsOptimistically( 'trash', originalStatus, 1 );
 		}
-	}, [ response, deleteEntityRecord, onActionComplete ] );
+	}, [
+		response,
+		deleteEntityRecord,
+		editEntityRecord,
+		onActionComplete,
+		updateCountsOptimistically,
+		invalidateCounts,
+	] );
 
 	const handleRestore = useCallback( async () => {
-		setIsLoading( true );
+		const originalStatus = response.status;
+
+		// Optimistic update
+		editEntityRecord( 'postType', 'feedback', response.id, { status: 'publish' } );
+		updateCountsOptimistically( originalStatus, 'publish', 1 );
+		onActionComplete( { ...response, status: 'publish' } );
+
 		try {
 			await saveEntityRecord( 'postType', 'feedback', {
 				id: response.id,
 				status: 'publish',
 			} );
-			onActionComplete( { ...response, status: 'publish' } );
-		} finally {
-			setIsLoading( false );
+			invalidateCounts();
+		} catch {
+			// Revert on error
+			editEntityRecord( 'postType', 'feedback', response.id, { status: originalStatus } );
+			updateCountsOptimistically( 'publish', originalStatus, 1 );
 		}
-	}, [ response, saveEntityRecord, onActionComplete ] );
+	}, [
+		response,
+		saveEntityRecord,
+		editEntityRecord,
+		onActionComplete,
+		updateCountsOptimistically,
+		invalidateCounts,
+	] );
 
 	const handleDelete = useCallback( async () => {
-		setIsLoading( true );
+		const originalStatus = response.status;
+
+		// Optimistic update
+		updateCountsOptimistically( originalStatus, '', 1 );
+		onActionComplete( null );
+
 		try {
 			await deleteEntityRecord( 'postType', 'feedback', response.id, { force: true } );
-			onActionComplete( null );
-		} finally {
-			setIsLoading( false );
+			invalidateCounts();
+		} catch {
+			// Revert on error
+			updateCountsOptimistically( '', originalStatus, 1 );
 		}
-	}, [ response, deleteEntityRecord, onActionComplete ] );
+	}, [
+		response,
+		deleteEntityRecord,
+		onActionComplete,
+		updateCountsOptimistically,
+		invalidateCounts,
+	] );
 
 	const handleToggleRead = useCallback( async () => {
-		setIsLoading( true );
+		const newIsUnread = ! response.is_unread;
+
+		// Optimistic update
+		editEntityRecord( 'postType', 'feedback', response.id, { is_unread: newIsUnread } );
+		onActionComplete( { ...response, is_unread: newIsUnread } );
+
 		try {
 			await apiFetch( {
 				path: `/wp/v2/feedback/${ response.id }/read`,
 				method: 'POST',
-				data: { is_unread: ! response.is_unread },
+				data: { is_unread: newIsUnread },
 			} );
-			onActionComplete( { ...response, is_unread: ! response.is_unread } );
-		} finally {
-			setIsLoading( false );
+		} catch {
+			// Revert on error
+			editEntityRecord( 'postType', 'feedback', response.id, { is_unread: ! newIsUnread } );
 		}
-	}, [ response, onActionComplete ] );
+	}, [ response, editEntityRecord, onActionComplete ] );
 
 	const containerStyle = {
 		display: 'flex',

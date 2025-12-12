@@ -1,9 +1,20 @@
-/**
- * Temporary workaround: Fix snackbar notices appearing behind wp-admin elements.
- * The boot-layout uses `isolation: isolate` which creates a stacking context,
- * trapping the snackbar's z-index. This should be fixed upstream in @wordpress/boot.
- */
-.components-snackbar-list {
-	position: fixed;
-	z-index: 100001;
+.jp-forms-dataviews__view-actions {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral, #e0e0e0);
+	padding-inline: 20px;
+	overflow-x: auto;
+	width: 100%;
+	box-sizing: border-box;
+	container-type: inline-size;
+	flex-shrink: 0;
+
+	// On small screens, switch to column stacking
+	@container (width < 500px) {
+		--wp-ui-stack-justify: flex-start;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	> div:not(:empty) {
+		min-height: 48px;
+	}
 }

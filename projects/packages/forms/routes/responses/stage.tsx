@@ -9,13 +9,9 @@ import '@automattic/ui/style.css';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import {
-	Button,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
-} from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { store as coreStore, useEntityRecords } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
@@ -27,31 +23,14 @@ import { useParams, useSearch, useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import Page from '../../src/dashboard/components/page';
+import IntegrationsModal from './integrations-modal';
+import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
-
-/**
- * Hook to fetch response counts for each status.
- *
- * @return {object} Object containing inbox, spam, and trash counts.
- */
-function useCounts() {
-	const [ counts, setCounts ] = useState( { inbox: 0, spam: 0, trash: 0 } );
-
-	useEffect( () => {
-		apiFetch( { path: '/wp/v2/feedback/counts' } ).then( response => {
-			setCounts( {
-				inbox: response?.inbox || 0,
-				spam: response?.spam || 0,
-				trash: response?.trash || 0,
-			} );
-		} );
-	}, [] );
-
-	return counts;
-}
+import { store as dashboardStore } from '../../src/dashboard/store';
+import { INTEGRATIONS_STORE } from '../../src/store/integrations';
+import type { Integration } from '../../src/types';
 
 /**
  * Hook to fetch filter options for date and source fields.
@@ -129,7 +108,8 @@ export function stage() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
-	const counts = useCounts();
+	const counts = useSelect( select => select( dashboardStore ).getCounts(), [] );
+	const { updateCountsOptimistically, invalidateCounts } = useDispatch( dashboardStore );
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
@@ -138,8 +118,16 @@ export function stage() {
 		status = 'trash';
 	}
 
-	const { saveEntityRecord, deleteEntityRecord, invalidateResolution } = useDispatch( coreStore );
+	const { saveEntityRecord, deleteEntityRecord, invalidateResolution, editEntityRecord } =
+		useDispatch( coreStore );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+
+	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
+	const integrations = useSelect(
+		select => ( select( INTEGRATIONS_STORE ).getIntegrations?.() ?? [] ) as Integration[],
+		[]
+	);
+	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 
 	const [ view, setView ] = useState( () => ( {
 		...DEFAULT_VIEW,
@@ -379,6 +367,30 @@ export function stage() {
 
 	const handleMarkAsSpam = useCallback(
 		async items => {
+			const originalStatuses = items.map( item => item.status );
+
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { status: 'spam' } );
+				updateCountsOptimistically( item.status, 'spam', 1 );
+			} );
+			clearSelection();
+
+			const message =
+				items.length === 1
+					? __( 'Response marked as spam.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response marked as spam.',
+								'%d responses marked as spam.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -388,35 +400,59 @@ export function stage() {
 						} )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response marked as spam.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response marked as spam.',
-									'%d responses marked as spam.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
-				clearSelection();
+				invalidateCounts();
 			} catch {
+				// Revert optimistic update
+				items.forEach( ( item, index ) => {
+					editEntityRecord( 'postType', 'feedback', item.id, {
+						status: originalStatuses[ index ],
+					} );
+					updateCountsOptimistically( 'spam', originalStatuses[ index ], 1 );
+				} );
 				createErrorNotice( __( 'Failed to mark as spam.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache, clearSelection ]
+		[
+			editEntityRecord,
+			saveEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+			invalidateCache,
+			clearSelection,
+			updateCountsOptimistically,
+			invalidateCounts,
+		]
 	);
 
 	const handleMarkAsNotSpam = useCallback(
 		async items => {
+			const originalStatuses = items.map( item => item.status );
+
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { status: 'publish' } );
+				updateCountsOptimistically( item.status, 'publish', 1 );
+			} );
+			clearSelection();
+
+			const message =
+				items.length === 1
+					? __( 'Response restored from spam.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response restored from spam.',
+								'%d responses restored from spam.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -426,70 +462,118 @@ export function stage() {
 						} )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response restored from spam.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response restored from spam.',
-									'%d responses restored from spam.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
-				clearSelection();
+				invalidateCounts();
 			} catch {
+				// Revert optimistic update
+				items.forEach( ( item, index ) => {
+					editEntityRecord( 'postType', 'feedback', item.id, {
+						status: originalStatuses[ index ],
+					} );
+					updateCountsOptimistically( 'publish', originalStatuses[ index ], 1 );
+				} );
 				createErrorNotice( __( 'Failed to restore from spam.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache, clearSelection ]
+		[
+			editEntityRecord,
+			saveEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+			invalidateCache,
+			clearSelection,
+			updateCountsOptimistically,
+			invalidateCounts,
+		]
 	);
 
 	const handleMoveToTrash = useCallback(
 		async items => {
+			const originalStatuses = items.map( item => item.status );
+
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { status: 'trash' } );
+				updateCountsOptimistically( item.status, 'trash', 1 );
+			} );
+			clearSelection();
+
+			const message =
+				items.length === 1
+					? __( 'Response moved to trash.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response moved to trash.',
+								'%d responses moved to trash.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
 						deleteEntityRecord( 'postType', 'feedback', item.id, {}, { throwOnError: true } )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response moved to trash.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response moved to trash.',
-									'%d responses moved to trash.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
-				clearSelection();
+				invalidateCounts();
 			} catch {
+				// Revert optimistic update
+				items.forEach( ( item, index ) => {
+					editEntityRecord( 'postType', 'feedback', item.id, {
+						status: originalStatuses[ index ],
+					} );
+					updateCountsOptimistically( 'trash', originalStatuses[ index ], 1 );
+				} );
 				createErrorNotice( __( 'Failed to move to trash.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ deleteEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache, clearSelection ]
+		[
+			editEntityRecord,
+			deleteEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+			invalidateCache,
+			clearSelection,
+			updateCountsOptimistically,
+			invalidateCounts,
+		]
 	);
 
 	const handleRestore = useCallback(
 		async items => {
+			const originalStatuses = items.map( item => item.status );
+
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { status: 'publish' } );
+				updateCountsOptimistically( item.status, 'publish', 1 );
+			} );
+			clearSelection();
+
+			const message =
+				items.length === 1
+					? __( 'Response restored.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response restored.',
+								'%d responses restored.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -499,35 +583,56 @@ export function stage() {
 						} )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response restored.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response restored.',
-									'%d responses restored.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
-				clearSelection();
+				invalidateCounts();
 			} catch {
+				// Revert optimistic update
+				items.forEach( ( item, index ) => {
+					editEntityRecord( 'postType', 'feedback', item.id, {
+						status: originalStatuses[ index ],
+					} );
+					updateCountsOptimistically( 'publish', originalStatuses[ index ], 1 );
+				} );
 				createErrorNotice( __( 'Failed to restore.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ saveEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache, clearSelection ]
+		[
+			editEntityRecord,
+			saveEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+			invalidateCache,
+			clearSelection,
+			updateCountsOptimistically,
+			invalidateCounts,
+		]
 	);
 
 	const handleDelete = useCallback(
 		async items => {
+			// Optimistic update - decrease trash count
+			items.forEach( item => {
+				updateCountsOptimistically( item.status, '', 1 );
+			} );
+			clearSelection();
+
+			const message =
+				items.length === 1
+					? __( 'Response permanently deleted.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response permanently deleted.',
+								'%d responses permanently deleted.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -540,35 +645,52 @@ export function stage() {
 						)
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response permanently deleted.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response permanently deleted.',
-									'%d responses permanently deleted.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
-				clearSelection();
+				invalidateCounts();
 			} catch {
+				// Revert optimistic update
+				items.forEach( item => {
+					updateCountsOptimistically( '', item.status, 1 );
+				} );
 				createErrorNotice( __( 'Failed to delete.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
+				invalidateCache();
 			}
 		},
-		[ deleteEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache, clearSelection ]
+		[
+			deleteEntityRecord,
+			createSuccessNotice,
+			createErrorNotice,
+			invalidateCache,
+			clearSelection,
+			updateCountsOptimistically,
+			invalidateCounts,
+		]
 	);
 
 	const handleMarkAsRead = useCallback(
 		async items => {
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { is_unread: false } );
+			} );
+
+			const message =
+				items.length === 1
+					? __( 'Response marked as read.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response marked as read.',
+								'%d responses marked as read.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -579,34 +701,42 @@ export function stage() {
 						} )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response marked as read.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response marked as read.',
-									'%d responses marked as read.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
 			} catch {
+				// Revert optimistic update
+				items.forEach( item => {
+					editEntityRecord( 'postType', 'feedback', item.id, { is_unread: true } );
+				} );
 				createErrorNotice( __( 'Failed to mark as read.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ createSuccessNotice, createErrorNotice, invalidateCache ]
+		[ editEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache ]
 	);
 
 	const handleMarkAsUnread = useCallback(
 		async items => {
+			// Optimistic update
+			items.forEach( item => {
+				editEntityRecord( 'postType', 'feedback', item.id, { is_unread: true } );
+			} );
+
+			const message =
+				items.length === 1
+					? __( 'Response marked as unread.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %d: number of responses */
+							_n(
+								'%d response marked as unread.',
+								'%d responses marked as unread.',
+								items.length,
+								'jetpack-forms'
+							),
+							items.length
+					  );
+			createSuccessNotice( message, { type: 'snackbar' } );
+
 			try {
 				await Promise.all(
 					items.map( item =>
@@ -617,30 +747,18 @@ export function stage() {
 						} )
 					)
 				);
-
-				const message =
-					items.length === 1
-						? __( 'Response marked as unread.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %d: number of responses */
-								_n(
-									'%d response marked as unread.',
-									'%d responses marked as unread.',
-									items.length,
-									'jetpack-forms'
-								),
-								items.length
-						  );
-
-				createSuccessNotice( message, { type: 'snackbar' } );
 				invalidateCache();
 			} catch {
+				// Revert optimistic update
+				items.forEach( item => {
+					editEntityRecord( 'postType', 'feedback', item.id, { is_unread: false } );
+				} );
 				createErrorNotice( __( 'Failed to mark as unread.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
 			}
 		},
-		[ createSuccessNotice, createErrorNotice, invalidateCache ]
+		[ editEntityRecord, createSuccessNotice, createErrorNotice, invalidateCache ]
 	);
 
 	const actions = useMemo( () => {
@@ -778,8 +896,8 @@ export function stage() {
 	}, [ openNewForm ] );
 
 	const handleIntegrations = useCallback( () => {
-		navigate( { to: '/integrations' } );
-	}, [ navigate ] );
+		setIsIntegrationsModalOpen( true );
+	}, [] );
 
 	const headerActions = useMemo( () => {
 		const actionsArray = [];
@@ -831,6 +949,7 @@ export function stage() {
 
 	return (
 		<Page
+			showSidebarToggle={ false }
 			title={
 				<span style={ { display: 'flex', alignItems: 'center', gap: '8px' } }>
 					<JetpackLogo showText={ false } width={ 20 } />
@@ -854,13 +973,13 @@ export function stage() {
 				onChangeSelection={ onChangeSelection }
 				actions={ actions }
 			>
-				<HStack
-					alignment="top"
+				<Stack
+					className="jp-forms-dataviews__view-actions"
+					direction="row"
 					justify="space-between"
-					spacing={ 1 }
-					style={ { paddingInline: 20, boxSizing: 'border-box' } }
+					align="center"
 				>
-					<HStack justify="start" expanded={ false }>
+					<Stack direction="row" align="center" gap={ 2 }>
 						<Tabs.Root value={ params.view || 'inbox' } onValueChange={ handleTabChange }>
 							<Tabs.List density="compact">
 								{ statusTabs.map( tab => (
@@ -870,17 +989,26 @@ export function stage() {
 								) ) }
 							</Tabs.List>
 						</Tabs.Root>
-					</HStack>
-					<HStack spacing={ 1 } expanded={ false } style={ { flexShrink: 0 } }>
+					</Stack>
+					<Stack direction="row" align="center" gap={ 2 }>
 						<DataViews.Search />
 						<DataViews.FiltersToggle />
 						<DataViews.ViewConfig />
-					</HStack>
-				</HStack>
+					</Stack>
+				</Stack>
 				<DataViews.Filters className="dataviews-filters__container" />
 				<DataViews.Layout />
 				<DataViews.Footer />
 			</DataViews>
+			<IntegrationsModal
+				isOpen={ isIntegrationsModalOpen }
+				onClose={ () => setIsIntegrationsModalOpen( false ) }
+				attributes={ undefined }
+				setAttributes={ undefined }
+				integrationsData={ integrations }
+				refreshIntegrations={ refreshIntegrations }
+				context="dashboard"
+			/>
 		</Page>
 	);
 }
