@@ -61,7 +61,6 @@ class Jetpack_Plugin_Compatibility {
 		'backwpup/backwpup.php'                           => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'backwpup-pro/backwpup.php'                       => '"backwpup-pro" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'duplicator/duplicator.php'                       => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
-		'duplicator-pro/duplicator-pro.php'               => '"duplicator-pro" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
 		'jetpack-backup/jetpack-backup.php'               => '"jetpack-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'siteground-migrator/siteground-migrator.php'     => '"siteground-migrator" has been deactivated, WordPress.com handles managing your site backups for you.',
 		'wp-backitup/wp-backitup.php'                     => '"wp-backitup" has been deactivated, WordPress.com handles managing your site backups for you.',

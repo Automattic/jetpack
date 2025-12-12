@@ -190,7 +190,6 @@ export function mockScriptData( data = {} ) {
 			social: {
 				is_publicize_enabled: true,
 				api_paths: {},
-				feature_flags: {},
 				settings: {
 					utmSettings: {},
 					socialNotes: {
