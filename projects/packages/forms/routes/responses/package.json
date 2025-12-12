@@ -3,7 +3,9 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
+		"@types/react": "18.3.26",
 		"@wordpress/admin-ui": "1.4.1-next.6deb34194.0",
 		"@wordpress/api-fetch": "7.36.1-next.6deb34194.0",
 		"@wordpress/block-editor": "15.9.1-next.6deb34194.0",

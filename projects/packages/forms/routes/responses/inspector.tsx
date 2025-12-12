@@ -28,6 +28,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { chevronUp, chevronDown, close } from '@wordpress/icons';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import * as React from 'react';
 /**
  * Internal dependencies
  */
@@ -35,21 +36,23 @@ import CopyClipboardButton from '../../src/dashboard/components/copy-clipboard-b
 import Flag from '../../src/dashboard/components/flag';
 import Gravatar from '../../src/dashboard/components/gravatar';
 import { store as dashboardStore } from '../../src/dashboard/store';
+import type { DispatchActions, SelectActions } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { FormResponse } from '../../src/types/index.ts';
 
-const getDisplayName = ( response: any ) => {
+const getDisplayName = ( response: FormResponse ) => {
 	const { author_name, author_email, author_url, ip } = response;
 	return decodeEntities( author_name || author_email || author_url || ip || 'Anonymous' );
 };
 
-const isFileUploadField = ( value: any ) => {
-	return value && typeof value === 'object' && 'files' in value;
+const isFileUploadField = ( value: unknown ): boolean => {
+	return !! value && typeof value === 'object' && 'files' in value;
 };
 
-const isImageSelectField = ( value: any ) => {
-	return value?.type === 'image-select';
+const isImageSelectField = ( value: unknown ): boolean => {
+	return !! value && typeof value === 'object' && 'type' in value && value.type === 'image-select';
 };
 
-const isLikelyPhoneNumber = ( value: any ) => {
+const isLikelyPhoneNumber = ( value: unknown ): boolean => {
 	if ( typeof value !== 'string' ) {
 		return false;
 	}
@@ -76,13 +79,16 @@ const isLikelyPhoneNumber = ( value: any ) => {
 };
 
 /**
+ * Renders a preview of an image file.
  *
- * @param root0
- * @param root0.file
- * @param root0.file.url
- * @param root0.file.name
- * @param root0.isLoading
- * @param root0.onImageLoaded
+ * @param props               - Props used while rendering the preview.
+ * @param props.file          - The image file object.
+ * @param props.file.url      - The URL of the image file.
+ * @param props.file.name     - The name of the image file.
+ * @param props.isLoading     - Whether the preview is currently loading.
+ * @param props.onImageLoaded - Callback fired when the image finishes loading.
+ *
+ * @return                    - Element containing the file preview.
  */
 function PreviewFile( {
 	file,
@@ -125,18 +131,27 @@ function PreviewFile( {
 	);
 }
 
+type UploadedFile = {
+	url: string;
+	name: string;
+	is_image?: boolean;
+};
+
 /**
+ * Renders a list of uploaded files.
  *
- * @param root0
- * @param root0.files
- * @param root0.handleFilePreview
+ * @param props                   - Props used while rendering the list of uploaded files.
+ * @param props.files             - The list of uploaded files.
+ * @param props.handleFilePreview - Callback fired when a file is clicked.
+ *
+ * @return                        - Element containing the list of uploaded files.
  */
 function FieldFile( {
 	files,
 	handleFilePreview,
 }: {
-	files: Array< { url: string; name: string; is_image?: boolean } >;
-	handleFilePreview: ( file: any ) => () => void;
+	files: Array< UploadedFile >;
+	handleFilePreview: ( file: UploadedFile ) => () => void;
 } ) {
 	return (
 		<ul style={ { margin: 0, paddingLeft: '20px' } }>
@@ -156,9 +171,12 @@ function FieldFile( {
 }
 
 /**
+ * Renders an email address.
  *
- * @param root0
- * @param root0.email
+ * @param props       - Props used while rendering the email address.
+ * @param props.email - The email address to render.
+ *
+ * @return            - Element containing the email address.
  */
 function FieldEmail( { email }: { email: string } ) {
 	return (
@@ -169,62 +187,98 @@ function FieldEmail( { email }: { email: string } ) {
 	);
 }
 
+type ImageSelectChoice = {
+	url: string;
+	name: string;
+	selected?: boolean;
+};
+
 /**
+ * Creates a handler for the enter key.
  *
- * @param root0
- * @param root0.choices
- * @param root0.handleFilePreview
+ * @param handler - The handler to call when the enter key is pressed.
+ *
+ * @return        - Function that handles the enter key press.
+ */
+function createEnterKeyHandler( handler: () => void ) {
+	return function handleEnterKeyDown( event: React.KeyboardEvent< HTMLDivElement > ) {
+		if ( event.key === 'Enter' ) {
+			handler();
+		}
+	};
+}
+
+/**
+ * Renders a list of image choices.
+ *
+ * @param props                   - Props used while rendering the list of image choices.
+ * @param props.choices           - The list of image choices.
+ * @param props.handleFilePreview - Callback fired when a image choice is clicked.
+ *
+ * @return                        - Element containing the list of image choices.
  */
 function FieldImageSelect( {
 	choices,
 	handleFilePreview,
 }: {
-	choices: Array< { url: string; name: string; selected?: boolean } >;
-	handleFilePreview: ( file: any ) => () => void;
+	choices: Array< ImageSelectChoice >;
+	handleFilePreview: ( choice: ImageSelectChoice ) => () => void;
 } ) {
 	return (
 		<div style={ { display: 'flex', gap: '8px', flexWrap: 'wrap' } }>
-			{ choices.map( ( choice, index ) => (
-				<div
-					key={ index }
-					style={ {
-						border: choice.selected ? '2px solid var(--wp-admin-theme-color)' : '1px solid #ddd',
-						borderRadius: '4px',
-						padding: '4px',
-						cursor: 'pointer',
-					} }
-					onClick={ handleFilePreview( choice ) }
-					onKeyDown={ e => e.key === 'Enter' && handleFilePreview( choice )() }
-					role="button"
-					tabIndex={ 0 }
-				>
-					<img
-						src={ choice.url }
-						alt={ choice.name }
-						style={ { width: '60px', height: '60px', objectFit: 'cover' } }
-					/>
-				</div>
-			) ) }
+			{ choices.map( ( choice, index ) => {
+				const previewHandler = handleFilePreview( choice );
+				const keyDownHandler = createEnterKeyHandler( previewHandler );
+
+				return (
+					<div
+						key={ index }
+						style={ {
+							border: choice.selected ? '2px solid var(--wp-admin-theme-color)' : '1px solid #ddd',
+							borderRadius: '4px',
+							padding: '4px',
+							cursor: 'pointer',
+						} }
+						onClick={ previewHandler }
+						onKeyDown={ keyDownHandler }
+						role="button"
+						tabIndex={ 0 }
+					>
+						<img
+							src={ choice.url }
+							alt={ choice.name }
+							style={ { width: '60px', height: '60px', objectFit: 'cover' } }
+						/>
+					</div>
+				);
+			} ) }
 		</div>
 	);
 }
 
 /**
+ * Renders the actions for a response.
  *
- * @param root0
- * @param root0.response
- * @param root0.onActionComplete
+ * @param props                  - Props used while rendering the actions for a response.
+ * @param props.response         - The response to render the actions for.
+ * @param props.onActionComplete - Callback fired when an action is completed.
+ *
+ * @return                       - Element containing the actions for a response.
  */
 function ResponseActions( {
 	response,
 	onActionComplete,
 }: {
-	response: any;
-	onActionComplete: ( item: any ) => void;
+	response: FormResponse;
+	onActionComplete: ( item: FormResponse ) => void;
 } ) {
-	const { saveEntityRecord, deleteEntityRecord, editEntityRecord } = useDispatch( coreStore );
-	const { updateCountsOptimistically, invalidateCounts } = useDispatch( dashboardStore );
-	const [ isLoading, setIsLoading ] = useState( false );
+	const { saveEntityRecord, deleteEntityRecord, editEntityRecord } = useDispatch(
+		coreStore
+	) as DispatchActions;
+	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
+		dashboardStore
+	) as DispatchActions;
+	const [ isLoading ] = useState( false );
 
 	const handleMarkAsSpam = useCallback( async () => {
 		const originalStatus = response.status;
@@ -340,7 +394,7 @@ function ResponseActions( {
 
 		// Optimistic update
 		updateCountsOptimistically( originalStatus, '', 1 );
-		onActionComplete( null );
+		onActionComplete( response );
 
 		try {
 			await deleteEntityRecord( 'postType', 'feedback', response.id, { force: true } );
@@ -437,13 +491,16 @@ function ResponseActions( {
 }
 
 /**
+ * Renders the navigation for a response.
  *
- * @param root0
- * @param root0.hasNext
- * @param root0.hasPrevious
- * @param root0.onNext
- * @param root0.onPrevious
- * @param root0.onClose
+ * @param props             - Props used while rendering the navigation for a response.
+ * @param props.hasNext     - Whether there is a next response.
+ * @param props.hasPrevious - Whether there is a previous response.
+ * @param props.onNext      - Callback fired when the next response is clicked.
+ * @param props.onPrevious  - Callback fired when the previous response is clicked.
+ * @param props.onClose     - Callback fired when the navigation is closed.
+ *
+ * @return                  - Element containing the navigation for a response.
  */
 function ResponseNavigation( {
 	hasNext,
@@ -505,12 +562,15 @@ function ResponseNavigation( {
 }
 
 /**
+ * Renders a single response.
  *
- * @param root0
- * @param root0.responseId
- * @param root0.allResponseIds
- * @param root0.onNavigate
- * @param root0.onClose
+ * @param props                - Props used while rendering a single response.
+ * @param props.responseId     - The ID of the response to render.
+ * @param props.allResponseIds - The IDs of all responses.
+ * @param props.onNavigate     - Callback fired when the response is navigated.
+ * @param props.onClose        - Callback fired when the response is closed.
+ *
+ * @return                     - Element containing the single response.
  */
 function SingleResponseView( {
 	responseId,
@@ -523,20 +583,25 @@ function SingleResponseView( {
 	onNavigate: ( id: number ) => void;
 	onClose: () => void;
 } ) {
-	const [ previewFile, setPreviewFile ] = useState< any >( null );
+	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
-	const { editEntityRecord } = useDispatch( coreStore );
+	const { editEntityRecord } = useDispatch( coreStore ) as DispatchActions;
 
 	const { response, isLoading } = useSelect(
 		select => {
 			if ( ! responseId ) {
 				return { response: null, isLoading: false };
 			}
+
 			return {
-				response: select( coreStore ).getEntityRecord( 'postType', 'feedback', responseId ),
-				isLoading: select( coreStore ).isResolving( 'getEntityRecord', [
+				response: ( select( coreStore ) as SelectActions ).getEntityRecord(
+					'postType',
+					'feedback',
+					responseId
+				) as unknown as FormResponse | null,
+				isLoading: ( select( coreStore ) as SelectActions ).isResolving( 'getEntityRecord', [
 					'postType',
 					'feedback',
 					responseId,
@@ -607,7 +672,7 @@ function SingleResponseView( {
 	}, [ response, editEntityRecord, hasMarkedAsRead ] );
 
 	const handleFilePreview = useCallback(
-		( file: any ) => () => {
+		( file: { url: string; name: string } ) => () => {
 			setIsImageLoading( true );
 			setPreviewFile( file );
 		},
@@ -624,7 +689,7 @@ function SingleResponseView( {
 	}, [] );
 
 	const handleActionComplete = useCallback(
-		( updatedItem: any ) => {
+		( updatedItem: FormResponse | null ) => {
 			if ( ! updatedItem ) {
 				if ( hasNext ) {
 					handleNext();
@@ -638,17 +703,27 @@ function SingleResponseView( {
 		[ hasNext, hasPrevious, handleNext, handlePrevious, onClose ]
 	);
 
-	const renderFieldValue = ( value: any ) => {
+	const renderFieldValue = ( value: unknown ) => {
 		if ( value === null || value === undefined ) {
 			return '-';
 		}
 
 		if ( isImageSelectField( value ) ) {
-			return <FieldImageSelect choices={ value.choices } handleFilePreview={ handleFilePreview } />;
+			return (
+				<FieldImageSelect
+					choices={ ( value as { choices: ImageSelectChoice[] } ).choices }
+					handleFilePreview={ handleFilePreview }
+				/>
+			);
 		}
 
 		if ( isFileUploadField( value ) ) {
-			return <FieldFile files={ value.files } handleFilePreview={ handleFilePreview } />;
+			return (
+				<FieldFile
+					files={ ( value as { files: UploadedFile[] } ).files }
+					handleFilePreview={ handleFilePreview }
+				/>
+			);
 		}
 
 		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
@@ -657,7 +732,7 @@ function SingleResponseView( {
 		}
 
 		if ( isLikelyPhoneNumber( value ) ) {
-			return <a href={ `tel:${ value }` }>{ value }</a>;
+			return <a href={ `tel:${ value }` }>{ value as string }</a>;
 		}
 
 		if ( Array.isArray( value ) ) {
@@ -756,14 +831,12 @@ function SingleResponseView( {
 									{ __( 'Date:', 'jetpack-forms' ) }
 								</th>
 								<td style={ { padding: '6px 0' } }>
-									{
+									{ sprintf(
 										/* Translators: %1$s is the date, %2$s is the time. */
-										sprintf(
-											__( '%1$s at %2$s', 'jetpack-forms' ),
-											dateI18n( dateSettings.formats.date, response.date ),
-											dateI18n( dateSettings.formats.time, response.date )
-										)
-									}
+										__( '%1$s at %2$s', 'jetpack-forms' ),
+										dateI18n( dateSettings.formats.date, response.date ),
+										dateI18n( dateSettings.formats.time, response.date )
+									) }
 								</td>
 							</tr>
 							<tr>
@@ -897,7 +970,9 @@ function SingleResponseView( {
 }
 
 /**
+ * Renders the inspector for responses.
  *
+ * @return - Element containing the inspector for responses.
  */
 export function inspector() {
 	const params = useParams( { from: '/responses/$view' } );
@@ -915,7 +990,7 @@ export function inspector() {
 
 	// Fetch all visible records using the same query as the stage
 	// This leverages core-data's cache, so records loaded by stage are reused
-	const { records } = useEntityRecords( 'postType', 'feedback', {
+	const { records } = useEntityRecords< FormResponse >( 'postType', 'feedback', {
 		status,
 		per_page: 20,
 		page: 1,
@@ -924,7 +999,7 @@ export function inspector() {
 	} );
 
 	// Get all record IDs for navigation
-	const allRecordIds = ( records || [] ).map( record => record.id );
+	const allRecordIds = records?.map( record => record.id ) ?? [];
 
 	const handleClose = useCallback( () => {
 		navigate( {
