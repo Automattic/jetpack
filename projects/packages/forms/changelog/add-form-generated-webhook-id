@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Forms: auto-generate webhook id so users don't have to fill it.
