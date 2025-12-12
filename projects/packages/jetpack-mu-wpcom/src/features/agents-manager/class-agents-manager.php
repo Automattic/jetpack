@@ -200,6 +200,8 @@ class Agents_Manager {
 	 *
 	 * Calls /me/preferences endpoint which is accessible via Jetpack user tokens.
 	 *
+	 * @codeCoverageIgnore Cannot test without mocking Jetpack Connection Client.
+	 *
 	 * @return bool Whether user should see unified experience.
 	 */
 	private function get_unified_experience_from_wpcom() {
