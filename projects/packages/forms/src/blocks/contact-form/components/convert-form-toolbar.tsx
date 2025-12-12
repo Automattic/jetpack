@@ -10,6 +10,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../utils/form-sync-manager';
 
 interface ConvertFormToolbarProps {
@@ -112,7 +113,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 		onNavigateToEntityRecord( {
 			postId: attributes.ref as number,
-			postType: 'jetpack_form',
+			postType: FORM_POST_TYPE,
 		} );
 	};
 
