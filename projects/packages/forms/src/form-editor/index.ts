@@ -7,6 +7,7 @@
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
+import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 
 let formBlockClientId = null;
 
@@ -125,7 +126,7 @@ const enforceBlockNesting = () => {
 // Subscribe to editor changes to lock the form block when ready.
 subscribe( () => {
 	const { getCurrentPostType } = select( 'core/editor' );
-	if ( getCurrentPostType() === 'jetpack_form' ) {
+	if ( getCurrentPostType() === FORM_POST_TYPE ) {
 		lockFormBlock();
 		enforceBlockNesting();
 	}
