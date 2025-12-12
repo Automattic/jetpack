@@ -1,5 +1,6 @@
-import { TextControl, ToggleControl, ExternalLink } from '@wordpress/components';
-import { useState, useEffect, useCallback, createInterpolateElement } from '@wordpress/element';
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { TextControl, ToggleControl } from '@wordpress/components';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const WebhooksSettings = ( { setAttributes, webhooks, clientId } ) => {
@@ -55,19 +56,13 @@ const WebhooksSettings = ( { setAttributes, webhooks, clientId } ) => {
 		<>
 			<ToggleControl
 				label={ __( 'Enable webhook', 'jetpack-forms' ) }
-				help={ createInterpolateElement(
-					__(
-						'Send form submission data to an external URL. <webhookDocsLink>Learn more about webhooks.</webhookDocsLink>',
-						'jetpack-forms'
-					),
-					{
-						webhookDocsLink: (
-							<ExternalLink href="https://jetpack.com/support/jetpack-forms/webhooks/" />
-						),
-					}
-				) }
+				help={ __( 'Send form submission data to an external URL.', 'jetpack-forms' ) }
 				checked={ localWebhookEnabled }
 				onChange={ value => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_webhook_toggle', {
+						origin: 'block-editor',
+						enabled: value,
+					} );
 					setLocalWebhookEnabled( value );
 					// Auto-generate webhook ID when enabling if it doesn't exist
 					const webhookId = localWebhookId || generateWebhookId( webhooks?.length + 1 || 1 );
