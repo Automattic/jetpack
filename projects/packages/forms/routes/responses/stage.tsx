@@ -23,7 +23,7 @@ import { useParams, useSearch, useNavigate } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import IntegrationsModal from './integrations-modal';
+import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
