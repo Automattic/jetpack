@@ -2,6 +2,7 @@
  * Adjusts the height of the dashboard container to the available height, including WP notices.
  *
  * @param container - The container element to adjust the height of.
+ * @return A cleanup function that removes any listeners or observers.
  */
 export const adjustDashboardHeight = ( container: HTMLElement ) => {
 	const applyDynamicHeight = () => {
@@ -16,7 +17,6 @@ export const adjustDashboardHeight = ( container: HTMLElement ) => {
 	} );
 
 	const resizeHandler = () => applyDynamicHeight();
-	window.addEventListener( 'resize', resizeHandler );
 
 	const wpBody = document.getElementById( 'wpbody-content' ) ?? document.body;
 
@@ -26,5 +26,14 @@ export const adjustDashboardHeight = ( container: HTMLElement ) => {
 		}
 	} );
 
+	window.addEventListener( 'resize', resizeHandler );
+
 	observer.observe( wpBody, { childList: true } );
+
+	const cleanup = () => {
+		window.removeEventListener( 'resize', resizeHandler );
+		observer.disconnect();
+	};
+
+	return cleanup;
 };
