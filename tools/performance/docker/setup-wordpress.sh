@@ -139,6 +139,13 @@ require_once ABSPATH . 'wp-settings.php';
 WPCONFIG
     echo "  ✓ wp-config.php created"
 
+    # Ensure database exists (may be missing if init-databases.sql didn't run)
+    echo "  Ensuring database exists..."
+    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "CREATE DATABASE IF NOT EXISTS \`$db_name\`;" || {
+        echo "  ✗ ERROR: Failed to create database $db_name"
+        return 1
+    }
+
     # Check if WordPress is already installed
     if wp core is-installed --path="$wp_path" 2>/dev/null; then
         echo "  ✓ WordPress already installed"
