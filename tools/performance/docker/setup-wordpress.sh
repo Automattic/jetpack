@@ -52,6 +52,7 @@ setup_instance() {
     echo ""
     echo "Setting up: $name"
     echo "----------------------------------------"
+    echo "  [DIAG] Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.%3NZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "  Path: $wp_path"
     echo "  URL: $site_url"
     echo "  Database: $db_name"
@@ -146,7 +147,19 @@ WPCONFIG
         return 1
     }
 
+    # DIAGNOSTIC: Check database state BEFORE installation
+    echo "  [DIAG] Pre-install database state for $db_name:"
+    local pre_table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
+    echo "  [DIAG]   Table count: $pre_table_count"
+    if [ "$pre_table_count" != "0" ] && [ "$pre_table_count" != "error" ]; then
+        echo "  [DIAG]   Tables found (unexpected on fresh install):"
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT table_name FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null | while read tbl; do
+            echo "  [DIAG]     - $tbl"
+        done
+    fi
+
     # Check if WordPress is already installed
+    echo "  [DIAG] Running: wp core is-installed --path=$wp_path"
     if wp core is-installed --path="$wp_path" 2>/dev/null; then
         echo "  ✓ WordPress already installed"
         # Diagnostic: verify existing installation state
@@ -169,23 +182,43 @@ WPCONFIG
 
             echo "  ⚠ Installation failed, attempting database repair..."
 
-            # Drop and recreate the database
-            echo "  Dropping and recreating database: $db_name"
-            mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`$db_name\`; CREATE DATABASE \`$db_name\`;" || {
-                echo "  ✗ ERROR: Failed to recreate database"
+            # Drop and recreate the database, ensuring it's truly empty
+            # WordPress containers may create tables if they get requests, so we loop until empty
+            local max_drop_attempts=5
+            local drop_attempt=1
+            local table_count=999
+
+            while [ $drop_attempt -le $max_drop_attempts ] && [ "$table_count" != "0" ]; do
+                echo "  Dropping and recreating database: $db_name (attempt $drop_attempt)"
+                mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -e "DROP DATABASE IF EXISTS \`$db_name\`; CREATE DATABASE \`$db_name\`;" || {
+                    echo "  ✗ ERROR: Failed to recreate database"
+                    return 1
+                }
+
+                # Check immediately - minimize window for race condition with WordPress container
+                table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
+                echo "  [DIAG] Tables in $db_name after DROP/CREATE: $table_count"
+
+                if [ "$table_count" != "0" ] && [ "$table_count" != "error" ]; then
+                    echo "  [DIAG] WARNING: Tables appeared after DROP/CREATE! Listing them:"
+                    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT table_name FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null | while read tbl; do
+                        echo "  [DIAG]   - $tbl"
+                    done
+                    echo "  [DIAG] Checking MySQL process list for active connections:"
+                    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT id, user, host, db, command, time, state FROM information_schema.processlist WHERE db='$db_name' OR db IS NULL;" 2>/dev/null | head -10 || echo "  [DIAG]   (could not get process list)"
+                    sleep 0.5  # Brief wait before retry
+                fi
+
+                drop_attempt=$((drop_attempt + 1))
+            done
+
+            if [ "$table_count" != "0" ]; then
+                echo "  ✗ ERROR: Could not get empty database after $max_drop_attempts attempts"
                 return 1
-            }
+            fi
 
-            # Small delay to ensure database is ready
-            sleep 1
-
-            # Diagnostic: verify database is empty after recreation
-            echo "  Diagnostic: checking database state after recreation..."
-            local table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
-            echo "  Tables in $db_name: $table_count"
-
-            # Retry installation
-            echo "  Retrying WordPress installation..."
+            # Retry installation with fresh empty database
+            echo "  [DIAG] Database confirmed empty. Retrying WordPress installation..."
             wp core install \
                 --path="$wp_path" \
                 --url="$site_url" \
@@ -193,10 +226,29 @@ WPCONFIG
                 --admin_user="$WP_ADMIN_USER" \
                 --admin_password="$WP_ADMIN_PASS" \
                 --admin_email="$WP_ADMIN_EMAIL" \
-                --skip-email
+                --skip-email || {
+                    echo "  ✗ ERROR: WordPress installation failed after database repair"
+                    echo "  [DIAG] Post-failure database state:"
+                    mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT table_name FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null | while read tbl; do
+                        echo "  [DIAG]   - $tbl"
+                    done
+                    return 1
+                }
+
+            # DIAGNOSTIC: Show what tables were created by the retry
+            echo "  [DIAG] Post-retry installation table count:"
+            local post_retry_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db_name';" 2>/dev/null || echo "error")
+            echo "  [DIAG]   Tables created: $post_retry_count"
         fi
 
         echo "  ✓ WordPress installed"
+
+        # Verify wp_users table exists (critical for login)
+        if ! mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT 1 FROM information_schema.tables WHERE table_schema='$db_name' AND table_name='wp_users' LIMIT 1;" 2>/dev/null | grep -q 1; then
+            echo "  ✗ ERROR: WordPress installation incomplete - wp_users table missing"
+            echo "  This indicates a race condition with WordPress container creating partial tables."
+            return 1
+        fi
 
         # Diagnostic: verify installation state
         echo "  Diagnostic: verifying installation state..."
@@ -211,7 +263,10 @@ WPCONFIG
             wp user create "$WP_ADMIN_USER" "$WP_ADMIN_EMAIL" \
                 --role=administrator \
                 --user_pass="$WP_ADMIN_PASS" \
-                --path="$wp_path" || true
+                --path="$wp_path" || {
+                    echo "  ✗ ERROR: Failed to create admin user"
+                    return 1
+                }
         else
             echo "  ✓ Admin user exists"
         fi
@@ -266,6 +321,24 @@ wait_for_wordpress "wordpress-baseline" "wordpress-baseline"
 wait_for_wordpress "wordpress-jetpack" "wordpress-jetpack"
 wait_for_wordpress "wordpress-jetpack-offline" "wordpress-jetpack-offline"
 wait_for_wordpress "wordpress-jetpack-connected" "wordpress-jetpack-connected"
+
+# DIAGNOSTIC: Check state of ALL databases before any setup
+echo ""
+echo "[DIAG] ============================================"
+echo "[DIAG] Pre-setup database state (before any setup_instance runs)"
+echo "[DIAG] Timestamp: $(date -u +%Y-%m-%dT%H:%M:%S.%3NZ 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)"
+echo "[DIAG] ============================================"
+for db in wp_baseline wp_jetpack wp_jetpack_offline wp_jetpack_connected; do
+    table_count=$(mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='$db';" 2>/dev/null || echo "DB_NOT_FOUND")
+    echo "[DIAG] $db: $table_count tables"
+    if [ "$table_count" != "0" ] && [ "$table_count" != "DB_NOT_FOUND" ]; then
+        mysql -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" -N -e "SELECT table_name FROM information_schema.tables WHERE table_schema='$db';" 2>/dev/null | while read tbl; do
+            echo "[DIAG]   - $tbl"
+        done
+    fi
+done
+echo "[DIAG] ============================================"
+echo ""
 
 # Setup each instance
 # The WP-CLI container has volumes mounted at different paths

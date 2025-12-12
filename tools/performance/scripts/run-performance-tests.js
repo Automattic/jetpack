@@ -10,7 +10,7 @@
  * 5. Generates summary report
  */
 
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -46,18 +46,21 @@ const JETPACK_BUILD_DIR = path.join( BUILD_DIR, 'jetpack' );
 
 // Docker Compose project name - use env var if set, otherwise default
 const COMPOSE_PROJECT_NAME = process.env.COMPOSE_PROJECT_NAME || 'jetpack-perf';
-const DOCKER_COMPOSE_CMD = `docker compose -p ${ COMPOSE_PROJECT_NAME } -f docker/docker-compose.yml`;
 
 /**
- * Execute a shell command and return the output
+ * Execute a command with arguments safely (no shell interpolation)
  *
- * @param {string} command - The shell command to execute
- * @param {object} options - execSync options plus { silent, ignoreError }
+ * Uses execFileSync to avoid shell injection vulnerabilities when command
+ * arguments come from environment variables or other dynamic sources.
+ *
+ * @param {string}   cmd     - The command to execute
+ * @param {string[]} args    - Array of arguments (each passed as separate arg, no shell escaping needed)
+ * @param {object}   options - execFileSync options plus { silent, ignoreError }
  * @return {string|null} Command output or null if ignoreError is true and command fails
  */
-function exec( command, options = {} ) {
+function execFile( cmd, args = [], options = {} ) {
 	try {
-		return execSync( command, {
+		return execFileSync( cmd, args, {
 			encoding: 'utf8',
 			stdio: options.silent ? 'pipe' : 'inherit',
 			...options,
@@ -68,6 +71,27 @@ function exec( command, options = {} ) {
 		}
 		return null;
 	}
+}
+
+/**
+ * Execute a docker compose command safely
+ *
+ * Wraps execFile with the common docker compose arguments for this project.
+ *
+ * @param {string[]} args    - Arguments to pass after 'docker compose -p <project> -f <file>'
+ * @param {object}   options - Options to pass to execFile
+ * @return {string|null} Command output or null if ignoreError is true and command fails
+ */
+function dockerCompose( args, options = {} ) {
+	const baseArgs = [
+		'compose',
+		'-p',
+		COMPOSE_PROJECT_NAME,
+		'-f',
+		'docker/docker-compose.yml',
+		...args,
+	];
+	return execFile( 'docker', baseArgs, { cwd: PERFORMANCE_DIR, ...options } );
 }
 
 /**
@@ -85,8 +109,7 @@ function discoverDynamicPorts() {
 		}
 
 		try {
-			const portOutput = exec( `${ DOCKER_COMPOSE_CMD } port ${ scenario.dockerService } 80`, {
-				cwd: PERFORMANCE_DIR,
+			const portOutput = dockerCompose( [ 'port', scenario.dockerService, '80' ], {
 				silent: true,
 			} );
 
@@ -124,19 +147,33 @@ function updateWordPressUrls() {
 
 		try {
 			// Update siteurl and home options via wp-cli
-			exec(
-				`${ DOCKER_COMPOSE_CMD } run --rm wpcli wp option update siteurl "${ url }" --path="${ scenario.wpPath }"`,
-				{
-					cwd: PERFORMANCE_DIR,
-					silent: true,
-				}
+			dockerCompose(
+				[
+					'run',
+					'--rm',
+					'wpcli',
+					'wp',
+					'option',
+					'update',
+					'siteurl',
+					url,
+					`--path=${ scenario.wpPath }`,
+				],
+				{ silent: true }
 			);
-			exec(
-				`${ DOCKER_COMPOSE_CMD } run --rm wpcli wp option update home "${ url }" --path="${ scenario.wpPath }"`,
-				{
-					cwd: PERFORMANCE_DIR,
-					silent: true,
-				}
+			dockerCompose(
+				[
+					'run',
+					'--rm',
+					'wpcli',
+					'wp',
+					'option',
+					'update',
+					'home',
+					url,
+					`--path=${ scenario.wpPath }`,
+				],
+				{ silent: true }
 			);
 			console.log( `  ✓ ${ scenario.name }: ${ url }` );
 		} catch ( err ) {
@@ -157,7 +194,7 @@ function updateWordPressUrls() {
 function checkDocker() {
 	console.log( 'Checking Docker...' );
 	try {
-		exec( 'docker info', { silent: true } );
+		execFile( 'docker', [ 'info' ], { silent: true } );
 		console.log( '✓ Docker is running\n' );
 		return true;
 	} catch {
@@ -173,7 +210,7 @@ function checkDocker() {
  */
 function getGitInfo() {
 	try {
-		const hash = exec( 'git rev-parse HEAD', { silent: true } )?.trim() || 'unknown';
+		const hash = execFile( 'git', [ 'rev-parse', 'HEAD' ], { silent: true } )?.trim() || 'unknown';
 		// Always use 'trunk' as the branch - we're tracking performance on the main branch,
 		// and backfill commits (detached HEAD) also come from trunk history.
 		const branch = 'trunk';
@@ -202,14 +239,14 @@ function rsyncJetpack() {
 	// The rsync command copies files directly to the target directory,
 	// so we rsync to build/jetpack directly
 	try {
-		exec( `pnpm jetpack rsync jetpack ${ JETPACK_BUILD_DIR }`, {
+		execFile( 'pnpm', [ 'jetpack', 'rsync', 'jetpack', JETPACK_BUILD_DIR ], {
 			cwd: MONOREPO_ROOT,
 		} );
 
 		// On macOS, remove extended attributes that can cause "Operation not permitted"
 		// errors when Docker tries to read the files.
 		if ( process.platform === 'darwin' ) {
-			exec( `xattr -cr ${ JETPACK_BUILD_DIR }`, { silent: true, ignoreError: true } );
+			execFile( 'xattr', [ '-cr', JETPACK_BUILD_DIR ], { silent: true, ignoreError: true } );
 		}
 
 		console.log( '✓ Jetpack synced to build/jetpack\n' );
@@ -400,9 +437,7 @@ async function main() {
 
 		// Start Docker containers
 		console.log( 'Starting Docker containers...' );
-		exec( `${ DOCKER_COMPOSE_CMD } up -d`, {
-			cwd: PERFORMANCE_DIR,
-		} );
+		dockerCompose( [ 'up', '-d' ] );
 
 		// Discover dynamically assigned ports and set environment variables
 		discoverDynamicPorts();
@@ -415,12 +450,20 @@ async function main() {
 		let dbReady = false;
 		for ( let i = 0; i < maxDbAttempts; i++ ) {
 			try {
-				exec(
-					`${ DOCKER_COMPOSE_CMD } exec -T db mysqladmin ping -h localhost -u root -prootpassword`,
-					{
-						cwd: PERFORMANCE_DIR,
-						silent: true,
-					}
+				dockerCompose(
+					[
+						'exec',
+						'-T',
+						'db',
+						'mysqladmin',
+						'ping',
+						'-h',
+						'localhost',
+						'-u',
+						'root',
+						'-prootpassword',
+					],
+					{ silent: true }
 				);
 				dbReady = true;
 				break;
@@ -437,9 +480,7 @@ async function main() {
 
 		// Run setup script (the wpcli container runs setup automatically)
 		console.log( 'Running WordPress setup...' );
-		exec( `${ DOCKER_COMPOSE_CMD } run --rm wpcli`, {
-			cwd: PERFORMANCE_DIR,
-		} );
+		dockerCompose( [ 'run', '--rm', 'wpcli' ] );
 
 		// Update database URLs to match discovered dynamic ports
 		updateWordPressUrls();
@@ -479,7 +520,7 @@ async function main() {
 	console.log( '' );
 
 	try {
-		exec( `node ${ path.join( __dirname, 'measure-lcp.js' ) }` );
+		execFile( 'node', [ path.join( __dirname, 'measure-lcp.js' ) ] );
 	} catch {
 		console.error( '\n✗ Performance measurements failed' );
 		process.exit( 1 );
@@ -496,7 +537,7 @@ async function main() {
 		process.env.RESULTS_PATH = process.env.OUTPUT_PATH;
 
 		try {
-			exec( `node ${ path.join( __dirname, 'post-to-codevitals.js' ) }` );
+			execFile( 'node', [ path.join( __dirname, 'post-to-codevitals.js' ) ] );
 		} catch {
 			// When CODEVITALS_TOKEN is explicitly set, posting failures should fail the build
 			// to ensure CI doesn't silently drop metrics (unless --allow-codevitals-failure is set)

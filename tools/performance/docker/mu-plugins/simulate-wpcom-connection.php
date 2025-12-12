@@ -207,7 +207,7 @@ class Jetpack_WPCom_Connection_Simulator {
 		$this->track_request( $url, $request_args );
 
 		// Return appropriate mock response based on endpoint.
-		return $this->get_mock_response( $url, $request_args );
+		return $this->get_mock_response( $url );
 	}
 
 	/**
@@ -502,5 +502,6 @@ class Jetpack_WPCom_Connection_Simulator {
 	}
 }
 
-// Initialize the simulator.
+// Initialize the simulator (constructor registers hooks).
+// @phan-suppress-next-line PhanNoopNew
 new Jetpack_WPCom_Connection_Simulator();
