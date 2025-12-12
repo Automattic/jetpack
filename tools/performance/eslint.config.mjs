@@ -11,14 +11,12 @@ export default defineConfig( makeBaseConfig( import.meta.url, { envs: [ 'node' ]
 			'no-console': 'off',
 			// CLI scripts need process.exit for proper exit codes
 			'n/no-process-exit': 'off',
-			// Minimal JSDoc for utility scripts - descriptions only
+			// JSDoc is nice but not required for these utility scripts
 			'jsdoc/require-jsdoc': 'off',
 			'jsdoc/require-param': 'off',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/require-param-description': 'off',
 			'jsdoc/require-param-type': 'off',
-			// Dependencies are in tools/performance/package.json, not monorepo root
-			'import/no-unresolved': [ 'error', { ignore: [ '^playwright$', '^dotenv$' ] } ],
 		},
 	},
 ] );
