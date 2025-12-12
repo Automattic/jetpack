@@ -229,7 +229,6 @@ class Publicize_Script_Data {
 	 */
 	public static function get_feature_flags() {
 		$variable_to_feature_map = array(
-			'useAdminUiV1'     => 'connections-management',
 			'useEditorPreview' => 'editor-preview',
 			'useShareStatus'   => 'share-status',
 		);

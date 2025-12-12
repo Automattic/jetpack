@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Social: Remove the usage of useAdminUiV1 feature flag.

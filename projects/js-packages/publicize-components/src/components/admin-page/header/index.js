@@ -12,7 +12,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import { store as socialStore } from '../../../social-store';
-import { getSocialScriptData } from '../../../utils';
 import StatCards from './stat-cards';
 import styles from './styles.module.scss';
 
@@ -33,10 +32,6 @@ const Header = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 		};
 	} );
-
-	const { urls, feature_flags } = getSocialScriptData();
-
-	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
 	const { hasConnectionError } = useConnectionErrorNotice();
 
@@ -64,17 +59,9 @@ const Header = () => {
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-publicize-components' ) }</H3>
 					<div className={ styles.actions }>
 						{ isModuleEnabled && ! hasConnections && (
-							<>
-								{ useAdminUiV1 ? (
-									<Button onClick={ openConnectionsModal }>
-										{ __( 'Connect accounts', 'jetpack-publicize-components' ) }
-									</Button>
-								) : (
-									<Button href={ urls.connectionsManagementPage } isExternalLink={ true }>
-										{ __( 'Connect accounts', 'jetpack-publicize-components' ) }
-									</Button>
-								) }
-							</>
+							<Button onClick={ openConnectionsModal }>
+								{ __( 'Connect accounts', 'jetpack-publicize-components' ) }
+							</Button>
 						) }
 						<Button
 							href={ getAdminUrl( 'post-new.php' ) }
