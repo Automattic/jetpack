@@ -13,6 +13,7 @@
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@wordpress/i18n": "6.9.0",
 		"react": "18.3.1"
 	},
 	"devDependencies": {
