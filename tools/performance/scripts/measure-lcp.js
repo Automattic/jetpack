@@ -61,6 +61,10 @@ async function measureLCP( url, username, password, iterations = 5 ) {
 			await cdpSession.send( 'Emulation.setCPUThrottlingRate', {
 				rate: calibration.cpuRate,
 			} );
+			if ( i === 0 ) {
+				// Log confirmation on first iteration only
+				console.log( `    [Throttling applied: ${ calibration.cpuRate }x via CDP]` );
+			}
 		}
 
 		try {
@@ -283,12 +287,19 @@ async function main() {
 	console.log( '================================================' );
 	console.log( '' );
 
-	// Log calibration status
+	// Log calibration status with detailed verification
+	console.log( 'CPU Throttling Status:' );
+	console.log( `  Calibration file: ${ CALIBRATION_FILE }` );
+	console.log( `  File exists: ${ fs.existsSync( CALIBRATION_FILE ) }` );
+
 	if ( calibration ) {
-		console.log( `CPU Throttling: Enabled (rate: ${ calibration.cpuRate })` );
-		console.log( `  Calibrated: ${ calibration.calibratedAt }` );
+		console.log( `  Status: ENABLED` );
+		console.log( `  Throttle rate: ${ calibration.cpuRate }x` );
+		console.log( `  Target score: ${ calibration.targetScore }` );
+		console.log( `  Calibrated at: ${ calibration.calibratedAt }` );
+		console.log( `  Samples: ${ calibration.samples?.join( ', ' ) || 'N/A' }` );
 	} else {
-		console.log( 'CPU Throttling: Disabled (no calibration.json found)' );
+		console.log( `  Status: DISABLED (no valid calibration.json found)` );
 		console.log( '  Warning: Results may vary between machines.' );
 		console.log( '  Run "pnpm calibrate" to enable consistent throttling.' );
 	}
