@@ -170,7 +170,7 @@ class Dashboard {
 			'Forms2',
 			'edit_pages',
 			$url,
-			'',
+			null,
 			11
 		);
 	}
