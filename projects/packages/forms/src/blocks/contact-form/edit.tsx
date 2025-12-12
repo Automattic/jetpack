@@ -1,3 +1,4 @@
+/* eslint-disable import/order */
 /*
  * External dependencies
  */
@@ -58,6 +59,8 @@ import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
+import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import { useSyncedForm } from './hooks/use-synced-form';
 
 const IntegrationControls = lazy( () => import( './components/jetpack-integration-controls.js' ) );
 
@@ -173,6 +176,19 @@ function JetpackContactFormEdit( {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
 
+	// Load synced form data if this block has a ref attribute
+	const {
+		isLoading: isSyncedFormLoading,
+		syncedAttributes,
+		syncedInnerBlocks,
+	} = useSyncedForm( attributes.ref );
+
+	// Check if central form management is enabled
+	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
+
+	// Use synced attributes if available, otherwise use regular attributes
+	const effectiveAttributes = attributes.ref && syncedAttributes ? syncedAttributes : attributes;
+
 	const {
 		ref,
 		to,
@@ -189,7 +205,7 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 		webhooks,
-	} = attributes;
+	} = effectiveAttributes;
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
 	const showBlockIntegrations = useConfigValue( 'showBlockIntegrations' );
@@ -276,6 +292,12 @@ function JetpackContactFormEdit( {
 			[ clientId ]
 		);
 
+	// For synced forms, consider having content if we have ref or synced data
+	const hasContent =
+		hasAnyInnerBlocks ||
+		!! attributes.ref ||
+		!! ( syncedInnerBlocks && syncedInnerBlocks.length > 0 );
+
 	useEffect( () => {
 		if ( submitButton && ! submitButton.attributes.lock ) {
 			const lock = { move: false, remove: true };
@@ -335,30 +357,64 @@ function JetpackContactFormEdit( {
 		[ clientId ]
 	);
 
-	// Sync synced form content INTO the editor (one-time on ref change)
-	const { isSyncingRef } = useSyncedFormLoader( {
-		ref,
-		syncedFormBlocks,
-		syncedFormAttributes,
+	// // Load synced innerBlocks and attributes when a ref exists and the form is loaded
+	const lastLoadedRefId = useRef< number | undefined >( undefined );
+	const isSyncingRef = useRef( false );
+
+	useEffect( () => {
+		// Handle ref removal (converting back to inline)
+		if ( ! attributes.ref && lastLoadedRefId.current ) {
+			lastLoadedRefId.current = undefined;
+			return;
+		}
+
+		// Guard: Don't reload if we've already loaded this ref
+		if ( lastLoadedRefId.current === attributes.ref ) {
+			return;
+		}
+
+		// Guard: Don't load if no ref or no synced data yet
+		if (
+			! attributes.ref ||
+			! syncedInnerBlocks ||
+			syncedInnerBlocks.length === 0 ||
+			! syncedAttributes
+		) {
+			return;
+		}
+
+		// Guard: Don't load if currently syncing
+		if ( isSyncingRef.current ) {
+			return;
+		}
+
+		// Mark this ref as loaded and set syncing flag
+		lastLoadedRefId.current = attributes.ref;
+		isSyncingRef.current = true;
+
+		// Update block attributes with synced data (keeping ref)
+		__unstableMarkNextChangeAsNotPersistent();
+		updateBlockAttributes( clientId, {
+			...syncedAttributes,
+			ref: attributes.ref,
+		} );
+
+		// Replace innerBlocks with synced content
+		replaceInnerBlocks( clientId, syncedInnerBlocks, false );
+
+		// Clear syncing flag after a short delay
+		setTimeout( () => {
+			isSyncingRef.current = false;
+		}, 100 );
+	}, [
+		attributes.ref,
+		syncedInnerBlocks,
+		syncedAttributes,
 		clientId,
-		setAttributes,
 		replaceInnerBlocks,
 		__unstableMarkNextChangeAsNotPersistent,
-	} );
-
-	// Auto-save editor changes BACK to the synced form post
-	useSyncedFormAutoSave( {
-		ref,
-		syncedForm,
-		attributes,
-		currentInnerBlocks,
-		isSyncingRef,
-		editEntityRecord,
-	} );
-
-	// Note: We don't clear attributes in memory when ref is set, as they're needed
-	// for the form to work properly in the editor. The save() method ensures that
-	// only the ref attribute is persisted to the database.
+		updateBlockAttributes,
+	] );
 
 	// Track previous block count to detect insertions
 	const previousBlockCountRef = useRef( currentInnerBlocks.length );
@@ -849,21 +905,9 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	// Show loading state when resolving synced form
-	if ( ref && isResolvingSyncedForm ) {
-		return (
-			<div { ...blockProps }>
-				<ContactFormSkeletonLoader />
-			</div>
-		);
-	}
-	// Show error if referenced form not found
-	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
-		elt = (
-			<Notice status="warning" isDismissible={ false }>
-				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
-			</Notice>
-		);
+	if ( isSyncedFormLoading ) {
+		// Show loading state while synced form is being fetched
+		elt = <ContactFormSkeletonLoader />;
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
 			return (
@@ -872,14 +916,7 @@ function JetpackContactFormEdit( {
 				</div>
 			);
 		}
-		elt = (
-			<ContactFormPlaceholder
-				changeStatus={ changeStatus }
-				isModuleActive={ isModuleActive }
-				isLoading={ isChangingStatus }
-			/>
-		);
-	} else if ( ! hasAnyInnerBlocks ) {
+	} else if ( ! hasContent ) {
 		elt = (
 			<VariationPicker
 				blockName={ name }
@@ -902,6 +939,13 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
+					{ isCentralFormManagementEnabled && (
+						<ConvertFormToolbar
+							clientId={ clientId }
+							attributes={ attributes }
+							setAttributes={ setAttributes }
+						/>
+					) }
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody

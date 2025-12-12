@@ -1,0 +1,140 @@
+/**
+ * Convert Form Toolbar Component
+ * Provides toolbar buttons to convert forms to synced mode and edit synced forms
+ */
+
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { createSyncedForm } from '../utils/form-sync-manager';
+
+interface ConvertFormToolbarProps {
+	clientId: string;
+	attributes: Record< string, unknown >;
+	setAttributes: ( attrs: Record< string, unknown > ) => void;
+}
+
+export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
+	const [ isConverting, setIsConverting ] = useState( false );
+
+	// Get the current page/post title and navigation function from settings
+	const { postTitle, onNavigateToEntityRecord } = useSelect( select => {
+		const editedPost = select( editorStore ).getEditedPostAttribute( 'title' );
+		const { getSettings } = select( blockEditorStore );
+		return {
+			postTitle: editedPost || 'Untitled',
+			onNavigateToEntityRecord: getSettings().onNavigateToEntityRecord,
+		};
+	}, [] );
+
+	// Get block data
+	const block = useSelect(
+		select => select( blockEditorStore ).getBlock( clientId ),
+		[ clientId ]
+	);
+
+	// Get functions to manipulate blocks
+	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+
+	const hasRef = !! attributes.ref;
+
+	/**
+	 * Convert inline form to synced form
+	 */
+	const convertToSynced = async () => {
+		if ( ! block || isConverting ) {
+			return;
+		}
+
+		setIsConverting( true );
+
+		try {
+			// Remove ref from attributes if it exists (shouldn't, but safety check)
+			const { ...cleanAttributes } = attributes;
+
+			// Create the synced form post with all attributes and innerBlocks
+			const postId = await createSyncedForm(
+				{
+					attributes: cleanAttributes,
+					innerBlocks: block.innerBlocks || [],
+				},
+				postTitle
+			);
+
+			// Clear innerBlocks first
+			replaceInnerBlocks( clientId, [], false );
+
+			// Get all current attribute keys
+			const attributeKeys = Object.keys( attributes );
+			const clearedAttributes: Record< string, unknown > = {};
+
+			// Set all attributes to undefined to clear them
+			attributeKeys.forEach( key => {
+				clearedAttributes[ key ] = undefined;
+			} );
+
+			// Then set only the ref
+			clearedAttributes.ref = postId;
+
+			// Update attributes using updateBlockAttributes which properly clears them
+			updateBlockAttributes( clientId, clearedAttributes );
+
+			createSuccessNotice( __( 'Form converted to synced form successfully', 'jetpack-forms' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch ( error ) {
+			createErrorNotice(
+				__( 'Failed to convert form to synced form. Please try again.', 'jetpack-forms' ),
+				{
+					type: 'snackbar',
+					isDismissible: true,
+				}
+			);
+		} finally {
+			setIsConverting( false );
+		}
+	};
+
+	/**
+	 * Navigate to edit the synced form post
+	 */
+	const handleEditOriginal = () => {
+		if ( ! attributes.ref || ! onNavigateToEntityRecord ) {
+			return;
+		}
+
+		onNavigateToEntityRecord( {
+			postId: attributes.ref as number,
+			postType: 'jetpack_form',
+		} );
+	};
+
+	const showEditButton = hasRef && onNavigateToEntityRecord;
+	const showConvertButton = ! hasRef;
+
+	return (
+		<ToolbarGroup>
+			{ showEditButton && (
+				<ToolbarButton onClick={ handleEditOriginal } label={ __( 'Edit form', 'jetpack-forms' ) }>
+					{ __( 'Edit Form', 'jetpack-forms' ) }
+				</ToolbarButton>
+			) }
+			{ showConvertButton && (
+				<ToolbarButton
+					onClick={ convertToSynced }
+					disabled={ isConverting }
+					label={ __( 'Convert to synced form', 'jetpack-forms' ) }
+				>
+					{ __( 'Convert Form', 'jetpack-forms' ) }
+				</ToolbarButton>
+			) }
+		</ToolbarGroup>
+	);
+}
