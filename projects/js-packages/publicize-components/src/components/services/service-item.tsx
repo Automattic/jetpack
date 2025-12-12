@@ -127,7 +127,7 @@ export function ServiceItem( {
 									service={ service }
 									displayInputs
 									isSmall={ false }
-									buttonLabel={ __( 'Connect', 'jetpack-publicize-components' ) }
+									buttonLabel={ __( 'Submit', 'jetpack-publicize-components' ) }
 								/>
 							</div>
 						) : null

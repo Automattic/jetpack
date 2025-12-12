@@ -197,7 +197,6 @@
 	.fields-wrapper {
 		display: flex;
 		flex-direction: column;
-		justify-content: flex-end;
 		width: 100%;
 		gap: 1rem;
 
@@ -223,7 +222,7 @@
 		@include gb.break-small {
 
 			button {
-				align-self: flex-end;
+				align-self: start;
 			}
 		}
 	}

@@ -3,11 +3,12 @@
  * Unified media selection interface for social posts
  */
 
+import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -45,6 +46,9 @@ export default function MediaSectionV2( {
 
 	// Ref to store the MediaUpload open function
 	const openMediaLibraryRef = useRef< () => void >( () => {} );
+
+	// State for AI image generation modal
+	const [ showAiImageModal, toggleShowAiImageModal ] = useReducer( state => ! state, false );
 
 	// Determine current media source
 	// Priority 1: Explicit user choice (if media_source is set)
@@ -121,12 +125,12 @@ export default function MediaSectionV2( {
 	// Handle media selection from Media Library
 	const handleMediaLibrarySelect = useCallback(
 		( media: WPMediaObject ) => {
-			const { id, url, mime: type } = media;
+			const { id, url, mime } = media;
 
 			// Single batch update with explicit media_source
 			updateJetpackSocialOptions( {
 				media_source: 'media-library',
-				attached_media: [ { id, url, type } ],
+				attached_media: [ { id, url, type: mime } ],
 				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
 			} );
 
@@ -143,6 +147,27 @@ export default function MediaSectionV2( {
 			openMediaLibraryRef.current();
 		}, 0 );
 	}, [] );
+
+	// Handle AI image selection
+	const handleAiImageSelect = useCallback(
+		( { id, url, mime }: WPMediaObject ) => {
+			// Use 'media-library' as the source since the AI image is uploaded to the media library
+			updateJetpackSocialOptions( {
+				media_source: 'media-library',
+				attached_media: [ { id, url, type: mime || 'image/png' } ],
+				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+			} );
+
+			// Track as 'ai-image' in analytics to distinguish from regular media library selections
+			recordEvent( 'jetpack_social_media_source_changed', {
+				...analyticsData,
+				source: 'ai-image',
+			} );
+
+			toggleShowAiImageModal();
+		},
+		[ updateJetpackSocialOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+	);
 
 	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
 		openMediaLibraryRef.current = open;
@@ -236,6 +261,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							>
 								{ ( { open } ) => (
@@ -274,6 +300,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
+								onAiImageClick={ toggleShowAiImageModal }
 								disabled={ disabled }
 							/>
 							{ currentSource === 'featured-image' && ! featuredImageId && (
@@ -288,6 +315,13 @@ export default function MediaSectionV2( {
 					) }
 				</BaseControl>
 			</div>
+			{ showAiImageModal && (
+				<GeneralPurposeImage
+					placement="social-media-dropdown"
+					onClose={ toggleShowAiImageModal }
+					onSetImage={ handleAiImageSelect }
+				/>
+			) }
 		</ThemeProvider>
 	);
 }

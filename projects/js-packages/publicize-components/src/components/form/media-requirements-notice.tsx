@@ -1,12 +1,11 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getErrorLabel } from '../../hooks/use-media-restrictions/constants';
 import { ValidationErrors } from '../../hooks/use-media-restrictions/types';
 import { store as socialStore } from '../../social-store';
-import Notice from '../notice';
 import { useServiceLabel } from '../services/use-service-label';
 import type { FC } from 'react';
 
@@ -45,7 +44,7 @@ export const MediaRequirementsNotice: FC< MediaRequirementsNoticeProps > = ( {
 	}, [ getConnectionById, getServiceLabel, validationErrors ] );
 
 	return (
-		<Notice type={ 'warning' }>
+		<Notice status="warning" isDismissible={ false }>
 			<p>
 				{ __(
 					'The selected media cannot be shared to some social media platforms.',
