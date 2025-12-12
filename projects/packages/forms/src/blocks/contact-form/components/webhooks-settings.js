@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { TextControl, ToggleControl, ExternalLink } from '@wordpress/components';
 import { useState, useEffect, useCallback, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -68,6 +69,10 @@ const WebhooksSettings = ( { setAttributes, webhooks, clientId } ) => {
 				) }
 				checked={ localWebhookEnabled }
 				onChange={ value => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_webhook_toggle', {
+						origin: 'block-editor',
+						enabled: value,
+					} );
 					setLocalWebhookEnabled( value );
 					// Auto-generate webhook ID when enabling if it doesn't exist
 					const webhookId = localWebhookId || generateWebhookId( webhooks?.length + 1 || 1 );
