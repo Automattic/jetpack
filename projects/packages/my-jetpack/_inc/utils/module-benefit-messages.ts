@@ -1,4 +1,5 @@
 import { __, sprintf, _x } from '@wordpress/i18n';
+import { JetpackModuleSlug } from '../types';
 
 /**
  * Benefit-driven success messages for module activation.
@@ -10,9 +11,9 @@ import { __, sprintf, _x } from '@wordpress/i18n';
  * Messages are interpolated as: "%1$s activated! %2$s" where %1$s is the module
  * name and %2$s is the benefit message.
  *
- * @return {Record<string, string>} Module benefit messages.
+ * @return {Record<JetpackModuleSlug, string>} Module benefit messages.
  */
-function getModuleBenefitMessages(): Record< string, string > {
+function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 	return {
 		'account-protection': __(
 			'Your login page now has rate-limiting and secure authentication safeguards.',
