@@ -4,6 +4,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
+	ref: {
+		type: 'number' as const,
+	},
 	subject: {
 		type: 'string',
 		default: window.jpFormsBlocks?.defaults?.subject || '',

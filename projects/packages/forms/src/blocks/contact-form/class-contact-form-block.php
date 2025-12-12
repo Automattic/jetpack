@@ -728,7 +728,60 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
+		// Handle ref attribute - load form from jetpack-form post
+		if ( isset( $atts['ref'] ) && is_numeric( $atts['ref'] ) ) {
+			return self::render_synced_form( $atts['ref'] );
+		}
+
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
+	}
+
+	/**
+	 * Render a synced form by reference ID.
+	 *
+	 * @param int $ref_id The jetpack_form post ID.
+	 * @return string Rendered form HTML.
+	 */
+	private static function render_synced_form( $ref_id ) {
+		// Circular reference prevention.
+		static $seen_refs = array();
+
+		if ( isset( $seen_refs[ $ref_id ] ) ) {
+			return sprintf(
+				'<div class="wp-block-jetpack-contact-form">%s</div>',
+				esc_html__( 'Circular reference detected in form.', 'jetpack-forms' )
+			);
+		}
+
+		// Load the jetpack-form post.
+		$synced_form = get_post( $ref_id );
+
+		// Validate post.
+		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
+			return '';
+		}
+
+		// Only render published and draft post statuses.
+		// todo: add a "active" status so that we can disable forms without deleting them.
+		if ( ! in_array( $synced_form->post_status, array( 'publish', 'draft' ), true ) ) {
+			return '';
+		}
+
+		// Mark as seen for circular reference prevention.
+		$seen_refs[ $ref_id ] = true;
+
+		// Parse and render blocks from post_content.
+		$blocks = parse_blocks( $synced_form->post_content );
+		$output = '';
+
+		foreach ( $blocks as $block ) {
+			$output .= render_block( $block );
+		}
+
+		// Clean up.
+		unset( $seen_refs[ $ref_id ] );
+
+		return $output;
 	}
 
 	/**
