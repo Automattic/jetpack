@@ -31,7 +31,7 @@ export type DataPoint = {
 };
 
 /**
- * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-2) to numeric values
+ * Data format for GeoChart - maps country codes (ISO 3166-1 alpha-3) to numeric values
  */
 export type GeoData = Record< string, number >;
 
