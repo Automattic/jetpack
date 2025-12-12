@@ -17,28 +17,9 @@ DB_HOST="${WORDPRESS_DB_HOST:-db}"
 DB_USER="${WORDPRESS_DB_USER:-root}"
 DB_PASS="${WORDPRESS_DB_PASSWORD:-rootpassword}"
 
-# Function to wait for a WordPress container to be ready
-wait_for_wordpress() {
-    local name=$1
-    local host=$2
-    local max_attempts=60
-    local attempt=1
-
-    echo "Waiting for $name ($host) to be ready..."
-
-    while [ $attempt -le $max_attempts ]; do
-        if curl -sf "http://$host/" > /dev/null 2>&1 || curl -sf "http://$host/wp-login.php" > /dev/null 2>&1; then
-            echo "  ✓ $name is responding"
-            return 0
-        fi
-        echo "  Attempt $attempt/$max_attempts - waiting..."
-        sleep 2
-        attempt=$((attempt + 1))
-    done
-
-    echo "  ✗ ERROR: $name did not become ready"
-    return 1
-}
+# NOTE: We removed the wait_for_wordpress() function that used to curl WordPress containers.
+# Sending HTTP requests to WordPress containers before WP-CLI runs causes a race condition
+# where WordPress PHP and WP-CLI both try to create database tables simultaneously.
 
 # Function to setup a WordPress instance using WP-CLI
 setup_instance() {
@@ -335,13 +316,19 @@ if [ $db_attempt -gt $max_db_attempts ]; then
     exit 1
 fi
 
-# Wait for WordPress containers
+# NOTE: We deliberately do NOT wait for WordPress containers with HTTP checks before setup.
+# The WordPress Docker image auto-initializes wp-config.php and may try to install WordPress
+# when it receives ANY HTTP request. If we curl the containers before WP-CLI runs wp core install,
+# we create a race condition where both WordPress (via Apache) and WP-CLI try to create tables
+# simultaneously, causing "table doesn't exist" errors.
+#
+# Instead, we only wait for the WordPress FILES to be available (checked in setup_instance)
+# and let WP-CLI do all the database setup before any HTTP traffic hits the containers.
+
 echo ""
-echo "Waiting for WordPress containers..."
-wait_for_wordpress "wordpress-baseline" "wordpress-baseline"
-wait_for_wordpress "wordpress-jetpack" "wordpress-jetpack"
-wait_for_wordpress "wordpress-jetpack-offline" "wordpress-jetpack-offline"
-wait_for_wordpress "wordpress-jetpack-connected" "wordpress-jetpack-connected"
+echo "Skipping WordPress container HTTP checks (to avoid race conditions)"
+echo "WP-CLI will perform installation directly using the database"
+echo ""
 
 # DIAGNOSTIC: Check state of ALL databases before any setup
 echo ""
