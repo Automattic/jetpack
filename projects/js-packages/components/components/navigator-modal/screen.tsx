@@ -11,6 +11,11 @@ export type ScreenProps = {
 	title?: string;
 
 	/**
+	 * Optional icon to display in the header.
+	 */
+	headerIcon?: React.ReactNode;
+
+	/**
 	 * The path of the screen.
 	 */
 	path: string;
@@ -65,6 +70,7 @@ export function Screen( {
 	className,
 	title,
 	sidebar,
+	headerIcon,
 	isScreenLocked,
 	footerContent,
 	footerActions,
@@ -75,7 +81,7 @@ export function Screen( {
 	return (
 		<Navigator.Screen path={ path } className={ clsx( styles.screen, className ) }>
 			<Flex direction="column" gap={ 0 }>
-				<Header title={ title } isScreenLocked={ isScreenLocked } />
+				<Header title={ title } isScreenLocked={ isScreenLocked } icon={ headerIcon } />
 
 				<Flex gap={ 0 } align="start" className={ styles.body }>
 					{ sidebar ? <div className={ styles.sidebar }>{ sidebar }</div> : null }
