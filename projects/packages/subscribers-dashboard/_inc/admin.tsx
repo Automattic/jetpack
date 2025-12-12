@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { createRoot } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { useState } from '@wordpress/element';
+import { createRoot, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 
 /**

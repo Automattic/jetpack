@@ -3,7 +3,7 @@
  */
 import { Modal, Button, Notice } from '@wordpress/components';
 import { useState, createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { getSiteData } from '@automattic/jetpack-script-data';
 
 /**
