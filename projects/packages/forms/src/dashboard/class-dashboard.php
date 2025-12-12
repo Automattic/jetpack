@@ -163,7 +163,8 @@ class Dashboard {
 	 * Register Forms2 submenu under Jetpack menu using wp-build page.
 	 */
 	public function add_forms2_submenu() {
-		$url = admin_url( 'admin.php?page=jetpack-forms-responses-wp-admin&p=' . urlencode( '/responses/inbox' ) );
+		$url = admin_url( 'admin.php?page=jetpack-forms-responses-wp-admin&p=' . rawurlencode( '/responses/inbox' ) );
+
 		Admin_Menu::add_menu(
 			'Forms2',
 			'Forms2',
