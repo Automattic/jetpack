@@ -75,7 +75,7 @@ const BackupCard = props => {
 	const { detail } = useProduct( productSlug );
 	const { status, doesModuleNeedAttention } = detail;
 	const lastBackupFailed = !! doesModuleNeedAttention;
-	const { status: lastBackupStatus } = doesModuleNeedAttention || {};
+	const lastBackupStatus = doesModuleNeedAttention?.data?.status || undefined;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 	const noDescription = () => null;
 
@@ -99,7 +99,7 @@ const BackupCard = props => {
 					</div>
 					<div className={ styles.contentContainer }>
 						<Text variant="body-small" className="value-section__heading">
-							{ __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
+							{ errorTitle || __( 'The last backup attempt failed.', 'jetpack-my-jetpack' ) }
 							<InfoTooltip
 								tracksEventName={ 'backup_card_tooltip_open' }
 								tracksEventProps={ {
@@ -114,16 +114,26 @@ const BackupCard = props => {
 									<h3>{ errorTitle }</h3>
 									<p>{ errorDescription }</p>
 									<p>
-										{ __(
-											'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
-											'jetpack-my-jetpack'
-										) }
+										{ lastBackupStatus === 'backups-deactivated'
+											? __(
+													'Please contact support to reactivate backups for your site.',
+													'jetpack-my-jetpack'
+											  )
+											: __(
+													'Check out our troubleshooting guide or contact your hosting provider to resolve the issue.',
+													'jetpack-my-jetpack'
+											  ) }
 									</p>
 								</>
 							</InfoTooltip>
 						</Text>
 						<Text variant="body-small" className={ styles.error_description }>
-							{ __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
+							{ lastBackupStatus === 'backups-deactivated'
+								? __(
+										'Please contact support to reactivate backups for your site.',
+										'jetpack-my-jetpack'
+								  )
+								: __( 'Check out our troubleshooting guide.', 'jetpack-my-jetpack' ) }
 						</Text>
 					</div>
 				</div>
