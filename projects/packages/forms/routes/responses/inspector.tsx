@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * External dependencies
  */
@@ -974,7 +973,7 @@ function SingleResponseView( {
  *
  * @return - Element containing the inspector for responses.
  */
-export function inspector() {
+function Inspector() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
@@ -1039,3 +1038,5 @@ export function inspector() {
 		</Page>
 	);
 }
+
+export { Inspector as inspector };
