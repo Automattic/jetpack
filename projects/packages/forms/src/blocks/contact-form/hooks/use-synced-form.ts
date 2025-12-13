@@ -15,7 +15,7 @@ interface UseSyncedFormResult {
 	isLoading: boolean;
 	syncedAttributes: Record< string, unknown > | null;
 	syncedInnerBlocks: ParsedBlock[] | null;
-	reusableForm: { content?: { raw?: string } } | null;
+	syncedForm: { content?: { raw?: string } } | null;
 }
 
 /**
@@ -28,10 +28,10 @@ interface UseSyncedFormResult {
  */
 export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 	// Load the jetpack_form post using WordPress core-data
-	const { reusableForm, isResolvingReusableForm } = useSelect(
+	const { syncedForm, isResolvingSyncedForm } = useSelect(
 		select => {
 			if ( ! ref ) {
-				return { reusableForm: null, isResolvingReusableForm: false };
+				return { syncedForm: null, isResolvingSyncedForm: false };
 			}
 
 			const { getEntityRecord, isResolving } = select( coreStore );
@@ -40,8 +40,8 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			const resolving = isResolving( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, ref ] );
 
 			return {
-				reusableForm: form,
-				isResolvingReusableForm: resolving,
+				syncedForm: form,
+				isResolvingSyncedForm: resolving,
 			};
 		},
 		[ ref ]
@@ -49,11 +49,11 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 
 	// Parse the block content when the post is loaded
 	const { syncedAttributes, syncedInnerBlocks } = useMemo( () => {
-		if ( ! reusableForm?.content?.raw ) {
+		if ( ! syncedForm?.content?.raw ) {
 			return { syncedAttributes: null, syncedInnerBlocks: null };
 		}
 
-		const parsedBlocks = parse( reusableForm.content.raw );
+		const parsedBlocks = parse( syncedForm.content.raw );
 
 		if ( ! parsedBlocks || parsedBlocks.length === 0 ) {
 			return { syncedAttributes: null, syncedInnerBlocks: null };
@@ -70,12 +70,12 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			syncedAttributes: formBlock.attributes || {},
 			syncedInnerBlocks: formBlock.innerBlocks || [],
 		};
-	}, [ reusableForm ] );
+	}, [ syncedForm ] );
 
 	return {
-		isLoading: isResolvingReusableForm,
+		isLoading: isResolvingSyncedForm,
 		syncedAttributes,
 		syncedInnerBlocks,
-		reusableForm,
+		syncedForm,
 	};
 }
