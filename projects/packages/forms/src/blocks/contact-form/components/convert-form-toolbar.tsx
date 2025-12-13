@@ -85,7 +85,7 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			// Update attributes using updateBlockAttributes which properly clears them
 			updateBlockAttributes( clientId, clearedAttributes );
 
-			createSuccessNotice( __( 'Form converted to synced form successfully', 'jetpack-forms' ), {
+			createSuccessNotice( __( 'Form converted successfully', 'jetpack-forms' ), {
 				type: 'snackbar',
 				isDismissible: true,
 			} );
