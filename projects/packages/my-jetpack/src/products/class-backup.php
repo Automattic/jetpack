@@ -382,7 +382,18 @@ class Backup extends Hybrid_Product {
 			}
 
 			if ( $last_backup && isset( $last_backup->status ) ) {
-				if ( $last_backup->status !== 'started' && ! preg_match( '/-will-retry$/', $last_backup->status ) && $last_backup->status !== 'finished' ) {
+				// Statuses that should NOT be treated as errors.
+				$non_error_statuses = array(
+					'started',
+					'finished',
+					'backups-deactivated',
+					'multisite_not_supported',
+				);
+
+				// Check if status ends with '-will-retry' (transient errors that shouldn't be flagged).
+				$is_will_retry = preg_match( '/-will-retry$/', $last_backup->status );
+
+				if ( ! in_array( $last_backup->status, $non_error_statuses, true ) && ! $is_will_retry ) {
 					$backup_failed_status = array(
 						'type' => 'error',
 						'data' => array(
