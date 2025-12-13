@@ -4,10 +4,17 @@
  * This script prevents the jetpack/contact-form block from being selected
  * in the jetpack-form custom post type editor, and ensures that blocks can
  * only be added inside the form block, not as siblings to it.
+ *
+ * It also registers the Form Document Settings plugin to display form settings
+ * in the Document Settings sidebar.
  */
 
 import { subscribe, select, dispatch } from '@wordpress/data';
+import { registerPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import { FormDocumentSettings } from './form-document-settings.tsx';
+
+import './style.scss';
 
 let formBlockClientId = null;
 
@@ -66,14 +73,7 @@ const lockFormBlock = () => {
 			.wp-block[data-type="jetpack/contact-form"] > .block-list-appender {
 				display: none !important;
 			}
-			/* Prevent pointer events on the form block wrapper */
-			.wp-block[data-type="jetpack/contact-form"] {
-				pointer-events: none;
-			}
-			/* Re-enable pointer events for inner blocks */
-			.wp-block[data-type="jetpack/contact-form"] .block-editor-block-list__layout {
-				pointer-events: auto;
-			}
+
 			/* Hide the root-level block appender to prevent adding blocks outside the form */
 			.editor-styles-wrapper > .block-editor-block-list__layout > .block-list-appender,
 			.editor-styles-wrapper > .block-editor-block-list__layout > .wp-block > .block-list-appender {
@@ -130,4 +130,10 @@ subscribe( () => {
 		lockFormBlock();
 		enforceBlockNesting();
 	}
+} );
+
+// Register Form Document Settings plugin
+registerPlugin( 'jetpack-form-document-settings', {
+	render: FormDocumentSettings,
+	icon: null,
 } );

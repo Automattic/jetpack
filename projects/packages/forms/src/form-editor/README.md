@@ -4,7 +4,32 @@ This directory contains the custom editor implementation for the `jetpack-form` 
 
 ## Overview
 
-The form editor ensures that the `jetpack/contact-form` block behaves as a container for form fields, preventing it from being selected, moved, or deleted while allowing users to work with the inner field blocks.
+The form editor ensures that the `jetpack/contact-form` block behaves as a container for form fields, preventing it from being selected, moved, or deleted while allowing users to work with the inner field blocks. It also provides form settings panels in the Document Settings sidebar for easy configuration.
+
+## Files
+
+### `form-document-settings.tsx`
+
+**Component:** React component that renders form configuration panels in the Document Settings sidebar.
+
+This component provides a user-friendly interface for configuring form settings when editing a `jetpack_form` post type. It displays all form configuration options that would normally appear in the block inspector, but in the Document Settings sidebar for better accessibility.
+
+#### Features
+
+- **Action after submit** - Configure confirmation messages or redirect URLs
+- **Form notifications** - Set up email notifications and recipients
+- **Integrations** - Configure third-party integrations (if enabled)
+- **Webhooks** - Set up webhook endpoints (if enabled)
+- **Responses storage** - Configure where and how form responses are stored
+
+#### Implementation Details
+
+The component:
+- Only renders when editing a `jetpack_form` post type
+- Locates the contact-form block in the editor
+- Uses `PluginDocumentSettingPanel` to add panels to the sidebar
+- Updates block attributes using `updateBlockAttributes` dispatch action
+- Separates clientId lookup from attribute retrieval to prevent re-render issues
 
 ## Components
 
@@ -48,7 +73,7 @@ Enqueues the form editor JavaScript with dependencies:
 
 **File:** `index.ts`
 
-The JavaScript handles the client-side behavior for the form editor.
+The JavaScript handles the client-side behavior for the form editor and registers the Form Document Settings plugin.
 
 #### Key Functions
 
@@ -75,6 +100,10 @@ The script uses WordPress data subscriptions to monitor editor state:
 
 - **Main subscription** - Runs on every editor change to lock the form block and enforce nesting
 - **Post type check** - Only activates when editing `jetpack_form` posts
+
+#### Plugin Registration
+
+The script registers the `jetpack-form-document-settings` plugin which adds form configuration panels to the Document Settings sidebar. This provides an intuitive interface for managing form settings without having to select the form block.
 
 #### CSS Injection
 
@@ -109,7 +138,8 @@ When editing a jetpack-form post:
 2. The form block cannot be selected, moved, or deleted
 3. Only form-related blocks appear in the inserter
 4. New blocks are automatically placed inside the form
-5. The editing experience focuses on form content, not structure
+5. Form settings are accessible in the Document Settings sidebar
+6. The editing experience focuses on form content and configuration, not structure
 
 ## Technical Notes
 

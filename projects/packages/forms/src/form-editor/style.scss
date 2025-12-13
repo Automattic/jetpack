@@ -1,0 +1,8 @@
+.components-base-control {
+	margin-bottom: 16px;
+}
+
+.components-base-control:where(:not(:last-child)),
+.components-radio-control:where(:not(:last-child)) {
+	margin-bottom: 16px;
+}
