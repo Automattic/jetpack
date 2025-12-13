@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 /**
  * External dependencies
  */
@@ -20,6 +19,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { download, plus } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import * as React from 'react';
 /**
  * Internal dependencies
  */
@@ -27,25 +27,49 @@ import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-
 import Page, { Stack } from '../../src/dashboard/components/page';
 import './style.scss';
 import * as Tabs from '../../src/dashboard/components/tabs';
-import useConfigValue from '../../src/hooks/use-config-value';
 import useCreateForm from '../../src/dashboard/hooks/use-create-form';
 import { store as dashboardStore } from '../../src/dashboard/store';
-import { INTEGRATIONS_STORE } from '../../src/store/integrations';
-import type { Integration } from '../../src/types';
+import useConfigValue from '../../src/hooks/use-config-value';
+import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
+/**
+ * Types
+ */
+import type { SelectActions, DispatchActions } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { FormResponse } from '../../src/types/index.ts';
+import type { View, Field } from '@wordpress/dataviews';
+
+type FeedbackFilterDate = {
+	month: number;
+	year: number;
+};
+
+type FeedbackFilterSource = {
+	id: number;
+	title: string;
+	url: string;
+};
+
+type FeedbackFilters = {
+	date: FeedbackFilterDate[];
+	source: FeedbackFilterSource[];
+};
 
 /**
  * Hook to fetch filter options for date and source fields.
  *
- * @return {object} Object containing date and source filter options.
+ * @return Object containing date and source filter options.
  */
 function useFilterOptions() {
-	const [ filterOptions, setFilterOptions ] = useState( { date: [], source: [] } );
+	const [ filterOptions, setFilterOptions ] = useState< FeedbackFilters >( {
+		date: [],
+		source: [],
+	} );
 
 	useEffect( () => {
-		apiFetch( { path: '/wp/v2/feedback/filters' } ).then( response => {
+		apiFetch< FeedbackFilters >( { path: '/wp/v2/feedback/filters' } ).then( response => {
 			setFilterOptions( {
-				date: response?.date || [],
-				source: response?.source || [],
+				date: response.date || [],
+				source: response.source || [],
 			} );
 		} );
 	}, [] );
@@ -56,16 +80,16 @@ function useFilterOptions() {
 /**
  * Returns a formatted tab label with count badge.
  *
- * @param {string} label - The label for the tab.
- * @param {number} count - The count to display.
- * @return {JSX.Element} The formatted label with count badge.
+ * @param label - The label for the tab.
+ * @param count - The count to display.
+ * @return The formatted label with count badge.
  */
-function getTabLabel( label, count ) {
+function getTabLabel( label: string, count: number ): JSX.Element {
 	return (
 		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
 			{ label }
 			<Badge intent="default" style={ { backgroundColor: '#f0f0f0' } }>
-				{ count }
+				{ count.toString() }
 			</Badge>
 		</span>
 	);
@@ -78,7 +102,20 @@ const defaultLayouts = {
 	list: {},
 };
 
-const DEFAULT_VIEW = {
+type QueryParams = {
+	status: string;
+	per_page?: number;
+	page?: number;
+	orderby?: string;
+	order?: string;
+	is_unread?: boolean;
+	parent?: string;
+	before?: string;
+	after?: string;
+	search?: string;
+};
+
+const DEFAULT_VIEW: View = {
 	type: 'table',
 	filters: [],
 	perPage: 20,
@@ -103,14 +140,19 @@ function getItemId( item ) {
 /**
  * Stage component for the form responses DataViews.
  *
- * @return {JSX.Element} The stage component.
+ * @return The stage component.
  */
-export function stage() {
+function Stage() {
 	const params = useParams( { from: '/responses/$view' } );
 	const searchParams = useSearch( { from: '/responses/$view' } );
 	const navigate = useNavigate();
-	const counts = useSelect( select => select( dashboardStore ).getCounts(), [] );
-	const { updateCountsOptimistically, invalidateCounts } = useDispatch( dashboardStore );
+	const counts = useSelect(
+		select => ( select( dashboardStore ) as SelectActions ).getCounts(),
+		[]
+	);
+	const { updateCountsOptimistically, invalidateCounts } = useDispatch(
+		dashboardStore
+	) as DispatchActions;
 	const filterOptions = useFilterOptions();
 	let status = 'publish';
 	if ( params.view === 'spam' ) {
@@ -120,19 +162,19 @@ export function stage() {
 	}
 
 	const { saveEntityRecord, deleteEntityRecord, invalidateResolution, editEntityRecord } =
-		useDispatch( coreStore );
+		useDispatch( coreStore ) as unknown as DispatchActions;
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const [ isIntegrationsModalOpen, setIsIntegrationsModalOpen ] = useState( false );
 	const integrations = useSelect(
-		select => ( select( INTEGRATIONS_STORE ).getIntegrations?.() ?? [] ) as Integration[],
+		select => ( select( INTEGRATIONS_STORE ) as IntegrationsSelectors ).getIntegrations?.() ?? [],
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
-	const [ view, setView ] = useState( () => ( {
+	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
 		search: searchParams?.search || '',
 	} ) );
@@ -147,7 +189,7 @@ export function stage() {
 	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const onChangeView = useCallback(
-		newView => {
+		( newView: View ) => {
 			setView( newView );
 
 			if ( newView.search !== view.search ) {
@@ -175,7 +217,7 @@ export function stage() {
 	);
 
 	const queryParams = useMemo( () => {
-		const queryArgs = {
+		const queryArgs: QueryParams = {
 			status,
 			per_page: view.perPage,
 			page: view.page || 1,
@@ -213,7 +255,7 @@ export function stage() {
 		queryParams
 	);
 
-	const fields = useMemo(
+	const fields: Field< FormResponse >[] = useMemo(
 		() => [
 			{
 				id: 'from',
@@ -902,8 +944,12 @@ export function stage() {
 		setIsIntegrationsModalOpen( true );
 	}, [] );
 
+	const closeIntegrationsModal = useCallback( () => {
+		setIsIntegrationsModalOpen( false );
+	}, [] );
+
 	const headerActions = useMemo( () => {
-		const actionsArray = [];
+		const actionsArray: React.ReactNode[] = [];
 
 		// Show integrations button on inbox when feature flags are enabled
 		if (
@@ -983,7 +1029,7 @@ export function stage() {
 		>
 			<DataViews
 				data={ records || EMPTY_ARRAY }
-				fields={ fields }
+				fields={ fields as Field< unknown >[] }
 				view={ view }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
@@ -1023,7 +1069,7 @@ export function stage() {
 			</DataViews>
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
-				onClose={ () => setIsIntegrationsModalOpen( false ) }
+				onClose={ closeIntegrationsModal }
 				attributes={ undefined }
 				setAttributes={ undefined }
 				integrationsData={ integrations }
@@ -1033,3 +1079,5 @@ export function stage() {
 		</Page>
 	);
 }
+
+export { Stage as stage };

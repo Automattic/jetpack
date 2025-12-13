@@ -88,6 +88,7 @@ export type SelectActions = {
 	getTrashCount: ( queryParams: QueryParams ) => number;
 	getSpamCount: ( queryParams: QueryParams ) => number;
 	getInboxCount: ( queryParams: QueryParams ) => number;
+	getCounts: () => { inbox: number; spam: number; trash: number };
 
 	// Core store select actions
 	getEntityRecord: (
