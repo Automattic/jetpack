@@ -166,17 +166,24 @@ function checkDocker() {
 
 /** Get git hash and branch. */
 function getGitInfo() {
-	try {
-		const hash = execFile( 'git', [ 'rev-parse', 'HEAD' ], { silent: true } )?.trim() || 'unknown';
-		// Always use 'trunk' as the branch - we're tracking performance on the main branch,
-		// and backfill commits (detached HEAD) also come from trunk history.
-		const branch = 'trunk';
+	// Prefer GIT_COMMIT env var (set by CI for the specific commit being tested)
+	// over HEAD (which may be different when testing historical commits)
+	const hash =
+		process.env.GIT_COMMIT ||
+		( () => {
+			try {
+				return execFile( 'git', [ 'rev-parse', 'HEAD' ], { silent: true } )?.trim();
+			} catch {
+				return null;
+			}
+		} )() ||
+		'unknown';
 
-		return { hash, branch };
-	} catch {
-		console.warn( 'Warning: Could not get git information' );
-		return { hash: 'unknown', branch: 'trunk' };
-	}
+	// Always use 'trunk' as the branch - we're tracking performance on the main branch,
+	// and backfill commits (detached HEAD) also come from trunk history.
+	const branch = 'trunk';
+
+	return { hash, branch };
 }
 
 /** Rsync Jetpack plugin to build directory (resolves symlinks). */

@@ -19,9 +19,13 @@ The test suite is designed to run in TeamCity. See build configuration for setup
 | Variable | Description |
 |----------|-------------|
 | `CODEVITALS_TOKEN` | API token for posting results to CodeVitals |
+| `CODEVITALS_URL` | CodeVitals API URL (default: https://www.codevitals.run) |
 | `COMPOSE_PROJECT_NAME` | Unique Docker project name for build isolation |
 | `GIT_COMMIT` | Git commit SHA for tracking |
+| `GIT_BRANCH` | Git branch for tracking (default: trunk) |
 | `ITERATIONS` | Number of measurement iterations (default: 5) |
+| `WP_ADMIN_USER` | WordPress admin username (default: admin) |
+| `WP_ADMIN_PASS` | WordPress admin password (default: password) |
 
 ## Metric
 
@@ -39,6 +43,9 @@ The test suite is designed to run in TeamCity. See build configuration for setup
 | Script | Description |
 |--------|-------------|
 | `pnpm test` | Run full test suite |
+| `pnpm test:quick` | Quick test with 2 iterations |
 | `pnpm calibrate` | Run CPU throttling calibration |
+| `pnpm measure` | Run LCP measurement only |
+| `pnpm report` | Post results to CodeVitals only |
 | `pnpm test -- --skip-rsync` | Run tests without rebuilding Jetpack |
 | `pnpm test -- --skip-codevitals` | Run tests without posting to CodeVitals |

@@ -11,13 +11,11 @@ const __dirname = path.dirname( __filename );
 /** Extract metrics for a single scenario. */
 function extractScenarioMetrics( scenario, summary ) {
 	const metrics = {};
-	const baseMetrics = {};
 
 	// Use explicit metricKey if defined, otherwise fall back to prefix-based keys
 	if ( scenario.metricKey ) {
 		// Single metric with exact key
 		metrics[ scenario.metricKey ] = summary.median;
-		baseMetrics[ scenario.metricKey ] = summary.median;
 	} else {
 		// Legacy: prefix-based keys with suffixes
 		const prefix = scenario.metricPrefix;
@@ -26,11 +24,9 @@ function extractScenarioMetrics( scenario, summary ) {
 		metrics[ `${ prefix }_min_ms` ] = summary.min;
 		metrics[ `${ prefix }_max_ms` ] = summary.max;
 		metrics[ `${ prefix }_stddev_ms` ] = summary.stdDev;
-		baseMetrics[ `${ prefix }_ms` ] = summary.median;
-		baseMetrics[ `${ prefix }_mean_ms` ] = summary.mean;
 	}
 
-	return { metrics, baseMetrics };
+	return metrics;
 }
 
 /** Post metrics to CodeVitals. */
@@ -44,7 +40,6 @@ async function postToCodeVitals( resultsPath, config ) {
 
 	// Extract metrics from results
 	const metrics = {};
-	const baseMetrics = {};
 
 	// Process only scenarios marked for CodeVitals posting
 	for ( const scenario of SCENARIOS ) {
@@ -61,8 +56,7 @@ async function postToCodeVitals( resultsPath, config ) {
 
 		const scenarioMetrics = extractScenarioMetrics( scenario, measurement.summary );
 
-		Object.assign( metrics, scenarioMetrics.metrics );
-		Object.assign( baseMetrics, scenarioMetrics.baseMetrics );
+		Object.assign( metrics, scenarioMetrics );
 	}
 
 	// Validate we have metrics to post
@@ -73,7 +67,6 @@ async function postToCodeVitals( resultsPath, config ) {
 	// Prepare CodeVitals payload
 	const payload = {
 		metrics,
-		baseMetrics,
 		hash: results.git?.hash || config.gitHash || 'unknown',
 		timestamp: Date.now(),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
