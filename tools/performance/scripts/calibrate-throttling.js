@@ -151,13 +151,9 @@ async function main() {
 	}
 
 	// Launch browser
-	// Use headful mode locally for more accurate calibration, but headless in CI (no display)
-	const isCI = process.env.CI === 'true' || process.env.CI === '1';
-	const headless = isCI;
-
-	console.log( `Launching browser (${ headless ? 'headless' : 'headful' } mode)...` );
+	console.log( `Launching browser (headless mode)...` );
 	const browser = await chromium.launch( {
-		headless,
+		headless: true,
 		args: [ '--disable-dev-shm-usage', '--no-sandbox', '--disable-gpu' ],
 	} );
 
