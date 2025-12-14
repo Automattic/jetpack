@@ -67,6 +67,7 @@ async function postToCodeVitals( resultsPath, config ) {
 	// Prepare CodeVitals payload
 	const payload = {
 		metrics,
+		baseMetrics: {}, // Empty object - we don't use baseline normalization
 		hash: results.git?.hash || config.gitHash || 'unknown',
 		timestamp: Date.now(),
 		branch: results.git?.branch || config.gitBranch || 'trunk',
