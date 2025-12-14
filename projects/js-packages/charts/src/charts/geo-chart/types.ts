@@ -7,6 +7,11 @@ export interface GeoChartProps
 	 */
 	data: GeoData;
 	scale?: number;
+	/**
+	 * Optional render function for the loading placeholder.
+	 * Called while the map topology is being loaded asynchronously.
+	 */
+	renderPlaceholder?: () => React.ReactNode;
 }
 
 export interface FeatureShape {

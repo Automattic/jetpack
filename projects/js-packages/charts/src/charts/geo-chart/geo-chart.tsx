@@ -5,9 +5,10 @@ import { localPoint } from '@visx/event';
 import { CustomProjection, Graticule } from '@visx/geo';
 import { scaleLinear } from '@visx/scale';
 import { useTooltip, TooltipWithBounds, defaultStyles } from '@visx/tooltip';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { geoNaturalEarth1 } from 'd3-geo';
-import { FC, useCallback, useContext } from 'react';
+import { FC, useCallback, useContext, useEffect, useState } from 'react';
 import * as topojson from 'topojson-client';
 /**
  * Internal dependencies
@@ -15,37 +16,118 @@ import * as topojson from 'topojson-client';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
-import topology from './private/world-topo.json';
 import { GeoChartProps, FeatureShape, TooltipData } from './types';
 
-// Cast through unknown to satisfy topojson-client's strict typing
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const world = topojson.feature( topology as any, topology.objects.units as any ) as unknown as {
-	type: 'FeatureCollection';
-	features: FeatureShape[];
-};
+// Cached world features to avoid reprocessing on every mount
+const cachedWorldFeatures: FeatureShape[] | null = null;
 
-// Filter out Antarctica as it won't have any data
-const worldFeatures = world.features.filter( feature => feature.id !== 'ATA' );
+/**
+ * Loads the world topology JSON asynchronously and processes it into features.
+ * Results are cached to avoid reprocessing on subsequent mounts.
+ *
+ * @return Promise resolving to the processed world features array
+ */
+async function loadWorldFeatures(): Promise< FeatureShape[] > {
+	if ( cachedWorldFeatures ) {
+		return cachedWorldFeatures;
+	}
+
+	const topology = await import( './private/world-topo.json' );
+	// Cast through unknown to satisfy topojson-client's strict typing
+	const world = topojson.feature(
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		topology.default as any,
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		( topology.default as any ).objects.units
+	) as unknown as {
+		type: 'FeatureCollection';
+		features: FeatureShape[];
+	};
+
+	// Filter out Antarctica as it won't have any data
+	return world.features.filter( feature => feature.id !== 'ATA' );
+}
 
 /**
  * Renders a geographical chart using Natural Earth projection to visualize data by country.
  *
- * @param props           - The props for the GeoChart component
- * @param props.data      - Record mapping country IDs to numeric values
- * @param props.width     - Width of the chart in pixels
- * @param props.height    - Height of the chart in pixels
- * @param props.className - Additional CSS class name for the chart container
- * @param props.scale     - Scale factor for the map projection (defaults to fit within bounds)
+ * @param props                   - The props for the GeoChart component
+ * @param props.data              - Record mapping country IDs to numeric values
+ * @param props.width             - Width of the chart in pixels
+ * @param props.height            - Height of the chart in pixels
+ * @param props.className         - Additional CSS class name for the chart container
+ * @param props.scale             - Scale factor for the map projection (defaults to fit within bounds)
+ * @param props.renderPlaceholder - Optional render function for the loading placeholder
  * @return A React component displaying an interactive world map with data visualization
  */
-const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height, scale } ) => {
+const GeoChartInternal: FC< GeoChartProps > = ( {
+	className,
+	data,
+	width,
+	height,
+	scale,
+	renderPlaceholder,
+} ) => {
+	const [ worldFeatures, setWorldFeatures ] = useState< FeatureShape[] | null >(
+		cachedWorldFeatures
+	);
 	const {
 		getElementStyles,
 		theme: { geoChart, backgroundColor },
 	} = useGlobalChartsContext();
 	const { showTooltip, hideTooltip, tooltipData, tooltipLeft, tooltipTop, tooltipOpen } =
 		useTooltip< TooltipData >();
+
+	// Load world topology asynchronously
+	useEffect( () => {
+		if ( worldFeatures ) {
+			return;
+		}
+
+		let cancelled = false;
+		loadWorldFeatures().then( features => {
+			if ( ! cancelled ) {
+				setWorldFeatures( features );
+			}
+		} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [ worldFeatures ] );
+
+	const handleMouseMove = useCallback(
+		( feature: FeatureShape, orderCount: number ) => ( event: React.MouseEvent ) => {
+			const point = localPoint( event );
+			showTooltip( {
+				tooltipLeft: point?.x,
+				tooltipTop: point?.y,
+				tooltipData: {
+					countryName: feature.properties.name,
+					countryId: feature.id,
+					value: orderCount,
+				},
+			} );
+		},
+		[ showTooltip ]
+	);
+
+	const handleMouseLeave = useCallback( () => {
+		hideTooltip();
+	}, [ hideTooltip ] );
+
+	// Show loading state while topology loads
+	if ( ! worldFeatures ) {
+		return (
+			<div
+				className={ clsx( 'geo-chart', styles.container, className ) }
+				data-testid="geo-chart-loading"
+				style={ { width, height } }
+			>
+				{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
+			</div>
+		);
+	}
 
 	// Default scale to fit the world map within the chart bounds
 	// Natural Earth projection uses a scale factor approximately 180/π for width
@@ -68,27 +150,6 @@ const GeoChartInternal: FC< GeoChartProps > = ( { className, data, width, height
 		domain: [ 0, maxOrderCount ],
 		range: [ lightColor, fullColor ], // Transparent to full opacity
 	} );
-
-	// Event handlers
-	const handleMouseMove = useCallback(
-		( feature: FeatureShape, orderCount: number ) => ( event: React.MouseEvent ) => {
-			const point = localPoint( event );
-			showTooltip( {
-				tooltipLeft: point?.x,
-				tooltipTop: point?.y,
-				tooltipData: {
-					countryName: feature.properties.name,
-					countryId: feature.id,
-					value: orderCount,
-				},
-			} );
-		},
-		[ showTooltip ]
-	);
-
-	const handleMouseLeave = useCallback( () => {
-		hideTooltip();
-	}, [ hideTooltip ] );
 
 	return (
 		<div className={ clsx( 'geo-chart', styles.container, className ) } data-testid="geo-chart">
