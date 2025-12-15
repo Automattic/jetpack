@@ -4,10 +4,10 @@
  */
 
 import { GeneralPurposeImage } from '@automattic/jetpack-ai-client';
-import { ThemeProvider } from '@automattic/jetpack-components';
+import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
-import { BaseControl, Button, Notice } from '@wordpress/components';
+import { BaseControl, Button, ExternalLink, Notice } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -312,6 +312,14 @@ export default function MediaSectionV2( {
 								</Notice>
 							) }
 						</>
+					) }
+					{ ( currentSource === 'media-library' || currentSource === 'upload-video' ) && (
+						<ExternalLink
+							href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
+							className={ styles[ 'learn-more' ] }
+						>
+							{ __( 'Learn photo and video best practices', 'jetpack-publicize-components' ) }
+						</ExternalLink>
 					) }
 				</BaseControl>
 			</div>
