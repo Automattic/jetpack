@@ -14,6 +14,10 @@ export type HeaderProps = {
 	 * Whether the screen is locked, in which case to hide the back button.
 	 */
 	isScreenLocked?: boolean;
+	/**
+	 * Optional icon to display in the header.
+	 */
+	icon?: React.ReactNode;
 };
 
 /**
@@ -22,7 +26,7 @@ export type HeaderProps = {
  *
  * @return component
  */
-export function Header( { title, isScreenLocked }: HeaderProps ) {
+export function Header( { icon, title, isScreenLocked }: HeaderProps ) {
 	const context = useContext( NavigatorModalContext );
 	const navigator = useNavigator();
 
@@ -42,6 +46,7 @@ export function Header( { title, isScreenLocked }: HeaderProps ) {
 						size="compact"
 					/>
 				) : null }
+				{ icon }
 				<h1>{ title }</h1>
 			</div>
 			{ context.isDismissible ? (

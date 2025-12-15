@@ -78,6 +78,11 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	} ),
 } ) );
 
+jest.mock( '@automattic/jetpack-ai-client', () => ( {
+	GeneralPurposeImage: () => null,
+	AiSVG: 'svg',
+} ) );
+
 jest.mock( '@wordpress/block-editor', () => ( {
 	MediaUpload: ( {
 		render: renderProp,

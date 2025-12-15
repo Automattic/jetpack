@@ -1,4 +1,7 @@
 import { Flex } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
+import { useEffect } from 'react';
+import { store as socialStore } from '../../../social-store';
 import { Connection } from '../../../social-store/types';
 import { MediaValidationNotices } from '../../form/media-validation-notices';
 import { SharePostForm } from '../../form/share-post-form';
@@ -19,6 +22,12 @@ type ContentProps = {
  * @return - Content component.
  */
 export function Content( { baseId, selectedConnection, forSmallScreen }: ContentProps ) {
+	const { incrementRenderCountFor } = useDispatch( socialStore );
+
+	useEffect( () => {
+		incrementRenderCountFor( 'social-preview' );
+	}, [ incrementRenderCountFor ] );
+
 	if ( forSmallScreen ) {
 		return (
 			<div className={ styles.content }>

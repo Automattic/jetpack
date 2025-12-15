@@ -1,10 +1,14 @@
+import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { useBreakpoint } from '@automattic/viewport-react';
-import { __, sprintf, _n } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import { useId, useMemo, useState } from 'react';
 import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
 import { Connection } from '../../../social-store/types';
 import { ScreenDetails } from '../types';
 import { Content } from './content';
+import { FooterContent } from './footer-content';
 import { Sidebar } from './sidebar';
 
 /**
@@ -13,18 +17,24 @@ import { Sidebar } from './sidebar';
  * @return screen details
  */
 export function useModalScreen(): ScreenDetails {
-	const { connections, enabledConnections } = useSocialMediaConnections();
+	const { connections } = useSocialMediaConnections();
 
 	const [ selectedConnection, setSelectedConnection ] = useState< Connection >( connections[ 0 ] );
 
 	const baseId = useId();
 	const isSmallScreen = useBreakpoint( '<660px' );
 
+	const isPrePublishScreen = useSelect( select => {
+		const store = select( editorStore );
+		return ! store.isCurrentPostPublished() && store.isPublishSidebarOpened();
+	}, [] );
+
 	return useMemo(
 		() => ( {
 			path: '/',
 			title: __( 'Preview and customize', 'jetpack-publicize-components' ),
 			isScreenLocked: true,
+			headerIcon: isPrePublishScreen ? <JetpackLogo /> : null,
 			sidebar: isSmallScreen ? null : (
 				<Sidebar
 					baseId={ baseId }
@@ -39,20 +49,7 @@ export function useModalScreen(): ScreenDetails {
 					forSmallScreen={ isSmallScreen }
 				/>
 			),
-			footerContent: enabledConnections.length ? (
-				<span>
-					{ sprintf(
-						/* translators: %d: Number of enabled connections. */
-						_n(
-							'Ready to share to %d account.',
-							'Ready to share to %d accounts.',
-							enabledConnections.length,
-							'jetpack-publicize-components'
-						),
-						enabledConnections.length
-					) }
-				</span>
-			) : null,
+			footerContent: <FooterContent />,
 			footerActions: [
 				// TODO: Add resharing buttons here conditionally
 				{
@@ -61,6 +58,6 @@ export function useModalScreen(): ScreenDetails {
 				},
 			],
 		} ),
-		[ isSmallScreen, baseId, selectedConnection, enabledConnections.length ]
+		[ isPrePublishScreen, isSmallScreen, baseId, selectedConnection ]
 	);
 }

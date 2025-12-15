@@ -34,6 +34,11 @@ export interface MediaSourceMenuItemProps {
 	 * Callback when Media Library option is clicked
 	 */
 	onMediaLibraryClick?: () => void;
+
+	/**
+	 * Callback when Generate with AI option is clicked
+	 */
+	onAiImageClick?: () => void;
 }
 
 /**
@@ -48,15 +53,18 @@ export default function MediaSourceMenuItem( {
 	onSelect,
 	onClose,
 	onMediaLibraryClick,
+	onAiImageClick,
 }: MediaSourceMenuItemProps ) {
 	const handleClick = useCallback( () => {
 		if ( option.id === 'media-library' ) {
 			onMediaLibraryClick?.();
+		} else if ( option.id === 'ai-image' ) {
+			onAiImageClick?.();
 		} else {
 			onSelect( option.id );
 		}
 		onClose();
-	}, [ option.id, onSelect, onClose, onMediaLibraryClick ] );
+	}, [ option.id, onSelect, onClose, onMediaLibraryClick, onAiImageClick ] );
 
 	return (
 		<MenuItem
