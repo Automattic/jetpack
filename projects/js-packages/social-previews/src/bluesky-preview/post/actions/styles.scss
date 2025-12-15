@@ -1,11 +1,10 @@
-@import "../../variables";
-
 .bluesky-preview__post-actions {
 	margin-top: 0.5rem;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 
+	/* stylelint-disable-next-line scss/selector-no-redundant-nesting-selector */
 	& > div {
 		flex: 1;
 		display: flex;

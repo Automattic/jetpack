@@ -1,4 +1,4 @@
-@import "../../variables";
+@use "../../variables" as vars;
 
 .facebook-preview__post-header {
 	display: flex;
@@ -27,7 +27,7 @@
 }
 
 .facebook-preview__post-header-name {
-	color: $facebook-preview-text-color;
+	color: vars.$facebook-preview-text-color;
 
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
@@ -39,7 +39,7 @@
 	display: flex;
 	align-items: center;
 
-	color: $facebook-preview-light-text-color;
+	color: vars.$facebook-preview-light-text-color;
 }
 
 .facebook-preview__post-header-time {
@@ -60,6 +60,6 @@
 
 	margin: 0 0.625rem 0 0;
 
-	background-image: radial-gradient(circle at 0.125rem 0.125rem, $facebook-preview-light-text-color 2px, transparent 0);
+	background-image: radial-gradient(circle at 0.125rem 0.125rem, vars.$facebook-preview-light-text-color 2px, transparent 0);
 	background-size: 0.5rem 0.25rem;
 }

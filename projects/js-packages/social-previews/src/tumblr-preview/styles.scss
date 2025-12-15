@@ -1,8 +1,8 @@
-@import "./variables";
-@import "../shared";
+@use "./variables" as vars;
+
 
 .tumblr-preview__section.social-preview__section {
-	width: clamp(200px, 100%, calc(#{$tumblr-preview-width + $tumblr-preview-avatar-size} + #{$tumblr-preview-card-inline-padding}));
+	width: clamp(200px, 100%, calc(#{vars.$tumblr-preview-width + vars.$tumblr-preview-avatar-size} + #{vars.$tumblr-preview-card-inline-padding}));
 }
 
 .tumblr-preview__post {
@@ -12,10 +12,10 @@
 }
 
 .tumblr-preview__avatar {
-	width: $tumblr-preview-avatar-size;
-	height: $tumblr-preview-avatar-size;
+	width: vars.$tumblr-preview-avatar-size;
+	height: vars.$tumblr-preview-avatar-size;
 
-	border-radius: $tumblr-preview-border-radius;
+	border-radius: vars.$tumblr-preview-border-radius;
 
 	@media (max-width: 660px) {
 		display: none;
@@ -25,11 +25,11 @@
 .tumblr-preview__card {
 	overflow-y: hidden;
 
-	background-color: $tumblr-preview-background-color;
-	border-radius: $tumblr-preview-border-radius;
+	background-color: vars.$tumblr-preview-background-color;
+	border-radius: vars.$tumblr-preview-border-radius;
 
-	color: $tumblr-preview-text-color;
-	font-family: $tumblr-preview-font-family;
+	color: vars.$tumblr-preview-text-color;
+	font-family: vars.$tumblr-preview-font-family;
 	font-size: 1rem;
 
 	:any-link {
@@ -40,12 +40,12 @@
 
 .tumblr-preview__custom-text {
 	margin: 0 0 1rem 0;
-	padding: 0 $tumblr-preview-card-inline-padding;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
 }
 
 .tumblr-preview__title {
 	margin: 0 0 1rem 0;
-	padding: 0 $tumblr-preview-card-inline-padding;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
 
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 1.625rem; // 26px
@@ -55,7 +55,7 @@
 
 .tumblr-preview__description {
 	margin: 0 0 1rem 0;
-	padding: 0 $tumblr-preview-card-inline-padding;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
 
 	font-size: 1rem; // 16px
 	line-height: 1.5;
@@ -72,25 +72,25 @@
 	display: inline-block;
 
 	margin: 0 0 1rem 0;
-	padding: 0 $tumblr-preview-card-inline-padding;
+	padding: 0 vars.$tumblr-preview-card-inline-padding;
 }
 
 .tumblr-preview__site-name {
-	color: $tumblr-preview-action-text-color;
+	color: vars.$tumblr-preview-action-text-color;
 
 	font-size: 0.75rem;
 	text-transform: uppercase;
 }
 
 .tumblr-preview__window {
-	margin: 0 $tumblr-preview-card-inline-padding 1.25rem;
+	margin: 0 vars.$tumblr-preview-card-inline-padding 1.25rem;
 }
 
 .tumblr-preview__window-top {
 	position: relative;
 
-	border-top-left-radius: $tumblr-preview-window-border-radius;
-	border-top-right-radius: $tumblr-preview-window-border-radius;
+	border-top-left-radius: vars.$tumblr-preview-window-border-radius;
+	border-top-right-radius: vars.$tumblr-preview-window-border-radius;
 
 	.tumblr-preview__image {
 		margin: 0;
@@ -110,12 +110,12 @@
 	padding: 1rem 0.75rem;
 
 	border: 1px solid rgba(0, 0, 0, 0.25);
-	border-bottom-left-radius: $tumblr-preview-window-border-radius;
-	border-bottom-right-radius: $tumblr-preview-window-border-radius;
+	border-bottom-left-radius: vars.$tumblr-preview-window-border-radius;
+	border-bottom-right-radius: vars.$tumblr-preview-window-border-radius;
 
 	&.is-full {
-		border-top-left-radius: $tumblr-preview-window-border-radius;
-		border-top-right-radius: $tumblr-preview-window-border-radius;
+		border-top-left-radius: vars.$tumblr-preview-window-border-radius;
+		border-top-right-radius: vars.$tumblr-preview-window-border-radius;
 	}
 
 	> * {
