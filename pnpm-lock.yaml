@@ -538,9 +538,6 @@ importers:
       '@visx/event':
         specifier: ^3.12.0
         version: 3.12.0
-      '@visx/geo':
-        specifier: ^3.12.0
-        version: 3.12.0(react@18.3.1)
       '@visx/gradient':
         specifier: ^3.12.0
         version: 3.12.0(react@18.3.1)
@@ -580,9 +577,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      d3-geo:
-        specifier: ^3.1.0
-        version: 3.1.0
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -598,9 +592,6 @@ importers:
       react-google-charts:
         specifier: ^5.2.1
         version: 5.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      topojson-client:
-        specifier: ^3.1.0
-        version: 3.1.0
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -629,9 +620,6 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.4.3
         version: 14.6.1(@testing-library/dom@10.4.1)
-      '@types/d3-geo':
-        specifier: ^3.1.0
-        version: 3.1.0
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -641,9 +629,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.26)
-      '@types/topojson-client':
-        specifier: 3.1.5
-        version: 3.1.5
       '@visx/glyph':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
@@ -9586,12 +9571,6 @@ packages:
   '@types/tedious@4.0.14':
     resolution: {integrity: sha512-KHPsfX/FoVbUGbyYvk1q9MMQHLPeRZhRJZdO45Q4YjvFkv4hMNghCWTvy7rdKessBsmtz4euWCWAB6/tVpI1Iw==}
 
-  '@types/topojson-client@3.1.5':
-    resolution: {integrity: sha512-C79rySTyPxnQNNguTZNI1Ct4D7IXgvyAs3p9HPecnl6mNrJ5+UhvGNYcZfpROYV2lMHI48kJPxwR+F9C6c7nmw==}
-
-  '@types/topojson-specification@1.0.5':
-    resolution: {integrity: sha512-C7KvcQh+C2nr6Y2Ub4YfgvWvWCgP2nOQMtfhlnwsRL4pYmmwzBS7HclGiS87eQfDOU/DLQpX6GEscviaz4yLIQ==}
-
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
 
@@ -9862,11 +9841,6 @@ packages:
 
   '@visx/event@3.12.0':
     resolution: {integrity: sha512-9Lvw6qJ0Fi+y1vsC1WspfdIKCxHTb7oy59Uql1uBdPGT8zChP0vuxW0jQNQRDbKgoefj4pCXAFi8+MF1mEtVTw==}
-
-  '@visx/geo@3.12.0':
-    resolution: {integrity: sha512-/74NMEqGrAGXOKIdvuLsarUNs5liTjUs3XrgLb4UbSDMoo2itgQN6tCZuIxFKMdEBahfJl+s6pEVPLur5bH4vg==}
-    peerDependencies:
-      react: ^16.3.0-0 || ^17.0.0-0 || ^18.0.0-0
 
   '@visx/glyph@3.12.0':
     resolution: {integrity: sha512-E9ST9MoPNyXQzjZxYYAGXT4CbBpnB90Qhx8UvUUM2/n/SZUNeH+m6UiB/CzT0jGK2b0lPHF91mlOiQ8JXBRhYg==}
@@ -16674,10 +16648,6 @@ packages:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
 
-  topojson-client@3.1.0:
-    resolution: {integrity: sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw==}
-    hasBin: true
-
   tough-cookie@5.1.2:
     resolution: {integrity: sha512-FVDYdxtnj0G6Qm/DhNPSb8Ju59ULcup3tuJxkFb5K8Bv2pUXILbf0xZWU8PX8Ov19OXljbUyveOFwRMwkXzO+A==}
     engines: {node: '>=16'}
@@ -21859,15 +21829,6 @@ snapshots:
     dependencies:
       '@types/node': 20.19.25
 
-  '@types/topojson-client@3.1.5':
-    dependencies:
-      '@types/geojson': 7946.0.16
-      '@types/topojson-specification': 1.0.5
-
-  '@types/topojson-specification@1.0.5':
-    dependencies:
-      '@types/geojson': 7946.0.16
-
   '@types/tough-cookie@4.0.5': {}
 
   '@types/triple-beam@1.3.5': {}
@@ -22182,16 +22143,6 @@ snapshots:
     dependencies:
       '@types/react': 18.3.26
       '@visx/point': 3.12.0
-
-  '@visx/geo@3.12.0(react@18.3.1)':
-    dependencies:
-      '@types/geojson': 7946.0.16
-      '@types/react': 18.3.26
-      '@visx/group': 3.12.0(react@18.3.1)
-      '@visx/vendor': 3.12.0
-      classnames: 2.5.1
-      prop-types: 15.8.1
-      react: 18.3.1
 
   '@visx/glyph@3.12.0(react@18.3.1)':
     dependencies:
@@ -32003,10 +31954,6 @@ snapshots:
       reserved-identifiers: 1.2.0
 
   toidentifier@1.0.1: {}
-
-  topojson-client@3.1.0:
-    dependencies:
-      commander: 2.20.3
 
   tough-cookie@5.1.2:
     dependencies:
