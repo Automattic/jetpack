@@ -101,7 +101,7 @@ type PreviewTextOptions = {
 	hashtagDomain?: string;
 };
 
-export const hashtagUrlMap: Record< Platform, string > = {
+export const hashtagUrlMap = {
 	twitter: 'https://twitter.com/hashtag/%1$s',
 	facebook: 'https://www.facebook.com/hashtag/%1$s',
 	linkedin: 'https://www.linkedin.com/feed/hashtag/?keywords=%1$s',
@@ -111,7 +111,7 @@ export const hashtagUrlMap: Record< Platform, string > = {
 	threads: 'https://www.threads.net/search?q=%1$s&serp_type=tags',
 	tumblr: 'https://www.tumblr.com/tagged/%1$s',
 	bluesky: 'https://bsky.app/hashtag/%1$s',
-};
+} as const;
 
 /**
  * Prepares the text for the preview.
