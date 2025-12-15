@@ -1,5 +1,5 @@
 import { Sparkline } from '../';
-import { simpleChartDecorator } from '../../../stories/chart-decorator';
+import { chartDecorator } from '../../../stories/chart-decorator';
 import type { SparklineProps } from '../types';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -9,7 +9,7 @@ const meta: Meta< SparklineProps > = {
 	parameters: {
 		layout: 'centered',
 	},
-	decorators: [ simpleChartDecorator ],
+	decorators: [ chartDecorator ],
 	argTypes: {
 		data: {
 			control: 'object',
