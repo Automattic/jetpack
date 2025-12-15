@@ -5,3 +5,4 @@ export * from './leaderboard-chart';
 export * from './line-chart';
 export * from './pie-chart';
 export * from './pie-semi-circle-chart';
+export * from './sparkline';

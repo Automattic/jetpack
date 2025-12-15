@@ -278,6 +278,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerMove = undefined,
 			onPointerOut = undefined,
 			children,
+			gridVisibility,
 		},
 		ref
 	) => {
@@ -340,12 +341,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						orientation: 'bottom' as const,
 						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
 						tickFormat: formatter,
+						display: true,
 						...options?.axis?.x,
 					},
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
 						tickFormat: formatNumberCompact as TickFormatter< number >,
+						display: true,
 						...options?.axis?.y,
 					},
 				},
@@ -488,9 +491,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 							onPointerOut={ onPointerOut }
 							pointerEventsDataKey="nearest"
 						>
-							<Grid columns={ false } numTicks={ 4 } />
-							<Axis { ...chartOptions.axis.x } />
-							<Axis { ...chartOptions.axis.y } />
+							{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
+							{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
+							{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
 
 							{ allSeriesHidden ? (
 								<text
