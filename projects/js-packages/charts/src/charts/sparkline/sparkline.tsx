@@ -110,7 +110,12 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			return (
 				<div
 					ref={ ref }
-					className={ clsx( 'sparkline', styles.sparkline, styles[ 'sparkline--empty' ], className ) }
+					className={ clsx(
+						'sparkline',
+						styles.sparkline,
+						styles[ 'sparkline--empty' ],
+						className
+					) }
 					style={ { width, height } }
 					data-testid="sparkline-empty"
 				/>
