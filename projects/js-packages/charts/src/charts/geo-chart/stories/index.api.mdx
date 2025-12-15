@@ -6,7 +6,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 ## GeoChart
 
-Main component for rendering geographical data on an interactive world map.
+Main component for rendering geographical data on an interactive world map using Google Charts.
 
 **Props:**
 
@@ -17,8 +17,7 @@ Main component for rendering geographical data on an interactive world map.
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
-| `scale` | `number` | `width / 5` | Scale factor for the map projection. Controls how large the map appears within the chart bounds |
-| `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while the map topology is being loaded asynchronously |
+| `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while Google Charts is loading |
 
 ## GeoChartProps Type
 
@@ -26,38 +25,7 @@ Main component for rendering geographical data on an interactive world map.
 interface GeoChartProps
   extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
   data: Record<string, number>;
-  scale?: number;
   renderPlaceholder?: () => React.ReactNode;
-}
-```
-
-## FeatureShape Type
-
-Internal type representing a geographic feature in the map topology.
-
-```typescript
-interface FeatureShape {
-	type: 'Feature';
-	id: string;
-	geometry: {
-		coordinates: [number, number][][];
-		type: 'Polygon';
-	};
-	properties: {
-		name: string;
-	};
-}
-```
-
-## TooltipData Type
-
-Internal type for tooltip data structure.
-
-```typescript
-interface TooltipData {
-	countryName: string;
-	countryId: string;
-	value: number;
 }
 ```
 
@@ -67,50 +35,61 @@ The following properties can be customized via the theme system:
 
 | Property | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
-| `colors[0]` | `string` | `'#069E08'` | Primary color used for data visualization with alpha transparency |
+| `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
 | `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
-| `geoChart.featureFillColor` | `string` | `'#E5E7EB'` | Fill color for countries without data values |
+| `geoChart.featureFillColor` | `string` | `'var(--jp-gray-10, #c3c4c7)'` | Fill color for countries without data values |
 
 ## Country ISO Codes
 
-The `data` prop accepts three-letter ISO 3166-1 alpha-3 country codes. Common examples:
+The `data` prop accepts both two-letter (ISO 3166-1 alpha-2) and three-letter (ISO 3166-1 alpha-3) country codes. Common examples:
 
-- **USA**: United States
-- **CAN**: Canada
-- **GBR**: United Kingdom
-- **DEU**: Germany
-- **FRA**: France
-- **JPN**: Japan
-- **AUS**: Australia
-- **BRA**: Brazil
-- **IND**: India
-- **CHN**: China
-- **MEX**: Mexico
-- **ESP**: Spain
-- **ITA**: Italy
-- **NLD**: Netherlands
-- **RUS**: Russia
-- **KOR**: South Korea
-- **ZAF**: South Africa
-- **NGA**: Nigeria
-- **ARG**: Argentina
-- **SAU**: Saudi Arabia
+| Alpha-3 | Alpha-2 | Country |
+| ------- | ------- | ------- |
+| USA | US | United States |
+| CAN | CA | Canada |
+| GBR | GB | United Kingdom |
+| DEU | DE | Germany |
+| FRA | FR | France |
+| JPN | JP | Japan |
+| AUS | AU | Australia |
+| BRA | BR | Brazil |
+| IND | IN | India |
+| CHN | CN | China |
+| MEX | MX | Mexico |
+| ESP | ES | Spain |
+| ITA | IT | Italy |
+| NLD | NL | Netherlands |
+| RUS | RU | Russia |
+| KOR | KR | South Korea |
+| ZAF | ZA | South Africa |
+| NGA | NG | Nigeria |
+| ARG | AR | Argentina |
+| SAU | SA | Saudi Arabia |
 
-For a complete list, refer to the ISO 3166-1 alpha-3 standard.
+For a complete list, refer to the [ISO 3166-1 standard](https://en.wikipedia.org/wiki/ISO_3166-1).
 
 ## Map Projection
 
-The chart uses **Natural Earth projection** from `d3-geo` via `@visx/geo` with the following parameters:
-
-- **Scale**: Defaults to `width / 5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
-- **Translation**: `[width * 0.46, height * 0.58]` (offset to account for excluded Antarctica)
-- **Topology**: World country boundaries from Natural Earth data
+The chart uses Google Charts' default **Mercator projection** for world map visualization. The map automatically scales to fit within the specified dimensions.
 
 ## Color Scaling
 
-Colors are automatically scaled using `@visx/scale`'s `scaleLinear`:
+Colors are automatically scaled using Google Charts' `colorAxis` option:
 
-- **Domain**: `[0, maxValue]` where maxValue is the highest value in the data
-- **Range**: `[lightColor, fullColor]` where lightColor has ~12.5% opacity (hex: `#RRGGBB20`)
-- **Interpolation**: Linear interpolation between transparent and full opacity
+- **Colors**: Configured as a gradient from a light version of the theme's primary color to the full primary color
+- **Data mapping**: Countries with higher values appear with more saturated colors
+- **Dataless regions**: Countries without data use the `geoChart.featureFillColor` theme property
 
+## Google Charts Options
+
+The component configures the following Google Charts options internally:
+
+| Option | Value | Description |
+| ------ | ----- | ----------- |
+| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from ~20% opacity to full theme color |
+| `backgroundColor` | Theme value | Map background color |
+| `datalessRegionColor` | Theme value | Color for countries without data |
+| `defaultColor` | Theme value | Default region color |
+| `tooltip.trigger` | `'focus'` | Show tooltip on focus/hover |
+| `legend` | `'none'` | Hide the color legend |
+| `keepAspectRatio` | `false` | Allow the map to fill the specified dimensions |
