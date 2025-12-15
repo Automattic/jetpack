@@ -14,6 +14,29 @@ import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
 
 /**
+ * Extracts a hex color from a value that might be a CSS variable with fallback.
+ * Google Charts doesn't understand CSS variables, so we need to extract the fallback.
+ *
+ * @param value        - Color value (hex, CSS variable with fallback, etc.)
+ * @param defaultColor - Default color to use if extraction fails
+ * @return Hex color string
+ */
+function extractHexColor( value: string, defaultColor: string ): string {
+	// If it's already a hex color, return it
+	if ( /^#[0-9A-F]{6}$/i.test( value ) ) {
+		return value;
+	}
+
+	// Try to extract fallback from CSS variable: var(--name, #fallback)
+	const cssVarMatch = value.match( /var\([^,]+,\s*(#[0-9A-Fa-f]{6})\s*\)/ );
+	if ( cssVarMatch ) {
+		return cssVarMatch[ 1 ];
+	}
+
+	return defaultColor;
+}
+
+/**
  * Lightens a hex color by blending it with white.
  * Google Charts colorAxis only accepts 6-digit hex colors, not rgba or 8-digit hex.
  *
@@ -60,30 +83,34 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	} = useGlobalChartsContext();
 
 	// Transform data from Record<string, number> to Google Charts format
-	// Google Charts expects [['Country', 'Value'], ['USA', 100], ['CAN', 50], ...]
+	// Google Charts expects [['Country', 'Value'], ['US', 100], ['CA', 50], ...]
+	// Country codes must be ISO 3166-1 alpha-2 format (2-letter codes)
 	const chartData = useMemo( () => {
 		const rows = Object.entries( data ).map( ( [ countryCode, value ] ) => [ countryCode, value ] );
 		return [ [ 'Country', 'Value' ], ...rows ];
 	}, [ data ] );
 
 	// Get theme colors for the color axis
-	const fullColor = getElementStyles( { index: 0 } ).color;
-	// Create a lighter version by blending with white (Google Charts only accepts 6-digit hex)
-	const isHexColor = /^#[0-9A-F]{6}$/i.test( fullColor );
-	const lightColor = isHexColor ? lightenHexColor( fullColor, 0.7 ) : fullColor;
+	// Google Charts only accepts 6-digit hex colors, so extract from CSS variables if needed
+	const themeColor = getElementStyles( { index: 0 } ).color;
+	const fullColor = extractHexColor( themeColor, '#98C8DF' );
+	const lightColor = lightenHexColor( fullColor, 0.8 );
+
+	// Extract hex from CSS variable for dataless regions
+	const datalessColor = extractHexColor( geoChart.featureFillColor, '#E0E0E0' );
 
 	// Google Charts options
 	const options = useMemo(
 		() => ( {
 			colorAxis: { colors: [ lightColor, fullColor ] },
-			backgroundColor,
-			datalessRegionColor: geoChart.featureFillColor,
-			defaultColor: geoChart.featureFillColor,
+			backgroundColor: extractHexColor( backgroundColor, '#FFFFFF' ),
+			datalessRegionColor: datalessColor,
+			defaultColor: datalessColor,
 			tooltip: { trigger: 'focus' },
 			legend: 'none',
 			keepAspectRatio: false,
 		} ),
-		[ lightColor, fullColor, backgroundColor, geoChart.featureFillColor ]
+		[ lightColor, fullColor, backgroundColor, datalessColor ]
 	);
 
 	// Render loading placeholder

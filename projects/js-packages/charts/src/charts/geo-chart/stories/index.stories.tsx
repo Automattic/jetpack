@@ -37,7 +37,7 @@ export const SingleCountry: Story = {
 	args: {
 		...Default.args,
 		data: {
-			USA: 1500,
+			US: 1500,
 		},
 	},
 };

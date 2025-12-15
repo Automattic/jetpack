@@ -23,9 +23,9 @@ describe( 'GeoChart', () => {
 		width: 800,
 		height: 400,
 		data: {
-			USA: 100,
-			CAN: 50,
-			GBR: 25,
+			US: 100,
+			CA: 50,
+			GB: 25,
 		},
 	};
 
@@ -71,7 +71,7 @@ describe( 'GeoChart', () => {
 
 	describe( 'Data Handling', () => {
 		test( 'transforms data to Google Charts format', () => {
-			renderWithTheme( { data: { USA: 100, CAN: 50 } } );
+			renderWithTheme( { data: { US: 100, CA: 50 } } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
@@ -79,8 +79,8 @@ describe( 'GeoChart', () => {
 			// First row should be headers
 			expect( data[ 0 ] ).toEqual( [ 'Country', 'Value' ] );
 			// Data should include our countries
-			expect( data ).toContainEqual( [ 'USA', 100 ] );
-			expect( data ).toContainEqual( [ 'CAN', 50 ] );
+			expect( data ).toContainEqual( [ 'US', 100 ] );
+			expect( data ).toContainEqual( [ 'CA', 50 ] );
 		} );
 
 		test( 'handles empty data object', () => {
@@ -94,23 +94,23 @@ describe( 'GeoChart', () => {
 		} );
 
 		test( 'handles single country data', () => {
-			renderWithTheme( { data: { USA: 100 } } );
+			renderWithTheme( { data: { US: 100 } } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
 
 			expect( data ).toHaveLength( 2 ); // headers + 1 country
-			expect( data[ 1 ] ).toEqual( [ 'USA', 100 ] );
+			expect( data[ 1 ] ).toEqual( [ 'US', 100 ] );
 		} );
 
 		test( 'handles zero values in data', () => {
-			renderWithTheme( { data: { USA: 0, CAN: 100 } } );
+			renderWithTheme( { data: { US: 0, CA: 100 } } );
 
 			const chartData = screen.getByTestId( 'chart-data' );
 			const data = JSON.parse( chartData.textContent || '[]' );
 
-			expect( data ).toContainEqual( [ 'USA', 0 ] );
-			expect( data ).toContainEqual( [ 'CAN', 100 ] );
+			expect( data ).toContainEqual( [ 'US', 0 ] );
+			expect( data ).toContainEqual( [ 'CA', 100 ] );
 		} );
 	} );
 
