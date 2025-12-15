@@ -440,8 +440,8 @@ describe( 'ChartContext', () => {
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 1 ] );
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 2 ] );
 
-			// Generated color should be in HSL format
-			expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+			// Generated color should be in hex format
+			expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
 		} );
 
 		it( 'generates consistent colors for same index beyond palette', () => {
@@ -2153,8 +2153,8 @@ describe( 'ChartContext', () => {
 					index: 3,
 				} ).color;
 
-				// Should be an HSL color (generated)
-				expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+				// Should be a hex color (generated)
+				expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
 			} );
 
 			it( 'mixed static and CSS variable colors work together', () => {

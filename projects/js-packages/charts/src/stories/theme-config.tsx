@@ -10,7 +10,7 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * Custom theme using a CSS variable for dynamic color generation
  */
 export const customTheme: ChartTheme = {
-	colors: [ '--wpds-color-bg-interactive-brand' ],
+	colors: [ 'var(--wpds-color-bg-interactive-brand)' ],
 	seriesLineStyles: [
 		{},
 		{

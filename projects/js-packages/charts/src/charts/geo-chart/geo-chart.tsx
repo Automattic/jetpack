@@ -9,11 +9,14 @@ import { Chart, type GoogleChartOptions } from 'react-google-charts';
  * Internal dependencies
  */
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
-import { isValidHexColor, lightenHexColor } from '../../utils/color-utils';
+import { lightenHexColor } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
+
+const DEFAULT_FEATURE_FILL_COLOR = '#ffffff';
+const DEFAULT_BACKGROUND_COLOR = '#ffffff';
 
 /**
  * Renders a geographical chart using Google Charts GeoChart to visualize data by country.
@@ -52,15 +55,11 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		</div>
 	);
 
-	const fullColor = getElementStyles( { index: 0 } ).color;
-
-	// Wait for color cache to be populated before rendering
-	if ( ! isValidHexColor( fullColor ) ) {
-		return loadingPlaceholder;
-	}
-
-	const lightColor = lightenHexColor( fullColor, 0.8 );
-	const defaultColor = resolveCssVariable( featureFillColor ) ?? '#ffffff';
+	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
+	const fullColorHex = getElementStyles( { index: 0 } ).color;
+	const lightColorHex = lightenHexColor( fullColorHex, 0.8 );
+	const backgroundColorHex = resolveCssVariable( backgroundColor ) ?? DEFAULT_BACKGROUND_COLOR;
+	const defaultFillColorHex = resolveCssVariable( featureFillColor ) ?? DEFAULT_FEATURE_FILL_COLOR;
 
 	// Transform data from Record<string, number> to Google Charts format
 	// Google Charts expects [['Country', 'Value'], ['US', 100], ['CA', 50], ...]
@@ -68,10 +67,10 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const chartData = [ [ 'Country', 'Value' ], ...Object.entries( data ) ];
 
 	const options: GoogleChartOptions = {
-		colorAxis: { colors: [ lightColor, fullColor ] },
-		backgroundColor,
-		datalessRegionColor: defaultColor,
-		defaultColor,
+		colorAxis: { colors: [ lightColorHex, fullColorHex ] },
+		backgroundColor: backgroundColorHex,
+		datalessRegionColor: defaultFillColorHex,
+		defaultColor: defaultFillColorHex,
 		tooltip: { trigger: 'focus' },
 		legend: 'none',
 		keepAspectRatio: true,

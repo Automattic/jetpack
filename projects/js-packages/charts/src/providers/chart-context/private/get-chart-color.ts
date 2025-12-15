@@ -1,4 +1,4 @@
-import { getColorDistance } from '../../../utils';
+import { getColorDistance, hslToHex } from '../../../utils';
 
 export interface ColorCache {
 	colors: string[];
@@ -198,7 +198,7 @@ export const getChartColor = ( index: number, colorCache: ColorCache ): string =
 		}
 
 		if ( isSufficientlyDifferent ) {
-			return `hsl(${ Math.round( hue ) }, ${ saturation }%, ${ lightness }%)`;
+			return hslToHex( [ Math.round( hue ), saturation, lightness ] );
 		}
 	}
 
@@ -212,5 +212,5 @@ export const getChartColor = ( index: number, colorCache: ColorCache ): string =
 		BASE_SATURATION + ( index % SATURATION_VARIATION_STEPS ) * SATURATION_INCREMENT;
 	const fallbackLightness =
 		BASE_LIGHTNESS + ( index % LIGHTNESS_VARIATION_STEPS ) * LIGHTNESS_INCREMENT;
-	return `hsl(${ Math.round( fallbackHue ) }, ${ fallbackSaturation }%, ${ fallbackLightness }%)`;
+	return hslToHex( [ Math.round( fallbackHue ), fallbackSaturation, fallbackLightness ] );
 };

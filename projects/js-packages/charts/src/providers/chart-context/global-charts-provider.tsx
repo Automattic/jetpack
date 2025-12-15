@@ -13,6 +13,7 @@ import {
 	mergeThemes,
 	hexToHsl,
 	resolveCssVariable,
+	normalizeColorToHex,
 } from '../../utils';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
@@ -70,9 +71,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				if ( color && typeof color === 'string' ) {
 					let colorValue = color;
 
-					// Handle CSS custom properties names - resolve them to actual values
+					// Handle CSS custom properties - resolve them to actual values
+					// Supports both '--var-name' and 'var(--var-name)' formats
 					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) ) {
+					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
 						const resolved = resolveCssVariable( color, wrapperRef.current );
 
 						if ( resolved === null || resolved === '' ) {
@@ -150,7 +152,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		} ): string => {
 			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
-				return overrideColor;
+				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
 
 			// If group provided, maintain a stable assignment

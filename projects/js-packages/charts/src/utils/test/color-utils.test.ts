@@ -1,10 +1,14 @@
 import {
 	hexToRgba,
 	hexToHsl,
+	hslToHex,
 	getColorDistance,
 	lightenHexColor,
 	isValidHexColor,
 	validateHexColor,
+	parseHslString,
+	parseRgbString,
+	normalizeColorToHex,
 } from '../color-utils';
 
 describe( 'isValidHexColor', () => {
@@ -773,6 +777,267 @@ describe( 'lightenHexColor', () => {
 
 		it( 'throws for invalid hex characters', () => {
 			expect( () => lightenHexColor( '#gggggg', 0.5 ) ).toThrow();
+		} );
+	} );
+} );
+
+describe( 'hslToHex', () => {
+	describe( 'Basic colors', () => {
+		it( 'converts red (0, 100, 50) to #ff0000', () => {
+			expect( hslToHex( [ 0, 100, 50 ] ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts green (120, 100, 50) to #00ff00', () => {
+			expect( hslToHex( [ 120, 100, 50 ] ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'converts blue (240, 100, 50) to #0000ff', () => {
+			expect( hslToHex( [ 240, 100, 50 ] ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'converts black (0, 0, 0) to #000000', () => {
+			expect( hslToHex( [ 0, 0, 0 ] ) ).toBe( '#000000' );
+		} );
+
+		it( 'converts white (0, 0, 100) to #ffffff', () => {
+			expect( hslToHex( [ 0, 0, 100 ] ) ).toBe( '#ffffff' );
+		} );
+	} );
+
+	describe( 'Grayscale (zero saturation)', () => {
+		it( 'converts 50% gray to #808080', () => {
+			expect( hslToHex( [ 0, 0, 50 ] ) ).toBe( '#808080' );
+		} );
+
+		it( 'converts 25% gray to #404040', () => {
+			expect( hslToHex( [ 0, 0, 25 ] ) ).toBe( '#404040' );
+		} );
+
+		it( 'converts 75% gray to #bfbfbf', () => {
+			expect( hslToHex( [ 0, 0, 75 ] ) ).toBe( '#bfbfbf' );
+		} );
+	} );
+
+	describe( 'Various hues and saturations', () => {
+		it( 'converts orange (30, 100, 50) correctly', () => {
+			expect( hslToHex( [ 30, 100, 50 ] ) ).toBe( '#ff8000' );
+		} );
+
+		it( 'converts cyan (180, 100, 50) correctly', () => {
+			expect( hslToHex( [ 180, 100, 50 ] ) ).toBe( '#00ffff' );
+		} );
+
+		it( 'handles low saturation', () => {
+			const result = hslToHex( [ 0, 10, 50 ] );
+			expect( result ).toMatch( /^#[0-9a-f]{6}$/ );
+		} );
+	} );
+
+	describe( 'Round-trip with hexToHsl', () => {
+		it( 'round-trips red correctly', () => {
+			const hsl = hexToHsl( '#ff0000' );
+			const hex = hslToHex( hsl );
+			expect( hex ).toBe( '#ff0000' );
+		} );
+
+		it( 'round-trips blue correctly', () => {
+			const hsl = hexToHsl( '#0000ff' );
+			const hex = hslToHex( hsl );
+			expect( hex ).toBe( '#0000ff' );
+		} );
+
+		it( 'round-trips a complex color correctly', () => {
+			const hsl = hexToHsl( '#98c8df' );
+			const hex = hslToHex( hsl );
+			// Allow for minor rounding differences
+			expect( hex.toLowerCase() ).toMatch( /^#[0-9a-f]{6}$/ );
+		} );
+	} );
+} );
+
+describe( 'parseHslString', () => {
+	describe( 'Valid HSL strings', () => {
+		it( 'parses hsl(120, 50%, 50%)', () => {
+			expect( parseHslString( 'hsl(120, 50%, 50%)' ) ).toEqual( [ 120, 50, 50 ] );
+		} );
+
+		it( 'parses hsl with no spaces', () => {
+			expect( parseHslString( 'hsl(180,100%,25%)' ) ).toEqual( [ 180, 100, 25 ] );
+		} );
+
+		it( 'parses hsl with extra spaces', () => {
+			expect( parseHslString( 'hsl(  90 ,  75%  ,  60%  )' ) ).toEqual( [ 90, 75, 60 ] );
+		} );
+
+		it( 'parses hsl without percent signs', () => {
+			expect( parseHslString( 'hsl(45, 50, 50)' ) ).toEqual( [ 45, 50, 50 ] );
+		} );
+
+		it( 'handles negative hue values', () => {
+			const result = parseHslString( 'hsl(-30, 50%, 50%)' );
+			expect( result ).toEqual( [ 330, 50, 50 ] );
+		} );
+
+		it( 'handles hue > 360', () => {
+			const result = parseHslString( 'hsl(390, 50%, 50%)' );
+			expect( result ).toEqual( [ 30, 50, 50 ] );
+		} );
+
+		it( 'parses decimal values', () => {
+			expect( parseHslString( 'hsl(120.5, 50.5%, 50.5%)' ) ).toEqual( [ 120.5, 50.5, 50.5 ] );
+		} );
+	} );
+
+	describe( 'Invalid HSL strings', () => {
+		it( 'returns null for rgb strings', () => {
+			expect( parseHslString( 'rgb(255, 0, 0)' ) ).toBeNull();
+		} );
+
+		it( 'returns null for hex colors', () => {
+			expect( parseHslString( '#ff0000' ) ).toBeNull();
+		} );
+
+		it( 'returns null for invalid format', () => {
+			expect( parseHslString( 'hsl(abc, def, ghi)' ) ).toBeNull();
+		} );
+
+		it( 'returns null for empty string', () => {
+			expect( parseHslString( '' ) ).toBeNull();
+		} );
+	} );
+} );
+
+describe( 'parseRgbString', () => {
+	describe( 'Valid RGB strings', () => {
+		it( 'parses rgb(255, 0, 0) to #ff0000', () => {
+			expect( parseRgbString( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'parses rgb(0, 255, 0) to #00ff00', () => {
+			expect( parseRgbString( 'rgb(0, 255, 0)' ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'parses rgb(0, 0, 255) to #0000ff', () => {
+			expect( parseRgbString( 'rgb(0, 0, 255)' ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'parses rgb with no spaces', () => {
+			expect( parseRgbString( 'rgb(128,128,128)' ) ).toBe( '#808080' );
+		} );
+
+		it( 'clamps values above 255', () => {
+			expect( parseRgbString( 'rgb(300, 0, 0)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'clamps negative values to 0', () => {
+			expect( parseRgbString( 'rgb(-50, 0, 0)' ) ).toBe( '#000000' );
+		} );
+	} );
+
+	describe( 'Invalid RGB strings', () => {
+		it( 'returns null for hsl strings', () => {
+			expect( parseRgbString( 'hsl(0, 100%, 50%)' ) ).toBeNull();
+		} );
+
+		it( 'returns null for hex colors', () => {
+			expect( parseRgbString( '#ff0000' ) ).toBeNull();
+		} );
+
+		it( 'returns null for rgba strings', () => {
+			expect( parseRgbString( 'rgba(255, 0, 0, 1)' ) ).toBeNull();
+		} );
+
+		it( 'returns null for empty string', () => {
+			expect( parseRgbString( '' ) ).toBeNull();
+		} );
+	} );
+} );
+
+describe( 'normalizeColorToHex', () => {
+	describe( 'Hex colors', () => {
+		it( 'returns valid 6-digit hex as-is', () => {
+			expect( normalizeColorToHex( '#ff0000' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'returns uppercase hex as-is', () => {
+			expect( normalizeColorToHex( '#FF0000' ) ).toBe( '#FF0000' );
+		} );
+
+		it( 'expands 3-digit hex to 6-digit', () => {
+			expect( normalizeColorToHex( '#abc' ) ).toBe( '#aabbcc' );
+		} );
+
+		it( 'expands 3-digit uppercase hex', () => {
+			expect( normalizeColorToHex( '#FFF' ) ).toBe( '#ffffff' );
+		} );
+	} );
+
+	describe( 'HSL strings', () => {
+		it( 'converts hsl(0, 100%, 50%) to #ff0000', () => {
+			expect( normalizeColorToHex( 'hsl(0, 100%, 50%)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts hsl(120, 100%, 50%) to #00ff00', () => {
+			expect( normalizeColorToHex( 'hsl(120, 100%, 50%)' ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'converts hsl(240, 100%, 50%) to #0000ff', () => {
+			expect( normalizeColorToHex( 'hsl(240, 100%, 50%)' ) ).toBe( '#0000ff' );
+		} );
+	} );
+
+	describe( 'RGB strings', () => {
+		it( 'converts rgb(255, 0, 0) to #ff0000', () => {
+			expect( normalizeColorToHex( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts rgb(0, 128, 0) to #008000', () => {
+			expect( normalizeColorToHex( 'rgb(0, 128, 0)' ) ).toBe( '#008000' );
+		} );
+	} );
+
+	describe( 'CSS variables', () => {
+		it( 'returns original if no resolveCss function provided', () => {
+			expect( normalizeColorToHex( '--my-color' ) ).toBe( '--my-color' );
+		} );
+
+		it( 'returns original for var() if no resolveCss function provided', () => {
+			expect( normalizeColorToHex( 'var(--my-color)' ) ).toBe( 'var(--my-color)' );
+		} );
+
+		it( 'resolves CSS variable using provided function', () => {
+			const mockResolve = jest.fn().mockReturnValue( '#ff0000' );
+			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '#ff0000' );
+			expect( mockResolve ).toHaveBeenCalledWith( '--my-color', null );
+		} );
+
+		it( 'resolves var() syntax using provided function', () => {
+			const mockResolve = jest.fn().mockReturnValue( '#00ff00' );
+			expect( normalizeColorToHex( 'var(--my-color)', null, mockResolve ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'recursively normalizes resolved CSS variable values', () => {
+			const mockResolve = jest.fn().mockReturnValue( 'hsl(120, 100%, 50%)' );
+			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'returns original if CSS variable cannot be resolved', () => {
+			const mockResolve = jest.fn().mockReturnValue( null );
+			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '--my-color' );
+		} );
+	} );
+
+	describe( 'Invalid inputs', () => {
+		it( 'returns original for unknown color formats', () => {
+			expect( normalizeColorToHex( 'unknown-color' ) ).toBe( 'unknown-color' );
+		} );
+
+		it( 'handles empty string', () => {
+			expect( normalizeColorToHex( '' ) ).toBe( '' );
+		} );
+
+		it( 'handles invalid HSL string', () => {
+			expect( normalizeColorToHex( 'hsl(abc, def, ghi)' ) ).toBe( 'hsl(abc, def, ghi)' );
 		} );
 	} );
 } );
