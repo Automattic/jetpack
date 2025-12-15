@@ -5,13 +5,13 @@ import * as GeoChartStories from './index.stories';
 
 # Geo Chart
 
-Geo Charts visualize geographical data on an interactive world map using Natural Earth projection, making it easy to understand the distribution of values across countries.
+Geo Charts visualize geographical data on an interactive world map, making it easy to understand the distribution of values across countries.
 
 <Canvas of={ GeoChartStories.Default } />
 
 ## Overview
 
-The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on `@visx/geo` with Natural Earth projection, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
+The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on Google Charts GeoChart, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
 
 <Source
 	language="tsx"
@@ -65,7 +65,6 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 ### Optional Props
 
 - **`className`**: Additional CSS class name for custom styling
-- **`scale`**: Scale factor for the map projection. Defaults to `width / 5` to fit the map within the chart bounds
 - **`renderPlaceholder`**: Custom render function for the loading placeholder
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
@@ -74,31 +73,30 @@ For detailed prop information and type definitions, see the [Geo Chart API Refer
 
 ### Hover Tooltips
 
-The Geo Chart includes built-in interactive tooltips that display on hover, showing:
+The Geo Chart includes built-in interactive tooltips powered by Google Charts that display on hover, showing:
 
 - Country name
-- Country ISO code
 - Value for that country
 
-Tooltips are automatically enabled and positioned near the cursor for optimal readability.
+Tooltips are automatically enabled and positioned for optimal readability.
 
 ### Color Scaling
 
 The chart automatically scales colors based on data values:
 
-- **No data**: Countries without values use the default theme color
-- **Low values**: Displayed with lighter, semi-transparent colors
-- **High values**: Displayed with full opacity using the primary theme color
+- **No data**: Countries without values use the default theme color (`datalessRegionColor`)
+- **Low values**: Displayed with lighter colors
+- **High values**: Displayed with the full primary theme color
 
-The color scale uses alpha transparency (~12.5% to 100% opacity) for smooth gradations that maintain visual consistency across different themes.
+The color scale is configured via Google Charts' `colorAxis` option, using the theme's primary color range.
 
 ## Loading State
 
-The Geo Chart loads the world map topology asynchronously for better performance and bundle optimization. While loading, a placeholder is displayed.
+The Geo Chart displays a loading placeholder while Google Charts loads its resources from the CDN.
 
 ### Default Loading Placeholder
 
-By default, a simple "Loading map" text is shown while the topology loads:
+By default, a simple "Loading map" text is shown while Google Charts loads:
 
 <Source
 	language="tsx"
@@ -107,7 +105,7 @@ By default, a simple "Loading map" text is shown while the topology loads:
 		width={ 800 }
 		height={ 500 }
 	/>
-	// Shows "Loading map" until the topology is ready` }
+	// Shows "Loading map" until Google Charts is ready` }
 />
 
 ### Custom Loading Placeholder
@@ -133,24 +131,24 @@ This is useful when you want to show a skeleton loader, spinner, or branded load
 
 ## Country Code Format
 
-The Geo Chart uses three-letter ISO country codes (ISO 3166-1 alpha-3). Common examples:
+The Geo Chart supports both two-letter (ISO 3166-1 alpha-2) and three-letter (ISO 3166-1 alpha-3) country codes. Common examples:
 
-- **USA**: United States
-- **CAN**: Canada
-- **GBR**: United Kingdom
-- **DEU**: Germany (Deutschland)
-- **FRA**: France
-- **JPN**: Japan
-- **AUS**: Australia
-- **BRA**: Brazil
-- **IND**: India
-- **CHN**: China
-- **MEX**: Mexico
-- **ESP**: Spain
-- **ITA**: Italy
-- **NLD**: Netherlands
+- **USA** / **US**: United States
+- **CAN** / **CA**: Canada
+- **GBR** / **GB**: United Kingdom
+- **DEU** / **DE**: Germany (Deutschland)
+- **FRA** / **FR**: France
+- **JPN** / **JP**: Japan
+- **AUS** / **AU**: Australia
+- **BRA** / **BR**: Brazil
+- **IND** / **IN**: India
+- **CHN** / **CN**: China
+- **MEX** / **MX**: Mexico
+- **ESP** / **ES**: Spain
+- **ITA** / **IT**: Italy
+- **NLD** / **NL**: Netherlands
 
-**Important**: Use the three-letter codes (alpha-3), not two-letter codes. For a complete list of country codes, refer to the [ISO 3166-1 alpha-3 standard](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
+For a complete list of country codes, refer to the [ISO 3166-1 standard](https://en.wikipedia.org/wiki/ISO_3166-1).
 
 ## Styling and Customization
 
@@ -173,7 +171,7 @@ Geo Charts automatically integrate with the chart theme system for colors and st
 
 The chart uses the following theme properties:
 
-- **`colors[0]`**: Primary color for data visualization (used with alpha transparency for scaling)
+- **`colors[0]`**: Primary color for data visualization (used for color axis range)
 - **`backgroundColor`**: Background color for the map
 - **`geoChart.featureFillColor`**: Fill color for countries without data
 
@@ -196,21 +194,15 @@ Add custom styles using the `className` prop:
 	/>` }
 />
 
-## Map Projection Details
+## Map Projection
 
-The Geo Chart uses Natural Earth projection with the following characteristics:
-
-- **Projection**: Natural Earth (pseudocylindrical projection with visually balanced proportions)
-- **Scale**: Automatically calculated as `width / 5` to fit the map within the chart bounds. Can be customized via the `scale` prop.
-- **Graticule**: Hidden by default (grid lines set to transparent)
-
-This projection provides a visually balanced world map layout suitable for most geographical data visualization needs, with less distortion at the poles compared to Mercator projection.
+The Geo Chart uses Google Charts' default Mercator projection for world map visualization. The map automatically scales to fit within the specified dimensions.
 
 ## Best Practices
 
 ### Data Preparation
 
-- **Use correct ISO codes**: Ensure country codes follow the three-letter ISO 3166-1 alpha-3 format
+- **Use correct ISO codes**: Ensure country codes follow ISO 3166-1 format (alpha-2 or alpha-3)
 - **Validate data**: Check that values are positive numbers
 - **Consider scale**: Large value ranges will show more dramatic color differences
 
@@ -218,10 +210,10 @@ This projection provides a visually balanced world map layout suitable for most 
 
 The Geo Chart renders efficiently for typical use cases, but consider these factors:
 
-- **Async loading**: The world topology is loaded asynchronously, which keeps the initial bundle size small. The chart displays a loading placeholder until the topology is ready.
+- **Network dependency**: Google Charts loads resources from Google's CDN, requiring network access
+- **Initial load**: The first render requires loading Google Charts library (~100KB)
+- **Caching**: Subsequent renders benefit from browser caching of Google Charts resources
 - **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
-- **Tooltip rendering**: Tooltips are lightweight and render only on hover
-- **Map complexity**: The world topology is optimized for performance
 
 ### Accessibility
 
@@ -238,7 +230,7 @@ The Geo Chart renders efficiently for typical use cases, but consider these fact
 
 ### Screen Reader Support
 
-The Geo Chart currently uses standard SVG rendering without additional ARIA labels. For better accessibility:
+Google Charts provides some built-in accessibility features. For better accessibility:
 
 - Provide a data table or list alongside the chart
 - Use descriptive headings to introduce the geographical data
