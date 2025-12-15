@@ -58,6 +58,10 @@ const defaultTheme: CompleteChartTheme = {
 			},
 		},
 	},
+	sparkline: {
+		margin: { top: 2, right: 2, bottom: 2, left: 2 },
+		strokeWidth: 1.5,
+	},
 };
 
 export { defaultTheme };
