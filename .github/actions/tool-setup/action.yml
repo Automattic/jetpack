@@ -87,12 +87,12 @@ runs:
 
     - name: Setup pnpm
       if: steps.versions.outputs.node-version != 'false'
-      uses: pnpm/action-setup@v4.1.0
+      uses: pnpm/action-setup@v4.2.0
       with:
         version: ${{ steps.versions.outputs.pnpm-version }}
     - name: Setup Node
       if: steps.versions.outputs.node-version != 'false'
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         # Prefix the version with a caret as otherwise actions/setup-node will waste API calls finding where to download the exact version.
         node-version: ^${{ steps.versions.outputs.node-version }}

@@ -8,7 +8,6 @@ import { RouterProvider } from 'react-router/dom';
 /**
  * Internal dependencies
  */
-import { adjustDashboardHeight } from '../util/adjust-dashboard-height.ts';
 import Layout from './components/layout/index.tsx';
 import Inbox from './inbox/index.js';
 import DashboardNotices from './notices-list.tsx';
@@ -61,8 +60,6 @@ function initFormsDashboard() {
 			<DashboardNotices />
 		</SlotFillProvider>
 	);
-
-	adjustDashboardHeight( container );
 }
 
 window.jetpackFormsInit = initFormsDashboard;
