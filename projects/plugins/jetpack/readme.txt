@@ -326,10 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.4-a.1 - 2025-12-08
+### 15.4-a.3 - 2025-12-15
 #### Enhancements
-- Forms: Add filter to hide integration icons.
-- Forms: Add integrations display filters.
+- External media: Add replace flow support.
+- Forms: Use entire button area for selecting multi-select options.
+- Social: Reuse AI image generation in media section.
+
+#### Bug fixes
+- Forms: Ensure submission summary is contained within 100% width.
+- Forms: Fix validation accessibility.
+- Forms: Remove the classic Admin initialization call.
 
 --------
 
