@@ -104,25 +104,28 @@
 		border-bottom: 1px solid gb.$gray-200;
 	}
 
-	:global(.components-panel) {
-		border: none;
-	}
+	.connection-panels {
 
-	:global(.components-panel__body) {
-		border-top: none;
-	}
+		:global(.components-panel) {
+			border: none;
+		}
 
-	:global(.components-panel__body-toggle) {
-		padding-inline-start: 0.25rem;
-	}
+		:global(.components-panel__body) {
+			border-top: none;
+		}
 
-	:global(.components-panel__row) {
-		// Compensate for the toggle space
-		margin-inline-start: -3.25rem;
+		:global(.components-panel__body-toggle) {
+			padding-inline-start: 0.25rem;
+		}
 
-		legend {
-			text-transform: uppercase;
-			padding-inline: 0;
+		:global(.components-panel__row) {
+			// Compensate for the toggle space
+			margin-inline-start: -3.25rem;
+
+			legend {
+				text-transform: uppercase;
+				padding-inline: 0;
+			}
 		}
 	}
 }
