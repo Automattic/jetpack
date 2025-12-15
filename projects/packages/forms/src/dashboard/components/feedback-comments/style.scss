@@ -1,0 +1,187 @@
+/**
+ * Feedback Comments Component Styles
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/variables";
+@use "../../mixins";
+
+// Pulse animation for skeleton loading
+@keyframes jp-forms-skeleton-pulse {
+
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.jp-forms__feedback-comments {
+	border-top: 1px solid var(--jp-forms-border-color);
+	padding: 24px 0;
+	margin-top: 0;
+	display: flex;
+	flex-direction: column;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		padding: 24px 16px;
+	}
+}
+
+.jp-forms__feedback-comments-heading {
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 16px 0;
+	padding: 0;
+	flex-shrink: 0;
+	position: relative;
+}
+
+.jp-forms__feedback-loading {
+	position: absolute;
+	bottom: -3px;
+}
+
+// Empty state
+.jp-forms__feedback-comments-empty {
+	color: var(--jp-gray-80, #50575e);
+	font-size: 14px;
+	font-style: italic;
+	margin: 16px 0;
+}
+
+// Comments list
+.jp-forms__feedback-comments-list {
+
+	@include mixins.flex-column;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+// Individual comment
+.jp-forms__feedback-comment {
+	background-color: var(--jp-forms-white-off);
+	border-radius: var(--jp-forms-border-radius);
+	padding: 12px;
+
+	@include mixins.flex-column;
+	gap: 8px;
+}
+
+.jp-forms__feedback-comment-meta {
+
+	@include mixins.flex-center;
+	gap: 8px;
+	flex-wrap: wrap;
+
+	.jp-forms__feedback-comment-date {
+		flex-grow: 4;
+	}
+
+	.components-dropdown {
+		align-self: flex-end;
+	}
+}
+
+.jp-forms__feedback-comment-author {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--jp-forms-color-darker-20);
+}
+
+.jp-forms__feedback-comment-date {
+	font-size: 12px;
+	color: var(--jp-gray-80, #50575e);
+}
+
+.jp-forms__feedback-comment-content {
+	font-size: 14px;
+	line-height: 1.5;
+	word-wrap: break-word;
+
+	// Remove default margins from rendered HTML
+	p {
+		margin: 0;
+	}
+
+	p + p {
+		margin-top: 8px;
+	}
+}
+
+// Add comment form
+
+.jp-forms__feedback-comments-form-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	border: 1px solid var(--jp-forms-border-color, #ddd);
+	border-radius: var(--jp-forms-border-radius);
+	background-color: #fff;
+}
+
+.jp-forms__feedback-comments-form-avatar {
+	flex-shrink: 0;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+
+	img {
+		display: block;
+		width: 32px;
+		height: 32px;
+		border-radius: 50%;
+		overflow: hidden;
+	}
+}
+
+.jp-forms__feedback-comments-form-input {
+	flex: 1;
+	min-width: 0;
+
+	.components-base-control {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	textarea {
+		min-height: 96px;
+		resize: vertical;
+		border: none;
+		padding: 12px;
+		width: 100%;
+	}
+}
+
+.jp-forms__feedback-comments-user-info {
+	display: flex;
+	flex-direction: row;
+	padding: 12px;
+	justify-content: space-between;
+
+}
+
+.jp-forms__feedback-comments-form-button {
+	flex-shrink: 0;
+
+
+	.components-button {
+		height: 32px;
+	}
+}
+
+.jp-forms__feedback-comments-error {
+	background-color: #f8d7da;
+	border: 1px solid #f5c2c7;
+	border-radius: var(--jp-forms-border-radius);
+	color: #842029;
+	font-size: 14px;
+	padding: 12px;
+	margin-bottom: 12px;
+}

@@ -1210,4 +1210,125 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		Utility::destroy_post_context( $current_post );
 	}
+
+	/**
+	 * Test that feedback post type supports comments
+	 */
+	public function test_feedback_post_type_supports_comments() {
+		$this->assertTrue( post_type_supports( 'feedback', 'comments' ), 'Feedback post type should support comments' );
+	}
+
+	/**
+	 * Test that feedback posts have default comment status 'open'
+	 */
+	public function test_feedback_default_comment_status() {
+		$post_type_object = get_post_type_object( 'feedback' );
+		$this->assertEquals( 'open', $post_type_object->default_comment_status, 'Feedback should have default comment status "open"' );
+	}
+
+	/**
+	 * Test that non-logged-in users cannot comment on feedback
+	 */
+	public function test_comments_restricted_to_logged_in_users() {
+		$feedback_id = self::factory()->post->create(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertFalse( $comments_open, 'Comments should be closed for non-logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in users can comment on feedback
+	 */
+	public function test_logged_in_users_can_comment() {
+		$feedback_id = self::factory()->post->create(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		$user_id = self::factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users on feedback posts' );
+	}
+
+	/**
+	 * Test that logged-in users can comment even when comment_status is 'closed' (read posts)
+	 */
+	public function test_logged_in_users_can_comment_on_read_feedback() {
+		$feedback_id = self::factory()->post->create(
+			array(
+				'post_type'      => 'feedback',
+				'comment_status' => 'closed', // Marked as read
+			)
+		);
+
+		$user_id = self::factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		// Pass false to simulate that comment_status is 'closed'
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( false, $feedback_id );
+
+		$this->assertTrue( $comments_open, 'Comments should be open for logged-in users even when feedback is marked as read (comment_status=closed)' );
+	}
+
+	/**
+	 * Test that filter doesn't affect other post types
+	 */
+	public function test_comment_filter_only_affects_feedback_posts() {
+		$regular_post_id = self::factory()->post->create(
+			array(
+				'post_type' => 'post',
+			)
+		);
+
+		wp_set_current_user( 0 ); // Log out
+
+		$plugin        = Contact_Form_Plugin::init();
+		$comments_open = $plugin->restrict_feedback_comments_to_logged_in( true, $regular_post_id );
+
+		$this->assertTrue( $comments_open, 'Comment filter should not affect non-feedback posts' );
+	}
+
+	/**
+	 * Test that comments can be added to feedback posts
+	 */
+	public function test_can_add_comment_to_feedback() {
+		$user_id = self::factory()->user->create();
+		wp_set_current_user( $user_id );
+
+		$feedback_id = self::factory()->post->create(
+			array(
+				'post_type' => 'feedback',
+			)
+		);
+
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_post_ID' => $feedback_id,
+				'comment_content' => 'Test comment on feedback',
+				'user_id'         => $user_id,
+			)
+		);
+
+		$this->assertIsInt( $comment_id, 'Should be able to insert comment on feedback post' );
+		$this->assertGreaterThan( 0, $comment_id, 'Comment ID should be positive' );
+
+		$comment = get_comment( $comment_id );
+		$this->assertEquals( 'Test comment on feedback', $comment->comment_content, 'Comment content should match' );
+		$this->assertEquals( $feedback_id, $comment->comment_post_ID, 'Comment should be associated with feedback post' );
+	}
 }
