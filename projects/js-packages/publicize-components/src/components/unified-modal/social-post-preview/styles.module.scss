@@ -66,6 +66,21 @@
 	}
 }
 
+.scheduled-posts-panel {
+	border: none;
+
+	// If the panel is not opened, make it sticky to the bottom
+	&:not(:has(:global(.components-panel__body.is-opened))) {
+		position: sticky;
+		bottom: 0;
+	}
+
+	:global(.components-panel__body) {
+		border-bottom: none;
+		margin-top: 0;
+	}
+}
+
 .content {
 	width: 100%;
 	min-height: 100%;

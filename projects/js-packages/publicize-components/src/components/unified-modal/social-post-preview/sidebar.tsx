@@ -5,6 +5,7 @@ import { MediaValidationNotices } from '../../form/media-validation-notices';
 import { SharePostForm } from '../../form/share-post-form';
 import { ConnectionList } from './connection-list';
 import { ConnectionToggles } from './connection-toggles';
+import { ScheduledPosts } from './scheduled-posts';
 import styles from './styles.module.scss';
 
 type SidebarProps = {
@@ -36,6 +37,7 @@ export function Sidebar( { baseId, onSelectConnection, selectedConnection }: Sid
 			<div className={ styles[ 'customization-form' ] }>
 				<SharePostForm analyticsData={ { location: 'preview-modal' } } isInsideNavigatorModal />
 			</div>
+			<ScheduledPosts />
 		</div>
 	);
 }
