@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, useContext } from 'react';
-import { Chart } from 'react-google-charts';
+import { Chart, type GoogleChartOptions } from 'react-google-charts';
 /**
  * Internal dependencies
  */
@@ -52,8 +52,6 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		</div>
 	);
 
-	// Get theme colors for the color axis
-	// Google Charts only accepts 6-digit hex colors
 	const fullColor = getElementStyles( { index: 0 } ).color;
 
 	// Wait for color cache to be populated before rendering
@@ -62,22 +60,21 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	}
 
 	const lightColor = lightenHexColor( fullColor, 0.8 );
-	const defaultColor = resolveCssVariable( featureFillColor ) ?? '#c3c4c7';
+	const defaultColor = resolveCssVariable( featureFillColor ) ?? '#ffffff';
 
 	// Transform data from Record<string, number> to Google Charts format
 	// Google Charts expects [['Country', 'Value'], ['US', 100], ['CA', 50], ...]
 	// Country codes must be ISO 3166-1 alpha-2 format (2-letter codes)
 	const chartData = [ [ 'Country', 'Value' ], ...Object.entries( data ) ];
 
-	// Google Charts options
-	const options = {
+	const options: GoogleChartOptions = {
 		colorAxis: { colors: [ lightColor, fullColor ] },
 		backgroundColor,
 		datalessRegionColor: defaultColor,
 		defaultColor,
 		tooltip: { trigger: 'focus' },
 		legend: 'none',
-		keepAspectRatio: false,
+		keepAspectRatio: true,
 	};
 
 	return (

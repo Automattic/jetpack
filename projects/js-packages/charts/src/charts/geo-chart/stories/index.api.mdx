@@ -12,7 +12,7 @@ Main component for rendering geographical data on an interactive world map using
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `data` | `Record<string, number>` | - | **Required.** Record mapping country ISO codes (e.g., 'USA', 'CAN', 'GBR') to numeric values |
+| `data` | `Record<string, number>` | - | **Required.** Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values |
 | `width` | `number` | - | **Required.** Width of the chart in pixels |
 | `height` | `number` | - | **Required.** Height of the chart in pixels |
 | `className` | `string` | - | Additional CSS class name for the chart container |
@@ -37,36 +37,36 @@ The following properties can be customized via the theme system:
 | -------- | ---- | ------- | ----------- |
 | `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
 | `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
-| `geoChart.featureFillColor` | `string` | `'var(--jp-gray-10, #c3c4c7)'` | Fill color for countries without data values |
+| `geoChart.featureFillColor` | `string` | `'var(--jp-white, #ffffff)'` | Fill color for countries without data values |
 
 ## Country ISO Codes
 
-The `data` prop accepts both two-letter (ISO 3166-1 alpha-2) and three-letter (ISO 3166-1 alpha-3) country codes. Common examples:
+The `data` prop requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
 
-| Alpha-3 | Alpha-2 | Country |
-| ------- | ------- | ------- |
-| USA | US | United States |
-| CAN | CA | Canada |
-| GBR | GB | United Kingdom |
-| DEU | DE | Germany |
-| FRA | FR | France |
-| JPN | JP | Japan |
-| AUS | AU | Australia |
-| BRA | BR | Brazil |
-| IND | IN | India |
-| CHN | CN | China |
-| MEX | MX | Mexico |
-| ESP | ES | Spain |
-| ITA | IT | Italy |
-| NLD | NL | Netherlands |
-| RUS | RU | Russia |
-| KOR | KR | South Korea |
-| ZAF | ZA | South Africa |
-| NGA | NG | Nigeria |
-| ARG | AR | Argentina |
-| SAU | SA | Saudi Arabia |
+| Code | Country |
+| ---- | ------- |
+| US | United States |
+| CA | Canada |
+| GB | United Kingdom |
+| DE | Germany |
+| FR | France |
+| JP | Japan |
+| AU | Australia |
+| BR | Brazil |
+| IN | India |
+| CN | China |
+| MX | Mexico |
+| ES | Spain |
+| IT | Italy |
+| NL | Netherlands |
+| RU | Russia |
+| KR | South Korea |
+| ZA | South Africa |
+| NG | Nigeria |
+| AR | Argentina |
+| SA | Saudi Arabia |
 
-For a complete list, refer to the [ISO 3166-1 standard](https://en.wikipedia.org/wiki/ISO_3166-1).
+For a complete list, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 
 ## Map Projection
 
@@ -86,10 +86,10 @@ The component configures the following Google Charts options internally:
 
 | Option | Value | Description |
 | ------ | ----- | ----------- |
-| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from ~20% opacity to full theme color |
+| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from lightened (80% blend with white) to full theme color |
 | `backgroundColor` | Theme value | Map background color |
 | `datalessRegionColor` | Theme value | Color for countries without data |
 | `defaultColor` | Theme value | Default region color |
 | `tooltip.trigger` | `'focus'` | Show tooltip on focus/hover |
 | `legend` | `'none'` | Hide the color legend |
-| `keepAspectRatio` | `false` | Allow the map to fill the specified dimensions |
+| `keepAspectRatio` | `true` | Maintain the map's aspect ratio within dimensions |

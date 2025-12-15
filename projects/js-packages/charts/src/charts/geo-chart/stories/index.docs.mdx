@@ -32,7 +32,7 @@ For detailed information about component props and types, see the [Geo Chart API
 
 ### Simple Geo Chart
 
-The simplest geo chart requires data, width, and height. The `data` prop accepts a record mapping country ISO codes to numeric values:
+The simplest geo chart requires data, width, and height. The `data` prop accepts a record mapping country ISO 3166-1 alpha-2 codes to numeric values:
 
 <Canvas of={ GeoChartStories.Default } />
 
@@ -40,16 +40,16 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 	language="tsx"
 	code={ `<GeoChart
 		data={ {
-			USA: 1000,
-			CAN: 500,
-			GBR: 450,
-			DEU: 400,
-			AUS: 350,
-			FRA: 300,
-			MEX: 250,
-			JPN: 200,
-			BRA: 150,
-			IND: 120,
+			US: 1000,
+			CA: 500,
+			GB: 450,
+			DE: 400,
+			AU: 350,
+			FR: 300,
+			MX: 250,
+			JP: 200,
+			BR: 150,
+			IN: 120,
 		} }
 		width={ 800 }
 		height={ 500 }
@@ -58,7 +58,7 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 
 ### Required Props
 
-- **`data`**: Record mapping country ISO codes (e.g., 'USA', 'CAN', 'GBR') to numeric values
+- **`data`**: Record mapping country ISO 3166-1 alpha-2 codes (e.g., 'US', 'CA', 'GB') to numeric values
 - **`width`**: Width of the chart in pixels
 - **`height`**: Height of the chart in pixels
 
@@ -131,40 +131,46 @@ This is useful when you want to show a skeleton loader, spinner, or branded load
 
 ## Country Code Format
 
-The Geo Chart supports both two-letter (ISO 3166-1 alpha-2) and three-letter (ISO 3166-1 alpha-3) country codes. Common examples:
+The Geo Chart requires two-letter ISO 3166-1 alpha-2 country codes. Common examples:
 
-- **USA** / **US**: United States
-- **CAN** / **CA**: Canada
-- **GBR** / **GB**: United Kingdom
-- **DEU** / **DE**: Germany (Deutschland)
-- **FRA** / **FR**: France
-- **JPN** / **JP**: Japan
-- **AUS** / **AU**: Australia
-- **BRA** / **BR**: Brazil
-- **IND** / **IN**: India
-- **CHN** / **CN**: China
-- **MEX** / **MX**: Mexico
-- **ESP** / **ES**: Spain
-- **ITA** / **IT**: Italy
-- **NLD** / **NL**: Netherlands
+- **US**: United States
+- **CA**: Canada
+- **GB**: United Kingdom
+- **DE**: Germany
+- **FR**: France
+- **JP**: Japan
+- **AU**: Australia
+- **BR**: Brazil
+- **IN**: India
+- **CN**: China
+- **MX**: Mexico
+- **ES**: Spain
+- **IT**: Italy
+- **NL**: Netherlands
 
-For a complete list of country codes, refer to the [ISO 3166-1 standard](https://en.wikipedia.org/wiki/ISO_3166-1).
+For a complete list of country codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 
-## Styling and Customization
+## Theming Integration
 
-### Theme Integration
-
-Geo Charts automatically integrate with the chart theme system for colors and styling:
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, jetpackTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
 
-	<GlobalChartsProvider theme={ jetpackTheme }>
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
+		backgroundColor: '#f5f5f5',
+		geoChart: {
+			featureFillColor: '#e0e0e0',
+		},
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
 		<GeoChart
-			data={ ordersByCountry }
-			width={ 800 }
-			height={ 500 }
+			data={ordersByCountry}
+			width={800}
+			height={500}
 		/>
 	</GlobalChartsProvider>` }
 />
@@ -175,7 +181,7 @@ The chart uses the following theme properties:
 - **`backgroundColor`**: Background color for the map
 - **`geoChart.featureFillColor`**: Fill color for countries without data
 
-### Custom Styling
+## Custom Styling
 
 Add custom styles using the `className` prop:
 
@@ -202,7 +208,7 @@ The Geo Chart uses Google Charts' default Mercator projection for world map visu
 
 ### Data Preparation
 
-- **Use correct ISO codes**: Ensure country codes follow ISO 3166-1 format (alpha-2 or alpha-3)
+- **Use correct ISO codes**: Ensure country codes follow ISO 3166-1 alpha-2 format (two-letter codes)
 - **Validate data**: Check that values are positive numbers
 - **Consider scale**: Large value ranges will show more dramatic color differences
 
