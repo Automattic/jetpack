@@ -78,7 +78,11 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	};
 
 	return (
-		<div className={ clsx( 'geo-chart', styles.container, className ) } data-testid="geo-chart">
+		<div
+			className={ clsx( 'geo-chart', styles.container, className ) }
+			data-testid="geo-chart"
+			style={ { width, height, backgroundColor } }
+		>
 			<Chart
 				chartType="GeoChart"
 				width={ width }
