@@ -14,6 +14,29 @@ import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
 
 /**
+ * Lightens a hex color by blending it with white.
+ * Google Charts colorAxis only accepts 6-digit hex colors, not rgba or 8-digit hex.
+ *
+ * @param hex   - Hex color string (e.g., '#98C8DF')
+ * @param blend - Blend amount with white (0 = original color, 1 = white)
+ * @return Lightened hex color string (e.g., '#d5e7f2')
+ */
+function lightenHexColor( hex: string, blend: number ): string {
+	const r = parseInt( hex.slice( 1, 3 ), 16 );
+	const g = parseInt( hex.slice( 3, 5 ), 16 );
+	const b = parseInt( hex.slice( 5, 7 ), 16 );
+
+	// Blend with white (255, 255, 255)
+	const newR = Math.round( r + ( 255 - r ) * blend );
+	const newG = Math.round( g + ( 255 - g ) * blend );
+	const newB = Math.round( b + ( 255 - b ) * blend );
+
+	return `#${ newR.toString( 16 ).padStart( 2, '0' ) }${ newG
+		.toString( 16 )
+		.padStart( 2, '0' ) }${ newB.toString( 16 ).padStart( 2, '0' ) }`;
+}
+
+/**
  * Renders a geographical chart using Google Charts GeoChart to visualize data by country.
  *
  * @param props                   - The props for the GeoChart component
@@ -45,9 +68,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	// Get theme colors for the color axis
 	const fullColor = getElementStyles( { index: 0 } ).color;
-	// Verify it's a hex color before appending alpha
+	// Create a lighter version by blending with white (Google Charts only accepts 6-digit hex)
 	const isHexColor = /^#[0-9A-F]{6}$/i.test( fullColor );
-	const lightColor = isHexColor ? fullColor + '33' : fullColor; // ~20% opacity
+	const lightColor = isHexColor ? lightenHexColor( fullColor, 0.7 ) : fullColor;
 
 	// Google Charts options
 	const options = useMemo(
