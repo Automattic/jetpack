@@ -9,15 +9,14 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 50+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
-    // PhanDeprecatedFunction : 9 occurrences
+    // PhanTypeMismatchArgument : 45+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
+    // PhanDeprecatedFunction : 8 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 6 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginDuplicateAdjacentStatement : 3 occurrences
     // PhanTypeConversionFromArray : 2 occurrences
-    // PhanTypeMismatchReturn : 2 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanDeprecatedClass : 1 occurrence
     // PhanPluginMixedKeyNoKey : 1 occurrence
     // PhanPossiblyNullTypeMismatchProperty : 1 occurrence
@@ -34,7 +33,6 @@ return [
         'src/dashboard/class-dashboard-view-switch.php' => ['PhanDeprecatedFunction', 'PhanUnreferencedUseNormal'],
         'src/service/class-google-drive.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'tests/php/contact-form/Contact_Form_Plugin_Test.php' => ['PhanPluginMixedKeyNoKey'],
-        'tests/php/contact-form/Util_Test.php' => ['PhanDeprecatedFunction'],
         'tests/php/dashboard/Dashboard_View_Switch_Test.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
