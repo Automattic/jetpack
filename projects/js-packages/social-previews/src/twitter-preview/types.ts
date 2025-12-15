@@ -24,7 +24,7 @@ export type MediaProps = {
 };
 
 export type QuoteTweetProps = {
-	tweet: TwitterPreviewProps;
+	quoteTweet: string;
 };
 
 export type TextProps = {

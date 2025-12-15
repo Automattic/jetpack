@@ -20,7 +20,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 	showThreadConnector,
 	text,
 	title,
-	tweet,
+	quoteTweet,
 	cardType,
 	url,
 } ) => {
@@ -35,7 +35,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 					<div className="twitter-preview__content">
 						{ text ? <Text text={ text } url={ url || '' } retainUrl={ hasMedia } /> : null }
 						{ hasMedia ? <Media media={ media } /> : null }
-						{ tweet ? <QuoteTweet tweet={ tweet } /> : null }
+						{ quoteTweet ? <QuoteTweet quoteTweet={ quoteTweet } /> : null }
 						{ ! hasMedia && url && (
 							<Card
 								description={ description || '' }

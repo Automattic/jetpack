@@ -123,7 +123,6 @@ describe( 'Twitter previews', () => {
 		date: Date.now(),
 		text: '',
 		media: [],
-		tweet: '',
 		urls: [],
 	};
 
@@ -306,7 +305,7 @@ describe( 'Twitter previews', () => {
 		const quoteTweet = 'https://twitter.com/GaryPendergast/status/934003415507546112';
 		const tweet = {
 			...emptyTweet,
-			tweet: quoteTweet,
+			quoteTweet,
 		};
 
 		const { container } = render( <Twitter { ...tweet } /> );
