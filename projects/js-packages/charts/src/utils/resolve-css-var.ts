@@ -1,4 +1,9 @@
 /**
+ * Pattern for valid CSS custom property names (e.g., '--my-color', '--jp-gray-10')
+ */
+const CSS_VAR_NAME_PATTERN = /^--[\w-]+$/;
+
+/**
  * Resolves a CSS custom property (variable) to its computed value.
  * Handles multiple formats:
  * - Plain variable names: '--my-color'
@@ -19,17 +24,15 @@ export const resolveCssVariable = (
 	}
 
 	// Check if it's a var() expression: var(--name) or var(--name, fallback)
-	const varMatch = value.match( /^var\(\s*(--[\w-]+)\s*(?:,\s*(.+))?\s*\)$/ );
+	// Parse manually to avoid regex backtracking vulnerabilities
+	if ( value.startsWith( 'var(' ) && value.endsWith( ')' ) ) {
+		const parsed = parseVarExpression( value );
 
-	if ( varMatch ) {
-		const varName = varMatch[ 1 ];
-		const fallback = varMatch[ 2 ]?.trim() || null;
+		if ( parsed ) {
+			const resolved = resolveVariableName( parsed.varName, element );
 
-		// Try to resolve the variable
-		const resolved = resolveVariableName( varName, element );
-
-		// Return resolved value, or fallback, or null
-		return resolved || fallback;
+			return resolved || parsed.fallback;
+		}
 	}
 
 	// Check if it's a plain variable name (starts with --)
@@ -40,6 +43,48 @@ export const resolveCssVariable = (
 	// Return regular values as-is (e.g., '#ffffff', 'red')
 	return value;
 };
+
+/**
+ * Parses a var() expression into its variable name and optional fallback.
+ * Uses string manipulation instead of complex regex to avoid ReDoS.
+ *
+ * @param expr - A var() expression like 'var(--name)' or 'var(--name, fallback)'
+ * @return Parsed result or null if invalid
+ */
+function parseVarExpression( expr: string ): { varName: string; fallback: string | null } | null {
+	// Remove 'var(' prefix and ')' suffix
+	const inner = expr.slice( 4, -1 ).trim();
+
+	if ( ! inner.startsWith( '--' ) ) {
+		return null;
+	}
+
+	// Find the comma separator (if any)
+	const commaIndex = inner.indexOf( ',' );
+
+	if ( commaIndex === -1 ) {
+		// No fallback: var(--name)
+		const varName = inner.trim();
+		// Validate variable name format
+		if ( ! CSS_VAR_NAME_PATTERN.test( varName ) ) {
+			return null;
+		}
+
+		return { varName, fallback: null };
+	}
+
+	// Has fallback: var(--name, fallback)
+	const varName = inner.slice( 0, commaIndex ).trim();
+
+	// Validate variable name format
+	if ( ! CSS_VAR_NAME_PATTERN.test( varName ) ) {
+		return null;
+	}
+
+	const fallback = inner.slice( commaIndex + 1 ).trim();
+
+	return { varName, fallback: fallback || null };
+}
 
 /**
  * Resolves a plain CSS variable name to its computed value.
