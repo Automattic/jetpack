@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useMemo, forwardRef } from 'react';
+import { useGlobalChartsTheme } from '../../providers';
 import { LineChartUnresponsive } from '../line-chart';
 import { withResponsive } from '../private/with-responsive';
 import styles from './sparkline.module.scss';
@@ -8,8 +9,6 @@ import type { SeriesData } from '../../types';
 
 const DEFAULT_WIDTH = 100;
 const DEFAULT_HEIGHT = 40;
-const DEFAULT_MARGIN = { top: 2, right: 2, bottom: 2, left: 2 };
-const DEFAULT_STROKE_WIDTH = 1.5;
 
 /**
  * Transforms a simple number array into SeriesData format for LineChart.
@@ -50,15 +49,25 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			width = DEFAULT_WIDTH,
 			height = DEFAULT_HEIGHT,
 			color,
-			strokeWidth = DEFAULT_STROKE_WIDTH,
+			strokeWidth: strokeWidthProp,
 			withGradientFill = true,
 			gradient,
 			className,
 			chartId,
-			margin = DEFAULT_MARGIN,
+			margin: marginProp,
 		},
 		ref
 	) => {
+		const theme = useGlobalChartsTheme();
+
+		// Get theme defaults for sparkline
+		const themeMargin = theme.sparkline?.margin ?? { top: 2, right: 2, bottom: 2, left: 2 };
+		const themeStrokeWidth = theme.sparkline?.strokeWidth ?? 1.5;
+
+		// Use prop values or fall back to theme defaults
+		const strokeWidth = strokeWidthProp ?? themeStrokeWidth;
+		const margin = marginProp ?? themeMargin;
+
 		// Transform number[] to SeriesData[] for LineChart
 		const seriesData = useMemo( () => {
 			if ( ! data || data.length === 0 ) {
@@ -67,13 +76,13 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			return transformToSeriesData( data, color, strokeWidth );
 		}, [ data, color, strokeWidth ] );
 
-		// Merge margins
+		// Merge margins with theme defaults
 		const finalMargin = useMemo( () => {
 			return {
-				...DEFAULT_MARGIN,
+				...themeMargin,
 				...margin,
 			};
-		}, [ margin ] );
+		}, [ margin, themeMargin ] );
 
 		// Build gradient options for the series if custom gradient is provided
 		// Note: This must be called before any early returns to follow React hooks rules
@@ -101,7 +110,7 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			return (
 				<div
 					ref={ ref }
-					className={ clsx( styles.sparkline, styles[ 'sparkline--empty' ], className ) }
+					className={ clsx( 'sparkline', styles.sparkline, styles[ 'sparkline--empty' ], className ) }
 					style={ { width, height } }
 					data-testid="sparkline-empty"
 				/>
@@ -117,7 +126,12 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			return (
 				<div
 					ref={ ref }
-					className={ clsx( styles.sparkline, styles[ 'sparkline--single-point' ], className ) }
+					className={ clsx(
+						'sparkline',
+						styles.sparkline,
+						styles[ 'sparkline--single-point' ],
+						className
+					) }
 					style={ { width, height } }
 					data-testid="sparkline-single-point"
 				>
@@ -129,7 +143,11 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 		}
 
 		return (
-			<div ref={ ref } className={ clsx( styles.sparkline, className ) } data-testid="sparkline">
+			<div
+				ref={ ref }
+				className={ clsx( 'sparkline', styles.sparkline, className ) }
+				data-testid="sparkline"
+			>
 				<LineChartUnresponsive
 					data={ seriesWithGradient }
 					width={ width }
