@@ -1415,8 +1415,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.13
-        version: 2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: workspace:*
+        version: link:../social-previews
       '@automattic/ui':
         specifier: 1.0.2
         version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1851,6 +1851,61 @@ importers:
       xml2js:
         specifier: ^0.6.2
         version: 0.6.2
+
+  projects/js-packages/social-previews:
+    dependencies:
+      '@wordpress/components':
+        specifier: '>=30.9.0'
+        version: 30.9.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/element':
+        specifier: '>=6.36.0'
+        version: 6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
+      '@wordpress/i18n':
+        specifier: '>=6.9.0'
+        version: 6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
+      '@babel/core':
+        specifier: 7.28.4
+        version: 7.28.4
+      '@testing-library/dom':
+        specifier: 10.4.1
+        version: 10.4.1
+      '@testing-library/jest-dom':
+        specifier: 6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: 16.3.0
+        version: 16.3.0(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.26))(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: 18.3.26
+        version: 18.3.26
+      '@types/react-dom':
+        specifier: 18.3.7
+        version: 18.3.7(@types/react@18.3.26)
+      babel-jest:
+        specifier: 30.2.0
+        version: 30.2.0(@babel/core@7.28.4)
+      jest:
+        specifier: 30.2.0
+        version: 30.2.0
+      jest-environment-jsdom:
+        specifier: 30.2.0
+        version: 30.2.0
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   projects/js-packages/storybook:
     dependencies:
@@ -4927,8 +4982,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@automattic/social-previews':
-        specifier: 2.1.0-beta.13
-        version: 2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: workspace:*
+        version: link:../../js-packages/social-previews
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -6276,16 +6331,6 @@ packages:
     peerDependencies:
       react: ^18.3.1
       react-dom: ^18.3.1
-
-  '@automattic/social-previews@2.1.0-beta.13':
-    resolution: {integrity: sha512-oDKwoBVACcVyk13RCdaaFllGzSwZ71jiA4WBMB7iTgN8cLHQ38HR7JbRFtQuY3dx+kmDHbUBLK4p11xjLz3bdg==}
-    peerDependencies:
-      '@babel/runtime': ^7.27.1
-      react: ^18.3.1
-      react-dom: ^18.3.1
-    peerDependenciesMeta:
-      '@babel/runtime':
-        optional: true
 
   '@automattic/typography@1.0.0':
     resolution: {integrity: sha512-TnT+vPaNUXQYwDsPCPxhNY0d4LnOKvrb0SizUCC5iybo5sfOlX/rYalGDyz6nPQDF0EBaQwMf7qhVsflFR0cBg==}
@@ -17714,24 +17759,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     transitivePeerDependencies:
-      - supports-color
-
-  '@automattic/social-previews@2.1.0-beta.13(@babel/runtime@7.28.4)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@emotion/react': 11.14.0(@types/react@18.3.26)(react@18.3.1)
-      '@wordpress/components': 30.9.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)(@types/react@18.3.26)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/element': 6.36.0(patch_hash=2659f08edd4c0250f15fb428f013852a17e84da9c745e6dae6307de837e4d30b)
-      '@wordpress/i18n': 6.9.0(patch_hash=0c63a888feb97f2f1d416ca013ad85c31b6360b41cc0b6e2b0ae28f778fbdc5b)
-      clsx: 2.1.1
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      tslib: 2.8.1
-    optionalDependencies:
-      '@babel/runtime': 7.28.4
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/react'
       - supports-color
 
   '@automattic/typography@1.0.0': {}
