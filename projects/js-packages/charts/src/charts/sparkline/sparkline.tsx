@@ -61,12 +61,10 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 		const theme = useGlobalChartsTheme();
 
 		// Get theme defaults for sparkline
-		const themeMargin = theme.sparkline?.margin ?? { top: 2, right: 2, bottom: 2, left: 2 };
 		const themeStrokeWidth = theme.sparkline?.strokeWidth ?? 1.5;
 
 		// Use prop values or fall back to theme defaults
 		const strokeWidth = strokeWidthProp ?? themeStrokeWidth;
-		const margin = marginProp ?? themeMargin;
 
 		// Transform number[] to SeriesData[] for LineChart
 		const seriesData = useMemo( () => {
@@ -78,11 +76,13 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 
 		// Merge margins with theme defaults
 		const finalMargin = useMemo( () => {
+			const themeMargin = theme.sparkline?.margin ?? { top: 2, right: 2, bottom: 2, left: 2 };
+			const margin = marginProp ?? themeMargin;
 			return {
 				...themeMargin,
 				...margin,
 			};
-		}, [ margin, themeMargin ] );
+		}, [ marginProp, theme.sparkline?.margin ] );
 
 		// Build gradient options for the series if custom gradient is provided
 		// Note: This must be called before any early returns to follow React hooks rules
