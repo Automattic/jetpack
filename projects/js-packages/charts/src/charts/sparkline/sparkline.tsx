@@ -115,14 +115,16 @@ const SparklineComponent = forwardRef< HTMLDivElement, SparklineProps >(
 			const resolvedColor = color || '#000000';
 
 			return (
-				<svg
-					width={ width }
-					height={ height }
+				<div
+					ref={ ref }
 					className={ clsx( styles.sparkline, styles[ 'sparkline--single-point' ], className ) }
+					style={ { width, height } }
 					data-testid="sparkline-single-point"
 				>
-					<circle cx={ cx } cy={ cy } r={ strokeWidth * 1.5 } fill={ resolvedColor } />
-				</svg>
+					<svg width={ width } height={ height } aria-hidden="true">
+						<circle cx={ cx } cy={ cy } r={ strokeWidth * 1.5 } fill={ resolvedColor } />
+					</svg>
+				</div>
 			);
 		}
 
