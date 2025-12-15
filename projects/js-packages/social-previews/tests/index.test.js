@@ -11,6 +11,27 @@ import {
 } from '../src';
 import { formatTweetDate } from '../src/helpers';
 
+// Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
+jest.mock( '@wordpress/components', () => {
+	const React = require( 'react' );
+	return {
+		SandBox: ( { html, title } ) => {
+			const iframeRef = React.useRef( null );
+
+			React.useEffect( () => {
+				if ( iframeRef.current ) {
+					const doc = iframeRef.current.contentWindow.document;
+					doc.open();
+					doc.write( html );
+					doc.close();
+				}
+			}, [ html ] );
+
+			return React.createElement( 'iframe', { ref: iframeRef, title } );
+		},
+	};
+} );
+
 const DEFAULT_POST_TITLE = 'Hello World';
 const DEFAULT_POST_URL = 'https://example.com/new-entry';
 const IMAGE_SRC_FIXTURE = 'https://wordpress.com/someimagehere';
@@ -105,17 +126,6 @@ describe( 'Facebook previews', () => {
 } );
 
 describe( 'Twitter previews', () => {
-	/* let originalConsoleError;
-
-	beforeAll( () => {
-		originalConsoleError = global.console.error;
-		jest.spyOn( global.console, 'error' ).mockImplementation();
-	} );
-
-	afterAll( () => {
-		global.console.error = originalConsoleError;
-	} ); */
-
 	const emptyTweet = {
 		profileImage: '',
 		name: '',
