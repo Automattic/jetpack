@@ -8,8 +8,11 @@ export type NextdoorLinkPreviewProps = Omit< NextdoorPreviewProps, keyof Optiona
 	OptionalProps;
 
 /**
+ * Nextdoor Link Preview Component
  *
- * @param props
+ * @param {NextdoorLinkPreviewProps} props - The props for the Nextdoor link preview.
+ *
+ * @return The Nextdoor link preview component.
  */
 export function NextdoorLinkPreview( props: NextdoorLinkPreviewProps ) {
 	return (

@@ -1,5 +1,7 @@
 /**
+ * Chevron Icon Component
  *
+ * @return The Chevron SVG icon component.
  */
 export function ChevronIcon() {
 	return (

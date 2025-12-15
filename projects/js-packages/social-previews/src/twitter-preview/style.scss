@@ -113,12 +113,15 @@
 				&:nth-child(1) {
 					grid-area: a;
 				}
+
 				&:nth-child(2) {
 					grid-area: b;
 				}
+
 				&:nth-child(3) {
 					grid-area: c;
 				}
+
 				&:nth-child(4) {
 					grid-area: d;
 				}
@@ -177,6 +180,7 @@
 
 					.twitter-preview__card-description {
 						-webkit-line-clamp: 3;
+						line-clamp: 3;
 					}
 				}
 			}
@@ -219,6 +223,7 @@
 				//clamp after three lines
 				display: -webkit-box;
 				-webkit-line-clamp: 3;
+				line-clamp: 3;
 				-webkit-box-orient: vertical;
 				overflow: hidden;
 			}

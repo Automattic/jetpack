@@ -1,5 +1,7 @@
 /**
+ * Globe Icon Component
  *
+ * @return The Globe SVG icon component.
  */
 export function GlobeIcon() {
 	return (

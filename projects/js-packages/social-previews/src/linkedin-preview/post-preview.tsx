@@ -7,17 +7,11 @@ import { LinkedInPreviewProps } from './types';
 import './style.scss';
 
 /**
+ * LinkedIn Post Preview Component
  *
- * @param root0
- * @param root0.articleReadTime
- * @param root0.image
- * @param root0.jobTitle
- * @param root0.name
- * @param root0.profileImage
- * @param root0.description
- * @param root0.media
- * @param root0.title
- * @param root0.url
+ * @param {LinkedInPreviewProps} props - The props for the LinkedIn post preview.
+ *
+ * @return The LinkedIn post preview component.
  */
 export function LinkedInPostPreview( {
 	articleReadTime = 5,

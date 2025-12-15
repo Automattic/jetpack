@@ -1,4 +1,4 @@
-@import '../../variables';
+@import "../../variables";
 
 .mastodon-preview__card {
 	display: flex;
@@ -74,5 +74,6 @@
 
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 1;
+	line-clamp: 1;
 	display: -webkit-box;
 }

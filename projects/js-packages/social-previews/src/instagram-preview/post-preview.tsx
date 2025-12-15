@@ -12,14 +12,11 @@ import { InstagramPreviewProps } from './types';
 import './style.scss';
 
 /**
+ * Instagram Post Preview Component
  *
- * @param root0
- * @param root0.image
- * @param root0.media
- * @param root0.name
- * @param root0.profileImage
- * @param root0.caption
- * @param root0.url
+ * @param {InstagramPreviewProps} props - The props for the Instagram post preview.
+ *
+ * @return  The Instagram post preview component.
  */
 export function InstagramPostPreview( {
 	image,

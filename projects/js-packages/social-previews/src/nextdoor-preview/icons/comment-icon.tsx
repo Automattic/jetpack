@@ -1,5 +1,7 @@
 /**
+ * Comment Icon Component
  *
+ * @return The Comment SVG icon component.
  */
 export function CommentIcon() {
 	return (

@@ -1,9 +1,9 @@
-@import './variables';
-@import '../shared';
+@import "./variables";
+@import "../shared";
 
 .facebook-preview__post {
 	overflow-y: hidden;
-	max-width: clamp( #{$facebook-preview-min-width}, 100%, #{$facebook-preview-max-width} );
+	max-width: clamp(#{$facebook-preview-min-width}, 100%, #{$facebook-preview-max-width});
 	margin-inline: auto;
 
 	display: flex;
@@ -111,6 +111,7 @@
 .facebook-preview__image,
 .facebook-preview__custom-image,
 .facebook-preview__media-item {
+
 	img,
 	video {
 		display: block;
@@ -120,6 +121,7 @@
 }
 
 .facebook-preview__image {
+
 	&.is-empty {
 		width: 140px;
 		height: 140px;
@@ -128,6 +130,7 @@
 	}
 
 	&.is-portrait {
+
 		img {
 			width: 278px;
 			height: 430px;
@@ -135,10 +138,16 @@
 	}
 
 	&.is-landscape {
+
 		img {
-			// At the moment of writing, the post card on Facebook.com goes from 508 to 680px wide
-			// on desktop. In landscape mode, the image takes the full width of the card, and
-			// respect the 1.91 aspect ratio at any width.
+
+			/**
+			 At the moment of writing, the post card on Facebook.com
+			 goes from 508 to 680px wide on desktop.
+			 In landscape mode, the image takes the full width of the card, and
+			 respect the 1.91 aspect ratio at any width.
+			*/
+
 			width: 100%;
 			aspect-ratio: 1.91;
 		}
@@ -155,6 +164,7 @@
 	background-color: $facebook-preview-image-background;
 
 	&.is-portrait {
+
 		img {
 			width: 500px;
 			height: 685px;
@@ -162,6 +172,7 @@
 	}
 
 	&.is-landscape {
+
 		img {
 			width: 100%;
 			aspect-ratio: 1.78;
@@ -186,7 +197,7 @@
 	border-radius: 50%;
 
 	i {
-		filter: invert( 8% );
+		filter: invert(8%);
 	}
 }
 
