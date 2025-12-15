@@ -893,7 +893,6 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) > textarea,
 .contact-form .is-style-animated .grunion-field-wrap:not(.no-label) select:not(.jetpack-field__input-element) {
-	padding-top: 1.4em;
 	padding-left: var(--field-padding);
 	padding-right: var(--field-padding);
 }
