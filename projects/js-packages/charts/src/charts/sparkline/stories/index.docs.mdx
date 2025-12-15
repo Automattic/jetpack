@@ -24,14 +24,14 @@ For full control over axes, tooltips, and other features, use LineChart directly
 <Source
 	language="jsx"
 	code={ `import { Sparkline } from '@automattic/charts';
-import '@automattic/charts/sparkline/style.css';
+	import '@automattic/charts/sparkline/style.css';
 
-<Sparkline
-	data={ [10, 15, 12, 18, 22, 25, 23, 28] }
-	width={ 120 }
-	height={ 48 }
-	color="#4CAF50"
-/>` }
+	<Sparkline
+		data={ [10, 15, 12, 18, 22, 25, 23, 28] }
+		width={ 120 }
+		height={ 48 }
+		color="#4CAF50"
+	/>` }
 />
 
 ## API Reference
@@ -49,11 +49,11 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 <Source
 	language="jsx"
 	code={ `<Sparkline
-	data={[10, 15, 12, 18, 22, 25, 23, 28]}
-	width={120}
-	height={48}
-	color="#4CAF50"
-/>` }
+		data={[10, 15, 12, 18, 22, 25, 23, 28]}
+		width={120}
+		height={48}
+		color="#4CAF50"
+	/>` }
 />
 
 ### Required Props
@@ -65,7 +65,7 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 - **`width`** (default: `100`): Width of the sparkline in pixels
 - **`height`** (default: `40`): Height of the sparkline in pixels
 - **`color`**: Color for the line stroke (defaults to theme color)
-- **`strokeWidth`** (default: `1`): Line stroke width in pixels
+- **`strokeWidth`** (default: `1.5`): Line stroke width in pixels
 - **`withGradientFill`** (default: `true`): Whether to render gradient fill beneath the line
 - **`gradient`**: Custom gradient configuration (from, to, fromOpacity, toOpacity)
 - **`className`**: Additional CSS class name
@@ -81,29 +81,29 @@ For more control, you can use LineChart with minimal chrome. This is what Sparkl
 	language="jsx"
 	code={ `import { LineChart } from '@automattic/charts';
 
-<LineChart
-	data={[{
-		label: 'trend',
-		data: [
-			{ date: new Date('2024-01-01'), value: 10 },
-			{ date: new Date('2024-01-02'), value: 15 },
-			// ...
-		]
-	}]}
-	gridVisibility="none"
-	options={{
-		axis: {
-			x: { display: false },
-			y: { display: false }
-		}
-	}}
-	showLegend={false}
-	withTooltips={false}
-	withGradientFill={true}
-	curveType="monotone"
-	width={120}
-	height={48}
-/>` }
+	<LineChart
+		data={[{
+			label: 'trend',
+			data: [
+				{ date: new Date('2024-01-01'), value: 10 },
+				{ date: new Date('2024-01-02'), value: 15 },
+				// ...
+			]
+		}]}
+		gridVisibility="none"
+		options={{
+			axis: {
+				x: { display: false },
+				y: { display: false }
+			}
+		}}
+		showLegend={false}
+		withTooltips={false}
+		withGradientFill={true}
+		curveType="monotone"
+		width={120}
+		height={48}
+	/>` }
 />
 
 ## Visual Customization
@@ -115,10 +115,10 @@ Use colors to indicate trend direction - green for positive, red for negative:
 <Source
 	language="jsx"
 	code={ `// Positive trend
-<Sparkline data={[10, 15, 18, 22, 28]} color="#4CAF50" />
+	<Sparkline data={[10, 15, 18, 22, 28]} color="#4CAF50" />
 
-// Negative trend
-<Sparkline data={[28, 22, 18, 15, 10]} color="#F44336" />` }
+	// Negative trend
+	<Sparkline data={[28, 22, 18, 15, 10]} color="#F44336" />` }
 />
 
 ### Gradient Control
@@ -128,19 +128,19 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 <Source
 	language="jsx"
 	code={ `// No gradient fill
-<Sparkline data={data} color="#2196F3" withGradientFill={false} />
+	<Sparkline data={data} color="#2196F3" withGradientFill={false} />
 
-// Custom gradient
-<Sparkline
-	data={data}
-	color="#00BCD4"
-	gradient={{
-		from: "#00BCD4",
-		to: "#ffffff",
-		fromOpacity: 0.8,
-		toOpacity: 0.1,
-	}}
-/>` }
+	// Custom gradient
+	<Sparkline
+		data={data}
+		color="#00BCD4"
+		gradient={{
+			from: "#00BCD4",
+			to: "#ffffff",
+			fromOpacity: 0.8,
+			toOpacity: 0.1,
+		}}
+	/>` }
 />
 
 ### Responsive Sparkline
@@ -152,12 +152,12 @@ The default `Sparkline` export includes responsive behavior. Wrap in a container
 <Source
 	language="jsx"
 	code={ `<div style={{ width: '100%', maxWidth: '200px' }}>
-	<Sparkline
-		data={[10, 15, 12, 18, 22, 25]}
-		color="#9C27B0"
-		aspectRatio={0.3}
-	/>
-</div>` }
+		<Sparkline
+			data={[10, 15, 12, 18, 22, 25]}
+			color="#9C27B0"
+			aspectRatio={0.3}
+		/>
+	</div>` }
 />
 
 ## Dashboard Integration
@@ -171,29 +171,29 @@ Sparklines work great alongside metrics in dashboard cards:
 <Source
 	language="jsx"
 	code={ `const metrics = [
-	{ label: 'Speeding up', value: 28, data: [10, 15, 12, 18, 22, 25, 23, 28], color: '#4CAF50' },
-	{ label: 'Efficient', value: 90, data: [80, 82, 85, 83, 87, 90, 88, 92], color: '#2196F3' },
-	{ label: 'Unstable', value: 65, data: [50, 75, 45, 80, 40, 85, 55, 65], color: '#FF9800' },
-];
+		{ label: 'Speeding up', value: 28, data: [10, 15, 12, 18, 22, 25, 23, 28], color: '#4CAF50' },
+		{ label: 'Efficient', value: 90, data: [80, 82, 85, 83, 87, 90, 88, 92], color: '#2196F3' },
+		{ label: 'Unstable', value: 65, data: [50, 75, 45, 80, 40, 85, 55, 65], color: '#FF9800' },
+	];
 
-return (
-	<div style={{ display: 'flex', gap: '24px' }}>
-		{metrics.map(metric => (
-			<div key={metric.label} className="metric-card">
-				<div className="metric-header">
-					<span>{metric.label}</span>
-					<span>{metric.value}</span>
+	return (
+		<div style={{ display: 'flex', gap: '24px' }}>
+			{metrics.map(metric => (
+				<div key={metric.label} className="metric-card">
+					<div className="metric-header">
+						<span>{metric.label}</span>
+						<span>{metric.value}</span>
+					</div>
+					<Sparkline
+						data={metric.data}
+						width={180}
+						height={48}
+						color={metric.color}
+					/>
 				</div>
-				<Sparkline
-					data={metric.data}
-					width={180}
-					height={48}
-					color={metric.color}
-				/>
-			</div>
-		))}
-	</div>
-);` }
+			))}
+		</div>
+	);` }
 />
 
 ## Theme Integration
@@ -204,9 +204,9 @@ Sparklines integrate with the global charts theme. When no color is specified, t
 	language="jsx"
 	code={ `import { GlobalChartsProvider } from '@automattic/charts';
 
-<GlobalChartsProvider theme={customTheme}>
-	<Sparkline data={[10, 15, 12, 18]} />
-</GlobalChartsProvider>` }
+	<GlobalChartsProvider theme={customTheme}>
+		<Sparkline data={[10, 15, 12, 18]} />
+	</GlobalChartsProvider>` }
 />
 
 ## Edge Cases
@@ -242,10 +242,10 @@ The empty state can be styled using the `sparkline--empty` class:
 <Source
 	language="css"
 	code={ `.sparkline--empty {
-	background: rgba(0, 0, 0, 0.02);
-	border: 1px dashed rgba(0, 0, 0, 0.1);
-	border-radius: 4px;
-}` }
+		background: rgba(0, 0, 0, 0.02);
+		border: 1px dashed rgba(0, 0, 0, 0.1);
+		border-radius: 4px;
+	}` }
 />
 
 ## Accessibility
@@ -255,10 +255,10 @@ Sparklines are decorative visualizations. For accessibility, ensure the parent c
 <Source
 	language="jsx"
 	code={ `<div role="img" aria-label="Momentum trending upward, current value 28">
-	<span>Momentum</span>
-	<span>28</span>
-	<Sparkline data={data} aria-hidden="true" />
-</div>` }
+		<span>Momentum</span>
+		<span>28</span>
+		<Sparkline data={data} aria-hidden="true" />
+	</div>` }
 />
 
 **Best Practices:**
