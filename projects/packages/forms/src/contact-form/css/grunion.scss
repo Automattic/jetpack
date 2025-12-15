@@ -48,6 +48,7 @@
 	display: block;
 }
 
+.contact-form .wp-block-button:has(button.is-hidden),
 .contact-form .wp-block-jetpack-button:has(button.is-hidden) {
 	display: none;
 }
@@ -361,7 +362,7 @@ that needs to mimic the input element styles */
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
-.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
+.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button,.wp-block-button) {
 	flex: 0 0 100%;
 	box-sizing: border-box;
 }
@@ -388,12 +389,15 @@ that needs to mimic the input element styles */
 	&:has(.contact-form__input-error.has-errors) {
 		margin-bottom: calc(var(--wp--style--block-gap, 1.5rem) * 2);
 
-		.wp-block-jetpack-button.wp-block-button {
+		// buttons on single input form need to be pushed down to avoid overlap
+		// but only if they are not animated or outlined.
+		:is(.wp-block-button.wp-block-button, .wp-block-jetpack-button.wp-block-button):not(.is-style-animated *):not(.is-style-outlined *) {
 			margin-top: var(--wp--style--block-gap, 1.5rem);
 		}
 	}
 }
 
+.wp-block-jetpack-contact-form .wp-block-button,
 .wp-block-jetpack-contact-form .wp-block-jetpack-button {
 	min-height: var(--jetpack--contact-form--input-height, auto);
 	align-self: flex-end;
@@ -468,6 +472,7 @@ that needs to mimic the input element styles */
 		max-width: none;
 	}
 
+	.wp-block-jetpack-contact-form .wp-block-button,
 	.wp-block-jetpack-contact-form .wp-block-jetpack-button {
 		flex-basis: 100%;
 
