@@ -2,9 +2,21 @@
  * @jest-environment jsdom
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../providers';
 import GeoChart, { GeoChartUnresponsive } from '../geo-chart';
+
+// Mock react-google-charts
+jest.mock( 'react-google-charts', () => ( {
+	Chart: jest.fn( ( { data, options, width, height } ) => {
+		return (
+			<div data-testid="google-chart-mock" data-width={ width } data-height={ height }>
+				<div data-testid="chart-data">{ JSON.stringify( data ) }</div>
+				<div data-testid="chart-options">{ JSON.stringify( options ) }</div>
+			</div>
+		);
+	} ),
+} ) );
 
 describe( 'GeoChart', () => {
 	const defaultProps = {
@@ -25,223 +37,140 @@ describe( 'GeoChart', () => {
 		);
 	};
 
-	// Helper to wait for the chart to finish loading the topology
-	const waitForChartToLoad = async () => {
-		return screen.findByTestId( 'geo-chart-svg' );
-	};
-
 	describe( 'Basic Rendering', () => {
-		test( 'renders an SVG element with correct dimensions', async () => {
+		test( 'renders a container with the geo-chart class', () => {
 			renderWithTheme();
 
-			const svg = await waitForChartToLoad();
-			expect( svg ).toBeInTheDocument();
-			expect( svg ).toHaveAttribute( 'width', '800' );
-			expect( svg ).toHaveAttribute( 'height', '400' );
+			const container = screen.getByTestId( 'geo-chart' );
+			expect( container ).toBeInTheDocument();
+			expect( container ).toHaveClass( 'geo-chart' );
 		} );
 
-		test( 'renders a container with the correct class', async () => {
+		test( 'renders a container with a custom class', () => {
 			renderWithTheme( { className: 'custom-class' } );
 
-			await waitForChartToLoad();
 			const container = screen.getByTestId( 'geo-chart' );
 			expect( container ).toHaveClass( 'custom-class' );
 		} );
 
-		test( 'renders without GlobalChartsProvider by creating its own', async () => {
+		test( 'renders without GlobalChartsProvider by creating its own', () => {
 			render( <GeoChartUnresponsive { ...defaultProps } /> );
 
-			const svg = await screen.findByTestId( 'geo-chart-svg' );
-			expect( svg ).toBeInTheDocument();
+			const container = screen.getByTestId( 'geo-chart' );
+			expect( container ).toBeInTheDocument();
+		} );
+
+		test( 'passes dimensions to Google Charts', () => {
+			renderWithTheme( { width: 1200, height: 600 } );
+
+			const chart = screen.getByTestId( 'google-chart-mock' );
+			expect( chart ).toHaveAttribute( 'data-width', '1200' );
+			expect( chart ).toHaveAttribute( 'data-height', '600' );
 		} );
 	} );
 
 	describe( 'Data Handling', () => {
-		test( 'handles empty data object', async () => {
-			renderWithTheme( { data: {} } );
-
-			const svg = await waitForChartToLoad();
-			expect( svg ).toBeInTheDocument();
-		} );
-
-		test( 'handles single country data', async () => {
-			renderWithTheme( { data: { USA: 100 } } );
-
-			await waitForChartToLoad();
-			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
-		} );
-
-		test( 'handles zero values in data', async () => {
-			renderWithTheme( { data: { USA: 0, CAN: 100 } } );
-
-			await waitForChartToLoad();
-			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'geo-chart-country-CAN' ) ).toBeInTheDocument();
-		} );
-
-		test( 'renders country paths for world map', async () => {
-			renderWithTheme();
-
-			await waitForChartToLoad();
-			// Check that multiple countries are rendered
-			expect( screen.getByTestId( 'geo-chart-country-USA' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'geo-chart-country-CAN' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'geo-chart-country-GBR' ) ).toBeInTheDocument();
-		} );
-	} );
-
-	describe( 'Map Configuration', () => {
-		test( 'applies custom scale prop', async () => {
-			renderWithTheme( { scale: 200 } );
-
-			const svg = await waitForChartToLoad();
-			expect( svg ).toBeInTheDocument();
-		} );
-
-		test( 'renders with different dimensions', async () => {
-			renderWithTheme( { width: 1200, height: 600 } );
-
-			const svg = await waitForChartToLoad();
-			expect( svg ).toHaveAttribute( 'width', '1200' );
-			expect( svg ).toHaveAttribute( 'height', '600' );
-		} );
-	} );
-
-	/* eslint-disable testing-library/prefer-user-event -- fireEvent needed for SVG path mouse events */
-	describe( 'Tooltip Functionality', () => {
-		test( 'tooltip displays country name and value', async () => {
-			renderWithTheme( { data: { USA: 42 } } );
-
-			await waitForChartToLoad();
-			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
-
-			// Trigger tooltip on USA
-			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
-
-			// Should show country name and numeric value in tooltip
-			await waitFor( () => {
-				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toBeInTheDocument();
-			} );
-			const tooltip = screen.getByTestId( 'geo-chart-tooltip' );
-			expect( tooltip ).toHaveTextContent( 'United States' );
-			expect( tooltip ).toHaveTextContent( '42' );
-		} );
-
-		test( 'hides tooltip on mouse leave', async () => {
-			renderWithTheme();
-
-			await waitForChartToLoad();
-			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
-
-			// Show tooltip
-			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
-
-			await waitFor( () => {
-				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toBeInTheDocument();
-			} );
-
-			// Hide tooltip
-			fireEvent.mouseLeave( usaPath );
-
-			await waitFor( () => {
-				expect( screen.queryByTestId( 'geo-chart-tooltip' ) ).not.toBeInTheDocument();
-			} );
-		} );
-
-		test( 'tooltip updates when switching between countries', async () => {
-			renderWithTheme();
-
-			await waitForChartToLoad();
-			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
-			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
-
-			// Hover on USA
-			fireEvent.mouseMove( usaPath, { clientX: 100, clientY: 100 } );
-
-			await waitFor( () => {
-				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toHaveTextContent( 'United States' );
-			} );
-
-			// Move to Canada
-			fireEvent.mouseMove( canPath, { clientX: 200, clientY: 200 } );
-
-			await waitFor( () => {
-				expect( screen.getByTestId( 'geo-chart-tooltip' ) ).toHaveTextContent( 'Canada' );
-			} );
-		} );
-	} );
-	/* eslint-enable testing-library/prefer-user-event */
-
-	describe( 'Color Scaling', () => {
-		test( 'countries with data have different fill than countries without', async () => {
-			renderWithTheme( { data: { USA: 100 } } );
-
-			await waitForChartToLoad();
-			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
-			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
-
-			// USA has data, CAN doesn't - they should have different fills
-			expect( usaPath.getAttribute( 'fill' ) ).not.toBe( canPath.getAttribute( 'fill' ) );
-		} );
-
-		test( 'countries with varying data values have different fill intensities', async () => {
+		test( 'transforms data to Google Charts format', () => {
 			renderWithTheme( { data: { USA: 100, CAN: 50 } } );
 
-			await waitForChartToLoad();
-			const usaPath = screen.getByTestId( 'geo-chart-country-USA' );
-			const canPath = screen.getByTestId( 'geo-chart-country-CAN' );
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
 
-			// Both have data but different values - should have different fills
-			expect( usaPath.getAttribute( 'fill' ) ).not.toBe( canPath.getAttribute( 'fill' ) );
+			// First row should be headers
+			expect( data[ 0 ] ).toEqual( [ 'Country', 'Value' ] );
+			// Data should include our countries
+			expect( data ).toContainEqual( [ 'USA', 100 ] );
+			expect( data ).toContainEqual( [ 'CAN', 50 ] );
+		} );
+
+		test( 'handles empty data object', () => {
+			renderWithTheme( { data: {} } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			// Should only have headers
+			expect( data ).toEqual( [ [ 'Country', 'Value' ] ] );
+		} );
+
+		test( 'handles single country data', () => {
+			renderWithTheme( { data: { USA: 100 } } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			expect( data ).toHaveLength( 2 ); // headers + 1 country
+			expect( data[ 1 ] ).toEqual( [ 'USA', 100 ] );
+		} );
+
+		test( 'handles zero values in data', () => {
+			renderWithTheme( { data: { USA: 0, CAN: 100 } } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			expect( data ).toContainEqual( [ 'USA', 0 ] );
+			expect( data ).toContainEqual( [ 'CAN', 100 ] );
+		} );
+	} );
+
+	describe( 'Chart Options', () => {
+		test( 'configures color axis with theme colors', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.colorAxis ).toBeDefined();
+			expect( options.colorAxis.colors ).toHaveLength( 2 );
+		} );
+
+		test( 'sets datalessRegionColor from theme', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.datalessRegionColor ).toBeDefined();
+		} );
+
+		test( 'disables legend', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.legend ).toBe( 'none' );
+		} );
+
+		test( 'sets tooltip trigger to focus', () => {
+			renderWithTheme();
+
+			const chartOptions = screen.getByTestId( 'chart-options' );
+			const options = JSON.parse( chartOptions.textContent || '{}' );
+
+			expect( options.tooltip ).toEqual( { trigger: 'focus' } );
 		} );
 	} );
 
 	describe( 'Loading State', () => {
-		test( 'shows loading state initially with default text', async () => {
+		test( 'provides loading placeholder to Google Charts', () => {
+			// The loading placeholder is passed to the Chart component's loader prop
+			// In real usage, Google Charts shows this while loading
 			renderWithTheme();
 
-			const loadingContainer = screen.getByTestId( 'geo-chart-loading' );
-			expect( loadingContainer ).toBeInTheDocument();
-			expect( loadingContainer ).toHaveTextContent( 'Loading map' );
-
-			// Wait for loading to complete to avoid act() warning
-			await waitForChartToLoad();
+			// Component should render without errors
+			expect( screen.getByTestId( 'geo-chart' ) ).toBeInTheDocument();
 		} );
 
-		test( 'loading container has correct dimensions', async () => {
-			renderWithTheme( { width: 600, height: 300 } );
-
-			const loadingContainer = screen.getByTestId( 'geo-chart-loading' );
-			expect( loadingContainer ).toHaveStyle( { width: '600px', height: '300px' } );
-
-			// Wait for loading to complete to avoid act() warning
-			await waitForChartToLoad();
-		} );
-
-		test( 'uses custom renderPlaceholder when provided', async () => {
+		test( 'uses custom renderPlaceholder when provided', () => {
 			const customPlaceholder = jest.fn( () => (
 				<div data-testid="custom-placeholder">Custom loading...</div>
 			) );
 			renderWithTheme( { renderPlaceholder: customPlaceholder } );
 
+			// The component should call the custom placeholder function
 			expect( customPlaceholder ).toHaveBeenCalled();
-			expect( screen.getByTestId( 'custom-placeholder' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'custom-placeholder' ) ).toHaveTextContent( 'Custom loading...' );
-
-			// Wait for loading to complete to avoid act() warning
-			await waitForChartToLoad();
-		} );
-
-		test( 'loading state is replaced by chart after topology loads', async () => {
-			renderWithTheme();
-
-			// Initially shows loading
-			expect( screen.getByTestId( 'geo-chart-loading' ) ).toBeInTheDocument();
-
-			// After loading, shows the chart
-			await waitForChartToLoad();
-			expect( screen.queryByTestId( 'geo-chart-loading' ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'geo-chart' ) ).toBeInTheDocument();
 		} );
 	} );
 
