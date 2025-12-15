@@ -66,6 +66,7 @@ The simplest geo chart requires data, width, and height. The `data` prop accepts
 
 - **`className`**: Additional CSS class name for custom styling
 - **`scale`**: Scale factor for the map projection. Defaults to `width / 5` to fit the map within the chart bounds
+- **`renderPlaceholder`**: Custom render function for the loading placeholder
 
 For detailed prop information and type definitions, see the [Geo Chart API Reference](./?path=/docs/js-packages-charts-library-charts-geo-chart-api-reference--docs).
 
@@ -90,6 +91,45 @@ The chart automatically scales colors based on data values:
 - **High values**: Displayed with full opacity using the primary theme color
 
 The color scale uses alpha transparency (~12.5% to 100% opacity) for smooth gradations that maintain visual consistency across different themes.
+
+## Loading State
+
+The Geo Chart loads the world map topology asynchronously for better performance and bundle optimization. While loading, a placeholder is displayed.
+
+### Default Loading Placeholder
+
+By default, a simple "Loading map" text is shown while the topology loads:
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+	/>
+	// Shows "Loading map" until the topology is ready` }
+/>
+
+### Custom Loading Placeholder
+
+You can provide a custom loading placeholder using the `renderPlaceholder` prop:
+
+<Source
+	language="tsx"
+	code={ `<GeoChart
+		data={ ordersByCountry }
+		width={ 800 }
+		height={ 500 }
+		renderPlaceholder={ () => (
+			<div className="custom-loading">
+				<Spinner />
+				<span>Loading world map...</span>
+			</div>
+		) }
+	/>` }
+/>
+
+This is useful when you want to show a skeleton loader, spinner, or branded loading state that matches your application's design.
 
 ## Country Code Format
 
@@ -178,9 +218,10 @@ This projection provides a visually balanced world map layout suitable for most 
 
 The Geo Chart renders efficiently for typical use cases, but consider these factors:
 
+- **Async loading**: The world topology is loaded asynchronously, which keeps the initial bundle size small. The chart displays a loading placeholder until the topology is ready.
 - **Fixed dimensions**: The chart uses fixed width and height, not responsive sizing
 - **Tooltip rendering**: Tooltips are lightweight and render only on hover
-- **Map complexity**: The world topology is pre-loaded and optimized for performance
+- **Map complexity**: The world topology is optimized for performance
 
 ### Accessibility
 

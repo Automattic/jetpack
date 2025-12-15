@@ -18,6 +18,7 @@ Main component for rendering geographical data on an interactive world map.
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
 | `scale` | `number` | `width / 5` | Scale factor for the map projection. Controls how large the map appears within the chart bounds |
+| `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while the map topology is being loaded asynchronously |
 
 ## GeoChartProps Type
 
@@ -26,6 +27,7 @@ interface GeoChartProps
   extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
   data: Record<string, number>;
   scale?: number;
+  renderPlaceholder?: () => React.ReactNode;
 }
 ```
 
