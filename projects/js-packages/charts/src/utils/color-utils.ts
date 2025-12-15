@@ -1,29 +1,33 @@
 /**
- * Validate hex color format
+ * Check if a value is a valid 6-digit hex color
+ * @param hex - The value to check
+ * @return true if valid hex color format (e.g., '#ff0000')
+ */
+export const isValidHexColor = ( hex: unknown ): hex is string => {
+	return typeof hex === 'string' && /^#[0-9a-fA-F]{6}$/.test( hex );
+};
+
+/**
+ * Validate hex color format, throwing descriptive errors if invalid
  * @param  hex - The hex color string to validate
  * @throws {Error} if hex string is malformed
  */
-const validateHexColor = ( hex: string ): void => {
-	// Validate hex format
+export const validateHexColor = ( hex: unknown ): void => {
+	if ( isValidHexColor( hex ) ) {
+		return;
+	}
+
+	// Provide specific error messages for common issues
 	if ( typeof hex !== 'string' ) {
 		throw new Error( 'Hex color must be a string' );
 	}
-
-	// Check if hex starts with #
 	if ( ! hex.startsWith( '#' ) ) {
 		throw new Error( 'Hex color must start with #' );
 	}
-
-	// Check length (should be 7 characters: # + 6 hex digits)
 	if ( hex.length !== 7 ) {
 		throw new Error( 'Hex color must be 7 characters long (e.g., #ff0000)' );
 	}
-
-	// Check if all characters after # are valid hex digits
-	const hexDigits = hex.slice( 1 );
-	if ( ! /^[0-9a-fA-F]{6}$/.test( hexDigits ) ) {
-		throw new Error( 'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed' );
-	}
+	throw new Error( 'Hex color contains invalid characters. Only 0-9, a-f, A-F are allowed' );
 };
 
 /**
@@ -115,4 +119,30 @@ export const getColorDistance = (
 			Math.pow( ( l1 - l2 ) * lightnessWeight, 2 ) +
 			Math.pow( ( s1 - s2 ) * saturationWeight, 2 )
 	);
+};
+
+/**
+ * Lighten a hex color by blending it with white.
+ * Useful for creating color gradients or lighter variants.
+ *
+ * @param  hex   - Hex color string (e.g., '#98C8DF')
+ * @param  blend - Blend amount with white (0 = original color, 1 = white)
+ * @return Lightened hex color string (e.g., '#cce4ef')
+ * @throws {Error} if hex string is malformed
+ */
+export const lightenHexColor = ( hex: string, blend: number ): string => {
+	validateHexColor( hex );
+
+	const r = parseInt( hex.slice( 1, 3 ), 16 );
+	const g = parseInt( hex.slice( 3, 5 ), 16 );
+	const b = parseInt( hex.slice( 5, 7 ), 16 );
+
+	// Blend with white (255, 255, 255)
+	const newR = Math.round( r + ( 255 - r ) * blend );
+	const newG = Math.round( g + ( 255 - g ) * blend );
+	const newB = Math.round( b + ( 255 - b ) * blend );
+
+	return `#${ newR.toString( 16 ).padStart( 2, '0' ) }${ newG
+		.toString( 16 )
+		.padStart( 2, '0' ) }${ newB.toString( 16 ).padStart( 2, '0' ) }`;
 };

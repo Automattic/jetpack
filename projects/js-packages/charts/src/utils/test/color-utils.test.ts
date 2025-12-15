@@ -1,4 +1,119 @@
-import { hexToRgba, hexToHsl, getColorDistance } from '../color-utils';
+import {
+	hexToRgba,
+	hexToHsl,
+	getColorDistance,
+	lightenHexColor,
+	isValidHexColor,
+	validateHexColor,
+} from '../color-utils';
+
+describe( 'isValidHexColor', () => {
+	describe( 'Valid hex colors', () => {
+		it( 'returns true for valid 6-digit hex with lowercase', () => {
+			expect( isValidHexColor( '#abcdef' ) ).toBe( true );
+		} );
+
+		it( 'returns true for valid 6-digit hex with uppercase', () => {
+			expect( isValidHexColor( '#ABCDEF' ) ).toBe( true );
+		} );
+
+		it( 'returns true for valid 6-digit hex with mixed case', () => {
+			expect( isValidHexColor( '#AbCdEf' ) ).toBe( true );
+		} );
+
+		it( 'returns true for black', () => {
+			expect( isValidHexColor( '#000000' ) ).toBe( true );
+		} );
+
+		it( 'returns true for white', () => {
+			expect( isValidHexColor( '#ffffff' ) ).toBe( true );
+		} );
+	} );
+
+	describe( 'Invalid inputs', () => {
+		it( 'returns false for hex without #', () => {
+			expect( isValidHexColor( 'abcdef' ) ).toBe( false );
+		} );
+
+		it( 'returns false for 3-digit hex', () => {
+			expect( isValidHexColor( '#abc' ) ).toBe( false );
+		} );
+
+		it( 'returns false for 8-digit hex (with alpha)', () => {
+			expect( isValidHexColor( '#abcdef00' ) ).toBe( false );
+		} );
+
+		it( 'returns false for empty string', () => {
+			expect( isValidHexColor( '' ) ).toBe( false );
+		} );
+
+		it( 'returns false for null', () => {
+			expect( isValidHexColor( null ) ).toBe( false );
+		} );
+
+		it( 'returns false for undefined', () => {
+			expect( isValidHexColor( undefined ) ).toBe( false );
+		} );
+
+		it( 'returns false for number', () => {
+			expect( isValidHexColor( 123456 ) ).toBe( false );
+		} );
+
+		it( 'returns false for invalid hex characters', () => {
+			expect( isValidHexColor( '#gggggg' ) ).toBe( false );
+		} );
+
+		it( 'returns false for CSS color names', () => {
+			expect( isValidHexColor( 'red' ) ).toBe( false );
+		} );
+
+		it( 'returns false for rgba values', () => {
+			expect( isValidHexColor( 'rgba(255, 0, 0, 1)' ) ).toBe( false );
+		} );
+	} );
+} );
+
+describe( 'validateHexColor', () => {
+	describe( 'Valid hex colors', () => {
+		it( 'does not throw for valid 6-digit hex', () => {
+			expect( () => validateHexColor( '#abcdef' ) ).not.toThrow();
+		} );
+
+		it( 'does not throw for black', () => {
+			expect( () => validateHexColor( '#000000' ) ).not.toThrow();
+		} );
+
+		it( 'does not throw for white', () => {
+			expect( () => validateHexColor( '#ffffff' ) ).not.toThrow();
+		} );
+	} );
+
+	describe( 'Invalid inputs with specific error messages', () => {
+		it( 'throws for non-string input', () => {
+			expect( () => validateHexColor( 123456 ) ).toThrow( 'Hex color must be a string' );
+		} );
+
+		it( 'throws for hex without #', () => {
+			expect( () => validateHexColor( 'abcdef' ) ).toThrow( 'Hex color must start with #' );
+		} );
+
+		it( 'throws for 3-digit hex', () => {
+			expect( () => validateHexColor( '#abc' ) ).toThrow( 'Hex color must be 7 characters long' );
+		} );
+
+		it( 'throws for 8-digit hex', () => {
+			expect( () => validateHexColor( '#abcdef00' ) ).toThrow(
+				'Hex color must be 7 characters long'
+			);
+		} );
+
+		it( 'throws for invalid hex characters', () => {
+			expect( () => validateHexColor( '#gggggg' ) ).toThrow(
+				'Hex color contains invalid characters'
+			);
+		} );
+	} );
+} );
 
 describe( 'hexToRgba', () => {
 	describe( 'Valid hex colors', () => {
@@ -597,6 +712,67 @@ describe( 'getColorDistance', () => {
 			const color2: [ number, number, number ] = [ 200, 20, 70 ];
 			const distance = getColorDistance( color1, color2 );
 			expect( distance ).toBeGreaterThan( 0 );
+		} );
+	} );
+} );
+
+describe( 'lightenHexColor', () => {
+	describe( 'Valid inputs', () => {
+		it( 'returns original color with blend of 0', () => {
+			const result = lightenHexColor( '#ff0000', 0 );
+			expect( result ).toBe( '#ff0000' );
+		} );
+
+		it( 'returns white with blend of 1', () => {
+			const result = lightenHexColor( '#ff0000', 1 );
+			expect( result ).toBe( '#ffffff' );
+		} );
+
+		it( 'lightens red by 50%', () => {
+			const result = lightenHexColor( '#ff0000', 0.5 );
+			expect( result ).toBe( '#ff8080' );
+		} );
+
+		it( 'lightens blue by 50%', () => {
+			const result = lightenHexColor( '#0000ff', 0.5 );
+			expect( result ).toBe( '#8080ff' );
+		} );
+
+		it( 'lightens a theme color by 80%', () => {
+			const result = lightenHexColor( '#98C8DF', 0.8 );
+			// R: 152 + (255-152)*0.8 = 152 + 82.4 = 234
+			// G: 200 + (255-200)*0.8 = 200 + 44 = 244
+			// B: 223 + (255-223)*0.8 = 223 + 25.6 = 249
+			expect( result ).toBe( '#eaf4f9' );
+		} );
+
+		it( 'handles black color', () => {
+			const result = lightenHexColor( '#000000', 0.5 );
+			expect( result ).toBe( '#808080' );
+		} );
+
+		it( 'handles white color (stays white)', () => {
+			const result = lightenHexColor( '#ffffff', 0.5 );
+			expect( result ).toBe( '#ffffff' );
+		} );
+
+		it( 'handles lowercase hex', () => {
+			const result = lightenHexColor( '#abcdef', 0.5 );
+			expect( result.toLowerCase() ).toMatch( /^#[0-9a-f]{6}$/ );
+		} );
+	} );
+
+	describe( 'Invalid inputs', () => {
+		it( 'throws for hex without hash', () => {
+			expect( () => lightenHexColor( 'ff0000', 0.5 ) ).toThrow();
+		} );
+
+		it( 'throws for short hex', () => {
+			expect( () => lightenHexColor( '#fff', 0.5 ) ).toThrow();
+		} );
+
+		it( 'throws for invalid hex characters', () => {
+			expect( () => lightenHexColor( '#gggggg', 0.5 ) ).toThrow();
 		} );
 	} );
 } );
