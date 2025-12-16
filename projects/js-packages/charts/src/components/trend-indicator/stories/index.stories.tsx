@@ -16,6 +16,9 @@ const meta: Meta< TrendIndicatorProps > = {
 		value: {
 			control: 'text',
 		},
+		showIcon: {
+			control: 'boolean',
+		},
 	},
 };
 
@@ -40,5 +43,13 @@ export const Neutral: Story = {
 	args: {
 		direction: 'neutral',
 		value: '0%',
+	},
+};
+
+export const WithoutIcon: Story = {
+	args: {
+		direction: 'up',
+		value: '+14%',
+		showIcon: false,
 	},
 };

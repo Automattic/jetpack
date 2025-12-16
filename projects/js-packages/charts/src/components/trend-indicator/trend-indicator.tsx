@@ -39,7 +39,13 @@ const Icon = ( { direction }: { direction: TrendDirection } ) => {
  * @param {TrendIndicatorProps} props - Component props
  * @return {JSX.Element} The rendered trend indicator
  */
-export function TrendIndicator( { direction, value, className, style }: TrendIndicatorProps ) {
+export function TrendIndicator( {
+	direction,
+	value,
+	className,
+	style,
+	showIcon = true,
+}: TrendIndicatorProps ) {
 	const ariaLabel = `${ DIRECTION_LABELS[ direction ] }: ${ value }`;
 
 	return (
@@ -52,7 +58,7 @@ export function TrendIndicator( { direction, value, className, style }: TrendInd
 			style={ style }
 			aria-label={ ariaLabel }
 		>
-			<Icon direction={ direction } />
+			{ showIcon && <Icon direction={ direction } /> }
 			<span className={ styles[ 'trend-indicator__value' ] }>{ value }</span>
 		</span>
 	);

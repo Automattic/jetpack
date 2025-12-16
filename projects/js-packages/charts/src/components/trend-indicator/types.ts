@@ -28,4 +28,10 @@ export type TrendIndicatorProps = {
 	 * Inline styles
 	 */
 	style?: CSSProperties;
+
+	/**
+	 * Whether to show the directional icon
+	 * @default true
+	 */
+	showIcon?: boolean;
 };
