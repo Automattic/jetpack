@@ -45,6 +45,15 @@ describe( 'TrendIndicator', () => {
 		expect( container.querySelector( 'svg' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'does not render icon when showIcon is false', () => {
+		const { container } = render(
+			<TrendIndicator direction="up" value="+10%" showIcon={ false } />
+		);
+
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		expect( container.querySelector( 'svg' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'applies custom className', () => {
 		const { container } = render(
 			<TrendIndicator direction="up" value="+10%" className="custom-class" />
