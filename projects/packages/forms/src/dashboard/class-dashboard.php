@@ -53,11 +53,18 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
-		// Load wp-build generated files for the new DataViews-based UI.
-		self::load_wp_build();
+		$is_wp_build_enabled = apply_filters( 'forms_alpha', false );
+
+		if ( $is_wp_build_enabled ) {
+			// Load wp-build generated files for the new DataViews-based UI.
+			self::load_wp_build();
+		}
 
 		add_action( 'admin_menu', array( $this, 'add_new_admin_submenu' ), self::MENU_PRIORITY );
-		add_action( 'admin_menu', array( $this, 'add_forms2_submenu' ), self::MENU_PRIORITY );
+
+		if ( $is_wp_build_enabled ) {
+			add_action( 'admin_menu', array( $this, 'add_forms2_submenu' ), self::MENU_PRIORITY );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
 
