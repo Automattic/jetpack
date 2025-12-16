@@ -568,6 +568,9 @@ importers:
       '@visx/tooltip':
         specifier: ^3.12.0
         version: 3.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@visx/vendor':
+        specifier: ^3.12.0
+        version: 3.12.0
       '@visx/xychart':
         specifier: ^3.12.0
         version: 3.12.0(@react-spring/web@9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

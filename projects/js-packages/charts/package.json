@@ -208,6 +208,7 @@
 		"@visx/shape": "^3.12.0",
 		"@visx/text": "^3.12.0",
 		"@visx/tooltip": "^3.12.0",
+		"@visx/vendor": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
 		"@wordpress/i18n": "^6.0.0",
 		"clsx": "2.1.1",
