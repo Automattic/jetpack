@@ -6,6 +6,7 @@ export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie
 export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
+export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
 export { BaseTooltip } from './components/tooltip';

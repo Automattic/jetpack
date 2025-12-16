@@ -130,20 +130,43 @@ class Form_Webhooks {
 	private function log_response_to_post_meta( $post_id, $response ) {
 		if ( is_wp_error( $response ) ) {
 			update_post_meta( $post_id, '_jetpack_forms_webhook_error', sanitize_text_field( $response->get_error_message() ) );
+			$this->track_webhook_request( 'error' );
 			return $response;
 		}
 
+		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
 		$response_data = json_decode( $response_body, true );
 
 		$response_data = array(
 			'timestamp' => gmdate( 'Y-m-d H:i:s', time() ),
-			'http_code' => wp_remote_retrieve_response_code( $response ),
+			'http_code' => $response_code,
 			'headers'   => wp_remote_retrieve_headers( $response )->getAll(),
 			'body'      => $response_data ?? $response_body, // If the response is not JSON, return the body as is.
 		);
 
 		update_post_meta( $post_id, '_jetpack_forms_webhook_response', sanitize_text_field( wp_json_encode( $response_data, JSON_UNESCAPED_SLASHES ) ) );
+
+		// Track success (2xx) or failure based on HTTP response code
+		$status = ( $response_code >= 200 && $response_code < 300 ) ? 'success' : 'failed';
+		$this->track_webhook_request( $status );
+	}
+
+	/**
+	 * Track webhook request stats.
+	 *
+	 * @param string $status The status of the webhook request ('success', 'failed', or 'error').
+	 */
+	private function track_webhook_request( $status ) {
+		/**
+		 * Fires when a webhook request is made, allowing stats tracking.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $stat_group The stat group name.
+		 * @param string $status The status of the request: 'success', 'failed', or 'error'.
+		 */
+		do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_webhook_request', $status );
 	}
 
 	/**

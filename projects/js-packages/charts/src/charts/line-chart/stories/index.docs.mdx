@@ -78,6 +78,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 - **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
 - **`renderGlyph`**: Custom glyph render function
 - **`glyphStyle`**: Styling for chart glyphs
+- **`gridVisibility`**: Control grid visibility (`'x'`, `'y'`, `'xy'`, or `'none'`)
 
 **Interactivity:**
 - **`withTooltips`**: Enable interactive tooltips (`true` by default)
@@ -375,6 +376,28 @@ Add visual markers at data points using the glyph system:
 			/>
 		)}
 	/>` }
+/>
+
+### Hiding Axes and Grid
+
+For minimal chart displays like sparklines or inline visualizations, you can hide the axes and grid using the `options` prop and `gridVisibility`:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+	data={data}
+	gridVisibility="none"
+	options={{
+		axis: {
+			x: { display: false },
+			y: { display: false }
+		}
+	}}
+	showLegend={false}
+	withTooltips={false}
+	withGradientFill={true}
+	curveType="monotone"
+/>` }
 />
 
 ## Interactive Features

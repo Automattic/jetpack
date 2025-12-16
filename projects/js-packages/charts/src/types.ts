@@ -215,6 +215,18 @@ export type ChartTheme = {
 	lineChart?: {
 		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
 	};
+	/** Sparkline specific settings */
+	sparkline?: {
+		/** Margin around the sparkline chart */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+		/** Stroke width for the sparkline line */
+		strokeWidth?: number;
+	};
 };
 
 /**
@@ -235,6 +247,9 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
 };
 
 declare type AxisOptions = {
@@ -245,6 +260,10 @@ declare type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
 	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
