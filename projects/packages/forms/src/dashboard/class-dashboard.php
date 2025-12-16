@@ -53,7 +53,7 @@ class Dashboard {
 	 * Initialize the dashboard.
 	 */
 	public function init() {
-		$is_wp_build_enabled = apply_filters( 'forms_alpha', false );
+		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
 
 		if ( $is_wp_build_enabled ) {
 			// Load wp-build generated files for the new DataViews-based UI.
