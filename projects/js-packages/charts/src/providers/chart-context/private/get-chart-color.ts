@@ -1,4 +1,5 @@
-import { getColorDistance, hslToHex } from '../../../utils';
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
+import { getColorDistance } from '../../../utils';
 
 export interface ColorCache {
 	colors: string[];
@@ -198,7 +199,8 @@ export const getChartColor = ( index: number, colorCache: ColorCache ): string =
 		}
 
 		if ( isSufficientlyDifferent ) {
-			return hslToHex( [ Math.round( hue ), saturation, lightness ] );
+			// d3-color uses 0-1 scale for saturation and lightness
+			return d3Hsl( Math.round( hue ), saturation / 100, lightness / 100 ).formatHex();
 		}
 	}
 
@@ -212,5 +214,10 @@ export const getChartColor = ( index: number, colorCache: ColorCache ): string =
 		BASE_SATURATION + ( index % SATURATION_VARIATION_STEPS ) * SATURATION_INCREMENT;
 	const fallbackLightness =
 		BASE_LIGHTNESS + ( index % LIGHTNESS_VARIATION_STEPS ) * LIGHTNESS_INCREMENT;
-	return hslToHex( [ Math.round( fallbackHue ), fallbackSaturation, fallbackLightness ] );
+	// d3-color uses 0-1 scale for saturation and lightness
+	return d3Hsl(
+		Math.round( fallbackHue ),
+		fallbackSaturation / 100,
+		fallbackLightness / 100
+	).formatHex();
 };

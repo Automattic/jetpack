@@ -1,6 +1,5 @@
 import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
-	hslToHex,
 	getColorDistance,
 	lightenHexColor,
 	isValidHexColor,
@@ -352,59 +351,6 @@ describe( 'lightenHexColor', () => {
 	} );
 } );
 
-describe( 'hslToHex', () => {
-	describe( 'Basic colors', () => {
-		it( 'converts red (0, 100, 50) to #ff0000', () => {
-			expect( hslToHex( [ 0, 100, 50 ] ) ).toBe( '#ff0000' );
-		} );
-
-		it( 'converts green (120, 100, 50) to #00ff00', () => {
-			expect( hslToHex( [ 120, 100, 50 ] ) ).toBe( '#00ff00' );
-		} );
-
-		it( 'converts blue (240, 100, 50) to #0000ff', () => {
-			expect( hslToHex( [ 240, 100, 50 ] ) ).toBe( '#0000ff' );
-		} );
-
-		it( 'converts black (0, 0, 0) to #000000', () => {
-			expect( hslToHex( [ 0, 0, 0 ] ) ).toBe( '#000000' );
-		} );
-
-		it( 'converts white (0, 0, 100) to #ffffff', () => {
-			expect( hslToHex( [ 0, 0, 100 ] ) ).toBe( '#ffffff' );
-		} );
-	} );
-
-	describe( 'Grayscale (zero saturation)', () => {
-		it( 'converts 50% gray to #808080', () => {
-			expect( hslToHex( [ 0, 0, 50 ] ) ).toBe( '#808080' );
-		} );
-
-		it( 'converts 25% gray to #404040', () => {
-			expect( hslToHex( [ 0, 0, 25 ] ) ).toBe( '#404040' );
-		} );
-
-		it( 'converts 75% gray to #bfbfbf', () => {
-			expect( hslToHex( [ 0, 0, 75 ] ) ).toBe( '#bfbfbf' );
-		} );
-	} );
-
-	describe( 'Various hues and saturations', () => {
-		it( 'converts orange (30, 100, 50) correctly', () => {
-			expect( hslToHex( [ 30, 100, 50 ] ) ).toBe( '#ff8000' );
-		} );
-
-		it( 'converts cyan (180, 100, 50) correctly', () => {
-			expect( hslToHex( [ 180, 100, 50 ] ) ).toBe( '#00ffff' );
-		} );
-
-		it( 'handles low saturation', () => {
-			const result = hslToHex( [ 0, 10, 50 ] );
-			expect( result ).toMatch( /^#[0-9a-f]{6}$/ );
-		} );
-	} );
-} );
-
 describe( 'parseHslString', () => {
 	describe( 'Valid HSL strings', () => {
 		it( 'parses hsl(120, 50%, 50%)', () => {
@@ -419,8 +365,10 @@ describe( 'parseHslString', () => {
 			expect( parseHslString( 'hsl(  90 ,  75%  ,  60%  )' ) ).toEqual( [ 90, 75, 60 ] );
 		} );
 
-		it( 'parses hsl without percent signs', () => {
-			expect( parseHslString( 'hsl(45, 50, 50)' ) ).toEqual( [ 45, 50, 50 ] );
+		it( 'requires percent signs for s and l (CSS spec)', () => {
+			// d3-color follows CSS spec which requires % for saturation and lightness
+			expect( parseHslString( 'hsl(45, 50, 50)' ) ).toBeNull();
+			expect( parseHslString( 'hsl(45, 50%, 50%)' ) ).toEqual( [ 45, 50, 50 ] );
 		} );
 
 		it( 'handles negative hue values', () => {

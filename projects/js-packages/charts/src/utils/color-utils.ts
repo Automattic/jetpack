@@ -1,3 +1,5 @@
+import { color as d3Color, hsl as d3Hsl } from '@visx/vendor/d3-color';
+
 /**
  * Check if a value is a valid 6-digit hex color
  * @param hex - The value to check
@@ -31,51 +33,6 @@ export const validateHexColor = ( hex: unknown ): void => {
 };
 
 /**
- * Convert HSL color to hex
- *
- * @param hsl - HSL values as [h, s, l] where h is 0-360, s and l are 0-100
- * @return hex color string (e.g., '#ff0000')
- */
-export const hslToHex = ( hsl: [ number, number, number ] ): string => {
-	const [ h, s, l ] = hsl;
-
-	// Normalize values
-	const hNorm = h / 360;
-	const sNorm = s / 100;
-	const lNorm = l / 100;
-
-	// No saturation = grayscale
-	if ( sNorm === 0 ) {
-		const gray = Math.round( lNorm * 255 );
-		const hex = gray.toString( 16 ).padStart( 2, '0' );
-		return `#${ hex }${ hex }${ hex }`;
-	}
-
-	const hueToRgb = ( p: number, q: number, t: number ): number => {
-		let tNorm = t;
-		if ( tNorm < 0 ) tNorm += 1;
-		if ( tNorm > 1 ) tNorm -= 1;
-		if ( tNorm < 1 / 6 ) return p + ( q - p ) * 6 * tNorm;
-		if ( tNorm < 1 / 2 ) return q;
-		if ( tNorm < 2 / 3 ) return p + ( q - p ) * ( 2 / 3 - tNorm ) * 6;
-		return p;
-	};
-
-	const q = lNorm < 0.5 ? lNorm * ( 1 + sNorm ) : lNorm + sNorm - lNorm * sNorm;
-	const p = 2 * lNorm - q;
-
-	const r = Math.round( hueToRgb( p, q, hNorm + 1 / 3 ) * 255 );
-	const g = Math.round( hueToRgb( p, q, hNorm ) * 255 );
-	const b = Math.round( hueToRgb( p, q, hNorm - 1 / 3 ) * 255 );
-
-	const rHex = r.toString( 16 ).padStart( 2, '0' );
-	const gHex = g.toString( 16 ).padStart( 2, '0' );
-	const bHex = b.toString( 16 ).padStart( 2, '0' );
-
-	return `#${ rHex }${ gHex }${ bHex }`;
-};
-
-/**
  * Calculate the perceptual distance between two HSL colors
  * @param hsl1 - first color in HSL format [h, s, l]
  * @param hsl2 - second color in HSL format [h, s, l]
@@ -106,7 +63,6 @@ export const getColorDistance = (
 
 /**
  * Parse an HSL string like 'hsl(120, 50%, 50%)' into an HSL tuple.
- * Uses string manipulation instead of complex regex to avoid ReDoS vulnerabilities.
  *
  * @param hslString - HSL color string
  * @return HSL tuple [h, s, l] or null if invalid
@@ -114,40 +70,27 @@ export const getColorDistance = (
 export const parseHslString = ( hslString: string ): [ number, number, number ] | null => {
 	const lower = hslString.toLowerCase().trim();
 
-	// Check prefix and suffix
-	if ( ! lower.startsWith( 'hsl(' ) || ! lower.endsWith( ')' ) ) {
+	// Check prefix - d3-color handles the parsing
+	if ( ! lower.startsWith( 'hsl(' ) ) {
 		return null;
 	}
 
-	// Extract the inner content: "120, 50%, 50%"
-	const inner = lower.slice( 4, -1 ).trim();
+	const parsed = d3Hsl( lower );
 
-	// Split by comma or whitespace (normalize separators)
-	// Replace commas with spaces, then split on whitespace
-	const parts = inner.replace( /,/g, ' ' ).split( /\s+/ ).filter( Boolean );
-
-	if ( parts.length !== 3 ) {
+	// d3Hsl returns NaN values for invalid colors
+	if ( isNaN( parsed.h ) && isNaN( parsed.s ) && isNaN( parsed.l ) ) {
 		return null;
 	}
 
-	// Parse values, stripping % signs
-	const h = parseFloat( parts[ 0 ] );
-	const s = parseFloat( parts[ 1 ].replace( '%', '' ) );
-	const l = parseFloat( parts[ 2 ].replace( '%', '' ) );
+	// Normalize hue to 0-360 range (d3 may return NaN for achromatic colors)
+	const h = isNaN( parsed.h ) ? 0 : ( ( parsed.h % 360 ) + 360 ) % 360;
 
-	if ( isNaN( h ) || isNaN( s ) || isNaN( l ) ) {
-		return null;
-	}
-
-	// Normalize hue to 0-360 range
-	const normalizedH = ( ( h % 360 ) + 360 ) % 360;
-
-	return [ normalizedH, s, l ];
+	// d3-color uses 0-1 scale, convert to 0-100
+	return [ h, parsed.s * 100, parsed.l * 100 ];
 };
 
 /**
  * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
- * Uses string manipulation instead of complex regex to avoid ReDoS vulnerabilities.
  *
  * @param rgbString - RGB color string
  * @return hex color string or null if invalid
@@ -155,37 +98,20 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 export const parseRgbString = ( rgbString: string ): string | null => {
 	const lower = rgbString.toLowerCase().trim();
 
-	// Check prefix and suffix
-	if ( ! lower.startsWith( 'rgb(' ) || ! lower.endsWith( ')' ) ) {
+	// Check prefix - only handle rgb(), not rgba()
+	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
 		return null;
 	}
 
-	// Extract the inner content: "255, 0, 0"
-	const inner = lower.slice( 4, -1 ).trim();
+	const parsed = d3Color( lower );
 
-	// Split by comma or whitespace (normalize separators)
-	// Replace commas with spaces, then split on whitespace
-	const parts = inner.replace( /,/g, ' ' ).split( /\s+/ ).filter( Boolean );
-
-	if ( parts.length !== 3 ) {
+	// d3Color returns null for invalid colors
+	if ( ! parsed ) {
 		return null;
 	}
 
-	const r = Math.round( parseFloat( parts[ 0 ] ) );
-	const g = Math.round( parseFloat( parts[ 1 ] ) );
-	const b = Math.round( parseFloat( parts[ 2 ] ) );
-
-	if ( isNaN( r ) || isNaN( g ) || isNaN( b ) ) {
-		return null;
-	}
-
-	// Clamp values to valid range
-	const clamp = ( value: number ) => Math.max( 0, Math.min( 255, value ) );
-	const rHex = clamp( r ).toString( 16 ).padStart( 2, '0' );
-	const gHex = clamp( g ).toString( 16 ).padStart( 2, '0' );
-	const bHex = clamp( b ).toString( 16 ).padStart( 2, '0' );
-
-	return `#${ rHex }${ gHex }${ bHex }`;
+	// d3-color clamps values automatically
+	return parsed.formatHex();
 };
 
 /**
@@ -213,7 +139,7 @@ export const normalizeColorToHex = (
 
 	const trimmed = color.trim().toLowerCase();
 
-	// Handle 3-digit hex colors
+	// Handle 3-digit hex colors - expand to 6-digit
 	if ( /^#[0-9a-f]{3}$/i.test( trimmed ) ) {
 		const r = trimmed[ 1 ];
 		const g = trimmed[ 2 ];
@@ -221,7 +147,7 @@ export const normalizeColorToHex = (
 		return `#${ r }${ r }${ g }${ g }${ b }${ b }`;
 	}
 
-	// Handle CSS variables
+	// Handle CSS variables - must be resolved before d3-color can parse
 	if ( trimmed.startsWith( '--' ) || trimmed.startsWith( 'var(' ) ) {
 		if ( resolveCss ) {
 			const resolved = resolveCss( color, element );
@@ -234,20 +160,15 @@ export const normalizeColorToHex = (
 		return color;
 	}
 
-	// Handle HSL strings
-	if ( trimmed.startsWith( 'hsl(' ) ) {
-		const hsl = parseHslString( trimmed );
-		if ( hsl ) {
-			return hslToHex( hsl );
+	// Handle HSL and RGB strings using d3-color
+	if ( trimmed.startsWith( 'hsl(' ) || trimmed.startsWith( 'rgb(' ) ) {
+		// Reject rgba() - we only handle rgb()
+		if ( trimmed.startsWith( 'rgba(' ) ) {
+			return color;
 		}
-		return color;
-	}
-
-	// Handle RGB strings
-	if ( trimmed.startsWith( 'rgb(' ) ) {
-		const hex = parseRgbString( trimmed );
-		if ( hex ) {
-			return hex;
+		const parsed = d3Color( trimmed );
+		if ( parsed ) {
+			return parsed.formatHex();
 		}
 		return color;
 	}
