@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moved Share post action to the Publicize package for better discoverability. The `jetpack_post_list_display_share_action` filter is now handled by Publicize.
