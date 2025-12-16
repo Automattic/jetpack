@@ -295,7 +295,10 @@ class Actions_Test extends BaseTestCase {
 				return array(
 					'response'    => array( 'code' => 200 ),
 					'status_code' => 200,
-					'body'        => wp_json_encode( array( 'processed_items' => array() ) ),
+					'body'        => wp_json_encode(
+						array( 'processed_items' => array() ),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+					),
 				);
 			},
 			10,
