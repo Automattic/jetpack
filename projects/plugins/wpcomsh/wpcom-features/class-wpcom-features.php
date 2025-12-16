@@ -938,6 +938,10 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::MAILPOET_BUSINESS                 => array(
+			array(
+				'required_sticker' => 'ating-business-q1',
+				self::WPCOM_BUSINESS_PLANS,
+			),
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
 			self::WOO_HOSTED_PLANS,
